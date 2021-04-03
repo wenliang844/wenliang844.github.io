@@ -6,7 +6,16 @@
     <description>Recent content on My New Hugo Site</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sat, 03 Apr 2021 16:07:44 +0800</lastBuildDate><atom:link href="https://wenliang844.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sat, 03 Apr 2021 17:06:52 +0800</lastBuildDate><atom:link href="https://wenliang844.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Xxx</title>
+      <link>https://wenliang844.github.io/post/xxx/</link>
+      <pubDate>Sat, 03 Apr 2021 17:06:52 +0800</pubDate>
+      
+      <guid>https://wenliang844.github.io/post/xxx/</guid>
+      <description></description>
+    </item>
+    
     <item>
       <title>First</title>
       <link>https://wenliang844.github.io/post/first/</link>
@@ -14,11 +23,17 @@
       
       <guid>https://wenliang844.github.io/post/first/</guid>
       <description>hello world
-This is my first blog
-学习优先级:
+This is my first blog, if you have idea,Feel free to contact me:2252694075@qq.com
+学习优先级:依据当务之急
 ​	1.算法
+​	1.视频
+​	2.算法导论
+​	3.blog
 ​	2.软考
+​	1.书籍
+​	2.视频系统分析师
 ​	3.英语
+​	1.真题+百词斩
 4.考研
 5.工作事宜</description>
     </item>
