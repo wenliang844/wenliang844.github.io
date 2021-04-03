@@ -1,0 +1,6 @@
+hugo new post/xxx.md
+hugo --theme=i18n2 --baseUrl="https://wenliang844.github.io/" -D
+cd public
+git add .
+git commit -m "message"
+git push
