@@ -13,20 +13,23 @@
       <pubDate>Sat, 03 Apr 2021 16:07:44 +0800</pubDate>
       
       <guid>https://wenliang844.github.io/post/first/</guid>
-      <description>hello world
+      <description>My List here:
 This is my first blog, if you have idea,Feel free to contact me:2252694075@qq.com
-学习优先级:依据当务之急
-​	1.算法
-​	1.视频
-​	2.算法导论
-​	3.blog
-​	2.软考
-​	1.书籍
-​	2.视频系统分析师
-​	3.英语
-​	1.真题+百词斩
-4.考研
-5.工作事宜</description>
+priority:
+​	1.算法√
+​	***1.视频
+​	***2.算法导论
+​	***3.blog
+​	2.软考√
+​	***1.书籍
+​	***2.视频系统分析师
+​	3.英语√
+​	***1.真题+百词斩
+​	4.工作事宜
+​	***简历
+​	***Spring开源框架全家桶 + Spring项目实现
+​	***视频
+​	***其他</description>
     </item>
     
   </channel>

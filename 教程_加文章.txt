@@ -1,5 +1,8 @@
 hugo new post/xxx.md
 hugo --theme=i18n2 --baseUrl="https://wenliang844.github.io/" -D
+在hugo有配置文件的根目录中:
+	hugo server
+	hugo
 cd public
 git add .
 git commit -m "message"
@@ -18,7 +21,7 @@ git push
 
 
 
-git remote add origin 'http://wenliang844.github.io/' 
+git remote add origin https://github.com/wenliang844/wenliang844.github.io.git
 
 git push -u origin master
 
