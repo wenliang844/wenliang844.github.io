@@ -4,3 +4,40 @@ cd public
 git add .
 git commit -m "message"
 git push
+
+
+
+1. git rm -r --cached .
+2. git config core.autocrlf false
+3. git add .
+4. git commit -m ''
+5.  
+6. git push
+
+
+
+
+
+git remote add origin 'http://wenliang844.github.io/' 
+
+git push -u origin master
+
+
+
+git remote -v   查看远程库文件
+
+
+
+解决办法如下：
+
+1、先输入$ git remote rm origin(删除关联的origin的远程库)
+
+2、再输入$ git remote add origin git@github.com:(github名)/(git项目名).git 就不会报错了！
+
+3、如果输入$ git remote rm origin 还是报错的话，error: Could not remove config section 'remote.origin'. 我们需要修改gitconfig文件的内容
+
+4、找到你的github的安装路径，我的是C:\Users\ASUS\AppData\Local\GitHub\PortableGit_ca477551eeb4aea0e4ae9fcd3358bd96720bb5c8\etc
+
+5、找到一个名为gitconfig的文件，打开它把里面的[remote "origin"]那一行删掉就好了！
+
+
