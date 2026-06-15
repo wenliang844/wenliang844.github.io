@@ -5,47 +5,29 @@
     <link>https://wenliang844.github.io/</link>
     <description>Recent content on wenliangBlog</description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>en-us</language>
-    <lastBuildDate>Sat, 03 Apr 2021 16:07:44 +0800</lastBuildDate><atom:link href="https://wenliang844.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <language>zh-CN</language>
+    <lastBuildDate>Sat, 03 Apr 2021 16:07:44 +0800</lastBuildDate>
+    <atom:link href="https://wenliang844.github.io/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>First111</title>
+      <title>First</title>
       <link>https://wenliang844.github.io/post/first/</link>
       <pubDate>Sat, 03 Apr 2021 16:07:44 +0800</pubDate>
-      
       <guid>https://wenliang844.github.io/post/first/</guid>
-      <description>My List here:
-This is my first blog, if you have idea,Feel free to contact me:2252694075@qq.com
-priority:
-​	1.算法√
-​	***1.视频
-​	***2.算法导论
-​	***3.blog
-​	2.软考√
-​	***1.书籍
-​	***2.视频系统分析师
-​	3.英语√
-​	***1.真题+百词斩
-​	4.工作事宜
-​	***简历
-​	***Spring开源框架全家桶 + Spring项目实现
-​	***视频
-​	***其他</description>
+      <description>算法、软考、英语和工作事项的学习优先级清单。</description>
     </item>
-    
-      <item>
+    <item>
       <title>Second</title>
       <link>https://wenliang844.github.io/post/second/</link>
       <pubDate>Sat, 03 Apr 2021 16:07:44 +0800</pubDate>
       <guid>https://wenliang844.github.io/post/second/</guid>
-      <description>这是 First 后面的第二个页面。</description>
+      <description>First 后面的第二个页面，可以继续补充新的文章内容。</description>
     </item>
     <item>
       <title>Third</title>
       <link>https://wenliang844.github.io/post/third/</link>
       <pubDate>Sat, 03 Apr 2021 16:07:44 +0800</pubDate>
       <guid>https://wenliang844.github.io/post/third/</guid>
-      <description>这是 First 后面的第三个页面。</description>
+      <description>First 后面的第三个页面，可以扩展后续技术总结。</description>
     </item>
   </channel>
 </rss>
-

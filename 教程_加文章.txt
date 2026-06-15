@@ -6,7 +6,7 @@ npx serve . -l 3000
 
 
 
-hugo new post/xxx.md
+hugo new post/new-post.md
 hugo --theme=i18n2 --baseUrl="https://wenliang844.github.io/" -D
 在hugo有配置文件的根目录中:
 	hugo server

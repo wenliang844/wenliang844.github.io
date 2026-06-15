@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="在线 Markdown 博客编辑器。">
+  <meta name="generator" content="Hugo 0.82.0">
+  <link rel="icon" href="/images/favicon.png" type="image/png">
+  <link rel="stylesheet" href="/css/fontawesome-all.min.css">
+  <link rel="stylesheet" href="/css/coder.css">
+  <script src="/js/coder.js" defer></script>
+  <script src="/js/editor.js" defer></script>
+  <title>Markdown Editor :: wenliangBlog</title>
+</head>
+<body class="colorscheme-light">
+  <div class="cursor-glow" aria-hidden="true"></div>
+  <canvas class="cursor-canvas" aria-hidden="true"></canvas>
+  <div class="site-shell">
+    <header class="navigation">
+      <section class="container">
+        <a class="navigation-title" href="/">wenliangBlog</a>
+        <input type="checkbox" id="menu-toggle" class="menu-toggle" aria-label="Toggle menu">
+        <label class="menu-button" for="menu-toggle"><i class="fas fa-bars"></i></label>
+        <nav class="navigation-list" aria-label="Main navigation">
+          <ul>
+          <li><a href="/about/">About</a></li>
+          <li><a href="/post/">Blog</a></li>
+          <li><a class="active" href="/editor/">Editor</a></li>
+          <li><a href="/contact/">Contact</a></li>
+            <li><button class="theme-toggle" type="button" aria-label="Toggle dark mode"><i class="fas fa-adjust"></i></button></li>
+          </ul>
+        </nav>
+      </section>
+    </header>
+    <main class="content">
+      <section class="editor-page container">
+        <header class="editor-header">
+          <div>
+            <h1>Markdown Editor</h1>
+            <p class="lead">在线编辑 Markdown，实时预览，自动保存到浏览器，并可导出为 Markdown 或 HTML。</p>
+          </div>
+          <div class="editor-actions">
+            <button class="editor-button" type="button" data-action="new"><i class="fas fa-file"></i> New</button>
+            <button class="editor-button" type="button" data-action="sample"><i class="fas fa-magic"></i> Sample</button>
+            <button class="editor-button" type="button" data-action="download-md"><i class="fas fa-download"></i> MD</button>
+            <button class="editor-button" type="button" data-action="download-html"><i class="fas fa-code"></i> HTML</button>
+          </div>
+        </header>
+        <div class="editor-meta">
+          <label>Title <input id="post-title" type="text" placeholder="文章标题"></label>
+          <label>Slug <input id="post-slug" type="text" placeholder="my-new-post"></label>
+          <label>Date <input id="post-date" type="date"></label>
+        </div>
+        <div class="editor-layout">
+          <section class="editor-pane">
+            <div class="pane-title">Markdown</div>
+            <textarea id="markdown-input" spellcheck="false"></textarea>
+          </section>
+          <section class="preview-pane">
+            <div class="pane-title">Preview</div>
+            <article id="markdown-preview" class="markdown-preview article-content"></article>
+          </section>
+        </div>
+        <p class="editor-note">静态 GitHub Pages 不能直接写入仓库；导出的文件可放入 Hugo 的 <code>content/post/</code> 或当前静态站点生成流程中。</p>
+      </section>
+    </main>
+    <footer class="footer">
+      <section class="container">
+        <p>© 2021 - 2026 阿亮 · Powered by Hugo · Theme inspired by Coder</p>
+      </section>
+    </footer>
+  </div>
+</body>
+</html>
+
