@@ -3,10 +3,10 @@
 import { SITE } from "../config.mjs";
 
 const NAV_ITEMS = [
-  { href: "/post/", label: "Blog", key: "blog", i18n: "nav.blog" },
-  { href: "/editor/", label: "Editor", key: "editor", i18n: "nav.editor" },
-  { href: "/overleaf/", label: "Overleaf", key: "overleaf", i18n: "nav.overleaf" },
-  { href: "/contact/", label: "Contact", key: "contact", i18n: "nav.contact" },
+  { href: "/post/", label: "博客", key: "blog", i18n: "nav.blog" },
+  { href: "/editor/", label: "编辑器", key: "editor", i18n: "nav.editor" },
+  { href: "/overleaf/", label: "简历模版", key: "overleaf", i18n: "nav.overleaf" },
+  { href: "/contact/", label: "联系", key: "contact", i18n: "nav.contact" },
 ];
 
 // 渲染主导航；active 标记当前栏目。

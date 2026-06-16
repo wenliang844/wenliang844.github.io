@@ -266,6 +266,7 @@
     // 文章列表/单篇 post
     "post.tree.aria": "Article list",
     "post.tree.lead": "Retrospectives, platform work and engineering notes from this year, organized into continuously updated tech logs.",
+    "post.list.title": "Posts",
     "post.stats.aria": "Content overview",
     "post.stats.posts": "retrospectives",
     "post.stats.systems": "system types",
@@ -287,6 +288,7 @@
     "post.qr.fail": "QR generation failed. Try Copy Link instead.",
 
     // 标签页 tags
+    "tags.title": "Tags",
     "tags.lead": "Browse posts by topic tag; click any tag to jump to the blog list with the filter applied.",
     "tags.cloud.aria": "Tag cloud",
 

@@ -22,7 +22,7 @@ export function renderTagsPage(tagStats) {
 
   const main = `    <main class="content">
       <section class="list-page container">
-        <h1>Tags</h1>
+        <h1 data-i18n="tags.title" data-i18n-en="Tags">标签</h1>
         <p class="lead" data-i18n="tags.lead">按技术标签浏览文章，点击任意标签跳转到博客列表并自动筛选。</p>
         <div class="tag-filter tag-cloud" aria-label="标签云" data-i18n-aria="tags.cloud.aria">
 ${chips}
@@ -32,8 +32,9 @@ ${chips}
 
   const description = "博客标签：按技术主题浏览CWL的项目复盘与工程实践文章。";
   return renderPage({
-    title: "Tags :: CWLBlog",
+    title: "标签 :: CWLBlog",
     description,
+    titleEn: "Tags :: CWLBlog",
     active: "blog",
     page: "tags",
     og: { type: "website", title: "Tags", description, path: "/tags/" },

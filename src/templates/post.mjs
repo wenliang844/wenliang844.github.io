@@ -70,10 +70,10 @@ function renderShare(post) {
 // prev = 更新的一篇（←），next = 更老的一篇（→）；缺失时回退到 /post/。
 function renderPager(prev, next) {
   const prevHref = prev ? `/post/${prev.slug}/` : "/post/";
-  const prevLabel = prev ? prev.shortTitle : "Posts";
+  const prevLabel = prev ? prev.shortTitle : "文章";
   const prevLabelEn = prev ? enValue(prev, "shortTitle") : "Posts";
   const nextHref = next ? `/post/${next.slug}/` : "/post/";
-  const nextLabel = next ? next.shortTitle : "Posts";
+  const nextLabel = next ? next.shortTitle : "文章";
   const nextLabelEn = next ? enValue(next, "shortTitle") : "Posts";
 
   return `      <nav class="post-pager" aria-label="Post pagination">
@@ -96,7 +96,7 @@ export function renderPostPage(post, nav) {
           <div class="article-meta">
             <time datetime="${isoDate(post.date)}">${longDate(post.date)}</time>
             <span>·</span>
-            <a href="/post/#${post.slug}">Posts</a>
+            <a href="/post/#${post.slug}" data-i18n="post.meta.posts" data-i18n-en="Posts">文章</a>
           </div>
           <p class="article-summary" ${i18nText(`post.${post.slug}.summary`, post.summary, enValue(post, "summary"))}>${post.summary}</p>
           <div class="post-tags">
@@ -181,7 +181,7 @@ export function renderPostList(posts, stats) {
         <aside class="post-tree" aria-label="文章目录" data-i18n-aria="post.tree.aria">
           <div class="post-tree-header">
             <span class="eyebrow">${stats.year} Timeline</span>
-            <h1>Posts</h1>
+            <h1 data-i18n="post.list.title" data-i18n-en="Posts">文章</h1>
             <p class="lead" data-i18n="post.tree.lead">把今年做过的系统重构、平台化建设和工程实践，整理成可持续更新的技术札记。</p>
           </div>
           <div class="timeline-stats" aria-label="内容概览" data-i18n-aria="post.stats.aria">
@@ -229,8 +229,9 @@ ${panels}
   const description =
     "2026 年技术项目复盘：视频智能侦测、规则引擎、财税 SaaS、低代码、审批流和工程化实践。";
   return renderPage({
-    title: "Posts :: CWLBlog",
+    title: "文章 :: CWLBlog",
     description,
+    titleEn: "Posts :: CWLBlog",
     active: "blog",
     page: "posts",
     scripts: ["/js/blog.js", "/js/vendor/qrcode.min.js", "/js/share.js", "/js/giscus.js"],
