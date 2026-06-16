@@ -75,3 +75,35 @@
 
 - 继续审计 RSS/XML 输出中的文本转义，确保标题和摘要在 XML 上下文中也安全。
 - 评估是否把 front matter 解析和校验拆成可单测模块，降低构建脚本回归风险。
+
+## 第 3 轮：RSS 与 sitemap XML 转义
+
+时间：2026-06-17
+
+### 已完成内容
+
+- 新增 `escapeXml`，专门处理 RSS 与 sitemap 的 XML 文本/属性上下文。
+- 更新 RSS 频道信息、文章标题、文章描述、链接和 guid 输出。
+- 更新 sitemap URL 输出，避免特殊字符破坏 XML。
+- 为 XML 转义补充回归测试。
+
+### 发现的问题
+
+- RSS 与 sitemap 使用 XML 语法，不能只依赖 HTML 转义思路。
+- 当前内容较干净，不一定触发现实错误，但标题或描述一旦包含 `&`、`<`、引号等字符，就可能生成不合法 XML。
+
+### 修复方案
+
+- 在 `src/lib/format.mjs` 中集中提供 `escapeXml`。
+- 构建 RSS/sitemap 时对所有动态 XML 值显式转义。
+
+### 性能与安全指标
+
+- `npm test`：22 个测试全部通过，耗时约 0.75 秒。
+- `npm run build`：通过，生成 6 篇文章。
+- `npm audit --audit-level=moderate --registry=https://registry.npmjs.org`：0 vulnerabilities。
+
+### 下一步计划
+
+- 继续评估前端脚本里的动态 `innerHTML` 使用点，把纯文本更新替换为 `textContent`，保留必要的图标 HTML。
+- 检查生成产物是否需要更严格的缓存、preload 和脚本加载策略。

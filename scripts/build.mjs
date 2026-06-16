@@ -18,7 +18,7 @@ import { renderPostPage, renderPostList } from "../src/templates/post.mjs";
 import { renderTagsPage } from "../src/templates/tags.mjs";
 import { renderCategoriesPage } from "../src/templates/categories.mjs";
 import { renderAiPage } from "../src/templates/ai.mjs";
-import { rfc822, sitemapDate } from "../src/lib/format.mjs";
+import { escapeXml, rfc822, sitemapDate } from "../src/lib/format.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, "..");
@@ -237,7 +237,7 @@ function buildSitemap(posts) {
   const rows = [];
 
   for (const page of STATIC_PAGES) {
-    const loc = `${SITE.baseURL}${page.path}`;
+    const loc = escapeXml(`${SITE.baseURL}${page.path}`);
     let row = `  <url><loc>${loc}</loc>`;
     if (page.withDate) row += `<lastmod>${siteLastmod}</lastmod>`;
     if (page.priority !== undefined) row += `<priority>${page.priority}</priority>`;
@@ -247,7 +247,7 @@ function buildSitemap(posts) {
     if (page.insertPostsAfter) {
       for (const post of posts) {
         rows.push(
-          `  <url><loc>${SITE.baseURL}/post/${post.slug}/</loc><lastmod>${sitemapDate(post.date)}</lastmod></url>`,
+          `  <url><loc>${escapeXml(`${SITE.baseURL}/post/${post.slug}/`)}</loc><lastmod>${sitemapDate(post.date)}</lastmod></url>`,
         );
       }
     }
@@ -284,11 +284,11 @@ function buildRssItems(posts) {
     .map((post) => {
       const url = `${SITE.baseURL}/post/${post.slug}/`;
       return `    <item>
-      <title>${post.shortTitle}</title>
-      <link>${url}</link>
+      <title>${escapeXml(post.shortTitle)}</title>
+      <link>${escapeXml(url)}</link>
       <pubDate>${rfc822(post.date)}</pubDate>
-      <guid>${url}</guid>
-      <description>${post.description}</description>
+      <guid>${escapeXml(url)}</guid>
+      <description>${escapeXml(post.description)}</description>
     </item>`;
     })
     .join("\n");
@@ -315,13 +315,13 @@ function buildRss(posts) {
   return `<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>${SITE.title}</title>
-    <link>${SITE.baseURL}/</link>
-    <description>Recent content on ${SITE.title}</description>
+    <title>${escapeXml(SITE.title)}</title>
+    <link>${escapeXml(`${SITE.baseURL}/`)}</link>
+    <description>${escapeXml(`Recent content on ${SITE.title}`)}</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-CN</language>
     <lastBuildDate>${lastBuild}</lastBuildDate>
-    <atom:link href="${SITE.baseURL}/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="${escapeXml(`${SITE.baseURL}/index.xml`)}" rel="self" type="application/rss+xml" />
 ${items}
   </channel>
 </rss>`;
@@ -335,13 +335,13 @@ function buildPostRss(posts) {
   return `<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Posts on ${SITE.title}</title>
-    <link>${SITE.baseURL}/post/</link>
-    <description>Recent content in Posts on ${SITE.title}</description>
+    <title>${escapeXml(`Posts on ${SITE.title}`)}</title>
+    <link>${escapeXml(`${SITE.baseURL}/post/`)}</link>
+    <description>${escapeXml(`Recent content in Posts on ${SITE.title}`)}</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-CN</language>
     <lastBuildDate>${lastBuild}</lastBuildDate>
-    <atom:link href="${SITE.baseURL}/post/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="${escapeXml(`${SITE.baseURL}/post/index.xml`)}" rel="self" type="application/rss+xml" />
 ${items}
   </channel>
 </rss>`;
@@ -355,13 +355,13 @@ function buildCategoriesRss(posts) {
   return `<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Time Archive on ${SITE.title}</title>
-    <link>${SITE.baseURL}/categories/</link>
-    <description>Project retrospectives by year on ${SITE.title}</description>
+    <title>${escapeXml(`Time Archive on ${SITE.title}`)}</title>
+    <link>${escapeXml(`${SITE.baseURL}/categories/`)}</link>
+    <description>${escapeXml(`Project retrospectives by year on ${SITE.title}`)}</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-CN</language>
     <lastBuildDate>${lastBuild}</lastBuildDate>
-    <atom:link href="${SITE.baseURL}/categories/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="${escapeXml(`${SITE.baseURL}/categories/index.xml`)}" rel="self" type="application/rss+xml" />
 ${items}
   </channel>
 </rss>`;

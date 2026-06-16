@@ -57,3 +57,13 @@ export function escapeAttr(value) {
 export function escapeHtml(value) {
   return escapeAttr(value).replace(/'/g, "&#39;");
 }
+
+// XML 文本/属性转义，用于 RSS 与 sitemap。
+export function escapeXml(value) {
+  return String(value == null ? "" : value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;");
+}

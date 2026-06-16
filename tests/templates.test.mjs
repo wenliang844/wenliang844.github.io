@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { escapeAttr, escapeHtml } from "../src/lib/format.mjs";
+import { escapeAttr, escapeHtml, escapeXml } from "../src/lib/format.mjs";
 import { renderPage } from "../src/templates/layout.mjs";
 import { renderPostPage } from "../src/templates/post.mjs";
 import { renderTagsPage } from "../src/templates/tags.mjs";
@@ -9,6 +9,7 @@ import { renderTagsPage } from "../src/templates/tags.mjs";
 test("escape helpers protect text and attribute contexts", () => {
   assert.equal(escapeHtml(`<script>"x"&'y'</script>`), "&lt;script&gt;&quot;x&quot;&amp;&#39;y&#39;&lt;/script&gt;");
   assert.equal(escapeAttr(`"x"&<y>`), "&quot;x&quot;&amp;&lt;y&gt;");
+  assert.equal(escapeXml(`<title>"x"&'y'</title>`), "&lt;title&gt;&quot;x&quot;&amp;&apos;y&apos;&lt;/title&gt;");
 });
 
 test("layout escapes title and metadata", () => {
