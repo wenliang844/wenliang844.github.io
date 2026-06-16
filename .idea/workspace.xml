@@ -4,37 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8bc1a61e-f54e-481a-b981-de744d44ec64" name="更改" comment="11">
-      <change beforePath="$PROJECT_DIR$/.claude/launch.json" beforeDir="false" afterPath="$PROJECT_DIR$/.claude/launch.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/404.html" beforeDir="false" afterPath="$PROJECT_DIR$/404.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/about/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/about/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/categories/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/categories/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/contact/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/contact/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/css/coder.css" beforeDir="false" afterPath="$PROJECT_DIR$/css/coder.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/editor/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/editor/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/js/coder.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/coder.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/js/editor.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/editor.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/js/feedback.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/feedback.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/js/giscus.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/giscus.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/js/share.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/share.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/post/activiti-workflow-engine/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/post/activiti-workflow-engine/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/post/engineering-practice/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/post/engineering-practice/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/post/finance-saas-backend/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/post/finance-saas-backend/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/post/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/post/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/post/lowcode-schema-codegen/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/post/lowcode-schema-codegen/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/post/rule-engine-alerts/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/post/rule-engine-alerts/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/post/video-intelligence-platform/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/post/video-intelligence-platform/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/readme.md" beforeDir="false" afterPath="$PROJECT_DIR$/readme.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/build.mjs" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/build.mjs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sitemap.xml" beforeDir="false" afterPath="$PROJECT_DIR$/sitemap.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/config.mjs" beforeDir="false" afterPath="$PROJECT_DIR$/src/config.mjs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/templates/layout.mjs" beforeDir="false" afterPath="$PROJECT_DIR$/src/templates/layout.mjs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/templates/post.mjs" beforeDir="false" afterPath="$PROJECT_DIR$/src/templates/post.mjs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/templates/tags.mjs" beforeDir="false" afterPath="$PROJECT_DIR$/src/templates/tags.mjs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tags/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/tags/index.html" afterDir="false" />
-    </list>
+    <list default="true" id="8bc1a61e-f54e-481a-b981-de744d44ec64" name="更改" comment="12" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -181,7 +151,23 @@
       <option name="project" value="LOCAL" />
       <updated>1781600083256</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="12">
+      <option name="closed" value="true" />
+      <created>1781606615948</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1781606615948</updated>
+    </task>
+    <task id="LOCAL-00011" summary="12">
+      <option name="closed" value="true" />
+      <created>1781606689294</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1781606689294</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -219,6 +205,7 @@
     <MESSAGE value="9" />
     <MESSAGE value="10" />
     <MESSAGE value="11" />
-    <option name="LAST_COMMIT_MESSAGE" value="11" />
+    <MESSAGE value="12" />
+    <option name="LAST_COMMIT_MESSAGE" value="12" />
   </component>
 </project>
