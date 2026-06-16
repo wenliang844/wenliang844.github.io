@@ -1,3 +1,4 @@
 # build tooling
 node_modules/
 dist/
+/.idea/
