@@ -12,6 +12,7 @@
   },
   "devDependencies": {
     "gray-matter": "^4.0.3",
+    "jsdom": "^27.0.1",
     "marked": "^18.0.5"
   }
 }
