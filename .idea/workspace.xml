@@ -4,15 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8bc1a61e-f54e-481a-b981-de744d44ec64" name="更改" comment="i18n">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/css/coder.css" beforeDir="false" afterPath="$PROJECT_DIR$/css/coder.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/js/i18n.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/i18n.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/js/overleaf.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/overleaf.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/overleaf/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/overleaf/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/search-index.json" beforeDir="false" afterPath="$PROJECT_DIR$/search-index.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/config.mjs" beforeDir="false" afterPath="$PROJECT_DIR$/src/config.mjs" afterDir="false" />
-    </list>
+    <list default="true" id="8bc1a61e-f54e-481a-b981-de744d44ec64" name="更改" comment="简历" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -191,7 +183,15 @@
       <option name="project" value="LOCAL" />
       <updated>1781613297650</updated>
     </task>
-    <option name="localTasksCounter" value="14" />
+    <task id="LOCAL-00014" summary="简历">
+      <option name="closed" value="true" />
+      <created>1781614748365</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1781614748365</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -231,6 +231,7 @@
     <MESSAGE value="11" />
     <MESSAGE value="12" />
     <MESSAGE value="i18n" />
-    <option name="LAST_COMMIT_MESSAGE" value="i18n" />
+    <MESSAGE value="简历" />
+    <option name="LAST_COMMIT_MESSAGE" value="简历" />
   </component>
 </project>
