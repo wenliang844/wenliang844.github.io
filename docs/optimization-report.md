@@ -138,3 +138,35 @@
 
 - 继续检查是否有其他公开 token、邮箱投递端点或第三方脚本配置暴露。
 - 继续优化反馈列表渲染，减少不必要的 HTML 字符串拼接。
+
+## 第 5 轮：反馈列表 DOM 渲染加固
+
+时间：2026-06-17
+
+### 已完成内容
+
+- 将 `js/feedback.js` 中留言列表渲染从 HTML 字符串拼接改为 DOM API。
+- 使用 `textContent` 写入昵称、时间、按钮文本和留言内容。
+- 增加测试，防止 `feedback.js` 再次对反馈列表使用 `innerHTML`。
+
+### 发现的问题
+
+- 反馈内容保存在 localStorage，用户或浏览器扩展可以手工篡改其中的数据。
+- 旧实现虽然有转义函数，但仍把本地数据拼成 HTML 字符串，后续维护时容易发生 XSS 回归。
+
+### 修复方案
+
+- 使用 `replaceChildren()` 清空列表。
+- 使用 `createElement()` 构建列表项、按钮、文本节点和正文。
+- 所有用户可控文本通过 `textContent` 写入。
+
+### 性能与安全指标
+
+- `npm test`：24 个测试全部通过，耗时约 0.76 秒。
+- `npm run build`：通过，生成 6 篇文章。
+- `npm audit --audit-level=moderate --registry=https://registry.npmjs.org`：0 vulnerabilities。
+
+### 下一步计划
+
+- 继续梳理搜索弹窗和分享弹窗的动态 HTML，区分静态模板与用户可控数据。
+- 增加更接近浏览器行为的 jsdom 测试，覆盖反馈表单提交和本地渲染流程。

@@ -110,6 +110,13 @@ describe("Feedback - Client-side Secret Guard", () => {
     assert.match(content, /var WEB3FORMS_ACCESS_KEY = "";/);
     assert.doesNotMatch(content, /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i);
   });
+
+  it("should render feedback entries without list innerHTML", async () => {
+    const content = await readFile("js/feedback.js", "utf8");
+    assert.doesNotMatch(content, /listEl\.innerHTML\s*=/);
+    assert.match(content, /listEl\.replaceChildren\(\)/);
+    assert.match(content, /textContent = entry\.message/);
+  });
 });
 
 describe("Utils - Date Validation Logic", () => {

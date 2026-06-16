@@ -49,30 +49,50 @@
       " " + pad(date.getHours()) + ":" + pad(date.getMinutes());
   }
 
-  function escapeHtml(text) {
-    return String(text)
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;");
-  }
-
   function render() {
     var entries = load();
+    listEl.replaceChildren();
+
     if (!entries.length) {
-      listEl.innerHTML = '<li class="feedback-empty">' + t("contact.fb.empty", "还没有留言，来做第一个吧。") + '</li>';
+      var empty = document.createElement("li");
+      empty.className = "feedback-empty";
+      empty.textContent = t("contact.fb.empty", "还没有留言，来做第一个吧。");
+      listEl.appendChild(empty);
       return;
     }
 
-    listEl.innerHTML = entries.map(function (entry) {
-      var who = entry.name ? escapeHtml(entry.name) : t("contact.fb.anon", "匿名");
+    entries.forEach(function (entry) {
+      var item = document.createElement("li");
+      item.className = "feedback-item";
+      item.dataset.id = entry.id;
+
+      var meta = document.createElement("div");
+      meta.className = "meta";
+
+      var name = document.createElement("strong");
+      name.textContent = entry.name || t("contact.fb.anon", "匿名");
+
+      var metaRight = document.createElement("span");
       var when = formatTime(entry.time);
-      return '<li class="feedback-item" data-id="' + entry.id + '">' +
-        '<div class="meta"><strong>' + who + "</strong>" +
-        '<span>' + escapeHtml(when) +
-        ' · <button type="button" data-remove="' + entry.id + '">' + t("contact.fb.delete", "删除") + '</button></span></div>' +
-        '<p class="body">' + escapeHtml(entry.message) + "</p>" +
-        "</li>";
-    }).join("");
+      metaRight.appendChild(document.createTextNode(when + " · "));
+
+      var remove = document.createElement("button");
+      remove.type = "button";
+      remove.dataset.remove = entry.id;
+      remove.textContent = t("contact.fb.delete", "删除");
+      metaRight.appendChild(remove);
+
+      meta.appendChild(name);
+      meta.appendChild(metaRight);
+
+      var body = document.createElement("p");
+      body.className = "body";
+      body.textContent = entry.message || "";
+
+      item.appendChild(meta);
+      item.appendChild(body);
+      listEl.appendChild(item);
+    });
   }
 
   function setStatus(text) {
