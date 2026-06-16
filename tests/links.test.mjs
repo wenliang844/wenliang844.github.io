@@ -32,16 +32,18 @@ async function exists(relPath) {
   }
 }
 
-test("committed HTML files do not contain broken root-relative links", async () => {
+async function htmlFiles() {
   const { stdout } = await execFileAsync("git", ["ls-files", "*.html"], {
     cwd: ROOT,
     windowsHide: true,
   });
+  return stdout.trim().split(/\r?\n/).filter(Boolean);
+}
 
-  const files = stdout.trim().split(/\r?\n/).filter(Boolean);
+test("committed HTML files do not contain broken root-relative links", async () => {
   const broken = [];
 
-  for (const file of files) {
+  for (const file of await htmlFiles()) {
     const html = await readFile(join(ROOT, file), "utf8");
     for (const match of html.matchAll(/\bhref="([^"]+)"/g)) {
       const target = targetForHref(match[1]);
@@ -52,4 +54,35 @@ test("committed HTML files do not contain broken root-relative links", async () 
   }
 
   assert.deepEqual(broken, []);
+});
+
+test("HTML files load common scripts in a consistent order", async () => {
+  const required = [
+    "/js/error-handler.js",
+    "/js/utils.js",
+    "/js/i18n.js",
+    "/js/coder.js",
+    "/js/search-loader.js",
+  ];
+  const failures = [];
+
+  for (const file of await htmlFiles()) {
+    const html = await readFile(join(ROOT, file), "utf8");
+    const positions = required.map((src) => html.indexOf(`src="${src}"`));
+    positions.forEach((pos, index) => {
+      if (pos === -1) {
+        failures.push(`${file}: missing ${required[index]}`);
+      }
+    });
+    for (let i = 1; i < positions.length; i += 1) {
+      if (positions[i - 1] !== -1 && positions[i] !== -1 && positions[i - 1] > positions[i]) {
+        failures.push(`${file}: ${required[i - 1]} must load before ${required[i]}`);
+      }
+    }
+    if (html.includes('class="navigation-list"') && !html.includes('class="nav-search-trigger"')) {
+      failures.push(`${file}: missing global search trigger`);
+    }
+  }
+
+  assert.deepEqual(failures, []);
 });
