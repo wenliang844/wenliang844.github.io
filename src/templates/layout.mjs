@@ -93,7 +93,7 @@ export function renderPage(opts) {
     og,
   } = opts;
 
-  const allScripts = ["/js/utils.js", "/js/i18n.js", "/js/coder.js", "/js/search-loader.js", ...scripts];
+  const allScripts = ["/js/error-handler.js", "/js/utils.js", "/js/i18n.js", "/js/coder.js", "/js/search-loader.js", ...scripts];
   const meta = renderMeta(og);
 
   const bodyI18n = [
