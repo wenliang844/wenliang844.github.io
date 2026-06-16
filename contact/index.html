@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="/css/fontawesome-all.min.css">
   <link rel="stylesheet" href="/css/coder.css">
   <script src="/js/coder.js" defer></script>
+  <script src="/js/feedback.js" defer></script>
   <title>Contact :: wenliangBlog</title>
 </head>
 <body class="colorscheme-light">
@@ -26,6 +27,7 @@
           <li><a href="/post/">Blog</a></li>
           <li><a href="/editor/">Editor</a></li>
           <li><a class="active" href="/contact/">Contact</a></li>
+            <li><a class="nav-feedback" href="/contact/#feedback-title"><i class="fas fa-comment-dots" aria-hidden="true"></i> 留言反馈</a></li>
             <li><button class="theme-toggle" type="button" aria-label="Toggle dark mode"><i class="fas fa-adjust"></i></button></li>
           </ul>
         </nav>
@@ -40,6 +42,27 @@
           <a class="card" href="https://github.com/wenliang844"><h2>GitHub</h2><p>github.com/wenliang844</p></a>
           <a class="card" href="https://blog.csdn.net/weixin_44028406"><h2>CSDN</h2><p>blog.csdn.net/weixin_44028406</p></a>
         </div>
+      </section>
+      <section class="feedback container" aria-labelledby="feedback-title">
+        <span class="eyebrow"><i class="fas fa-comment-dots" aria-hidden="true"></i> Feedback</span>
+        <h1 id="feedback-title">留言反馈</h1>
+        <p class="lead">有想法、建议，或发现了问题？欢迎留言。反馈会保存在你当前浏览器中，随时可在本页查看或删除。</p>
+        <form class="feedback-form" id="feedback-form" novalidate>
+          <div class="feedback-row">
+            <label>称呼（可选）
+              <input type="text" id="fb-name" name="name" placeholder="你的昵称" autocomplete="nickname">
+            </label>
+            <label>联系方式（可选）
+              <input type="text" id="fb-contact" name="contact" placeholder="邮箱 / 微信，便于回复">
+            </label>
+          </div>
+          <label>反馈内容 *
+            <textarea id="fb-message" name="message" placeholder="写下你的想法、建议或遇到的问题…" required></textarea>
+          </label>
+          <button class="btn-primary" type="submit"><i class="fas fa-paper-plane" aria-hidden="true"></i> 提交反馈</button>
+          <p class="feedback-status" id="feedback-status" role="status" aria-live="polite"></p>
+        </form>
+        <ul class="feedback-list" id="feedback-list"></ul>
       </section>
     </main>
     <footer class="footer">

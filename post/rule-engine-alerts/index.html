@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="/css/fontawesome-all.min.css">
   <link rel="stylesheet" href="/css/coder.css">
   <script src="/js/coder.js" defer></script>
+  <script src="/js/giscus.js" defer></script>
   <title>规则引擎与告警闭环 :: wenliangBlog</title>
 </head>
 <body class="colorscheme-light">
@@ -26,6 +27,7 @@
           <li><a class="active" href="/post/">Blog</a></li>
           <li><a href="/editor/">Editor</a></li>
           <li><a href="/contact/">Contact</a></li>
+            <li><a class="nav-feedback" href="/contact/#feedback-title"><i class="fas fa-comment-dots" aria-hidden="true"></i> 留言反馈</a></li>
             <li><button class="theme-toggle" type="button" aria-label="Toggle dark mode"><i class="fas fa-adjust"></i></button></li>
           </ul>
         </nav>
@@ -58,6 +60,10 @@
           <p>我更喜欢把规则引擎看成“业务解释层”，它不能只会跑表达式，还要能说明为什么命中、命中了什么、后续由哪个业务域接住。</p>
         </div>
       </article>
+      <section class="comments container" aria-label="评论">
+        <h2><i class="fas fa-comments" aria-hidden="true"></i> 评论</h2>
+        <div id="giscus-thread"></div>
+      </section>
       <nav class="post-pager" aria-label="Post pagination">
         <a class="pager-prev" href="/post/video-intelligence-platform/">← 视频智能侦测系统重构</a>
         <a class="pager-next" href="/post/finance-saas-backend/">财税 SaaS 后端实践 →</a>

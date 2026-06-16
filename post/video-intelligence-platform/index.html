@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="/css/fontawesome-all.min.css">
   <link rel="stylesheet" href="/css/coder.css">
   <script src="/js/coder.js" defer></script>
+  <script src="/js/giscus.js" defer></script>
   <title>视频智能侦测系统重构 :: wenliangBlog</title>
 </head>
 <body class="colorscheme-light">
@@ -26,6 +27,7 @@
           <li><a class="active" href="/post/">Blog</a></li>
           <li><a href="/editor/">Editor</a></li>
           <li><a href="/contact/">Contact</a></li>
+            <li><a class="nav-feedback" href="/contact/#feedback-title"><i class="fas fa-comment-dots" aria-hidden="true"></i> 留言反馈</a></li>
             <li><button class="theme-toggle" type="button" aria-label="Toggle dark mode"><i class="fas fa-adjust"></i></button></li>
           </ul>
         </nav>
@@ -58,6 +60,10 @@
           <p>这次经验给我的最大提醒是：复杂系统的重构不只追求“新架构漂亮”，更重要的是把链路上的关键名词固定下来。命名稳定了，接口、表结构和排查路径才会慢慢稳定。</p>
         </div>
       </article>
+      <section class="comments container" aria-label="评论">
+        <h2><i class="fas fa-comments" aria-hidden="true"></i> 评论</h2>
+        <div id="giscus-thread"></div>
+      </section>
       <nav class="post-pager" aria-label="Post pagination">
         <a class="pager-prev" href="/post/">← Posts</a>
         <a class="pager-next" href="/post/rule-engine-alerts/">规则引擎与告警闭环 →</a>

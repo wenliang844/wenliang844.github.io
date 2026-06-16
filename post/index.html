@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="/css/fontawesome-all.min.css">
   <link rel="stylesheet" href="/css/coder.css">
   <script src="/js/coder.js" defer></script>
+  <script src="/js/blog.js" defer></script>
   <title>Posts :: wenliangBlog</title>
 </head>
 <body class="colorscheme-light">
@@ -26,6 +27,7 @@
           <li><a class="active" href="/post/">Blog</a></li>
           <li><a href="/editor/">Editor</a></li>
           <li><a href="/contact/">Contact</a></li>
+            <li><a class="nav-feedback" href="/contact/#feedback-title"><i class="fas fa-comment-dots" aria-hidden="true"></i> 留言反馈</a></li>
             <li><button class="theme-toggle" type="button" aria-label="Toggle dark mode"><i class="fas fa-adjust"></i></button></li>
           </ul>
         </nav>
@@ -53,6 +55,11 @@
               <span>今年时间线</span>
             </div>
           </div>
+          <div class="post-search">
+            <i class="fas fa-search" aria-hidden="true"></i>
+            <input type="search" id="post-search-input" placeholder="搜索文章 / 标签…" aria-label="搜索文章">
+          </div>
+          <div class="tag-filter" id="tag-filter" aria-label="按标签筛选"></div>
           <nav class="post-tree-nav">
             <details class="tree-group" open>
               <summary>
