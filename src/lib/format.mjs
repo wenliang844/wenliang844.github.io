@@ -52,3 +52,8 @@ export function escapeAttr(value) {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
 }
+
+// HTML 文本节点转义，用于模板中直接输出用户/文章元数据。
+export function escapeHtml(value) {
+  return escapeAttr(value).replace(/'/g, "&#39;");
+}

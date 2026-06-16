@@ -2,7 +2,7 @@
 // 复用现有 .list-page / .tag-filter / .tag-chip 样式，零新增 CSS。
 // 每个标签链接到 /post/?tag=<标签>，由 blog.js 在列表页就地激活筛选。
 import { renderPage } from "./layout.mjs";
-import { escapeAttr } from "../lib/format.mjs";
+import { escapeAttr, escapeHtml } from "../lib/format.mjs";
 
 // 把标签文本编码进 URL（保留可读性，空格等交给 encodeURIComponent）。
 function tagHref(tag) {
@@ -16,7 +16,7 @@ export function renderTagsPage(tagStats) {
   const chips = tagStats
     .map(
       ({ tag, tagEn, count }) =>
-        `          <a class="tag-chip" href="${tagHref(tag)}"><span data-i18n="tag.${tag}" data-i18n-en="${escapeAttr(tagEn || tag)}">${tag}</span> <span class="tag-count">${count}</span></a>`,
+        `          <a class="tag-chip" href="${tagHref(tag)}"><span data-i18n="${escapeAttr(`tag.${tag}`)}" data-i18n-en="${escapeAttr(tagEn || tag)}">${escapeHtml(tag)}</span> <span class="tag-count">${count}</span></a>`,
     )
     .join("\n");
 

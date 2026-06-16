@@ -51,34 +51,36 @@
 
   Array.prototype.forEach.call(bars, updateXLink);
 
-  // execCommand 兜底：用于 clipboard API 不存在、或其写入被拒（如页面失焦）时。
-  function legacyCopy(text) {
-    return new Promise(function (resolve, reject) {
-      try {
-        var area = document.createElement("textarea");
-        area.value = text;
-        area.style.position = "fixed";
-        area.style.opacity = "0";
-        document.body.appendChild(area);
-        area.select();
-        var ok = document.execCommand("copy");
-        area.remove();
-        ok ? resolve() : reject(new Error("execCommand copy failed"));
-      } catch (error) {
-        reject(error);
-      }
-    });
-  }
+  // ---- 剪贴板：优先使用公共工具，否则降级实现 --------------
+  var copyText = window.CWLUtils && window.CWLUtils.copyText
+    ? window.CWLUtils.copyText
+    : function (text) {
+        // execCommand 兜底：用于 clipboard API 不存在、或其写入被拒（如页面失焦）时。
+        function legacyCopy(text) {
+          return new Promise(function (resolve, reject) {
+            try {
+              var area = document.createElement("textarea");
+              area.value = text;
+              area.style.position = "fixed";
+              area.style.opacity = "0";
+              document.body.appendChild(area);
+              area.select();
+              var ok = document.execCommand("copy");
+              area.remove();
+              ok ? resolve() : reject(new Error("execCommand copy failed"));
+            } catch (error) {
+              reject(error);
+            }
+          });
+        }
 
-  // ---- 剪贴板：优先 Clipboard API，被拒时自动降级到 execCommand --------------
-  function copyText(text) {
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      return navigator.clipboard.writeText(text).catch(function () {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          return navigator.clipboard.writeText(text).catch(function () {
+            return legacyCopy(text);
+          });
+        }
         return legacyCopy(text);
-      });
-    }
-    return legacyCopy(text);
-  }
+      };
 
   // 复制成功反馈用的对勾 SVG（与模板图标同为 24×24 / currentColor）。
   var CHECK_SVG = '<svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>';

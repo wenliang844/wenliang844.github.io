@@ -1,6 +1,6 @@
 // 文章相关模板：单篇页、博客列表页（树形单页显隐）。
 import { renderPage } from "./layout.mjs";
-import { isoDate, longDate, escapeAttr } from "../lib/format.mjs";
+import { isoDate, longDate, escapeAttr, escapeHtml } from "../lib/format.mjs";
 
 function enValue(post, key) {
   return post[`${key}En`] || post[key] || "";
@@ -17,7 +17,7 @@ function tagEn(post, tag, index) {
 // 列表页面板用：tags 渲染为 span，由 blog.js 接管就地筛选（span 之间不留空白）。
 function renderTags(post) {
   return post.tags.map((tag, index) => {
-    return `<span data-tag="${escapeAttr(tag)}" data-i18n="post.${post.slug}.tag.${index}" data-i18n-en="${escapeAttr(tagEn(post, tag, index))}">${tag}</span>`;
+    return `<span data-tag="${escapeAttr(tag)}" data-i18n="post.${post.slug}.tag.${index}" data-i18n-en="${escapeAttr(tagEn(post, tag, index))}">${escapeHtml(tag)}</span>`;
   }).join("");
 }
 
@@ -25,7 +25,7 @@ function renderTags(post) {
 //（单篇页不加载 blog.js，因此用真链接而非就地筛选）。
 function renderTagLinks(post) {
   return post.tags
-    .map((tag, index) => `<a href="/post/?tag=${encodeURIComponent(tag)}" data-tag="${escapeAttr(tag)}" data-i18n="post.${post.slug}.tag.${index}" data-i18n-en="${escapeAttr(tagEn(post, tag, index))}">${tag}</a>`)
+    .map((tag, index) => `<a href="/post/?tag=${encodeURIComponent(tag)}" data-tag="${escapeAttr(tag)}" data-i18n="post.${post.slug}.tag.${index}" data-i18n-en="${escapeAttr(tagEn(post, tag, index))}">${escapeHtml(tag)}</a>`)
     .join("");
 }
 
@@ -77,8 +77,8 @@ function renderPager(prev, next) {
   const nextLabelEn = next ? enValue(next, "shortTitle") : "Posts";
 
   return `      <nav class="post-pager" aria-label="Post pagination">
-        <a class="pager-prev" href="${prevHref}">← <span ${i18nText(prev ? `post.${prev.slug}.shortTitle` : "post.meta.posts", prevLabel, prevLabelEn)}>${prevLabel}</span></a>
-        <a class="pager-next" href="${nextHref}"><span ${i18nText(next ? `post.${next.slug}.shortTitle` : "post.meta.posts", nextLabel, nextLabelEn)}>${nextLabel}</span> →</a>
+        <a class="pager-prev" href="${prevHref}">← <span ${i18nText(prev ? `post.${prev.slug}.shortTitle` : "post.meta.posts", prevLabel, prevLabelEn)}>${escapeHtml(prevLabel)}</span></a>
+        <a class="pager-next" href="${nextHref}"><span ${i18nText(next ? `post.${next.slug}.shortTitle` : "post.meta.posts", nextLabel, nextLabelEn)}>${escapeHtml(nextLabel)}</span> →</a>
       </nav>`;
 }
 
@@ -91,14 +91,14 @@ export function renderPostPage(post, nav) {
   const main = `    <main class="content container">
       <article class="article">
         <header class="article-header">
-          <span class="eyebrow">${post.eyebrow}</span>
-          <h1 ${i18nText(`post.${post.slug}.title`, post.title, enValue(post, "title"))}>${post.title}</h1>
+          <span class="eyebrow">${escapeHtml(post.eyebrow)}</span>
+          <h1 ${i18nText(`post.${post.slug}.title`, post.title, enValue(post, "title"))}>${escapeHtml(post.title)}</h1>
           <div class="article-meta">
             <time datetime="${isoDate(post.date)}">${longDate(post.date)}</time>
             <span>·</span>
             <a href="/post/#${post.slug}" data-i18n="post.meta.posts" data-i18n-en="Posts">文章</a>
           </div>
-          <p class="article-summary" ${i18nText(`post.${post.slug}.summary`, post.summary, enValue(post, "summary"))}>${post.summary}</p>
+          <p class="article-summary" ${i18nText(`post.${post.slug}.summary`, post.summary, enValue(post, "summary"))}>${escapeHtml(post.summary)}</p>
           <div class="post-tags">
             ${renderTagLinks(post)}
           </div>
@@ -137,7 +137,7 @@ function renderTreeLink(post, isFirst) {
   const ariaCurrent = isFirst ? ' aria-current="page"' : "";
   return `                <li>
                   <a class="post-tree-link${activeCls}" href="#${post.slug}" data-post-target="post-${post.slug}"${ariaCurrent}>
-                    <span class="tree-title" ${i18nText(`post.${post.slug}.shortTitle`, post.shortTitle, enValue(post, "shortTitle"))}>${post.shortTitle}</span>
+                    <span class="tree-title" ${i18nText(`post.${post.slug}.shortTitle`, post.shortTitle, enValue(post, "shortTitle"))}>${escapeHtml(post.shortTitle)}</span>
                     <time datetime="${isoDate(post.date)}">${isoDate(post.date)}</time>
                   </a>
                 </li>`;
@@ -177,12 +177,12 @@ function renderArticlePanel(post, isFirst) {
   const activeCls = isFirst ? " active" : "";
   return `          <article class="article blog-article${activeCls}" id="post-${post.slug}" data-post-slug="${post.slug}">
             <header class="article-header">
-              <span class="eyebrow">${post.eyebrow}</span>
-              <h1 ${i18nText(`post.${post.slug}.title`, post.title, enValue(post, "title"))}>${post.title}</h1>
+              <span class="eyebrow">${escapeHtml(post.eyebrow)}</span>
+              <h1 ${i18nText(`post.${post.slug}.title`, post.title, enValue(post, "title"))}>${escapeHtml(post.title)}</h1>
               <div class="article-meta">
                 <time datetime="${isoDate(post.date)}">${longDate(post.date)}</time>
               </div>
-              <p class="article-summary" ${i18nText(`post.${post.slug}.summary`, post.summary, enValue(post, "summary"))}>${post.summary}</p>
+              <p class="article-summary" ${i18nText(`post.${post.slug}.summary`, post.summary, enValue(post, "summary"))}>${escapeHtml(post.summary)}</p>
               <div class="post-tags">
                 ${renderTags(post)}
               </div>

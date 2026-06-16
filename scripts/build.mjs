@@ -8,7 +8,7 @@
 //   node scripts/build.mjs --out dist # 输出到 dist/（用于对齐验证）
 
 import { readdir, readFile, mkdir, writeFile } from "node:fs/promises";
-import { dirname, join } from "node:path";
+import { dirname, isAbsolute, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import matter from "gray-matter";
 import { marked } from "marked";
@@ -26,14 +26,71 @@ const POSTS_DIR = join(ROOT, "src", "posts");
 
 // 输出目录：--out <dir>，默认项目根。
 const outIdx = process.argv.indexOf("--out");
-const OUT_DIR = outIdx !== -1 ? join(ROOT, process.argv[outIdx + 1]) : ROOT;
+const OUT_DIR = resolveOutDir(outIdx);
 
 marked.setOptions({ gfm: true, breaks: false });
 
 // YAML 会把不带引号的 date 解析为 Date 对象；统一规范成 "YYYY-MM-DD" 字符串。
 function normalizeDate(d) {
   if (d instanceof Date) return d.toISOString().slice(0, 10);
-  return String(d);
+  const dateStr = String(d);
+  // 验证日期格式 YYYY-MM-DD
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+    throw new Error(`Invalid date format: "${dateStr}". Expected YYYY-MM-DD.`);
+  }
+  return dateStr;
+}
+
+// 验证 slug 是否合法（仅包含字母、数字、连字符、下划线）
+function validateSlug(slug, filename) {
+  if (!slug || typeof slug !== "string") {
+    throw new Error(`Invalid slug in ${filename}: slug is required and must be a string.`);
+  }
+  if (!/^[a-z0-9_-]+$/i.test(slug)) {
+    throw new Error(`Invalid slug in ${filename}: "${slug}". Only letters, numbers, hyphens, and underscores are allowed.`);
+  }
+  if (slug.length > 100) {
+    throw new Error(`Invalid slug in ${filename}: "${slug}" is too long (max 100 characters).`);
+  }
+}
+
+// 验证文章必填字段
+function validatePost(data, filename) {
+  const required = ["title", "shortTitle", "date", "summary", "description"];
+  const missing = required.filter((field) => !data[field]);
+
+  if (missing.length > 0) {
+    throw new Error(`Missing required fields in ${filename}: ${missing.join(", ")}`);
+  }
+
+  // 验证字段长度
+  if (data.title.length > 200) {
+    throw new Error(`Title too long in ${filename} (max 200 characters).`);
+  }
+  if (data.shortTitle.length > 100) {
+    throw new Error(`Short title too long in ${filename} (max 100 characters).`);
+  }
+  if (data.description.length > 500) {
+    throw new Error(`Description too long in ${filename} (max 500 characters).`);
+  }
+}
+
+function resolveOutDir(index) {
+  if (index === -1) {
+    return ROOT;
+  }
+
+  const outArg = process.argv[index + 1];
+  if (!outArg || outArg.startsWith("--")) {
+    throw new Error("缺少 --out <dir> 参数。");
+  }
+
+  const outDir = resolve(ROOT, outArg);
+  const rel = relative(ROOT, outDir);
+  if (rel && (rel.startsWith("..") || isAbsolute(rel))) {
+    throw new Error(`--out 只能指向项目内目录：${outArg}`);
+  }
+  return outDir;
 }
 
 // marked 在内联 HTML 块后会多输出空行；压缩块间空行让产物更干净。
@@ -63,29 +120,57 @@ function renderContent(markdown) {
 async function loadPosts() {
   const files = (await readdir(POSTS_DIR)).filter((f) => f.endsWith(".md"));
   const posts = [];
+  const errors = [];
 
   for (const file of files) {
-    const raw = await readFile(join(POSTS_DIR, file), "utf8");
-    const { data, content } = matter(raw);
-    const slug = data.slug || file.replace(/\.md$/, "");
+    try {
+      const raw = await readFile(join(POSTS_DIR, file), "utf8");
 
-    posts.push({
-      title: data.title,
-      titleEn: data.titleEn,
-      shortTitle: data.shortTitle,
-      shortTitleEn: data.shortTitleEn,
-      slug,
-      date: normalizeDate(data.date),
-      eyebrow: data.eyebrow,
-      summary: data.summary,
-      summaryEn: data.summaryEn,
-      description: data.description,
-      descriptionEn: data.descriptionEn,
-      tags: data.tags || [],
-      tagsEn: data.tagsEn || data.tags || [],
-      contentHtml: renderContent(content),
-      contentHtmlEn: data.contentEn ? renderContent(data.contentEn) : "",
-    });
+      // 检查文件是否为空
+      if (!raw.trim()) {
+        errors.push(`${file}: File is empty`);
+        continue;
+      }
+
+      const { data, content } = matter(raw);
+
+      // 验证必填字段
+      validatePost(data, file);
+
+      const slug = data.slug || file.replace(/\.md$/, "");
+      validateSlug(slug, file);
+
+      // 检查内容是否为空
+      if (!content.trim()) {
+        console.warn(`Warning: ${file} has no content body`);
+      }
+
+      posts.push({
+        title: data.title,
+        titleEn: data.titleEn,
+        shortTitle: data.shortTitle,
+        shortTitleEn: data.shortTitleEn,
+        slug,
+        date: normalizeDate(data.date),
+        eyebrow: data.eyebrow || "项目",
+        summary: data.summary,
+        summaryEn: data.summaryEn,
+        description: data.description,
+        descriptionEn: data.descriptionEn,
+        tags: Array.isArray(data.tags) ? data.tags : [],
+        tagsEn: Array.isArray(data.tagsEn) ? data.tagsEn : (Array.isArray(data.tags) ? data.tags : []),
+        contentHtml: renderContent(content),
+        contentHtmlEn: data.contentEn ? renderContent(data.contentEn) : "",
+      });
+    } catch (error) {
+      errors.push(`${file}: ${error.message}`);
+    }
+  }
+
+  if (errors.length > 0) {
+    console.error("\n❌ Errors found in the following files:");
+    errors.forEach((err) => console.error(`  - ${err}`));
+    throw new Error(`Failed to load ${errors.length} post(s). Please fix the errors above.`);
   }
 
   posts.sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));

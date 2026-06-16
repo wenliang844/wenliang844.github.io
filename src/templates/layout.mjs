@@ -1,6 +1,7 @@
 // 公共页面骨架：head / 导航 / 页脚 / 粒子 canvas。
 // 所有页面 1:1 复用这里的常量，确保与手写 HTML 像素级一致。
 import { SITE } from "../config.mjs";
+import { escapeAttr, escapeHtml } from "../lib/format.mjs";
 
 const NAV_ITEMS = [
   { href: "/post/", label: "博客", key: "blog", i18n: "nav.blog" },
@@ -35,15 +36,6 @@ function renderScripts(scripts) {
     .join("\n");
 }
 
-// 属性值转义，避免标题/摘要里的引号或尖括号破坏 meta 标签。
-function attr(value) {
-  return String(value == null ? "" : value)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
-}
-
 /**
  * 渲染 Open Graph + Twitter 卡片 meta。
  * 有缩略图（SITE.ogImage 非 null）→ 大图卡 summary_large_image；
@@ -54,22 +46,22 @@ function renderMeta(og) {
   if (!og) return "";
   const url = `${SITE.baseURL}${og.path}`;
   const lines = [
-    `  <meta property="og:type" content="${attr(og.type || "website")}">`,
-    `  <meta property="og:site_name" content="${attr(SITE.title)}">`,
-    `  <meta property="og:title" content="${attr(og.title)}">`,
-    `  <meta property="og:description" content="${attr(og.description)}">`,
-    `  <meta property="og:url" content="${attr(url)}">`,
+    `  <meta property="og:type" content="${escapeAttr(og.type || "website")}">`,
+    `  <meta property="og:site_name" content="${escapeAttr(SITE.title)}">`,
+    `  <meta property="og:title" content="${escapeAttr(og.title)}">`,
+    `  <meta property="og:description" content="${escapeAttr(og.description)}">`,
+    `  <meta property="og:url" content="${escapeAttr(url)}">`,
   ];
   if (SITE.ogImage) {
     const img = `${SITE.baseURL}${SITE.ogImage}`;
-    lines.push(`  <meta property="og:image" content="${attr(img)}">`);
+    lines.push(`  <meta property="og:image" content="${escapeAttr(img)}">`);
     lines.push(`  <meta name="twitter:card" content="summary_large_image">`);
-    lines.push(`  <meta name="twitter:image" content="${attr(img)}">`);
+    lines.push(`  <meta name="twitter:image" content="${escapeAttr(img)}">`);
   } else {
     lines.push(`  <meta name="twitter:card" content="summary">`);
   }
-  lines.push(`  <meta name="twitter:title" content="${attr(og.title)}">`);
-  lines.push(`  <meta name="twitter:description" content="${attr(og.description)}">`);
+  lines.push(`  <meta name="twitter:title" content="${escapeAttr(og.title)}">`);
+  lines.push(`  <meta name="twitter:description" content="${escapeAttr(og.description)}">`);
   return lines.join("\n");
 }
 
@@ -101,13 +93,13 @@ export function renderPage(opts) {
     og,
   } = opts;
 
-  const allScripts = ["/js/i18n.js", "/js/coder.js", "/js/search-loader.js", ...scripts];
+  const allScripts = ["/js/utils.js", "/js/i18n.js", "/js/coder.js", "/js/search-loader.js", ...scripts];
   const meta = renderMeta(og);
 
   const bodyI18n = [
     page ? `data-i18n-page="${page}"` : "",
-    titleEn ? `data-i18n-title-en="${attr(titleEn)}"` : "",
-    descriptionEn ? `data-i18n-desc-en="${attr(descriptionEn)}"` : "",
+    titleEn ? `data-i18n-title-en="${escapeAttr(titleEn)}"` : "",
+    descriptionEn ? `data-i18n-desc-en="${escapeAttr(descriptionEn)}"` : "",
   ].filter(Boolean).join(" ");
 
   return `<!doctype html>
@@ -115,13 +107,13 @@ export function renderPage(opts) {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="${description}">
+  <meta name="description" content="${escapeAttr(description)}">
   <meta name="generator" content="Hugo 0.82.0">
   <link rel="icon" href="/images/favicon.png" type="image/png">
   <link rel="stylesheet" href="/css/fontawesome-all.min.css">
   <link rel="stylesheet" href="/css/coder.css">
 ${renderScripts(allScripts)}${meta ? "\n" + meta : ""}
-  <title>${title}</title>
+  <title>${escapeHtml(title)}</title>
 </head>
 <body class="${bodyClass}"${bodyI18n ? ` ${bodyI18n}` : ""}>
   <div class="cursor-glow" aria-hidden="true"></div>

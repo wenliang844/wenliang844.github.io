@@ -1,7 +1,7 @@
 // 时间归档页 → categories/index.html
 // 这里沿用现有文章目录样式，把“分类”落到年份维度。
 import { renderPage } from "./layout.mjs";
-import { escapeAttr, isoDate } from "../lib/format.mjs";
+import { escapeAttr, escapeHtml, isoDate } from "../lib/format.mjs";
 
 function enValue(post, key) {
   return post[`${key}En`] || post[key] || "";
@@ -24,7 +24,7 @@ function groupPostsByYear(posts) {
 function renderArchiveLink(post) {
   return `              <li>
                 <a class="post-tree-link" href="/post/#${post.slug}">
-                  <span class="tree-title" data-i18n="post.${post.slug}.shortTitle" data-i18n-en="${escapeAttr(enValue(post, "shortTitle"))}">${post.shortTitle}</span>
+                  <span class="tree-title" data-i18n="post.${post.slug}.shortTitle" data-i18n-en="${escapeAttr(enValue(post, "shortTitle"))}">${escapeHtml(post.shortTitle)}</span>
                   <time datetime="${isoDate(post.date)}">${isoDate(post.date)}</time>
                 </a>
               </li>`;

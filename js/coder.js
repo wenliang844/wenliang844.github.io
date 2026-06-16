@@ -4,12 +4,14 @@
   /* ----------------------------------------------------------------------
    * Color scheme toggle
    * -------------------------------------------------------------------- */
-  var key = "coder-color-scheme";
+  var STORAGE_KEY_THEME = "coder-color-scheme";
   var stored = null;
 
   try {
-    stored = window.localStorage.getItem(key);
-  } catch (error) {}
+    stored = window.CWLUtils ? window.CWLUtils.storageGet(STORAGE_KEY_THEME) : window.localStorage.getItem(STORAGE_KEY_THEME);
+  } catch (error) {
+    console.warn("Failed to read theme from localStorage:", error);
+  }
 
   // 默认暗色：页面 body 初始即 colorscheme-dark，仅当用户显式存过 "light" 才切回亮色。
   if (stored === "light") {
@@ -22,8 +24,14 @@
       var dark = body.classList.toggle("colorscheme-dark");
       body.classList.toggle("colorscheme-light", !dark);
       try {
-        window.localStorage.setItem(key, dark ? "dark" : "light");
-      } catch (error) {}
+        if (window.CWLUtils) {
+          window.CWLUtils.storageSet(STORAGE_KEY_THEME, dark ? "dark" : "light");
+        } else {
+          window.localStorage.setItem(STORAGE_KEY_THEME, dark ? "dark" : "light");
+        }
+      } catch (error) {
+        console.warn("Failed to save theme to localStorage:", error);
+      }
     });
   });
 
@@ -85,7 +93,7 @@
   window.coderShowPost = showPost;
 
   /* ----------------------------------------------------------------------
-   * Reading progress bar
+   * Reading progress bar & scroll handling with throttle
    * -------------------------------------------------------------------- */
   var progress = document.createElement("div");
   progress.className = "read-progress";
@@ -110,6 +118,15 @@
   function updateToTop() {
     toTop.setAttribute("aria-label", t("dyn.totop", "返回顶部"));
   }
+
+  // 常量定义，避免魔法数字
+  var SCROLL_CONSTANTS = {
+    BACK_TO_TOP_THRESHOLD: 420,    // 显示返回顶部按钮的滚动距离
+    READING_SPEED_CHINESE: 350,     // 中文阅读速度（字/分钟）
+    READING_SPEED_ENGLISH: 200,     // 英文阅读速度（词/分钟）
+    TOC_OFFSET: 125,                // TOC 激活偏移量
+    SCROLL_THROTTLE: 100            // 滚动事件节流时间（毫秒）
+  };
 
   function clamp(value, min, max) {
     return Math.min(max, Math.max(min, value));
@@ -136,37 +153,45 @@
     }
 
     progress.style.width = (ratio * 100).toFixed(2) + "%";
-    toTop.classList.toggle("visible", scrollTop > 420);
+    toTop.classList.toggle("visible", scrollTop > SCROLL_CONSTANTS.BACK_TO_TOP_THRESHOLD);
     updateActiveToc();
   }
 
-  window.addEventListener("scroll", onScroll, { passive: true });
-  window.addEventListener("resize", onScroll);
+  // 使用节流优化滚动性能
+  var throttledScroll = window.CWLUtils
+    ? window.CWLUtils.throttle(onScroll, SCROLL_CONSTANTS.SCROLL_THROTTLE)
+    : onScroll;
+
+  window.addEventListener("scroll", throttledScroll, { passive: true });
+  window.addEventListener("resize", throttledScroll);
   onScroll();
 
   /* ----------------------------------------------------------------------
    * Copy-to-clipboard buttons on code blocks
    * -------------------------------------------------------------------- */
-  function copyText(text) {
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      return navigator.clipboard.writeText(text);
-    }
-    return new Promise(function (resolve, reject) {
-      try {
-        var area = document.createElement("textarea");
-        area.value = text;
-        area.style.position = "fixed";
-        area.style.opacity = "0";
-        document.body.appendChild(area);
-        area.select();
-        document.execCommand("copy");
-        area.remove();
-        resolve();
-      } catch (error) {
-        reject(error);
-      }
-    });
-  }
+  // 使用公共工具的 copyText 或降级实现
+  var copyText = window.CWLUtils && window.CWLUtils.copyText
+    ? window.CWLUtils.copyText
+    : function (text) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          return navigator.clipboard.writeText(text);
+        }
+        return new Promise(function (resolve, reject) {
+          try {
+            var area = document.createElement("textarea");
+            area.value = text;
+            area.style.position = "fixed";
+            area.style.opacity = "0";
+            document.body.appendChild(area);
+            area.select();
+            document.execCommand("copy");
+            area.remove();
+            resolve();
+          } catch (error) {
+            reject(error);
+          }
+        });
+      };
 
   document.querySelectorAll(".article-content pre").forEach(function (pre) {
     if (pre.querySelector(".code-copy")) {
@@ -197,7 +222,10 @@
     var chinese = (text.match(/[一-龥]/g) || []).length;
     var rest = text.replace(/[一-龥]/g, " ").trim();
     var words = rest ? rest.split(/\s+/).length : 0;
-    return Math.max(1, Math.round(chinese / 350 + words / 200));
+    return Math.max(1, Math.round(
+      chinese / SCROLL_CONSTANTS.READING_SPEED_CHINESE +
+      words / SCROLL_CONSTANTS.READING_SPEED_ENGLISH
+    ));
   }
 
   function activeArticleContent(article) {
@@ -283,9 +311,8 @@
     if (!headings.length) return;
 
     var active = headings[0];
-    var offset = 125;
     headings.forEach(function (heading) {
-      if (heading.getBoundingClientRect().top <= offset) {
+      if (heading.getBoundingClientRect().top <= SCROLL_CONSTANTS.TOC_OFFSET) {
         active = heading;
       }
     });
