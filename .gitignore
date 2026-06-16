@@ -8,3 +8,37 @@ dist/
 /.idea/vcs.xml
 /.idea/wenliang844.github.io.iml
 /.idea/workspace.xml
+
+/target/
+.run/
+!.mvn/wrapper/maven-wrapper.jar
+
+### STS ###
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.DS_Store
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### NetBeans ###
+nbproject/private/
+build/
+nbbuild/
+dist/
+nbdist/
+.nb-gradle/
+logback/
+target/
+.idea/
+.DS_Store/
+home/ruoyi/logs/
+/.claude/
+/outputs/
+
