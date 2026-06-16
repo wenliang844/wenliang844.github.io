@@ -134,4 +134,11 @@
   document.querySelectorAll(".blog-article").forEach(function (panel) {
     observer.observe(panel, { attributes: true, attributeFilter: ["class"] });
   });
+
+  // 清理：页面卸载时断开 observer，防止内存泄漏
+  window.addEventListener("unload", function () {
+    if (observer) {
+      observer.disconnect();
+    }
+  });
 })();
