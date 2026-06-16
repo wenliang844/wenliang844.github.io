@@ -4,7 +4,34 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8bc1a61e-f54e-481a-b981-de744d44ec64" name="更改" comment="7" />
+    <list default="true" id="8bc1a61e-f54e-481a-b981-de744d44ec64" name="更改" comment="9">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/404.html" beforeDir="false" afterPath="$PROJECT_DIR$/404.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/about/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/about/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/categories/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/categories/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/categories/index.xml" beforeDir="false" afterPath="$PROJECT_DIR$/categories/index.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/contact/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/contact/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/css/coder.css" beforeDir="false" afterPath="$PROJECT_DIR$/css/coder.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/css/fontawesome-all.min.css" beforeDir="false" afterPath="$PROJECT_DIR$/css/fontawesome-all.min.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/editor/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/editor/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/index.xml" beforeDir="false" afterPath="$PROJECT_DIR$/index.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/js/blog.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/blog.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/js/coder.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/coder.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/js/giscus.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/giscus.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/post/activiti-workflow-engine/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/post/activiti-workflow-engine/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/post/engineering-practice/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/post/engineering-practice/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/post/finance-saas-backend/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/post/finance-saas-backend/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/post/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/post/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/post/index.xml" beforeDir="false" afterPath="$PROJECT_DIR$/post/index.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/post/lowcode-schema-codegen/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/post/lowcode-schema-codegen/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/post/rule-engine-alerts/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/post/rule-engine-alerts/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/post/video-intelligence-platform/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/post/video-intelligence-platform/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sitemap.xml" beforeDir="false" afterPath="$PROJECT_DIR$/sitemap.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tags/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/tags/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tags/index.xml" beforeDir="false" afterPath="$PROJECT_DIR$/tags/index.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/教程_加文章.txt" beforeDir="false" afterPath="$PROJECT_DIR$/readme.md" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -19,6 +46,18 @@
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPEN",
+    "assignee": "wenliang844"
+  }
+}]]></component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/wenliang844/wenliang844.github.io.git",
+    "accountId": "f73fdbad-2730-47dc-aafc-870e99d8f625"
+  }
+}]]></component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 6
 }</component>
@@ -35,6 +74,7 @@
     "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
     "git-widget-placeholder": "master",
@@ -106,7 +146,23 @@
       <option name="project" value="LOCAL" />
       <updated>1781577228348</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="9">
+      <option name="closed" value="true" />
+      <created>1781581947241</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1781581947241</updated>
+    </task>
+    <task id="LOCAL-00007" summary="9">
+      <option name="closed" value="true" />
+      <created>1781581978529</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1781581978529</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -141,6 +197,7 @@
     <MESSAGE value="3" />
     <MESSAGE value="6" />
     <MESSAGE value="7" />
-    <option name="LAST_COMMIT_MESSAGE" value="7" />
+    <MESSAGE value="9" />
+    <option name="LAST_COMMIT_MESSAGE" value="9" />
   </component>
 </project>

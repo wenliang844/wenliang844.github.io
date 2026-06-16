@@ -10,15 +10,24 @@
   <link rel="stylesheet" href="/css/coder.css">
   <script src="/js/coder.js" defer></script>
   <script src="/js/blog.js" defer></script>
-  <title>Posts :: wenliangBlog</title>
+  <script src="/js/giscus.js" defer></script>
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="CWLBlog">
+  <meta property="og:title" content="Posts">
+  <meta property="og:description" content="2026 年技术项目复盘：视频智能侦测、规则引擎、财税 SaaS、低代码、审批流和工程化实践。">
+  <meta property="og:url" content="https://wenliang844.github.io/post/">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Posts">
+  <meta name="twitter:description" content="2026 年技术项目复盘：视频智能侦测、规则引擎、财税 SaaS、低代码、审批流和工程化实践。">
+  <title>Posts :: CWLBlog</title>
 </head>
-<body class="colorscheme-light">
+<body class="colorscheme-dark">
   <div class="cursor-glow" aria-hidden="true"></div>
   <canvas class="cursor-canvas" aria-hidden="true"></canvas>
   <div class="site-shell">
     <header class="navigation">
       <section class="container">
-        <a class="navigation-title" href="/">wenliangBlog</a>
+        <a class="navigation-title" href="/">CWLBlog</a>
         <input type="checkbox" id="menu-toggle" class="menu-toggle" aria-label="Toggle menu">
         <label class="menu-button" for="menu-toggle"><i class="fas fa-bars"></i></label>
         <nav class="navigation-list" aria-label="Main navigation">
@@ -55,11 +64,6 @@
               <span>今年时间线</span>
             </div>
           </div>
-          <div class="post-search">
-            <i class="fas fa-search" aria-hidden="true"></i>
-            <input type="search" id="post-search-input" placeholder="搜索文章 / 标签…" aria-label="搜索文章">
-          </div>
-          <div class="tag-filter" id="tag-filter" aria-label="按标签筛选"></div>
           <nav class="post-tree-nav">
             <details class="tree-group" open>
               <summary>
@@ -106,6 +110,11 @@
               </ul>
             </details>
           </nav>
+          <div class="post-search">
+            <i class="fas fa-search" aria-hidden="true"></i>
+            <input type="search" id="post-search-input" placeholder="搜索文章 / 标签…" aria-label="搜索文章">
+          </div>
+          <div class="tag-filter" id="tag-filter" aria-label="按标签筛选"></div>
         </aside>
 
         <section class="post-detail" aria-live="polite">
@@ -115,8 +124,6 @@
               <h1>视频智能侦测系统：从采集到正式告警的链路重构</h1>
               <div class="article-meta">
                 <time datetime="2026-06-16">June 16, 2026</time>
-                <span>·</span>
-                <a href="/post/video-intelligence-platform/">打开单篇</a>
               </div>
               <p class="article-summary">围绕“采集 -> 算法 -> 规则 -> 正式告警”重整后端结构，让智能分析链路从能跑变成好维护、好扩展、好迁移。</p>
               <div class="post-tags">
@@ -124,15 +131,15 @@
               </div>
             </header>
             <div class="article-content">
-              <p>今年最值得复盘的一件事，是把视频智能侦测系统里分散的采集服务、算法服务、规则引擎和业务告警入口重新梳理成一个更清晰的后端工程。它不是单纯换目录，而是重新确认数据应该在哪里产生、在哪里沉淀、在哪里被解释。</p>
-              <h2>重构重点</h2>
-              <ul class="insight-list">
-                <li><strong>模块边界：</strong>用 Maven 父工程拆出公共能力、采集、算法、规则和业务域模块，减少跨模块直接依赖。</li>
-                <li><strong>数据分层：</strong>将待分析任务、标准分析结果、兼容事实和正式告警分层落库，避免历史表结构继续吞掉新业务语义。</li>
-                <li><strong>算法平台化：</strong>支持算法注册、规则绑定算法、执行器插件化和统一结果写入，为人脸、姿态、目标检测、OCR 等能力留扩展口。</li>
-                <li><strong>迁移策略：</strong>新链路基于标准分析结果运行，旧事实链路保留兜底，降低重构期间的业务风险。</li>
-              </ul>
-              <p>这次经验给我的最大提醒是：复杂系统的重构不只追求“新架构漂亮”，更重要的是把链路上的关键名词固定下来。命名稳定了，接口、表结构和排查路径才会慢慢稳定。</p>
+          <p>今年最值得复盘的一件事，是把视频智能侦测系统里分散的采集服务、算法服务、规则引擎和业务告警入口重新梳理成一个更清晰的后端工程。它不是单纯换目录，而是重新确认数据应该在哪里产生、在哪里沉淀、在哪里被解释。</p>
+          <h2>重构重点</h2>
+          <ul class="insight-list">
+          <li><strong>模块边界：</strong>用 Maven 父工程拆出公共能力、采集、算法、规则和业务域模块，减少跨模块直接依赖。</li>
+          <li><strong>数据分层：</strong>将待分析任务、标准分析结果、兼容事实和正式告警分层落库，避免历史表结构继续吞掉新业务语义。</li>
+          <li><strong>算法平台化：</strong>支持算法注册、规则绑定算法、执行器插件化和统一结果写入，为人脸、姿态、目标检测、OCR 等能力留扩展口。</li>
+          <li><strong>迁移策略：</strong>新链路基于标准分析结果运行，旧事实链路保留兜底，降低重构期间的业务风险。</li>
+          </ul>
+          <p>这次经验给我的最大提醒是：复杂系统的重构不只追求“新架构漂亮”，更重要的是把链路上的关键名词固定下来。命名稳定了，接口、表结构和排查路径才会慢慢稳定。</p>
             </div>
           </article>
 
@@ -142,8 +149,6 @@
               <h1>规则引擎与告警闭环：让分析结果变成可解释事件</h1>
               <div class="article-meta">
                 <time datetime="2026-05-28">May 28, 2026</time>
-                <span>·</span>
-                <a href="/post/rule-engine-alerts/">打开单篇</a>
               </div>
               <p class="article-summary">把算法输出组织成规则运行时上下文，支持窗口聚合、事实时间线和统一告警创建。</p>
               <div class="post-tags">
@@ -151,15 +156,15 @@
               </div>
             </header>
             <div class="article-content">
-              <p>算法结果本身只是“看见了什么”，规则引擎要回答的是“这件事是否值得通知业务”。今年在规则链路上做的核心工作，就是把标准分析结果转换为可判断、可追踪、可解释的运行时上下文。</p>
-              <h2>设计思路</h2>
-              <ul class="insight-list">
-                <li><strong>事实时间线：</strong>按点位、算法、目标和时间组织事实，让连续命中、间隔命中和缺失判断都能被表达。</li>
-                <li><strong>窗口聚合：</strong>在规则侧处理短时间内的多次识别结果，减少重复告警，也保留必要的证据链。</li>
-                <li><strong>入口收口：</strong>统一自研算法、海康事件和第三方接入的告警创建流程，让查询、统计、导出共享同一套业务口径。</li>
-                <li><strong>兼容兜底：</strong>旧事实链路在迁移期继续可用，保证新旧规则能逐步切换。</li>
-              </ul>
-              <p>我更喜欢把规则引擎看成“业务解释层”，它不能只会跑表达式，还要能说明为什么命中、命中了什么、后续由哪个业务域接住。</p>
+          <p>算法结果本身只是“看见了什么”，规则引擎要回答的是“这件事是否值得通知业务”。今年在规则链路上做的核心工作，就是把标准分析结果转换为可判断、可追踪、可解释的运行时上下文。</p>
+          <h2>设计思路</h2>
+          <ul class="insight-list">
+          <li><strong>事实时间线：</strong>按点位、算法、目标和时间组织事实，让连续命中、间隔命中和缺失判断都能被表达。</li>
+          <li><strong>窗口聚合：</strong>在规则侧处理短时间内的多次识别结果，减少重复告警，也保留必要的证据链。</li>
+          <li><strong>入口收口：</strong>统一自研算法、海康事件和第三方接入的告警创建流程，让查询、统计、导出共享同一套业务口径。</li>
+          <li><strong>兼容兜底：</strong>旧事实链路在迁移期继续可用，保证新旧规则能逐步切换。</li>
+          </ul>
+          <p>我更喜欢把规则引擎看成“业务解释层”，它不能只会跑表达式，还要能说明为什么命中、命中了什么、后续由哪个业务域接住。</p>
             </div>
           </article>
 
@@ -169,8 +174,6 @@
               <h1>财税 SaaS 后端实践：报表、搜索与通知中心</h1>
               <div class="article-meta">
                 <time datetime="2026-04-18">April 18, 2026</time>
-                <span>·</span>
-                <a href="/post/finance-saas-backend/">打开单篇</a>
               </div>
               <p class="article-summary">围绕财务报表计算、ElasticSearch Starter 和多渠道通知中心，沉淀可复用的业务基础能力。</p>
               <div class="post-tags">
@@ -178,15 +181,15 @@
               </div>
             </header>
             <div class="article-content">
-              <p>财税 SaaS 的复杂度不在“接口很多”，而在金额口径、租户隔离、异步处理和外部渠道都要求稳定。后端模块按 API、Implement、Runtime、Starter 分层后，很多通用能力可以从业务代码里抽出来。</p>
-              <h2>实践记录</h2>
-              <ul class="insight-list">
-                <li><strong>财务报表：</strong>基于凭证行、会计期间、科目借贷方向和辅助核算计算科目余额表、利润表、现金流量表，金额统一使用 <code>BigDecimal</code>。</li>
-                <li><strong>搜索 Starter：</strong>封装索引初始化、Mapping、批量写入、别名切换、scroll 分页、聚合查询和高亮回填，降低业务接入成本。</li>
-                <li><strong>通知中心：</strong>支持短信、邮件、站内信、App Push 和微信公众号模板消息，多租户上下文与发送结果统一落库。</li>
-                <li><strong>并发发送：</strong>公众号批量发送前预加载模板和 OpenId 绑定信息，再用 <code>CompletableFuture</code> 和线程池隔离耗时操作。</li>
-              </ul>
-              <p>这类系统很适合训练“业务口径优先”的后端思维：先把数据定义对，再谈性能优化和组件复用。</p>
+          <p>财税 SaaS 的复杂度不在“接口很多”，而在金额口径、租户隔离、异步处理和外部渠道都要求稳定。后端模块按 API、Implement、Runtime、Starter 分层后，很多通用能力可以从业务代码里抽出来。</p>
+          <h2>实践记录</h2>
+          <ul class="insight-list">
+          <li><strong>财务报表：</strong>基于凭证行、会计期间、科目借贷方向和辅助核算计算科目余额表、利润表、现金流量表，金额统一使用 <code>BigDecimal</code>。</li>
+          <li><strong>搜索 Starter：</strong>封装索引初始化、Mapping、批量写入、别名切换、scroll 分页、聚合查询和高亮回填，降低业务接入成本。</li>
+          <li><strong>通知中心：</strong>支持短信、邮件、站内信、App Push 和微信公众号模板消息，多租户上下文与发送结果统一落库。</li>
+          <li><strong>并发发送：</strong>公众号批量发送前预加载模板和 OpenId 绑定信息，再用 <code>CompletableFuture</code> 和线程池隔离耗时操作。</li>
+          </ul>
+          <p>这类系统很适合训练“业务口径优先”的后端思维：先把数据定义对，再谈性能优化和组件复用。</p>
             </div>
           </article>
 
@@ -196,8 +199,6 @@
               <h1>低代码平台：Schema、物料与出码链路</h1>
               <div class="article-meta">
                 <time datetime="2026-03-22">March 22, 2026</time>
-                <span>·</span>
-                <a href="/post/lowcode-schema-codegen/">打开单篇</a>
               </div>
               <p class="article-summary">从设计器、物料协议到 Web Worker 出码，把页面搭建能力组织成可扩展的平台工程。</p>
               <div class="post-tags">
@@ -205,15 +206,15 @@
               </div>
             </header>
             <div class="article-content">
-              <p>低代码平台最有意思的地方，是它同时包含编辑器交互、协议设计、工程生成和运行时渲染。做这类项目时，前后端边界会变得更开放，也更考验抽象是否克制。</p>
-              <h2>链路拆解</h2>
-              <ul class="insight-list">
-                <li><strong>设计器核心：</strong>围绕 designer、editor-core、editor-skeleton 实现画布搭建、节点选中、拖拽编排、面板扩展和插件注册。</li>
-                <li><strong>Schema 渲染：</strong>将页面描述转换成 React/Rax 可运行视图，覆盖属性、插槽、条件渲染、循环渲染和数据源绑定。</li>
-                <li><strong>物料体系：</strong>扫描组件源码并提取属性、类型定义和元信息，生成中后台搭建所需的 JSON Schema。</li>
-                <li><strong>出码能力：</strong>支持浏览器端 Web Worker 出码和服务端出码，满足预览、下载和工程化交付。</li>
-              </ul>
-              <p>低代码不是把代码藏起来，而是把重复的工程决策模板化。真正有价值的部分，是让业务页面更快落地，同时保留工程可维护性。</p>
+          <p>低代码平台最有意思的地方，是它同时包含编辑器交互、协议设计、工程生成和运行时渲染。做这类项目时，前后端边界会变得更开放，也更考验抽象是否克制。</p>
+          <h2>链路拆解</h2>
+          <ul class="insight-list">
+          <li><strong>设计器核心：</strong>围绕 designer、editor-core、editor-skeleton 实现画布搭建、节点选中、拖拽编排、面板扩展和插件注册。</li>
+          <li><strong>Schema 渲染：</strong>将页面描述转换成 React/Rax 可运行视图，覆盖属性、插槽、条件渲染、循环渲染和数据源绑定。</li>
+          <li><strong>物料体系：</strong>扫描组件源码并提取属性、类型定义和元信息，生成中后台搭建所需的 JSON Schema。</li>
+          <li><strong>出码能力：</strong>支持浏览器端 Web Worker 出码和服务端出码，满足预览、下载和工程化交付。</li>
+          </ul>
+          <p>低代码不是把代码藏起来，而是把重复的工程决策模板化。真正有价值的部分，是让业务页面更快落地，同时保留工程可维护性。</p>
             </div>
           </article>
 
@@ -223,8 +224,6 @@
               <h1>Activiti 审批流：轻量 BPM 引擎封装</h1>
               <div class="article-meta">
                 <time datetime="2026-02-24">February 24, 2026</time>
-                <span>·</span>
-                <a href="/post/activiti-workflow-engine/">打开单篇</a>
               </div>
               <p class="article-summary">基于 Activiti 7 封装流程部署、任务运行、变量管理和流程图能力，让业务审批更容易接入。</p>
               <div class="post-tags">
@@ -232,15 +231,15 @@
               </div>
             </header>
             <div class="article-content">
-              <p>审批流项目的目标不是做一个“大而全”的 BPM 平台，而是把业务系统最常用的流程能力整理成稳定、轻量、可接入的工程模块。</p>
-              <h2>封装范围</h2>
-              <ul class="insight-list">
-                <li><strong>多模块结构：</strong>拆分 API、核心引擎、公共组件和示例工程，避免业务直接感知引擎内部细节。</li>
-                <li><strong>Starter 接入：</strong>通过 Spring Boot Starter 支持 BPMN 资源自动加载、流程部署和运行时配置。</li>
-                <li><strong>任务能力：</strong>封装任务查询、办理、变量管理、流程实例状态和业务状态同步。</li>
-                <li><strong>质量保障：</strong>引入 Checkstyle、JaCoCo、Surefire/Failsafe，让工作流这种状态复杂的模块更可控。</li>
-              </ul>
-              <p>流程引擎最容易被低估的是“状态一致性”。监听器、业务表状态和流程实例状态必须有明确边界，否则排查会非常痛苦。</p>
+          <p>审批流项目的目标不是做一个“大而全”的 BPM 平台，而是把业务系统最常用的流程能力整理成稳定、轻量、可接入的工程模块。</p>
+          <h2>封装范围</h2>
+          <ul class="insight-list">
+          <li><strong>多模块结构：</strong>拆分 API、核心引擎、公共组件和示例工程，避免业务直接感知引擎内部细节。</li>
+          <li><strong>Starter 接入：</strong>通过 Spring Boot Starter 支持 BPMN 资源自动加载、流程部署和运行时配置。</li>
+          <li><strong>任务能力：</strong>封装任务查询、办理、变量管理、流程实例状态和业务状态同步。</li>
+          <li><strong>质量保障：</strong>引入 Checkstyle、JaCoCo、Surefire/Failsafe，让工作流这种状态复杂的模块更可控。</li>
+          </ul>
+          <p>流程引擎最容易被低估的是“状态一致性”。监听器、业务表状态和流程实例状态必须有明确边界，否则排查会非常痛苦。</p>
             </div>
           </article>
 
@@ -250,8 +249,6 @@
               <h1>工程化习惯：多模块、Starter 与质量工具链</h1>
               <div class="article-meta">
                 <time datetime="2026-01-12">January 12, 2026</time>
-                <span>·</span>
-                <a href="/post/engineering-practice/">打开单篇</a>
               </div>
               <p class="article-summary">把项目中反复出现的能力沉淀为公共组件、自动配置和检查流程，让交付质量更稳定。</p>
               <div class="post-tags">
@@ -259,23 +256,27 @@
               </div>
             </header>
             <div class="article-content">
-              <p>今年的几个项目都反复证明一件事：工程化不是额外负担，而是复杂业务能持续迭代的底座。多模块、Starter、自动化测试和代码检查，最终都是为了减少隐性沟通成本。</p>
-              <h2>沉淀方向</h2>
-              <ul class="insight-list">
-                <li><strong>公共组件：</strong>把搜索、通知、导入导出、流程接入等重复能力抽成可复用模块。</li>
-                <li><strong>自动配置：</strong>通过 <code>@ConfigurationProperties</code> 和 AutoConfiguration 暴露统一接入方式，业务侧只关心参数和接口。</li>
-                <li><strong>数据库适配：</strong>在 Kingbase/PostgreSQL 等环境里处理 SQL 函数、分页、字段类型和变更脚本兼容。</li>
-                <li><strong>质量工具：</strong>用 Checkstyle、JaCoCo 和 CI 流程把代码风格、测试覆盖和构建结果固定下来。</li>
-              </ul>
-              <p>我现在越来越倾向于把“可维护性”拆成具体动作：边界清楚、命名稳定、配置统一、失败可排查。它们比宏大的架构词更可靠。</p>
+          <p>今年的几个项目都反复证明一件事：工程化不是额外负担，而是复杂业务能持续迭代的底座。多模块、Starter、自动化测试和代码检查，最终都是为了减少隐性沟通成本。</p>
+          <h2>沉淀方向</h2>
+          <ul class="insight-list">
+          <li><strong>公共组件：</strong>把搜索、通知、导入导出、流程接入等重复能力抽成可复用模块。</li>
+          <li><strong>自动配置：</strong>通过 <code>@ConfigurationProperties</code> 和 AutoConfiguration 暴露统一接入方式，业务侧只关心参数和接口。</li>
+          <li><strong>数据库适配：</strong>在 Kingbase/PostgreSQL 等环境里处理 SQL 函数、分页、字段类型和变更脚本兼容。</li>
+          <li><strong>质量工具：</strong>用 Checkstyle、JaCoCo 和 CI 流程把代码风格、测试覆盖和构建结果固定下来。</li>
+          </ul>
+          <p>我现在越来越倾向于把“可维护性”拆成具体动作：边界清楚、命名稳定、配置统一、失败可排查。它们比宏大的架构词更可靠。</p>
             </div>
           </article>
+          <section class="comments" aria-label="评论">
+            <h2><i class="fas fa-comments" aria-hidden="true"></i> 评论</h2>
+            <div id="giscus-thread" data-giscus-mode="switch"></div>
+          </section>
         </section>
       </section>
     </main>
     <footer class="footer">
       <section class="container">
-        <p>© 2021 - 2026 阿亮 · Powered by Hugo · Theme inspired by Coder</p>
+        <p>© 2021 - 2026 CWL · Powered by Hugo · Theme inspired by Coder</p>
       </section>
     </footer>
   </div>

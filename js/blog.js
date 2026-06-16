@@ -85,6 +85,19 @@
   }
 
   // ---- Tag filter ---------------------------------------------------------
+  // 把当前激活标签同步进 URL（?tag=），便于复制分享与直达。
+  function syncUrl() {
+    try {
+      var url = new URL(window.location.href);
+      if (activeTag) {
+        url.searchParams.set("tag", activeTag);
+      } else {
+        url.searchParams.delete("tag");
+      }
+      window.history.replaceState(null, "", url);
+    } catch (error) {}
+  }
+
   function setActiveTag(tag) {
     activeTag = activeTag === tag ? null : tag;
     if (tagFilter) {
@@ -92,6 +105,7 @@
         chip.classList.toggle("active", chip.dataset.tag === activeTag);
       });
     }
+    syncUrl();
     apply();
   }
 
@@ -120,6 +134,14 @@
       });
       tagFilter.appendChild(chip);
     });
+
+    // 支持通过 /post/?tag=<标签> 直达并自动激活筛选。
+    try {
+      var initialTag = new URL(window.location.href).searchParams.get("tag");
+      if (initialTag && tags.indexOf(initialTag) !== -1) {
+        setActiveTag(initialTag);
+      }
+    } catch (error) {}
   }
 
   // ---- Clickable tags inside each article ---------------------------------

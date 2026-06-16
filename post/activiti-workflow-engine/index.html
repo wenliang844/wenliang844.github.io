@@ -10,15 +10,23 @@
   <link rel="stylesheet" href="/css/coder.css">
   <script src="/js/coder.js" defer></script>
   <script src="/js/giscus.js" defer></script>
-  <title>Activiti 审批流封装 :: wenliangBlog</title>
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="CWLBlog">
+  <meta property="og:title" content="Activiti 审批流封装">
+  <meta property="og:description" content="基于 Activiti 7 的轻量 BPM 工作流引擎封装与工程实践。">
+  <meta property="og:url" content="https://wenliang844.github.io/post/activiti-workflow-engine/">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Activiti 审批流封装">
+  <meta name="twitter:description" content="基于 Activiti 7 的轻量 BPM 工作流引擎封装与工程实践。">
+  <title>Activiti 审批流封装 :: CWLBlog</title>
 </head>
-<body class="colorscheme-light">
+<body class="colorscheme-dark">
   <div class="cursor-glow" aria-hidden="true"></div>
   <canvas class="cursor-canvas" aria-hidden="true"></canvas>
   <div class="site-shell">
     <header class="navigation">
       <section class="container">
-        <a class="navigation-title" href="/">wenliangBlog</a>
+        <a class="navigation-title" href="/">CWLBlog</a>
         <input type="checkbox" id="menu-toggle" class="menu-toggle" aria-label="Toggle menu">
         <label class="menu-button" for="menu-toggle"><i class="fas fa-bars"></i></label>
         <nav class="navigation-list" aria-label="Main navigation">
@@ -45,17 +53,17 @@
           </div>
           <p class="article-summary">基于 Activiti 7 封装流程部署、任务运行、变量管理和流程图能力，让业务审批更容易接入。</p>
           <div class="post-tags">
-            <span>Java 11</span><span>Spring Boot</span><span>Activiti 7</span><span>BPMN 2.0</span><span>MyBatis</span>
+            <a href="/post/?tag=Java%2011">Java 11</a><a href="/post/?tag=Spring%20Boot">Spring Boot</a><a href="/post/?tag=Activiti%207">Activiti 7</a><a href="/post/?tag=BPMN%202.0">BPMN 2.0</a><a href="/post/?tag=MyBatis">MyBatis</a>
           </div>
         </header>
         <div class="article-content">
           <p>审批流项目的目标不是做一个“大而全”的 BPM 平台，而是把业务系统最常用的流程能力整理成稳定、轻量、可接入的工程模块。</p>
           <h2>封装范围</h2>
           <ul class="insight-list">
-            <li><strong>多模块结构：</strong>拆分 API、核心引擎、公共组件和示例工程，避免业务直接感知引擎内部细节。</li>
-            <li><strong>Starter 接入：</strong>通过 Spring Boot Starter 支持 BPMN 资源自动加载、流程部署和运行时配置。</li>
-            <li><strong>任务能力：</strong>封装任务查询、办理、变量管理、流程实例状态和业务状态同步。</li>
-            <li><strong>质量保障：</strong>引入 Checkstyle、JaCoCo、Surefire/Failsafe，让工作流这种状态复杂的模块更可控。</li>
+          <li><strong>多模块结构：</strong>拆分 API、核心引擎、公共组件和示例工程，避免业务直接感知引擎内部细节。</li>
+          <li><strong>Starter 接入：</strong>通过 Spring Boot Starter 支持 BPMN 资源自动加载、流程部署和运行时配置。</li>
+          <li><strong>任务能力：</strong>封装任务查询、办理、变量管理、流程实例状态和业务状态同步。</li>
+          <li><strong>质量保障：</strong>引入 Checkstyle、JaCoCo、Surefire/Failsafe，让工作流这种状态复杂的模块更可控。</li>
           </ul>
           <p>流程引擎最容易被低估的是“状态一致性”。监听器、业务表状态和流程实例状态必须有明确边界，否则排查会非常痛苦。</p>
         </div>
@@ -71,7 +79,7 @@
     </main>
     <footer class="footer">
       <section class="container">
-        <p>© 2021 - 2026 阿亮 · Powered by Hugo · Theme inspired by Coder</p>
+        <p>© 2021 - 2026 CWL · Powered by Hugo · Theme inspired by Coder</p>
       </section>
     </footer>
   </div>

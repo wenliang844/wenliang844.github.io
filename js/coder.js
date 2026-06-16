@@ -11,9 +11,10 @@
     stored = window.localStorage.getItem(key);
   } catch (error) {}
 
-  if (stored === "dark") {
-    body.classList.remove("colorscheme-light");
-    body.classList.add("colorscheme-dark");
+  // 默认暗色：页面 body 初始即 colorscheme-dark，仅当用户显式存过 "light" 才切回亮色。
+  if (stored === "light") {
+    body.classList.remove("colorscheme-dark");
+    body.classList.add("colorscheme-light");
   }
 
   document.querySelectorAll(".theme-toggle").forEach(function (button) {
@@ -209,7 +210,7 @@
    * -------------------------------------------------------------------- */
   var prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   var revealTargets = Array.prototype.slice.call(
-    document.querySelectorAll(".card, .insight-list li, .timeline-stats div, .feedback-item, .post-item")
+    document.querySelectorAll(".card, .ai-card, .insight-list li, .timeline-stats div, .feedback-item, .post-item")
   );
 
   if (!prefersReduced && "IntersectionObserver" in window && revealTargets.length) {

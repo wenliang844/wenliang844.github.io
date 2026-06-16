@@ -1,5 +1,5 @@
 /* =========================================================================
-   wenliangBlog — tech / neon theme
+   CWLBlog — tech / neon theme
    Class contracts from the original Coder-inspired markup are preserved;
    new components (search, tag filter, feedback, comments, toc, progress,
    back-to-top, copy button, reveal) are added on top.
@@ -322,7 +322,7 @@ a:hover {
 /* Home hero ---------------------------------------------------------------- */
 .home {
   flex: 1;
-  min-height: calc(100vh - 11rem);
+  min-height: calc(100vh - 26rem);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -330,20 +330,20 @@ a:hover {
 }
 
 .home .about {
-  margin-top: -2rem;
+  margin-top: -1rem;
 }
 
 .avatar {
   position: relative;
-  width: 13rem;
-  height: 13rem;
-  margin: 0 auto 2.2rem;
+  width: 8.5rem;
+  height: 8.5rem;
+  margin: 0 auto 1.1rem;
   border-radius: 50%;
   display: grid;
   place-items: center;
   background: var(--avatar-bg);
   color: var(--text);
-  font-size: 3.4rem;
+  font-size: 2.4rem;
   font-weight: 800;
   letter-spacing: 0.04em;
   isolation: isolate;
@@ -374,7 +374,7 @@ a:hover {
 }
 
 .home h1 {
-  margin: 0 0 0.6rem;
+  margin: 0 0 0.4rem;
   font-size: clamp(2.6rem, 6vw, 4.4rem);
   font-weight: 800;
   line-height: 1.05;
@@ -393,11 +393,19 @@ a:hover {
 }
 
 .home h2 {
-  margin: 0 0 2rem;
+  margin: 0 0 1.1rem;
   color: var(--muted);
   font-size: clamp(1.05rem, 2.4vw, 1.7rem);
   font-weight: 400;
   line-height: 1.45;
+}
+
+.home h2 .hero-tagline {
+  display: block;
+  margin-top: 0.35rem;
+  font-size: 0.66em;
+  letter-spacing: 0.05em;
+  opacity: 0.8;
 }
 
 .social-links {
@@ -439,7 +447,7 @@ a:hover {
   justify-content: center;
   flex-wrap: wrap;
   gap: 0.9rem;
-  margin-top: 1.8rem;
+  margin-top: 1.1rem;
 }
 
 .btn-ghost {
@@ -463,6 +471,15 @@ a:hover {
 
 .section {
   padding: 4rem 0;
+}
+
+/* First section sits close to the shorter hero so the AI Stack enters the first screen */
+.home + .section {
+  padding-top: 1.6rem;
+}
+
+.home + .section .section-head {
+  margin-bottom: 1rem;
 }
 
 .section-head {
@@ -577,6 +594,119 @@ a:hover {
 
 .project-card .project-stack span {
   padding: 0.1rem 0.55rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 0.74rem;
+  color: var(--muted);
+}
+
+/* AI toolchain (home) ------------------------------------------------------ */
+.ai-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+  gap: 1.2rem;
+}
+
+.ai-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  padding: 1.6rem;
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  background: var(--surface);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  overflow: hidden;
+  transition: transform 240ms ease, box-shadow 240ms ease;
+}
+
+.ai-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: var(--grad);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 240ms ease;
+}
+
+.ai-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-glow);
+}
+
+.ai-card:hover::before {
+  opacity: 1;
+}
+
+.ai-card-head {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+.ai-logo {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 3.1rem;
+  height: 3.1rem;
+  border-radius: 0.85rem;
+  border: 1px solid var(--border);
+  background: var(--surface-solid);
+}
+
+.ai-logo svg {
+  width: 1.7rem;
+  height: 1.7rem;
+}
+
+.ai-logo-claude {
+  color: #d97757;
+  background: rgba(217, 119, 87, 0.12);
+  border-color: rgba(217, 119, 87, 0.35);
+}
+
+.ai-logo-codex {
+  color: var(--text);
+  background: var(--grad-soft);
+}
+
+.ai-card-title h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  line-height: 1.2;
+}
+
+.ai-card-title .ai-vendor {
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.ai-card > p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.96rem;
+}
+
+.ai-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: auto;
+  padding-top: 0.2rem;
+}
+
+.ai-tags span {
+  padding: 0.12rem 0.6rem;
   border: 1px solid var(--border);
   border-radius: 999px;
   font-size: 0.74rem;
@@ -969,6 +1099,24 @@ a.card:hover {
   background: var(--grad);
 }
 
+/* 标签云页（/tags/）：复用 tag-filter 布局，chip 稍大并显示文章数 */
+.tag-cloud {
+  margin-top: 1.8rem;
+}
+
+.tag-cloud .tag-chip {
+  min-height: 2.1rem;
+  padding: 0 0.9rem;
+  font-size: 0.85rem;
+  text-decoration: none;
+}
+
+.tag-count {
+  margin-left: 0.4rem;
+  opacity: 0.6;
+  font-size: 0.92em;
+}
+
 .tree-empty {
   margin-top: 1rem;
   padding: 0.9rem;
@@ -1218,7 +1366,8 @@ a.card:hover {
   margin-top: 1.4rem;
 }
 
-.post-tags span {
+.post-tags span,
+.post-tags a {
   display: inline-flex;
   align-items: center;
   min-height: 1.9rem;
@@ -1230,14 +1379,17 @@ a.card:hover {
   font-size: 0.84rem;
   font-weight: 600;
   line-height: 1.2;
+  text-decoration: none;
   transition: transform 160ms ease, box-shadow 160ms ease;
 }
 
-.post-tags span[role="button"] {
+.post-tags span[role="button"],
+.post-tags a {
   cursor: pointer;
 }
 
-.post-tags span[role="button"]:hover {
+.post-tags span[role="button"]:hover,
+.post-tags a:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 18px -8px color-mix(in srgb, var(--accent) 70%, transparent);
 }
@@ -1833,8 +1985,8 @@ a.card:hover {
   }
 
   .home {
-    min-height: calc(100vh - 9rem);
-    padding: 2rem 0;
+    min-height: calc(100vh - 20rem);
+    padding: 1.5rem 0 0;
   }
 
   .avatar {
