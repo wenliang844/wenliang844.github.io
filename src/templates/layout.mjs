@@ -110,6 +110,8 @@ export function renderPage(opts) {
   <meta name="description" content="${escapeAttr(description)}">
   <meta name="generator" content="Hugo 0.82.0">
   <link rel="icon" href="/images/favicon.png" type="image/png">
+  <link rel="preconnect" href="https://giscus.app">
+  <link rel="dns-prefetch" href="https://giscus.app">
   <link rel="stylesheet" href="/css/fontawesome-all.min.css">
   <link rel="stylesheet" href="/css/coder.css">
 ${renderScripts(allScripts)}${meta ? "\n" + meta : ""}
