@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="低代码平台中设计器、Schema、物料协议与 Web Worker 出码链路的实践复盘。">
+  <meta name="description" content="企业级中后台低代码引擎在 Schema、物料、渲染和出码链路上的实践复盘。">
   <meta name="generator" content="Hugo 0.82.0">
   <link rel="icon" href="/images/favicon.png" type="image/png">
   <link rel="stylesheet" href="/css/fontawesome-all.min.css">
@@ -17,15 +17,15 @@
   <script src="/js/giscus.js" defer></script>
   <meta property="og:type" content="article">
   <meta property="og:site_name" content="CWLBlog">
-  <meta property="og:title" content="低代码 Schema 与出码">
-  <meta property="og:description" content="低代码平台中设计器、Schema、物料协议与 Web Worker 出码链路的实践复盘。">
+  <meta property="og:title" content="LowCode Engine 实践">
+  <meta property="og:description" content="企业级中后台低代码引擎在 Schema、物料、渲染和出码链路上的实践复盘。">
   <meta property="og:url" content="https://wenliang844.github.io/post/lowcode-schema-codegen/">
   <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="低代码 Schema 与出码">
-  <meta name="twitter:description" content="低代码平台中设计器、Schema、物料协议与 Web Worker 出码链路的实践复盘。">
-  <title>低代码 Schema 与出码 :: CWLBlog</title>
+  <meta name="twitter:title" content="LowCode Engine 实践">
+  <meta name="twitter:description" content="企业级中后台低代码引擎在 Schema、物料、渲染和出码链路上的实践复盘。">
+  <title>LowCode Engine 实践 :: CWLBlog</title>
 </head>
-<body class="colorscheme-dark" data-i18n-page="posts" data-i18n-title-en="Low-Code Schema and Codegen :: CWLBlog" data-i18n-desc-en="A retrospective on designer, Schema, material protocol and Web Worker code generation in a low-code platform.">
+<body class="colorscheme-dark" data-i18n-page="posts" data-i18n-title-en="LowCode Engine Practice :: CWLBlog" data-i18n-desc-en="A retrospective on enterprise low-code engine practice across schema, materials, rendering and code generation.">
   <div class="cursor-glow" aria-hidden="true"></div>
   <canvas class="cursor-canvas" aria-hidden="true"></canvas>
   <div class="site-shell">
@@ -52,40 +52,99 @@
       <article class="article">
         <header class="article-header">
           <span class="eyebrow">LowCode</span>
-          <h1 data-i18n="post.lowcode-schema-codegen.title" data-i18n-en="Low-Code Platform: Schema, Materials and Code Generation Pipeline">低代码平台：Schema、物料与出码链路</h1>
+          <h1 data-i18n="post.lowcode-schema-codegen.title" data-i18n-en="Terminus LowCode Engine: Enterprise Middle- and Back-Office Low-Code Practice">Terminus LowCode Engine 项目介绍：面向企业级中后台的低代码引擎实践</h1>
           <div class="article-meta">
-            <time datetime="2026-03-22">March 22, 2026</time>
+            <time datetime="2022-02-01">February 1, 2022</time>
             <span>·</span>
             <a href="/post/#lowcode-schema-codegen" data-i18n="post.meta.posts" data-i18n-en="Posts">文章</a>
           </div>
-          <p class="article-summary" data-i18n="post.lowcode-schema-codegen.summary" data-i18n-en="From designer and material protocol to Web Worker code generation, organizing page-building capability as an extensible platform project.">从设计器、物料协议到 Web Worker 出码，把页面搭建能力组织成可扩展的平台工程。</p>
+          <p class="article-summary" data-i18n="post.lowcode-schema-codegen.summary" data-i18n-en="A low-code platform foundation covering protocol design, designer core, materials, renderers and code generation tooling.">从低代码协议、设计器内核、物料体系、渲染器到出码工具链，梳理企业级中后台低代码平台底座。</p>
           <div class="post-tags">
-            <a href="/post/?tag=TypeScript" data-tag="TypeScript" data-i18n="post.lowcode-schema-codegen.tag.0" data-i18n-en="TypeScript">TypeScript</a><a href="/post/?tag=React" data-tag="React" data-i18n="post.lowcode-schema-codegen.tag.1" data-i18n-en="React">React</a><a href="/post/?tag=MobX" data-tag="MobX" data-i18n="post.lowcode-schema-codegen.tag.2" data-i18n-en="MobX">MobX</a><a href="/post/?tag=LowCode%20Schema" data-tag="LowCode Schema" data-i18n="post.lowcode-schema-codegen.tag.3" data-i18n-en="Low-Code Schema">LowCode Schema</a><a href="/post/?tag=Web%20Worker" data-tag="Web Worker" data-i18n="post.lowcode-schema-codegen.tag.4" data-i18n-en="Web Worker">Web Worker</a>
+            <a href="/post/?tag=TypeScript" data-tag="TypeScript" data-i18n="post.lowcode-schema-codegen.tag.0" data-i18n-en="TypeScript">TypeScript</a><a href="/post/?tag=React" data-tag="React" data-i18n="post.lowcode-schema-codegen.tag.1" data-i18n-en="React">React</a><a href="/post/?tag=%E4%BD%8E%E4%BB%A3%E7%A0%81" data-tag="低代码" data-i18n="post.lowcode-schema-codegen.tag.2" data-i18n-en="Low-Code">低代码</a><a href="/post/?tag=Schema" data-tag="Schema" data-i18n="post.lowcode-schema-codegen.tag.3" data-i18n-en="Schema">Schema</a><a href="/post/?tag=%E4%BB%A3%E7%A0%81%E7%94%9F%E6%88%90" data-tag="代码生成" data-i18n="post.lowcode-schema-codegen.tag.4" data-i18n-en="Code Generation">代码生成</a>
           </div>
         </header>
         <div class="article-content" data-i18n-lang="zh">
-          <p>低代码平台最有意思的地方，是它同时包含编辑器交互、协议设计、工程生成和运行时渲染。做这类项目时，前后端边界会变得更开放，也更考验抽象是否克制。</p>
-          <h2>链路拆解</h2>
-          <ul class="insight-list">
-          <li><strong>设计器核心：</strong>围绕 designer、editor-core、editor-skeleton 实现画布搭建、节点选中、拖拽编排、面板扩展和插件注册。</li>
-          <li><strong>Schema 渲染：</strong>将页面描述转换成 React/Rax 可运行视图，覆盖属性、插槽、条件渲染、循环渲染和数据源绑定。</li>
-          <li><strong>物料体系：</strong>扫描组件源码并提取属性、类型定义和元信息，生成中后台搭建所需的 JSON Schema。</li>
-          <li><strong>出码能力：</strong>支持浏览器端 Web Worker 出码和服务端出码，满足预览、下载和工程化交付。</li>
+          <h2>一、项目概述</h2>
+          <p>Terminus LowCode Engine 是一套面向企业级中后台场景的低代码技术体系，核心目标是通过统一的低代码协议、可扩展的设计器内核、物料体系、渲染器和出码工具链，帮助业务团队快速搭建页面、沉淀组件资产，并将低代码编排结果转化为可运行、可维护、可交付的前端工程。</p>
+          <p>从项目结构看，该工程采用 TypeScript + Lerna + Yarn Workspaces 的 monorepo 架构，将低代码平台拆分为引擎内核、设计器、编辑器骨架、插件体系、React/Rax 渲染器、模拟器、物料解析、代码生成等多个独立模块。整体设计遵循“最小内核、最强生态”的思路：内核只负责稳定的协议、生命周期、事件和扩展点，业务差异通过插件、物料和出码方案完成定制。</p>
+          <p>项目定位不是单一页面搭建工具，而是一个低代码平台底座。它可以支撑多个垂直业务低代码平台复用同一套引擎能力，降低重复造轮子的成本，并通过协议化资产流通提升企业内部研发效率。</p>
+          <h2>二、业务价值</h2>
+          <h3>1. 降低中后台页面交付成本</h3>
+          <p>传统中后台页面开发通常包含需求分析、组件选型、页面布局、表单/表格配置、接口联调、路由配置、工程初始化、构建发布等重复流程。Terminus LowCode Engine 将这些流程抽象为低代码 schema，通过拖拽编排和协议化描述完成页面构建，再由运行时渲染器或出码工具链生成可运行工程。</p>
+          <p>业务收益主要体现在：</p>
+          <ul>
+          <li>页面搭建从“手写代码驱动”转向“schema 配置驱动”，减少重复 UI 和胶水代码。</li>
+          <li>常见表单、表格、详情、列表、运营配置页等中后台场景可以复用统一物料。</li>
+          <li>页面、组件、区块、工具函数、国际化配置等都可以进入平台资产体系，实现跨团队复用。</li>
+          <li>出码能力可以把低代码 schema 转换为 Ice.js、Rax 等工程代码，兼顾低代码效率和源码可维护性。</li>
           </ul>
-          <p>低代码不是把代码藏起来，而是把重复的工程决策模板化。真正有价值的部分，是让业务页面更快落地，同时保留工程可维护性。</p>
-        </div>
-        <div class="article-content" data-i18n-lang="en" hidden>
-          <p>The most interesting part of a low-code platform is that it includes editor interaction, protocol design, project generation and runtime rendering at the same time. On this kind of project, frontend/backend boundaries become more open, and restrained abstraction matters even more.</p>
-          <h2>Pipeline Breakdown</h2>
-          <ul class="insight-list">
-          <li><strong>Designer core:</strong> Build canvas composition, node selection, drag-and-drop orchestration, panel extension and plugin registration around designer, editor-core and editor-skeleton.</li>
-          <li><strong>Schema rendering:</strong> Convert page descriptions into runnable React/Rax views, covering props, slots, conditional rendering, loop rendering and data-source binding.</li>
-          <li><strong>Material system:</strong> Scan component source code, extract props, type definitions and metadata, and generate the JSON Schema needed for middle/back-office page building.</li>
-          <li><strong>Code generation:</strong> Support browser-side Web Worker code generation and server-side code generation for preview, download and engineering delivery.</li>
+          <h3>2. 提升业务平台复用能力</h3>
+          <p>该项目明确强调可扩展能力，并已支撑近 100 个垂直低代码平台。对于企业内部而言，这意味着不同业务线不需要分别建设设计器、画布、插件、渲染器、物料解析和出码能力，而是可以基于统一引擎做差异化扩展。</p>
+          <p>这种模式带来的业务价值是：</p>
+          <ul>
+          <li>新业务平台启动时只需要关注业务模型、物料和插件，而不是重新建设低代码底座。</li>
+          <li>组件协议和 schema 协议统一后，物料可以在多个平台间流通。</li>
+          <li>平台能力沉淀为统一 npm 包和插件，减少跨团队协作成本。</li>
+          <li>设计器能力、渲染能力和出码能力可以分别演进，降低系统升级风险。</li>
           </ul>
-          <p>Low-code is not about hiding code. It is about turning repeated engineering decisions into templates. The valuable part is helping business pages land faster while preserving maintainability.</p>
+          <h3>3. 打通“搭建、预览、出码、发布”全链路</h3>
+          <p>项目不仅提供设计器运行时能力，还提供物料解析模块和代码生成模块，形成完整闭环：</p>
+          <ol>
+          <li>物料解析：扫描组件源码，生成符合中后台组件描述协议的 JSON Schema。</li>
+          <li>页面搭建：在设计器中基于物料完成页面编排。</li>
+          <li>实时预览：通过 React/Rax renderer 和 simulator renderer 进行实时渲染。</li>
+          <li>代码生成：将 schema 转换为可运行项目，支持服务端出码和浏览器 Web Worker 出码。</li>
+          <li>工程发布：生成目录或 zip 包后接入 Git、CI/CD、发布系统。</li>
+          </ol>
+          <p>这使低代码平台从“在线搭建工具”升级为“企业级研发生产链路”。</p>
+          <h2>三、技术架构</h2>
+          <h3>1. Monorepo 模块化架构</h3>
+          <p>项目采用 Lerna + Yarn Workspaces 管理多包，仓库中包含 15 个核心 packages 和 2 个 modules：</p>
+          <ul>
+          <li><code>@alilc/lowcode-engine</code>：低代码引擎入口，负责初始化 editor、designer、skeleton、plugins、project、material 等核心对象。</li>
+          <li><code>@alilc/lowcode-designer</code>：设计器核心，包含文档模型、节点模型、拖拽、选中、插件管理等能力。</li>
+          <li><code>@alilc/lowcode-editor-core</code>：编辑器底层能力，提供全局上下文、配置、事件、响应式能力。</li>
+          <li><code>@alilc/lowcode-editor-skeleton</code>：编辑器布局骨架，承载顶部、左侧、右侧、主区域等工作台结构。</li>
+          <li><code>@alilc/lowcode-shell</code>：对外 API 封装，隔离内部实现细节。</li>
+          <li><code>@alilc/lowcode-react-renderer</code> / <code>@alilc/lowcode-rax-renderer</code>：运行时渲染器。</li>
+          <li><code>@alilc/lowcode-react-simulator-renderer</code> / <code>@alilc/lowcode-rax-simulator-renderer</code>：设计态模拟器渲染器。</li>
+          <li><code>@alilc/lowcode-plugin-designer</code> / <code>@alilc/lowcode-plugin-outline-pane</code>：内置设计器插件与大纲树插件。</li>
+          <li><code>@alilc/lowcode-types</code>：统一类型定义。</li>
+          <li><code>@alilc/lowcode-utils</code>：通用工具能力。</li>
+          <li><code>modules/material-parser</code>：物料入料模块。</li>
+          <li><code>modules/code-generator</code>：低代码 schema 出码模块。</li>
+          </ul>
+          <p>这种拆分方式类似前端领域的“微内核 + 微服务化能力包”：每个模块围绕明确职责独立发布、独立测试、独立演进，平台层通过协议和插件机制进行集成。</p>
+          <h3>2. 低代码协议驱动</h3>
+          <p>项目实现了中后台前端基础搭建协议和中后台前端物料协议。协议是整个系统的核心边界：</p>
+          <ul>
+          <li>设计器不直接依赖具体业务组件，而是依赖组件描述协议。</li>
+          <li>渲染器不关心页面来自哪个业务平台，而是消费统一 schema。</li>
+          <li>出码模块不关心搭建过程，只读取 schema 并转换为工程代码。</li>
+          <li>物料解析模块把源码组件转换为协议数据，使组件资产可被设计器识别。</li>
+          </ul>
+          <p>协议化带来的核心收益是解耦。业务组件、设计器、渲染器、出码服务可以各自演进，只要保持 schema 协议兼容，就能在同一生态中流通。</p>
+          <h3>3. 插件体系与微内核设计</h3>
+          <p>设计器通过 <code>LowCodePluginManager</code> 管理插件生命周期，支持注册、初始化、禁用、删除、销毁、偏好配置和版本匹配。插件管理器内部使用 <code>pluginsMap</code> 做插件索引，注册时校验插件名、引擎版本和重复注册策略，初始化时通过依赖编排计算加载顺序。</p>
+          <p>这一设计有几个关键优势：</p>
+          <ul>
+          <li>内核保持稳定，业务能力通过插件扩展。</li>
+          <li>插件之间可以声明依赖，平台启动时按拓扑顺序初始化。</li>
+          <li>插件可以被禁用或销毁，便于灰度、隔离和故障恢复。</li>
+          <li>通过 shell API 暴露能力，避免业务插件直接依赖内部复杂实现。</li>
+          </ul>
+          <p>例如引擎启动时会自动注册组件元数据解析、默认 setter、默认面板、大纲树等内置插件；业务平台可以继续注册自定义插件，如权限控制、数据源面板、代码生成按钮、业务 DSL 面板、页面发布能力等。</p>
+          <h3>4. 渲染器与模拟器设计</h3>
+          <p>项目同时支持 React 和 Rax 两套渲染体系。React simulator renderer 在设计态承担非常关键的职责：</p>
+          <ul>
+          <li>将 schema 转换为可交互的 React 组件树。</li>
+          <li>管理节点 id 与 React instance 的映射关系。</li>
+          <li>处理组件资源加载和异步 library 加载。</li>
+          <li>同步设计模式、设备类型、国际化、请求处理器、上下文工具等运行时信息。</li>
+          <li>支持设计器在画布上进行选中、拖拽、定位、节点查找等操作。</li>
+          </ul>
         </div>
-            <div class="post-share" data-share-url="/post/lowcode-schema-codegen/" data-share-title="低代码 Schema 与出码" data-share-title-en="Low-Code Schema and Codegen">
+            <div class="post-share" data-share-url="/post/lowcode-schema-codegen/" data-share-title="LowCode Engine 实践" data-share-title-en="LowCode Engine Practice">
               <span class="share-label" data-i18n="post.share"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg> 分享</span>
               <a class="share-btn" data-share="x" href="#" target="_blank" rel="noopener" aria-label="分享到 X" data-i18n-aria="post.share.x"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
               <button class="share-btn" type="button" data-share="weibo" aria-label="分享到微博" data-i18n-aria="post.share.weibo"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M10.098 20.323c-3.977.391-7.414-1.406-7.672-4.02-.259-2.609 2.759-5.047 6.74-5.441 3.979-.394 7.413 1.404 7.671 4.018.259 2.6-2.759 5.049-6.737 5.439l-.002.004zM9.05 17.219c-.384.616-1.208.884-1.829.602-.612-.279-.793-.991-.406-1.593.379-.595 1.176-.861 1.793-.601.622.263.82.972.442 1.592zm1.27-1.627c-.141.237-.449.353-.689.253-.236-.09-.312-.359-.177-.586.138-.227.436-.346.672-.24.239.09.315.36.18.601l.014-.028zm.176-2.719c-1.893-.493-4.033.451-4.857 2.118-.836 1.704-.026 3.603 1.886 4.21 1.983.63 4.318-.354 5.132-2.179.8-1.793-.247-3.667-2.161-4.149zm7.563-1.224c-.346-.105-.57-.18-.405-.615.375-.977.42-1.829-.01-2.448-.81-1.155-3.027-1.092-5.567-.03 0 0-.795.346-.591-.284.39-1.26.33-2.31-.27-2.913-1.365-1.365-4.992.045-8.103 3.157C-.21 11.84-.96 14.61.04 16.7c1.62 3.405 6.99 3.585 11.52 1.875 4.53-1.71 8.42-5.97 6.78-9.45-.36-.78-1.05-1.32-1.86-1.626.18-.27.35-.54.4-.825.05-.36-.18-.54-.45-.39-.045.075-.075.165-.09.255-.054.21-.139.435-.27.63zm1.5-3.99c-.165-.5-.434-.945-.794-1.305-.36-.36-.81-.629-1.305-.794-.165-.06-.345.029-.405.194-.06.165.03.345.195.405.36.12.69.314.96.585.27.27.464.6.585.96.06.165.225.255.39.21.165-.045.255-.225.21-.39l-.031-.06zm2.355-.766c-.345-1.035-.93-1.965-1.71-2.745-.78-.781-1.71-1.366-2.746-1.711-.27-.09-.539.06-.629.33-.09.27.06.539.33.629.825.27 1.575.735 2.205 1.365.63.63 1.095 1.38 1.365 2.205.09.27.359.42.629.33.27-.09.42-.36.33-.629l.001-.024z"/></svg></button>
@@ -98,8 +157,8 @@
         <div id="giscus-thread"></div>
       </section>
       <nav class="post-pager" aria-label="Post pagination">
-        <a class="pager-prev" href="/post/finance-saas-backend/">← <span data-i18n="post.finance-saas-backend.shortTitle" data-i18n-en="Finance SaaS Backend Practice">财税 SaaS 后端实践</span></a>
-        <a class="pager-next" href="/post/activiti-workflow-engine/"><span data-i18n="post.activiti-workflow-engine.shortTitle" data-i18n-en="Activiti Approval Flow Wrapper">Activiti 审批流封装</span> →</a>
+        <a class="pager-prev" href="/post/activiti-workflow-engine/">← <span data-i18n="post.activiti-workflow-engine.shortTitle" data-i18n-en="Activiti BPM Engine Practice">Activiti BPM 引擎实践</span></a>
+        <a class="pager-next" href="/post/"><span data-i18n="post.meta.posts" data-i18n-en="Posts">文章</span> →</a>
       </nav>
     </main>
     <footer class="footer">

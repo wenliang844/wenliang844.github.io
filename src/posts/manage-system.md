@@ -1,17 +1,17 @@
 ---
-title: "规则引擎与告警闭环：智能分析预警平台的运行时设计"
-titleEn: "Rule Engine and Alert Loop: Runtime Design for an Intelligent Analysis Platform"
-shortTitle: "规则引擎与告警闭环"
-shortTitleEn: "Rule Engine and Alert Loop"
-slug: "rule-engine-alerts"
-date: 2026-06-16
-eyebrow: "Runtime Design"
-summary: "从标准事实、规则上下文、窗口聚合到正式告警，梳理智能分析平台中规则引擎和告警闭环的设计。"
-summaryEn: "Design notes on the rule engine and alert loop, from standard facts and rule context to window aggregation and formal alerts."
-description: "智能分析预警平台中规则引擎、标准事实和业务告警闭环的后端实践。"
-descriptionEn: "Backend practice for rule engine, standard facts and business alert loop in an intelligent analysis platform."
-tags: [规则引擎, 告警系统, 视频分析, RabbitMQ, Redis]
-tagsEn: [Rule Engine, Alert System, Video Analysis, RabbitMQ, Redis]
+title: "智能分析预警平台：从视频采集到业务告警的后端重构实践"
+titleEn: "Intelligent Analysis Alert Platform: Backend Refactor from Video Capture to Business Alerts"
+shortTitle: "智能分析预警平台重构"
+shortTitleEn: "Alert Platform Refactor"
+slug: "manage-system"
+date: 2025-09-16
+eyebrow: "System Refactor"
+summary: "围绕视频采集、算法识别、标准事实落库、规则判定和正式告警生成，复盘智能分析预警平台后端重构。"
+summaryEn: "A backend refactor retrospective covering video capture, algorithm recognition, standard fact persistence, rule judgment and formal alert creation."
+description: "智能分析预警平台从视频采集到业务告警闭环的后端重构实践。"
+descriptionEn: "Backend refactor practice for an intelligent analysis alert platform from video capture to business alert loop."
+tags: [Java, Spring Boot, 视频分析, 规则引擎, ONNX Runtime]
+tagsEn: [Java, Spring Boot, Video Analysis, Rule Engine, ONNX Runtime]
 ---
 
 ## 一、项目概述

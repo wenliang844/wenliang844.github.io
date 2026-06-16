@@ -182,9 +182,8 @@ function collectTags(posts) {
 }
 
 // index.xml：RSS 2.0，对齐现有结构。
-function buildRss(posts) {
-  const lastBuild = rfc822(posts[0].date);
-  const items = posts
+function buildRssItems(posts) {
+  return posts
     .map((post) => {
       const url = `${SITE.baseURL}/post/${post.slug}/`;
       return `    <item>
@@ -196,6 +195,11 @@ function buildRss(posts) {
     </item>`;
     })
     .join("\n");
+}
+
+function buildRss(posts) {
+  const lastBuild = rfc822(posts[0].date);
+  const items = buildRssItems(posts);
 
   return `<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
@@ -207,6 +211,26 @@ function buildRss(posts) {
     <language>zh-CN</language>
     <lastBuildDate>${lastBuild}</lastBuildDate>
     <atom:link href="${SITE.baseURL}/index.xml" rel="self" type="application/rss+xml" />
+${items}
+  </channel>
+</rss>`;
+}
+
+// post/index.xml：博客目录 RSS，保持 /post/ 下的订阅入口同步。
+function buildPostRss(posts) {
+  const lastBuild = rfc822(posts[0].date);
+  const items = buildRssItems(posts);
+
+  return `<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Posts on ${SITE.title}</title>
+    <link>${SITE.baseURL}/post/</link>
+    <description>Recent content in Posts on ${SITE.title}</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-CN</language>
+    <lastBuildDate>${lastBuild}</lastBuildDate>
+    <atom:link href="${SITE.baseURL}/post/index.xml" rel="self" type="application/rss+xml" />
 ${items}
   </channel>
 </rss>`;
@@ -241,6 +265,7 @@ async function main() {
   // sitemap + RSS
   await writeFileEnsured("sitemap.xml", buildSitemap(posts) + "\n");
   await writeFileEnsured("index.xml", buildRss(posts) + "\n");
+  await writeFileEnsured("post/index.xml", buildPostRss(posts) + "\n");
 
   // 搜索索引
   await writeFileEnsured("search-index.json", buildSearchIndex(posts) + "\n");

@@ -5,8 +5,31 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8bc1a61e-f54e-481a-b981-de744d44ec64" name="更改" comment="gitignore">
+      <change afterPath="$PROJECT_DIR$/src/posts/manage-system.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/index.xml" beforeDir="false" afterPath="$PROJECT_DIR$/index.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/post/activiti-workflow-engine/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/post/activiti-workflow-engine/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/post/engineering-practice/index.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/post/finance-saas-backend/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/post/finance-saas-backend/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/post/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/post/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/post/index.xml" beforeDir="false" afterPath="$PROJECT_DIR$/post/index.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/post/lowcode-schema-codegen/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/post/lowcode-schema-codegen/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/post/rule-engine-alerts/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/post/rule-engine-alerts/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/post/video-intelligence-platform/index.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/build.mjs" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/build.mjs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/search-index.json" beforeDir="false" afterPath="$PROJECT_DIR$/search-index.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sitemap.xml" beforeDir="false" afterPath="$PROJECT_DIR$/sitemap.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/config.mjs" beforeDir="false" afterPath="$PROJECT_DIR$/src/config.mjs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/posts/activiti-workflow-engine.md" beforeDir="false" afterPath="$PROJECT_DIR$/src/posts/activiti-workflow-engine.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/posts/engineering-practice.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/posts/finance-saas-backend.md" beforeDir="false" afterPath="$PROJECT_DIR$/src/posts/finance-saas-backend.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/posts/lowcode-schema-codegen.md" beforeDir="false" afterPath="$PROJECT_DIR$/src/posts/lowcode-schema-codegen.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/posts/rule-engine-alerts.md" beforeDir="false" afterPath="$PROJECT_DIR$/src/posts/rule-engine-alerts.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/posts/video-intelligence-platform.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/templates/post.mjs" beforeDir="false" afterPath="$PROJECT_DIR$/src/templates/post.mjs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tags/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/tags/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/简历.md" beforeDir="false" afterPath="$PROJECT_DIR$/简历.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -210,7 +233,15 @@
       <option name="project" value="LOCAL" />
       <updated>1781615166501</updated>
     </task>
-    <option name="localTasksCounter" value="17" />
+    <task id="LOCAL-00017" summary="gitignore">
+      <option name="closed" value="true" />
+      <created>1781615833558</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1781615833558</updated>
+    </task>
+    <option name="localTasksCounter" value="18" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

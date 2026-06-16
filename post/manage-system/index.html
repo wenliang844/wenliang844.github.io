@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="智能分析预警平台中规则引擎、标准事实和业务告警闭环的后端实践。">
+  <meta name="description" content="智能分析预警平台从视频采集到业务告警闭环的后端重构实践。">
   <meta name="generator" content="Hugo 0.82.0">
   <link rel="icon" href="/images/favicon.png" type="image/png">
   <link rel="stylesheet" href="/css/fontawesome-all.min.css">
@@ -17,15 +17,15 @@
   <script src="/js/giscus.js" defer></script>
   <meta property="og:type" content="article">
   <meta property="og:site_name" content="CWLBlog">
-  <meta property="og:title" content="规则引擎与告警闭环">
-  <meta property="og:description" content="智能分析预警平台中规则引擎、标准事实和业务告警闭环的后端实践。">
-  <meta property="og:url" content="https://wenliang844.github.io/post/rule-engine-alerts/">
+  <meta property="og:title" content="智能分析预警平台重构">
+  <meta property="og:description" content="智能分析预警平台从视频采集到业务告警闭环的后端重构实践。">
+  <meta property="og:url" content="https://wenliang844.github.io/post/manage-system/">
   <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="规则引擎与告警闭环">
-  <meta name="twitter:description" content="智能分析预警平台中规则引擎、标准事实和业务告警闭环的后端实践。">
-  <title>规则引擎与告警闭环 :: CWLBlog</title>
+  <meta name="twitter:title" content="智能分析预警平台重构">
+  <meta name="twitter:description" content="智能分析预警平台从视频采集到业务告警闭环的后端重构实践。">
+  <title>智能分析预警平台重构 :: CWLBlog</title>
 </head>
-<body class="colorscheme-dark" data-i18n-page="posts" data-i18n-title-en="Rule Engine and Alert Loop :: CWLBlog" data-i18n-desc-en="Backend practice for rule engine, standard facts and business alert loop in an intelligent analysis platform.">
+<body class="colorscheme-dark" data-i18n-page="posts" data-i18n-title-en="Alert Platform Refactor :: CWLBlog" data-i18n-desc-en="Backend refactor practice for an intelligent analysis alert platform from video capture to business alert loop.">
   <div class="cursor-glow" aria-hidden="true"></div>
   <canvas class="cursor-canvas" aria-hidden="true"></canvas>
   <div class="site-shell">
@@ -51,16 +51,16 @@
     <main class="content container">
       <article class="article">
         <header class="article-header">
-          <span class="eyebrow">Runtime Design</span>
-          <h1 data-i18n="post.rule-engine-alerts.title" data-i18n-en="Rule Engine and Alert Loop: Runtime Design for an Intelligent Analysis Platform">规则引擎与告警闭环：智能分析预警平台的运行时设计</h1>
+          <span class="eyebrow">System Refactor</span>
+          <h1 data-i18n="post.manage-system.title" data-i18n-en="Intelligent Analysis Alert Platform: Backend Refactor from Video Capture to Business Alerts">智能分析预警平台：从视频采集到业务告警的后端重构实践</h1>
           <div class="article-meta">
-            <time datetime="2026-06-16">June 16, 2026</time>
+            <time datetime="2025-09-16">September 16, 2025</time>
             <span>·</span>
-            <a href="/post/#rule-engine-alerts" data-i18n="post.meta.posts" data-i18n-en="Posts">文章</a>
+            <a href="/post/#manage-system" data-i18n="post.meta.posts" data-i18n-en="Posts">文章</a>
           </div>
-          <p class="article-summary" data-i18n="post.rule-engine-alerts.summary" data-i18n-en="Design notes on the rule engine and alert loop, from standard facts and rule context to window aggregation and formal alerts.">从标准事实、规则上下文、窗口聚合到正式告警，梳理智能分析平台中规则引擎和告警闭环的设计。</p>
+          <p class="article-summary" data-i18n="post.manage-system.summary" data-i18n-en="A backend refactor retrospective covering video capture, algorithm recognition, standard fact persistence, rule judgment and formal alert creation.">围绕视频采集、算法识别、标准事实落库、规则判定和正式告警生成，复盘智能分析预警平台后端重构。</p>
           <div class="post-tags">
-            <a href="/post/?tag=%E8%A7%84%E5%88%99%E5%BC%95%E6%93%8E" data-tag="规则引擎" data-i18n="post.rule-engine-alerts.tag.0" data-i18n-en="Rule Engine">规则引擎</a><a href="/post/?tag=%E5%91%8A%E8%AD%A6%E7%B3%BB%E7%BB%9F" data-tag="告警系统" data-i18n="post.rule-engine-alerts.tag.1" data-i18n-en="Alert System">告警系统</a><a href="/post/?tag=%E8%A7%86%E9%A2%91%E5%88%86%E6%9E%90" data-tag="视频分析" data-i18n="post.rule-engine-alerts.tag.2" data-i18n-en="Video Analysis">视频分析</a><a href="/post/?tag=RabbitMQ" data-tag="RabbitMQ" data-i18n="post.rule-engine-alerts.tag.3" data-i18n-en="RabbitMQ">RabbitMQ</a><a href="/post/?tag=Redis" data-tag="Redis" data-i18n="post.rule-engine-alerts.tag.4" data-i18n-en="Redis">Redis</a>
+            <a href="/post/?tag=Java" data-tag="Java" data-i18n="post.manage-system.tag.0" data-i18n-en="Java">Java</a><a href="/post/?tag=Spring%20Boot" data-tag="Spring Boot" data-i18n="post.manage-system.tag.1" data-i18n-en="Spring Boot">Spring Boot</a><a href="/post/?tag=%E8%A7%86%E9%A2%91%E5%88%86%E6%9E%90" data-tag="视频分析" data-i18n="post.manage-system.tag.2" data-i18n-en="Video Analysis">视频分析</a><a href="/post/?tag=%E8%A7%84%E5%88%99%E5%BC%95%E6%93%8E" data-tag="规则引擎" data-i18n="post.manage-system.tag.3" data-i18n-en="Rule Engine">规则引擎</a><a href="/post/?tag=ONNX%20Runtime" data-tag="ONNX Runtime" data-i18n="post.manage-system.tag.4" data-i18n-en="ONNX Runtime">ONNX Runtime</a>
           </div>
         </header>
         <div class="article-content" data-i18n-lang="zh">
@@ -166,7 +166,7 @@
           </ul>
           <p>算法执行后统一输出 <code>StandardAnalysisResultDto</code> 和 <code>StandardAnalysisTargetDto</code>，再落库到 <code>t_analysis_record</code>、<code>t_analysis_target</code>。这样新增算法时，主要改动被收敛在执行器层，业务主链路和规则链路不用反复改造。</p>
         </div>
-            <div class="post-share" data-share-url="/post/rule-engine-alerts/" data-share-title="规则引擎与告警闭环" data-share-title-en="Rule Engine and Alert Loop">
+            <div class="post-share" data-share-url="/post/manage-system/" data-share-title="智能分析预警平台重构" data-share-title-en="Alert Platform Refactor">
               <span class="share-label" data-i18n="post.share"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg> 分享</span>
               <a class="share-btn" data-share="x" href="#" target="_blank" rel="noopener" aria-label="分享到 X" data-i18n-aria="post.share.x"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
               <button class="share-btn" type="button" data-share="weibo" aria-label="分享到微博" data-i18n-aria="post.share.weibo"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M10.098 20.323c-3.977.391-7.414-1.406-7.672-4.02-.259-2.609 2.759-5.047 6.74-5.441 3.979-.394 7.413 1.404 7.671 4.018.259 2.6-2.759 5.049-6.737 5.439l-.002.004zM9.05 17.219c-.384.616-1.208.884-1.829.602-.612-.279-.793-.991-.406-1.593.379-.595 1.176-.861 1.793-.601.622.263.82.972.442 1.592zm1.27-1.627c-.141.237-.449.353-.689.253-.236-.09-.312-.359-.177-.586.138-.227.436-.346.672-.24.239.09.315.36.18.601l.014-.028zm.176-2.719c-1.893-.493-4.033.451-4.857 2.118-.836 1.704-.026 3.603 1.886 4.21 1.983.63 4.318-.354 5.132-2.179.8-1.793-.247-3.667-2.161-4.149zm7.563-1.224c-.346-.105-.57-.18-.405-.615.375-.977.42-1.829-.01-2.448-.81-1.155-3.027-1.092-5.567-.03 0 0-.795.346-.591-.284.39-1.26.33-2.31-.27-2.913-1.365-1.365-4.992.045-8.103 3.157C-.21 11.84-.96 14.61.04 16.7c1.62 3.405 6.99 3.585 11.52 1.875 4.53-1.71 8.42-5.97 6.78-9.45-.36-.78-1.05-1.32-1.86-1.626.18-.27.35-.54.4-.825.05-.36-.18-.54-.45-.39-.045.075-.075.165-.09.255-.054.21-.139.435-.27.63zm1.5-3.99c-.165-.5-.434-.945-.794-1.305-.36-.36-.81-.629-1.305-.794-.165-.06-.345.029-.405.194-.06.165.03.345.195.405.36.12.69.314.96.585.27.27.464.6.585.96.06.165.225.255.39.21.165-.045.255-.225.21-.39l-.031-.06zm2.355-.766c-.345-1.035-.93-1.965-1.71-2.745-.78-.781-1.71-1.366-2.746-1.711-.27-.09-.539.06-.629.33-.09.27.06.539.33.629.825.27 1.575.735 2.205 1.365.63.63 1.095 1.38 1.365 2.205.09.27.359.42.629.33.27-.09.42-.36.33-.629l.001-.024z"/></svg></button>
@@ -179,8 +179,8 @@
         <div id="giscus-thread"></div>
       </section>
       <nav class="post-pager" aria-label="Post pagination">
-        <a class="pager-prev" href="/post/">← <span data-i18n="post.meta.posts" data-i18n-en="Posts">文章</span></a>
-        <a class="pager-next" href="/post/manage-system/"><span data-i18n="post.manage-system.shortTitle" data-i18n-en="Alert Platform Refactor">智能分析预警平台重构</span> →</a>
+        <a class="pager-prev" href="/post/rule-engine-alerts/">← <span data-i18n="post.rule-engine-alerts.shortTitle" data-i18n-en="Rule Engine and Alert Loop">规则引擎与告警闭环</span></a>
+        <a class="pager-next" href="/post/finance-saas-backend/"><span data-i18n="post.finance-saas-backend.shortTitle" data-i18n-en="Qigu SaaS Platform">企顾 SaaS 多模块平台</span> →</a>
       </nav>
     </main>
     <footer class="footer">

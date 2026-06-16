@@ -1,44 +1,68 @@
-# build tooling
+# Dependencies
 node_modules/
+
+# Build output
 dist/
-/.idea/
-/.idea/shelf/
-/.idea/misc.xml
-/.idea/modules.xml
-/.idea/vcs.xml
-/.idea/wenliang844.github.io.iml
-/.idea/workspace.xml
+build/
+target/
+outputs/
+coverage/
 
-/target/
+# Logs
+logs/
+logback/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+home/ruoyi/logs/
+
+# Local env files
+.env
+.env.*
+!.env.example
+
+# Caches
+.cache/
+.parcel-cache/
+.eslintcache
+.stylelintcache
+.vite/
+tmp/
+temp/
+
+# IDEs and editors
+.idea/
+.vscode/
+.history/
+*.iml
+*.ipr
+*.iws
+*.swp
+*.swo
+*~
 .run/
-!.mvn/wrapper/maven-wrapper.jar
 
-### STS ###
+# Java / Maven / Gradle tooling
 .classpath
 .factorypath
 .project
-.settings
+.settings/
 .springBeans
-.DS_Store
+.gradle/
+!.mvn/wrapper/maven-wrapper.jar
 
-### IntelliJ IDEA ###
-.idea
-*.iws
-*.iml
-*.ipr
-
-### NetBeans ###
+# NetBeans
 nbproject/private/
-build/
 nbbuild/
-dist/
 nbdist/
 .nb-gradle/
-logback/
-target/
-.idea/
-.DS_Store/
-home/ruoyi/logs/
-/.claude/
-/outputs/
 
+# OS files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Local tool state
+.claude/

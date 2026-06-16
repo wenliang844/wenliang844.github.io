@@ -12,7 +12,7 @@ export const SITE = {
   baseURL: "https://wenliang844.github.io",
   title: "CWLBlog",
   // 列表页顶部"X 类系统"统计值（与文章数解耦，手工维护）。
-  systems: 4,
+  systems: 5,
   // OG 图经存在性检测后的最终路径（不存在则为 null，模板据此降级为文字卡）。
   ogImage: existsSync(join(HERE, "..", OG_IMAGE.replace(/^\//, ""))) ? OG_IMAGE : null,
 };

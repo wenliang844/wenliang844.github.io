@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="财税 SaaS 中财务报表、ElasticSearch Starter 与多渠道通知中心的后端实践。">
+  <meta name="description" content="企顾 SaaS 中客户数据、财税报表、通知中心和 Elasticsearch 搜索能力的多模块后端实践。">
   <meta name="generator" content="Hugo 0.82.0">
   <link rel="icon" href="/images/favicon.png" type="image/png">
   <link rel="stylesheet" href="/css/fontawesome-all.min.css">
@@ -17,15 +17,15 @@
   <script src="/js/giscus.js" defer></script>
   <meta property="og:type" content="article">
   <meta property="og:site_name" content="CWLBlog">
-  <meta property="og:title" content="财税 SaaS 后端实践">
-  <meta property="og:description" content="财税 SaaS 中财务报表、ElasticSearch Starter 与多渠道通知中心的后端实践。">
+  <meta property="og:title" content="企顾 SaaS 多模块平台">
+  <meta property="og:description" content="企顾 SaaS 中客户数据、财税报表、通知中心和 Elasticsearch 搜索能力的多模块后端实践。">
   <meta property="og:url" content="https://wenliang844.github.io/post/finance-saas-backend/">
   <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="财税 SaaS 后端实践">
-  <meta name="twitter:description" content="财税 SaaS 中财务报表、ElasticSearch Starter 与多渠道通知中心的后端实践。">
-  <title>财税 SaaS 后端实践 :: CWLBlog</title>
+  <meta name="twitter:title" content="企顾 SaaS 多模块平台">
+  <meta name="twitter:description" content="企顾 SaaS 中客户数据、财税报表、通知中心和 Elasticsearch 搜索能力的多模块后端实践。">
+  <title>企顾 SaaS 多模块平台 :: CWLBlog</title>
 </head>
-<body class="colorscheme-dark" data-i18n-page="posts" data-i18n-title-en="Finance SaaS Backend Practice :: CWLBlog" data-i18n-desc-en="Backend practice for financial reports, an ElasticSearch Starter and a multi-channel notification center in a finance SaaS system.">
+<body class="colorscheme-dark" data-i18n-page="posts" data-i18n-title-en="Qigu SaaS Platform :: CWLBlog" data-i18n-desc-en="Multi-module backend practice for customer data, finance reports, notification center and Elasticsearch search in Qigu SaaS.">
   <div class="cursor-glow" aria-hidden="true"></div>
   <canvas class="cursor-canvas" aria-hidden="true"></canvas>
   <div class="site-shell">
@@ -52,40 +52,123 @@
       <article class="article">
         <header class="article-header">
           <span class="eyebrow">SaaS Backend</span>
-          <h1 data-i18n="post.finance-saas-backend.title" data-i18n-en="Finance SaaS Backend Practice: Reports, Search and Notification Center">财税 SaaS 后端实践：报表、搜索与通知中心</h1>
+          <h1 data-i18n="post.finance-saas-backend.title" data-i18n-en="Qigu SaaS Multi-Module Platform Project Overview">企顾 SaaS 多模块平台项目介绍</h1>
           <div class="article-meta">
-            <time datetime="2026-04-18">April 18, 2026</time>
+            <time datetime="2023-08-18">August 18, 2023</time>
             <span>·</span>
             <a href="/post/#finance-saas-backend" data-i18n="post.meta.posts" data-i18n-en="Posts">文章</a>
           </div>
-          <p class="article-summary" data-i18n="post.finance-saas-backend.summary" data-i18n-en="Reusable business infrastructure around financial report computation, an ElasticSearch Starter and a multi-channel notification center.">围绕财务报表计算、ElasticSearch Starter 和多渠道通知中心，沉淀可复用的业务基础能力。</p>
+          <p class="article-summary" data-i18n="post.finance-saas-backend.summary" data-i18n-en="A backend platform retrospective covering customer data assets, finance reports, notification delivery and search for enterprise-service SaaS.">围绕客户数据资产、财税报表处理、通知触达和搜索检索，复盘企业服务 SaaS 多模块后端平台建设。</p>
           <div class="post-tags">
-            <a href="/post/?tag=Spring%20Boot%20Starter" data-tag="Spring Boot Starter" data-i18n="post.finance-saas-backend.tag.0" data-i18n-en="Spring Boot Starter">Spring Boot Starter</a><a href="/post/?tag=ElasticSearch" data-tag="ElasticSearch" data-i18n="post.finance-saas-backend.tag.1" data-i18n-en="ElasticSearch">ElasticSearch</a><a href="/post/?tag=RocketMQ" data-tag="RocketMQ" data-i18n="post.finance-saas-backend.tag.2" data-i18n-en="RocketMQ">RocketMQ</a><a href="/post/?tag=EasyExcel" data-tag="EasyExcel" data-i18n="post.finance-saas-backend.tag.3" data-i18n-en="EasyExcel">EasyExcel</a><a href="/post/?tag=CompletableFuture" data-tag="CompletableFuture" data-i18n="post.finance-saas-backend.tag.4" data-i18n-en="CompletableFuture">CompletableFuture</a>
+            <a href="/post/?tag=Java" data-tag="Java" data-i18n="post.finance-saas-backend.tag.0" data-i18n-en="Java">Java</a><a href="/post/?tag=Spring%20Boot" data-tag="Spring Boot" data-i18n="post.finance-saas-backend.tag.1" data-i18n-en="Spring Boot">Spring Boot</a><a href="/post/?tag=Dubbo" data-tag="Dubbo" data-i18n="post.finance-saas-backend.tag.2" data-i18n-en="Dubbo">Dubbo</a><a href="/post/?tag=RocketMQ" data-tag="RocketMQ" data-i18n="post.finance-saas-backend.tag.3" data-i18n-en="RocketMQ">RocketMQ</a><a href="/post/?tag=Elasticsearch" data-tag="Elasticsearch" data-i18n="post.finance-saas-backend.tag.4" data-i18n-en="Elasticsearch">Elasticsearch</a>
           </div>
         </header>
         <div class="article-content" data-i18n-lang="zh">
-          <p>财税 SaaS 的复杂度不在“接口很多”，而在金额口径、租户隔离、异步处理和外部渠道都要求稳定。后端模块按 API、Implement、Runtime、Starter 分层后，很多通用能力可以从业务代码里抽出来。</p>
-          <h2>实践记录</h2>
-          <ul class="insight-list">
-          <li><strong>财务报表：</strong>基于凭证行、会计期间、科目借贷方向和辅助核算计算科目余额表、利润表、现金流量表，金额统一使用 <code>BigDecimal</code>。</li>
-          <li><strong>搜索 Starter：</strong>封装索引初始化、Mapping、批量写入、别名切换、scroll 分页、聚合查询和高亮回填，降低业务接入成本。</li>
-          <li><strong>通知中心：</strong>支持短信、邮件、站内信、App Push 和微信公众号模板消息，多租户上下文与发送结果统一落库。</li>
-          <li><strong>并发发送：</strong>公众号批量发送前预加载模板和 OpenId 绑定信息，再用 <code>CompletableFuture</code> 和线程池隔离耗时操作。</li>
+          <h2>1. 项目概述</h2>
+          <p>企顾 SaaS 多模块平台面向企业服务场景，围绕「客户数据资产、财税报表处理、通知触达、搜索检索」四类高频能力构建统一的业务中台。项目采用 Java 8 + Spring Boot 2.4.1 技术体系，并结合 Dubbo、RocketMQ、Redis/Redisson、JetCache、Elasticsearch、MyBatis、Druid、Nacos 等组件，形成可独立演进、可复用、可扩展的多模块微服务架构。</p>
+          <p>从代码结构看，项目由 4 个主项目、26 个 Maven POM、22+ 个业务/能力子模块组成，覆盖 API、实现、Starter、Runtime、SDK、DAO、Web、Export SDK 等不同层次。仓库中共有 1,362 个 Java 文件，其中通知中心与报表模块占比最高，体现出平台在业务编排、异步处理、缓存一致性、导出性能和三方集成方面的工程复杂度。</p>
+          <p>核心模块包括：</p>
+          <table>
+          <thead>
+          <tr>
+          <th>主项目</th>
+          <th align="right">子模块数量</th>
+          <th align="right">Java 文件数</th>
+          <th>定位</th>
+          </tr>
+          </thead>
+          <tbody><tr>
+          <td><code>qiangu-ftm-statement</code></td>
+          <td align="right">4</td>
+          <td align="right">614</td>
+          <td>财税报表、账套报表计算、Excel 导入导出、报表缓存、MQ 异步重算</td>
+          </tr>
+          <tr>
+          <td><code>qiangu-saas-notice</code></td>
+          <td align="right">9</td>
+          <td align="right">649</td>
+          <td>通知中心、短信、邮件、站内信、App Push、微信公众号、外呼、语音识别</td>
+          </tr>
+          <tr>
+          <td><code>qiangu-saas-galaxy</code></td>
+          <td align="right">6</td>
+          <td align="right">31</td>
+          <td>企业客户数据、工商画像、客户基础信息管理</td>
+          </tr>
+          <tr>
+          <td><code>qiangu-saas-search</code></td>
+          <td align="right">3</td>
+          <td align="right">68</td>
+          <td>Elasticsearch 搜索 SDK、索引构建、查询封装、Spring Boot Starter</td>
+          </tr>
+          </tbody></table>
+          <h2>2. 业务价值</h2>
+          <p>该项目不是单一业务应用，而是支撑 SaaS 产品矩阵的「基础能力平台」。它将客户数据、通知触达、报表计算和搜索能力抽象成可复用服务，降低上层业务系统重复建设成本，并提升多租户 SaaS 场景下的交付效率。</p>
+          <h3>2.1 客户数据资产沉淀</h3>
+          <p><code>qiangu-saas-galaxy</code> 负责企业客户信息与工商画像管理，初始化表结构覆盖 13 类企业数据主题，包括企业基本信息、股东、主要人员、商标、专利、软件著作权、作品著作权、经营异常、变更记录、联系人、ICP备案、对外投资、资质备案等。</p>
+          <p>这些数据支撑了客户识别、销售线索挖掘、风险判断、客户分层、工商信息查询等场景。表结构中围绕 <code>company_id</code>、<code>company_num</code>、<code>reg_num</code>、<code>tel</code> 等字段建立索引，说明系统针对企业维度查询、联系人检索和画像聚合做了查询路径设计。</p>
+          <h3>2.2 财税报表自动化</h3>
+          <p><code>qiangu-ftm-statement</code> 承担财税报表域能力，覆盖余额表、明细账、总账、辅助余额表、辅助明细账、利润表、现金流量表、三表合一、期初余额导入结果等 10 类导出/处理类型。</p>
+          <p>业务价值主要体现在：</p>
+          <ul>
+          <li>将凭证、科目、账期、账套、辅助核算等数据变化转化为自动化报表重算流程。</li>
+          <li>支持多种财务软件格式的导入解析，如金蝶、用友、柠檬云、云账房、新中大等，降低客户迁移与初始化成本。</li>
+          <li>支持单 Sheet、多 Sheet、文件流、异步文件路径等多种导出方式，满足页面下载、后台任务、批量归档等场景。</li>
+          <li>通过缓存、消息队列和分布式锁保障报表计算结果的正确性与性能。</li>
           </ul>
-          <p>这类系统很适合训练“业务口径优先”的后端思维：先把数据定义对，再谈性能优化和组件复用。</p>
-        </div>
-        <div class="article-content" data-i18n-lang="en" hidden>
-          <p>The complexity of a finance SaaS system is not that it has many APIs. It is that amount definitions, tenant isolation, asynchronous processing and external channels all have to remain stable. After layering backend modules into API, Implement, Runtime and Starter, many shared capabilities can be extracted from business code.</p>
-          <h2>Practice Notes</h2>
-          <ul class="insight-list">
-          <li><strong>Financial reports:</strong> Compute account balance sheets, income statements and cash-flow statements from voucher lines, accounting periods, debit/credit direction and auxiliary accounting dimensions, with all amounts represented by <code>BigDecimal</code>.</li>
-          <li><strong>Search Starter:</strong> Encapsulate index initialization, mapping, batch writes, alias switching, scroll pagination, aggregation queries and highlighted result mapping to lower integration cost.</li>
-          <li><strong>Notification center:</strong> Support SMS, email, in-app messages, App Push and WeChat Official Account template messages, with tenant context and send results persisted in a unified way.</li>
-          <li><strong>Concurrent sending:</strong> Preload template and OpenId binding information before bulk Official Account sends, then isolate time-consuming operations with <code>CompletableFuture</code> and thread pools.</li>
+          <h3>2.3 全渠道通知触达</h3>
+          <p><code>qiangu-saas-notice</code> 将短信、邮件、站内信、App Push、微信公众号模板消息、外呼、语音识别封装为统一通知中心。业务系统不需要直接对接各类三方通道，只需要通过通知中心 API 或 MQ 事件发起触达。</p>
+          <p>通知中心的业务收益包括：</p>
+          <ul>
+          <li>多渠道统一接入，减少业务系统重复对接成本。</li>
+          <li>支持模板化消息、人工发送记录、站内信广播、待办通知等业务形态。</li>
+          <li>微信公众号模板消息支持批量发送，并与站内信联动，提升触达成功率。</li>
+          <li>外呼模块兼容多个外呼供应商，并提供坐席状态、通话记录、录音转存、回调幂等等完整闭环。</li>
           </ul>
-          <p>Systems like this are good training for backend thinking that starts from business definitions: define the data correctly first, then talk about performance optimization and component reuse.</p>
+          <h3>2.4 搜索能力平台化</h3>
+          <p><code>qiangu-saas-search</code> 将 Elasticsearch 的索引、查询、聚合、别名、模板、分词、批量写入等能力封装为 <code>search-api</code>、<code>search-core</code> 和 <code>spring-boot-starter-search</code>。业务模块可以通过 Starter 自动装配 <code>ESClient</code>、<code>Searcher</code>、<code>Indexer</code>，不用重复处理 ES 连接、节点探活、响应反序列化和异常封装。</p>
+          <h2>3. 技术架构</h2>
+          <p>项目采用典型的多模块分层架构：</p>
+          <pre><code class="language-text">API / SDK 层
+            - gaia-notice-api
+            - ftm-statement-api
+            - ftm-statement-export-sdk
+            - search-api
+            - saas-galaxy-api
+
+          实现层
+            - gaia-notice-implement
+            - ftm-statement-implement
+            - search-core
+            - saas-galaxy-server
+
+          接入层 / Runtime 层
+            - gaia-notice-starter
+            - ftm-statement-runtime
+            - saas-galaxy-runtime
+            - saas-galaxy-web
+            - spring-boot-starter-search
+
+          基础与三方集成层
+            - saas-platform-common
+            - sass-platform-call
+            - sass-platform-call-sdk
+            - sass-platform-wechat
+            - saas-platform-speech
+          </code></pre>
+          <p>整体上，系统通过 API 模块定义稳定契约，通过 Implement/Server 模块承载业务逻辑，通过 Starter/Runtime 模块完成运行时装配，通过 SDK 模块对外复用能力。这种拆分方式适合 SaaS 多业务线共用能力沉淀，也便于灰度升级和独立部署。</p>
+          <h2>4. 技术深度</h2>
+          <h3>4.1 微服务与服务治理实践</h3>
+          <p>项目中 <code>saas-galaxy-server</code>、<code>saas-galaxy-web</code> 启用了 <code>@EnableDiscoveryClient</code> 与 <code>@EnableDubbo</code>，并通过 Nacos/Consul 相关配置承接服务注册发现。Galaxy 的 API 自动配置模块引入 Dubbo Consumer AutoConfiguration，使调用方可以通过依赖 API + AutoConfigure 的方式接入远程服务。</p>
+          <p>通知中心和报表中心则通过 API、Starter、SDK 的组合实现能力开放：</p>
+          <ul>
+          <li>API 模块定义跨服务调用契约，降低调用方对实现细节的依赖。</li>
+          <li>Starter 模块负责自动装配，减少接入方配置成本。</li>
+          <li>SDK 模块沉淀外呼状态、报表导出等可复用能力。</li>
+          <li>Runtime 模块提供独立运行入口，支持单独部署与本地调试。</li>
+          </ul>
         </div>
-            <div class="post-share" data-share-url="/post/finance-saas-backend/" data-share-title="财税 SaaS 后端实践" data-share-title-en="Finance SaaS Backend Practice">
+            <div class="post-share" data-share-url="/post/finance-saas-backend/" data-share-title="企顾 SaaS 多模块平台" data-share-title-en="Qigu SaaS Platform">
               <span class="share-label" data-i18n="post.share"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg> 分享</span>
               <a class="share-btn" data-share="x" href="#" target="_blank" rel="noopener" aria-label="分享到 X" data-i18n-aria="post.share.x"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
               <button class="share-btn" type="button" data-share="weibo" aria-label="分享到微博" data-i18n-aria="post.share.weibo"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M10.098 20.323c-3.977.391-7.414-1.406-7.672-4.02-.259-2.609 2.759-5.047 6.74-5.441 3.979-.394 7.413 1.404 7.671 4.018.259 2.6-2.759 5.049-6.737 5.439l-.002.004zM9.05 17.219c-.384.616-1.208.884-1.829.602-.612-.279-.793-.991-.406-1.593.379-.595 1.176-.861 1.793-.601.622.263.82.972.442 1.592zm1.27-1.627c-.141.237-.449.353-.689.253-.236-.09-.312-.359-.177-.586.138-.227.436-.346.672-.24.239.09.315.36.18.601l.014-.028zm.176-2.719c-1.893-.493-4.033.451-4.857 2.118-.836 1.704-.026 3.603 1.886 4.21 1.983.63 4.318-.354 5.132-2.179.8-1.793-.247-3.667-2.161-4.149zm7.563-1.224c-.346-.105-.57-.18-.405-.615.375-.977.42-1.829-.01-2.448-.81-1.155-3.027-1.092-5.567-.03 0 0-.795.346-.591-.284.39-1.26.33-2.31-.27-2.913-1.365-1.365-4.992.045-8.103 3.157C-.21 11.84-.96 14.61.04 16.7c1.62 3.405 6.99 3.585 11.52 1.875 4.53-1.71 8.42-5.97 6.78-9.45-.36-.78-1.05-1.32-1.86-1.626.18-.27.35-.54.4-.825.05-.36-.18-.54-.45-.39-.045.075-.075.165-.09.255-.054.21-.139.435-.27.63zm1.5-3.99c-.165-.5-.434-.945-.794-1.305-.36-.36-.81-.629-1.305-.794-.165-.06-.345.029-.405.194-.06.165.03.345.195.405.36.12.69.314.96.585.27.27.464.6.585.96.06.165.225.255.39.21.165-.045.255-.225.21-.39l-.031-.06zm2.355-.766c-.345-1.035-.93-1.965-1.71-2.745-.78-.781-1.71-1.366-2.746-1.711-.27-.09-.539.06-.629.33-.09.27.06.539.33.629.825.27 1.575.735 2.205 1.365.63.63 1.095 1.38 1.365 2.205.09.27.359.42.629.33.27-.09.42-.36.33-.629l.001-.024z"/></svg></button>
@@ -98,8 +181,8 @@
         <div id="giscus-thread"></div>
       </section>
       <nav class="post-pager" aria-label="Post pagination">
-        <a class="pager-prev" href="/post/rule-engine-alerts/">← <span data-i18n="post.rule-engine-alerts.shortTitle" data-i18n-en="Rule Engine and Alert Loop">规则引擎与告警闭环</span></a>
-        <a class="pager-next" href="/post/lowcode-schema-codegen/"><span data-i18n="post.lowcode-schema-codegen.shortTitle" data-i18n-en="Low-Code Schema and Codegen">低代码 Schema 与出码</span> →</a>
+        <a class="pager-prev" href="/post/manage-system/">← <span data-i18n="post.manage-system.shortTitle" data-i18n-en="Alert Platform Refactor">智能分析预警平台重构</span></a>
+        <a class="pager-next" href="/post/activiti-workflow-engine/"><span data-i18n="post.activiti-workflow-engine.shortTitle" data-i18n-en="Activiti BPM Engine Practice">Activiti BPM 引擎实践</span> →</a>
       </nav>
     </main>
     <footer class="footer">

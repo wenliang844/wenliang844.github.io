@@ -182,7 +182,7 @@ export function renderPostList(posts, stats) {
           <div class="post-tree-header">
             <span class="eyebrow">${stats.year} Timeline</span>
             <h1 data-i18n="post.list.title" data-i18n-en="Posts">文章</h1>
-            <p class="lead" data-i18n="post.tree.lead">把今年做过的系统重构、平台化建设和工程实践，整理成可持续更新的技术札记。</p>
+            <p class="lead" data-i18n="post.tree.lead">把今年做过的智能分析、规则引擎、SaaS 平台、低代码引擎和审批流实践，整理成可持续更新的技术札记。</p>
           </div>
           <div class="timeline-stats" aria-label="内容概览" data-i18n-aria="post.stats.aria">
             <div>
@@ -227,7 +227,7 @@ ${panels}
     </main>`;
 
   const description =
-    "2026 年技术项目复盘：视频智能侦测、规则引擎、财税 SaaS、低代码、审批流和工程化实践。";
+    "2026 年技术项目复盘：智能分析预警、规则引擎、企顾 SaaS、低代码引擎和 Activiti 审批流。";
   return renderPage({
     title: "文章 :: CWLBlog",
     description,
