@@ -233,3 +233,35 @@
 
 - 继续审计 `error-handler.js` 的 toast 渲染，减少动态 HTML 字符串。
 - 继续评估是否将手写页迁移为模板源文件，彻底消除重复导航与脚本片段。
+
+## 第 8 轮：全局错误提示 DOM 渲染加固
+
+时间：2026-06-17
+
+### 已完成内容
+
+- 将 `js/error-handler.js` 的 toast 渲染从 `innerHTML` 字符串拼接改为 DOM API。
+- 错误消息改为通过 `textContent` 写入。
+- 移除不再需要的局部 HTML 转义函数。
+- 增加错误提示安全渲染回归测试。
+
+### 发现的问题
+
+- toast 消息虽然经过转义，但仍使用 `innerHTML` 组装 DOM。
+- 全局错误消息未来可能来自更多上下文，继续使用 HTML 字符串会增加维护风险。
+
+### 修复方案
+
+- 使用 `createElement()` 构造 toast 容器、图标、文本和关闭按钮。
+- 固定图标使用 className，动态消息只写入 `textContent`。
+
+### 性能与安全指标
+
+- `npm test`：27 个测试全部通过，耗时约 0.91 秒。
+- `npm run build`：通过，生成 6 篇文章。
+- `npm audit --audit-level=moderate --registry=https://registry.npmjs.org`：0 vulnerabilities。
+
+### 下一步计划
+
+- 继续检查搜索弹窗和分享弹窗中动态 HTML 的用户可控数据边界。
+- 若继续扩展测试，优先补 jsdom 交互测试而不是只做静态字符串检查。

@@ -58,16 +58,32 @@
       toast.setAttribute('role', 'alert');
       toast.setAttribute('aria-live', 'assertive');
 
-      toast.innerHTML =
-        '<div class="error-toast-content">' +
-        '<i class="fas fa-exclamation-circle" aria-hidden="true"></i> ' +
-        '<span>' + this.escapeHtml(message) + '</span>' +
-        '<button type="button" class="error-toast-close" aria-label="关闭">' +
-        '<i class="fas fa-times" aria-hidden="true"></i>' +
-        '</button>' +
-        '</div>';
+      var content = document.createElement('div');
+      content.className = 'error-toast-content';
 
-      toast.querySelector('.error-toast-close').addEventListener('click', function () {
+      var icon = document.createElement('i');
+      icon.className = 'fas fa-exclamation-circle';
+      icon.setAttribute('aria-hidden', 'true');
+
+      var text = document.createElement('span');
+      text.textContent = message;
+
+      var close = document.createElement('button');
+      close.type = 'button';
+      close.className = 'error-toast-close';
+      close.setAttribute('aria-label', '关闭');
+
+      var closeIcon = document.createElement('i');
+      closeIcon.className = 'fas fa-times';
+      closeIcon.setAttribute('aria-hidden', 'true');
+      close.appendChild(closeIcon);
+
+      content.appendChild(icon);
+      content.appendChild(text);
+      content.appendChild(close);
+      toast.appendChild(content);
+
+      close.addEventListener('click', function () {
         toast.remove();
       });
 
@@ -79,18 +95,6 @@
           toast.remove();
         }
       }, 5000);
-    },
-
-    /**
-     * HTML 转义
-     */
-    escapeHtml: function (str) {
-      return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
     },
 
     /**

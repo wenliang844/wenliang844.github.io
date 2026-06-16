@@ -119,6 +119,15 @@ describe("Feedback - Client-side Secret Guard", () => {
   });
 });
 
+describe("Error Handler - Safe Toast Rendering", () => {
+  it("should render toast messages without innerHTML", async () => {
+    const content = await readFile("js/error-handler.js", "utf8");
+    assert.doesNotMatch(content, /toast\.innerHTML\s*=/);
+    assert.match(content, /text\.textContent = message/);
+    assert.match(content, /document\.createElement\('button'\)/);
+  });
+});
+
 describe("Utils - Date Validation Logic", () => {
   function isValidDate(dateStr) {
     return /^\d{4}-\d{2}-\d{2}$/.test(dateStr);
