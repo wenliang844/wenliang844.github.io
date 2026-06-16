@@ -46,108 +46,32 @@
       .replace(/^-+|-+$/g, "") || "new-post";
   }
 
-  function escapeHtml(value) {
-    return value
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/\"/g, "&quot;");
-  }
-
-  function inlineMarkdown(value) {
-    var html = escapeHtml(value);
-    html = html.replace(/`([^`]+)`/g, "<code>$1</code>");
-    html = html.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
-    html = html.replace(/\*([^*]+)\*/g, "<em>$1</em>");
-    html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
-    return html;
+  // Configure marked once: GitHub-flavored Markdown with hard line breaks.
+  if (window.marked && typeof window.marked.setOptions === "function") {
+    window.marked.setOptions({ gfm: true, breaks: true });
   }
 
   function renderMarkdown(markdown) {
-    var lines = markdown.replace(/\r\n/g, "\n").split("\n");
-    var output = [];
-    var inCode = false;
-    var codeLines = [];
-    var listType = null;
+    var raw = markdown || "";
+    var html;
 
-    function closeList() {
-      if (listType) {
-        output.push("</" + listType + ">");
-        listType = null;
-      }
+    if (window.marked) {
+      html = typeof window.marked.parse === "function"
+        ? window.marked.parse(raw)
+        : window.marked(raw);
+    } else {
+      // Fallback if the library failed to load: show escaped plain text.
+      html = "<pre>" + raw
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;") + "</pre>";
     }
 
-    lines.forEach(function (line) {
-      var trimmed = line.trim();
-
-      if (trimmed.indexOf("```") === 0) {
-        if (inCode) {
-          output.push("<pre><code>" + escapeHtml(codeLines.join("\n")) + "</code></pre>");
-          codeLines = [];
-          inCode = false;
-        } else {
-          closeList();
-          inCode = true;
-        }
-        return;
-      }
-
-      if (inCode) {
-        codeLines.push(line);
-        return;
-      }
-
-      if (!trimmed) {
-        closeList();
-        return;
-      }
-
-      var heading = trimmed.match(/^(#{1,6})\s+(.+)$/);
-      if (heading) {
-        closeList();
-        var level = heading[1].length;
-        output.push("<h" + level + ">" + inlineMarkdown(heading[2]) + "</h" + level + ">");
-        return;
-      }
-
-      var quote = trimmed.match(/^>\s?(.+)$/);
-      if (quote) {
-        closeList();
-        output.push("<blockquote>" + inlineMarkdown(quote[1]) + "</blockquote>");
-        return;
-      }
-
-      var unordered = trimmed.match(/^[-*+]\s+(.+)$/);
-      if (unordered) {
-        if (listType !== "ul") {
-          closeList();
-          output.push("<ul>");
-          listType = "ul";
-        }
-        output.push("<li>" + inlineMarkdown(unordered[1]) + "</li>");
-        return;
-      }
-
-      var ordered = trimmed.match(/^\d+\.\s+(.+)$/);
-      if (ordered) {
-        if (listType !== "ol") {
-          closeList();
-          output.push("<ol>");
-          listType = "ol";
-        }
-        output.push("<li>" + inlineMarkdown(ordered[1]) + "</li>");
-        return;
-      }
-
-      closeList();
-      output.push("<p>" + inlineMarkdown(trimmed) + "</p>");
-    });
-
-    if (inCode) {
-      output.push("<pre><code>" + escapeHtml(codeLines.join("\n")) + "</code></pre>");
+    // Always sanitize before injecting into the DOM.
+    if (window.DOMPurify) {
+      html = window.DOMPurify.sanitize(html);
     }
-    closeList();
-    return output.join("\n");
+    return html;
   }
 
   function frontMatter() {
