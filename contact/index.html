@@ -8,35 +8,39 @@
   <link rel="icon" href="/images/favicon.png" type="image/png">
   <link rel="stylesheet" href="/css/fontawesome-all.min.css">
   <link rel="stylesheet" href="/css/coder.css">
+  <script src="/js/i18n.js" defer></script>
   <script src="/js/coder.js" defer></script>
   <script src="/js/feedback.js" defer></script>
+  <script src="/js/vendor/fuse.min.js" defer></script>
+  <script src="/js/search.js" defer></script>
   <title>Contact :: CWLBlog</title>
 </head>
-<body class="colorscheme-dark">
+<body class="colorscheme-dark" data-i18n-page="contact">
   <div class="cursor-glow" aria-hidden="true"></div>
   <canvas class="cursor-canvas" aria-hidden="true"></canvas>
   <div class="site-shell">
     <header class="navigation">
       <section class="container">
         <a class="navigation-title" href="/">CWLBlog</a>
-        <input type="checkbox" id="menu-toggle" class="menu-toggle" aria-label="Toggle menu">
+        <input type="checkbox" id="menu-toggle" class="menu-toggle" aria-label="Toggle menu" data-i18n-aria="nav.menu">
         <label class="menu-button" for="menu-toggle"><i class="fas fa-bars"></i></label>
-        <nav class="navigation-list" aria-label="Main navigation">
+        <nav class="navigation-list" aria-label="Main navigation" data-i18n-aria="nav.main">
           <ul>
-          <li><a href="/about/">About</a></li>
-          <li><a href="/post/">Blog</a></li>
-          <li><a href="/editor/">Editor</a></li>
-          <li><a class="active" href="/contact/">Contact</a></li>
-            <li><a class="nav-feedback" href="/contact/#feedback-title"><i class="fas fa-comment-dots" aria-hidden="true"></i> 留言反馈</a></li>
-            <li><button class="theme-toggle" type="button" aria-label="Toggle dark mode"><i class="fas fa-adjust"></i></button></li>
+          <li><a href="/post/" data-i18n="nav.blog">Blog</a></li>
+          <li><a href="/editor/" data-i18n="nav.editor">Editor</a></li>
+          <li><a class="active" href="/contact/" data-i18n="nav.contact">Contact</a></li>
+            <li><a class="nav-feedback" href="/contact/#feedback-title" data-i18n="nav.feedback" data-i18n-html><i class="fas fa-comment-dots" aria-hidden="true"></i> 留言反馈</a></li>
+            <li><button class="theme-toggle" type="button" aria-label="Toggle dark mode" data-i18n-aria="nav.theme"><i class="fas fa-adjust"></i></button></li>
+            <li><button class="lang-toggle" type="button" aria-label="Switch language">EN</button></li>
+            <li><button class="nav-search-trigger" type="button" aria-label="全局搜索" data-i18n-aria="nav.search"><i class="fas fa-search"></i></button></li>
           </ul>
         </nav>
       </section>
     </header>
     <main class="content">
       <section class="page container">
-        <h1>Contact</h1>
-        <p class="lead">欢迎通过下面的链接联系我或查看其他主页。</p>
+        <h1 data-i18n="contact.h1">Contact</h1>
+        <p class="lead" data-i18n="contact.lead">欢迎通过下面的链接联系我或查看其他主页。</p>
         <div class="card-grid">
           <a class="card" href="mailto:2252694075@qq.com"><h2>Email</h2><p>2252694075@qq.com</p></a>
           <a class="card" href="https://github.com/wenliang844"><h2>GitHub</h2><p>github.com/wenliang844</p></a>
@@ -44,22 +48,22 @@
         </div>
       </section>
       <section class="feedback container" aria-labelledby="feedback-title">
-        <span class="eyebrow"><i class="fas fa-comment-dots" aria-hidden="true"></i> Feedback</span>
-        <h1 id="feedback-title">留言反馈</h1>
-        <p class="lead">有想法、建议，或发现了问题？欢迎留言。反馈会保存在你当前浏览器中，随时可在本页查看或删除。</p>
+        <span class="eyebrow" data-i18n="contact.fb.eyebrow" data-i18n-html><i class="fas fa-comment-dots" aria-hidden="true"></i> Feedback</span>
+        <h1 id="feedback-title" data-i18n="contact.fb.h1">留言反馈</h1>
+        <p class="lead" data-i18n="contact.fb.lead">有想法、建议，或发现了问题？欢迎留言。反馈会保存在你当前浏览器中，随时可在本页查看或删除。</p>
         <form class="feedback-form" id="feedback-form" novalidate>
           <div class="feedback-row">
-            <label>称呼（可选）
-              <input type="text" id="fb-name" name="name" placeholder="你的昵称" autocomplete="nickname">
+            <label><span data-i18n="contact.fb.name">称呼（可选）</span>
+              <input type="text" id="fb-name" name="name" placeholder="你的昵称" autocomplete="nickname" data-i18n-ph="contact.fb.name.ph">
             </label>
-            <label>联系方式（可选）
-              <input type="text" id="fb-contact" name="contact" placeholder="邮箱 / 微信，便于回复">
+            <label><span data-i18n="contact.fb.contact">联系方式（可选）</span>
+              <input type="text" id="fb-contact" name="contact" placeholder="邮箱 / 微信，便于回复" data-i18n-ph="contact.fb.contact.ph">
             </label>
           </div>
-          <label>反馈内容 *
-            <textarea id="fb-message" name="message" placeholder="写下你的想法、建议或遇到的问题…" required></textarea>
+          <label><span data-i18n="contact.fb.message">反馈内容 *</span>
+            <textarea id="fb-message" name="message" placeholder="写下你的想法、建议或遇到的问题…" required data-i18n-ph="contact.fb.message.ph"></textarea>
           </label>
-          <button class="btn-primary" type="submit"><i class="fas fa-paper-plane" aria-hidden="true"></i> 提交反馈</button>
+          <button class="btn-primary" type="submit" data-i18n="contact.fb.submit" data-i18n-html><i class="fas fa-paper-plane" aria-hidden="true"></i> 提交反馈</button>
           <p class="feedback-status" id="feedback-status" role="status" aria-live="polite"></p>
         </form>
         <ul class="feedback-list" id="feedback-list"></ul>
@@ -67,10 +71,9 @@
     </main>
     <footer class="footer">
       <section class="container">
-        <p>© 2021 - 2026 CWL · Powered by Hugo · Theme inspired by Coder</p>
+        <p data-i18n="footer.text">© 2021 - 2026 CWL · Powered by Hugo · Theme inspired by Coder</p>
       </section>
     </footer>
   </div>
 </body>
 </html>
-

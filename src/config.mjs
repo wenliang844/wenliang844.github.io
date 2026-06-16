@@ -21,10 +21,16 @@ export const SITE = {
 // withDate=false 的页面不输出 lastmod，对齐现有 sitemap。
 export const STATIC_PAGES = [
   { path: "/", withDate: true, priority: 0 },
-  { path: "/about/", withDate: true },
   { path: "/post/", withDate: true, insertPostsAfter: true },
   { path: "/editor/", withDate: true },
   { path: "/contact/", withDate: true },
   { path: "/categories/", withDate: false },
   { path: "/tags/", withDate: true },
+];
+
+// 全局搜索索引中额外包含的静态页（文章页由构建脚本动态生成）。
+export const SEARCH_PAGES = [
+  { title: "Contact",     summary: "联系方式与留言反馈。",                                          path: "/contact/",  tags: ["联系"] },
+  { title: "Editor",      summary: "在线 Markdown 编辑器，实时预览与自动保存。",                    path: "/editor/",   tags: ["工具"] },
+  { title: "Tags",        summary: "按技术标签浏览博客文章。",                                      path: "/tags/",     tags: ["标签"] },
 ];

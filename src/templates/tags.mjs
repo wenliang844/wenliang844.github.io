@@ -22,7 +22,7 @@ export function renderTagsPage(tagStats) {
   const main = `    <main class="content">
       <section class="list-page container">
         <h1>Tags</h1>
-        <p class="lead">按技术标签浏览文章，点击任意标签跳转到博客列表并自动筛选。</p>
+        <p class="lead" data-i18n="tags.lead">按技术标签浏览文章，点击任意标签跳转到博客列表并自动筛选。</p>
         <div class="tag-filter tag-cloud" aria-label="标签云">
 ${chips}
         </div>
@@ -34,6 +34,7 @@ ${chips}
     title: "Tags :: CWLBlog",
     description,
     active: "blog",
+    page: "tags",
     og: { type: "website", title: "Tags", description, path: "/tags/" },
     main,
   });

@@ -13,7 +13,7 @@ import { fileURLToPath } from "node:url";
 import matter from "gray-matter";
 import { marked } from "marked";
 
-import { SITE, STATIC_PAGES } from "../src/config.mjs";
+import { SITE, STATIC_PAGES, SEARCH_PAGES } from "../src/config.mjs";
 import { renderPostPage, renderPostList } from "../src/templates/post.mjs";
 import { renderTagsPage } from "../src/templates/tags.mjs";
 import { rfc822, sitemapDate } from "../src/lib/format.mjs";
@@ -89,6 +89,30 @@ async function writeFileEnsured(relPath, content) {
   await mkdir(dirname(full), { recursive: true });
   await writeFile(full, content, "utf8");
   return full;
+}
+
+// 去掉 HTML 标签，保留纯文本，供搜索索引全文检索。
+function stripHtml(html) {
+  return html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+}
+
+// 生成搜索索引 JSON（文章 + 静态页），供全局模糊搜索使用。
+function buildSearchIndex(posts) {
+  return JSON.stringify(
+    posts.map((p) => ({
+      type: "post",
+      title: p.title,
+      shortTitle: p.shortTitle,
+      summary: p.summary,
+      date: p.date,
+      tags: p.tags,
+      path: `/post/${p.slug}/`,
+      slug: p.slug,
+      body: stripHtml(p.contentHtml).slice(0, 600),
+    })).concat(SEARCH_PAGES.map((p) => ({ type: "page", ...p }))),
+    null,
+    0,
+  );
 }
 
 // sitemap.xml：静态页 + 文章页（插入到 /post/ 之后），对齐现有顺序。
@@ -194,6 +218,9 @@ async function main() {
   // sitemap + RSS
   await writeFileEnsured("sitemap.xml", buildSitemap(posts) + "\n");
   await writeFileEnsured("index.xml", buildRss(posts) + "\n");
+
+  // 搜索索引
+  await writeFileEnsured("search-index.json", buildSearchIndex(posts) + "\n");
 
   console.log(`✓ 构建完成：${posts.length} 篇文章 → ${OUT_DIR}`);
   for (const p of posts) console.log(`  - post/${p.slug}/`);

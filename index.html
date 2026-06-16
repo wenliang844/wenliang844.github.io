@@ -8,26 +8,30 @@
   <link rel="icon" href="/images/favicon.png" type="image/png">
   <link rel="stylesheet" href="/css/fontawesome-all.min.css">
   <link rel="stylesheet" href="/css/coder.css">
+  <script src="/js/i18n.js" defer></script>
   <script src="/js/coder.js" defer></script>
+  <script src="/js/vendor/fuse.min.js" defer></script>
+  <script src="/js/search.js" defer></script>
   <title>CWLBlog</title>
 </head>
-<body class="colorscheme-dark">
+<body class="colorscheme-dark" data-i18n-page="home">
   <div class="cursor-glow" aria-hidden="true"></div>
   <canvas class="cursor-canvas" aria-hidden="true"></canvas>
   <div class="site-shell">
     <header class="navigation">
       <section class="container">
         <a class="navigation-title" href="/">CWLBlog</a>
-        <input type="checkbox" id="menu-toggle" class="menu-toggle" aria-label="Toggle menu">
+        <input type="checkbox" id="menu-toggle" class="menu-toggle" aria-label="Toggle menu" data-i18n-aria="nav.menu">
         <label class="menu-button" for="menu-toggle"><i class="fas fa-bars"></i></label>
-        <nav class="navigation-list" aria-label="Main navigation">
+        <nav class="navigation-list" aria-label="Main navigation" data-i18n-aria="nav.main">
           <ul>
-          <li><a href="/about/">About</a></li>
-          <li><a href="/post/">Blog</a></li>
-          <li><a href="/editor/">Editor</a></li>
-          <li><a href="/contact/">Contact</a></li>
-            <li><a class="nav-feedback" href="/contact/#feedback-title"><i class="fas fa-comment-dots" aria-hidden="true"></i> 留言反馈</a></li>
-            <li><button class="theme-toggle" type="button" aria-label="Toggle dark mode"><i class="fas fa-adjust"></i></button></li>
+          <li><a href="/post/" data-i18n="nav.blog">Blog</a></li>
+          <li><a href="/editor/" data-i18n="nav.editor">Editor</a></li>
+          <li><a href="/contact/" data-i18n="nav.contact">Contact</a></li>
+            <li><a class="nav-feedback" href="/contact/#feedback-title" data-i18n="nav.feedback" data-i18n-html><i class="fas fa-comment-dots" aria-hidden="true"></i> 留言反馈</a></li>
+            <li><button class="theme-toggle" type="button" aria-label="Toggle dark mode" data-i18n-aria="nav.theme"><i class="fas fa-adjust"></i></button></li>
+            <li><button class="lang-toggle" type="button" aria-label="Switch language">EN</button></li>
+            <li><button class="nav-search-trigger" type="button" aria-label="全局搜索" data-i18n-aria="nav.search"><i class="fas fa-search"></i></button></li>
           </ul>
         </nav>
       </section>
@@ -36,7 +40,7 @@
       <section class="home container" aria-labelledby="site-title">
         <div class="about">
           <div class="avatar" aria-hidden="true">CWL</div>
-          <h2 id="site-title">AI 全栈工程师<br><span class="hero-tagline">AI-Native Full-Stack Engineer</span></h2>
+          <h2 id="site-title" data-i18n="home.hero" data-i18n-html>AI 全栈工程师<br><span class="hero-tagline"></span></h2>
         <ul class="social-links" aria-label="Social links">
           <li><a href="https://github.com/wenliang844" aria-label="GitHub"><i class="fab fa-github"></i></a></li>
           <li><a href="https://blog.csdn.net/weixin_44028406" aria-label="CSDN"><i class="fas fa-code"></i></a></li>
@@ -45,8 +49,8 @@
           <li><a href="/index.xml" aria-label="RSS"><i class="fas fa-rss"></i></a></li>
         </ul>
         <div class="home-actions">
-          <a class="btn-primary" href="/post/"><i class="fas fa-folder-open" aria-hidden="true"></i> 浏览博客</a>
-          <a class="btn-ghost" href="/about/"><i class="fas fa-arrow-right" aria-hidden="true"></i> 了解更多</a>
+          <a class="btn-primary" href="/post/" data-i18n="home.btn.blog" data-i18n-html><i class="fas fa-folder-open" aria-hidden="true"></i> 浏览博客</a>
+          <a class="btn-ghost" href="/contact/" data-i18n="home.btn.about" data-i18n-html><i class="fas fa-envelope" aria-hidden="true"></i> 联系作者</a>
         </div>
         </div>
       </section>
@@ -55,8 +59,8 @@
         <div class="section-head">
           <div>
             <span class="eyebrow"><i class="fas fa-robot" aria-hidden="true"></i> AI Stack</span>
-            <h2 id="ai-stack-title">AI 协作工具链</h2>
-            <p class="section-sub">以 AI 为核心驱动全栈开发，下面是日常贴身协作的两位「AI 队友」。</p>
+            <h2 id="ai-stack-title" data-i18n="home.ai.title">AI 协作工具链</h2>
+            <p class="section-sub" data-i18n="home.ai.sub">以 AI 为核心驱动全栈开发，下面是日常贴身协作的两位「AI 队友」。</p>
           </div>
         </div>
         <div class="ai-grid">
@@ -83,8 +87,8 @@
                 <span class="ai-vendor">Anthropic</span>
               </div>
             </header>
-            <p>Anthropic 打造的 AI 模型，以超长上下文与严谨推理见长。日常用于架构设计、复杂业务梳理、代码生成与重构，是结对编程式的开发伙伴。</p>
-            <div class="ai-tags"><span>结对编程</span><span>架构设计</span><span>代码重构</span></div>
+            <p data-i18n="home.ai.claude.desc">Anthropic 打造的 AI 模型，以超长上下文与严谨推理见长。日常用于架构设计、复杂业务梳理、代码生成与重构，是结对编程式的开发伙伴。</p>
+            <div class="ai-tags"><span data-i18n="home.ai.claude.t1">结对编程</span><span data-i18n="home.ai.claude.t2">架构设计</span><span data-i18n="home.ai.claude.t3">代码重构</span></div>
           </article>
           <article class="ai-card">
             <header class="ai-card-head">
@@ -98,8 +102,8 @@
                 <span class="ai-vendor">OpenAI</span>
               </div>
             </header>
-            <p>OpenAI 推出的编码智能体，能读懂整个代码仓库并自主完成编码、调试与测试。用于自动化开发与仓库级重构，加速从需求到上线的全流程。</p>
-            <div class="ai-tags"><span>自主编码</span><span>仓库级重构</span><span>测试生成</span></div>
+            <p data-i18n="home.ai.codex.desc">OpenAI 推出的编码智能体，能读懂整个代码仓库并自主完成编码、调试与测试。用于自动化开发与仓库级重构，加速从需求到上线的全流程。</p>
+            <div class="ai-tags"><span data-i18n="home.ai.codex.t1">自主编码</span><span data-i18n="home.ai.codex.t2">仓库级重构</span><span data-i18n="home.ai.codex.t3">测试生成</span></div>
           </article>
         </div>
       </section>
@@ -108,34 +112,34 @@
         <div class="section-head">
           <div>
             <span class="eyebrow"><i class="fas fa-wrench" aria-hidden="true"></i> Featured</span>
-            <h2 id="featured-title">精选项目</h2>
-            <p class="section-sub">从视频智能分析到低代码平台，记录这些年做过的系统。</p>
+            <h2 id="featured-title" data-i18n="home.feat.title">精选项目</h2>
+            <p class="section-sub" data-i18n="home.feat.sub">从视频智能分析到低代码平台，记录这些年做过的系统。</p>
           </div>
-          <a class="section-link" href="/post/">全部复盘 <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
+          <a class="section-link" href="/post/" data-i18n="home.feat.link" data-i18n-html>全部复盘 <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
         </div>
         <div class="project-grid">
           <a class="project-card" href="/post/video-intelligence-platform/">
             <span class="project-icon"><i class="fas fa-laptop-code" aria-hidden="true"></i></span>
-            <h3>视频智能侦测系统</h3>
-            <p>采集→算法→规则→告警的后端链路重构，Maven 多模块 + 算法平台化。</p>
+            <h3 data-i18n="home.proj.video.title">视频智能侦测系统</h3>
+            <p data-i18n="home.proj.video.desc">采集→算法→规则→告警的后端链路重构，Maven 多模块 + 算法平台化。</p>
             <div class="project-stack"><span>Spring Boot</span><span>ONNX Runtime</span><span>RabbitMQ</span></div>
           </a>
           <a class="project-card" href="/post/finance-saas-backend/">
             <span class="project-icon"><i class="fas fa-database" aria-hidden="true"></i></span>
-            <h3>钱谷财税 SaaS</h3>
-            <p>财务报表计算、ElasticSearch Starter 与多渠道通知中心的后端实践。</p>
+            <h3 data-i18n="home.proj.finance.title">钱谷财税 SaaS</h3>
+            <p data-i18n="home.proj.finance.desc">财务报表计算、ElasticSearch Starter 与多渠道通知中心的后端实践。</p>
             <div class="project-stack"><span>ElasticSearch</span><span>RocketMQ</span><span>EasyExcel</span></div>
           </a>
           <a class="project-card" href="/post/lowcode-schema-codegen/">
             <span class="project-icon"><i class="fas fa-cogs" aria-hidden="true"></i></span>
-            <h3>Trantor 低代码平台</h3>
-            <p>设计器、物料协议与 Web Worker 出码链路，让页面搭建可扩展。</p>
+            <h3 data-i18n="home.proj.lowcode.title">Trantor 低代码平台</h3>
+            <p data-i18n="home.proj.lowcode.desc">设计器、物料协议与 Web Worker 出码链路，让页面搭建可扩展。</p>
             <div class="project-stack"><span>TypeScript</span><span>React</span><span>Web Worker</span></div>
           </a>
           <a class="project-card" href="/post/activiti-workflow-engine/">
             <span class="project-icon"><i class="fas fa-wrench" aria-hidden="true"></i></span>
-            <h3>Activiti 审批流引擎</h3>
-            <p>基于 Activiti 7 封装的轻量 BPM 引擎，流程部署与任务运行时管理。</p>
+            <h3 data-i18n="home.proj.activiti.title">Activiti 审批流引擎</h3>
+            <p data-i18n="home.proj.activiti.desc">基于 Activiti 7 封装的轻量 BPM 引擎，流程部署与任务运行时管理。</p>
             <div class="project-stack"><span>Activiti 7</span><span>BPMN 2.0</span><span>Spring Boot</span></div>
           </a>
         </div>
@@ -145,45 +149,97 @@
         <div class="section-head">
           <div>
             <span class="eyebrow"><i class="fas fa-cogs" aria-hidden="true"></i> Skills</span>
-            <h2 id="skills-home-title">核心技能</h2>
-            <p class="section-sub">后端为主，覆盖工作流、低代码与工程化实践。</p>
+            <h2 id="skills-home-title" data-i18n="home.skills.title">核心技能</h2>
+            <p class="section-sub" data-i18n="home.skills.sub">后端为主，覆盖工作流、低代码与工程化实践。</p>
           </div>
-          <a class="section-link" href="/about/">完整技能 <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
         </div>
         <div class="skills-grid">
           <div class="skill-row">
-            <div class="skill-label"><span>Java / Spring Boot</span><span>精通</span></div>
+            <div class="skill-label"><span>Vibe Coding</span><span data-i18n="level.master">精通</span></div>
             <div class="skill-track"><div class="skill-fill" data-level="95%"></div></div>
           </div>
           <div class="skill-row">
-            <div class="skill-label"><span>MySQL / Redis / ES</span><span>熟练</span></div>
+            <div class="skill-label"><span>codex</span><span data-i18n="level.master">精通</span></div>
+            <div class="skill-track"><div class="skill-fill" data-level="95%"></div></div>
+          </div>
+          <div class="skill-row">
+            <div class="skill-label"><span>claude</span><span data-i18n="level.master">精通</span></div>
+            <div class="skill-track"><div class="skill-fill" data-level="95%"></div></div>
+          </div>
+          <div class="skill-row">
+            <div class="skill-label"><span>Java / Spring Boot</span><span data-i18n="level.master">精通</span></div>
+            <div class="skill-track"><div class="skill-fill" data-level="95%"></div></div>
+          </div>
+          <div class="skill-row">
+            <div class="skill-label"><span>MySQL / Redis / ES</span><span data-i18n="level.proficient">熟练</span></div>
             <div class="skill-track"><div class="skill-fill" data-level="88%"></div></div>
           </div>
           <div class="skill-row">
-            <div class="skill-label"><span>Activiti 工作流 / BPMN</span><span>熟练</span></div>
+            <div class="skill-label"><span>Activiti 工作流 / BPMN</span><span data-i18n="level.proficient">熟练</span></div>
             <div class="skill-track"><div class="skill-fill" data-level="85%"></div></div>
           </div>
           <div class="skill-row">
-            <div class="skill-label"><span>低代码 / Schema 出码</span><span>熟练</span></div>
+            <div class="skill-label"><span>低代码 / Schema 出码</span><span data-i18n="level.proficient">熟练</span></div>
             <div class="skill-track"><div class="skill-fill" data-level="82%"></div></div>
           </div>
           <div class="skill-row">
-            <div class="skill-label"><span>TypeScript / React</span><span>掌握</span></div>
+            <div class="skill-label"><span>TypeScript / React</span><span data-i18n="level.skilled">掌握</span></div>
             <div class="skill-track"><div class="skill-fill" data-level="72%"></div></div>
           </div>
           <div class="skill-row">
-            <div class="skill-label"><span>Docker / Jenkins / CI</span><span>掌握</span></div>
+            <div class="skill-label"><span>Docker / Jenkins / CI</span><span data-i18n="level.skilled">掌握</span></div>
             <div class="skill-track"><div class="skill-fill" data-level="70%"></div></div>
           </div>
         </div>
       </section>
+
+      <section class="section container" aria-labelledby="exp-title">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow"><i class="fas fa-briefcase" aria-hidden="true"></i> Experience</span>
+            <h2 id="exp-title" data-i18n="home.exp.title">工作与项目时间线</h2>
+            <p class="section-sub" data-i18n="home.exp.sub">两段后端研发经历，覆盖智能分析、SaaS、低代码与工作流。</p>
+          </div>
+        </div>
+        <ol class="timeline">
+          <li>
+            <span class="tl-date" data-i18n="home.exp.j1.date">2023.09 — 至今</span>
+            <h3>浙江联乾信息科技 <span class="tl-org" data-i18n="home.exp.j1.org">· Java 开发工程师</span></h3>
+            <p data-i18n="home.exp.j1.desc">主导视频智能侦测系统后端重构，整合采集/算法/规则/告警为 Maven 多模块；参与算法服务平台化；同时负责公安督察、财税 SaaS、审批流引擎、低代码平台等多个系统的后端设计与开发，并推动公共组件、Starter 与工程化实践沉淀。</p>
+          </li>
+          <li>
+            <span class="tl-date" data-i18n="home.exp.j2.date">2022.09 — 2023.08</span>
+            <h3>杭州端点网络科技 <span class="tl-org" data-i18n="home.exp.j2.org">· Java 开发工程师</span></h3>
+            <p data-i18n="home.exp.j2.desc">参与企业级低代码及数字化业务平台后端研发，负责表单引擎、流程自动化、页面渲染等模块；基于 Spring Boot/Cloud 开发微服务，优化复杂查询的 SQL 与 Redis 缓存；并参与 React/TypeScript 部分交互开发，积累全栈协作能力。</p>
+          </li>
+          <li>
+            <span class="tl-date" data-i18n="home.exp.j3.date">2018.06 — 2022.07</span>
+            <h3>江西科技学院 <span class="tl-org" data-i18n="home.exp.j3.org">· 软件工程 · 本科</span></h3>
+            <p data-i18n="home.exp.j3.desc">在校期间打下扎实的算法与工程基础，多次参加程序设计竞赛并获奖。</p>
+          </li>
+        </ol>
+      </section>
+
+      <section class="section container" aria-labelledby="honor-title">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow"><i class="fas fa-trophy" aria-hidden="true"></i> Honors</span>
+            <h2 id="honor-title" data-i18n="home.honor.title">荣誉与证书</h2>
+          </div>
+        </div>
+        <ul class="honor-list">
+          <li data-i18n="home.honor.h1" data-i18n-html><i class="fas fa-trophy" aria-hidden="true"></i> 蓝桥杯 国家二等奖（省一等奖）</li>
+          <li data-i18n="home.honor.h2" data-i18n-html><i class="fas fa-trophy" aria-hidden="true"></i> ACM 程序设计竞赛 铜奖（队长）</li>
+          <li data-i18n="home.honor.h3" data-i18n-html><i class="fas fa-star" aria-hidden="true"></i> 校级蓝信杯二等奖 · 程序设计大赛三等奖</li>
+          <li data-i18n="home.honor.h4" data-i18n-html><i class="fas fa-graduation-cap" aria-hidden="true"></i> 软考 软件设计师（中级）</li>
+        </ul>
+      </section>
     </main>
     <footer class="footer">
       <section class="container">
-        <p>© 2021 - 2026 CWL · Powered by Hugo · Theme inspired by Coder</p>
+        <p data-i18n="footer.text">© 2021 - 2026 CWL · Powered by Hugo · Theme inspired by Coder</p>
       </section>
     </footer>
   </div>
 </body>
 </html>
-

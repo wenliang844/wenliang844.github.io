@@ -21,6 +21,10 @@
     return origin + path;
   }
 
+  function t(key, fallback) {
+    return window.cwlT ? window.cwlT(key, fallback) : fallback;
+  }
+
   // execCommand 兜底：用于 clipboard API 不存在、或其写入被拒（如页面失焦）时。
   function legacyCopy(text) {
     return new Promise(function (resolve, reject) {
@@ -102,10 +106,10 @@
     overlay = document.createElement("div");
     overlay.className = "share-qr-overlay";
     overlay.innerHTML =
-      '<div class="share-qr-card" role="dialog" aria-modal="true" aria-label="微信扫码分享">' +
-      '<button class="share-qr-close" type="button" aria-label="关闭"><i class="fas fa-times" aria-hidden="true"></i></button>' +
-      '<p class="share-qr-title">微信扫一扫，分享文章</p>' +
-      '<div class="share-qr-code">' + (svg || '<p class="share-qr-fail">二维码生成失败，可改用“复制链接”。</p>') + "</div>" +
+      '<div class="share-qr-card" role="dialog" aria-modal="true" aria-label="' + t("post.qr.aria", "微信扫码分享") + '">' +
+      '<button class="share-qr-close" type="button" aria-label="' + t("post.qr.close", "关闭") + '"><i class="fas fa-times" aria-hidden="true"></i></button>' +
+      '<p class="share-qr-title">' + t("post.qr.title", "微信扫一扫，分享文章") + '</p>' +
+      '<div class="share-qr-code">' + (svg || '<p class="share-qr-fail">' + t("post.qr.fail", "二维码生成失败，可改用“复制链接”。") + '</p>') + "</div>" +
       '<p class="share-qr-name"></p>' +
       "</div>";
 

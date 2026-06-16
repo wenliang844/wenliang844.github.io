@@ -93,12 +93,19 @@
   var toTop = document.createElement("button");
   toTop.className = "to-top";
   toTop.type = "button";
-  toTop.setAttribute("aria-label", "返回顶部");
   toTop.innerHTML = '<i class="fas fa-arrow-up" aria-hidden="true"></i>';
   toTop.addEventListener("click", function () {
     window.scrollTo({ top: 0, behavior: "smooth" });
   });
   body.appendChild(toTop);
+
+  function t(key, fallback) {
+    return window.cwlT ? window.cwlT(key, fallback) : fallback;
+  }
+
+  function updateToTop() {
+    toTop.setAttribute("aria-label", t("dyn.totop", "返回顶部"));
+  }
 
   function onScroll() {
     var doc = document.documentElement;
@@ -144,15 +151,15 @@
     var button = document.createElement("button");
     button.type = "button";
     button.className = "code-copy";
-    button.innerHTML = '<i class="fas fa-copy" aria-hidden="true"></i> 复制';
+    button.innerHTML = t("dyn.copy", '<i class="fas fa-copy" aria-hidden="true"></i> 复制');
     button.addEventListener("click", function () {
       var code = pre.querySelector("code") || pre;
       copyText(code.innerText).then(function () {
         button.classList.add("copied");
-        button.innerHTML = '<i class="fas fa-check" aria-hidden="true"></i> 已复制';
+        button.innerHTML = t("dyn.copied", '<i class="fas fa-check" aria-hidden="true"></i> 已复制');
         window.setTimeout(function () {
           button.classList.remove("copied");
-          button.innerHTML = '<i class="fas fa-copy" aria-hidden="true"></i> 复制';
+          button.innerHTML = t("dyn.copy", '<i class="fas fa-copy" aria-hidden="true"></i> 复制');
         }, 1600);
       });
     });
@@ -169,6 +176,29 @@
     return Math.max(1, Math.round(chinese / 350 + words / 200));
   }
 
+  function updateDynamicText() {
+    updateToTop();
+    document.querySelectorAll(".code-copy:not(.copied)").forEach(function (button) {
+      button.innerHTML = t("dyn.copy", '<i class="fas fa-copy" aria-hidden="true"></i> 复制');
+    });
+    document.querySelectorAll(".reading-time").forEach(function (span) {
+      var content = span.closest("article.article");
+      content = content && content.querySelector(".article-content");
+      if (!content) return;
+      var prefix = t("dyn.readingPrefix", "阅读约");
+      var suffix = t("dyn.readingSuffix", "分钟");
+      span.innerHTML = '<i class="fas fa-clock" aria-hidden="true"></i> ' + prefix +
+        " " + readingMinutes(content.textContent || "") + " " + suffix;
+    });
+    document.querySelectorAll(".article-toc").forEach(function (toc) {
+      toc.setAttribute("aria-label", t("dyn.toc.aria", "目录"));
+      var strong = toc.querySelector("strong");
+      if (strong) {
+        strong.textContent = t("dyn.toc", "目录");
+      }
+    });
+  }
+
   document.querySelectorAll("article.article").forEach(function (article) {
     var content = article.querySelector(".article-content");
     var meta = article.querySelector(".article-meta");
@@ -179,8 +209,10 @@
     if (meta && !meta.querySelector(".reading-time")) {
       var span = document.createElement("span");
       span.className = "reading-time";
-      span.innerHTML = '<i class="fas fa-clock" aria-hidden="true"></i> 阅读约 ' +
-        readingMinutes(content.textContent || "") + " 分钟";
+      var prefix = t("dyn.readingPrefix", "阅读约");
+      var suffix = t("dyn.readingSuffix", "分钟");
+      span.innerHTML = '<i class="fas fa-clock" aria-hidden="true"></i> ' + prefix +
+        " " + readingMinutes(content.textContent || "") + " " + suffix;
       meta.appendChild(document.createTextNode(" "));
       meta.appendChild(span);
     }
@@ -190,8 +222,8 @@
     if (headings.length >= 3 && !content.querySelector(".article-toc")) {
       var toc = document.createElement("nav");
       toc.className = "article-toc";
-      toc.setAttribute("aria-label", "目录");
-      var list = "<strong>目录</strong><ol>";
+      toc.setAttribute("aria-label", t("dyn.toc.aria", "目录"));
+      var list = "<strong>" + t("dyn.toc", "目录") + "</strong><ol>";
       headings.forEach(function (heading, index) {
         if (!heading.id) {
           heading.id = "section-" + index + "-" + (heading.textContent || "")
@@ -204,6 +236,9 @@
       content.insertBefore(toc, content.firstChild);
     }
   });
+
+  document.addEventListener("cwl:langchange", updateDynamicText);
+  updateDynamicText();
 
   /* ----------------------------------------------------------------------
    * Scroll reveal

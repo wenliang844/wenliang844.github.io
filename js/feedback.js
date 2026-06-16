@@ -20,6 +20,10 @@
     return;
   }
 
+  function t(key, fallback) {
+    return window.cwlT ? window.cwlT(key, fallback) : fallback;
+  }
+
   function load() {
     try {
       var raw = window.localStorage.getItem(storageKey);
@@ -56,17 +60,17 @@
   function render() {
     var entries = load();
     if (!entries.length) {
-      listEl.innerHTML = '<li class="feedback-empty">还没有留言，来做第一个吧。</li>';
+      listEl.innerHTML = '<li class="feedback-empty">' + t("contact.fb.empty", "还没有留言，来做第一个吧。") + '</li>';
       return;
     }
 
     listEl.innerHTML = entries.map(function (entry) {
-      var who = entry.name ? escapeHtml(entry.name) : "匿名";
+      var who = entry.name ? escapeHtml(entry.name) : t("contact.fb.anon", "匿名");
       var when = formatTime(entry.time);
       return '<li class="feedback-item" data-id="' + entry.id + '">' +
         '<div class="meta"><strong>' + who + "</strong>" +
         '<span>' + escapeHtml(when) +
-        ' · <button type="button" data-remove="' + entry.id + '">删除</button></span></div>' +
+        ' · <button type="button" data-remove="' + entry.id + '">' + t("contact.fb.delete", "删除") + '</button></span></div>' +
         '<p class="body">' + escapeHtml(entry.message) + "</p>" +
         "</li>";
     }).join("");
@@ -94,7 +98,7 @@
     event.preventDefault();
     var message = messageInput.value.trim();
     if (!message) {
-      setStatus("请输入反馈内容。");
+      setStatus(t("contact.fb.required", "请输入反馈内容。"));
       messageInput.focus();
       return;
     }
@@ -113,7 +117,7 @@
     render();
 
     messageInput.value = "";
-    setStatus("已保存到本地。感谢你的反馈！");
+    setStatus(t("contact.fb.saved", "已保存到本地。感谢你的反馈！"));
 
     // Best-effort delivery to the site owner via Web3Forms when a key is set.
     if (WEB3FORMS_ACCESS_KEY) {
@@ -122,23 +126,24 @@
         headers: { "Content-Type": "application/json", Accept: "application/json" },
         body: JSON.stringify({
           access_key: WEB3FORMS_ACCESS_KEY,
-          subject: "博客新反馈" + (entry.name ? "（来自 " + entry.name + "）" : ""),
-          from_name: entry.name || "匿名访客",
-          name: entry.name || "匿名访客",
-          contact: entry.contact || "（未填写）",
+          subject: t("contact.fb.subject", "博客新反馈") + (entry.name ? "（来自 " + entry.name + "）" : ""),
+          from_name: entry.name || t("contact.fb.from", "匿名访客"),
+          name: entry.name || t("contact.fb.from", "匿名访客"),
+          contact: entry.contact || t("contact.fb.notProvided", "（未填写）"),
           message: entry.message
         })
       }).then(function (response) {
         return response.json().catch(function () { return { success: response.ok }; });
       }).then(function (result) {
         setStatus(result && result.success
-          ? "已提交并发送给站长，感谢！"
-          : "已保存到本地（在线提交失败，可稍后重试）。");
+          ? t("contact.fb.sent", "已提交并发送给站长，感谢！")
+          : t("contact.fb.sendFail", "已保存到本地（在线提交失败，可稍后重试）。"));
       }).catch(function () {
-        setStatus("已保存到本地（当前离线或提交失败）。");
+        setStatus(t("contact.fb.offline", "已保存到本地（当前离线或提交失败）。"));
       });
     }
   });
 
+  document.addEventListener("cwl:langchange", render);
   render();
 })();

@@ -25,7 +25,13 @@
 
   var configured = config.repo && config.repoId && config.categoryId;
 
-  var PLACEHOLDER = '<p class="comments-hint">评论区尚未配置。站长在 <code>js/giscus.js</code> 填入 GitHub 仓库的 giscus 配置（repo / repoId / categoryId）后，即可启用基于 GitHub Discussions 的评论。</p>';
+  function t(key, fallback) {
+    return window.cwlT ? window.cwlT(key, fallback) : fallback;
+  }
+
+  function placeholder() {
+    return '<p class="comments-hint">' + t("dyn.comments.placeholder", "评论区尚未配置。站长在 <code>js/giscus.js</code> 填入 GitHub 仓库的 giscus 配置（repo / repoId / categoryId）后，即可启用基于 GitHub Discussions 的评论。") + '</p>';
+  }
 
   var thread = document.getElementById("giscus-thread");
   if (!thread) {
@@ -33,7 +39,10 @@
   }
 
   if (!configured) {
-    thread.innerHTML = PLACEHOLDER;
+    thread.innerHTML = placeholder();
+    document.addEventListener("cwl:langchange", function () {
+      thread.innerHTML = placeholder();
+    });
     return;
   }
 

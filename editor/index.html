@@ -8,30 +8,34 @@
   <link rel="icon" href="/images/favicon.png" type="image/png">
   <link rel="stylesheet" href="/css/fontawesome-all.min.css">
   <link rel="stylesheet" href="/css/coder.css">
+  <script src="/js/i18n.js" defer></script>
   <script src="/js/coder.js" defer></script>
   <script src="/js/vendor/marked.min.js" defer></script>
   <script src="/js/vendor/purify.min.js" defer></script>
   <script src="/js/vendor/highlight.min.js" defer></script>
   <script src="/js/editor.js" defer></script>
+  <script src="/js/vendor/fuse.min.js" defer></script>
+  <script src="/js/search.js" defer></script>
   <title>Markdown Editor :: CWLBlog</title>
 </head>
-<body class="colorscheme-dark">
+<body class="colorscheme-dark" data-i18n-page="editor">
   <div class="cursor-glow" aria-hidden="true"></div>
   <canvas class="cursor-canvas" aria-hidden="true"></canvas>
   <div class="site-shell">
     <header class="navigation">
       <section class="container">
         <a class="navigation-title" href="/">CWLBlog</a>
-        <input type="checkbox" id="menu-toggle" class="menu-toggle" aria-label="Toggle menu">
+        <input type="checkbox" id="menu-toggle" class="menu-toggle" aria-label="Toggle menu" data-i18n-aria="nav.menu">
         <label class="menu-button" for="menu-toggle"><i class="fas fa-bars"></i></label>
-        <nav class="navigation-list" aria-label="Main navigation">
+        <nav class="navigation-list" aria-label="Main navigation" data-i18n-aria="nav.main">
           <ul>
-          <li><a href="/about/">About</a></li>
-          <li><a href="/post/">Blog</a></li>
-          <li><a class="active" href="/editor/">Editor</a></li>
-          <li><a href="/contact/">Contact</a></li>
-            <li><a class="nav-feedback" href="/contact/#feedback-title"><i class="fas fa-comment-dots" aria-hidden="true"></i> 留言反馈</a></li>
-            <li><button class="theme-toggle" type="button" aria-label="Toggle dark mode"><i class="fas fa-adjust"></i></button></li>
+          <li><a href="/post/" data-i18n="nav.blog">Blog</a></li>
+          <li><a class="active" href="/editor/" data-i18n="nav.editor">Editor</a></li>
+          <li><a href="/contact/" data-i18n="nav.contact">Contact</a></li>
+            <li><a class="nav-feedback" href="/contact/#feedback-title" data-i18n="nav.feedback" data-i18n-html><i class="fas fa-comment-dots" aria-hidden="true"></i> 留言反馈</a></li>
+            <li><button class="theme-toggle" type="button" aria-label="Toggle dark mode" data-i18n-aria="nav.theme"><i class="fas fa-adjust"></i></button></li>
+            <li><button class="lang-toggle" type="button" aria-label="Switch language">EN</button></li>
+            <li><button class="nav-search-trigger" type="button" aria-label="全局搜索" data-i18n-aria="nav.search"><i class="fas fa-search"></i></button></li>
           </ul>
         </nav>
       </section>
@@ -41,55 +45,54 @@
         <header class="editor-header">
           <div>
             <h1>Markdown Editor</h1>
-            <p class="lead">在线编辑 Markdown，实时预览，自动保存到浏览器，并可导出为 Markdown 或 HTML。</p>
+            <p class="lead" data-i18n="editor.lead">在线编辑 Markdown，实时预览，自动保存到浏览器，并可导出为 Markdown 或 HTML。</p>
           </div>
           <div class="editor-actions">
-            <button class="editor-button" type="button" data-action="new"><i class="fas fa-file"></i> New</button>
-            <button class="editor-button" type="button" data-action="sample"><i class="fas fa-magic"></i> Sample</button>
-            <button class="editor-button" type="button" data-action="copy-html"><i class="fas fa-copy"></i> 复制 HTML</button>
-            <button class="editor-button" type="button" data-action="download-md"><i class="fas fa-download"></i> MD</button>
-            <button class="editor-button" type="button" data-action="download-html"><i class="fas fa-code"></i> HTML</button>
+            <button class="editor-button" type="button" data-action="new" data-i18n="editor.btn.new" data-i18n-html><i class="fas fa-file"></i> New</button>
+            <button class="editor-button" type="button" data-action="sample" data-i18n="editor.btn.sample" data-i18n-html><i class="fas fa-magic"></i> Sample</button>
+            <button class="editor-button" type="button" data-action="copy-html" data-i18n="editor.btn.copyhtml" data-i18n-html><i class="fas fa-copy"></i> 复制 HTML</button>
+            <button class="editor-button" type="button" data-action="download-md" data-i18n="editor.btn.md" data-i18n-html><i class="fas fa-download"></i> MD</button>
+            <button class="editor-button" type="button" data-action="download-html" data-i18n="editor.btn.html" data-i18n-html><i class="fas fa-code"></i> HTML</button>
           </div>
         </header>
         <div class="editor-meta">
-          <label>Title <input id="post-title" type="text" placeholder="文章标题"></label>
-          <label>Slug <input id="post-slug" type="text" placeholder="my-new-post"></label>
-          <label>Date <input id="post-date" type="date"></label>
+          <label><span data-i18n="editor.title.label">Title</span> <input id="post-title" type="text" placeholder="文章标题" data-i18n-ph="editor.title.ph"></label>
+          <label><span data-i18n="editor.slug.label">Slug</span> <input id="post-slug" type="text" placeholder="my-new-post" data-i18n-ph="editor.slug.ph"></label>
+          <label><span data-i18n="editor.date.label">Date</span> <input id="post-date" type="date"></label>
         </div>
-        <div class="editor-toolbar" role="toolbar" aria-label="Markdown 格式工具">
-          <button type="button" class="tool-btn" data-md="bold" title="加粗 (Ctrl+B)" aria-label="加粗"><i class="fas fa-bold"></i></button>
-          <button type="button" class="tool-btn" data-md="italic" title="斜体 (Ctrl+I)" aria-label="斜体"><i class="fas fa-italic"></i></button>
-          <button type="button" class="tool-btn" data-md="heading" title="标题" aria-label="标题"><i class="fas fa-heading"></i></button>
+        <div class="editor-toolbar" role="toolbar" aria-label="Markdown 格式工具" data-i18n-aria="editor.toolbar.aria">
+          <button type="button" class="tool-btn" data-md="bold" title="加粗 (Ctrl+B)" aria-label="加粗" data-i18n-title="editor.tool.bold" data-i18n-aria="editor.tool.bold"><i class="fas fa-bold"></i></button>
+          <button type="button" class="tool-btn" data-md="italic" title="斜体 (Ctrl+I)" aria-label="斜体" data-i18n-title="editor.tool.italic" data-i18n-aria="editor.tool.italic"><i class="fas fa-italic"></i></button>
+          <button type="button" class="tool-btn" data-md="heading" title="标题" aria-label="标题" data-i18n-title="editor.tool.heading" data-i18n-aria="editor.tool.heading"><i class="fas fa-heading"></i></button>
           <span class="tool-sep" aria-hidden="true"></span>
-          <button type="button" class="tool-btn" data-md="link" title="链接 (Ctrl+K)" aria-label="链接"><i class="fas fa-link"></i></button>
-          <button type="button" class="tool-btn" data-md="image" title="图片" aria-label="图片"><i class="fas fa-image"></i></button>
-          <button type="button" class="tool-btn" data-md="code" title="行内代码" aria-label="行内代码"><i class="fas fa-code"></i></button>
-          <button type="button" class="tool-btn" data-md="codeblock" title="代码块" aria-label="代码块"><i class="fas fa-laptop-code"></i></button>
+          <button type="button" class="tool-btn" data-md="link" title="链接 (Ctrl+K)" aria-label="链接" data-i18n-title="editor.tool.link" data-i18n-aria="editor.tool.link"><i class="fas fa-link"></i></button>
+          <button type="button" class="tool-btn" data-md="image" title="图片" aria-label="图片" data-i18n-title="editor.tool.image" data-i18n-aria="editor.tool.image"><i class="fas fa-image"></i></button>
+          <button type="button" class="tool-btn" data-md="code" title="行内代码" aria-label="行内代码" data-i18n-title="editor.tool.code" data-i18n-aria="editor.tool.code"><i class="fas fa-code"></i></button>
+          <button type="button" class="tool-btn" data-md="codeblock" title="代码块" aria-label="代码块" data-i18n-title="editor.tool.codeblock" data-i18n-aria="editor.tool.codeblock"><i class="fas fa-laptop-code"></i></button>
           <span class="tool-sep" aria-hidden="true"></span>
-          <button type="button" class="tool-btn" data-md="quote" title="引用" aria-label="引用"><i class="fas fa-quote-left"></i></button>
-          <button type="button" class="tool-btn" data-md="ul" title="无序列表" aria-label="无序列表"><i class="fas fa-list-ul"></i></button>
-          <button type="button" class="tool-btn" data-md="ol" title="有序列表" aria-label="有序列表"><i class="fas fa-list-ol"></i></button>
-          <button type="button" class="tool-btn" data-md="table" title="表格" aria-label="表格"><i class="fas fa-table"></i></button>
+          <button type="button" class="tool-btn" data-md="quote" title="引用" aria-label="引用" data-i18n-title="editor.tool.quote" data-i18n-aria="editor.tool.quote"><i class="fas fa-quote-left"></i></button>
+          <button type="button" class="tool-btn" data-md="ul" title="无序列表" aria-label="无序列表" data-i18n-title="editor.tool.ul" data-i18n-aria="editor.tool.ul"><i class="fas fa-list-ul"></i></button>
+          <button type="button" class="tool-btn" data-md="ol" title="有序列表" aria-label="有序列表" data-i18n-title="editor.tool.ol" data-i18n-aria="editor.tool.ol"><i class="fas fa-list-ol"></i></button>
+          <button type="button" class="tool-btn" data-md="table" title="表格" aria-label="表格" data-i18n-title="editor.tool.table" data-i18n-aria="editor.tool.table"><i class="fas fa-table"></i></button>
         </div>
         <div class="editor-layout">
           <section class="editor-pane">
-            <div class="pane-title">Markdown <span class="editor-stats" id="editor-stats"></span></div>
+            <div class="pane-title"><span data-i18n="editor.pane.markdown">Markdown</span> <span class="editor-stats" id="editor-stats"></span></div>
             <textarea id="markdown-input" spellcheck="false"></textarea>
           </section>
           <section class="preview-pane">
-            <div class="pane-title">Preview</div>
+            <div class="pane-title" data-i18n="editor.pane.preview">Preview</div>
             <article id="markdown-preview" class="markdown-preview article-content"></article>
           </section>
         </div>
-        <p class="editor-note">静态 GitHub Pages 不能直接写入仓库；导出的文件可放入 Hugo 的 <code>content/post/</code> 或当前静态站点生成流程中。提示：选中文字后点工具按钮可包裹格式，支持 Ctrl+B / Ctrl+I / Ctrl+K。</p>
+        <p class="editor-note" data-i18n="editor.note" data-i18n-html>静态 GitHub Pages 不能直接写入仓库；导出的文件可放入 Hugo 的 <code>content/post/</code> 或当前静态站点生成流程中。提示：选中文字后点工具按钮可包裹格式，支持 Ctrl+B / Ctrl+I / Ctrl+K。</p>
       </section>
     </main>
     <footer class="footer">
       <section class="container">
-        <p>© 2021 - 2026 CWL · Powered by Hugo · Theme inspired by Coder</p>
+        <p data-i18n="footer.text">© 2021 - 2026 CWL · Powered by Hugo · Theme inspired by Coder</p>
       </section>
     </footer>
   </div>
 </body>
 </html>
-

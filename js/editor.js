@@ -11,7 +11,7 @@
     return;
   }
 
-  var sampleMarkdown = [
+  var sampleMarkdownZh = [
     "# 新文章标题",
     "",
     "> 在这里记录一篇新的博客。",
@@ -34,6 +34,18 @@
     "",
     "[返回博客列表](/post/)"
   ].join("\n");
+
+  function t(key, fallback) {
+    return window.cwlT ? window.cwlT(key, fallback) : fallback;
+  }
+
+  function sampleTitle() {
+    return t("editor.sample.title", "新文章标题");
+  }
+
+  function sampleMarkdown() {
+    return t("editor.sample.markdown", sampleMarkdownZh);
+  }
 
   function today() {
     return new Date().toISOString().slice(0, 10);
@@ -127,7 +139,10 @@
     var words = rest ? rest.split(/\s+/).length : 0;
     var totalWords = chinese + words;
     var minutes = Math.max(1, Math.round(chinese / 350 + words / 200));
-    statsEl.textContent = totalWords + " 词 · " + chars + " 字符 · 约 " + minutes + " 分钟";
+    statsEl.textContent = t("editor.stats", "{words} 词 · {chars} 字符 · 约 {minutes} 分钟")
+      .replace("{words}", totalWords)
+      .replace("{chars}", chars)
+      .replace("{minutes}", minutes);
   }
 
   function render() {
@@ -165,10 +180,10 @@
       stored = JSON.parse(window.localStorage.getItem(storageKey));
     } catch (error) {}
 
-    titleInput.value = stored && stored.title ? stored.title : "新文章标题";
+    titleInput.value = stored && stored.title ? stored.title : sampleTitle();
     slugInput.value = stored && stored.slug ? stored.slug : slugify(titleInput.value);
     dateInput.value = stored && stored.date ? stored.date : today();
-    markdownInput.value = stored && stored.markdown ? stored.markdown : sampleMarkdown;
+    markdownInput.value = stored && stored.markdown ? stored.markdown : sampleMarkdown();
   }
 
   /* ----------------------------------------------------------------------
@@ -193,7 +208,7 @@
 
     function linePrefix(prefix) {
       inner = selected || "";
-      var lines = (inner || "列表项").split("\n");
+      var lines = (inner || t("editor.fmt.list", "列表项")).split("\n");
       var text = lines.map(function (line, i) {
         if (prefix === "1. ") {
           return (i + 1) + ". " + line;
@@ -206,36 +221,36 @@
     }
 
     switch (kind) {
-      case "bold": wrap("**", "**", "粗体"); break;
-      case "italic": wrap("*", "*", "斜体"); break;
-      case "code": wrap("`", "`", "代码"); break;
+      case "bold": wrap("**", "**", t("editor.fmt.bold", "粗体")); break;
+      case "italic": wrap("*", "*", t("editor.fmt.italic", "斜体")); break;
+      case "code": wrap("`", "`", t("editor.fmt.code", "代码")); break;
       case "heading": linePrefix("## "); break;
       case "quote": linePrefix("> "); break;
       case "ul": linePrefix("- "); break;
       case "ol": linePrefix("1. "); break;
       case "link":
-        inner = selected || "链接文字";
+        inner = selected || t("editor.fmt.link", "链接文字");
         var linkText = "[" + inner + "](https://)";
         markdownInput.value = before + linkText + after;
         newStart = start + 1;
         newEnd = newStart + inner.length;
         break;
       case "image":
-        inner = selected || "图片描述";
+        inner = selected || t("editor.fmt.image", "图片描述");
         var imgText = "![" + inner + "](https://)";
         markdownInput.value = before + imgText + after;
         newStart = start + 2;
         newEnd = newStart + inner.length;
         break;
       case "codeblock":
-        inner = selected || "在此粘贴代码";
+        inner = selected || t("editor.fmt.codeblock", "在此粘贴代码");
         var block = "```\n" + inner + "\n```";
         markdownInput.value = before + block + after;
         newStart = start + 4;
         newEnd = newStart + inner.length;
         break;
       case "table":
-        var table = "| 列1 | 列2 |\n| --- | --- |\n| 内容 | 内容 |";
+        var table = t("editor.fmt.table", "| 列1 | 列2 |\n| --- | --- |\n| 内容 | 内容 |");
         markdownInput.value = before + table + after;
         newStart = start;
         newEnd = start + table.length;
@@ -305,8 +320,8 @@
     var done = function (ok) {
       var original = button.innerHTML;
       button.innerHTML = ok
-        ? '<i class="fas fa-check"></i> 已复制'
-        : '<i class="fas fa-copy"></i> 复制失败';
+        ? t("editor.btn.copied", '<i class="fas fa-check"></i> 已复制')
+        : t("editor.btn.copyfail", '<i class="fas fa-copy"></i> 复制失败');
       window.setTimeout(function () { button.innerHTML = original; }, 1600);
     };
     if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -342,10 +357,10 @@
       }
 
       if (action === "sample") {
-        titleInput.value = "新文章标题";
+        titleInput.value = sampleTitle();
         slugInput.value = slugify(titleInput.value);
         dateInput.value = today();
-        markdownInput.value = sampleMarkdown;
+        markdownInput.value = sampleMarkdown();
         render();
       }
 
@@ -365,4 +380,5 @@
 
   loadState();
   render();
+  document.addEventListener("cwl:langchange", updateStats);
 })();

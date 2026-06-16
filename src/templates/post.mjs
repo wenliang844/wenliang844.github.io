@@ -37,11 +37,11 @@ const SHARE_ICONS = {
 function renderShare(post) {
   const url = `/post/${post.slug}/`;
   return `            <div class="post-share" data-share-url="${url}" data-share-title="${escapeAttr(post.shortTitle)}">
-              <span class="share-label">${SHARE_ICONS.share} 分享</span>
-              <a class="share-btn" data-share="x" href="#" target="_blank" rel="noopener" aria-label="分享到 X">${SHARE_ICONS.x}</a>
-              <button class="share-btn" type="button" data-share="weibo" aria-label="分享到微博">${SHARE_ICONS.weibo}</button>
-              <button class="share-btn" type="button" data-share="wechat" aria-label="微信扫码分享">${SHARE_ICONS.wechat}</button>
-              <button class="share-btn" type="button" data-share="copy" aria-label="复制链接">${SHARE_ICONS.link}</button>
+              <span class="share-label" data-i18n="post.share">${SHARE_ICONS.share} 分享</span>
+              <a class="share-btn" data-share="x" href="#" target="_blank" rel="noopener" aria-label="分享到 X" data-i18n-aria="post.share.x">${SHARE_ICONS.x}</a>
+              <button class="share-btn" type="button" data-share="weibo" aria-label="分享到微博" data-i18n-aria="post.share.weibo">${SHARE_ICONS.weibo}</button>
+              <button class="share-btn" type="button" data-share="wechat" aria-label="微信扫码分享" data-i18n-aria="post.share.wechat">${SHARE_ICONS.wechat}</button>
+              <button class="share-btn" type="button" data-share="copy" aria-label="复制链接" data-i18n-aria="post.share.copy">${SHARE_ICONS.link}</button>
             </div>`;
 }
 
@@ -54,8 +54,8 @@ function renderPager(prev, next) {
   const nextLabel = next ? next.shortTitle : "Posts";
 
   return `      <nav class="post-pager" aria-label="Post pagination">
-        <a class="pager-prev" href="${prevHref}">← ${prevLabel}</a>
-        <a class="pager-next" href="${nextHref}">${nextLabel} →</a>
+        <a class="pager-prev" href="${prevHref}">← <span data-i18n="post.meta.posts">${prevLabel}</span></a>
+        <a class="pager-next" href="${nextHref}"><span data-i18n="post.meta.posts">${nextLabel}</span> →</a>
       </nav>`;
 }
 
@@ -85,8 +85,8 @@ ${post.contentHtml}
         </div>
 ${renderShare(post)}
       </article>
-      <section class="comments container" aria-label="评论">
-        <h2><i class="fas fa-comments" aria-hidden="true"></i> 评论</h2>
+      <section class="comments container" aria-label="评论" data-i18n-aria="post.comments.aria">
+        <h2 data-i18n="post.comments"><i class="fas fa-comments" aria-hidden="true"></i> 评论</h2>
         <div id="giscus-thread"></div>
       </section>
 ${renderPager(nav.prev, nav.next)}
@@ -96,6 +96,7 @@ ${renderPager(nav.prev, nav.next)}
     title: `${post.shortTitle} :: CWLBlog`,
     description: post.description,
     active: "blog",
+    page: "posts",
     scripts: ["/js/vendor/qrcode.min.js", "/js/share.js", "/js/giscus.js"],
     og: {
       type: "article",
@@ -156,24 +157,24 @@ export function renderPostList(posts, stats) {
 
   const main = `    <main class="content">
       <section class="blog-layout container" aria-label="Blog">
-        <aside class="post-tree" aria-label="文章目录">
+        <aside class="post-tree" aria-label="文章目录" data-i18n-aria="post.tree.aria">
           <div class="post-tree-header">
             <span class="eyebrow">${stats.year} Timeline</span>
             <h1>Posts</h1>
-            <p class="lead">把今年做过的系统重构、平台化建设和工程实践，整理成可持续更新的技术札记。</p>
+            <p class="lead" data-i18n="post.tree.lead">把今年做过的系统重构、平台化建设和工程实践，整理成可持续更新的技术札记。</p>
           </div>
-          <div class="timeline-stats" aria-label="内容概览">
+          <div class="timeline-stats" aria-label="内容概览" data-i18n-aria="post.stats.aria">
             <div>
               <strong>${stats.count}</strong>
-              <span>篇复盘</span>
+              <span data-i18n="post.stats.posts">篇复盘</span>
             </div>
             <div>
               <strong>${stats.systems}</strong>
-              <span>类系统</span>
+              <span data-i18n="post.stats.systems">类系统</span>
             </div>
             <div>
               <strong>${stats.year}</strong>
-              <span>今年时间线</span>
+              <span data-i18n="post.stats.year">今年时间线</span>
             </div>
           </div>
           <nav class="post-tree-nav">
@@ -189,15 +190,15 @@ ${treeLinks}
           </nav>
           <div class="post-search">
             <i class="fas fa-search" aria-hidden="true"></i>
-            <input type="search" id="post-search-input" placeholder="搜索文章 / 标签…" aria-label="搜索文章">
+            <input type="search" id="post-search-input" placeholder="搜索文章 / 标签…" aria-label="搜索文章" data-i18n-ph="post.search.ph" data-i18n-aria="post.search.aria">
           </div>
-          <div class="tag-filter" id="tag-filter" aria-label="按标签筛选"></div>
+          <div class="tag-filter" id="tag-filter" aria-label="按标签筛选" data-i18n-aria="post.tagfilter.aria"></div>
         </aside>
 
         <section class="post-detail" aria-live="polite">
 ${panels}
-          <section class="comments" aria-label="评论">
-            <h2><i class="fas fa-comments" aria-hidden="true"></i> 评论</h2>
+          <section class="comments" aria-label="评论" data-i18n-aria="post.comments.aria">
+            <h2 data-i18n="post.comments"><i class="fas fa-comments" aria-hidden="true"></i> 评论</h2>
             <div id="giscus-thread" data-giscus-mode="switch"></div>
           </section>
         </section>
@@ -210,6 +211,7 @@ ${panels}
     title: "Posts :: CWLBlog",
     description,
     active: "blog",
+    page: "posts",
     scripts: ["/js/blog.js", "/js/vendor/qrcode.min.js", "/js/share.js", "/js/giscus.js"],
     og: { type: "website", title: "Posts", description, path: "/post/" },
     main,

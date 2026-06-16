@@ -8,26 +8,30 @@
   <link rel="icon" href="/images/favicon.png" type="image/png">
   <link rel="stylesheet" href="/css/fontawesome-all.min.css">
   <link rel="stylesheet" href="/css/coder.css">
+  <script src="/js/i18n.js" defer></script>
   <script src="/js/coder.js" defer></script>
+  <script src="/js/vendor/fuse.min.js" defer></script>
+  <script src="/js/search.js" defer></script>
   <title>404 Page not found</title>
 </head>
-<body class="colorscheme-dark">
+<body class="colorscheme-dark" data-i18n-page="notfound">
   <div class="cursor-glow" aria-hidden="true"></div>
   <canvas class="cursor-canvas" aria-hidden="true"></canvas>
   <div class="site-shell">
     <header class="navigation">
       <section class="container">
         <a class="navigation-title" href="/">CWLBlog</a>
-        <input type="checkbox" id="menu-toggle" class="menu-toggle" aria-label="Toggle menu">
+        <input type="checkbox" id="menu-toggle" class="menu-toggle" aria-label="Toggle menu" data-i18n-aria="nav.menu">
         <label class="menu-button" for="menu-toggle"><i class="fas fa-bars"></i></label>
-        <nav class="navigation-list" aria-label="Main navigation">
+        <nav class="navigation-list" aria-label="Main navigation" data-i18n-aria="nav.main">
           <ul>
-          <li><a href="/about/">About</a></li>
-          <li><a href="/post/">Blog</a></li>
-          <li><a href="/editor/">Editor</a></li>
-          <li><a href="/contact/">Contact</a></li>
-            <li><a class="nav-feedback" href="/contact/#feedback-title"><i class="fas fa-comment-dots" aria-hidden="true"></i> 留言反馈</a></li>
-            <li><button class="theme-toggle" type="button" aria-label="Toggle dark mode"><i class="fas fa-adjust"></i></button></li>
+          <li><a href="/post/" data-i18n="nav.blog">Blog</a></li>
+          <li><a href="/editor/" data-i18n="nav.editor">Editor</a></li>
+          <li><a href="/contact/" data-i18n="nav.contact">Contact</a></li>
+            <li><a class="nav-feedback" href="/contact/#feedback-title" data-i18n="nav.feedback" data-i18n-html><i class="fas fa-comment-dots" aria-hidden="true"></i> 留言反馈</a></li>
+            <li><button class="theme-toggle" type="button" aria-label="Toggle dark mode" data-i18n-aria="nav.theme"><i class="fas fa-adjust"></i></button></li>
+            <li><button class="lang-toggle" type="button" aria-label="Switch language">EN</button></li>
+            <li><button class="nav-search-trigger" type="button" aria-label="全局搜索" data-i18n-aria="nav.search"><i class="fas fa-search"></i></button></li>
           </ul>
         </nav>
       </section>
@@ -36,17 +40,16 @@
       <section class="not-found container">
         <div>
           <h1>404</h1>
-          <p class="lead">这个页面不存在。</p>
-          <p><a href="/">Go to homepage</a></p>
+          <p class="lead" data-i18n="notfound.lead">这个页面不存在。</p>
+          <p><a href="/" data-i18n="notfound.home">Go to homepage</a></p>
         </div>
       </section>
     </main>
     <footer class="footer">
       <section class="container">
-        <p>© 2021 - 2026 CWL · Powered by Hugo · Theme inspired by Coder</p>
+        <p data-i18n="footer.text">© 2021 - 2026 CWL · Powered by Hugo · Theme inspired by Coder</p>
       </section>
     </footer>
   </div>
 </body>
 </html>
-
