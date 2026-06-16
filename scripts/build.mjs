@@ -10,8 +10,8 @@
 import { readdir, readFile, mkdir, writeFile } from "node:fs/promises";
 import { dirname, isAbsolute, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import matter from "gray-matter";
 import { marked } from "marked";
+import { parse as parseYaml } from "yaml";
 
 import { SITE, STATIC_PAGES, SEARCH_PAGES } from "../src/config.mjs";
 import { renderPostPage, renderPostList } from "../src/templates/post.mjs";
@@ -93,6 +93,16 @@ function resolveOutDir(index) {
   return outDir;
 }
 
+function parseFrontMatter(raw, file) {
+  const match = raw.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?/);
+  if (!match) {
+    throw new Error(`${file}: Missing front matter block.`);
+  }
+  const data = parseYaml(match[1]) || {};
+  const content = raw.slice(match[0].length);
+  return { data, content };
+}
+
 // marked 在内联 HTML 块后会多输出空行；压缩块间空行让产物更干净。
 // 先用 \x00（不会出现在正文）包裹占位序号抽出 <pre> 代码块，
 // 避免压掉代码内部的空行，压缩后再还原。
@@ -132,7 +142,7 @@ async function loadPosts() {
         continue;
       }
 
-      const { data, content } = matter(raw);
+      const { data, content } = parseFrontMatter(raw, file);
 
       // 验证必填字段
       validatePost(data, file);

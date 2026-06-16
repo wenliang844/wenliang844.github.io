@@ -11,8 +11,8 @@
     "dev": "npm run build && npm run serve"
   },
   "devDependencies": {
-    "gray-matter": "^4.0.3",
     "jsdom": "^27.0.1",
-    "marked": "^18.0.5"
+    "marked": "^18.0.5",
+    "yaml": "^2.9.0"
   }
 }

@@ -42,3 +42,36 @@
 - 补充浏览器级自动化测试或更稳定的截图方案。
 - 检查依赖版本与 npm registry 配置，恢复可执行的安全审计流程。
 - 继续评估首屏资源、脚本懒加载和静态资源缓存策略。
+
+## 第 2 轮：依赖安全审计
+
+时间：2026-06-17
+
+### 已完成内容
+
+- 使用官方 npm registry 执行依赖安全审计。
+- 移除 `gray-matter`，切断其对存在 DoS 告警的 `js-yaml` 依赖链。
+- 新增 `yaml` 作为 front matter 的结构化 YAML 解析器。
+- 更新 `scripts/build.mjs`，保留标准 `---` front matter 分隔格式，并用 `yaml` 解析元数据。
+
+### 发现的问题
+
+- `gray-matter` 依赖链包含 `js-yaml <=4.1.1`，npm audit 报告 2 个 moderate 级别漏洞：
+  - `GHSA-h67p-54hq-rp68`：merge key repeated aliases 可能导致二次复杂度 DoS。
+- `npm audit fix --force` 给出的自动方案会降级 `gray-matter`，存在破坏性风险，不适合直接采用。
+
+### 修复方案
+
+- 替换依赖而不是强制降级：使用 `yaml` 解析 front matter 中的 YAML 元数据。
+- 保持构建接口不变：`src/posts/*.md` 输入格式、生成文件路径和构建命令保持一致。
+
+### 性能与安全指标
+
+- `npm audit --audit-level=moderate --registry=https://registry.npmjs.org`：0 vulnerabilities。
+- `npm test`：22 个测试全部通过，耗时约 1.5 秒。
+- `npm run build`：通过，生成 6 篇文章。
+
+### 下一步计划
+
+- 继续审计 RSS/XML 输出中的文本转义，确保标题和摘要在 XML 上下文中也安全。
+- 评估是否把 front matter 解析和校验拆成可单测模块，降低构建脚本回归风险。
