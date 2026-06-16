@@ -2350,8 +2350,38 @@ body.search-open .search-modal .search-modal-card,
 .overleaf-actions {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   justify-content: flex-end;
   gap: 0.6rem;
+}
+
+.overleaf-format-control {
+  min-height: 2.6rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.overleaf-format-control select {
+  min-width: 8rem;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.overleaf-format-control select:focus-visible {
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 28%, transparent);
 }
 
 .overleaf-status {
@@ -2728,6 +2758,11 @@ body.search-open .search-modal .search-modal-card,
 
   .overleaf-actions {
     justify-content: flex-start;
+  }
+
+  .overleaf-format-control,
+  .overleaf-format-control select {
+    width: 100%;
   }
 
   .overleaf-grid {

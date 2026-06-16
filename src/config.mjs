@@ -47,10 +47,10 @@ export const SEARCH_PAGES = [
   },
   {
     title: "Overleaf",
-    summary: "Overleaf 风格 LaTeX 简历模板，支持源码与预览双向编辑、PDF 下载。",
+    summary: "Overleaf 风格多格式简历模板，支持 LaTeX、Markdown、moderncv、HTML 源码与预览双向编辑、PDF 下载。",
     path: "/overleaf/",
-    tags: ["工具", "简历", "LaTeX"],
-    i18n: { en: { title: "Overleaf", summary: "Overleaf-style LaTeX resume template with source/preview editing and PDF download.", tags: ["Tool", "Resume", "LaTeX"] } },
+    tags: ["工具", "简历", "LaTeX", "Markdown", "HTML"],
+    i18n: { en: { title: "Overleaf", summary: "Overleaf-style multi-format resume template with LaTeX, Markdown, moderncv and HTML source/preview editing plus PDF download.", tags: ["Tool", "Resume", "LaTeX", "Markdown", "HTML"] } },
   },
   {
     title: "Tags",

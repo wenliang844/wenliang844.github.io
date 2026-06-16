@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Overleaf 风格 LaTeX 简历模板，支持源码与预览双向编辑、PDF 下载。">
+  <meta name="description" content="Overleaf 风格简历模板，支持 LaTeX、Markdown、moderncv、HTML 源码与预览双向编辑、PDF 下载。">
   <meta name="generator" content="Hugo 0.82.0">
   <link rel="icon" href="/images/favicon.png" type="image/png">
   <link rel="stylesheet" href="/css/fontawesome-all.min.css">
@@ -43,10 +43,19 @@
         <header class="overleaf-topbar">
           <div>
             <span class="eyebrow"><i class="fas fa-leaf" aria-hidden="true"></i> Overleaf</span>
-            <h1 id="overleaf-title" data-i18n="overleaf.h1">LaTeX 简历模板</h1>
-            <p class="lead" data-i18n="overleaf.lead">左侧编辑 LaTeX 源码，右侧预览简历；预览中的文字也可以直接修改，并会同步回源码。</p>
+            <h1 id="overleaf-title" data-i18n="overleaf.h1">多格式简历模板</h1>
+            <p class="lead" data-i18n="overleaf.lead">左侧选择源码格式并编辑，右侧预览简历；预览中的文字也可以直接修改，并会同步回当前格式源码。</p>
           </div>
           <div class="overleaf-actions" aria-label="Overleaf actions">
+            <label class="overleaf-format-control" for="resume-format">
+              <span data-i18n="overleaf.format.label">源码格式</span>
+              <select id="resume-format" aria-label="源码格式" data-i18n-aria="overleaf.format.aria">
+                <option value="latex">LaTeX</option>
+                <option value="markdown">Markdown</option>
+                <option value="moderncv">moderncv</option>
+                <option value="html">HTML</option>
+              </select>
+            </label>
             <button class="editor-button" type="button" data-overleaf-action="compile"><i class="fas fa-sync-alt" aria-hidden="true"></i> <span data-i18n="overleaf.btn.compile">重新编译</span></button>
             <button class="editor-button" type="button" data-overleaf-action="copy"><i class="fas fa-copy" aria-hidden="true"></i> <span data-i18n="overleaf.btn.copy">复制源码</span></button>
             <button class="editor-button" type="button" data-overleaf-action="reset"><i class="fas fa-undo" aria-hidden="true"></i> <span data-i18n="overleaf.btn.reset">恢复模板</span></button>
@@ -57,17 +66,17 @@
         <div class="overleaf-status" role="status" aria-live="polite" id="overleaf-status">Ready</div>
 
         <div class="overleaf-grid">
-          <section class="overleaf-source-panel" aria-labelledby="latex-source-title">
+          <section class="overleaf-source-panel" aria-labelledby="resume-source-title">
             <div class="overleaf-pane-title">
-              <span id="latex-source-title"><i class="fas fa-code" aria-hidden="true"></i> <span data-i18n="overleaf.source">Source</span></span>
-              <span class="overleaf-badge">resume.tex</span>
+              <span id="resume-source-title"><i class="fas fa-code" aria-hidden="true"></i> <span data-i18n="overleaf.source">Source</span></span>
+              <span class="overleaf-badge" id="resume-source-badge">resume.tex</span>
             </div>
-            <textarea id="latex-source" spellcheck="false" aria-label="LaTeX source"></textarea>
+            <textarea id="latex-source" spellcheck="false" aria-label="Resume source"></textarea>
           </section>
 
-          <section class="overleaf-preview-panel" aria-labelledby="latex-preview-title">
+          <section class="overleaf-preview-panel" aria-labelledby="resume-preview-title">
             <div class="overleaf-pane-title">
-              <span id="latex-preview-title"><i class="fas fa-file-alt" aria-hidden="true"></i> <span data-i18n="overleaf.preview">Preview</span></span>
+              <span id="resume-preview-title"><i class="fas fa-file-alt" aria-hidden="true"></i> <span data-i18n="overleaf.preview">Preview</span></span>
               <span class="overleaf-badge" data-i18n="overleaf.editable">editable PDF preview</span>
             </div>
             <div class="overleaf-preview-scroll">
