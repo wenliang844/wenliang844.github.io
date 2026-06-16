@@ -229,6 +229,37 @@
     });
   }
 
+  // Animate skill bars (.skill-fill[data-level]) to their target width.
+  var skillFills = Array.prototype.slice.call(document.querySelectorAll(".skill-fill[data-level]"));
+  if (skillFills.length) {
+    skillFills.forEach(function (fill) {
+      fill.style.setProperty("--level", fill.getAttribute("data-level"));
+    });
+    if (!prefersReduced && "IntersectionObserver" in window) {
+      // Observe the full-width track, not the zero-width fill (a zero-area
+      // target never produces an intersection ratio).
+      var skillObserver = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            var fill = entry.target.querySelector(".skill-fill");
+            if (fill) {
+              fill.classList.add("is-filled");
+            }
+            skillObserver.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.4 });
+      skillFills.forEach(function (fill) {
+        var track = fill.parentElement || fill;
+        skillObserver.observe(track);
+      });
+    } else {
+      skillFills.forEach(function (fill) {
+        fill.classList.add("is-filled");
+      });
+    }
+  }
+
   /* ----------------------------------------------------------------------
    * Cursor particle trail (decorative; skipped under reduced motion)
    * -------------------------------------------------------------------- */

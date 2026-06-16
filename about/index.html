@@ -34,14 +34,138 @@
     </header>
     <main class="content">
       <section class="page container">
-        <h1>About</h1>
-        <p class="lead">欢迎访问我的个人博客。这里记录 Java 后端、Spring 生态、数据结构与算法、数据库、Linux 运维和日常学习总结。</p>
-        <p>我关注代码质量、工程可维护性，也喜欢把学习路径和实践经验整理成可以复用的文章。</p>
+        <span class="eyebrow"><i class="fas fa-laptop-code" aria-hidden="true"></i> About Me</span>
+        <h1>关于阿亮</h1>
+        <p class="lead">Java 后端开发工程师，专注服务端架构、工作流引擎与低代码平台。喜欢把复杂系统拆清楚，也喜欢把实践经验整理成可复用的文章。</p>
+        <p>从视频智能侦测系统的链路重构，到财税 SaaS 的报表与搜索组件，再到低代码平台的出码引擎和审批流引擎封装——我关注的始终是边界清晰、命名稳定、配置统一、失败可排查。本站记录这些项目的复盘，以及 Java、Spring、数据库和工程化方面的学习总结。</p>
+
         <div class="card-grid">
-          <div class="card"><h2>Backend</h2><p>Java, Spring Boot, Spring MVC, MyBatis, Maven</p></div>
-          <div class="card"><h2>Frontend</h2><p>HTML, CSS, JavaScript, jQuery, AJAX</p></div>
-          <div class="card"><h2>Infrastructure</h2><p>MySQL, Redis, Linux, Shell, Git</p></div>
+          <div class="card"><h2><i class="fas fa-laptop-code" aria-hidden="true"></i> Backend</h2><p>Java、Spring Boot、MyBatis/JPA、Maven 多模块、微服务</p></div>
+          <div class="card"><h2><i class="fas fa-database" aria-hidden="true"></i> Data &amp; MQ</h2><p>MySQL、Kingbase、Redis/Redisson、ElasticSearch、RocketMQ/RabbitMQ</p></div>
+          <div class="card"><h2><i class="fas fa-cogs" aria-hidden="true"></i> Platform</h2><p>Activiti 工作流、低代码 Schema/出码、Docker、Jenkins</p></div>
         </div>
+      </section>
+
+      <section class="section container" aria-labelledby="skills-title">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow"><i class="fas fa-cogs" aria-hidden="true"></i> Skills</span>
+            <h2 id="skills-title">技能栈</h2>
+            <p class="section-sub">后端为主轴，向工作流、低代码与前端工程延伸。</p>
+          </div>
+        </div>
+        <div class="skills-grid">
+          <div class="skill-row">
+            <div class="skill-label"><span>Java 语言与并发</span><span>精通</span></div>
+            <div class="skill-track"><div class="skill-fill" data-level="95%"></div></div>
+          </div>
+          <div class="skill-row">
+            <div class="skill-label"><span>Spring Boot / Starter</span><span>精通</span></div>
+            <div class="skill-track"><div class="skill-fill" data-level="92%"></div></div>
+          </div>
+          <div class="skill-row">
+            <div class="skill-label"><span>MySQL / 国产库适配 / SQL 优化</span><span>熟练</span></div>
+            <div class="skill-track"><div class="skill-fill" data-level="88%"></div></div>
+          </div>
+          <div class="skill-row">
+            <div class="skill-label"><span>Redis / ElasticSearch / MQ</span><span>熟练</span></div>
+            <div class="skill-track"><div class="skill-fill" data-level="85%"></div></div>
+          </div>
+          <div class="skill-row">
+            <div class="skill-label"><span>Activiti / BPMN 2.0 工作流</span><span>熟练</span></div>
+            <div class="skill-track"><div class="skill-fill" data-level="85%"></div></div>
+          </div>
+          <div class="skill-row">
+            <div class="skill-label"><span>低代码 Schema / 出码引擎</span><span>熟练</span></div>
+            <div class="skill-track"><div class="skill-fill" data-level="82%"></div></div>
+          </div>
+          <div class="skill-row">
+            <div class="skill-label"><span>TypeScript / React / Monorepo</span><span>掌握</span></div>
+            <div class="skill-track"><div class="skill-fill" data-level="72%"></div></div>
+          </div>
+          <div class="skill-row">
+            <div class="skill-label"><span>Python（FastAPI/Flask）</span><span>了解</span></div>
+            <div class="skill-track"><div class="skill-fill" data-level="60%"></div></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section container" aria-labelledby="exp-title">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow"><i class="fas fa-briefcase" aria-hidden="true"></i> Experience</span>
+            <h2 id="exp-title">工作与项目时间线</h2>
+            <p class="section-sub">两段后端研发经历，覆盖智能分析、SaaS、低代码与工作流。</p>
+          </div>
+        </div>
+        <ol class="timeline">
+          <li>
+            <span class="tl-date">2023.09 — 至今</span>
+            <h3>浙江联乾信息科技 <span class="tl-org">· Java 开发工程师</span></h3>
+            <p>主导视频智能侦测系统后端重构，整合采集/算法/规则/告警为 Maven 多模块；参与算法服务平台化；同时负责公安督察、财税 SaaS、审批流引擎、低代码平台等多个系统的后端设计与开发，并推动公共组件、Starter 与工程化实践沉淀。</p>
+          </li>
+          <li>
+            <span class="tl-date">2022.09 — 2023.08</span>
+            <h3>杭州端点网络科技 <span class="tl-org">· Java 开发工程师</span></h3>
+            <p>参与企业级低代码及数字化业务平台后端研发，负责表单引擎、流程自动化、页面渲染等模块；基于 Spring Boot/Cloud 开发微服务，优化复杂查询的 SQL 与 Redis 缓存；并参与 React/TypeScript 部分交互开发，积累全栈协作能力。</p>
+          </li>
+          <li>
+            <span class="tl-date">2018.06 — 2022.07</span>
+            <h3>江西科技学院 <span class="tl-org">· 软件工程 · 本科</span></h3>
+            <p>在校期间打下扎实的算法与工程基础，多次参加程序设计竞赛并获奖。</p>
+          </li>
+        </ol>
+      </section>
+
+      <section class="section container" aria-labelledby="projects-title">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow"><i class="fas fa-wrench" aria-hidden="true"></i> Projects</span>
+            <h2 id="projects-title">代表项目</h2>
+            <p class="section-sub">点击卡片查看对应的项目复盘文章。</p>
+          </div>
+        </div>
+        <div class="project-grid">
+          <a class="project-card" href="/post/video-intelligence-platform/">
+            <span class="project-icon"><i class="fas fa-laptop-code" aria-hidden="true"></i></span>
+            <h3>视频智能侦测系统</h3>
+            <p>采集→算法→规则→告警链路重构，算法注册与执行器插件化。</p>
+            <div class="project-stack"><span>Spring Boot</span><span>ONNX Runtime</span><span>OpenCV</span><span>RabbitMQ</span></div>
+          </a>
+          <a class="project-card" href="/post/finance-saas-backend/">
+            <span class="project-icon"><i class="fas fa-database" aria-hidden="true"></i></span>
+            <h3>钱谷财税 SaaS</h3>
+            <p>财务报表计算、ElasticSearch Starter、多渠道通知中心。</p>
+            <div class="project-stack"><span>ElasticSearch</span><span>RocketMQ</span><span>EasyExcel</span><span>Redisson</span></div>
+          </a>
+          <a class="project-card" href="/post/lowcode-schema-codegen/">
+            <span class="project-icon"><i class="fas fa-cogs" aria-hidden="true"></i></span>
+            <h3>Trantor 低代码平台</h3>
+            <p>设计器核心、物料协议、Web Worker 出码与插件化架构。</p>
+            <div class="project-stack"><span>TypeScript</span><span>React</span><span>MobX</span><span>Lerna</span></div>
+          </a>
+          <a class="project-card" href="/post/activiti-workflow-engine/">
+            <span class="project-icon"><i class="fas fa-wrench" aria-hidden="true"></i></span>
+            <h3>TerminusActiviti 审批流</h3>
+            <p>基于 Activiti 7 的轻量 BPM 引擎封装与流程图能力。</p>
+            <div class="project-stack"><span>Activiti 7</span><span>BPMN 2.0</span><span>MyBatis</span></div>
+          </a>
+        </div>
+      </section>
+
+      <section class="section container" aria-labelledby="honor-title">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow"><i class="fas fa-trophy" aria-hidden="true"></i> Honors</span>
+            <h2 id="honor-title">荣誉与证书</h2>
+          </div>
+        </div>
+        <ul class="honor-list">
+          <li><i class="fas fa-trophy" aria-hidden="true"></i> 蓝桥杯 国家二等奖（省一等奖）</li>
+          <li><i class="fas fa-trophy" aria-hidden="true"></i> ACM 程序设计竞赛 铜奖（队长）</li>
+          <li><i class="fas fa-star" aria-hidden="true"></i> 校级蓝信杯二等奖 · 程序设计大赛三等奖</li>
+          <li><i class="fas fa-graduation-cap" aria-hidden="true"></i> 软考 软件设计师（中级）</li>
+        </ul>
       </section>
     </main>
     <footer class="footer">

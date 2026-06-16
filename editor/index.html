@@ -11,6 +11,7 @@
   <script src="/js/coder.js" defer></script>
   <script src="/js/vendor/marked.min.js" defer></script>
   <script src="/js/vendor/purify.min.js" defer></script>
+  <script src="/js/vendor/highlight.min.js" defer></script>
   <script src="/js/editor.js" defer></script>
   <title>Markdown Editor :: wenliangBlog</title>
 </head>
@@ -45,6 +46,7 @@
           <div class="editor-actions">
             <button class="editor-button" type="button" data-action="new"><i class="fas fa-file"></i> New</button>
             <button class="editor-button" type="button" data-action="sample"><i class="fas fa-magic"></i> Sample</button>
+            <button class="editor-button" type="button" data-action="copy-html"><i class="fas fa-copy"></i> 复制 HTML</button>
             <button class="editor-button" type="button" data-action="download-md"><i class="fas fa-download"></i> MD</button>
             <button class="editor-button" type="button" data-action="download-html"><i class="fas fa-code"></i> HTML</button>
           </div>
@@ -54,9 +56,24 @@
           <label>Slug <input id="post-slug" type="text" placeholder="my-new-post"></label>
           <label>Date <input id="post-date" type="date"></label>
         </div>
+        <div class="editor-toolbar" role="toolbar" aria-label="Markdown 格式工具">
+          <button type="button" class="tool-btn" data-md="bold" title="加粗 (Ctrl+B)" aria-label="加粗"><i class="fas fa-bold"></i></button>
+          <button type="button" class="tool-btn" data-md="italic" title="斜体 (Ctrl+I)" aria-label="斜体"><i class="fas fa-italic"></i></button>
+          <button type="button" class="tool-btn" data-md="heading" title="标题" aria-label="标题"><i class="fas fa-heading"></i></button>
+          <span class="tool-sep" aria-hidden="true"></span>
+          <button type="button" class="tool-btn" data-md="link" title="链接 (Ctrl+K)" aria-label="链接"><i class="fas fa-link"></i></button>
+          <button type="button" class="tool-btn" data-md="image" title="图片" aria-label="图片"><i class="fas fa-image"></i></button>
+          <button type="button" class="tool-btn" data-md="code" title="行内代码" aria-label="行内代码"><i class="fas fa-code"></i></button>
+          <button type="button" class="tool-btn" data-md="codeblock" title="代码块" aria-label="代码块"><i class="fas fa-laptop-code"></i></button>
+          <span class="tool-sep" aria-hidden="true"></span>
+          <button type="button" class="tool-btn" data-md="quote" title="引用" aria-label="引用"><i class="fas fa-quote-left"></i></button>
+          <button type="button" class="tool-btn" data-md="ul" title="无序列表" aria-label="无序列表"><i class="fas fa-list-ul"></i></button>
+          <button type="button" class="tool-btn" data-md="ol" title="有序列表" aria-label="有序列表"><i class="fas fa-list-ol"></i></button>
+          <button type="button" class="tool-btn" data-md="table" title="表格" aria-label="表格"><i class="fas fa-table"></i></button>
+        </div>
         <div class="editor-layout">
           <section class="editor-pane">
-            <div class="pane-title">Markdown</div>
+            <div class="pane-title">Markdown <span class="editor-stats" id="editor-stats"></span></div>
             <textarea id="markdown-input" spellcheck="false"></textarea>
           </section>
           <section class="preview-pane">
@@ -64,7 +81,7 @@
             <article id="markdown-preview" class="markdown-preview article-content"></article>
           </section>
         </div>
-        <p class="editor-note">静态 GitHub Pages 不能直接写入仓库；导出的文件可放入 Hugo 的 <code>content/post/</code> 或当前静态站点生成流程中。</p>
+        <p class="editor-note">静态 GitHub Pages 不能直接写入仓库；导出的文件可放入 Hugo 的 <code>content/post/</code> 或当前静态站点生成流程中。提示：选中文字后点工具按钮可包裹格式，支持 Ctrl+B / Ctrl+I / Ctrl+K。</p>
       </section>
     </main>
     <footer class="footer">
