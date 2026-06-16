@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="规则引擎如何把算法分析结果转换成可解释、可追踪的业务告警。">
+  <meta name="generator" content="Hugo 0.82.0">
+  <link rel="icon" href="/images/favicon.png" type="image/png">
+  <link rel="stylesheet" href="/css/fontawesome-all.min.css">
+  <link rel="stylesheet" href="/css/coder.css">
+  <script src="/js/coder.js" defer></script>
+  <title>规则引擎与告警闭环 :: wenliangBlog</title>
+</head>
+<body class="colorscheme-light">
+  <div class="cursor-glow" aria-hidden="true"></div>
+  <canvas class="cursor-canvas" aria-hidden="true"></canvas>
+  <div class="site-shell">
+    <header class="navigation">
+      <section class="container">
+        <a class="navigation-title" href="/">wenliangBlog</a>
+        <input type="checkbox" id="menu-toggle" class="menu-toggle" aria-label="Toggle menu">
+        <label class="menu-button" for="menu-toggle"><i class="fas fa-bars"></i></label>
+        <nav class="navigation-list" aria-label="Main navigation">
+          <ul>
+          <li><a href="/about/">About</a></li>
+          <li><a class="active" href="/post/">Blog</a></li>
+          <li><a href="/editor/">Editor</a></li>
+          <li><a href="/contact/">Contact</a></li>
+            <li><button class="theme-toggle" type="button" aria-label="Toggle dark mode"><i class="fas fa-adjust"></i></button></li>
+          </ul>
+        </nav>
+      </section>
+    </header>
+    <main class="content container">
+      <article class="article">
+        <header class="article-header">
+          <span class="eyebrow">Runtime Design</span>
+          <h1>规则引擎与告警闭环：让分析结果变成可解释事件</h1>
+          <div class="article-meta">
+            <time datetime="2026-05-28">May 28, 2026</time>
+            <span>·</span>
+            <a href="/post/#rule-engine-alerts">Posts</a>
+          </div>
+          <p class="article-summary">把算法输出组织成规则运行时上下文，支持窗口聚合、事实时间线和统一告警创建。</p>
+          <div class="post-tags">
+            <span>规则引擎</span><span>告警系统</span><span>Redis</span><span>MySQL</span>
+          </div>
+        </header>
+        <div class="article-content">
+          <p>算法结果本身只是“看见了什么”，规则引擎要回答的是“这件事是否值得通知业务”。今年在规则链路上做的核心工作，就是把标准分析结果转换为可判断、可追踪、可解释的运行时上下文。</p>
+          <h2>设计思路</h2>
+          <ul class="insight-list">
+            <li><strong>事实时间线：</strong>按点位、算法、目标和时间组织事实，让连续命中、间隔命中和缺失判断都能被表达。</li>
+            <li><strong>窗口聚合：</strong>在规则侧处理短时间内的多次识别结果，减少重复告警，也保留必要的证据链。</li>
+            <li><strong>入口收口：</strong>统一自研算法、海康事件和第三方接入的告警创建流程，让查询、统计、导出共享同一套业务口径。</li>
+            <li><strong>兼容兜底：</strong>旧事实链路在迁移期继续可用，保证新旧规则能逐步切换。</li>
+          </ul>
+          <p>我更喜欢把规则引擎看成“业务解释层”，它不能只会跑表达式，还要能说明为什么命中、命中了什么、后续由哪个业务域接住。</p>
+        </div>
+      </article>
+      <nav class="post-pager" aria-label="Post pagination">
+        <a class="pager-prev" href="/post/video-intelligence-platform/">← 视频智能侦测系统重构</a>
+        <a class="pager-next" href="/post/finance-saas-backend/">财税 SaaS 后端实践 →</a>
+      </nav>
+    </main>
+    <footer class="footer">
+      <section class="container">
+        <p>© 2021 - 2026 阿亮 · Powered by Hugo · Theme inspired by Coder</p>
+      </section>
+    </footer>
+  </div>
+</body>
+</html>

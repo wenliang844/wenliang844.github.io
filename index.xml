@@ -6,28 +6,49 @@
     <description>Recent content on wenliangBlog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-CN</language>
-    <lastBuildDate>Sat, 03 Apr 2021 16:07:44 +0800</lastBuildDate>
+    <lastBuildDate>Tue, 16 Jun 2026 09:30:00 +0800</lastBuildDate>
     <atom:link href="https://wenliang844.github.io/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>First</title>
-      <link>https://wenliang844.github.io/post/first/</link>
-      <pubDate>Sat, 03 Apr 2021 16:07:44 +0800</pubDate>
-      <guid>https://wenliang844.github.io/post/first/</guid>
-      <description>算法、软考、英语和工作事项的学习优先级清单。</description>
+      <title>视频智能侦测系统重构</title>
+      <link>https://wenliang844.github.io/post/video-intelligence-platform/</link>
+      <pubDate>Tue, 16 Jun 2026 09:30:00 +0800</pubDate>
+      <guid>https://wenliang844.github.io/post/video-intelligence-platform/</guid>
+      <description>围绕采集、算法、规则和正式告警的视频智能侦测系统后端重构复盘。</description>
     </item>
     <item>
-      <title>Second</title>
-      <link>https://wenliang844.github.io/post/second/</link>
-      <pubDate>Sat, 03 Apr 2021 16:07:44 +0800</pubDate>
-      <guid>https://wenliang844.github.io/post/second/</guid>
-      <description>First 后面的第二个页面，可以继续补充新的文章内容。</description>
+      <title>规则引擎与告警闭环</title>
+      <link>https://wenliang844.github.io/post/rule-engine-alerts/</link>
+      <pubDate>Thu, 28 May 2026 09:30:00 +0800</pubDate>
+      <guid>https://wenliang844.github.io/post/rule-engine-alerts/</guid>
+      <description>规则引擎如何把算法分析结果转换成可解释、可追踪的业务告警。</description>
     </item>
     <item>
-      <title>Third</title>
-      <link>https://wenliang844.github.io/post/third/</link>
-      <pubDate>Sat, 03 Apr 2021 16:07:44 +0800</pubDate>
-      <guid>https://wenliang844.github.io/post/third/</guid>
-      <description>First 后面的第三个页面，可以扩展后续技术总结。</description>
+      <title>财税 SaaS 后端实践</title>
+      <link>https://wenliang844.github.io/post/finance-saas-backend/</link>
+      <pubDate>Sat, 18 Apr 2026 09:30:00 +0800</pubDate>
+      <guid>https://wenliang844.github.io/post/finance-saas-backend/</guid>
+      <description>财税 SaaS 中财务报表、ElasticSearch Starter 与多渠道通知中心的后端实践。</description>
+    </item>
+    <item>
+      <title>低代码 Schema 与出码</title>
+      <link>https://wenliang844.github.io/post/lowcode-schema-codegen/</link>
+      <pubDate>Sun, 22 Mar 2026 09:30:00 +0800</pubDate>
+      <guid>https://wenliang844.github.io/post/lowcode-schema-codegen/</guid>
+      <description>低代码平台中设计器、Schema、物料协议与 Web Worker 出码链路的实践复盘。</description>
+    </item>
+    <item>
+      <title>Activiti 审批流封装</title>
+      <link>https://wenliang844.github.io/post/activiti-workflow-engine/</link>
+      <pubDate>Tue, 24 Feb 2026 09:30:00 +0800</pubDate>
+      <guid>https://wenliang844.github.io/post/activiti-workflow-engine/</guid>
+      <description>基于 Activiti 7 的轻量 BPM 工作流引擎封装与工程实践。</description>
+    </item>
+    <item>
+      <title>工程化习惯沉淀</title>
+      <link>https://wenliang844.github.io/post/engineering-practice/</link>
+      <pubDate>Mon, 12 Jan 2026 09:30:00 +0800</pubDate>
+      <guid>https://wenliang844.github.io/post/engineering-practice/</guid>
+      <description>多模块架构、Spring Boot Starter、数据库适配和质量工具链的工程化沉淀。</description>
     </item>
   </channel>
 </rss>

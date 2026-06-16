@@ -5,76 +5,16 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8bc1a61e-f54e-481a-b981-de744d44ec64" name="更改" comment="3">
-      <change beforePath="$PROJECT_DIR$/404.html" beforeDir="false" afterPath="$PROJECT_DIR$/404.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/categories/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/categories/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/css/atom-one-dark-reasonable.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/css/auto-complete.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/css/featherlight.min.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/css/hugo-theme.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/css/hybrid.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/css/nucleus.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/css/perfect-scrollbar.min.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/css/tabs.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/css/tags.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/css/theme-blue.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/css/theme-green.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/css/theme-red.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/css/theme.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/fonts/Inconsolata.eot" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/fonts/Inconsolata.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/fonts/Inconsolata.ttf" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/fonts/Inconsolata.woff" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/fonts/Novecentosanswide-Normal-webfont.eot" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/fonts/Novecentosanswide-Normal-webfont.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/fonts/Novecentosanswide-Normal-webfont.ttf" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/fonts/Novecentosanswide-Normal-webfont.woff" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/fonts/Novecentosanswide-Normal-webfont.woff2" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/fonts/Novecentosanswide-UltraLight-webfont.eot" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/fonts/Novecentosanswide-UltraLight-webfont.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/fonts/Novecentosanswide-UltraLight-webfont.ttf" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/fonts/Novecentosanswide-UltraLight-webfont.woff" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/fonts/Novecentosanswide-UltraLight-webfont.woff2" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/fonts/Work_Sans_200.eot" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/fonts/Work_Sans_200.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/fonts/Work_Sans_200.ttf" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/fonts/Work_Sans_200.woff" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/fonts/Work_Sans_200.woff2" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/fonts/Work_Sans_300.eot" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/fonts/Work_Sans_300.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/fonts/Work_Sans_300.ttf" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/fonts/Work_Sans_300.woff" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/fonts/Work_Sans_300.woff2" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/fonts/Work_Sans_500.eot" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/fonts/Work_Sans_500.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/fonts/Work_Sans_500.ttf" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/fonts/Work_Sans_500.woff" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/fonts/Work_Sans_500.woff2" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/images/clippy.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/images/gopher-404.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/index.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/简历.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/css/coder.css" beforeDir="false" afterPath="$PROJECT_DIR$/css/coder.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/index.xml" beforeDir="false" afterPath="$PROJECT_DIR$/index.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/js/auto-complete.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/js/clipboard.min.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/js/featherlight.min.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/js/highlight.pack.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/js/hugo-learn.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/js/jquery-3.3.1.min.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/js/jquery.sticky.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/js/learn.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/js/lunr.min.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/js/modernizr.custom-3.6.0.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/js/perfect-scrollbar.jquery.min.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/js/perfect-scrollbar.min.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/js/search.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/mermaid/mermaid.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/post/first/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/post/first/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/post/first/index.html" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/post/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/post/index.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/post/index.xml" beforeDir="false" afterPath="$PROJECT_DIR$/post/index.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/post/second/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/post/second/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/post/third/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/post/third/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/post/second/index.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/post/third/index.html" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/sitemap.xml" beforeDir="false" afterPath="$PROJECT_DIR$/sitemap.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tags/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/tags/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/教程_加文章.txt" beforeDir="false" afterPath="$PROJECT_DIR$/教程_加文章.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -94,34 +34,36 @@
   &quot;associatedIndex&quot;: 6
 }</component>
   <component name="ProjectId" id="3FAzgCDlH5BzuwFUSEGg41w2zmJ" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;D:/work/project/java/mygithub/wenliang844.github.io&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "master",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "D:/java/lianqian/code/my/wenliang844.github.io",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-9823dce3aa75-bf35d07a577b-intellij.indexing.shared.core-IU-252.28539.54" />
-        <option value="bundled-js-predefined-d6986cc7102b-a71380e98a7c-JavaScript-IU-252.28539.54" />
+        <option value="bundled-jdk-9823dce3aa75-bf35d07a577b-intellij.indexing.shared.core-IU-252.23892.409" />
+        <option value="bundled-js-predefined-d6986cc7102b-e03c56caf84a-JavaScript-IU-252.23892.409" />
       </set>
     </attachedChunks>
   </component>
@@ -133,6 +75,7 @@
       <option name="presentableId" value="Default" />
       <updated>1781532770617</updated>
       <workItem from="1781532772002" duration="5143000" />
+      <workItem from="1781573258851" duration="2421000" />
     </task>
     <task id="LOCAL-00001" summary="1">
       <option name="closed" value="true" />

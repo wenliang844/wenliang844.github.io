@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="围绕采集、算法、规则和正式告警的视频智能侦测系统后端重构复盘。">
+  <meta name="generator" content="Hugo 0.82.0">
+  <link rel="icon" href="/images/favicon.png" type="image/png">
+  <link rel="stylesheet" href="/css/fontawesome-all.min.css">
+  <link rel="stylesheet" href="/css/coder.css">
+  <script src="/js/coder.js" defer></script>
+  <title>视频智能侦测系统重构 :: wenliangBlog</title>
+</head>
+<body class="colorscheme-light">
+  <div class="cursor-glow" aria-hidden="true"></div>
+  <canvas class="cursor-canvas" aria-hidden="true"></canvas>
+  <div class="site-shell">
+    <header class="navigation">
+      <section class="container">
+        <a class="navigation-title" href="/">wenliangBlog</a>
+        <input type="checkbox" id="menu-toggle" class="menu-toggle" aria-label="Toggle menu">
+        <label class="menu-button" for="menu-toggle"><i class="fas fa-bars"></i></label>
+        <nav class="navigation-list" aria-label="Main navigation">
+          <ul>
+          <li><a href="/about/">About</a></li>
+          <li><a class="active" href="/post/">Blog</a></li>
+          <li><a href="/editor/">Editor</a></li>
+          <li><a href="/contact/">Contact</a></li>
+            <li><button class="theme-toggle" type="button" aria-label="Toggle dark mode"><i class="fas fa-adjust"></i></button></li>
+          </ul>
+        </nav>
+      </section>
+    </header>
+    <main class="content container">
+      <article class="article">
+        <header class="article-header">
+          <span class="eyebrow">System Refactor</span>
+          <h1>视频智能侦测系统：从采集到正式告警的链路重构</h1>
+          <div class="article-meta">
+            <time datetime="2026-06-16">June 16, 2026</time>
+            <span>·</span>
+            <a href="/post/#video-intelligence-platform">Posts</a>
+          </div>
+          <p class="article-summary">围绕“采集 -> 算法 -> 规则 -> 正式告警”重整后端结构，让智能分析链路从能跑变成好维护、好扩展、好迁移。</p>
+          <div class="post-tags">
+            <span>Java</span><span>Spring Boot</span><span>Maven 多模块</span><span>ONNX Runtime</span><span>RabbitMQ</span>
+          </div>
+        </header>
+        <div class="article-content">
+          <p>今年最值得复盘的一件事，是把视频智能侦测系统里分散的采集服务、算法服务、规则引擎和业务告警入口重新梳理成一个更清晰的后端工程。它不是单纯换目录，而是重新确认数据应该在哪里产生、在哪里沉淀、在哪里被解释。</p>
+          <h2>重构重点</h2>
+          <ul class="insight-list">
+            <li><strong>模块边界：</strong>用 Maven 父工程拆出公共能力、采集、算法、规则和业务域模块，减少跨模块直接依赖。</li>
+            <li><strong>数据分层：</strong>将待分析任务、标准分析结果、兼容事实和正式告警分层落库，避免历史表结构继续吞掉新业务语义。</li>
+            <li><strong>算法平台化：</strong>支持算法注册、规则绑定算法、执行器插件化和统一结果写入，为人脸、姿态、目标检测、OCR 等能力留扩展口。</li>
+            <li><strong>迁移策略：</strong>新链路基于标准分析结果运行，旧事实链路保留兜底，降低重构期间的业务风险。</li>
+          </ul>
+          <p>这次经验给我的最大提醒是：复杂系统的重构不只追求“新架构漂亮”，更重要的是把链路上的关键名词固定下来。命名稳定了，接口、表结构和排查路径才会慢慢稳定。</p>
+        </div>
+      </article>
+      <nav class="post-pager" aria-label="Post pagination">
+        <a class="pager-prev" href="/post/">← Posts</a>
+        <a class="pager-next" href="/post/rule-engine-alerts/">规则引擎与告警闭环 →</a>
+      </nav>
+    </main>
+    <footer class="footer">
+      <section class="container">
+        <p>© 2021 - 2026 阿亮 · Powered by Hugo · Theme inspired by Coder</p>
+      </section>
+    </footer>
+  </div>
+</body>
+</html>

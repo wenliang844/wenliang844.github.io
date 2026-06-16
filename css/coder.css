@@ -5,6 +5,10 @@
   --muted: #757575;
   --border: #dadada;
   --link: #1565c0;
+  --accent: #0f766e;
+  --accent-soft: #e7f6f3;
+  --warm: #b45309;
+  --warm-soft: #fff7ed;
   --surface: #f5f5f5;
   --avatar-bg: #f3f3f3;
   --code: #f2f2f2;
@@ -17,6 +21,10 @@ body.colorscheme-dark {
   --muted: #bdbdbd;
   --border: #424242;
   --link: #90caf9;
+  --accent: #5eead4;
+  --accent-soft: #163b38;
+  --warm: #fbbf24;
+  --warm-soft: #3f3322;
   --surface: #2b2b2b;
   --avatar-bg: #303030;
   --code: #333333;
@@ -238,6 +246,18 @@ a:hover {
   font-size: 1.1rem;
 }
 
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.6rem;
+  margin-bottom: 0.65rem;
+  color: var(--accent);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
 .card-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -286,13 +306,45 @@ a:hover {
 }
 
 .post-tree-header h1 {
-  margin: 0 0 1rem;
+  margin: 0 0 0.9rem;
   font-size: 2.4rem;
   line-height: 1.2;
 }
 
 .post-tree-nav {
   margin-top: 2rem;
+}
+
+.timeline-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.65rem;
+  margin-top: 1.4rem;
+}
+
+.timeline-stats div {
+  min-width: 0;
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 0.4rem;
+  background: var(--surface);
+}
+
+.timeline-stats strong,
+.timeline-stats span {
+  display: block;
+  line-height: 1.25;
+}
+
+.timeline-stats strong {
+  color: var(--text);
+  font-size: 1.25rem;
+}
+
+.timeline-stats span {
+  margin-top: 0.2rem;
+  color: var(--muted);
+  font-size: 0.78rem;
 }
 
 .tree-group summary {
@@ -336,7 +388,7 @@ a:hover {
   display: grid;
   gap: 0.15rem;
   min-width: 0;
-  padding: 0.55rem 0.7rem;
+  padding: 0.65rem 0.75rem;
   border-radius: 0.35rem;
   color: var(--muted);
 }
@@ -357,7 +409,7 @@ a:hover {
 }
 
 .post-tree-link.active {
-  box-shadow: inset 3px 0 0 var(--link);
+  box-shadow: inset 3px 0 0 var(--accent);
 }
 
 .tree-title {
@@ -431,6 +483,59 @@ a:hover {
   padding: 0.15rem 0.4rem;
   border-radius: 0.25rem;
   background: var(--code);
+}
+
+.post-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin-top: 1.4rem;
+}
+
+.post-tags span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.9rem;
+  padding: 0 0.7rem;
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--border));
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 0.86rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.insight-list {
+  display: grid;
+  gap: 0.85rem;
+  padding-left: 0;
+  list-style: none;
+}
+
+.insight-list li {
+  position: relative;
+  margin: 0;
+  padding: 0.85rem 1rem 0.85rem 2.75rem;
+  border: 1px solid var(--border);
+  border-radius: 0.45rem;
+  background: var(--surface);
+}
+
+.insight-list li::before {
+  content: "";
+  position: absolute;
+  top: 1.15rem;
+  left: 1rem;
+  width: 0.65rem;
+  height: 0.65rem;
+  border-radius: 50%;
+  background: var(--warm);
+  box-shadow: 0 0 0 0.28rem var(--warm-soft);
+}
+
+.insight-list strong {
+  color: var(--text);
 }
 
 .post-pager {
@@ -702,6 +807,15 @@ a:hover {
 
   .post-tree-header h1 {
     font-size: 2.5rem;
+  }
+
+  .timeline-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .post-tags span {
+    max-width: 100%;
+    overflow-wrap: anywhere;
   }
 
   .post-item {

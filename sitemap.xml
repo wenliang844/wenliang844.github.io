@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
-  <url><loc>https://wenliang844.github.io/</loc><lastmod>2021-04-03T16:07:44+08:00</lastmod><priority>0</priority></url>
-  <url><loc>https://wenliang844.github.io/about/</loc><lastmod>2021-04-03T16:07:44+08:00</lastmod></url>
-  <url><loc>https://wenliang844.github.io/post/</loc><lastmod>2021-04-03T16:07:44+08:00</lastmod></url>
-  <url><loc>https://wenliang844.github.io/post/first/</loc><lastmod>2021-04-03T16:07:44+08:00</lastmod></url>
-  <url><loc>https://wenliang844.github.io/post/second/</loc><lastmod>2021-04-03T16:07:44+08:00</lastmod></url>
-  <url><loc>https://wenliang844.github.io/post/third/</loc><lastmod>2021-04-03T16:07:44+08:00</lastmod></url>
-  <url><loc>https://wenliang844.github.io/editor/</loc><lastmod>2021-04-03T16:07:44+08:00</lastmod></url>
-  <url><loc>https://wenliang844.github.io/contact/</loc><lastmod>2021-04-03T16:07:44+08:00</lastmod></url>
+  <url><loc>https://wenliang844.github.io/</loc><lastmod>2026-06-16T09:30:00+08:00</lastmod><priority>0</priority></url>
+  <url><loc>https://wenliang844.github.io/about/</loc><lastmod>2026-06-16T09:30:00+08:00</lastmod></url>
+  <url><loc>https://wenliang844.github.io/post/</loc><lastmod>2026-06-16T09:30:00+08:00</lastmod></url>
+  <url><loc>https://wenliang844.github.io/post/video-intelligence-platform/</loc><lastmod>2026-06-16T09:30:00+08:00</lastmod></url>
+  <url><loc>https://wenliang844.github.io/post/rule-engine-alerts/</loc><lastmod>2026-05-28T09:30:00+08:00</lastmod></url>
+  <url><loc>https://wenliang844.github.io/post/finance-saas-backend/</loc><lastmod>2026-04-18T09:30:00+08:00</lastmod></url>
+  <url><loc>https://wenliang844.github.io/post/lowcode-schema-codegen/</loc><lastmod>2026-03-22T09:30:00+08:00</lastmod></url>
+  <url><loc>https://wenliang844.github.io/post/activiti-workflow-engine/</loc><lastmod>2026-02-24T09:30:00+08:00</lastmod></url>
+  <url><loc>https://wenliang844.github.io/post/engineering-practice/</loc><lastmod>2026-01-12T09:30:00+08:00</lastmod></url>
+  <url><loc>https://wenliang844.github.io/editor/</loc><lastmod>2026-06-16T09:30:00+08:00</lastmod></url>
+  <url><loc>https://wenliang844.github.io/contact/</loc><lastmod>2026-06-16T09:30:00+08:00</lastmod></url>
   <url><loc>https://wenliang844.github.io/categories/</loc></url>
   <url><loc>https://wenliang844.github.io/tags/</loc></url>
 </urlset>
-
