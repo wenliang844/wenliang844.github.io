@@ -1607,6 +1607,138 @@ a.card:hover {
   font-size: 0.9rem;
 }
 
+/* Share bar (new) ---------------------------------------------------------- */
+.post-share {
+  max-width: 78rem;
+  margin: 2.4rem auto 0;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding-top: 1.6rem;
+  border-top: 1px solid var(--border);
+}
+
+.share-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-right: 0.2rem;
+  color: var(--muted);
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.share-btn svg {
+  display: block;
+}
+
+.share-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  border: 1px solid var(--border);
+  border-radius: 0.6rem;
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  font-size: 0.98rem;
+  transition: border-color 180ms ease, transform 180ms ease, color 180ms ease;
+}
+
+.share-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  transform: translateY(-2px);
+}
+
+.share-btn.copied {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* WeChat QR overlay */
+.share-qr-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+  background: rgba(4, 8, 16, 0.66);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.share-qr-card {
+  position: relative;
+  width: min(20rem, 90vw);
+  padding: 1.8rem 1.5rem 1.5rem;
+  border: 1px solid var(--glass-border);
+  border-radius: 1rem;
+  background: var(--surface-solid);
+  box-shadow: var(--shadow-glow);
+  text-align: center;
+}
+
+.share-qr-close {
+  position: absolute;
+  top: 0.7rem;
+  right: 0.7rem;
+  width: 2rem;
+  height: 2rem;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 0.5rem;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.share-qr-close:hover {
+  color: var(--text);
+}
+
+.share-qr-title {
+  margin: 0 0 1rem;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.share-qr-code {
+  width: 12.5rem;
+  height: 12.5rem;
+  margin: 0 auto;
+  display: grid;
+  place-items: center;
+  padding: 0.6rem;
+  border-radius: 0.6rem;
+  background: #ffffff; /* 二维码恒用白底，保证暗色模式下也可扫 */
+}
+
+.share-qr-code svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.share-qr-fail {
+  margin: 0;
+  color: #475569;
+  font-size: 0.82rem;
+}
+
+.share-qr-name {
+  margin: 1rem 0 0;
+  color: var(--text);
+  font-size: 0.95rem;
+  font-weight: 600;
+  word-break: break-word;
+}
+
 /* Comments (new) ----------------------------------------------------------- */
 .comments {
   max-width: 78rem;

@@ -3,13 +3,13 @@ npm run build      # 从 src/posts 重新生成所有页面(本次:6 篇)
 npm run dev
 
 待办清单:
-社交分享,文章底部加"分享到 X / 复制链接 / 微信二维码"，配合已有的 og: 标签。
-图片懒加载 + 点击放大（lightbox）——技术文章配图体验。
-阅读量 / 点赞统计——静态站可用 Waline、不蒜子(busuu)、或 GoatCounter（隐私友好）。
-编辑器增强——加 front-matter 自动生成、本地多草稿管理、图片粘贴上传到图床、导出时自动带 Hugo front-matter。
-i18n 中英双语（你简历里有英文项目经历，海外受众可读）。
-RSS 全文输出 + 邮件订阅（buttondown/follow.it）。
-全站 Fuse.js 搜索
+社交分享,文章底部加"分享到 X / 复制链接 / 微信二维码"，配合已有的 og: 标签。√
+图片懒加载 + 点击放大（lightbox）——技术文章配图体验。√
+阅读量 / 点赞统计——静态站可用 Waline、不蒜子(busuu)、或 GoatCounter（隐私友好）。√
+编辑器增强——加 front-matter 自动生成、本地多草稿管理、图片粘贴上传到图床、导出时自动带 Hugo front-matter。√
+i18n 中英双语（你简历里有英文项目经历，海外受众可读）。√
+RSS 全文输出 + 邮件订阅（buttondown/follow.it）。√
+全站 Fuse.js 搜索√	
 
 
 

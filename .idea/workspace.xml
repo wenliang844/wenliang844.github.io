@@ -4,33 +4,20 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8bc1a61e-f54e-481a-b981-de744d44ec64" name="更改" comment="9">
+    <list default="true" id="8bc1a61e-f54e-481a-b981-de744d44ec64" name="更改" comment="10">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/404.html" beforeDir="false" afterPath="$PROJECT_DIR$/404.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/about/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/about/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/categories/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/categories/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/categories/index.xml" beforeDir="false" afterPath="$PROJECT_DIR$/categories/index.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/contact/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/contact/index.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/css/coder.css" beforeDir="false" afterPath="$PROJECT_DIR$/css/coder.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/css/fontawesome-all.min.css" beforeDir="false" afterPath="$PROJECT_DIR$/css/fontawesome-all.min.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/editor/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/editor/index.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/index.xml" beforeDir="false" afterPath="$PROJECT_DIR$/index.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/js/blog.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/blog.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/js/coder.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/coder.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/js/giscus.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/giscus.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/post/activiti-workflow-engine/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/post/activiti-workflow-engine/index.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/post/engineering-practice/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/post/engineering-practice/index.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/post/finance-saas-backend/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/post/finance-saas-backend/index.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/post/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/post/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/post/index.xml" beforeDir="false" afterPath="$PROJECT_DIR$/post/index.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/post/lowcode-schema-codegen/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/post/lowcode-schema-codegen/index.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/post/rule-engine-alerts/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/post/rule-engine-alerts/index.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/post/video-intelligence-platform/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/post/video-intelligence-platform/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sitemap.xml" beforeDir="false" afterPath="$PROJECT_DIR$/sitemap.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tags/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/tags/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tags/index.xml" beforeDir="false" afterPath="$PROJECT_DIR$/tags/index.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/教程_加文章.txt" beforeDir="false" afterPath="$PROJECT_DIR$/readme.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/readme.md" beforeDir="false" afterPath="$PROJECT_DIR$/readme.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib/format.mjs" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/format.mjs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/templates/post.mjs" beforeDir="false" afterPath="$PROJECT_DIR$/src/templates/post.mjs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -162,7 +149,15 @@
       <option name="project" value="LOCAL" />
       <updated>1781581978529</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="10">
+      <option name="closed" value="true" />
+      <created>1781594571006</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1781594571006</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -198,6 +193,7 @@
     <MESSAGE value="6" />
     <MESSAGE value="7" />
     <MESSAGE value="9" />
-    <option name="LAST_COMMIT_MESSAGE" value="9" />
+    <MESSAGE value="10" />
+    <option name="LAST_COMMIT_MESSAGE" value="10" />
   </component>
 </project>

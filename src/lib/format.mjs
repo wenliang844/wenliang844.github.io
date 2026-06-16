@@ -43,3 +43,12 @@ export function rfc822(dateStr) {
 export function sitemapDate(dateStr) {
   return `${dateStr}T${FIXED_TIME}+08:00`;
 }
+
+// HTML 属性值转义，用于把标题等文本安全放进 data-* / value 等属性。
+export function escapeAttr(value) {
+  return String(value == null ? "" : value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
