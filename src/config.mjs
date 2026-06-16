@@ -11,8 +11,8 @@ const OG_IMAGE = "/images/og-cover.png";
 export const SITE = {
   baseURL: "https://wenliang844.github.io",
   title: "CWLBlog",
-  // 列表页顶部"X 类系统"统计值（与文章数解耦，手工维护）。
-  systems: 5,
+  // 列表页顶部"X 类主题"统计值（与文章数解耦，手工维护）。
+  systems: 6,
   // OG 图经存在性检测后的最终路径（不存在则为 null，模板据此降级为文字卡）。
   ogImage: existsSync(join(HERE, "..", OG_IMAGE.replace(/^\//, ""))) ? OG_IMAGE : null,
 };
@@ -25,6 +25,7 @@ export const STATIC_PAGES = [
   { path: "/editor/", withDate: true },
   { path: "/overleaf/", withDate: true },
   { path: "/contact/", withDate: true },
+  { path: "/ai/", withDate: true },
   { path: "/categories/", withDate: false },
   { path: "/tags/", withDate: true },
 ];
@@ -39,6 +40,13 @@ export const SEARCH_PAGES = [
     i18n: { en: { title: "Contact", summary: "Contact links and feedback.", tags: ["Contact"] } },
   },
   {
+    title: "AI导航",
+    summary: "常用 AI 网站和 AI 工具导航，按对话搜索、编程开发、创作设计、效率知识与国产模型分类整理。",
+    path: "/ai/",
+    tags: ["AI", "工具", "导航"],
+    i18n: { en: { title: "AI Navigation", summary: "A categorized directory of frequently used AI websites and tools.", tags: ["AI", "Tools", "Navigation"] } },
+  },
+  {
     title: "Editor",
     summary: "在线 Markdown 编辑器，实时预览与自动保存。",
     path: "/editor/",
@@ -51,6 +59,13 @@ export const SEARCH_PAGES = [
     path: "/overleaf/",
     tags: ["工具", "简历", "LaTeX", "Markdown", "HTML"],
     i18n: { en: { title: "Overleaf", summary: "Overleaf-style multi-format resume template with LaTeX, Markdown, moderncv and HTML source/preview editing plus PDF download.", tags: ["Tool", "Resume", "LaTeX", "Markdown", "HTML"] } },
+  },
+  {
+    title: "时间归档",
+    summary: "按年份浏览项目复盘文章。",
+    path: "/categories/",
+    tags: ["归档", "时间线"],
+    i18n: { en: { title: "Time Archive", summary: "Browse project retrospectives by year.", tags: ["Archive", "Timeline"] } },
   },
   {
     title: "Tags",

@@ -32,6 +32,25 @@
     return bar.getAttribute("data-share-title") || document.title;
   }
 
+  function shareUrl(bar) {
+    return absUrl(bar.getAttribute("data-share-url") || window.location.pathname);
+  }
+
+  function xIntent(url, title) {
+    return "https://x.com/intent/tweet?text=" +
+      encodeURIComponent(title) + "&url=" + encodeURIComponent(url);
+  }
+
+  function updateXLink(bar) {
+    var link = bar.querySelector('a[data-share="x"]');
+    if (!link) {
+      return;
+    }
+    link.setAttribute("href", xIntent(shareUrl(bar), shareTitle(bar)));
+  }
+
+  Array.prototype.forEach.call(bars, updateXLink);
+
   // execCommand 兜底：用于 clipboard API 不存在、或其写入被拒（如页面失焦）时。
   function legacyCopy(text) {
     return new Promise(function (resolve, reject) {
@@ -144,15 +163,15 @@
       return;
     }
 
-    var url = absUrl(bar.getAttribute("data-share-url") || window.location.pathname);
+    var url = shareUrl(bar);
     var title = shareTitle(bar);
     var kind = trigger.getAttribute("data-share");
 
     if (kind === "x") {
-      var intent = "https://twitter.com/intent/tweet?text=" +
-        encodeURIComponent(title) + "&url=" + encodeURIComponent(url);
-      event.preventDefault();
-      window.open(intent, "_blank", "noopener");
+      if (trigger.tagName && trigger.tagName.toLowerCase() === "a") {
+        trigger.setAttribute("href", xIntent(url, title));
+        return;
+      }
       return;
     }
 

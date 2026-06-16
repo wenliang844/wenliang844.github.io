@@ -56,6 +56,10 @@
     if (updateHash && target.dataset.postSlug) {
       window.history.replaceState(null, "", "#" + target.dataset.postSlug);
     }
+
+    document.dispatchEvent(new CustomEvent("cwl:postchange", {
+      detail: { targetId: targetId, slug: target.dataset.postSlug || "" }
+    }));
   }
 
   if (postLinks.length && postPanels.length) {
@@ -107,13 +111,33 @@
     toTop.setAttribute("aria-label", t("dyn.totop", "返回顶部"));
   }
 
+  function clamp(value, min, max) {
+    return Math.min(max, Math.max(min, value));
+  }
+
+  function getActiveArticle() {
+    return document.querySelector(".blog-article.active") ||
+      document.querySelector("article.article");
+  }
+
   function onScroll() {
     var doc = document.documentElement;
     var scrollTop = window.pageYOffset || doc.scrollTop;
-    var height = doc.scrollHeight - doc.clientHeight;
-    var ratio = height > 0 ? scrollTop / height : 0;
+    var article = getActiveArticle();
+    var ratio = 0;
+
+    if (article) {
+      var articleTop = article.getBoundingClientRect().top + scrollTop;
+      var readableHeight = Math.max(1, article.scrollHeight - window.innerHeight * 0.65);
+      ratio = clamp((scrollTop - articleTop) / readableHeight, 0, 1);
+    } else {
+      var height = doc.scrollHeight - doc.clientHeight;
+      ratio = height > 0 ? scrollTop / height : 0;
+    }
+
     progress.style.width = (ratio * 100).toFixed(2) + "%";
     toTop.classList.toggle("visible", scrollTop > 420);
+    updateActiveToc();
   }
 
   window.addEventListener("scroll", onScroll, { passive: true });
@@ -181,6 +205,102 @@
       article.querySelector(".article-content");
   }
 
+  function slugify(text) {
+    return (text || "")
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9一-龥]+/g, "-")
+      .replace(/^-+|-+$/g, "") || "section";
+  }
+
+  function uniqueHeadingId(article, contentBlock, heading, index) {
+    if (heading.id) {
+      return heading.id;
+    }
+    var articleId = article.dataset.postSlug || article.id || "article";
+    var lang = contentBlock.getAttribute("data-i18n-lang") || "content";
+    return "toc-" + slugify(articleId) + "-" + slugify(lang) + "-" + index + "-" + slugify(heading.textContent);
+  }
+
+  function clearToc(contentBlock) {
+    var existing = contentBlock.querySelector(".article-toc");
+    if (existing) {
+      existing.remove();
+    }
+  }
+
+  function buildToc(article, contentBlock) {
+    clearToc(contentBlock);
+
+    var headings = Array.prototype.slice.call(contentBlock.querySelectorAll("h2, h3"))
+      .filter(function (heading) {
+        return (heading.textContent || "").trim();
+      });
+
+    if (headings.length < 3) {
+      return;
+    }
+
+    var toc = document.createElement("nav");
+    toc.className = "article-toc";
+    toc.setAttribute("aria-label", t("dyn.toc.aria", "目录"));
+
+    var title = document.createElement("strong");
+    title.textContent = t("dyn.toc", "目录");
+    toc.appendChild(title);
+
+    var list = document.createElement("ol");
+    headings.forEach(function (heading, index) {
+      heading.id = uniqueHeadingId(article, contentBlock, heading, index);
+
+      var item = document.createElement("li");
+      item.className = "toc-depth-" + heading.tagName.slice(1);
+
+      var link = document.createElement("a");
+      link.href = "#" + heading.id;
+      link.textContent = heading.textContent || "";
+      link.addEventListener("click", function () {
+        window.setTimeout(updateActiveToc, 80);
+      });
+
+      item.appendChild(link);
+      list.appendChild(item);
+    });
+
+    toc.appendChild(list);
+    contentBlock.insertBefore(toc, contentBlock.firstChild);
+  }
+
+  function updateActiveToc() {
+    var article = getActiveArticle();
+    var content = article && activeArticleContent(article);
+    if (!content) return;
+
+    var toc = content.querySelector(".article-toc");
+    if (!toc) return;
+
+    var headings = Array.prototype.slice.call(content.querySelectorAll("h2, h3[id]"));
+    if (!headings.length) return;
+
+    var active = headings[0];
+    var offset = 125;
+    headings.forEach(function (heading) {
+      if (heading.getBoundingClientRect().top <= offset) {
+        active = heading;
+      }
+    });
+
+    toc.querySelectorAll("a").forEach(function (link) {
+      var isActive = link.getAttribute("href") === "#" + active.id;
+      link.classList.toggle("active", isActive);
+      if (isActive) {
+        link.setAttribute("aria-current", "true");
+      } else {
+        link.removeAttribute("aria-current");
+      }
+    });
+  }
+
   function updateDynamicText() {
     updateToTop();
     document.querySelectorAll(".code-copy:not(.copied)").forEach(function (button) {
@@ -202,6 +322,7 @@
         strong.textContent = t("dyn.toc", "目录");
       }
     });
+    onScroll();
   }
 
   document.querySelectorAll("article.article").forEach(function (article) {
@@ -224,27 +345,15 @@
 
     // Build a TOC only for longer articles (>= 3 section headings).
     Array.prototype.slice.call(article.querySelectorAll(".article-content")).forEach(function (contentBlock) {
-    var headings = Array.prototype.slice.call(contentBlock.querySelectorAll("h2"));
-    if (headings.length >= 3 && !contentBlock.querySelector(".article-toc")) {
-      var toc = document.createElement("nav");
-      toc.className = "article-toc";
-      toc.setAttribute("aria-label", t("dyn.toc.aria", "目录"));
-      var list = "<strong>" + t("dyn.toc", "目录") + "</strong><ol>";
-      headings.forEach(function (heading, index) {
-        if (!heading.id) {
-          heading.id = "section-" + index + "-" + (heading.textContent || "")
-            .trim().toLowerCase().replace(/[^a-z0-9一-龥]+/g, "-").replace(/^-+|-+$/g, "");
-        }
-        list += '<li><a href="#' + heading.id + '">' + heading.textContent + "</a></li>";
-      });
-      list += "</ol>";
-      toc.innerHTML = list;
-      contentBlock.insertBefore(toc, contentBlock.firstChild);
-    }
+      buildToc(article, contentBlock);
     });
   });
 
   document.addEventListener("cwl:langchange", updateDynamicText);
+  document.addEventListener("cwl:postchange", function () {
+    updateDynamicText();
+    onScroll();
+  });
   updateDynamicText();
 
   /* ----------------------------------------------------------------------

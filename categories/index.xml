@@ -1,10 +1,54 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Categories on CWLBlog</title>
+    <title>Time Archive on CWLBlog</title>
     <link>https://wenliang844.github.io/categories/</link>
-    <description>Recent content in Categories on CWLBlog</description>
+    <description>Project retrospectives by year on CWLBlog</description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>en-us</language><atom:link href="https://wenliang844.github.io/categories/index.xml" rel="self" type="application/rss+xml" />
+    <language>zh-CN</language>
+    <lastBuildDate>Tue, 16 Jun 2026 09:30:00 +0800</lastBuildDate>
+    <atom:link href="https://wenliang844.github.io/categories/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>规则引擎与告警闭环</title>
+      <link>https://wenliang844.github.io/post/rule-engine-alerts/</link>
+      <pubDate>Tue, 16 Jun 2026 09:30:00 +0800</pubDate>
+      <guid>https://wenliang844.github.io/post/rule-engine-alerts/</guid>
+      <description>智能分析预警平台中规则引擎、标准事实和业务告警闭环的后端实践。</description>
+    </item>
+    <item>
+      <title>Codex 与 Claude 的 Vibe Coding</title>
+      <link>https://wenliang844.github.io/post/codex-claude-vibe-coding/</link>
+      <pubDate>Sun, 01 Feb 2026 09:30:00 +0800</pubDate>
+      <guid>https://wenliang844.github.io/post/codex-claude-vibe-coding/</guid>
+      <description>Codex 和 Claude 协作进行 Vibe Coding 的实践方法：需求澄清、方案探索、代码落地、测试验证与迭代节奏。</description>
+    </item>
+    <item>
+      <title>智能分析预警平台重构</title>
+      <link>https://wenliang844.github.io/post/manage-system/</link>
+      <pubDate>Tue, 16 Sep 2025 09:30:00 +0800</pubDate>
+      <guid>https://wenliang844.github.io/post/manage-system/</guid>
+      <description>智能分析预警平台从视频采集到业务告警闭环的后端重构实践。</description>
+    </item>
+    <item>
+      <title>企顾 SaaS 多模块平台</title>
+      <link>https://wenliang844.github.io/post/finance-saas-backend/</link>
+      <pubDate>Fri, 18 Aug 2023 09:30:00 +0800</pubDate>
+      <guid>https://wenliang844.github.io/post/finance-saas-backend/</guid>
+      <description>企顾 SaaS 中客户数据、财税报表、通知中心和 Elasticsearch 搜索能力的多模块后端实践。</description>
+    </item>
+    <item>
+      <title>Activiti BPM 引擎实践</title>
+      <link>https://wenliang844.github.io/post/activiti-workflow-engine/</link>
+      <pubDate>Wed, 09 Feb 2022 09:30:00 +0800</pubDate>
+      <guid>https://wenliang844.github.io/post/activiti-workflow-engine/</guid>
+      <description>基于 Activiti 7 的企业级工作流与 BPM 流程引擎实践。</description>
+    </item>
+    <item>
+      <title>LowCode Engine 实践</title>
+      <link>https://wenliang844.github.io/post/lowcode-schema-codegen/</link>
+      <pubDate>Tue, 01 Feb 2022 09:30:00 +0800</pubDate>
+      <guid>https://wenliang844.github.io/post/lowcode-schema-codegen/</guid>
+      <description>企业级中后台低代码引擎在 Schema、物料、渲染和出码链路上的实践复盘。</description>
+    </item>
   </channel>
 </rss>

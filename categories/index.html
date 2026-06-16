@@ -3,18 +3,25 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="博客分类。">
+  <meta name="description" content="按年份整理 CWLBlog 的项目复盘，覆盖 AI Coding、低代码、工作流、SaaS 后台、智能分析预警与规则引擎。">
   <meta name="generator" content="Hugo 0.82.0">
   <link rel="icon" href="/images/favicon.png" type="image/png">
   <link rel="stylesheet" href="/css/fontawesome-all.min.css">
   <link rel="stylesheet" href="/css/coder.css">
   <script src="/js/i18n.js" defer></script>
   <script src="/js/coder.js" defer></script>
-  <script src="/js/vendor/fuse.min.js" defer></script>
-  <script src="/js/search.js" defer></script>
-  <title>分类 :: CWLBlog</title>
+  <script src="/js/search-loader.js" defer></script>
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="CWLBlog">
+  <meta property="og:title" content="Time Archive">
+  <meta property="og:description" content="按年份整理 CWLBlog 的项目复盘，覆盖 AI Coding、低代码、工作流、SaaS 后台、智能分析预警与规则引擎。">
+  <meta property="og:url" content="https://wenliang844.github.io/categories/">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Time Archive">
+  <meta name="twitter:description" content="按年份整理 CWLBlog 的项目复盘，覆盖 AI Coding、低代码、工作流、SaaS 后台、智能分析预警与规则引擎。">
+  <title>时间归档 :: CWLBlog</title>
 </head>
-<body class="colorscheme-light" data-i18n-page="categories">
+<body class="colorscheme-dark" data-i18n-page="categories" data-i18n-title-en="Time Archive :: CWLBlog" data-i18n-desc-en="A year-based archive of CWLBlog project retrospectives covering AI coding, low-code, workflow, SaaS backend, intelligent analysis and rule engines.">
   <div class="cursor-glow" aria-hidden="true"></div>
   <canvas class="cursor-canvas" aria-hidden="true"></canvas>
   <div class="site-shell">
@@ -25,10 +32,11 @@
         <label class="menu-button" for="menu-toggle"><i class="fas fa-bars"></i></label>
         <nav class="navigation-list" aria-label="Main navigation" data-i18n-aria="nav.main">
           <ul>
-          <li><a href="/post/" data-i18n="nav.blog">博客</a></li>
+          <li><a class="active" href="/post/" data-i18n="nav.blog">博客</a></li>
           <li><a href="/editor/" data-i18n="nav.editor">编辑器</a></li>
           <li><a href="/overleaf/" data-i18n="nav.overleaf">简历模版</a></li>
           <li><a href="/contact/" data-i18n="nav.contact">联系</a></li>
+          <li><a href="/ai/" data-i18n="nav.ai">AI导航</a></li>
             <li><a class="nav-feedback" href="/contact/#feedback-title" data-i18n="nav.feedback" data-i18n-html><i class="fas fa-comment-dots" aria-hidden="true"></i> 留言反馈</a></li>
             <li><button class="theme-toggle" type="button" aria-label="Toggle dark mode" data-i18n-aria="nav.theme"><i class="fas fa-adjust"></i></button></li>
             <li><button class="lang-toggle" type="button" aria-label="Switch language">EN</button></li>
@@ -39,8 +47,92 @@
     </header>
     <main class="content">
       <section class="list-page container">
-        <h1>Categories</h1>
-        <p class="lead" data-i18n="categories.lead">当前静态站点还没有分类数据。后续生成文章时可以把分类索引接到这里。</p>
+        <h1 data-i18n="categories.title" data-i18n-en="Time Archive">时间归档</h1>
+        <p class="lead" data-i18n="categories.lead">按年份回看项目复盘，从 AI Coding、低代码与工作流基础设施，到 SaaS 后台，再到智能分析预警和规则引擎告警闭环。</p>
+        <div class="timeline-stats" aria-label="归档概览" data-i18n-aria="categories.stats.aria">
+          <div>
+            <strong>6</strong>
+            <span data-i18n="post.stats.posts">篇复盘</span>
+          </div>
+          <div>
+            <strong>4</strong>
+            <span data-i18n="categories.stats.years">个年份</span>
+          </div>
+          <div>
+            <strong>2022-2026</strong>
+            <span data-i18n="post.stats.year">时间跨度</span>
+          </div>
+        </div>
+        <nav class="post-tree-nav" aria-label="时间归档" data-i18n-aria="categories.archive.aria">
+          <details class="tree-group" open>
+            <summary>
+              <span><i class="fas fa-folder-open" aria-hidden="true"></i> 2026</span>
+              <span class="tree-count">2</span>
+            </summary>
+            <ul>
+              <li>
+                <a class="post-tree-link" href="/post/#rule-engine-alerts">
+                  <span class="tree-title" data-i18n="post.rule-engine-alerts.shortTitle" data-i18n-en="Rule Engine and Alert Loop">规则引擎与告警闭环</span>
+                  <time datetime="2026-06-16">2026-06-16</time>
+                </a>
+              </li>
+              <li>
+                <a class="post-tree-link" href="/post/#codex-claude-vibe-coding">
+                  <span class="tree-title" data-i18n="post.codex-claude-vibe-coding.shortTitle" data-i18n-en="Codex and Claude Vibe Coding">Codex 与 Claude 的 Vibe Coding</span>
+                  <time datetime="2026-02-01">2026-02-01</time>
+                </a>
+              </li>
+            </ul>
+          </details>
+          <details class="tree-group" open>
+            <summary>
+              <span><i class="fas fa-folder-open" aria-hidden="true"></i> 2025</span>
+              <span class="tree-count">1</span>
+            </summary>
+            <ul>
+              <li>
+                <a class="post-tree-link" href="/post/#manage-system">
+                  <span class="tree-title" data-i18n="post.manage-system.shortTitle" data-i18n-en="Alert Platform Refactor">智能分析预警平台重构</span>
+                  <time datetime="2025-09-16">2025-09-16</time>
+                </a>
+              </li>
+            </ul>
+          </details>
+          <details class="tree-group" open>
+            <summary>
+              <span><i class="fas fa-folder-open" aria-hidden="true"></i> 2023</span>
+              <span class="tree-count">1</span>
+            </summary>
+            <ul>
+              <li>
+                <a class="post-tree-link" href="/post/#finance-saas-backend">
+                  <span class="tree-title" data-i18n="post.finance-saas-backend.shortTitle" data-i18n-en="Qigu SaaS Platform">企顾 SaaS 多模块平台</span>
+                  <time datetime="2023-08-18">2023-08-18</time>
+                </a>
+              </li>
+            </ul>
+          </details>
+          <details class="tree-group" open>
+            <summary>
+              <span><i class="fas fa-folder-open" aria-hidden="true"></i> 2022</span>
+              <span class="tree-count">2</span>
+            </summary>
+            <ul>
+              <li>
+                <a class="post-tree-link" href="/post/#activiti-workflow-engine">
+                  <span class="tree-title" data-i18n="post.activiti-workflow-engine.shortTitle" data-i18n-en="Activiti BPM Engine Practice">Activiti BPM 引擎实践</span>
+                  <time datetime="2022-02-09">2022-02-09</time>
+                </a>
+              </li>
+              <li>
+                <a class="post-tree-link" href="/post/#lowcode-schema-codegen">
+                  <span class="tree-title" data-i18n="post.lowcode-schema-codegen.shortTitle" data-i18n-en="LowCode Engine Practice">LowCode Engine 实践</span>
+                  <time datetime="2022-02-01">2022-02-01</time>
+                </a>
+              </li>
+            </ul>
+          </details>
+        </nav>
       </section>
     </main>
     <footer class="footer">

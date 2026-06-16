@@ -16,6 +16,8 @@ import { marked } from "marked";
 import { SITE, STATIC_PAGES, SEARCH_PAGES } from "../src/config.mjs";
 import { renderPostPage, renderPostList } from "../src/templates/post.mjs";
 import { renderTagsPage } from "../src/templates/tags.mjs";
+import { renderCategoriesPage } from "../src/templates/categories.mjs";
+import { renderAiPage } from "../src/templates/ai.mjs";
 import { rfc822, sitemapDate } from "../src/lib/format.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -197,6 +199,20 @@ function buildRssItems(posts) {
     .join("\n");
 }
 
+function buildStats(posts) {
+  const years = [...new Set(posts.map((post) => post.date.slice(0, 4)))];
+  const startYear = years[years.length - 1];
+  const endYear = years[0];
+  return {
+    count: posts.length,
+    systems: SITE.systems,
+    startYear,
+    endYear,
+    yearCount: years.length,
+    range: startYear === endYear ? endYear : `${startYear}-${endYear}`,
+  };
+}
+
 function buildRss(posts) {
   const lastBuild = rfc822(posts[0].date);
   const items = buildRssItems(posts);
@@ -236,6 +252,26 @@ ${items}
 </rss>`;
 }
 
+// categories/index.xml：时间归档页 RSS，避免分类页订阅入口停留在旧占位内容。
+function buildCategoriesRss(posts) {
+  const lastBuild = rfc822(posts[0].date);
+  const items = buildRssItems(posts);
+
+  return `<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Time Archive on ${SITE.title}</title>
+    <link>${SITE.baseURL}/categories/</link>
+    <description>Project retrospectives by year on ${SITE.title}</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-CN</language>
+    <lastBuildDate>${lastBuild}</lastBuildDate>
+    <atom:link href="${SITE.baseURL}/categories/index.xml" rel="self" type="application/rss+xml" />
+${items}
+  </channel>
+</rss>`;
+}
+
 async function main() {
   const posts = await loadPosts();
   if (posts.length === 0) {
@@ -243,11 +279,7 @@ async function main() {
     process.exit(1);
   }
 
-  const stats = {
-    count: posts.length,
-    systems: SITE.systems,
-    year: posts[0].date.slice(0, 4),
-  };
+  const stats = buildStats(posts);
 
   // 单篇页
   for (let i = 0; i < posts.length; i++) {
@@ -262,10 +294,17 @@ async function main() {
   // 标签云页
   await writeFileEnsured("tags/index.html", renderTagsPage(collectTags(posts)) + "\n");
 
+  // 时间归档页
+  await writeFileEnsured("categories/index.html", renderCategoriesPage(posts, stats) + "\n");
+
+  // AI 导航页
+  await writeFileEnsured("ai/index.html", renderAiPage() + "\n");
+
   // sitemap + RSS
   await writeFileEnsured("sitemap.xml", buildSitemap(posts) + "\n");
   await writeFileEnsured("index.xml", buildRss(posts) + "\n");
   await writeFileEnsured("post/index.xml", buildPostRss(posts) + "\n");
+  await writeFileEnsured("categories/index.xml", buildCategoriesRss(posts) + "\n");
 
   // 搜索索引
   await writeFileEnsured("search-index.json", buildSearchIndex(posts) + "\n");

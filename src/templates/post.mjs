@@ -143,6 +143,35 @@ function renderTreeLink(post, isFirst) {
                 </li>`;
 }
 
+function groupPostsByYear(posts) {
+  const groups = [];
+  for (const post of posts) {
+    const year = post.date.slice(0, 4);
+    let group = groups[groups.length - 1];
+    if (!group || group.year !== year) {
+      group = { year, posts: [] };
+      groups.push(group);
+    }
+    group.posts.push(post);
+  }
+  return groups;
+}
+
+function renderTreeGroup(group, activeSlug) {
+  const links = group.posts
+    .map((post) => renderTreeLink(post, post.slug === activeSlug))
+    .join("\n");
+  return `            <details class="tree-group" open>
+              <summary>
+                <span><i class="fas fa-folder-open" aria-hidden="true"></i> ${group.year}</span>
+                <span class="tree-count">${group.posts.length}</span>
+              </summary>
+              <ul>
+${links}
+              </ul>
+            </details>`;
+}
+
 // 列表页右侧的单篇文章面板（与单篇页正文相同，但 meta 链接指向单篇）。
 function renderArticlePanel(post, isFirst) {
   const activeCls = isFirst ? " active" : "";
@@ -169,8 +198,8 @@ ${renderShare(post)}
  * @param {object} stats   { count, systems, year } 顶部统计
  */
 export function renderPostList(posts, stats) {
-  const treeLinks = posts
-    .map((post, i) => renderTreeLink(post, i === 0))
+  const treeGroups = groupPostsByYear(posts)
+    .map((group) => renderTreeGroup(group, posts[0].slug))
     .join("\n");
   const panels = posts
     .map((post, i) => renderArticlePanel(post, i === 0))
@@ -180,9 +209,9 @@ export function renderPostList(posts, stats) {
       <section class="blog-layout container" aria-label="Blog">
         <aside class="post-tree" aria-label="文章目录" data-i18n-aria="post.tree.aria">
           <div class="post-tree-header">
-            <span class="eyebrow">${stats.year} Timeline</span>
+            <span class="eyebrow">${stats.range} Timeline</span>
             <h1 data-i18n="post.list.title" data-i18n-en="Posts">文章</h1>
-            <p class="lead" data-i18n="post.tree.lead">把今年做过的智能分析、规则引擎、SaaS 平台、低代码引擎和审批流实践，整理成可持续更新的技术札记。</p>
+            <p class="lead" data-i18n="post.tree.lead">按时间线整理 AI Coding、低代码、工作流、SaaS 后台与智能分析预警相关实践，重点记录系统边界、数据流转、规则运行时和平台化落地。</p>
           </div>
           <div class="timeline-stats" aria-label="内容概览" data-i18n-aria="post.stats.aria">
             <div>
@@ -191,23 +220,15 @@ export function renderPostList(posts, stats) {
             </div>
             <div>
               <strong>${stats.systems}</strong>
-              <span data-i18n="post.stats.systems">类系统</span>
+              <span data-i18n="post.stats.systems">类主题</span>
             </div>
             <div>
-              <strong>${stats.year}</strong>
-              <span data-i18n="post.stats.year">今年时间线</span>
+              <strong>${stats.range}</strong>
+              <span data-i18n="post.stats.year">时间跨度</span>
             </div>
           </div>
           <nav class="post-tree-nav">
-            <details class="tree-group" open>
-              <summary>
-                <span><i class="fas fa-folder-open" aria-hidden="true"></i> ${stats.year}</span>
-                <span class="tree-count">${stats.count}</span>
-              </summary>
-              <ul>
-${treeLinks}
-              </ul>
-            </details>
+${treeGroups}
           </nav>
           <div class="post-search">
             <i class="fas fa-search" aria-hidden="true"></i>
@@ -227,7 +248,7 @@ ${panels}
     </main>`;
 
   const description =
-    "2026 年技术项目复盘：智能分析预警、规则引擎、企顾 SaaS、低代码引擎和 Activiti 审批流。";
+    "按时间线整理项目复盘：覆盖 Codex 与 Claude 协作、低代码引擎、Activiti 工作流、企顾 SaaS、智能分析预警平台与规则引擎告警闭环。";
   return renderPage({
     title: "文章 :: CWLBlog",
     description,

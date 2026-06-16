@@ -9,9 +9,8 @@ npm run dev
 编辑器增强——加 front-matter 自动生成、本地多草稿管理、图片粘贴上传到图床、导出时自动带 Hugo front-matter。√
 i18n 中英双语（你简历里有英文项目经历，海外受众可读）。√
 RSS 全文输出 + 邮件订阅（buttondown/follow.it）。√
-全站 Fuse.js 搜索√	
-
-1. 文章目录 TOC + 阅读进度条
+全站 Fuse.js 搜索√
+1. 文章目录 TOC + 阅读进度条√
 
 
 简历修改:

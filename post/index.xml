@@ -16,6 +16,13 @@
       <description>智能分析预警平台中规则引擎、标准事实和业务告警闭环的后端实践。</description>
     </item>
     <item>
+      <title>Codex 与 Claude 的 Vibe Coding</title>
+      <link>https://wenliang844.github.io/post/codex-claude-vibe-coding/</link>
+      <pubDate>Sun, 01 Feb 2026 09:30:00 +0800</pubDate>
+      <guid>https://wenliang844.github.io/post/codex-claude-vibe-coding/</guid>
+      <description>Codex 和 Claude 协作进行 Vibe Coding 的实践方法：需求澄清、方案探索、代码落地、测试验证与迭代节奏。</description>
+    </item>
+    <item>
       <title>智能分析预警平台重构</title>
       <link>https://wenliang844.github.io/post/manage-system/</link>
       <pubDate>Tue, 16 Sep 2025 09:30:00 +0800</pubDate>

@@ -7,6 +7,7 @@ const NAV_ITEMS = [
   { href: "/editor/", label: "编辑器", key: "editor", i18n: "nav.editor" },
   { href: "/overleaf/", label: "简历模版", key: "overleaf", i18n: "nav.overleaf" },
   { href: "/contact/", label: "联系", key: "contact", i18n: "nav.contact" },
+  { href: "/ai/", label: "AI导航", key: "ai", i18n: "nav.ai" },
 ];
 
 // 渲染主导航；active 标记当前栏目。
@@ -100,7 +101,7 @@ export function renderPage(opts) {
     og,
   } = opts;
 
-  const allScripts = ["/js/i18n.js", "/js/coder.js", "/js/vendor/fuse.min.js", "/js/search.js", ...scripts];
+  const allScripts = ["/js/i18n.js", "/js/coder.js", "/js/search-loader.js", ...scripts];
   const meta = renderMeta(og);
 
   const bodyI18n = [

@@ -140,6 +140,10 @@
   }
 
   function open() {
+    if (overlay.classList.contains("open")) {
+      input.focus();
+      return;
+    }
     list.innerHTML = "";
     emptyMsg.textContent = t("dyn.search.start", "输入关键词开始搜索");
     emptyMsg.style.display = "";
@@ -414,4 +418,5 @@
     applyI18n();
   });
   applyI18n();
+  window.cwlOpenSearch = open;
 })();
