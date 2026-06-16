@@ -25,6 +25,13 @@
     return window.cwlT ? window.cwlT(key, fallback) : fallback;
   }
 
+  function shareTitle(bar) {
+    if (window.cwlLang && window.cwlLang() === "en") {
+      return bar.getAttribute("data-share-title-en") || bar.getAttribute("data-share-title") || document.title;
+    }
+    return bar.getAttribute("data-share-title") || document.title;
+  }
+
   // execCommand 兜底：用于 clipboard API 不存在、或其写入被拒（如页面失焦）时。
   function legacyCopy(text) {
     return new Promise(function (resolve, reject) {
@@ -138,7 +145,7 @@
     }
 
     var url = absUrl(bar.getAttribute("data-share-url") || window.location.pathname);
-    var title = bar.getAttribute("data-share-title") || document.title;
+    var title = shareTitle(bar);
     var kind = trigger.getAttribute("data-share");
 
     if (kind === "x") {

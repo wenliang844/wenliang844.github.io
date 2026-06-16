@@ -1,12 +1,30 @@
 ---
 title: "Activiti 审批流：轻量 BPM 引擎封装"
+titleEn: "Activiti Approval Flow: A Lightweight BPM Engine Wrapper"
 shortTitle: "Activiti 审批流封装"
+shortTitleEn: "Activiti Approval Flow Wrapper"
 slug: "activiti-workflow-engine"
 date: 2026-02-24
 eyebrow: "Workflow"
 summary: "基于 Activiti 7 封装流程部署、任务运行、变量管理和流程图能力，让业务审批更容易接入。"
+summaryEn: "Wrapping process deployment, task runtime, variable management and process diagrams on Activiti 7, making business approval easier to integrate."
 description: "基于 Activiti 7 的轻量 BPM 工作流引擎封装与工程实践。"
+descriptionEn: "A lightweight BPM workflow engine wrapper and engineering practice based on Activiti 7."
 tags: [Java 11, Spring Boot, Activiti 7, BPMN 2.0, MyBatis]
+tagsEn: [Java 11, Spring Boot, Activiti 7, BPMN 2.0, MyBatis]
+contentEn: |
+  The goal of the approval-flow project was not to build a large, all-in-one BPM platform. It was to organize the workflow capabilities most commonly needed by business systems into a stable, lightweight and easy-to-integrate engineering module.
+
+  ## Wrapper Scope
+
+  <ul class="insight-list">
+  <li><strong>Multi-module structure:</strong> Split API, core engine, shared components and sample projects, so business code does not need to know internal engine details directly.</li>
+  <li><strong>Starter integration:</strong> Use a Spring Boot Starter to support automatic BPMN resource loading, process deployment and runtime configuration.</li>
+  <li><strong>Task capabilities:</strong> Wrap task query, handling, variable management, process-instance state and business-state synchronization.</li>
+  <li><strong>Quality guardrails:</strong> Introduce Checkstyle, JaCoCo and Surefire/Failsafe so a state-heavy module like workflow remains more controllable.</li>
+  </ul>
+
+  The easiest thing to underestimate in a process engine is state consistency. Listeners, business-table state and process-instance state must have clear boundaries, otherwise troubleshooting becomes painful very quickly.
 ---
 审批流项目的目标不是做一个“大而全”的 BPM 平台，而是把业务系统最常用的流程能力整理成稳定、轻量、可接入的工程模块。
 

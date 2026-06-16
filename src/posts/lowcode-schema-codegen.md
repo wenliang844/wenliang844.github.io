@@ -1,12 +1,30 @@
 ---
 title: "低代码平台：Schema、物料与出码链路"
+titleEn: "Low-Code Platform: Schema, Materials and Code Generation Pipeline"
 shortTitle: "低代码 Schema 与出码"
+shortTitleEn: "Low-Code Schema and Codegen"
 slug: "lowcode-schema-codegen"
 date: 2026-03-22
 eyebrow: "LowCode"
 summary: "从设计器、物料协议到 Web Worker 出码，把页面搭建能力组织成可扩展的平台工程。"
+summaryEn: "From designer and material protocol to Web Worker code generation, organizing page-building capability as an extensible platform project."
 description: "低代码平台中设计器、Schema、物料协议与 Web Worker 出码链路的实践复盘。"
+descriptionEn: "A retrospective on designer, Schema, material protocol and Web Worker code generation in a low-code platform."
 tags: [TypeScript, React, MobX, LowCode Schema, Web Worker]
+tagsEn: [TypeScript, React, MobX, Low-Code Schema, Web Worker]
+contentEn: |
+  The most interesting part of a low-code platform is that it includes editor interaction, protocol design, project generation and runtime rendering at the same time. On this kind of project, frontend/backend boundaries become more open, and restrained abstraction matters even more.
+
+  ## Pipeline Breakdown
+
+  <ul class="insight-list">
+  <li><strong>Designer core:</strong> Build canvas composition, node selection, drag-and-drop orchestration, panel extension and plugin registration around designer, editor-core and editor-skeleton.</li>
+  <li><strong>Schema rendering:</strong> Convert page descriptions into runnable React/Rax views, covering props, slots, conditional rendering, loop rendering and data-source binding.</li>
+  <li><strong>Material system:</strong> Scan component source code, extract props, type definitions and metadata, and generate the JSON Schema needed for middle/back-office page building.</li>
+  <li><strong>Code generation:</strong> Support browser-side Web Worker code generation and server-side code generation for preview, download and engineering delivery.</li>
+  </ul>
+
+  Low-code is not about hiding code. It is about turning repeated engineering decisions into templates. The valuable part is helping business pages land faster while preserving maintainability.
 ---
 低代码平台最有意思的地方，是它同时包含编辑器交互、协议设计、工程生成和运行时渲染。做这类项目时，前后端边界会变得更开放，也更考验抽象是否克制。
 

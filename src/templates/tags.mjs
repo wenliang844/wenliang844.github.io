@@ -2,6 +2,7 @@
 // 复用现有 .list-page / .tag-filter / .tag-chip 样式，零新增 CSS。
 // 每个标签链接到 /post/?tag=<标签>，由 blog.js 在列表页就地激活筛选。
 import { renderPage } from "./layout.mjs";
+import { escapeAttr } from "../lib/format.mjs";
 
 // 把标签文本编码进 URL（保留可读性，空格等交给 encodeURIComponent）。
 function tagHref(tag) {
@@ -14,8 +15,8 @@ function tagHref(tag) {
 export function renderTagsPage(tagStats) {
   const chips = tagStats
     .map(
-      ({ tag, count }) =>
-        `          <a class="tag-chip" href="${tagHref(tag)}">${tag} <span class="tag-count">${count}</span></a>`,
+      ({ tag, tagEn, count }) =>
+        `          <a class="tag-chip" href="${tagHref(tag)}"><span data-i18n="tag.${tag}" data-i18n-en="${escapeAttr(tagEn || tag)}">${tag}</span> <span class="tag-count">${count}</span></a>`,
     )
     .join("\n");
 
@@ -23,7 +24,7 @@ export function renderTagsPage(tagStats) {
       <section class="list-page container">
         <h1>Tags</h1>
         <p class="lead" data-i18n="tags.lead">按技术标签浏览文章，点击任意标签跳转到博客列表并自动筛选。</p>
-        <div class="tag-filter tag-cloud" aria-label="标签云">
+        <div class="tag-filter tag-cloud" aria-label="标签云" data-i18n-aria="tags.cloud.aria">
 ${chips}
         </div>
       </section>

@@ -39,6 +39,7 @@
           <ul>
           <li><a class="active" href="/post/" data-i18n="nav.blog">Blog</a></li>
           <li><a href="/editor/" data-i18n="nav.editor">Editor</a></li>
+          <li><a href="/overleaf/" data-i18n="nav.overleaf">Overleaf</a></li>
           <li><a href="/contact/" data-i18n="nav.contact">Contact</a></li>
             <li><a class="nav-feedback" href="/contact/#feedback-title" data-i18n="nav.feedback" data-i18n-html><i class="fas fa-comment-dots" aria-hidden="true"></i> 留言反馈</a></li>
             <li><button class="theme-toggle" type="button" aria-label="Toggle dark mode" data-i18n-aria="nav.theme"><i class="fas fa-adjust"></i></button></li>
@@ -79,37 +80,37 @@
               <ul>
                 <li>
                   <a class="post-tree-link active" href="#video-intelligence-platform" data-post-target="post-video-intelligence-platform" aria-current="page">
-                    <span class="tree-title">视频智能侦测系统重构</span>
+                    <span class="tree-title" data-i18n="post.video-intelligence-platform.shortTitle" data-i18n-en="Video Intelligence System Refactor">视频智能侦测系统重构</span>
                     <time datetime="2026-06-16">2026-06-16</time>
                   </a>
                 </li>
                 <li>
                   <a class="post-tree-link" href="#rule-engine-alerts" data-post-target="post-rule-engine-alerts">
-                    <span class="tree-title">规则引擎与告警闭环</span>
+                    <span class="tree-title" data-i18n="post.rule-engine-alerts.shortTitle" data-i18n-en="Rule Engine and Alert Loop">规则引擎与告警闭环</span>
                     <time datetime="2026-05-28">2026-05-28</time>
                   </a>
                 </li>
                 <li>
                   <a class="post-tree-link" href="#finance-saas-backend" data-post-target="post-finance-saas-backend">
-                    <span class="tree-title">财税 SaaS 后端实践</span>
+                    <span class="tree-title" data-i18n="post.finance-saas-backend.shortTitle" data-i18n-en="Finance SaaS Backend Practice">财税 SaaS 后端实践</span>
                     <time datetime="2026-04-18">2026-04-18</time>
                   </a>
                 </li>
                 <li>
                   <a class="post-tree-link" href="#lowcode-schema-codegen" data-post-target="post-lowcode-schema-codegen">
-                    <span class="tree-title">低代码 Schema 与出码</span>
+                    <span class="tree-title" data-i18n="post.lowcode-schema-codegen.shortTitle" data-i18n-en="Low-Code Schema and Codegen">低代码 Schema 与出码</span>
                     <time datetime="2026-03-22">2026-03-22</time>
                   </a>
                 </li>
                 <li>
                   <a class="post-tree-link" href="#activiti-workflow-engine" data-post-target="post-activiti-workflow-engine">
-                    <span class="tree-title">Activiti 审批流封装</span>
+                    <span class="tree-title" data-i18n="post.activiti-workflow-engine.shortTitle" data-i18n-en="Activiti Approval Flow Wrapper">Activiti 审批流封装</span>
                     <time datetime="2026-02-24">2026-02-24</time>
                   </a>
                 </li>
                 <li>
                   <a class="post-tree-link" href="#engineering-practice" data-post-target="post-engineering-practice">
-                    <span class="tree-title">工程化习惯沉淀</span>
+                    <span class="tree-title" data-i18n="post.engineering-practice.shortTitle" data-i18n-en="Engineering Practice Notes">工程化习惯沉淀</span>
                     <time datetime="2026-01-12">2026-01-12</time>
                   </a>
                 </li>
@@ -127,16 +128,16 @@
           <article class="article blog-article active" id="post-video-intelligence-platform" data-post-slug="video-intelligence-platform">
             <header class="article-header">
               <span class="eyebrow">System Refactor</span>
-              <h1>视频智能侦测系统：从采集到正式告警的链路重构</h1>
+              <h1 data-i18n="post.video-intelligence-platform.title" data-i18n-en="Video Intelligence System: Refactoring the Pipeline from Capture to Formal Alerts">视频智能侦测系统：从采集到正式告警的链路重构</h1>
               <div class="article-meta">
                 <time datetime="2026-06-16">June 16, 2026</time>
               </div>
-              <p class="article-summary">围绕“采集 -> 算法 -> 规则 -> 正式告警”重整后端结构，让智能分析链路从能跑变成好维护、好扩展、好迁移。</p>
+              <p class="article-summary" data-i18n="post.video-intelligence-platform.summary" data-i18n-en="A backend refactor around the capture -&gt; algorithm -&gt; rules -&gt; formal alert pipeline, turning a runnable intelligent-analysis flow into one that is easier to maintain, extend and migrate.">围绕“采集 -> 算法 -> 规则 -> 正式告警”重整后端结构，让智能分析链路从能跑变成好维护、好扩展、好迁移。</p>
               <div class="post-tags">
-                <span>Java</span><span>Spring Boot</span><span>Maven 多模块</span><span>ONNX Runtime</span><span>RabbitMQ</span>
+                <span data-tag="Java" data-i18n="post.video-intelligence-platform.tag.0" data-i18n-en="Java">Java</span><span data-tag="Spring Boot" data-i18n="post.video-intelligence-platform.tag.1" data-i18n-en="Spring Boot">Spring Boot</span><span data-tag="Maven 多模块" data-i18n="post.video-intelligence-platform.tag.2" data-i18n-en="Maven multi-module">Maven 多模块</span><span data-tag="ONNX Runtime" data-i18n="post.video-intelligence-platform.tag.3" data-i18n-en="ONNX Runtime">ONNX Runtime</span><span data-tag="RabbitMQ" data-i18n="post.video-intelligence-platform.tag.4" data-i18n-en="RabbitMQ">RabbitMQ</span>
               </div>
             </header>
-            <div class="article-content">
+            <div class="article-content" data-i18n-lang="zh">
           <p>今年最值得复盘的一件事，是把视频智能侦测系统里分散的采集服务、算法服务、规则引擎和业务告警入口重新梳理成一个更清晰的后端工程。它不是单纯换目录，而是重新确认数据应该在哪里产生、在哪里沉淀、在哪里被解释。</p>
           <h2>重构重点</h2>
           <ul class="insight-list">
@@ -147,7 +148,18 @@
           </ul>
           <p>这次经验给我的最大提醒是：复杂系统的重构不只追求“新架构漂亮”，更重要的是把链路上的关键名词固定下来。命名稳定了，接口、表结构和排查路径才会慢慢稳定。</p>
             </div>
-            <div class="post-share" data-share-url="/post/video-intelligence-platform/" data-share-title="视频智能侦测系统重构">
+            <div class="article-content" data-i18n-lang="en" hidden>
+          <p>One of the most valuable things to review this year was reorganizing the scattered capture service, algorithm service, rule engine and business alert entry point in the video intelligence system into a clearer backend project. This was not just a directory reshuffle; it was a chance to decide where data should be produced, persisted and interpreted.</p>
+          <h2>Refactor Focus</h2>
+          <ul class="insight-list">
+          <li><strong>Module boundaries:</strong> Split shared capabilities, capture, algorithms, rules and business domains under a Maven parent project to reduce direct cross-module dependencies.</li>
+          <li><strong>Data layering:</strong> Persist analysis tasks, standard analysis results, compatibility facts and formal alerts in separate layers, so legacy table structures no longer absorb new business meaning.</li>
+          <li><strong>Algorithm platformization:</strong> Support algorithm registration, rule-to-algorithm binding, pluggable executors and unified result writing, leaving extension points for face, pose, object detection, OCR and other capabilities.</li>
+          <li><strong>Migration strategy:</strong> Run the new pipeline on standard analysis results while keeping the old fact pipeline as a fallback to reduce business risk during the refactor.</li>
+          </ul>
+          <p>The biggest reminder from this work is that refactoring a complex system is not just about making the new architecture look elegant. It matters more to stabilize the key terms across the pipeline. Once naming becomes stable, APIs, table structures and troubleshooting paths gradually become stable too.</p>
+            </div>
+            <div class="post-share" data-share-url="/post/video-intelligence-platform/" data-share-title="视频智能侦测系统重构" data-share-title-en="Video Intelligence System Refactor">
               <span class="share-label" data-i18n="post.share"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg> 分享</span>
               <a class="share-btn" data-share="x" href="#" target="_blank" rel="noopener" aria-label="分享到 X" data-i18n-aria="post.share.x"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
               <button class="share-btn" type="button" data-share="weibo" aria-label="分享到微博" data-i18n-aria="post.share.weibo"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M10.098 20.323c-3.977.391-7.414-1.406-7.672-4.02-.259-2.609 2.759-5.047 6.74-5.441 3.979-.394 7.413 1.404 7.671 4.018.259 2.6-2.759 5.049-6.737 5.439l-.002.004zM9.05 17.219c-.384.616-1.208.884-1.829.602-.612-.279-.793-.991-.406-1.593.379-.595 1.176-.861 1.793-.601.622.263.82.972.442 1.592zm1.27-1.627c-.141.237-.449.353-.689.253-.236-.09-.312-.359-.177-.586.138-.227.436-.346.672-.24.239.09.315.36.18.601l.014-.028zm.176-2.719c-1.893-.493-4.033.451-4.857 2.118-.836 1.704-.026 3.603 1.886 4.21 1.983.63 4.318-.354 5.132-2.179.8-1.793-.247-3.667-2.161-4.149zm7.563-1.224c-.346-.105-.57-.18-.405-.615.375-.977.42-1.829-.01-2.448-.81-1.155-3.027-1.092-5.567-.03 0 0-.795.346-.591-.284.39-1.26.33-2.31-.27-2.913-1.365-1.365-4.992.045-8.103 3.157C-.21 11.84-.96 14.61.04 16.7c1.62 3.405 6.99 3.585 11.52 1.875 4.53-1.71 8.42-5.97 6.78-9.45-.36-.78-1.05-1.32-1.86-1.626.18-.27.35-.54.4-.825.05-.36-.18-.54-.45-.39-.045.075-.075.165-.09.255-.054.21-.139.435-.27.63zm1.5-3.99c-.165-.5-.434-.945-.794-1.305-.36-.36-.81-.629-1.305-.794-.165-.06-.345.029-.405.194-.06.165.03.345.195.405.36.12.69.314.96.585.27.27.464.6.585.96.06.165.225.255.39.21.165-.045.255-.225.21-.39l-.031-.06zm2.355-.766c-.345-1.035-.93-1.965-1.71-2.745-.78-.781-1.71-1.366-2.746-1.711-.27-.09-.539.06-.629.33-.09.27.06.539.33.629.825.27 1.575.735 2.205 1.365.63.63 1.095 1.38 1.365 2.205.09.27.359.42.629.33.27-.09.42-.36.33-.629l.001-.024z"/></svg></button>
@@ -159,16 +171,16 @@
           <article class="article blog-article" id="post-rule-engine-alerts" data-post-slug="rule-engine-alerts">
             <header class="article-header">
               <span class="eyebrow">Runtime Design</span>
-              <h1>规则引擎与告警闭环：让分析结果变成可解释事件</h1>
+              <h1 data-i18n="post.rule-engine-alerts.title" data-i18n-en="Rule Engine and Alert Loop: Turning Analysis Results into Explainable Events">规则引擎与告警闭环：让分析结果变成可解释事件</h1>
               <div class="article-meta">
                 <time datetime="2026-05-28">May 28, 2026</time>
               </div>
-              <p class="article-summary">把算法输出组织成规则运行时上下文，支持窗口聚合、事实时间线和统一告警创建。</p>
+              <p class="article-summary" data-i18n="post.rule-engine-alerts.summary" data-i18n-en="Organizing algorithm output into rule-runtime context, with window aggregation, fact timelines and unified alert creation.">把算法输出组织成规则运行时上下文，支持窗口聚合、事实时间线和统一告警创建。</p>
               <div class="post-tags">
-                <span>规则引擎</span><span>告警系统</span><span>Redis</span><span>MySQL</span>
+                <span data-tag="规则引擎" data-i18n="post.rule-engine-alerts.tag.0" data-i18n-en="Rule engine">规则引擎</span><span data-tag="告警系统" data-i18n="post.rule-engine-alerts.tag.1" data-i18n-en="Alert system">告警系统</span><span data-tag="Redis" data-i18n="post.rule-engine-alerts.tag.2" data-i18n-en="Redis">Redis</span><span data-tag="MySQL" data-i18n="post.rule-engine-alerts.tag.3" data-i18n-en="MySQL">MySQL</span>
               </div>
             </header>
-            <div class="article-content">
+            <div class="article-content" data-i18n-lang="zh">
           <p>算法结果本身只是“看见了什么”，规则引擎要回答的是“这件事是否值得通知业务”。今年在规则链路上做的核心工作，就是把标准分析结果转换为可判断、可追踪、可解释的运行时上下文。</p>
           <h2>设计思路</h2>
           <ul class="insight-list">
@@ -179,7 +191,18 @@
           </ul>
           <p>我更喜欢把规则引擎看成“业务解释层”，它不能只会跑表达式，还要能说明为什么命中、命中了什么、后续由哪个业务域接住。</p>
             </div>
-            <div class="post-share" data-share-url="/post/rule-engine-alerts/" data-share-title="规则引擎与告警闭环">
+            <div class="article-content" data-i18n-lang="en" hidden>
+          <p>Algorithm results only describe &quot;what was seen&quot;; the rule engine has to answer whether the event is worth notifying the business about. The core work on the rule pipeline this year was turning standard analysis results into runtime context that can be judged, traced and explained.</p>
+          <h2>Design Ideas</h2>
+          <ul class="insight-list">
+          <li><strong>Fact timeline:</strong> Organize facts by point, algorithm, target and time, so continuous hits, interval hits and missing conditions can all be represented.</li>
+          <li><strong>Window aggregation:</strong> Process multiple recognition results in a short time window on the rule side, reducing duplicate alerts while preserving the evidence chain that still matters.</li>
+          <li><strong>Unified entry point:</strong> Consolidate alert creation for in-house algorithms, Hikvision events and third-party integrations, so queries, statistics and exports share the same business definition.</li>
+          <li><strong>Compatibility fallback:</strong> Keep the old fact pipeline available during migration, allowing old and new rules to switch gradually.</li>
+          </ul>
+          <p>I prefer to think of the rule engine as a business interpretation layer. It should not only run expressions; it should also explain why a rule matched, what matched, and which business domain should handle the follow-up.</p>
+            </div>
+            <div class="post-share" data-share-url="/post/rule-engine-alerts/" data-share-title="规则引擎与告警闭环" data-share-title-en="Rule Engine and Alert Loop">
               <span class="share-label" data-i18n="post.share"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg> 分享</span>
               <a class="share-btn" data-share="x" href="#" target="_blank" rel="noopener" aria-label="分享到 X" data-i18n-aria="post.share.x"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
               <button class="share-btn" type="button" data-share="weibo" aria-label="分享到微博" data-i18n-aria="post.share.weibo"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M10.098 20.323c-3.977.391-7.414-1.406-7.672-4.02-.259-2.609 2.759-5.047 6.74-5.441 3.979-.394 7.413 1.404 7.671 4.018.259 2.6-2.759 5.049-6.737 5.439l-.002.004zM9.05 17.219c-.384.616-1.208.884-1.829.602-.612-.279-.793-.991-.406-1.593.379-.595 1.176-.861 1.793-.601.622.263.82.972.442 1.592zm1.27-1.627c-.141.237-.449.353-.689.253-.236-.09-.312-.359-.177-.586.138-.227.436-.346.672-.24.239.09.315.36.18.601l.014-.028zm.176-2.719c-1.893-.493-4.033.451-4.857 2.118-.836 1.704-.026 3.603 1.886 4.21 1.983.63 4.318-.354 5.132-2.179.8-1.793-.247-3.667-2.161-4.149zm7.563-1.224c-.346-.105-.57-.18-.405-.615.375-.977.42-1.829-.01-2.448-.81-1.155-3.027-1.092-5.567-.03 0 0-.795.346-.591-.284.39-1.26.33-2.31-.27-2.913-1.365-1.365-4.992.045-8.103 3.157C-.21 11.84-.96 14.61.04 16.7c1.62 3.405 6.99 3.585 11.52 1.875 4.53-1.71 8.42-5.97 6.78-9.45-.36-.78-1.05-1.32-1.86-1.626.18-.27.35-.54.4-.825.05-.36-.18-.54-.45-.39-.045.075-.075.165-.09.255-.054.21-.139.435-.27.63zm1.5-3.99c-.165-.5-.434-.945-.794-1.305-.36-.36-.81-.629-1.305-.794-.165-.06-.345.029-.405.194-.06.165.03.345.195.405.36.12.69.314.96.585.27.27.464.6.585.96.06.165.225.255.39.21.165-.045.255-.225.21-.39l-.031-.06zm2.355-.766c-.345-1.035-.93-1.965-1.71-2.745-.78-.781-1.71-1.366-2.746-1.711-.27-.09-.539.06-.629.33-.09.27.06.539.33.629.825.27 1.575.735 2.205 1.365.63.63 1.095 1.38 1.365 2.205.09.27.359.42.629.33.27-.09.42-.36.33-.629l.001-.024z"/></svg></button>
@@ -191,16 +214,16 @@
           <article class="article blog-article" id="post-finance-saas-backend" data-post-slug="finance-saas-backend">
             <header class="article-header">
               <span class="eyebrow">SaaS Backend</span>
-              <h1>财税 SaaS 后端实践：报表、搜索与通知中心</h1>
+              <h1 data-i18n="post.finance-saas-backend.title" data-i18n-en="Finance SaaS Backend Practice: Reports, Search and Notification Center">财税 SaaS 后端实践：报表、搜索与通知中心</h1>
               <div class="article-meta">
                 <time datetime="2026-04-18">April 18, 2026</time>
               </div>
-              <p class="article-summary">围绕财务报表计算、ElasticSearch Starter 和多渠道通知中心，沉淀可复用的业务基础能力。</p>
+              <p class="article-summary" data-i18n="post.finance-saas-backend.summary" data-i18n-en="Reusable business infrastructure around financial report computation, an ElasticSearch Starter and a multi-channel notification center.">围绕财务报表计算、ElasticSearch Starter 和多渠道通知中心，沉淀可复用的业务基础能力。</p>
               <div class="post-tags">
-                <span>Spring Boot Starter</span><span>ElasticSearch</span><span>RocketMQ</span><span>EasyExcel</span><span>CompletableFuture</span>
+                <span data-tag="Spring Boot Starter" data-i18n="post.finance-saas-backend.tag.0" data-i18n-en="Spring Boot Starter">Spring Boot Starter</span><span data-tag="ElasticSearch" data-i18n="post.finance-saas-backend.tag.1" data-i18n-en="ElasticSearch">ElasticSearch</span><span data-tag="RocketMQ" data-i18n="post.finance-saas-backend.tag.2" data-i18n-en="RocketMQ">RocketMQ</span><span data-tag="EasyExcel" data-i18n="post.finance-saas-backend.tag.3" data-i18n-en="EasyExcel">EasyExcel</span><span data-tag="CompletableFuture" data-i18n="post.finance-saas-backend.tag.4" data-i18n-en="CompletableFuture">CompletableFuture</span>
               </div>
             </header>
-            <div class="article-content">
+            <div class="article-content" data-i18n-lang="zh">
           <p>财税 SaaS 的复杂度不在“接口很多”，而在金额口径、租户隔离、异步处理和外部渠道都要求稳定。后端模块按 API、Implement、Runtime、Starter 分层后，很多通用能力可以从业务代码里抽出来。</p>
           <h2>实践记录</h2>
           <ul class="insight-list">
@@ -211,7 +234,18 @@
           </ul>
           <p>这类系统很适合训练“业务口径优先”的后端思维：先把数据定义对，再谈性能优化和组件复用。</p>
             </div>
-            <div class="post-share" data-share-url="/post/finance-saas-backend/" data-share-title="财税 SaaS 后端实践">
+            <div class="article-content" data-i18n-lang="en" hidden>
+          <p>The complexity of a finance SaaS system is not that it has many APIs. It is that amount definitions, tenant isolation, asynchronous processing and external channels all have to remain stable. After layering backend modules into API, Implement, Runtime and Starter, many shared capabilities can be extracted from business code.</p>
+          <h2>Practice Notes</h2>
+          <ul class="insight-list">
+          <li><strong>Financial reports:</strong> Compute account balance sheets, income statements and cash-flow statements from voucher lines, accounting periods, debit/credit direction and auxiliary accounting dimensions, with all amounts represented by <code>BigDecimal</code>.</li>
+          <li><strong>Search Starter:</strong> Encapsulate index initialization, mapping, batch writes, alias switching, scroll pagination, aggregation queries and highlighted result mapping to lower integration cost.</li>
+          <li><strong>Notification center:</strong> Support SMS, email, in-app messages, App Push and WeChat Official Account template messages, with tenant context and send results persisted in a unified way.</li>
+          <li><strong>Concurrent sending:</strong> Preload template and OpenId binding information before bulk Official Account sends, then isolate time-consuming operations with <code>CompletableFuture</code> and thread pools.</li>
+          </ul>
+          <p>Systems like this are good training for backend thinking that starts from business definitions: define the data correctly first, then talk about performance optimization and component reuse.</p>
+            </div>
+            <div class="post-share" data-share-url="/post/finance-saas-backend/" data-share-title="财税 SaaS 后端实践" data-share-title-en="Finance SaaS Backend Practice">
               <span class="share-label" data-i18n="post.share"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg> 分享</span>
               <a class="share-btn" data-share="x" href="#" target="_blank" rel="noopener" aria-label="分享到 X" data-i18n-aria="post.share.x"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
               <button class="share-btn" type="button" data-share="weibo" aria-label="分享到微博" data-i18n-aria="post.share.weibo"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M10.098 20.323c-3.977.391-7.414-1.406-7.672-4.02-.259-2.609 2.759-5.047 6.74-5.441 3.979-.394 7.413 1.404 7.671 4.018.259 2.6-2.759 5.049-6.737 5.439l-.002.004zM9.05 17.219c-.384.616-1.208.884-1.829.602-.612-.279-.793-.991-.406-1.593.379-.595 1.176-.861 1.793-.601.622.263.82.972.442 1.592zm1.27-1.627c-.141.237-.449.353-.689.253-.236-.09-.312-.359-.177-.586.138-.227.436-.346.672-.24.239.09.315.36.18.601l.014-.028zm.176-2.719c-1.893-.493-4.033.451-4.857 2.118-.836 1.704-.026 3.603 1.886 4.21 1.983.63 4.318-.354 5.132-2.179.8-1.793-.247-3.667-2.161-4.149zm7.563-1.224c-.346-.105-.57-.18-.405-.615.375-.977.42-1.829-.01-2.448-.81-1.155-3.027-1.092-5.567-.03 0 0-.795.346-.591-.284.39-1.26.33-2.31-.27-2.913-1.365-1.365-4.992.045-8.103 3.157C-.21 11.84-.96 14.61.04 16.7c1.62 3.405 6.99 3.585 11.52 1.875 4.53-1.71 8.42-5.97 6.78-9.45-.36-.78-1.05-1.32-1.86-1.626.18-.27.35-.54.4-.825.05-.36-.18-.54-.45-.39-.045.075-.075.165-.09.255-.054.21-.139.435-.27.63zm1.5-3.99c-.165-.5-.434-.945-.794-1.305-.36-.36-.81-.629-1.305-.794-.165-.06-.345.029-.405.194-.06.165.03.345.195.405.36.12.69.314.96.585.27.27.464.6.585.96.06.165.225.255.39.21.165-.045.255-.225.21-.39l-.031-.06zm2.355-.766c-.345-1.035-.93-1.965-1.71-2.745-.78-.781-1.71-1.366-2.746-1.711-.27-.09-.539.06-.629.33-.09.27.06.539.33.629.825.27 1.575.735 2.205 1.365.63.63 1.095 1.38 1.365 2.205.09.27.359.42.629.33.27-.09.42-.36.33-.629l.001-.024z"/></svg></button>
@@ -223,16 +257,16 @@
           <article class="article blog-article" id="post-lowcode-schema-codegen" data-post-slug="lowcode-schema-codegen">
             <header class="article-header">
               <span class="eyebrow">LowCode</span>
-              <h1>低代码平台：Schema、物料与出码链路</h1>
+              <h1 data-i18n="post.lowcode-schema-codegen.title" data-i18n-en="Low-Code Platform: Schema, Materials and Code Generation Pipeline">低代码平台：Schema、物料与出码链路</h1>
               <div class="article-meta">
                 <time datetime="2026-03-22">March 22, 2026</time>
               </div>
-              <p class="article-summary">从设计器、物料协议到 Web Worker 出码，把页面搭建能力组织成可扩展的平台工程。</p>
+              <p class="article-summary" data-i18n="post.lowcode-schema-codegen.summary" data-i18n-en="From designer and material protocol to Web Worker code generation, organizing page-building capability as an extensible platform project.">从设计器、物料协议到 Web Worker 出码，把页面搭建能力组织成可扩展的平台工程。</p>
               <div class="post-tags">
-                <span>TypeScript</span><span>React</span><span>MobX</span><span>LowCode Schema</span><span>Web Worker</span>
+                <span data-tag="TypeScript" data-i18n="post.lowcode-schema-codegen.tag.0" data-i18n-en="TypeScript">TypeScript</span><span data-tag="React" data-i18n="post.lowcode-schema-codegen.tag.1" data-i18n-en="React">React</span><span data-tag="MobX" data-i18n="post.lowcode-schema-codegen.tag.2" data-i18n-en="MobX">MobX</span><span data-tag="LowCode Schema" data-i18n="post.lowcode-schema-codegen.tag.3" data-i18n-en="Low-Code Schema">LowCode Schema</span><span data-tag="Web Worker" data-i18n="post.lowcode-schema-codegen.tag.4" data-i18n-en="Web Worker">Web Worker</span>
               </div>
             </header>
-            <div class="article-content">
+            <div class="article-content" data-i18n-lang="zh">
           <p>低代码平台最有意思的地方，是它同时包含编辑器交互、协议设计、工程生成和运行时渲染。做这类项目时，前后端边界会变得更开放，也更考验抽象是否克制。</p>
           <h2>链路拆解</h2>
           <ul class="insight-list">
@@ -243,7 +277,18 @@
           </ul>
           <p>低代码不是把代码藏起来，而是把重复的工程决策模板化。真正有价值的部分，是让业务页面更快落地，同时保留工程可维护性。</p>
             </div>
-            <div class="post-share" data-share-url="/post/lowcode-schema-codegen/" data-share-title="低代码 Schema 与出码">
+            <div class="article-content" data-i18n-lang="en" hidden>
+          <p>The most interesting part of a low-code platform is that it includes editor interaction, protocol design, project generation and runtime rendering at the same time. On this kind of project, frontend/backend boundaries become more open, and restrained abstraction matters even more.</p>
+          <h2>Pipeline Breakdown</h2>
+          <ul class="insight-list">
+          <li><strong>Designer core:</strong> Build canvas composition, node selection, drag-and-drop orchestration, panel extension and plugin registration around designer, editor-core and editor-skeleton.</li>
+          <li><strong>Schema rendering:</strong> Convert page descriptions into runnable React/Rax views, covering props, slots, conditional rendering, loop rendering and data-source binding.</li>
+          <li><strong>Material system:</strong> Scan component source code, extract props, type definitions and metadata, and generate the JSON Schema needed for middle/back-office page building.</li>
+          <li><strong>Code generation:</strong> Support browser-side Web Worker code generation and server-side code generation for preview, download and engineering delivery.</li>
+          </ul>
+          <p>Low-code is not about hiding code. It is about turning repeated engineering decisions into templates. The valuable part is helping business pages land faster while preserving maintainability.</p>
+            </div>
+            <div class="post-share" data-share-url="/post/lowcode-schema-codegen/" data-share-title="低代码 Schema 与出码" data-share-title-en="Low-Code Schema and Codegen">
               <span class="share-label" data-i18n="post.share"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg> 分享</span>
               <a class="share-btn" data-share="x" href="#" target="_blank" rel="noopener" aria-label="分享到 X" data-i18n-aria="post.share.x"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
               <button class="share-btn" type="button" data-share="weibo" aria-label="分享到微博" data-i18n-aria="post.share.weibo"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M10.098 20.323c-3.977.391-7.414-1.406-7.672-4.02-.259-2.609 2.759-5.047 6.74-5.441 3.979-.394 7.413 1.404 7.671 4.018.259 2.6-2.759 5.049-6.737 5.439l-.002.004zM9.05 17.219c-.384.616-1.208.884-1.829.602-.612-.279-.793-.991-.406-1.593.379-.595 1.176-.861 1.793-.601.622.263.82.972.442 1.592zm1.27-1.627c-.141.237-.449.353-.689.253-.236-.09-.312-.359-.177-.586.138-.227.436-.346.672-.24.239.09.315.36.18.601l.014-.028zm.176-2.719c-1.893-.493-4.033.451-4.857 2.118-.836 1.704-.026 3.603 1.886 4.21 1.983.63 4.318-.354 5.132-2.179.8-1.793-.247-3.667-2.161-4.149zm7.563-1.224c-.346-.105-.57-.18-.405-.615.375-.977.42-1.829-.01-2.448-.81-1.155-3.027-1.092-5.567-.03 0 0-.795.346-.591-.284.39-1.26.33-2.31-.27-2.913-1.365-1.365-4.992.045-8.103 3.157C-.21 11.84-.96 14.61.04 16.7c1.62 3.405 6.99 3.585 11.52 1.875 4.53-1.71 8.42-5.97 6.78-9.45-.36-.78-1.05-1.32-1.86-1.626.18-.27.35-.54.4-.825.05-.36-.18-.54-.45-.39-.045.075-.075.165-.09.255-.054.21-.139.435-.27.63zm1.5-3.99c-.165-.5-.434-.945-.794-1.305-.36-.36-.81-.629-1.305-.794-.165-.06-.345.029-.405.194-.06.165.03.345.195.405.36.12.69.314.96.585.27.27.464.6.585.96.06.165.225.255.39.21.165-.045.255-.225.21-.39l-.031-.06zm2.355-.766c-.345-1.035-.93-1.965-1.71-2.745-.78-.781-1.71-1.366-2.746-1.711-.27-.09-.539.06-.629.33-.09.27.06.539.33.629.825.27 1.575.735 2.205 1.365.63.63 1.095 1.38 1.365 2.205.09.27.359.42.629.33.27-.09.42-.36.33-.629l.001-.024z"/></svg></button>
@@ -255,16 +300,16 @@
           <article class="article blog-article" id="post-activiti-workflow-engine" data-post-slug="activiti-workflow-engine">
             <header class="article-header">
               <span class="eyebrow">Workflow</span>
-              <h1>Activiti 审批流：轻量 BPM 引擎封装</h1>
+              <h1 data-i18n="post.activiti-workflow-engine.title" data-i18n-en="Activiti Approval Flow: A Lightweight BPM Engine Wrapper">Activiti 审批流：轻量 BPM 引擎封装</h1>
               <div class="article-meta">
                 <time datetime="2026-02-24">February 24, 2026</time>
               </div>
-              <p class="article-summary">基于 Activiti 7 封装流程部署、任务运行、变量管理和流程图能力，让业务审批更容易接入。</p>
+              <p class="article-summary" data-i18n="post.activiti-workflow-engine.summary" data-i18n-en="Wrapping process deployment, task runtime, variable management and process diagrams on Activiti 7, making business approval easier to integrate.">基于 Activiti 7 封装流程部署、任务运行、变量管理和流程图能力，让业务审批更容易接入。</p>
               <div class="post-tags">
-                <span>Java 11</span><span>Spring Boot</span><span>Activiti 7</span><span>BPMN 2.0</span><span>MyBatis</span>
+                <span data-tag="Java 11" data-i18n="post.activiti-workflow-engine.tag.0" data-i18n-en="Java 11">Java 11</span><span data-tag="Spring Boot" data-i18n="post.activiti-workflow-engine.tag.1" data-i18n-en="Spring Boot">Spring Boot</span><span data-tag="Activiti 7" data-i18n="post.activiti-workflow-engine.tag.2" data-i18n-en="Activiti 7">Activiti 7</span><span data-tag="BPMN 2.0" data-i18n="post.activiti-workflow-engine.tag.3" data-i18n-en="BPMN 2.0">BPMN 2.0</span><span data-tag="MyBatis" data-i18n="post.activiti-workflow-engine.tag.4" data-i18n-en="MyBatis">MyBatis</span>
               </div>
             </header>
-            <div class="article-content">
+            <div class="article-content" data-i18n-lang="zh">
           <p>审批流项目的目标不是做一个“大而全”的 BPM 平台，而是把业务系统最常用的流程能力整理成稳定、轻量、可接入的工程模块。</p>
           <h2>封装范围</h2>
           <ul class="insight-list">
@@ -275,7 +320,18 @@
           </ul>
           <p>流程引擎最容易被低估的是“状态一致性”。监听器、业务表状态和流程实例状态必须有明确边界，否则排查会非常痛苦。</p>
             </div>
-            <div class="post-share" data-share-url="/post/activiti-workflow-engine/" data-share-title="Activiti 审批流封装">
+            <div class="article-content" data-i18n-lang="en" hidden>
+          <p>The goal of the approval-flow project was not to build a large, all-in-one BPM platform. It was to organize the workflow capabilities most commonly needed by business systems into a stable, lightweight and easy-to-integrate engineering module.</p>
+          <h2>Wrapper Scope</h2>
+          <ul class="insight-list">
+          <li><strong>Multi-module structure:</strong> Split API, core engine, shared components and sample projects, so business code does not need to know internal engine details directly.</li>
+          <li><strong>Starter integration:</strong> Use a Spring Boot Starter to support automatic BPMN resource loading, process deployment and runtime configuration.</li>
+          <li><strong>Task capabilities:</strong> Wrap task query, handling, variable management, process-instance state and business-state synchronization.</li>
+          <li><strong>Quality guardrails:</strong> Introduce Checkstyle, JaCoCo and Surefire/Failsafe so a state-heavy module like workflow remains more controllable.</li>
+          </ul>
+          <p>The easiest thing to underestimate in a process engine is state consistency. Listeners, business-table state and process-instance state must have clear boundaries, otherwise troubleshooting becomes painful very quickly.</p>
+            </div>
+            <div class="post-share" data-share-url="/post/activiti-workflow-engine/" data-share-title="Activiti 审批流封装" data-share-title-en="Activiti Approval Flow Wrapper">
               <span class="share-label" data-i18n="post.share"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg> 分享</span>
               <a class="share-btn" data-share="x" href="#" target="_blank" rel="noopener" aria-label="分享到 X" data-i18n-aria="post.share.x"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
               <button class="share-btn" type="button" data-share="weibo" aria-label="分享到微博" data-i18n-aria="post.share.weibo"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M10.098 20.323c-3.977.391-7.414-1.406-7.672-4.02-.259-2.609 2.759-5.047 6.74-5.441 3.979-.394 7.413 1.404 7.671 4.018.259 2.6-2.759 5.049-6.737 5.439l-.002.004zM9.05 17.219c-.384.616-1.208.884-1.829.602-.612-.279-.793-.991-.406-1.593.379-.595 1.176-.861 1.793-.601.622.263.82.972.442 1.592zm1.27-1.627c-.141.237-.449.353-.689.253-.236-.09-.312-.359-.177-.586.138-.227.436-.346.672-.24.239.09.315.36.18.601l.014-.028zm.176-2.719c-1.893-.493-4.033.451-4.857 2.118-.836 1.704-.026 3.603 1.886 4.21 1.983.63 4.318-.354 5.132-2.179.8-1.793-.247-3.667-2.161-4.149zm7.563-1.224c-.346-.105-.57-.18-.405-.615.375-.977.42-1.829-.01-2.448-.81-1.155-3.027-1.092-5.567-.03 0 0-.795.346-.591-.284.39-1.26.33-2.31-.27-2.913-1.365-1.365-4.992.045-8.103 3.157C-.21 11.84-.96 14.61.04 16.7c1.62 3.405 6.99 3.585 11.52 1.875 4.53-1.71 8.42-5.97 6.78-9.45-.36-.78-1.05-1.32-1.86-1.626.18-.27.35-.54.4-.825.05-.36-.18-.54-.45-.39-.045.075-.075.165-.09.255-.054.21-.139.435-.27.63zm1.5-3.99c-.165-.5-.434-.945-.794-1.305-.36-.36-.81-.629-1.305-.794-.165-.06-.345.029-.405.194-.06.165.03.345.195.405.36.12.69.314.96.585.27.27.464.6.585.96.06.165.225.255.39.21.165-.045.255-.225.21-.39l-.031-.06zm2.355-.766c-.345-1.035-.93-1.965-1.71-2.745-.78-.781-1.71-1.366-2.746-1.711-.27-.09-.539.06-.629.33-.09.27.06.539.33.629.825.27 1.575.735 2.205 1.365.63.63 1.095 1.38 1.365 2.205.09.27.359.42.629.33.27-.09.42-.36.33-.629l.001-.024z"/></svg></button>
@@ -287,16 +343,16 @@
           <article class="article blog-article" id="post-engineering-practice" data-post-slug="engineering-practice">
             <header class="article-header">
               <span class="eyebrow">Engineering</span>
-              <h1>工程化习惯：多模块、Starter 与质量工具链</h1>
+              <h1 data-i18n="post.engineering-practice.title" data-i18n-en="Engineering Habits: Multi-Module Design, Starters and Quality Tooling">工程化习惯：多模块、Starter 与质量工具链</h1>
               <div class="article-meta">
                 <time datetime="2026-01-12">January 12, 2026</time>
               </div>
-              <p class="article-summary">把项目中反复出现的能力沉淀为公共组件、自动配置和检查流程，让交付质量更稳定。</p>
+              <p class="article-summary" data-i18n="post.engineering-practice.summary" data-i18n-en="Turning repeated project capabilities into shared components, auto-configuration and check flows to make delivery quality more stable.">把项目中反复出现的能力沉淀为公共组件、自动配置和检查流程，让交付质量更稳定。</p>
               <div class="post-tags">
-                <span>Maven</span><span>Spring Boot Starter</span><span>Docker</span><span>Jenkins</span><span>JaCoCo</span>
+                <span data-tag="Maven" data-i18n="post.engineering-practice.tag.0" data-i18n-en="Maven">Maven</span><span data-tag="Spring Boot Starter" data-i18n="post.engineering-practice.tag.1" data-i18n-en="Spring Boot Starter">Spring Boot Starter</span><span data-tag="Docker" data-i18n="post.engineering-practice.tag.2" data-i18n-en="Docker">Docker</span><span data-tag="Jenkins" data-i18n="post.engineering-practice.tag.3" data-i18n-en="Jenkins">Jenkins</span><span data-tag="JaCoCo" data-i18n="post.engineering-practice.tag.4" data-i18n-en="JaCoCo">JaCoCo</span>
               </div>
             </header>
-            <div class="article-content">
+            <div class="article-content" data-i18n-lang="zh">
           <p>今年的几个项目都反复证明一件事：工程化不是额外负担，而是复杂业务能持续迭代的底座。多模块、Starter、自动化测试和代码检查，最终都是为了减少隐性沟通成本。</p>
           <h2>沉淀方向</h2>
           <ul class="insight-list">
@@ -307,7 +363,18 @@
           </ul>
           <p>我现在越来越倾向于把“可维护性”拆成具体动作：边界清楚、命名稳定、配置统一、失败可排查。它们比宏大的架构词更可靠。</p>
             </div>
-            <div class="post-share" data-share-url="/post/engineering-practice/" data-share-title="工程化习惯沉淀">
+            <div class="article-content" data-i18n-lang="en" hidden>
+          <p>Several projects this year repeatedly proved one thing: engineering practice is not extra overhead; it is the foundation that lets complex business keep evolving. Multi-module design, Starters, automated tests and code checks ultimately reduce hidden communication cost.</p>
+          <h2>Directions for Reuse</h2>
+          <ul class="insight-list">
+          <li><strong>Shared components:</strong> Extract repeated capabilities such as search, notification, import/export and workflow integration into reusable modules.</li>
+          <li><strong>Auto-configuration:</strong> Expose a unified integration style through <code>@ConfigurationProperties</code> and AutoConfiguration, so business code only needs to care about parameters and interfaces.</li>
+          <li><strong>Database adaptation:</strong> Handle SQL functions, pagination, field types and migration script compatibility in Kingbase/PostgreSQL and similar environments.</li>
+          <li><strong>Quality tooling:</strong> Use Checkstyle, JaCoCo and CI flows to make code style, test coverage and build results explicit.</li>
+          </ul>
+          <p>I increasingly prefer to break &quot;maintainability&quot; into concrete actions: clear boundaries, stable naming, unified configuration and diagnosable failures. They are more reliable than grand architecture words.</p>
+            </div>
+            <div class="post-share" data-share-url="/post/engineering-practice/" data-share-title="工程化习惯沉淀" data-share-title-en="Engineering Practice Notes">
               <span class="share-label" data-i18n="post.share"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg> 分享</span>
               <a class="share-btn" data-share="x" href="#" target="_blank" rel="noopener" aria-label="分享到 X" data-i18n-aria="post.share.x"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
               <button class="share-btn" type="button" data-share="weibo" aria-label="分享到微博" data-i18n-aria="post.share.weibo"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M10.098 20.323c-3.977.391-7.414-1.406-7.672-4.02-.259-2.609 2.759-5.047 6.74-5.441 3.979-.394 7.413 1.404 7.671 4.018.259 2.6-2.759 5.049-6.737 5.439l-.002.004zM9.05 17.219c-.384.616-1.208.884-1.829.602-.612-.279-.793-.991-.406-1.593.379-.595 1.176-.861 1.793-.601.622.263.82.972.442 1.592zm1.27-1.627c-.141.237-.449.353-.689.253-.236-.09-.312-.359-.177-.586.138-.227.436-.346.672-.24.239.09.315.36.18.601l.014-.028zm.176-2.719c-1.893-.493-4.033.451-4.857 2.118-.836 1.704-.026 3.603 1.886 4.21 1.983.63 4.318-.354 5.132-2.179.8-1.793-.247-3.667-2.161-4.149zm7.563-1.224c-.346-.105-.57-.18-.405-.615.375-.977.42-1.829-.01-2.448-.81-1.155-3.027-1.092-5.567-.03 0 0-.795.346-.591-.284.39-1.26.33-2.31-.27-2.913-1.365-1.365-4.992.045-8.103 3.157C-.21 11.84-.96 14.61.04 16.7c1.62 3.405 6.99 3.585 11.52 1.875 4.53-1.71 8.42-5.97 6.78-9.45-.36-.78-1.05-1.32-1.86-1.626.18-.27.35-.54.4-.825.05-.36-.18-.54-.45-.39-.045.075-.075.165-.09.255-.054.21-.139.435-.27.63zm1.5-3.99c-.165-.5-.434-.945-.794-1.305-.36-.36-.81-.629-1.305-.794-.165-.06-.345.029-.405.194-.06.165.03.345.195.405.36.12.69.314.96.585.27.27.464.6.585.96.06.165.225.255.39.21.165-.045.255-.225.21-.39l-.031-.06zm2.355-.766c-.345-1.035-.93-1.965-1.71-2.745-.78-.781-1.71-1.366-2.746-1.711-.27-.09-.539.06-.629.33-.09.27.06.539.33.629.825.27 1.575.735 2.205 1.365.63.63 1.095 1.38 1.365 2.205.09.27.359.42.629.33.27-.09.42-.36.33-.629l.001-.024z"/></svg></button>

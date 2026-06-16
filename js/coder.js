@@ -176,14 +176,19 @@
     return Math.max(1, Math.round(chinese / 350 + words / 200));
   }
 
+  function activeArticleContent(article) {
+    return article.querySelector(".article-content:not([hidden])") ||
+      article.querySelector(".article-content");
+  }
+
   function updateDynamicText() {
     updateToTop();
     document.querySelectorAll(".code-copy:not(.copied)").forEach(function (button) {
       button.innerHTML = t("dyn.copy", '<i class="fas fa-copy" aria-hidden="true"></i> 复制');
     });
     document.querySelectorAll(".reading-time").forEach(function (span) {
-      var content = span.closest("article.article");
-      content = content && content.querySelector(".article-content");
+      var article = span.closest("article.article");
+      var content = article && activeArticleContent(article);
       if (!content) return;
       var prefix = t("dyn.readingPrefix", "阅读约");
       var suffix = t("dyn.readingSuffix", "分钟");
@@ -200,7 +205,7 @@
   }
 
   document.querySelectorAll("article.article").forEach(function (article) {
-    var content = article.querySelector(".article-content");
+    var content = activeArticleContent(article);
     var meta = article.querySelector(".article-meta");
     if (!content) {
       return;
@@ -218,8 +223,9 @@
     }
 
     // Build a TOC only for longer articles (>= 3 section headings).
-    var headings = Array.prototype.slice.call(content.querySelectorAll("h2"));
-    if (headings.length >= 3 && !content.querySelector(".article-toc")) {
+    Array.prototype.slice.call(article.querySelectorAll(".article-content")).forEach(function (contentBlock) {
+    var headings = Array.prototype.slice.call(contentBlock.querySelectorAll("h2"));
+    if (headings.length >= 3 && !contentBlock.querySelector(".article-toc")) {
       var toc = document.createElement("nav");
       toc.className = "article-toc";
       toc.setAttribute("aria-label", t("dyn.toc.aria", "目录"));
@@ -233,8 +239,9 @@
       });
       list += "</ol>";
       toc.innerHTML = list;
-      content.insertBefore(toc, content.firstChild);
+      contentBlock.insertBefore(toc, contentBlock.firstChild);
     }
+    });
   });
 
   document.addEventListener("cwl:langchange", updateDynamicText);

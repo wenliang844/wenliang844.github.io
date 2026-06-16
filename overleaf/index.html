@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Overleaf 风格 LaTeX 简历模板，支持源码与预览双向编辑、PDF 下载。">
+  <meta name="generator" content="Hugo 0.82.0">
+  <link rel="icon" href="/images/favicon.png" type="image/png">
+  <link rel="stylesheet" href="/css/fontawesome-all.min.css">
+  <link rel="stylesheet" href="/css/coder.css">
+  <script src="/js/i18n.js" defer></script>
+  <script src="/js/coder.js" defer></script>
+  <script src="/js/vendor/fuse.min.js" defer></script>
+  <script src="/js/search.js" defer></script>
+  <script src="/js/overleaf.js" defer></script>
+  <title>Overleaf Resume :: CWLBlog</title>
+</head>
+<body class="colorscheme-dark overleaf-body" data-i18n-page="overleaf">
+  <div class="cursor-glow" aria-hidden="true"></div>
+  <canvas class="cursor-canvas" aria-hidden="true"></canvas>
+  <div class="site-shell">
+    <header class="navigation">
+      <section class="container">
+        <a class="navigation-title" href="/">CWLBlog</a>
+        <input type="checkbox" id="menu-toggle" class="menu-toggle" aria-label="Toggle menu" data-i18n-aria="nav.menu">
+        <label class="menu-button" for="menu-toggle"><i class="fas fa-bars"></i></label>
+        <nav class="navigation-list" aria-label="Main navigation" data-i18n-aria="nav.main">
+          <ul>
+          <li><a href="/post/" data-i18n="nav.blog">Blog</a></li>
+          <li><a href="/editor/" data-i18n="nav.editor">Editor</a></li>
+          <li><a class="active" href="/overleaf/" data-i18n="nav.overleaf">Overleaf</a></li>
+          <li><a href="/contact/" data-i18n="nav.contact">Contact</a></li>
+            <li><a class="nav-feedback" href="/contact/#feedback-title" data-i18n="nav.feedback" data-i18n-html><i class="fas fa-comment-dots" aria-hidden="true"></i> 留言反馈</a></li>
+            <li><button class="theme-toggle" type="button" aria-label="Toggle dark mode" data-i18n-aria="nav.theme"><i class="fas fa-adjust"></i></button></li>
+            <li><button class="lang-toggle" type="button" aria-label="Switch language">EN</button></li>
+            <li><button class="nav-search-trigger" type="button" aria-label="全局搜索" data-i18n-aria="nav.search"><i class="fas fa-search"></i></button></li>
+          </ul>
+        </nav>
+      </section>
+    </header>
+    <main class="content">
+      <section class="overleaf-workspace" aria-labelledby="overleaf-title">
+        <header class="overleaf-topbar">
+          <div>
+            <span class="eyebrow"><i class="fas fa-leaf" aria-hidden="true"></i> Overleaf</span>
+            <h1 id="overleaf-title" data-i18n="overleaf.h1">LaTeX 简历模板</h1>
+            <p class="lead" data-i18n="overleaf.lead">左侧编辑 LaTeX 源码，右侧预览简历；预览中的文字也可以直接修改，并会同步回源码。</p>
+          </div>
+          <div class="overleaf-actions" aria-label="Overleaf actions">
+            <button class="editor-button" type="button" data-overleaf-action="compile"><i class="fas fa-sync-alt" aria-hidden="true"></i> <span data-i18n="overleaf.btn.compile">重新编译</span></button>
+            <button class="editor-button" type="button" data-overleaf-action="copy"><i class="fas fa-copy" aria-hidden="true"></i> <span data-i18n="overleaf.btn.copy">复制源码</span></button>
+            <button class="editor-button" type="button" data-overleaf-action="reset"><i class="fas fa-undo" aria-hidden="true"></i> <span data-i18n="overleaf.btn.reset">恢复模板</span></button>
+            <button class="btn-primary" type="button" data-overleaf-action="pdf"><i class="fas fa-file-pdf" aria-hidden="true"></i> <span data-i18n="overleaf.btn.pdf">下载 PDF</span></button>
+          </div>
+        </header>
+
+        <div class="overleaf-status" role="status" aria-live="polite" id="overleaf-status">Ready</div>
+
+        <div class="overleaf-grid">
+          <section class="overleaf-source-panel" aria-labelledby="latex-source-title">
+            <div class="overleaf-pane-title">
+              <span id="latex-source-title"><i class="fas fa-code" aria-hidden="true"></i> <span data-i18n="overleaf.source">Source</span></span>
+              <span class="overleaf-badge">resume.tex</span>
+            </div>
+            <textarea id="latex-source" spellcheck="false" aria-label="LaTeX source"></textarea>
+          </section>
+
+          <section class="overleaf-preview-panel" aria-labelledby="latex-preview-title">
+            <div class="overleaf-pane-title">
+              <span id="latex-preview-title"><i class="fas fa-file-alt" aria-hidden="true"></i> <span data-i18n="overleaf.preview">Preview</span></span>
+              <span class="overleaf-badge" data-i18n="overleaf.editable">editable PDF preview</span>
+            </div>
+            <div class="overleaf-preview-scroll">
+              <article class="latex-preview-paper" id="resume-preview" aria-label="Resume preview"></article>
+            </div>
+          </section>
+        </div>
+      </section>
+    </main>
+    <footer class="footer">
+      <section class="container">
+        <p data-i18n="footer.text">© 2021 - 2026 CWL · Powered by Hugo · Theme inspired by Coder</p>
+      </section>
+    </footer>
+  </div>
+</body>
+</html>

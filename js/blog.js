@@ -15,22 +15,7 @@
   var tagFilter = document.getElementById("tag-filter");
   var countBadge = document.querySelector(".tree-group .tree-count");
 
-  // Build a searchable index from the sidebar links and their article panels.
-  var items = links.map(function (link) {
-    var li = link.closest("li");
-    var panel = document.getElementById(link.getAttribute("data-post-target"));
-    var tags = panel
-      ? Array.prototype.slice.call(panel.querySelectorAll(".post-tags span")).map(function (s) {
-          return (s.textContent || "").trim();
-        })
-      : [];
-    var titleEl = link.querySelector(".tree-title");
-    var summaryEl = panel ? panel.querySelector(".article-summary") : null;
-    var title = titleEl ? titleEl.textContent : "";
-    var summary = summaryEl ? summaryEl.textContent : "";
-    var haystack = (title + " " + summary + " " + tags.join(" ")).toLowerCase();
-    return { link: link, li: li, panel: panel, tags: tags, haystack: haystack };
-  });
+  var items = [];
 
   var query = "";
   var activeTag = null;
@@ -39,8 +24,32 @@
   var empty = document.createElement("p");
   empty.className = "tree-empty";
   empty.hidden = true;
-  empty.textContent = "没有匹配的文章，换个关键词或标签试试。";
+  empty.textContent = window.cwlT ? window.cwlT("dyn.blog.empty", "没有匹配的文章，换个关键词或标签试试。") : "没有匹配的文章，换个关键词或标签试试。";
   treeNav.appendChild(empty);
+
+  function t(key, fallback) {
+    return window.cwlT ? window.cwlT(key, fallback) : fallback;
+  }
+
+  function buildItems() {
+    items = links.map(function (link) {
+      var li = link.closest("li");
+      var panel = document.getElementById(link.getAttribute("data-post-target"));
+      var tagEls = panel ? Array.prototype.slice.call(panel.querySelectorAll(".post-tags span")) : [];
+      var tags = tagEls.map(function (s) {
+        return s.dataset.tag || (s.textContent || "").trim();
+      });
+      var tagLabels = tagEls.map(function (s) {
+        return (s.textContent || "").trim();
+      });
+      var titleEl = link.querySelector(".tree-title");
+      var summaryEl = panel ? panel.querySelector(".article-summary") : null;
+      var title = titleEl ? titleEl.textContent : "";
+      var summary = summaryEl ? summaryEl.textContent : "";
+      var haystack = (title + " " + summary + " " + tags.join(" ") + " " + tagLabels.join(" ")).toLowerCase();
+      return { link: link, li: li, panel: panel, tags: tags, tagLabels: tagLabels, haystack: haystack };
+    });
+  }
 
   function matches(item) {
     var byQuery = !query || item.haystack.indexOf(query) !== -1;
@@ -109,31 +118,50 @@
     apply();
   }
 
-  if (tagFilter) {
+  function collectTagLabels() {
     var seen = {};
     var tags = [];
+    var labels = {};
     items.forEach(function (item) {
-      item.tags.forEach(function (tag) {
+      item.tags.forEach(function (tag, index) {
         if (tag && !seen[tag]) {
           seen[tag] = true;
           tags.push(tag);
+          labels[tag] = item.tagLabels[index] || tag;
         }
       });
     });
     tags.sort(function (a, b) {
-      return a.localeCompare(b, "zh-Hans-CN");
+      return (labels[a] || a).localeCompare(labels[b] || b, "zh-Hans-CN");
     });
-    tags.forEach(function (tag) {
+    return { seen: seen, tags: tags, labels: labels };
+  }
+
+  function rebuildTagFilter() {
+    if (!tagFilter) return [];
+    var data = collectTagLabels();
+    tagFilter.innerHTML = "";
+    data.tags.forEach(function (tag) {
       var chip = document.createElement("button");
       chip.type = "button";
       chip.className = "tag-chip";
       chip.dataset.tag = tag;
-      chip.textContent = tag;
+      chip.textContent = data.labels[tag] || tag;
+      chip.classList.toggle("active", tag === activeTag);
       chip.addEventListener("click", function () {
         setActiveTag(tag);
       });
       tagFilter.appendChild(chip);
     });
+    if (activeTag && !data.seen[activeTag]) {
+      activeTag = null;
+    }
+    return data.tags;
+  }
+
+  if (tagFilter) {
+    buildItems();
+    var tags = rebuildTagFilter();
 
     // 支持通过 /post/?tag=<标签> 直达并自动激活筛选。
     try {
@@ -148,7 +176,7 @@
   document.querySelectorAll(".blog-article .post-tags span").forEach(function (span) {
     span.setAttribute("role", "button");
     span.setAttribute("tabindex", "0");
-    var tag = (span.textContent || "").trim();
+    var tag = span.dataset.tag || (span.textContent || "").trim();
     function trigger() {
       setActiveTag(tag);
       var sidebar = document.querySelector(".post-tree");
@@ -165,5 +193,14 @@
     });
   });
 
+  function refreshI18n() {
+    empty.textContent = t("dyn.blog.empty", "没有匹配的文章，换个关键词或标签试试。");
+    buildItems();
+    rebuildTagFilter();
+    apply();
+  }
+
+  buildItems();
+  document.addEventListener("cwl:langchange", refreshI18n);
   apply();
 })();

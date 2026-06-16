@@ -25,7 +25,7 @@
   <meta name="twitter:description" content="围绕采集、算法、规则和正式告警的视频智能侦测系统后端重构复盘。">
   <title>视频智能侦测系统重构 :: CWLBlog</title>
 </head>
-<body class="colorscheme-dark" data-i18n-page="posts">
+<body class="colorscheme-dark" data-i18n-page="posts" data-i18n-title-en="Video Intelligence System Refactor :: CWLBlog" data-i18n-desc-en="A backend refactor retrospective for a video intelligence system covering capture, algorithms, rules and formal alerts.">
   <div class="cursor-glow" aria-hidden="true"></div>
   <canvas class="cursor-canvas" aria-hidden="true"></canvas>
   <div class="site-shell">
@@ -38,6 +38,7 @@
           <ul>
           <li><a class="active" href="/post/" data-i18n="nav.blog">Blog</a></li>
           <li><a href="/editor/" data-i18n="nav.editor">Editor</a></li>
+          <li><a href="/overleaf/" data-i18n="nav.overleaf">Overleaf</a></li>
           <li><a href="/contact/" data-i18n="nav.contact">Contact</a></li>
             <li><a class="nav-feedback" href="/contact/#feedback-title" data-i18n="nav.feedback" data-i18n-html><i class="fas fa-comment-dots" aria-hidden="true"></i> 留言反馈</a></li>
             <li><button class="theme-toggle" type="button" aria-label="Toggle dark mode" data-i18n-aria="nav.theme"><i class="fas fa-adjust"></i></button></li>
@@ -51,18 +52,18 @@
       <article class="article">
         <header class="article-header">
           <span class="eyebrow">System Refactor</span>
-          <h1>视频智能侦测系统：从采集到正式告警的链路重构</h1>
+          <h1 data-i18n="post.video-intelligence-platform.title" data-i18n-en="Video Intelligence System: Refactoring the Pipeline from Capture to Formal Alerts">视频智能侦测系统：从采集到正式告警的链路重构</h1>
           <div class="article-meta">
             <time datetime="2026-06-16">June 16, 2026</time>
             <span>·</span>
             <a href="/post/#video-intelligence-platform">Posts</a>
           </div>
-          <p class="article-summary">围绕“采集 -> 算法 -> 规则 -> 正式告警”重整后端结构，让智能分析链路从能跑变成好维护、好扩展、好迁移。</p>
+          <p class="article-summary" data-i18n="post.video-intelligence-platform.summary" data-i18n-en="A backend refactor around the capture -&gt; algorithm -&gt; rules -&gt; formal alert pipeline, turning a runnable intelligent-analysis flow into one that is easier to maintain, extend and migrate.">围绕“采集 -> 算法 -> 规则 -> 正式告警”重整后端结构，让智能分析链路从能跑变成好维护、好扩展、好迁移。</p>
           <div class="post-tags">
-            <a href="/post/?tag=Java">Java</a><a href="/post/?tag=Spring%20Boot">Spring Boot</a><a href="/post/?tag=Maven%20%E5%A4%9A%E6%A8%A1%E5%9D%97">Maven 多模块</a><a href="/post/?tag=ONNX%20Runtime">ONNX Runtime</a><a href="/post/?tag=RabbitMQ">RabbitMQ</a>
+            <a href="/post/?tag=Java" data-tag="Java" data-i18n="post.video-intelligence-platform.tag.0" data-i18n-en="Java">Java</a><a href="/post/?tag=Spring%20Boot" data-tag="Spring Boot" data-i18n="post.video-intelligence-platform.tag.1" data-i18n-en="Spring Boot">Spring Boot</a><a href="/post/?tag=Maven%20%E5%A4%9A%E6%A8%A1%E5%9D%97" data-tag="Maven 多模块" data-i18n="post.video-intelligence-platform.tag.2" data-i18n-en="Maven multi-module">Maven 多模块</a><a href="/post/?tag=ONNX%20Runtime" data-tag="ONNX Runtime" data-i18n="post.video-intelligence-platform.tag.3" data-i18n-en="ONNX Runtime">ONNX Runtime</a><a href="/post/?tag=RabbitMQ" data-tag="RabbitMQ" data-i18n="post.video-intelligence-platform.tag.4" data-i18n-en="RabbitMQ">RabbitMQ</a>
           </div>
         </header>
-        <div class="article-content">
+        <div class="article-content" data-i18n-lang="zh">
           <p>今年最值得复盘的一件事，是把视频智能侦测系统里分散的采集服务、算法服务、规则引擎和业务告警入口重新梳理成一个更清晰的后端工程。它不是单纯换目录，而是重新确认数据应该在哪里产生、在哪里沉淀、在哪里被解释。</p>
           <h2>重构重点</h2>
           <ul class="insight-list">
@@ -73,7 +74,18 @@
           </ul>
           <p>这次经验给我的最大提醒是：复杂系统的重构不只追求“新架构漂亮”，更重要的是把链路上的关键名词固定下来。命名稳定了，接口、表结构和排查路径才会慢慢稳定。</p>
         </div>
-            <div class="post-share" data-share-url="/post/video-intelligence-platform/" data-share-title="视频智能侦测系统重构">
+        <div class="article-content" data-i18n-lang="en" hidden>
+          <p>One of the most valuable things to review this year was reorganizing the scattered capture service, algorithm service, rule engine and business alert entry point in the video intelligence system into a clearer backend project. This was not just a directory reshuffle; it was a chance to decide where data should be produced, persisted and interpreted.</p>
+          <h2>Refactor Focus</h2>
+          <ul class="insight-list">
+          <li><strong>Module boundaries:</strong> Split shared capabilities, capture, algorithms, rules and business domains under a Maven parent project to reduce direct cross-module dependencies.</li>
+          <li><strong>Data layering:</strong> Persist analysis tasks, standard analysis results, compatibility facts and formal alerts in separate layers, so legacy table structures no longer absorb new business meaning.</li>
+          <li><strong>Algorithm platformization:</strong> Support algorithm registration, rule-to-algorithm binding, pluggable executors and unified result writing, leaving extension points for face, pose, object detection, OCR and other capabilities.</li>
+          <li><strong>Migration strategy:</strong> Run the new pipeline on standard analysis results while keeping the old fact pipeline as a fallback to reduce business risk during the refactor.</li>
+          </ul>
+          <p>The biggest reminder from this work is that refactoring a complex system is not just about making the new architecture look elegant. It matters more to stabilize the key terms across the pipeline. Once naming becomes stable, APIs, table structures and troubleshooting paths gradually become stable too.</p>
+        </div>
+            <div class="post-share" data-share-url="/post/video-intelligence-platform/" data-share-title="视频智能侦测系统重构" data-share-title-en="Video Intelligence System Refactor">
               <span class="share-label" data-i18n="post.share"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg> 分享</span>
               <a class="share-btn" data-share="x" href="#" target="_blank" rel="noopener" aria-label="分享到 X" data-i18n-aria="post.share.x"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
               <button class="share-btn" type="button" data-share="weibo" aria-label="分享到微博" data-i18n-aria="post.share.weibo"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M10.098 20.323c-3.977.391-7.414-1.406-7.672-4.02-.259-2.609 2.759-5.047 6.74-5.441 3.979-.394 7.413 1.404 7.671 4.018.259 2.6-2.759 5.049-6.737 5.439l-.002.004zM9.05 17.219c-.384.616-1.208.884-1.829.602-.612-.279-.793-.991-.406-1.593.379-.595 1.176-.861 1.793-.601.622.263.82.972.442 1.592zm1.27-1.627c-.141.237-.449.353-.689.253-.236-.09-.312-.359-.177-.586.138-.227.436-.346.672-.24.239.09.315.36.18.601l.014-.028zm.176-2.719c-1.893-.493-4.033.451-4.857 2.118-.836 1.704-.026 3.603 1.886 4.21 1.983.63 4.318-.354 5.132-2.179.8-1.793-.247-3.667-2.161-4.149zm7.563-1.224c-.346-.105-.57-.18-.405-.615.375-.977.42-1.829-.01-2.448-.81-1.155-3.027-1.092-5.567-.03 0 0-.795.346-.591-.284.39-1.26.33-2.31-.27-2.913-1.365-1.365-4.992.045-8.103 3.157C-.21 11.84-.96 14.61.04 16.7c1.62 3.405 6.99 3.585 11.52 1.875 4.53-1.71 8.42-5.97 6.78-9.45-.36-.78-1.05-1.32-1.86-1.626.18-.27.35-.54.4-.825.05-.36-.18-.54-.45-.39-.045.075-.075.165-.09.255-.054.21-.139.435-.27.63zm1.5-3.99c-.165-.5-.434-.945-.794-1.305-.36-.36-.81-.629-1.305-.794-.165-.06-.345.029-.405.194-.06.165.03.345.195.405.36.12.69.314.96.585.27.27.464.6.585.96.06.165.225.255.39.21.165-.045.255-.225.21-.39l-.031-.06zm2.355-.766c-.345-1.035-.93-1.965-1.71-2.745-.78-.781-1.71-1.366-2.746-1.711-.27-.09-.539.06-.629.33-.09.27.06.539.33.629.825.27 1.575.735 2.205 1.365.63.63 1.095 1.38 1.365 2.205.09.27.359.42.629.33.27-.09.42-.36.33-.629l.001-.024z"/></svg></button>
@@ -86,8 +98,8 @@
         <div id="giscus-thread"></div>
       </section>
       <nav class="post-pager" aria-label="Post pagination">
-        <a class="pager-prev" href="/post/">← <span data-i18n="post.meta.posts">Posts</span></a>
-        <a class="pager-next" href="/post/rule-engine-alerts/"><span data-i18n="post.meta.posts">规则引擎与告警闭环</span> →</a>
+        <a class="pager-prev" href="/post/">← <span data-i18n="post.meta.posts" data-i18n-en="Posts">Posts</span></a>
+        <a class="pager-next" href="/post/rule-engine-alerts/"><span data-i18n="post.rule-engine-alerts.shortTitle" data-i18n-en="Rule Engine and Alert Loop">规则引擎与告警闭环</span> →</a>
       </nav>
     </main>
     <footer class="footer">

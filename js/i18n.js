@@ -9,6 +9,8 @@
 //   data-i18n-aria   → 替换 aria-label
 //   data-i18n-ph     → 替换 placeholder
 //   data-i18n-title  → 替换 title 属性
+//   data-i18n-en*    → 由构建模板直接写入的英文文案（用于文章等生成内容）
+//   data-i18n-lang   → 显隐整块中/英文内容
 // <title> 与 meta[name=description] 用 head.* 键单独处理。
 (function () {
   var KEY = "cwl-lang";
@@ -18,6 +20,7 @@
       selector: "[data-i18n-html]",
       key: function (el) { return el.getAttribute("data-i18n-html") || el.getAttribute("data-i18n"); },
       read: function (el) { return el.innerHTML; },
+      inline: function (el) { return el.getAttribute("data-i18n-en-html") || el.getAttribute("data-i18n-en"); },
       apply: function (el, v) { el.innerHTML = v; }
     },
     {
@@ -25,6 +28,7 @@
       selector: "[data-i18n]:not([data-i18n-html])",
       key: function (el) { return el.getAttribute("data-i18n"); },
       read: function (el) { return el.textContent; },
+      inline: function (el) { return el.getAttribute("data-i18n-en"); },
       apply: function (el, v) { el.textContent = v; }
     },
     {
@@ -32,6 +36,7 @@
       selector: "[data-i18n-aria]",
       key: function (el) { return el.getAttribute("data-i18n-aria"); },
       read: function (el) { return el.getAttribute("aria-label") || ""; },
+      inline: function (el) { return el.getAttribute("data-i18n-en-aria"); },
       apply: function (el, v) { el.setAttribute("aria-label", v); }
     },
     {
@@ -39,6 +44,7 @@
       selector: "[data-i18n-ph]",
       key: function (el) { return el.getAttribute("data-i18n-ph"); },
       read: function (el) { return el.getAttribute("placeholder") || ""; },
+      inline: function (el) { return el.getAttribute("data-i18n-en-ph"); },
       apply: function (el, v) { el.setAttribute("placeholder", v); }
     },
     {
@@ -46,6 +52,7 @@
       selector: "[data-i18n-title]",
       key: function (el) { return el.getAttribute("data-i18n-title"); },
       read: function (el) { return el.getAttribute("title") || ""; },
+      inline: function (el) { return el.getAttribute("data-i18n-en-title"); },
       apply: function (el, v) { el.setAttribute("title", v); }
     },
   ];
@@ -58,6 +65,7 @@
     "nav.about": "About",
     "nav.blog": "Blog",
     "nav.editor": "Editor",
+    "nav.overleaf": "Overleaf",
     "nav.contact": "Contact",
     "nav.feedback": '<i class="fas fa-comment-dots" aria-hidden="true"></i> Feedback',
     "nav.theme": "Toggle dark mode",
@@ -71,6 +79,8 @@
     "head.desc.contact": "Contact information.",
     "head.title.editor": "Markdown Editor :: CWLBlog",
     "head.desc.editor": "Online Markdown blog editor.",
+    "head.title.overleaf": "Overleaf Resume :: CWLBlog",
+    "head.desc.overleaf": "Overleaf-style LaTeX resume template with two-way source and preview editing plus PDF download.",
     "head.title.posts": "Posts :: CWLBlog",
     "head.desc.posts": "2026 tech project retrospectives: video intelligence, rule engine, finance SaaS, low-code, workflow and engineering practice.",
     "head.title.tags": "Tags :: CWLBlog",
@@ -236,6 +246,23 @@
     "editor.fmt.table": "| Column 1 | Column 2 |\n| --- | --- |\n| Content | Content |",
     "editor.stats": "{words} words · {chars} chars · about {minutes} min",
 
+    // Overleaf 简历页
+    "overleaf.h1": "LaTeX Resume Template",
+    "overleaf.lead": "Edit LaTeX source on the left and preview the resume on the right. Text in the preview is editable too, and changes sync back to the source.",
+    "overleaf.btn.compile": "Recompile",
+    "overleaf.btn.copy": "Copy Source",
+    "overleaf.btn.reset": "Reset Template",
+    "overleaf.btn.pdf": "Download PDF",
+    "overleaf.source": "Source",
+    "overleaf.preview": "Preview",
+    "overleaf.editable": "editable PDF preview",
+    "overleaf.status.ready": "Ready",
+    "overleaf.status.compiled": "Compiled from source",
+    "overleaf.status.synced": "Preview edits synced to source",
+    "overleaf.status.copied": "Copied",
+    "overleaf.status.copyfail": "Copy failed",
+    "overleaf.status.pdf": "Use the print dialog to save as PDF",
+
     // 文章列表/单篇 post
     "post.tree.aria": "Article list",
     "post.tree.lead": "Retrospectives, platform work and engineering notes from this year, organized into continuously updated tech logs.",
@@ -261,6 +288,7 @@
 
     // 标签页 tags
     "tags.lead": "Browse posts by topic tag; click any tag to jump to the blog list with the filter applied.",
+    "tags.cloud.aria": "Tag cloud",
 
     // 分类页 / 404
     "categories.lead": "This static site does not have category data yet. Future article builds can connect the category index here.",
@@ -324,8 +352,16 @@
           el.__cwl[spec.attr] = spec.read(el);
         }
         var zh = el.__cwl[spec.attr];
-        spec.apply(el, lang === "en" ? t(key, zh) : zh);
+        var en = spec.inline ? spec.inline(el) : "";
+        spec.apply(el, lang === "en" ? (en || t(key, zh)) : zh);
       });
+    });
+  }
+
+  function applyLanguageBlocks() {
+    Array.prototype.forEach.call(document.querySelectorAll("[data-i18n-lang]"), function (el) {
+      var blockLang = el.getAttribute("data-i18n-lang") === "en" ? "en" : "zh";
+      el.hidden = blockLang !== lang;
     });
   }
 
@@ -337,17 +373,20 @@
     var descEl = document.querySelector('meta[name="description"]');
     if (titleEl) {
       if (!titleEl.__cwlZh) titleEl.__cwlZh = titleEl.textContent;
-      titleEl.textContent = lang === "en" ? t("head.title." + page, titleEl.__cwlZh) : titleEl.__cwlZh;
+      var titleEn = document.body.getAttribute("data-i18n-title-en") || "";
+      titleEl.textContent = lang === "en" ? (titleEn || t("head.title." + page, titleEl.__cwlZh)) : titleEl.__cwlZh;
     }
     if (descEl) {
       if (!descEl.__cwlZh) descEl.__cwlZh = descEl.getAttribute("content") || "";
-      descEl.setAttribute("content", lang === "en" ? t("head.desc." + page, descEl.__cwlZh) : descEl.__cwlZh);
+      var descEn = document.body.getAttribute("data-i18n-desc-en") || "";
+      descEl.setAttribute("content", lang === "en" ? (descEn || t("head.desc." + page, descEl.__cwlZh)) : descEl.__cwlZh);
     }
   }
 
   function apply() {
     document.documentElement.setAttribute("lang", lang === "en" ? "en" : "zh-CN");
     applyDom();
+    applyLanguageBlocks();
     applyHead();
     updateToggles();
     // 通知 coder.js 等脚本刷新它们动态生成的文本。

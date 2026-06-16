@@ -1,12 +1,30 @@
 ---
 title: "视频智能侦测系统：从采集到正式告警的链路重构"
+titleEn: "Video Intelligence System: Refactoring the Pipeline from Capture to Formal Alerts"
 shortTitle: "视频智能侦测系统重构"
+shortTitleEn: "Video Intelligence System Refactor"
 slug: "video-intelligence-platform"
 date: 2026-06-16
 eyebrow: "System Refactor"
 summary: "围绕“采集 -> 算法 -> 规则 -> 正式告警”重整后端结构，让智能分析链路从能跑变成好维护、好扩展、好迁移。"
+summaryEn: "A backend refactor around the capture -> algorithm -> rules -> formal alert pipeline, turning a runnable intelligent-analysis flow into one that is easier to maintain, extend and migrate."
 description: "围绕采集、算法、规则和正式告警的视频智能侦测系统后端重构复盘。"
+descriptionEn: "A backend refactor retrospective for a video intelligence system covering capture, algorithms, rules and formal alerts."
 tags: [Java, Spring Boot, Maven 多模块, ONNX Runtime, RabbitMQ]
+tagsEn: [Java, Spring Boot, Maven multi-module, ONNX Runtime, RabbitMQ]
+contentEn: |
+  One of the most valuable things to review this year was reorganizing the scattered capture service, algorithm service, rule engine and business alert entry point in the video intelligence system into a clearer backend project. This was not just a directory reshuffle; it was a chance to decide where data should be produced, persisted and interpreted.
+
+  ## Refactor Focus
+
+  <ul class="insight-list">
+  <li><strong>Module boundaries:</strong> Split shared capabilities, capture, algorithms, rules and business domains under a Maven parent project to reduce direct cross-module dependencies.</li>
+  <li><strong>Data layering:</strong> Persist analysis tasks, standard analysis results, compatibility facts and formal alerts in separate layers, so legacy table structures no longer absorb new business meaning.</li>
+  <li><strong>Algorithm platformization:</strong> Support algorithm registration, rule-to-algorithm binding, pluggable executors and unified result writing, leaving extension points for face, pose, object detection, OCR and other capabilities.</li>
+  <li><strong>Migration strategy:</strong> Run the new pipeline on standard analysis results while keeping the old fact pipeline as a fallback to reduce business risk during the refactor.</li>
+  </ul>
+
+  The biggest reminder from this work is that refactoring a complex system is not just about making the new architecture look elegant. It matters more to stabilize the key terms across the pipeline. Once naming becomes stable, APIs, table structures and troubleshooting paths gradually become stable too.
 ---
 今年最值得复盘的一件事，是把视频智能侦测系统里分散的采集服务、算法服务、规则引擎和业务告警入口重新梳理成一个更清晰的后端工程。它不是单纯换目录，而是重新确认数据应该在哪里产生、在哪里沉淀、在哪里被解释。
 

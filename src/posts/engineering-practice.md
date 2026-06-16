@@ -1,12 +1,30 @@
 ---
 title: "工程化习惯：多模块、Starter 与质量工具链"
+titleEn: "Engineering Habits: Multi-Module Design, Starters and Quality Tooling"
 shortTitle: "工程化习惯沉淀"
+shortTitleEn: "Engineering Practice Notes"
 slug: "engineering-practice"
 date: 2026-01-12
 eyebrow: "Engineering"
 summary: "把项目中反复出现的能力沉淀为公共组件、自动配置和检查流程，让交付质量更稳定。"
+summaryEn: "Turning repeated project capabilities into shared components, auto-configuration and check flows to make delivery quality more stable."
 description: "多模块架构、Spring Boot Starter、数据库适配和质量工具链的工程化沉淀。"
+descriptionEn: "Engineering notes on multi-module architecture, Spring Boot Starters, database adaptation and quality tooling."
 tags: [Maven, Spring Boot Starter, Docker, Jenkins, JaCoCo]
+tagsEn: [Maven, Spring Boot Starter, Docker, Jenkins, JaCoCo]
+contentEn: |
+  Several projects this year repeatedly proved one thing: engineering practice is not extra overhead; it is the foundation that lets complex business keep evolving. Multi-module design, Starters, automated tests and code checks ultimately reduce hidden communication cost.
+
+  ## Directions for Reuse
+
+  <ul class="insight-list">
+  <li><strong>Shared components:</strong> Extract repeated capabilities such as search, notification, import/export and workflow integration into reusable modules.</li>
+  <li><strong>Auto-configuration:</strong> Expose a unified integration style through <code>@ConfigurationProperties</code> and AutoConfiguration, so business code only needs to care about parameters and interfaces.</li>
+  <li><strong>Database adaptation:</strong> Handle SQL functions, pagination, field types and migration script compatibility in Kingbase/PostgreSQL and similar environments.</li>
+  <li><strong>Quality tooling:</strong> Use Checkstyle, JaCoCo and CI flows to make code style, test coverage and build results explicit.</li>
+  </ul>
+
+  I increasingly prefer to break "maintainability" into concrete actions: clear boundaries, stable naming, unified configuration and diagnosable failures. They are more reliable than grand architecture words.
 ---
 今年的几个项目都反复证明一件事：工程化不是额外负担，而是复杂业务能持续迭代的底座。多模块、Starter、自动化测试和代码检查，最终都是为了减少隐性沟通成本。
 

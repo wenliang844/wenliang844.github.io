@@ -69,14 +69,20 @@ async function loadPosts() {
 
     posts.push({
       title: data.title,
+      titleEn: data.titleEn,
       shortTitle: data.shortTitle,
+      shortTitleEn: data.shortTitleEn,
       slug,
       date: normalizeDate(data.date),
       eyebrow: data.eyebrow,
       summary: data.summary,
+      summaryEn: data.summaryEn,
       description: data.description,
+      descriptionEn: data.descriptionEn,
       tags: data.tags || [],
+      tagsEn: data.tagsEn || data.tags || [],
       contentHtml: renderContent(content),
+      contentHtmlEn: data.contentEn ? renderContent(data.contentEn) : "",
     });
   }
 
@@ -96,6 +102,16 @@ function stripHtml(html) {
   return html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
 }
 
+function localizedPost(post) {
+  return {
+    title: post.titleEn || post.title,
+    shortTitle: post.shortTitleEn || post.shortTitle,
+    summary: post.summaryEn || post.summary,
+    tags: post.tagsEn || post.tags,
+    body: stripHtml(post.contentHtmlEn || post.contentHtml).slice(0, 600),
+  };
+}
+
 // 生成搜索索引 JSON（文章 + 静态页），供全局模糊搜索使用。
 function buildSearchIndex(posts) {
   return JSON.stringify(
@@ -109,6 +125,9 @@ function buildSearchIndex(posts) {
       path: `/post/${p.slug}/`,
       slug: p.slug,
       body: stripHtml(p.contentHtml).slice(0, 600),
+      i18n: {
+        en: localizedPost(p),
+      },
     })).concat(SEARCH_PAGES.map((p) => ({ type: "page", ...p }))),
     null,
     0,
@@ -146,13 +165,17 @@ ${rows.join("\n")}
 // 统计所有文章的标签及出现次数，按文章数降序、同数按名称升序排列。
 function collectTags(posts) {
   const counts = new Map();
+  const namesEn = new Map();
   for (const post of posts) {
-    for (const tag of post.tags) {
+    for (const [index, tag] of post.tags.entries()) {
       counts.set(tag, (counts.get(tag) || 0) + 1);
+      if (!namesEn.has(tag)) {
+        namesEn.set(tag, (post.tagsEn && post.tagsEn[index]) || tag);
+      }
     }
   }
   return [...counts.entries()]
-    .map(([tag, count]) => ({ tag, count }))
+    .map(([tag, count]) => ({ tag, tagEn: namesEn.get(tag) || tag, count }))
     .sort((a, b) =>
       b.count - a.count || a.tag.localeCompare(b.tag, "zh-Hans-CN"),
     );

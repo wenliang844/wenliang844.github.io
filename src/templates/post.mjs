@@ -2,17 +2,38 @@
 import { renderPage } from "./layout.mjs";
 import { isoDate, longDate, escapeAttr } from "../lib/format.mjs";
 
+function enValue(post, key) {
+  return post[`${key}En`] || post[key] || "";
+}
+
+function i18nText(key, zh, en, extra = "") {
+  return `data-i18n="${key}" data-i18n-en="${escapeAttr(en || zh)}"${extra ? ` ${extra}` : ""}`;
+}
+
+function tagEn(post, tag, index) {
+  return (post.tagsEn && post.tagsEn[index]) || tag;
+}
+
 // 列表页面板用：tags 渲染为 span，由 blog.js 接管就地筛选（span 之间不留空白）。
-function renderTags(tags) {
-  return tags.map((t) => `<span>${t}</span>`).join("");
+function renderTags(post) {
+  return post.tags.map((tag, index) => {
+    return `<span data-tag="${escapeAttr(tag)}" data-i18n="post.${post.slug}.tag.${index}" data-i18n-en="${escapeAttr(tagEn(post, tag, index))}">${tag}</span>`;
+  }).join("");
 }
 
 // 单篇页用：tags 渲染为链接，点击跳转到 /post/?tag= 并自动筛选
 //（单篇页不加载 blog.js，因此用真链接而非就地筛选）。
-function renderTagLinks(tags) {
-  return tags
-    .map((t) => `<a href="/post/?tag=${encodeURIComponent(t)}">${t}</a>`)
+function renderTagLinks(post) {
+  return post.tags
+    .map((tag, index) => `<a href="/post/?tag=${encodeURIComponent(tag)}" data-tag="${escapeAttr(tag)}" data-i18n="post.${post.slug}.tag.${index}" data-i18n-en="${escapeAttr(tagEn(post, tag, index))}">${tag}</a>`)
     .join("");
+}
+
+function renderI18nContent(post, indent) {
+  const zh = `${indent}<div class="article-content" data-i18n-lang="zh">\n${post.contentHtml}\n${indent}</div>`;
+  if (!post.contentHtmlEn) return zh;
+  const en = `${indent}<div class="article-content" data-i18n-lang="en" hidden>\n${post.contentHtmlEn}\n${indent}</div>`;
+  return `${zh}\n${en}`;
 }
 
 // 分享图标用内联 SVG，不依赖 Font Awesome 子集（子集里没有这些品牌字形）。
@@ -36,7 +57,7 @@ const SHARE_ICONS = {
 // 列表页每篇 panel 各有一条（数据随文章不同），切换文章即用对应那条。
 function renderShare(post) {
   const url = `/post/${post.slug}/`;
-  return `            <div class="post-share" data-share-url="${url}" data-share-title="${escapeAttr(post.shortTitle)}">
+  return `            <div class="post-share" data-share-url="${url}" data-share-title="${escapeAttr(post.shortTitle)}" data-share-title-en="${escapeAttr(enValue(post, "shortTitle"))}">
               <span class="share-label" data-i18n="post.share">${SHARE_ICONS.share} 分享</span>
               <a class="share-btn" data-share="x" href="#" target="_blank" rel="noopener" aria-label="分享到 X" data-i18n-aria="post.share.x">${SHARE_ICONS.x}</a>
               <button class="share-btn" type="button" data-share="weibo" aria-label="分享到微博" data-i18n-aria="post.share.weibo">${SHARE_ICONS.weibo}</button>
@@ -50,12 +71,14 @@ function renderShare(post) {
 function renderPager(prev, next) {
   const prevHref = prev ? `/post/${prev.slug}/` : "/post/";
   const prevLabel = prev ? prev.shortTitle : "Posts";
+  const prevLabelEn = prev ? enValue(prev, "shortTitle") : "Posts";
   const nextHref = next ? `/post/${next.slug}/` : "/post/";
   const nextLabel = next ? next.shortTitle : "Posts";
+  const nextLabelEn = next ? enValue(next, "shortTitle") : "Posts";
 
   return `      <nav class="post-pager" aria-label="Post pagination">
-        <a class="pager-prev" href="${prevHref}">← <span data-i18n="post.meta.posts">${prevLabel}</span></a>
-        <a class="pager-next" href="${nextHref}"><span data-i18n="post.meta.posts">${nextLabel}</span> →</a>
+        <a class="pager-prev" href="${prevHref}">← <span ${i18nText(prev ? `post.${prev.slug}.shortTitle` : "post.meta.posts", prevLabel, prevLabelEn)}>${prevLabel}</span></a>
+        <a class="pager-next" href="${nextHref}"><span ${i18nText(next ? `post.${next.slug}.shortTitle` : "post.meta.posts", nextLabel, nextLabelEn)}>${nextLabel}</span> →</a>
       </nav>`;
 }
 
@@ -69,20 +92,18 @@ export function renderPostPage(post, nav) {
       <article class="article">
         <header class="article-header">
           <span class="eyebrow">${post.eyebrow}</span>
-          <h1>${post.title}</h1>
+          <h1 ${i18nText(`post.${post.slug}.title`, post.title, enValue(post, "title"))}>${post.title}</h1>
           <div class="article-meta">
             <time datetime="${isoDate(post.date)}">${longDate(post.date)}</time>
             <span>·</span>
             <a href="/post/#${post.slug}">Posts</a>
           </div>
-          <p class="article-summary">${post.summary}</p>
+          <p class="article-summary" ${i18nText(`post.${post.slug}.summary`, post.summary, enValue(post, "summary"))}>${post.summary}</p>
           <div class="post-tags">
-            ${renderTagLinks(post.tags)}
+            ${renderTagLinks(post)}
           </div>
         </header>
-        <div class="article-content">
-${post.contentHtml}
-        </div>
+${renderI18nContent(post, "        ")}
 ${renderShare(post)}
       </article>
       <section class="comments container" aria-label="评论" data-i18n-aria="post.comments.aria">
@@ -95,6 +116,8 @@ ${renderPager(nav.prev, nav.next)}
   return renderPage({
     title: `${post.shortTitle} :: CWLBlog`,
     description: post.description,
+    titleEn: `${enValue(post, "shortTitle")} :: CWLBlog`,
+    descriptionEn: enValue(post, "description"),
     active: "blog",
     page: "posts",
     scripts: ["/js/vendor/qrcode.min.js", "/js/share.js", "/js/giscus.js"],
@@ -114,7 +137,7 @@ function renderTreeLink(post, isFirst) {
   const ariaCurrent = isFirst ? ' aria-current="page"' : "";
   return `                <li>
                   <a class="post-tree-link${activeCls}" href="#${post.slug}" data-post-target="post-${post.slug}"${ariaCurrent}>
-                    <span class="tree-title">${post.shortTitle}</span>
+                    <span class="tree-title" ${i18nText(`post.${post.slug}.shortTitle`, post.shortTitle, enValue(post, "shortTitle"))}>${post.shortTitle}</span>
                     <time datetime="${isoDate(post.date)}">${isoDate(post.date)}</time>
                   </a>
                 </li>`;
@@ -126,18 +149,16 @@ function renderArticlePanel(post, isFirst) {
   return `          <article class="article blog-article${activeCls}" id="post-${post.slug}" data-post-slug="${post.slug}">
             <header class="article-header">
               <span class="eyebrow">${post.eyebrow}</span>
-              <h1>${post.title}</h1>
+              <h1 ${i18nText(`post.${post.slug}.title`, post.title, enValue(post, "title"))}>${post.title}</h1>
               <div class="article-meta">
                 <time datetime="${isoDate(post.date)}">${longDate(post.date)}</time>
               </div>
-              <p class="article-summary">${post.summary}</p>
+              <p class="article-summary" ${i18nText(`post.${post.slug}.summary`, post.summary, enValue(post, "summary"))}>${post.summary}</p>
               <div class="post-tags">
-                ${renderTags(post.tags)}
+                ${renderTags(post)}
               </div>
             </header>
-            <div class="article-content">
-${post.contentHtml}
-            </div>
+${renderI18nContent(post, "            ")}
 ${renderShare(post)}
           </article>`;
 }

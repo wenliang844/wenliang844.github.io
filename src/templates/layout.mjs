@@ -5,6 +5,7 @@ import { SITE } from "../config.mjs";
 const NAV_ITEMS = [
   { href: "/post/", label: "Blog", key: "blog", i18n: "nav.blog" },
   { href: "/editor/", label: "Editor", key: "editor", i18n: "nav.editor" },
+  { href: "/overleaf/", label: "Overleaf", key: "overleaf", i18n: "nav.overleaf" },
   { href: "/contact/", label: "Contact", key: "contact", i18n: "nav.contact" },
 ];
 
@@ -76,6 +77,8 @@ function renderMeta(og) {
  * @param {object} opts
  * @param {string} opts.title       <title> 内容
  * @param {string} opts.description  meta description
+ * @param {string} [opts.titleEn]    英文 <title>（用于生成内容页）
+ * @param {string} [opts.descriptionEn] 英文 meta description
  * @param {string} opts.active       导航高亮 key（blog/editor/contact 或 ""）
  * @param {string[]} opts.scripts    额外 defer 脚本（coder.js 已默认包含）
  * @param {string} opts.bodyClass    body 额外 class，默认 colorscheme-light
@@ -87,6 +90,8 @@ export function renderPage(opts) {
   const {
     title,
     description,
+    titleEn = "",
+    descriptionEn = "",
     active = "",
     scripts = [],
     bodyClass = "colorscheme-dark",
@@ -97,6 +102,12 @@ export function renderPage(opts) {
 
   const allScripts = ["/js/i18n.js", "/js/coder.js", "/js/vendor/fuse.min.js", "/js/search.js", ...scripts];
   const meta = renderMeta(og);
+
+  const bodyI18n = [
+    page ? `data-i18n-page="${page}"` : "",
+    titleEn ? `data-i18n-title-en="${attr(titleEn)}"` : "",
+    descriptionEn ? `data-i18n-desc-en="${attr(descriptionEn)}"` : "",
+  ].filter(Boolean).join(" ");
 
   return `<!doctype html>
 <html lang="zh-CN">
@@ -111,7 +122,7 @@ export function renderPage(opts) {
 ${renderScripts(allScripts)}${meta ? "\n" + meta : ""}
   <title>${title}</title>
 </head>
-<body class="${bodyClass}"${page ? ` data-i18n-page="${page}"` : ""}>
+<body class="${bodyClass}"${bodyI18n ? ` ${bodyI18n}` : ""}>
   <div class="cursor-glow" aria-hidden="true"></div>
   <canvas class="cursor-canvas" aria-hidden="true"></canvas>
   <div class="site-shell">

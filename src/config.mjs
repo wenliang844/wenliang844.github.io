@@ -23,6 +23,7 @@ export const STATIC_PAGES = [
   { path: "/", withDate: true, priority: 0 },
   { path: "/post/", withDate: true, insertPostsAfter: true },
   { path: "/editor/", withDate: true },
+  { path: "/overleaf/", withDate: true },
   { path: "/contact/", withDate: true },
   { path: "/categories/", withDate: false },
   { path: "/tags/", withDate: true },
@@ -30,7 +31,32 @@ export const STATIC_PAGES = [
 
 // 全局搜索索引中额外包含的静态页（文章页由构建脚本动态生成）。
 export const SEARCH_PAGES = [
-  { title: "Contact",     summary: "联系方式与留言反馈。",                                          path: "/contact/",  tags: ["联系"] },
-  { title: "Editor",      summary: "在线 Markdown 编辑器，实时预览与自动保存。",                    path: "/editor/",   tags: ["工具"] },
-  { title: "Tags",        summary: "按技术标签浏览博客文章。",                                      path: "/tags/",     tags: ["标签"] },
+  {
+    title: "Contact",
+    summary: "联系方式与留言反馈。",
+    path: "/contact/",
+    tags: ["联系"],
+    i18n: { en: { title: "Contact", summary: "Contact links and feedback.", tags: ["Contact"] } },
+  },
+  {
+    title: "Editor",
+    summary: "在线 Markdown 编辑器，实时预览与自动保存。",
+    path: "/editor/",
+    tags: ["工具"],
+    i18n: { en: { title: "Editor", summary: "Online Markdown editor with live preview and auto-save.", tags: ["Tool"] } },
+  },
+  {
+    title: "Overleaf",
+    summary: "Overleaf 风格 LaTeX 简历模板，支持源码与预览双向编辑、PDF 下载。",
+    path: "/overleaf/",
+    tags: ["工具", "简历", "LaTeX"],
+    i18n: { en: { title: "Overleaf", summary: "Overleaf-style LaTeX resume template with source/preview editing and PDF download.", tags: ["Tool", "Resume", "LaTeX"] } },
+  },
+  {
+    title: "Tags",
+    summary: "按技术标签浏览博客文章。",
+    path: "/tags/",
+    tags: ["标签"],
+    i18n: { en: { title: "Tags", summary: "Browse blog posts by technical topic tag.", tags: ["Tags"] } },
+  },
 ];

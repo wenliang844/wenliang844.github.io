@@ -1,12 +1,30 @@
 ---
 title: "财税 SaaS 后端实践：报表、搜索与通知中心"
+titleEn: "Finance SaaS Backend Practice: Reports, Search and Notification Center"
 shortTitle: "财税 SaaS 后端实践"
+shortTitleEn: "Finance SaaS Backend Practice"
 slug: "finance-saas-backend"
 date: 2026-04-18
 eyebrow: "SaaS Backend"
 summary: "围绕财务报表计算、ElasticSearch Starter 和多渠道通知中心，沉淀可复用的业务基础能力。"
+summaryEn: "Reusable business infrastructure around financial report computation, an ElasticSearch Starter and a multi-channel notification center."
 description: "财税 SaaS 中财务报表、ElasticSearch Starter 与多渠道通知中心的后端实践。"
+descriptionEn: "Backend practice for financial reports, an ElasticSearch Starter and a multi-channel notification center in a finance SaaS system."
 tags: [Spring Boot Starter, ElasticSearch, RocketMQ, EasyExcel, CompletableFuture]
+tagsEn: [Spring Boot Starter, ElasticSearch, RocketMQ, EasyExcel, CompletableFuture]
+contentEn: |
+  The complexity of a finance SaaS system is not that it has many APIs. It is that amount definitions, tenant isolation, asynchronous processing and external channels all have to remain stable. After layering backend modules into API, Implement, Runtime and Starter, many shared capabilities can be extracted from business code.
+
+  ## Practice Notes
+
+  <ul class="insight-list">
+  <li><strong>Financial reports:</strong> Compute account balance sheets, income statements and cash-flow statements from voucher lines, accounting periods, debit/credit direction and auxiliary accounting dimensions, with all amounts represented by <code>BigDecimal</code>.</li>
+  <li><strong>Search Starter:</strong> Encapsulate index initialization, mapping, batch writes, alias switching, scroll pagination, aggregation queries and highlighted result mapping to lower integration cost.</li>
+  <li><strong>Notification center:</strong> Support SMS, email, in-app messages, App Push and WeChat Official Account template messages, with tenant context and send results persisted in a unified way.</li>
+  <li><strong>Concurrent sending:</strong> Preload template and OpenId binding information before bulk Official Account sends, then isolate time-consuming operations with <code>CompletableFuture</code> and thread pools.</li>
+  </ul>
+
+  Systems like this are good training for backend thinking that starts from business definitions: define the data correctly first, then talk about performance optimization and component reuse.
 ---
 财税 SaaS 的复杂度不在“接口很多”，而在金额口径、租户隔离、异步处理和外部渠道都要求稳定。后端模块按 API、Implement、Runtime、Starter 分层后，很多通用能力可以从业务代码里抽出来。
 

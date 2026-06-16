@@ -25,7 +25,7 @@
   <meta name="twitter:description" content="低代码平台中设计器、Schema、物料协议与 Web Worker 出码链路的实践复盘。">
   <title>低代码 Schema 与出码 :: CWLBlog</title>
 </head>
-<body class="colorscheme-dark" data-i18n-page="posts">
+<body class="colorscheme-dark" data-i18n-page="posts" data-i18n-title-en="Low-Code Schema and Codegen :: CWLBlog" data-i18n-desc-en="A retrospective on designer, Schema, material protocol and Web Worker code generation in a low-code platform.">
   <div class="cursor-glow" aria-hidden="true"></div>
   <canvas class="cursor-canvas" aria-hidden="true"></canvas>
   <div class="site-shell">
@@ -38,6 +38,7 @@
           <ul>
           <li><a class="active" href="/post/" data-i18n="nav.blog">Blog</a></li>
           <li><a href="/editor/" data-i18n="nav.editor">Editor</a></li>
+          <li><a href="/overleaf/" data-i18n="nav.overleaf">Overleaf</a></li>
           <li><a href="/contact/" data-i18n="nav.contact">Contact</a></li>
             <li><a class="nav-feedback" href="/contact/#feedback-title" data-i18n="nav.feedback" data-i18n-html><i class="fas fa-comment-dots" aria-hidden="true"></i> 留言反馈</a></li>
             <li><button class="theme-toggle" type="button" aria-label="Toggle dark mode" data-i18n-aria="nav.theme"><i class="fas fa-adjust"></i></button></li>
@@ -51,18 +52,18 @@
       <article class="article">
         <header class="article-header">
           <span class="eyebrow">LowCode</span>
-          <h1>低代码平台：Schema、物料与出码链路</h1>
+          <h1 data-i18n="post.lowcode-schema-codegen.title" data-i18n-en="Low-Code Platform: Schema, Materials and Code Generation Pipeline">低代码平台：Schema、物料与出码链路</h1>
           <div class="article-meta">
             <time datetime="2026-03-22">March 22, 2026</time>
             <span>·</span>
             <a href="/post/#lowcode-schema-codegen">Posts</a>
           </div>
-          <p class="article-summary">从设计器、物料协议到 Web Worker 出码，把页面搭建能力组织成可扩展的平台工程。</p>
+          <p class="article-summary" data-i18n="post.lowcode-schema-codegen.summary" data-i18n-en="From designer and material protocol to Web Worker code generation, organizing page-building capability as an extensible platform project.">从设计器、物料协议到 Web Worker 出码，把页面搭建能力组织成可扩展的平台工程。</p>
           <div class="post-tags">
-            <a href="/post/?tag=TypeScript">TypeScript</a><a href="/post/?tag=React">React</a><a href="/post/?tag=MobX">MobX</a><a href="/post/?tag=LowCode%20Schema">LowCode Schema</a><a href="/post/?tag=Web%20Worker">Web Worker</a>
+            <a href="/post/?tag=TypeScript" data-tag="TypeScript" data-i18n="post.lowcode-schema-codegen.tag.0" data-i18n-en="TypeScript">TypeScript</a><a href="/post/?tag=React" data-tag="React" data-i18n="post.lowcode-schema-codegen.tag.1" data-i18n-en="React">React</a><a href="/post/?tag=MobX" data-tag="MobX" data-i18n="post.lowcode-schema-codegen.tag.2" data-i18n-en="MobX">MobX</a><a href="/post/?tag=LowCode%20Schema" data-tag="LowCode Schema" data-i18n="post.lowcode-schema-codegen.tag.3" data-i18n-en="Low-Code Schema">LowCode Schema</a><a href="/post/?tag=Web%20Worker" data-tag="Web Worker" data-i18n="post.lowcode-schema-codegen.tag.4" data-i18n-en="Web Worker">Web Worker</a>
           </div>
         </header>
-        <div class="article-content">
+        <div class="article-content" data-i18n-lang="zh">
           <p>低代码平台最有意思的地方，是它同时包含编辑器交互、协议设计、工程生成和运行时渲染。做这类项目时，前后端边界会变得更开放，也更考验抽象是否克制。</p>
           <h2>链路拆解</h2>
           <ul class="insight-list">
@@ -73,7 +74,18 @@
           </ul>
           <p>低代码不是把代码藏起来，而是把重复的工程决策模板化。真正有价值的部分，是让业务页面更快落地，同时保留工程可维护性。</p>
         </div>
-            <div class="post-share" data-share-url="/post/lowcode-schema-codegen/" data-share-title="低代码 Schema 与出码">
+        <div class="article-content" data-i18n-lang="en" hidden>
+          <p>The most interesting part of a low-code platform is that it includes editor interaction, protocol design, project generation and runtime rendering at the same time. On this kind of project, frontend/backend boundaries become more open, and restrained abstraction matters even more.</p>
+          <h2>Pipeline Breakdown</h2>
+          <ul class="insight-list">
+          <li><strong>Designer core:</strong> Build canvas composition, node selection, drag-and-drop orchestration, panel extension and plugin registration around designer, editor-core and editor-skeleton.</li>
+          <li><strong>Schema rendering:</strong> Convert page descriptions into runnable React/Rax views, covering props, slots, conditional rendering, loop rendering and data-source binding.</li>
+          <li><strong>Material system:</strong> Scan component source code, extract props, type definitions and metadata, and generate the JSON Schema needed for middle/back-office page building.</li>
+          <li><strong>Code generation:</strong> Support browser-side Web Worker code generation and server-side code generation for preview, download and engineering delivery.</li>
+          </ul>
+          <p>Low-code is not about hiding code. It is about turning repeated engineering decisions into templates. The valuable part is helping business pages land faster while preserving maintainability.</p>
+        </div>
+            <div class="post-share" data-share-url="/post/lowcode-schema-codegen/" data-share-title="低代码 Schema 与出码" data-share-title-en="Low-Code Schema and Codegen">
               <span class="share-label" data-i18n="post.share"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg> 分享</span>
               <a class="share-btn" data-share="x" href="#" target="_blank" rel="noopener" aria-label="分享到 X" data-i18n-aria="post.share.x"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
               <button class="share-btn" type="button" data-share="weibo" aria-label="分享到微博" data-i18n-aria="post.share.weibo"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M10.098 20.323c-3.977.391-7.414-1.406-7.672-4.02-.259-2.609 2.759-5.047 6.74-5.441 3.979-.394 7.413 1.404 7.671 4.018.259 2.6-2.759 5.049-6.737 5.439l-.002.004zM9.05 17.219c-.384.616-1.208.884-1.829.602-.612-.279-.793-.991-.406-1.593.379-.595 1.176-.861 1.793-.601.622.263.82.972.442 1.592zm1.27-1.627c-.141.237-.449.353-.689.253-.236-.09-.312-.359-.177-.586.138-.227.436-.346.672-.24.239.09.315.36.18.601l.014-.028zm.176-2.719c-1.893-.493-4.033.451-4.857 2.118-.836 1.704-.026 3.603 1.886 4.21 1.983.63 4.318-.354 5.132-2.179.8-1.793-.247-3.667-2.161-4.149zm7.563-1.224c-.346-.105-.57-.18-.405-.615.375-.977.42-1.829-.01-2.448-.81-1.155-3.027-1.092-5.567-.03 0 0-.795.346-.591-.284.39-1.26.33-2.31-.27-2.913-1.365-1.365-4.992.045-8.103 3.157C-.21 11.84-.96 14.61.04 16.7c1.62 3.405 6.99 3.585 11.52 1.875 4.53-1.71 8.42-5.97 6.78-9.45-.36-.78-1.05-1.32-1.86-1.626.18-.27.35-.54.4-.825.05-.36-.18-.54-.45-.39-.045.075-.075.165-.09.255-.054.21-.139.435-.27.63zm1.5-3.99c-.165-.5-.434-.945-.794-1.305-.36-.36-.81-.629-1.305-.794-.165-.06-.345.029-.405.194-.06.165.03.345.195.405.36.12.69.314.96.585.27.27.464.6.585.96.06.165.225.255.39.21.165-.045.255-.225.21-.39l-.031-.06zm2.355-.766c-.345-1.035-.93-1.965-1.71-2.745-.78-.781-1.71-1.366-2.746-1.711-.27-.09-.539.06-.629.33-.09.27.06.539.33.629.825.27 1.575.735 2.205 1.365.63.63 1.095 1.38 1.365 2.205.09.27.359.42.629.33.27-.09.42-.36.33-.629l.001-.024z"/></svg></button>
@@ -86,8 +98,8 @@
         <div id="giscus-thread"></div>
       </section>
       <nav class="post-pager" aria-label="Post pagination">
-        <a class="pager-prev" href="/post/finance-saas-backend/">← <span data-i18n="post.meta.posts">财税 SaaS 后端实践</span></a>
-        <a class="pager-next" href="/post/activiti-workflow-engine/"><span data-i18n="post.meta.posts">Activiti 审批流封装</span> →</a>
+        <a class="pager-prev" href="/post/finance-saas-backend/">← <span data-i18n="post.finance-saas-backend.shortTitle" data-i18n-en="Finance SaaS Backend Practice">财税 SaaS 后端实践</span></a>
+        <a class="pager-next" href="/post/activiti-workflow-engine/"><span data-i18n="post.activiti-workflow-engine.shortTitle" data-i18n-en="Activiti Approval Flow Wrapper">Activiti 审批流封装</span> →</a>
       </nav>
     </main>
     <footer class="footer">

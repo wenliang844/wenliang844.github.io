@@ -37,6 +37,7 @@
   var trigger   = nav.querySelector(".nav-search-trigger");
   var fuse      = null;
   var indexData = [];
+  var activeData = [];
   var loadTask  = null;
   var results   = [];
   var selected  = -1;
@@ -91,6 +92,47 @@
 
   function labelFor(item) {
     return item.type === "page" ? t("dyn.search.kind.page", "页面") : t("dyn.search.kind.post", "文章");
+  }
+
+  function currentLang() {
+    return window.cwlLang ? window.cwlLang() : "zh";
+  }
+
+  function localizedItem(item) {
+    if (currentLang() !== "en" || !item.i18n || !item.i18n.en) {
+      return item;
+    }
+    var en = item.i18n.en;
+    var copy = {};
+    Object.keys(item).forEach(function (key) {
+      copy[key] = item[key];
+    });
+    ["title", "shortTitle", "summary", "tags", "body"].forEach(function (key) {
+      if (en[key]) {
+        copy[key] = en[key];
+      }
+    });
+    return copy;
+  }
+
+  function buildFuse() {
+    activeData = indexData.map(localizedItem);
+    fuse = new window.Fuse(activeData, {
+      keys: [
+        { name: "title",      weight: 3 },
+        { name: "shortTitle", weight: 2.5 },
+        { name: "tags",       weight: 2 },
+        { name: "summary",    weight: 1.5 },
+        { name: "body",       weight: 1 },
+        { name: "path",       weight: 0.4 },
+      ],
+      threshold: 0.35,
+      includeScore: true,
+      includeMatches: true,
+      findAllMatches: true,
+      minMatchCharLength: 2,
+      ignoreLocation: true,
+    });
   }
 
   function formatDate(date) {
@@ -172,22 +214,7 @@
         .then(function (r) { return r.json(); })
         .then(function (data) {
           indexData = Array.isArray(data) ? data : [];
-          fuse = new window.Fuse(indexData, {
-            keys: [
-              { name: "title",      weight: 3 },
-              { name: "shortTitle", weight: 2.5 },
-              { name: "tags",       weight: 2 },
-              { name: "summary",    weight: 1.5 },
-              { name: "body",       weight: 1 },
-              { name: "path",       weight: 0.4 },
-            ],
-            threshold: 0.35,
-            includeScore: true,
-            includeMatches: true,
-            findAllMatches: true,
-            minMatchCharLength: 2,
-            ignoreLocation: true,
-          });
+          buildFuse();
           resolve(fuse);
         })
         .catch(function (error) {
@@ -264,7 +291,7 @@
     selected = results.length ? 0 : -1;
 
     if (!results.length) {
-      setEmpty(indexData.length ? t("dyn.search.noMatch", "没有找到匹配内容，换个关键词试试") : t("dyn.search.indexEmpty", "搜索索引为空"));
+      setEmpty(activeData.length ? t("dyn.search.noMatch", "没有找到匹配内容，换个关键词试试") : t("dyn.search.indexEmpty", "搜索索引为空"));
       return;
     }
 
@@ -380,6 +407,11 @@
     }
   });
 
-  document.addEventListener("cwl:langchange", applyI18n);
+  document.addEventListener("cwl:langchange", function () {
+    if (indexData.length && window.Fuse) {
+      buildFuse();
+    }
+    applyI18n();
+  });
   applyI18n();
 })();
