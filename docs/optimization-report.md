@@ -107,3 +107,34 @@
 
 - 继续评估前端脚本里的动态 `innerHTML` 使用点，把纯文本更新替换为 `textContent`，保留必要的图标 HTML。
 - 检查生成产物是否需要更严格的缓存、preload 和脚本加载策略。
+
+## 第 4 轮：反馈表单公开凭据加固
+
+时间：2026-06-17
+
+### 已完成内容
+
+- 审计联系页反馈脚本中的第三方提交逻辑。
+- 移除前端硬编码的 Web3Forms access key。
+- 增加测试，防止 UUID 形式的 Web3Forms key 再次被提交到前端脚本。
+
+### 发现的问题
+
+- 静态站无法保密客户端 JavaScript 中的 Web3Forms access key。
+- 公开 key 可能被复制后用于垃圾提交或滥用第三方表单投递能力。
+
+### 修复方案
+
+- 将 `WEB3FORMS_ACCESS_KEY` 默认置空，反馈仍保存在访客本地浏览器。
+- 只有站点所有者明确接受公开客户端提交风险时，才手动配置远程投递。
+
+### 性能与安全指标
+
+- `npm test`：23 个测试全部通过，耗时约 0.75 秒。
+- `npm run build`：通过，生成 6 篇文章。
+- `npm audit --audit-level=moderate --registry=https://registry.npmjs.org`：0 vulnerabilities。
+
+### 下一步计划
+
+- 继续检查是否有其他公开 token、邮箱投递端点或第三方脚本配置暴露。
+- 继续优化反馈列表渲染，减少不必要的 HTML 字符串拼接。

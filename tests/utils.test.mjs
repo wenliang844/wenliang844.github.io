@@ -104,6 +104,14 @@ describe("Utils - File Structure Validation", () => {
   });
 });
 
+describe("Feedback - Client-side Secret Guard", () => {
+  it("should not hardcode a Web3Forms access key", async () => {
+    const content = await readFile("js/feedback.js", "utf8");
+    assert.match(content, /var WEB3FORMS_ACCESS_KEY = "";/);
+    assert.doesNotMatch(content, /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i);
+  });
+});
+
 describe("Utils - Date Validation Logic", () => {
   function isValidDate(dateStr) {
     return /^\d{4}-\d{2}-\d{2}$/.test(dateStr);

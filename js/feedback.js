@@ -1,11 +1,10 @@
 (function () {
   /* ------------------------------------------------------------------------
-   * Optional: deliver feedback to your inbox via Web3Forms (no signup needed).
-   * Go to https://web3forms.com, enter your email to get an Access Key, then
-   * paste it below. Leave empty to keep feedback local-only (stored in the
-   * visitor's browser).
+   * Optional: deliver feedback to your inbox via Web3Forms. Static sites cannot
+   * keep this key private, so the safe default is local-only feedback.
+   * Set a key only if you explicitly accept public client-side form submission.
    * ---------------------------------------------------------------------- */
-  var WEB3FORMS_ACCESS_KEY = "610d0f9e-1439-4f74-afb5-708163036a63";
+  var WEB3FORMS_ACCESS_KEY = "";
   var WEB3FORMS_ENDPOINT = "https://api.web3forms.com/submit";
 
   var storageKey = "wenliang-feedback";
