@@ -26,6 +26,17 @@
     skills: "Java, Spring Boot, MyBatis, MySQL, Redis, ElasticSearch, RocketMQ, RabbitMQ, Activiti, TypeScript, React, Docker, Jenkins",
     sections: [
       {
+        title: "教育与荣誉",
+        entries: [
+          {
+            title: "江西科技学院",
+            subtitle: "软件工程 · 本科",
+            meta: "2018.06 -- 2022.07",
+            desc: "蓝桥杯国家二等奖（省一等奖）、ACM 程序设计竞赛铜奖、软考软件设计师（中级）。"
+          }
+        ]
+      },
+      {
         title: "工作经历",
         entries: [
           {
@@ -66,13 +77,25 @@
         ]
       },
       {
-        title: "教育与荣誉",
+        title: "专业技能",
         entries: [
           {
-            title: "江西科技学院",
-            subtitle: "软件工程 · 本科",
-            meta: "2018.06 -- 2022.07",
-            desc: "蓝桥杯国家二等奖（省一等奖）、ACM 程序设计竞赛铜奖、软考软件设计师（中级）。"
+            title: "后端开发",
+            subtitle: "Java / Spring Boot / MyBatis",
+            meta: "核心",
+            desc: "熟悉 RESTful API、权限认证、复杂业务建模、SQL 优化、缓存设计与消息队列异步化。"
+          },
+          {
+            title: "工程与平台",
+            subtitle: "Activiti / ElasticSearch / Docker / Jenkins",
+            meta: "熟练",
+            desc: "具备工作流引擎、搜索 Starter、低代码 Schema、CI/CD 与线上问题排查经验。"
+          },
+          {
+            title: "前端协作",
+            subtitle: "TypeScript / React",
+            meta: "掌握",
+            desc: "能够参与中后台页面交互、组件接入和前后端联调，支持完整交付链路。"
           }
         ]
       }
@@ -107,6 +130,49 @@
       .replace(/\s{2,}/g, " ");
   }
 
+  function isProfileTitle(title) {
+    return ["profile", "summary", "个人简介", "简介"].indexOf(text(title).toLowerCase()) >= 0;
+  }
+
+  function isLegacySkillsTitle(title) {
+    return ["skills", "skill", "技能"].indexOf(text(title).toLowerCase()) >= 0;
+  }
+
+  function isProfessionalSkillsTitle(title) {
+    return text(title) === "专业技能";
+  }
+
+  function createTextSection(title, body) {
+    const desc = compactInline(String(body || "").replace(/^[-*]\s+/gm, ""));
+    return {
+      title: title,
+      entries: desc ? [
+        {
+          title: title === "专业技能" ? "技能清单" : "内容",
+          subtitle: "",
+          meta: "",
+          desc: desc
+        }
+      ] : []
+    };
+  }
+
+  function orderSections(sections) {
+    const education = [];
+    const middle = [];
+    const professionalSkills = [];
+    sections.forEach(function (section) {
+      if (text(section.title) === "教育与荣誉") {
+        education.push(section);
+      } else if (isProfessionalSkillsTitle(section.title)) {
+        professionalSkills.push(section);
+      } else {
+        middle.push(section);
+      }
+    });
+    return education.concat(middle, professionalSkills);
+  }
+
   function cloneModel(model) {
     return JSON.parse(JSON.stringify(model || defaultModel));
   }
@@ -136,6 +202,7 @@
     }).filter(function (section) {
       return section.title || section.entries.length;
     });
+    next.sections = orderSections(next.sections);
     return next;
   }
 
@@ -180,13 +247,25 @@
   }
 
   function parseLatex(sourceText) {
+    const sections = readLatexSections(sourceText).filter(function (section) {
+      return !isProfileTitle(section.title);
+    }).map(function (section) {
+      if (isLegacySkillsTitle(section.title)) {
+        section.title = "专业技能";
+      }
+      return section;
+    });
+    const legacySkills = readCommand(sourceText, "skills", "");
+    if (legacySkills && !sections.some(function (section) { return isProfessionalSkillsTitle(section.title); })) {
+      sections.push(createTextSection("专业技能", legacySkills));
+    }
     return normalizeModel({
       name: readCommand(sourceText, "name", defaultModel.name),
       role: readCommand(sourceText, "role", defaultModel.role),
       contact: readCommand(sourceText, "contact", defaultModel.contact),
       summary: readCommand(sourceText, "summary", defaultModel.summary),
-      skills: readCommand(sourceText, "skills", defaultModel.skills),
-      sections: readLatexSections(sourceText)
+      skills: legacySkills || defaultModel.skills,
+      sections: sections
     });
   }
 
@@ -202,16 +281,12 @@
       "\\newcommand{\\name}[1]{\\begin{center}{\\LARGE\\bfseries #1}\\end{center}}",
       "\\newcommand{\\role}[1]{\\begin{center}\\textbf{#1}\\end{center}}",
       "\\newcommand{\\contact}[1]{\\begin{center}#1\\end{center}}",
-      "\\newcommand{\\summary}[1]{\\section*{Profile}#1}",
-      "\\newcommand{\\skills}[1]{\\section*{Skills}#1}",
       "\\newcommand{\\entry}[4]{\\noindent\\textbf{#1}\\hfill #3\\\\\\textit{#2}\\\\#4\\par\\vspace{0.6em}}",
       "",
       "\\begin{document}",
       "\\name{" + latexEscape(model.name) + "}",
       "\\role{" + latexEscape(model.role) + "}",
       "\\contact{" + latexEscape(model.contact) + "}",
-      "\\summary{" + latexEscape(model.summary) + "}",
-      "\\skills{" + latexEscape(model.skills) + "}",
       ""
     ];
     model.sections.forEach(function (section) {
@@ -258,12 +333,13 @@
     const sections = [];
     blocks.forEach(function (block) {
       const titleKey = block.title.toLowerCase();
-      if (["profile", "summary", "个人简介", "简介"].indexOf(titleKey) >= 0) {
+      if (isProfileTitle(titleKey)) {
         model.summary = block.body.replace(/^>\s?/gm, "").trim();
         return;
       }
-      if (["skills", "技能", "专业技能"].indexOf(titleKey) >= 0) {
+      if (isLegacySkillsTitle(titleKey)) {
         model.skills = compactInline(block.body.replace(/^[-*]\s+/gm, ""));
+        sections.push(createTextSection("专业技能", block.body));
         return;
       }
 
@@ -295,6 +371,9 @@
           desc: descLines.join(" ").replace(/^[-*]\s+/, "")
         });
       });
+      if (!entryHeads.length && block.body) {
+        entries.push(createTextSection(block.title, block.body).entries[0]);
+      }
       sections.push({ title: block.title, entries: entries });
     });
     model.sections = sections.length ? sections : defaultModel.sections;
@@ -308,12 +387,6 @@
       "",
       "**" + markdownEscape(model.role) + "**",
       markdownEscape(model.contact),
-      "",
-      "## Profile",
-      markdownEscape(model.summary),
-      "",
-      "## Skills",
-      markdownEscape(model.skills),
       ""
     ];
     model.sections.forEach(function (section) {
@@ -361,7 +434,12 @@
     while ((sectionMatch = sectionRe.exec(sourceText))) {
       const sectionTitle = latexUnescape(sectionMatch[1].trim());
       const body = sectionMatch[2];
-      if (/^skills$/i.test(sectionTitle)) {
+      if (isProfileTitle(sectionTitle)) {
+        continue;
+      }
+      if (isLegacySkillsTitle(sectionTitle)) {
+        const cvitemMatch = body.match(/\\cvitem\{(?:Skills)?\}\{([\s\S]*?)\}/) || body.match(/\\cvitem\{\}\{([\s\S]*?)\}/);
+        sections.push(createTextSection("专业技能", latexUnescape(cvitemMatch ? cvitemMatch[1] : body)));
         continue;
       }
       const entries = [];
@@ -378,20 +456,11 @@
       sections.push({ title: sectionTitle, entries: entries });
     }
 
-    const skillsSectionMatch = sourceText.match(/\\section\{Skills\}([\s\S]*?)(?=\\section\{|\\end\{document\}|$)/i);
-    let skills = defaultModel.skills;
-    if (skillsSectionMatch) {
-      const skillBody = skillsSectionMatch[1].trim();
-      const cvitemMatch = skillBody.match(/\\cvitem\{(?:Skills)?\}\{([\s\S]*?)\}/) || skillBody.match(/\\cvitem\{\}\{([\s\S]*?)\}/);
-      skills = cvitemMatch ? cvitemMatch[1] : skillBody;
-    }
-
     return normalizeModel({
       name: nameMatch ? latexUnescape((nameMatch[1] + nameMatch[2]).trim()) : defaultModel.name,
       role: readCommand(sourceText, "title", defaultModel.role),
       contact: composeContact(contact),
       summary: readCommand(sourceText, "quote", defaultModel.summary),
-      skills: latexUnescape(skills),
       sections: sections.length ? sections : defaultModel.sections
     });
   }
@@ -411,12 +480,9 @@
       "\\address{" + latexEscape(contact.location) + "}{}{}",
       contact.email ? "\\email{" + latexEscape(contact.email) + "}" : "",
       contact.github ? "\\social[github]{" + latexEscape(contact.github) + "}" : "",
-      "\\quote{" + latexEscape(model.summary) + "}",
       "",
       "\\begin{document}",
       "\\makecvtitle",
-      "\\section{Skills}",
-      latexEscape(model.skills),
       ""
     ].filter(function (line) { return line !== ""; });
     model.sections.forEach(function (section) {
@@ -436,6 +502,7 @@
     }
     const doc = new DOMParser().parseFromString(sourceText, "text/html");
     const root = doc.querySelector(".resume-html") || doc.body;
+    const summaryText = root.querySelector(".resume-profile .resume-summary, .resume-profile p");
     const skillsText = root.querySelector(".resume-skills .resume-skill-text, .resume-skills p");
     const skills = skillsText
       ? text(skillsText.textContent)
@@ -444,8 +511,9 @@
         .filter(Boolean)
         .join(", ");
     const sections = Array.prototype.slice.call(root.querySelectorAll("section.resume-section")).map(function (section) {
+      const title = text((section.querySelector("h2") || {}).textContent);
       return {
-        title: text((section.querySelector("h2") || {}).textContent),
+        title: isLegacySkillsTitle(title) ? "专业技能" : title,
         entries: Array.prototype.slice.call(section.querySelectorAll(".resume-entry")).map(function (entry) {
           return {
             title: text((entry.querySelector("h3") || {}).textContent),
@@ -455,12 +523,17 @@
           };
         })
       };
+    }).filter(function (section) {
+      return !isProfileTitle(section.title);
     });
+    if (skills && !sections.some(function (section) { return isProfessionalSkillsTitle(section.title); })) {
+      sections.push(createTextSection("专业技能", skills));
+    }
     return normalizeModel({
       name: text((root.querySelector("h1") || {}).textContent) || defaultModel.name,
       role: text((root.querySelector(".resume-role") || {}).textContent) || defaultModel.role,
       contact: text((root.querySelector(".resume-contact") || {}).textContent) || defaultModel.contact,
-      summary: text((root.querySelector(".resume-summary") || {}).textContent) || defaultModel.summary,
+      summary: text((summaryText || {}).textContent) || defaultModel.summary,
       skills: skills || defaultModel.skills,
       sections: sections.length ? sections : defaultModel.sections
     });
@@ -500,14 +573,6 @@
       '      <p class="resume-role">' + escapeHtml(model.role) + "</p>",
       '      <p class="resume-contact">' + escapeHtml(model.contact) + "</p>",
       "    </header>",
-      '    <section class="resume-profile">',
-      "      <h2>Profile</h2>",
-      '      <p class="resume-summary">' + escapeHtml(model.summary) + "</p>",
-      "    </section>",
-      '    <section class="resume-skills">',
-      "      <h2>Skills</h2>",
-      '      <p class="resume-skill-text">' + escapeHtml(model.skills) + "</p>",
-      "    </section>",
       sectionHtml,
       "  </article>",
       "</body>",
@@ -583,14 +648,17 @@
     model = normalizeModel(model);
     const sections = model.sections.map(function (section, sectionIndex) {
       const entries = section.entries.map(function (entry, entryIndex) {
-        return '<div class="latex-entry" data-section-index="' + sectionIndex + '" data-entry-index="' + entryIndex + '">' +
-          '<div class="latex-entry-head">' +
-          '<strong contenteditable="true" data-entry-field="title">' + escapeHtml(entry.title) + "</strong>" +
-          '<span contenteditable="true" data-entry-field="meta">' + escapeHtml(entry.meta) + "</span>" +
-          "</div>" +
-          '<div class="latex-entry-sub" contenteditable="true" data-entry-field="subtitle">' + escapeHtml(entry.subtitle) + "</div>" +
-          '<p contenteditable="true" data-entry-field="desc">' + escapeHtml(entry.desc) + "</p>" +
-          "</div>";
+        return [
+          '<div class="latex-entry" data-section-index="' + sectionIndex + '" data-entry-index="' + entryIndex + '">',
+          '<div class="latex-entry-head">',
+          '<span class="latex-entry-title-wrap"><strong contenteditable="true" data-entry-field="title">' + escapeHtml(entry.title) + "</strong>" +
+            (entry.subtitle ? '<em class="latex-entry-sub" contenteditable="true" data-entry-field="subtitle">' + escapeHtml(entry.subtitle) + "</em>" : "") +
+            "</span>",
+          '<span contenteditable="true" data-entry-field="meta">' + escapeHtml(entry.meta) + "</span>",
+          "</div>",
+          '<p contenteditable="true" data-entry-field="desc">' + escapeHtml(entry.desc) + "</p>",
+          "</div>"
+        ].join("");
       }).join("");
       return '<section class="latex-section" data-section-index="' + sectionIndex + '">' +
         '<h2 contenteditable="true" data-section-title>' + escapeHtml(section.title) + "</h2>" +
@@ -604,14 +672,6 @@
       '<p class="latex-role">' + editable("role", model.role) + "</p>" +
       '<p class="latex-contact">' + editable("contact", model.contact) + "</p>" +
       "</header>" +
-      '<section class="latex-section latex-summary">' +
-      "<h2>Profile</h2>" +
-      '<p contenteditable="true" data-resume-field="summary">' + escapeHtml(model.summary) + "</p>" +
-      "</section>" +
-      '<section class="latex-section latex-skills">' +
-      "<h2>Skills</h2>" +
-      '<p class="latex-skill-text" contenteditable="true" data-resume-field="skills">' + escapeHtml(model.skills) + "</p>" +
-      "</section>" +
       sections;
   }
 
@@ -701,7 +761,7 @@
   function loadInitialFormat() {
     try {
       const saved = window.localStorage.getItem(formatStorageKey);
-      return formats[saved] ? saved : "latex";
+      return formats[saved] ? saved : "markdown";
     } catch (error) {
       return "latex";
     }
