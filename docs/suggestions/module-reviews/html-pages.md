@@ -87,6 +87,26 @@
 
 ---
 
+---
+
+## 📌 MR-HTML-05: `highlight-loader.js` 和 `logger.js` 是死代码
+
+- **📍 位置**：`js/highlight-loader.js`（51 行）、`js/logger.js`（114 行）
+- **📝 当前状况**：经过全项目搜索确认：
+  - `highlight-loader.js`：未被任何 HTML 页面或 JS 文件引用。代码高亮功能在编辑器页面通过直接加载 `highlight.min.js` 实现。
+  - `logger.js`：定义了 `CWLLogger` 全局对象，但未被任何文件使用。`enabled: false`，`endpoint: ''`。
+
+  这两个文件共 165 行，是开发阶段的工具或未来功能的占位代码。
+- **⚠️ 影响程度**：无（不影响功能，但增加仓库体积和维护混淆）
+- **💡 建议方案**：
+  1. 如果确认不再需要，删除这两个文件
+  2. 如果计划未来使用，在文件顶部添加 `// UNUSED - planned for future use` 注释
+  3. 在 `.eslintrc.json` 的 overrides 中移除对这两个文件的特殊规则
+- **📊 预期收益**：减少死代码，仓库更干净
+- **🔗 相关建议**：[TD-06](../tech-debt.md#td-06)
+
+---
+
 ## 模块健康度评分：3.5 / 5 — 中等
 
 > 手写 HTML 页面功能完整，但与生成页面的维护一致性是主要改进方向。建议长期将手写页面也纳入构建流程。
