@@ -13,8 +13,8 @@
 //   data-i18n-lang   → 显隐整块中/英文内容
 // <title> 与 meta[name=description] 用 head.* 键单独处理。
 (function () {
-  var KEY = "cwl-lang";
-  var ATTRS = [
+  const KEY = "cwl-lang";
+  const ATTRS = [
     {
       attr: "data-i18n-html",
       selector: "[data-i18n-html]",
@@ -58,7 +58,7 @@
   ];
 
   // 英文字典。键名用点分命名空间，与 HTML 上的 data-i18n* 值一一对应。
-  var EN = {
+  const EN = {
     // 通用
     "nav.main": "Main navigation",
     "nav.menu": "Toggle menu",
@@ -339,10 +339,10 @@
     try { return window.localStorage.getItem(KEY); } catch (e) { return null; }
   }
   function write(lang) {
-    try { window.localStorage.setItem(KEY, lang); } catch (e) {}
+    try { window.localStorage.setItem(KEY, lang); } catch (e) { /* 存储失败，不影响功能 */ }
   }
 
-  var lang = read() === "en" ? "en" : "zh"; // 默认中文
+  let lang = read() === "en" ? "en" : "zh"; // 默认中文
 
   // 取当前语言下某键的文案；en 命中字典则返回英文，否则回退 fallback（中文）。
   function t(key, fallback) {
@@ -356,17 +356,17 @@
   // 原文（中文）在首次遇到时缓存到 el.__cwl[attr]，用于切回 zh。
   function applyDom() {
     ATTRS.forEach(function (spec) {
-      var nodes = document.querySelectorAll(spec.selector);
+      const nodes = document.querySelectorAll(spec.selector);
       Array.prototype.forEach.call(nodes, function (el) {
-        var key = spec.key(el);
-        if (!key) return;
-        if (!el.__cwl) el.__cwl = {};
+        const key = spec.key(el);
+        if (!key) {return;}
+        if (!el.__cwl) {el.__cwl = {};}
         // 缓存原始中文（只缓存一次）。
         if (!(spec.attr in el.__cwl)) {
           el.__cwl[spec.attr] = spec.read(el);
         }
-        var zh = el.__cwl[spec.attr];
-        var en = spec.inline ? spec.inline(el) : "";
+        const zh = el.__cwl[spec.attr];
+        const en = spec.inline ? spec.inline(el) : "";
         spec.apply(el, lang === "en" ? (en || t(key, zh)) : zh);
       });
     });
@@ -374,25 +374,25 @@
 
   function applyLanguageBlocks() {
     Array.prototype.forEach.call(document.querySelectorAll("[data-i18n-lang]"), function (el) {
-      var blockLang = el.getAttribute("data-i18n-lang") === "en" ? "en" : "zh";
+      const blockLang = el.getAttribute("data-i18n-lang") === "en" ? "en" : "zh";
       el.hidden = blockLang !== lang;
     });
   }
 
   // 更新 <title> 与 meta description（由 <body data-i18n-page> 指定页面键）。
   function applyHead() {
-    var page = document.body.getAttribute("data-i18n-page");
-    if (!page) return;
-    var titleEl = document.querySelector("title");
-    var descEl = document.querySelector('meta[name="description"]');
+    const page = document.body.getAttribute("data-i18n-page");
+    if (!page) {return;}
+    const titleEl = document.querySelector("title");
+    const descEl = document.querySelector('meta[name="description"]');
     if (titleEl) {
-      if (!titleEl.__cwlZh) titleEl.__cwlZh = titleEl.textContent;
-      var titleEn = document.body.getAttribute("data-i18n-title-en") || "";
+      if (!titleEl.__cwlZh) {titleEl.__cwlZh = titleEl.textContent;}
+      const titleEn = document.body.getAttribute("data-i18n-title-en") || "";
       titleEl.textContent = lang === "en" ? (titleEn || t("head.title." + page, titleEl.__cwlZh)) : titleEl.__cwlZh;
     }
     if (descEl) {
-      if (!descEl.__cwlZh) descEl.__cwlZh = descEl.getAttribute("content") || "";
-      var descEn = document.body.getAttribute("data-i18n-desc-en") || "";
+      if (!descEl.__cwlZh) {descEl.__cwlZh = descEl.getAttribute("content") || "";}
+      const descEn = document.body.getAttribute("data-i18n-desc-en") || "";
       descEl.setAttribute("content", lang === "en" ? (descEn || t("head.desc." + page, descEl.__cwlZh)) : descEl.__cwlZh);
     }
   }
@@ -428,7 +428,7 @@
   window.cwlSetLang = setLang;
 
   document.addEventListener("click", function (e) {
-    var btn = e.target.closest && e.target.closest(".lang-toggle");
+    const btn = e.target.closest && e.target.closest(".lang-toggle");
     if (btn) {
       e.preventDefault();
       setLang(lang === "en" ? "zh" : "en");

@@ -31,7 +31,7 @@ const OUT_DIR = resolveOutDir(outIdx);
 marked.setOptions({ gfm: true, breaks: false });
 
 // YAML 会把不带引号的 date 解析为 Date 对象；统一规范成 "YYYY-MM-DD" 字符串。
-function normalizeDate(d) {
+export function normalizeDate(d) {
   if (d instanceof Date) return d.toISOString().slice(0, 10);
   const dateStr = String(d);
   // 验证日期格式 YYYY-MM-DD
@@ -42,7 +42,7 @@ function normalizeDate(d) {
 }
 
 // 验证 slug 是否合法（仅包含字母、数字、连字符、下划线）
-function validateSlug(slug, filename) {
+export function validateSlug(slug, filename) {
   if (!slug || typeof slug !== "string") {
     throw new Error(`Invalid slug in ${filename}: slug is required and must be a string.`);
   }
@@ -55,7 +55,7 @@ function validateSlug(slug, filename) {
 }
 
 // 验证文章必填字段
-function validatePost(data, filename) {
+export function validatePost(data, filename) {
   const required = ["title", "shortTitle", "date", "summary", "description"];
   const missing = required.filter((field) => !data[field]);
 
@@ -117,13 +117,45 @@ function tidyHtml(html) {
   return s.trim();
 }
 
-// 把正文 Markdown 渲染为 HTML，并缩进对齐到 article-content 内部（10 空格）。
+// 从 HTML 中提取标题生成目录数据
+function extractToc(html) {
+  const headings = [];
+  const regex = /<(h[2-3])>(.*?)<\/\1>/gs;
+  let match;
+  let h2Index = 0;
+
+  while ((match = regex.exec(html)) !== null) {
+    const level = parseInt(match[1][1]); // h2 -> 2, h3 -> 3
+    const text = match[2].replace(/<[^>]+>/g, ''); // 移除内联标签
+    const id = `toc-${level === 2 ? ++h2Index : h2Index}-${text.replace(/[^\w一-龥]+/g, '-').toLowerCase().slice(0, 50)}`;
+
+    headings.push({ level, text, id });
+  }
+
+  return headings;
+}
+
+// 把正文 Markdown 渲染为 HTML，为标题添加 id，并缩进对齐到 article-content 内部（10 空格）。
 function renderContent(markdown) {
   const html = tidyHtml(marked.parse(markdown));
-  return html
+  const toc = extractToc(html);
+
+  // 为标题添加 id
+  let htmlWithIds = html;
+  let h2Index = 0;
+  htmlWithIds = htmlWithIds.replace(/<(h[2-3])>(.*?)<\/\1>/gs, (match, tag, content) => {
+    const level = parseInt(tag[1]);
+    const text = content.replace(/<[^>]+>/g, '');
+    const id = `toc-${level === 2 ? ++h2Index : h2Index}-${text.replace(/[^\w一-龥]+/g, '-').toLowerCase().slice(0, 50)}`;
+    return `<${tag} id="${id}">${content}</${tag}>`;
+  });
+
+  const indented = htmlWithIds
     .split("\n")
     .map((line) => (line ? "          " + line : line))
     .join("\n");
+
+  return { html: indented, toc };
 }
 
 // 读取并解析所有文章，按日期倒序（最新在前）。
@@ -155,6 +187,9 @@ async function loadPosts() {
         console.warn(`Warning: ${file} has no content body`);
       }
 
+      const contentResult = renderContent(content);
+      const contentEnResult = data.contentEn ? renderContent(data.contentEn) : null;
+
       posts.push({
         title: data.title,
         titleEn: data.titleEn,
@@ -169,8 +204,10 @@ async function loadPosts() {
         descriptionEn: data.descriptionEn,
         tags: Array.isArray(data.tags) ? data.tags : [],
         tagsEn: Array.isArray(data.tagsEn) ? data.tagsEn : (Array.isArray(data.tags) ? data.tags : []),
-        contentHtml: renderContent(content),
-        contentHtmlEn: data.contentEn ? renderContent(data.contentEn) : "",
+        contentHtml: contentResult.html,
+        contentHtmlEn: contentEnResult ? contentEnResult.html : "",
+        toc: contentResult.toc,
+        tocEn: contentEnResult ? contentEnResult.toc : [],
       });
     } catch (error) {
       errors.push(`${file}: ${error.message}`);

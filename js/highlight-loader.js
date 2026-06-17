@@ -5,7 +5,7 @@
  */
 (function () {
   // 检查是否有代码块需要高亮
-  var codeBlocks = document.querySelectorAll('pre code');
+  const codeBlocks = document.querySelectorAll('pre code');
 
   if (codeBlocks.length === 0) {
     // 无代码块，跳过加载
@@ -18,7 +18,7 @@
   }
 
   // 动态加载 highlight.js
-  var script = document.createElement('script');
+  const script = document.createElement('script');
   script.src = '/js/vendor/highlight.min.js';
   script.async = true;
 

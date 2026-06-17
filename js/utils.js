@@ -3,9 +3,9 @@
  * 避免在多个文件中重复实现相同的功能
  */
 (function (window) {
-  "use strict";
+  
 
-  var Utils = {};
+  const Utils = {};
 
   /**
    * HTML 转义函数，防止 XSS 攻击
@@ -13,7 +13,7 @@
    * @returns {string} 转义后的安全字符串
    */
   Utils.escapeHtml = function (value) {
-    return String(value == null ? "" : value)
+    return String(value === null || value === undefined ? "" : value)
       .replace(/&/g, "&amp;")
       .replace(/</g, "&lt;")
       .replace(/>/g, "&gt;")
@@ -29,7 +29,7 @@
   Utils.copyText = function (text) {
     // 优先使用现代 Clipboard API
     if (navigator.clipboard && navigator.clipboard.writeText) {
-      return navigator.clipboard.writeText(text).catch(function (clipboardError) {
+      return navigator.clipboard.writeText(text).catch(function (_clipboardError) {
         // Clipboard API 失败时降级到 execCommand
         return Utils.legacyCopy(text);
       });
@@ -46,7 +46,7 @@
   Utils.legacyCopy = function (text) {
     return new Promise(function (resolve, reject) {
       try {
-        var area = document.createElement("textarea");
+        const area = document.createElement("textarea");
         area.value = text;
         area.style.position = "fixed";
         area.style.left = "-9999px";
@@ -56,7 +56,7 @@
         document.body.appendChild(area);
         area.select();
         area.setSelectionRange(0, text.length);
-        var success = document.execCommand("copy");
+        const success = document.execCommand("copy");
         document.body.removeChild(area);
         if (success) {
           resolve();
@@ -76,14 +76,14 @@
    * @returns {Function} 节流后的函数
    */
   Utils.throttle = function (func, wait) {
-    var timeout = null;
-    var previous = 0;
+    let timeout = null;
+    let previous = 0;
 
     return function () {
-      var now = Date.now();
-      var remaining = wait - (now - previous);
-      var context = this;
-      var args = arguments;
+      const now = Date.now();
+      const remaining = wait - (now - previous);
+      const context = this;
+      const args = arguments;
 
       if (remaining <= 0 || remaining > wait) {
         if (timeout) {
@@ -110,17 +110,17 @@
    * @returns {Function} 防抖后的函数
    */
   Utils.debounce = function (func, wait, immediate) {
-    var timeout;
+    let timeout;
     return function () {
-      var context = this;
-      var args = arguments;
-      var later = function () {
+      const context = this;
+      const args = arguments;
+      const later = function () {
         timeout = null;
         if (!immediate) {
           func.apply(context, args);
         }
       };
-      var callNow = immediate && !timeout;
+      const callNow = immediate && !timeout;
       clearTimeout(timeout);
       timeout = setTimeout(later, wait);
       if (callNow) {
@@ -175,11 +175,11 @@
    * @returns {boolean}
    */
   Utils.isEditing = function () {
-    var activeElement = document.activeElement;
+    const activeElement = document.activeElement;
     if (!activeElement) {
       return false;
     }
-    var tag = activeElement.tagName;
+    const tag = activeElement.tagName;
     return (
       tag === "INPUT" ||
       tag === "TEXTAREA" ||

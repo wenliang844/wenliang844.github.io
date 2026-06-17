@@ -1,23 +1,23 @@
 (function () {
-  var source = document.getElementById("latex-source");
-  var preview = document.getElementById("resume-preview");
-  var statusEl = document.getElementById("overleaf-status");
-  var formatSelect = document.getElementById("resume-format");
-  var sourceBadge = document.getElementById("resume-source-badge");
+  const source = document.getElementById("latex-source");
+  const preview = document.getElementById("resume-preview");
+  const statusEl = document.getElementById("overleaf-status");
+  const formatSelect = document.getElementById("resume-format");
+  const sourceBadge = document.getElementById("resume-source-badge");
 
   if (!source || !preview) {
     return;
   }
 
-  var legacyStorageKey = "cwl-overleaf-resume-source";
-  var formatStorageKey = "cwl-overleaf-resume-format";
-  var sourceStoragePrefix = "cwl-overleaf-resume-source:";
-  var applyingFromPreview = false;
-  var applyingFromSource = false;
-  var currentFormat = "latex";
-  var currentModel = null;
+  const legacyStorageKey = "cwl-overleaf-resume-source";
+  const formatStorageKey = "cwl-overleaf-resume-format";
+  const sourceStoragePrefix = "cwl-overleaf-resume-source:";
+  let applyingFromPreview = false;
+  let applyingFromSource = false;
+  let currentFormat = "latex";
+  let currentModel = null;
 
-  var defaultModel = {
+  const defaultModel = {
     name: "陈文亮",
     role: "AI 全栈工程师 / Java 后端开发工程师",
     contact: "杭州 · 2252694075@qq.com · github.com/wenliang844",
@@ -89,7 +89,7 @@
   }
 
   function escapeHtml(value) {
-    return String(value == null ? "" : value)
+    return String(value === null || value === undefined ? "" : value)
       .replace(/&/g, "&amp;")
       .replace(/</g, "&lt;")
       .replace(/>/g, "&gt;")
@@ -97,7 +97,7 @@
   }
 
   function text(value) {
-    return String(value == null ? "" : value).trim();
+    return String(value === null || value === undefined ? "" : value).trim();
   }
 
   function cloneModel(model) {
@@ -105,7 +105,7 @@
   }
 
   function normalizeModel(model) {
-    var next = cloneModel(model);
+    const next = cloneModel(model);
     next.name = text(next.name) || defaultModel.name;
     next.role = text(next.role) || defaultModel.role;
     next.contact = text(next.contact) || defaultModel.contact;
@@ -133,32 +133,32 @@
   }
 
   function latexEscape(value) {
-    return String(value == null ? "" : value)
+    return String(value === null || value === undefined ? "" : value)
       .replace(/\\/g, "\\textbackslash{}")
       .replace(/([{}%$#&_])/g, "\\$1");
   }
 
   function latexUnescape(value) {
-    return String(value == null ? "" : value)
+    return String(value === null || value === undefined ? "" : value)
       .replace(/\\textbackslash\{\}/g, "\\")
       .replace(/\\([{}%$#&_])/g, "$1");
   }
 
   function readCommand(sourceText, name, fallback) {
-    var re = new RegExp("\\\\" + name + "\\{([\\s\\S]*?)\\}");
-    var match = sourceText.match(re);
+    const re = new RegExp("\\\\" + name + "\\{([\\s\\S]*?)\\}");
+    const match = sourceText.match(re);
     return match ? latexUnescape(match[1].trim()) : fallback;
   }
 
   function readLatexSections(sourceText) {
-    var sections = [];
-    var sectionRe = /\\section\{([^}]+)\}([\s\S]*?)(?=\\section\{|\\end\{document\}|$)/g;
-    var match;
+    const sections = [];
+    const sectionRe = /\\section\{([^}]+)\}([\s\S]*?)(?=\\section\{|\\end\{document\}|$)/g;
+    let match;
     while ((match = sectionRe.exec(sourceText))) {
-      var entries = [];
-      var entryRe = /\\entry\{([\s\S]*?)\}\{([\s\S]*?)\}\{([\s\S]*?)\}\{([\s\S]*?)\}/g;
-      var body = match[2];
-      var entry;
+      const entries = [];
+      const entryRe = /\\entry\{([\s\S]*?)\}\{([\s\S]*?)\}\{([\s\S]*?)\}\{([\s\S]*?)\}/g;
+      const body = match[2];
+      let entry;
       while ((entry = entryRe.exec(body))) {
         entries.push({
           title: latexUnescape(entry[1].trim()),
@@ -185,7 +185,7 @@
 
   function renderLatex(model) {
     model = normalizeModel(model);
-    var lines = [
+    const lines = [
       "\\documentclass[11pt,a4paper]{article}",
       "\\usepackage[UTF8]{ctex}",
       "\\usepackage{geometry}",
@@ -219,28 +219,28 @@
   }
 
   function markdownEscape(value) {
-    return String(value == null ? "" : value).replace(/\n{3,}/g, "\n\n").trim();
+    return String(value === null || value === undefined ? "" : value).replace(/\n{3,}/g, "\n\n").trim();
   }
 
   function parseMarkdown(sourceText) {
-    var lines = sourceText.replace(/\r\n/g, "\n").split("\n");
-    var model = cloneModel(defaultModel);
-    var nameLine = lines.find(function (line) { return /^#\s+/.test(line); });
-    if (nameLine) model.name = nameLine.replace(/^#\s+/, "").trim();
+    const lines = sourceText.replace(/\r\n/g, "\n").split("\n");
+    const model = cloneModel(defaultModel);
+    const nameLine = lines.find(function (line) { return /^#\s+/.test(line); });
+    if (nameLine) {model.name = nameLine.replace(/^#\s+/, "").trim();}
 
-    var nameIndex = nameLine ? lines.indexOf(nameLine) : -1;
-    var afterName = lines.slice(nameIndex + 1).map(text).filter(Boolean);
+    const nameIndex = nameLine ? lines.indexOf(nameLine) : -1;
+    const afterName = lines.slice(nameIndex + 1).map(text).filter(Boolean);
     if (afterName[0]) {
-      var roleMatch = afterName[0].match(/^\*\*(.*?)\*\*$/);
+      const roleMatch = afterName[0].match(/^\*\*(.*?)\*\*$/);
       model.role = roleMatch ? roleMatch[1] : afterName[0];
     }
     if (afterName[1] && !/^##\s+/.test(afterName[1])) {
       model.contact = afterName[1];
     }
 
-    var blocks = [];
-    var sectionRe = /^##\s+(.+)$/gm;
-    var sectionMatch;
+    const blocks = [];
+    const sectionRe = /^##\s+(.+)$/gm;
+    let sectionMatch;
     while ((sectionMatch = sectionRe.exec(sourceText))) {
       blocks.push({ title: sectionMatch[1].trim(), start: sectionMatch.index, bodyStart: sectionRe.lastIndex });
     }
@@ -248,9 +248,9 @@
       block.body = sourceText.slice(block.bodyStart, blocks[index + 1] ? blocks[index + 1].start : sourceText.length).trim();
     });
 
-    var sections = [];
+    const sections = [];
     blocks.forEach(function (block) {
-      var titleKey = block.title.toLowerCase();
+      const titleKey = block.title.toLowerCase();
       if (["profile", "summary", "个人简介", "简介"].indexOf(titleKey) >= 0) {
         model.summary = block.body.replace(/^>\s?/gm, "").trim();
         return;
@@ -260,21 +260,21 @@
         return;
       }
 
-      var entries = [];
-      var entryRe = /^###\s+(.+)$/gm;
-      var entryHeads = [];
-      var entryMatch;
+      const entries = [];
+      const entryRe = /^###\s+(.+)$/gm;
+      const entryHeads = [];
+      let entryMatch;
       while ((entryMatch = entryRe.exec(block.body))) {
         entryHeads.push({ title: entryMatch[1].trim(), start: entryMatch.index, bodyStart: entryRe.lastIndex });
       }
       entryHeads.forEach(function (head, entryIndex) {
-        var body = block.body.slice(head.bodyStart, entryHeads[entryIndex + 1] ? entryHeads[entryIndex + 1].start : block.body.length).trim();
-        var bodyLines = body.split("\n").map(text).filter(Boolean);
-        var subtitle = "";
-        var meta = "";
-        var descLines = bodyLines;
+        const body = block.body.slice(head.bodyStart, entryHeads[entryIndex + 1] ? entryHeads[entryIndex + 1].start : block.body.length).trim();
+        const bodyLines = body.split("\n").map(text).filter(Boolean);
+        let subtitle = "";
+        let meta = "";
+        let descLines = bodyLines;
         if (bodyLines[0]) {
-          var metaMatch = bodyLines[0].match(/^\*\*(.*?)\*\*(?:\s*[·|-]\s*(.*))?$/);
+          const metaMatch = bodyLines[0].match(/^\*\*(.*?)\*\*(?:\s*[·|-]\s*(.*))?$/);
           if (metaMatch) {
             subtitle = metaMatch[1] || "";
             meta = metaMatch[2] || "";
@@ -296,7 +296,7 @@
 
   function renderMarkdown(model) {
     model = normalizeModel(model);
-    var lines = [
+    const lines = [
       "# " + markdownEscape(model.name),
       "",
       "**" + markdownEscape(model.role) + "**",
@@ -323,10 +323,10 @@
   }
 
   function splitContact(contact) {
-    var parts = String(contact || "").split(/[·|]/).map(text).filter(Boolean);
-    var email = parts.find(function (part) { return /@/.test(part); }) || "";
-    var github = parts.find(function (part) { return /github/i.test(part); }) || "";
-    var location = parts.find(function (part) { return part !== email && part !== github; }) || "";
+    const parts = String(contact || "").split(/[·|]/).map(text).filter(Boolean);
+    const email = parts.find(function (part) { return /@/.test(part); }) || "";
+    const github = parts.find(function (part) { return /github/i.test(part); }) || "";
+    const location = parts.find(function (part) { return part !== email && part !== github; }) || "";
     return {
       location: location,
       email: email,
@@ -339,27 +339,27 @@
   }
 
   function parseModerncv(sourceText) {
-    var contact = splitContact(defaultModel.contact);
-    var nameMatch = sourceText.match(/\\name\{([\s\S]*?)\}\{([\s\S]*?)\}/);
-    var addressMatch = sourceText.match(/\\address\{([\s\S]*?)\}/);
-    var emailMatch = sourceText.match(/\\email\{([\s\S]*?)\}/);
-    var githubMatch = sourceText.match(/\\social\[github\]\{([\s\S]*?)\}/) || sourceText.match(/\\homepage\{(?:https?:\/\/)?(?:github\.com\/)?([\s\S]*?)\}/);
-    if (addressMatch) contact.location = latexUnescape(addressMatch[1].trim());
-    if (emailMatch) contact.email = latexUnescape(emailMatch[1].trim());
-    if (githubMatch) contact.github = latexUnescape(githubMatch[1].trim()).replace(/^github\.com\//i, "");
+    const contact = splitContact(defaultModel.contact);
+    const nameMatch = sourceText.match(/\\name\{([\s\S]*?)\}\{([\s\S]*?)\}/);
+    const addressMatch = sourceText.match(/\\address\{([\s\S]*?)\}/);
+    const emailMatch = sourceText.match(/\\email\{([\s\S]*?)\}/);
+    const githubMatch = sourceText.match(/\\social\[github\]\{([\s\S]*?)\}/) || sourceText.match(/\\homepage\{(?:https?:\/\/)?(?:github\.com\/)?([\s\S]*?)\}/);
+    if (addressMatch) {contact.location = latexUnescape(addressMatch[1].trim());}
+    if (emailMatch) {contact.email = latexUnescape(emailMatch[1].trim());}
+    if (githubMatch) {contact.github = latexUnescape(githubMatch[1].trim()).replace(/^github\.com\//i, "");}
 
-    var sections = [];
-    var sectionRe = /\\section\{([^}]+)\}([\s\S]*?)(?=\\section\{|\\end\{document\}|$)/g;
-    var sectionMatch;
+    const sections = [];
+    const sectionRe = /\\section\{([^}]+)\}([\s\S]*?)(?=\\section\{|\\end\{document\}|$)/g;
+    let sectionMatch;
     while ((sectionMatch = sectionRe.exec(sourceText))) {
-      var sectionTitle = latexUnescape(sectionMatch[1].trim());
-      var body = sectionMatch[2];
+      const sectionTitle = latexUnescape(sectionMatch[1].trim());
+      const body = sectionMatch[2];
       if (/^skills$/i.test(sectionTitle)) {
         continue;
       }
-      var entries = [];
-      var entryRe = /\\cventry\{([\s\S]*?)\}\{([\s\S]*?)\}\{([\s\S]*?)\}\{([\s\S]*?)\}\{([\s\S]*?)\}\{([\s\S]*?)\}/g;
-      var entryMatch;
+      const entries = [];
+      const entryRe = /\\cventry\{([\s\S]*?)\}\{([\s\S]*?)\}\{([\s\S]*?)\}\{([\s\S]*?)\}\{([\s\S]*?)\}\{([\s\S]*?)\}/g;
+      let entryMatch;
       while ((entryMatch = entryRe.exec(body))) {
         entries.push({
           meta: latexUnescape(entryMatch[1].trim()),
@@ -371,7 +371,7 @@
       sections.push({ title: sectionTitle, entries: entries });
     }
 
-    var skillsMatch = sourceText.match(/\\cvitem\{Skills\}\{([\s\S]*?)\}/) || sourceText.match(/\\cvitem\{\}\{([\s\S]*?)\}/);
+    const skillsMatch = sourceText.match(/\\cvitem\{Skills\}\{([\s\S]*?)\}/) || sourceText.match(/\\cvitem\{\}\{([\s\S]*?)\}/);
 
     return normalizeModel({
       name: nameMatch ? latexUnescape((nameMatch[1] + nameMatch[2]).trim()) : defaultModel.name,
@@ -385,8 +385,8 @@
 
   function renderModerncv(model) {
     model = normalizeModel(model);
-    var contact = splitContact(model.contact);
-    var lines = [
+    const contact = splitContact(model.contact);
+    const lines = [
       "\\documentclass[11pt,a4paper,sans]{moderncv}",
       "\\moderncvstyle{classic}",
       "\\moderncvcolor{green}",
@@ -421,13 +421,13 @@
     if (!window.DOMParser) {
       return cloneModel(defaultModel);
     }
-    var doc = new DOMParser().parseFromString(sourceText, "text/html");
-    var root = doc.querySelector(".resume-html") || doc.body;
-    var skills = Array.prototype.slice.call(root.querySelectorAll(".resume-skills li, .resume-skills span"))
+    const doc = new DOMParser().parseFromString(sourceText, "text/html");
+    const root = doc.querySelector(".resume-html") || doc.body;
+    const skills = Array.prototype.slice.call(root.querySelectorAll(".resume-skills li, .resume-skills span"))
       .map(function (el) { return text(el.textContent); })
       .filter(Boolean)
       .join(", ");
-    var sections = Array.prototype.slice.call(root.querySelectorAll("section.resume-section")).map(function (section) {
+    const sections = Array.prototype.slice.call(root.querySelectorAll("section.resume-section")).map(function (section) {
       return {
         title: text((section.querySelector("h2") || {}).textContent),
         entries: Array.prototype.slice.call(section.querySelectorAll(".resume-entry")).map(function (entry) {
@@ -452,9 +452,9 @@
 
   function renderHtml(model) {
     model = normalizeModel(model);
-    var skills = model.skills.split(/[,，]/).map(text).filter(Boolean);
-    var sectionHtml = model.sections.map(function (section) {
-      var entries = section.entries.map(function (entry) {
+    const skills = model.skills.split(/[,，]/).map(text).filter(Boolean);
+    const sectionHtml = model.sections.map(function (section) {
+      const entries = section.entries.map(function (entry) {
         return [
           '      <div class="resume-entry">',
           "        <h3>" + escapeHtml(entry.title) + "</h3>",
@@ -502,7 +502,7 @@
     ].join("\n");
   }
 
-  var formats = {
+  const formats = {
     latex: {
       label: "LaTeX",
       file: "resume.tex",
@@ -546,11 +546,13 @@
     try {
       window.localStorage.setItem(formatStorageKey, currentFormat);
       window.localStorage.setItem(sourceStoragePrefix + currentFormat, source.value);
-    } catch (error) {}
+    } catch (error) {
+      // localStorage 存储失败，不影响编辑功能
+    }
   }
 
   function updateFormatUi() {
-    var format = formats[currentFormat];
+    const format = formats[currentFormat];
     if (formatSelect) {
       formatSelect.value = currentFormat;
     }
@@ -566,7 +568,7 @@
 
   function renderPreview(model) {
     model = normalizeModel(model);
-    var skills = model.skills
+    const skills = model.skills
       .split(/[,，]/)
       .map(text)
       .filter(Boolean)
@@ -575,8 +577,8 @@
       })
       .join("");
 
-    var sections = model.sections.map(function (section, sectionIndex) {
-      var entries = section.entries.map(function (entry, entryIndex) {
+    const sections = model.sections.map(function (section, sectionIndex) {
+      const entries = section.entries.map(function (entry, entryIndex) {
         return '<div class="latex-entry" data-section-index="' + sectionIndex + '" data-entry-index="' + entryIndex + '">' +
           '<div class="latex-entry-head">' +
           '<strong contenteditable="true" data-entry-field="title">' + escapeHtml(entry.title) + "</strong>" +
@@ -610,7 +612,7 @@
   }
 
   function syncFromSource() {
-    if (applyingFromPreview) return;
+    if (applyingFromPreview) {return;}
     applyingFromSource = true;
     currentModel = parseSource(source.value);
     renderPreview(currentModel);
@@ -620,8 +622,8 @@
   }
 
   function updateModelFromPreview(target) {
-    var value = text(target.textContent);
-    var field = target.getAttribute("data-resume-field");
+    const value = text(target.textContent);
+    const field = target.getAttribute("data-resume-field");
     if (field) {
       currentModel[field] = value;
       return;
@@ -634,16 +636,16 @@
       return;
     }
     if (target.hasAttribute("data-section-title")) {
-      var sectionEl = target.closest("[data-section-index]");
-      var section = currentModel.sections[Number(sectionEl.getAttribute("data-section-index"))];
-      if (section) section.title = value;
+      const sectionEl = target.closest("[data-section-index]");
+      const section = currentModel.sections[Number(sectionEl.getAttribute("data-section-index"))];
+      if (section) {section.title = value;}
       return;
     }
     if (target.hasAttribute("data-entry-field")) {
-      var entryEl = target.closest("[data-section-index][data-entry-index]");
-      var sectionIndex = Number(entryEl.getAttribute("data-section-index"));
-      var entryIndex = Number(entryEl.getAttribute("data-entry-index"));
-      var entry = currentModel.sections[sectionIndex] && currentModel.sections[sectionIndex].entries[entryIndex];
+      const entryEl = target.closest("[data-section-index][data-entry-index]");
+      const sectionIndex = Number(entryEl.getAttribute("data-section-index"));
+      const entryIndex = Number(entryEl.getAttribute("data-entry-index"));
+      const entry = currentModel.sections[sectionIndex] && currentModel.sections[sectionIndex].entries[entryIndex];
       if (entry) {
         entry[target.getAttribute("data-entry-field")] = value;
       }
@@ -651,7 +653,7 @@
   }
 
   function syncFromPreview(target) {
-    if (applyingFromSource) return;
+    if (applyingFromSource) {return;}
     applyingFromPreview = true;
     currentModel = normalizeModel(currentModel || cloneModel(defaultModel));
     updateModelFromPreview(target);
@@ -663,9 +665,9 @@
 
   function copySource(button) {
     function done(ok) {
-      var label = button.querySelector("span");
-      if (!label) return;
-      var old = label.textContent;
+      const label = button.querySelector("span");
+      if (!label) {return;}
+      const old = label.textContent;
       label.textContent = ok ? t("overleaf.status.copied", "Copied") : t("overleaf.status.copyfail", "Copy failed");
       window.setTimeout(function () { label.textContent = old; }, 1400);
     }
@@ -682,7 +684,7 @@
   }
 
   function switchFormat(nextFormat) {
-    if (!formats[nextFormat] || nextFormat === currentFormat) return;
+    if (!formats[nextFormat] || nextFormat === currentFormat) {return;}
     currentModel = parseSource(source.value);
     currentFormat = nextFormat;
     source.value = renderSource(currentModel);
@@ -701,7 +703,7 @@
 
   function loadInitialFormat() {
     try {
-      var saved = window.localStorage.getItem(formatStorageKey);
+      const saved = window.localStorage.getItem(formatStorageKey);
       return formats[saved] ? saved : "latex";
     } catch (error) {
       return "latex";
@@ -732,20 +734,20 @@
   }
 
   preview.addEventListener("input", function (event) {
-    var target = event.target;
+    const target = event.target;
     if (target && target.matches("[contenteditable='true']")) {
       syncFromPreview(target);
     }
   });
 
   document.addEventListener("click", function (event) {
-    var button = event.target.closest("[data-overleaf-action]");
-    if (!button) return;
-    var action = button.getAttribute("data-overleaf-action");
-    if (action === "compile") syncFromSource();
-    if (action === "copy") copySource(button);
-    if (action === "reset") resetCurrentTemplate();
-    if (action === "pdf") printPdf();
+    const button = event.target.closest("[data-overleaf-action]");
+    if (!button) {return;}
+    const action = button.getAttribute("data-overleaf-action");
+    if (action === "compile") {syncFromSource();}
+    if (action === "copy") {copySource(button);}
+    if (action === "reset") {resetCurrentTemplate();}
+    if (action === "pdf") {printPdf();}
   });
 
   document.addEventListener("cwl:langchange", function () {

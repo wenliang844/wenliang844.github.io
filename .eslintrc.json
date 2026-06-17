@@ -1,0 +1,51 @@
+{
+  "env": {
+    "browser": true,
+    "es6": true,
+    "node": true
+  },
+  "extends": "eslint:recommended",
+  "parserOptions": {
+    "ecmaVersion": 2020,
+    "sourceType": "module"
+  },
+  "rules": {
+    "no-console": ["warn", { "allow": ["warn", "error"] }],
+    "no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
+    "eqeqeq": ["error", "always"],
+    "curly": ["error", "all"],
+    "no-eval": "error",
+    "no-implied-eval": "error",
+    "no-new-func": "error",
+    "no-script-url": "error",
+    "no-var": "warn",
+    "prefer-const": "warn",
+    "strict": ["error", "function"]
+  },
+  "overrides": [
+    {
+      "files": ["js/performance-monitor.js", "js/logger.js"],
+      "rules": {
+        "no-console": "off"
+      }
+    },
+    {
+      "files": ["js/feedback.js"],
+      "rules": {
+        "no-var": "off"
+      }
+    }
+  ],
+  "globals": {
+    "CWLUtils": "readonly",
+    "CWLErrorHandler": "readonly",
+    "cwlT": "readonly",
+    "cwlLang": "readonly",
+    "cwlOpenSearch": "readonly",
+    "coderShowPost": "readonly",
+    "Fuse": "readonly",
+    "marked": "readonly",
+    "DOMPurify": "readonly",
+    "hljs": "readonly"
+  }
+}

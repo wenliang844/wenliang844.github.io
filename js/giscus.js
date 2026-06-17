@@ -13,7 +13,7 @@
    *    postMessage(setConfig) 切到对应讨论线程（term = 该篇单篇页 pathname，
    *    与单篇页共用同一条 GitHub Discussion）。避免多实例 iframe 冲突。
    * ---------------------------------------------------------------------- */
-  var config = {
+  const config = {
     repo: "wenliang844/wenliang844.github.io",
     repoId: "MDEwOlJlcG9zaXRvcnkzNTQyNDE4MDY=",
     category: "Announcements",
@@ -23,7 +23,7 @@
     lang: "zh-CN"
   };
 
-  var configured = config.repo && config.repoId && config.categoryId;
+  const configured = config.repo && config.repoId && config.categoryId;
 
   function t(key, fallback) {
     return window.cwlT ? window.cwlT(key, fallback) : fallback;
@@ -33,7 +33,7 @@
     return '<p class="comments-hint">' + t("dyn.comments.placeholder", "评论区尚未配置。站长在 <code>js/giscus.js</code> 填入 GitHub 仓库的 giscus 配置（repo / repoId / categoryId）后，即可启用基于 GitHub Discussions 的评论。") + '</p>';
   }
 
-  var thread = document.getElementById("giscus-thread");
+  const thread = document.getElementById("giscus-thread");
   if (!thread) {
     return;
   }
@@ -46,17 +46,17 @@
     return;
   }
 
-  var isSwitchMode = thread.getAttribute("data-giscus-mode") === "switch";
+  const isSwitchMode = thread.getAttribute("data-giscus-mode") === "switch";
 
   // 当前激活面板对应的讨论 term（= 该篇单篇页 pathname）。
   function activeTerm() {
-    var active = document.querySelector(".blog-article.active[data-post-slug]");
+    const active = document.querySelector(".blog-article.active[data-post-slug]");
     return active ? "/post/" + active.getAttribute("data-post-slug") + "/" : null;
   }
 
   function buildScript(opts) {
     opts = opts || {};
-    var script = document.createElement("script");
+    const script = document.createElement("script");
     script.src = "https://giscus.app/client.js";
     script.async = true;
     script.crossOrigin = "anonymous";
@@ -84,7 +84,7 @@
   }
 
   /* ---- 列表页：单 iframe + setConfig 切换 ------------------------------ */
-  var loadedTerm = null;
+  let loadedTerm = null;
 
   function giscusFrame() {
     return thread.querySelector("iframe.giscus-frame");
@@ -92,7 +92,7 @@
 
   // 通过 postMessage 切换已存在 iframe 的讨论线程。
   function switchTerm(term) {
-    var frame = giscusFrame();
+    const frame = giscusFrame();
     if (!frame || !frame.contentWindow) {
       return false;
     }
@@ -119,11 +119,11 @@
   showTerm(activeTerm());
 
   // 面板 active 类变化时（树链接 / 搜索 / 标签筛选都经由它）切换讨论线程。
-  var observer = new MutationObserver(function (mutations) {
+  const observer = new MutationObserver(function (mutations) {
     mutations.forEach(function (mutation) {
-      var el = mutation.target;
+      const el = mutation.target;
       if (el.classList && el.classList.contains("blog-article") && el.classList.contains("active")) {
-        var slug = el.getAttribute("data-post-slug");
+        const slug = el.getAttribute("data-post-slug");
         if (slug) {
           showTerm("/post/" + slug + "/");
         }

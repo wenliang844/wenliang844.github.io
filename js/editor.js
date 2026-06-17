@@ -1,17 +1,17 @@
 (function () {
-  var storageKey = "wenliang-markdown-editor";
-  var titleInput = document.getElementById("post-title");
-  var slugInput = document.getElementById("post-slug");
-  var dateInput = document.getElementById("post-date");
-  var markdownInput = document.getElementById("markdown-input");
-  var preview = document.getElementById("markdown-preview");
-  var statsEl = document.getElementById("editor-stats");
+  const storageKey = "wenliang-markdown-editor";
+  const titleInput = document.getElementById("post-title");
+  const slugInput = document.getElementById("post-slug");
+  const dateInput = document.getElementById("post-date");
+  const markdownInput = document.getElementById("markdown-input");
+  const preview = document.getElementById("markdown-preview");
+  const statsEl = document.getElementById("editor-stats");
 
   if (!titleInput || !slugInput || !dateInput || !markdownInput || !preview) {
     return;
   }
 
-  var sampleMarkdownZh = [
+  const sampleMarkdownZh = [
     "# 新文章标题",
     "",
     "> 在这里记录一篇新的博客。",
@@ -72,7 +72,10 @@
               return window.hljs.highlight(code, { language: lang }).value;
             }
             return window.hljs.highlightAuto(code).value;
-          } catch (error) {}
+          } catch (error) {
+            // 高亮失败，返回原始代码
+            return code;
+          }
         }
         return code;
       }
@@ -80,8 +83,8 @@
   }
 
   function renderMarkdown(markdown) {
-    var raw = markdown || "";
-    var html;
+    const raw = markdown || "";
+    let html;
 
     if (window.marked) {
       html = typeof window.marked.parse === "function"
@@ -103,9 +106,13 @@
   }
 
   function frontMatter() {
+    // Escape double quotes and backslashes in title
+    const escapedTitle = titleInput.value
+      .replace(/\\/g, "\\\\")
+      .replace(/"/g, '\\"');
     return [
       "---",
-      "title: \"" + titleInput.value.replace(/\"/g, "\\\\\"") + "\"",
+      "title: \"" + escapedTitle + "\"",
       "date: " + dateInput.value,
       "draft: false",
       "---",
@@ -125,20 +132,22 @@
   function saveState() {
     try {
       window.localStorage.setItem(storageKey, JSON.stringify(currentState()));
-    } catch (error) {}
+    } catch (error) {
+      // localStorage 存储失败（如超出配额），不影响编辑功能
+    }
   }
 
   function updateStats() {
     if (!statsEl) {
       return;
     }
-    var text = markdownInput.value;
-    var chars = text.length;
-    var chinese = (text.match(/[一-龥]/g) || []).length;
-    var rest = text.replace(/[一-龥]/g, " ").trim();
-    var words = rest ? rest.split(/\s+/).length : 0;
-    var totalWords = chinese + words;
-    var minutes = Math.max(1, Math.round(chinese / 350 + words / 200));
+    const text = markdownInput.value;
+    const chars = text.length;
+    const chinese = (text.match(/[一-龥]/g) || []).length;
+    const rest = text.replace(/[一-龥]/g, " ").trim();
+    const words = rest ? rest.split(/\s+/).length : 0;
+    const totalWords = chinese + words;
+    const minutes = Math.max(1, Math.round(chinese / 350 + words / 200));
     statsEl.textContent = t("editor.stats", "{words} 词 · {chars} 字符 · 约 {minutes} 分钟")
       .replace("{words}", totalWords)
       .replace("{chars}", chars)
@@ -153,7 +162,9 @@
         if (!block.dataset.highlighted) {
           try {
             window.hljs.highlightElement(block);
-          } catch (error) {}
+          } catch (error) {
+            // 高亮失败，保留原始代码
+          }
           block.dataset.highlighted = "yes";
         }
       });
@@ -163,9 +174,9 @@
   }
 
   function download(filename, content, type) {
-    var blob = new Blob([content], { type: type });
-    var url = URL.createObjectURL(blob);
-    var link = document.createElement("a");
+    const blob = new Blob([content], { type: type });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
     link.href = url;
     link.download = filename;
     document.body.appendChild(link);
@@ -175,10 +186,12 @@
   }
 
   function loadState() {
-    var stored = null;
+    let stored = null;
     try {
       stored = JSON.parse(window.localStorage.getItem(storageKey));
-    } catch (error) {}
+    } catch (error) {
+      // localStorage 读取失败，使用默认值
+    }
 
     titleInput.value = stored && stored.title ? stored.title : sampleTitle();
     slugInput.value = stored && stored.slug ? stored.slug : slugify(titleInput.value);
@@ -190,17 +203,17 @@
    * Toolbar: wrap/insert Markdown around the current selection
    * -------------------------------------------------------------------- */
   function applyFormat(kind) {
-    var start = markdownInput.selectionStart;
-    var end = markdownInput.selectionEnd;
-    var value = markdownInput.value;
-    var selected = value.slice(start, end);
-    var before = value.slice(0, start);
-    var after = value.slice(end);
-    var inner, newStart, newEnd;
+    const start = markdownInput.selectionStart;
+    const end = markdownInput.selectionEnd;
+    const value = markdownInput.value;
+    const selected = value.slice(start, end);
+    const before = value.slice(0, start);
+    const after = value.slice(end);
+    let inner, newStart, newEnd;
 
     function wrap(left, right, placeholder) {
       inner = selected || placeholder;
-      var text = left + inner + right;
+      const text = left + inner + right;
       markdownInput.value = before + text + after;
       newStart = start + left.length;
       newEnd = newStart + inner.length;
@@ -208,8 +221,8 @@
 
     function linePrefix(prefix) {
       inner = selected || "";
-      var lines = (inner || t("editor.fmt.list", "列表项")).split("\n");
-      var text = lines.map(function (line, i) {
+      const lines = (inner || t("editor.fmt.list", "列表项")).split("\n");
+      const text = lines.map(function (line, i) {
         if (prefix === "1. ") {
           return (i + 1) + ". " + line;
         }
@@ -228,33 +241,37 @@
       case "quote": linePrefix("> "); break;
       case "ul": linePrefix("- "); break;
       case "ol": linePrefix("1. "); break;
-      case "link":
+      case "link": {
         inner = selected || t("editor.fmt.link", "链接文字");
-        var linkText = "[" + inner + "](https://)";
+        const linkText = "[" + inner + "](https://)";
         markdownInput.value = before + linkText + after;
         newStart = start + 1;
         newEnd = newStart + inner.length;
         break;
-      case "image":
+      }
+      case "image": {
         inner = selected || t("editor.fmt.image", "图片描述");
-        var imgText = "![" + inner + "](https://)";
+        const imgText = "![" + inner + "](https://)";
         markdownInput.value = before + imgText + after;
         newStart = start + 2;
         newEnd = newStart + inner.length;
         break;
-      case "codeblock":
+      }
+      case "codeblock": {
         inner = selected || t("editor.fmt.codeblock", "在此粘贴代码");
-        var block = "```\n" + inner + "\n```";
+        const block = "```\n" + inner + "\n```";
         markdownInput.value = before + block + after;
         newStart = start + 4;
         newEnd = newStart + inner.length;
         break;
-      case "table":
-        var table = t("editor.fmt.table", "| 列1 | 列2 |\n| --- | --- |\n| 内容 | 内容 |");
+      }
+      case "table": {
+        const table = t("editor.fmt.table", "| 列1 | 列2 |\n| --- | --- |\n| 内容 | 内容 |");
         markdownInput.value = before + table + after;
         newStart = start;
         newEnd = start + table.length;
         break;
+      }
       default: return;
     }
 
@@ -274,8 +291,8 @@
     if (!(event.ctrlKey || event.metaKey)) {
       return;
     }
-    var map = { b: "bold", i: "italic", k: "link" };
-    var action = map[event.key.toLowerCase()];
+    const map = { b: "bold", i: "italic", k: "link" };
+    const action = map[event.key.toLowerCase()];
     if (action) {
       event.preventDefault();
       applyFormat(action);
@@ -285,16 +302,16 @@
   /* ----------------------------------------------------------------------
    * Synced scrolling between editor and preview
    * -------------------------------------------------------------------- */
-  var syncing = null;
+  let syncing = null;
   function linkScroll(source, target) {
     source.addEventListener("scroll", function () {
       if (syncing && syncing !== source) {
         return;
       }
       syncing = source;
-      var max = source.scrollHeight - source.clientHeight;
-      var ratio = max > 0 ? source.scrollTop / max : 0;
-      var targetMax = target.scrollHeight - target.clientHeight;
+      const max = source.scrollHeight - source.clientHeight;
+      const ratio = max > 0 ? source.scrollTop / max : 0;
+      const targetMax = target.scrollHeight - target.clientHeight;
       target.scrollTop = ratio * targetMax;
       window.requestAnimationFrame(function () {
         syncing = null;
@@ -307,18 +324,22 @@
   /* ----------------------------------------------------------------------
    * Inputs + actions
    * -------------------------------------------------------------------- */
+  const debouncedRender = window.CWLUtils && window.CWLUtils.debounce
+    ? window.CWLUtils.debounce(render, 150)
+    : render;
+
   titleInput.addEventListener("input", function () {
     slugInput.value = slugify(titleInput.value);
-    render();
+    debouncedRender();
   });
   slugInput.addEventListener("input", saveState);
   dateInput.addEventListener("input", saveState);
-  markdownInput.addEventListener("input", render);
+  markdownInput.addEventListener("input", debouncedRender);
 
   function copyHtml(button) {
-    var html = preview.innerHTML;
-    var done = function (ok) {
-      var original = button.innerHTML;
+    const html = preview.innerHTML;
+    const done = function (ok) {
+      const original = button.innerHTML;
       button.innerHTML = ok
         ? t("editor.btn.copied", '<i class="fas fa-check"></i> 已复制')
         : t("editor.btn.copyfail", '<i class="fas fa-copy"></i> 复制失败');
@@ -328,7 +349,7 @@
       navigator.clipboard.writeText(html).then(function () { done(true); }, function () { done(false); });
     } else {
       try {
-        var area = document.createElement("textarea");
+        const area = document.createElement("textarea");
         area.value = html;
         area.style.position = "fixed";
         area.style.opacity = "0";
@@ -345,8 +366,8 @@
 
   document.querySelectorAll("[data-action]").forEach(function (button) {
     button.addEventListener("click", function () {
-      var action = button.getAttribute("data-action");
-      var slug = slugify(slugInput.value || titleInput.value);
+      const action = button.getAttribute("data-action");
+      const slug = slugify(slugInput.value || titleInput.value);
 
       if (action === "new") {
         titleInput.value = "";

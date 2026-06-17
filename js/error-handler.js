@@ -3,9 +3,9 @@
  * 捕获未处理的错误并提供用户友好的反馈
  */
 (function () {
-  'use strict';
+  
 
-  var ErrorHandler = {
+  const ErrorHandler = {
     // 是否启用调试模式（生产环境应设为 false）
     debug: false,
 
@@ -19,7 +19,7 @@
      * @param {string} context - 错误上下文
      */
     log: function (error, context) {
-      var entry = {
+      const entry = {
         time: new Date().toISOString(),
         context: context || 'unknown',
         message: error.message || String(error),
@@ -48,32 +48,32 @@
      */
     showUserMessage: function (message) {
       // 检查是否已有错误提示
-      var existing = document.querySelector('.global-error-toast');
+      const existing = document.querySelector('.global-error-toast');
       if (existing) {
         existing.remove();
       }
 
-      var toast = document.createElement('div');
+      const toast = document.createElement('div');
       toast.className = 'global-error-toast';
       toast.setAttribute('role', 'alert');
       toast.setAttribute('aria-live', 'assertive');
 
-      var content = document.createElement('div');
+      const content = document.createElement('div');
       content.className = 'error-toast-content';
 
-      var icon = document.createElement('i');
+      const icon = document.createElement('i');
       icon.className = 'fas fa-exclamation-circle';
       icon.setAttribute('aria-hidden', 'true');
 
-      var text = document.createElement('span');
+      const text = document.createElement('span');
       text.textContent = message;
 
-      var close = document.createElement('button');
+      const close = document.createElement('button');
       close.type = 'button';
       close.className = 'error-toast-close';
       close.setAttribute('aria-label', '关闭');
 
-      var closeIcon = document.createElement('i');
+      const closeIcon = document.createElement('i');
       closeIcon.className = 'fas fa-times';
       closeIcon.setAttribute('aria-hidden', 'true');
       close.appendChild(closeIcon);
@@ -138,9 +138,9 @@
   // 资源加载失败处理
   window.addEventListener('error', function (event) {
     if (event.target !== window) {
-      var target = event.target;
-      var tagName = target.tagName ? target.tagName.toLowerCase() : 'unknown';
-      var src = target.src || target.href || 'unknown';
+      const target = event.target;
+      const tagName = target.tagName ? target.tagName.toLowerCase() : 'unknown';
+      const src = target.src || target.href || 'unknown';
 
       ErrorHandler.log(
         new Error('Resource failed to load: ' + src),
@@ -158,7 +158,7 @@
   window.CWLErrorHandler = ErrorHandler;
 
   // 添加样式
-  var style = document.createElement('style');
+  const style = document.createElement('style');
   style.textContent = `
     .global-error-toast {
       position: fixed;

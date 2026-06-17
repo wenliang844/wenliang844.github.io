@@ -6,13 +6,13 @@
    * 面板各有一条分享条，用事件委托统一处理，切换文章时取当前那条的数据即可。
    * 二维码由本地 js/vendor/qrcode.min.js（全局 qrcode）生成，不依赖外部服务。
    * ---------------------------------------------------------------------- */
-  var bars = document.querySelectorAll(".post-share");
+  const bars = document.querySelectorAll(".post-share");
   if (!bars.length) {
     return;
   }
 
   // 站点根地址，用于把 /post/xxx/ 拼成可分享的绝对 URL。
-  var origin = window.location.origin;
+  const origin = window.location.origin;
 
   function absUrl(path) {
     if (/^https?:/i.test(path)) {
@@ -42,7 +42,7 @@
   }
 
   function updateXLink(bar) {
-    var link = bar.querySelector('a[data-share="x"]');
+    const link = bar.querySelector('a[data-share="x"]');
     if (!link) {
       return;
     }
@@ -52,20 +52,20 @@
   Array.prototype.forEach.call(bars, updateXLink);
 
   // ---- 剪贴板：优先使用公共工具，否则降级实现 --------------
-  var copyText = window.CWLUtils && window.CWLUtils.copyText
+  const copyText = window.CWLUtils && window.CWLUtils.copyText
     ? window.CWLUtils.copyText
     : function (text) {
         // execCommand 兜底：用于 clipboard API 不存在、或其写入被拒（如页面失焦）时。
         function legacyCopy(text) {
           return new Promise(function (resolve, reject) {
             try {
-              var area = document.createElement("textarea");
+              const area = document.createElement("textarea");
               area.value = text;
               area.style.position = "fixed";
               area.style.opacity = "0";
               document.body.appendChild(area);
               area.select();
-              var ok = document.execCommand("copy");
+              const ok = document.execCommand("copy");
               area.remove();
               ok ? resolve() : reject(new Error("execCommand copy failed"));
             } catch (error) {
@@ -83,14 +83,14 @@
       };
 
   // 复制成功反馈用的对勾 SVG（与模板图标同为 24×24 / currentColor）。
-  var CHECK_SVG = '<svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>';
+  const CHECK_SVG = '<svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>';
 
   // 短暂地把按钮图标换成“对勾”，给出已复制反馈。
   function flashCopied(button) {
     if (button.classList.contains("copied")) {
       return;
     }
-    var prev = button.innerHTML;
+    const prev = button.innerHTML;
     button.innerHTML = CHECK_SVG;
     button.classList.add("copied");
     window.setTimeout(function () {
@@ -100,7 +100,7 @@
   }
 
   // ---- 微信二维码浮层 ------------------------------------------------------
-  var overlay = null;
+  let overlay = null;
 
   function closeOverlay() {
     if (overlay) {
@@ -119,10 +119,10 @@
   function showQr(url, title) {
     closeOverlay();
 
-    var svg = "";
+    let svg = "";
     if (typeof window.qrcode === "function") {
       try {
-        var qr = window.qrcode(0, "M"); // type 0 = 自适应版本，M 级纠错
+        const qr = window.qrcode(0, "M"); // type 0 = 自适应版本，M 级纠错
         qr.addData(url);
         qr.make();
         svg = qr.createSvgTag({ cellSize: 5, margin: 4, scalable: true });
@@ -156,18 +156,18 @@
 
   // ---- 事件委托：所有分享条共用一个监听 ------------------------------------
   document.addEventListener("click", function (event) {
-    var trigger = event.target.closest("[data-share]");
+    const trigger = event.target.closest("[data-share]");
     if (!trigger) {
       return;
     }
-    var bar = trigger.closest(".post-share");
+    const bar = trigger.closest(".post-share");
     if (!bar) {
       return;
     }
 
-    var url = shareUrl(bar);
-    var title = shareTitle(bar);
-    var kind = trigger.getAttribute("data-share");
+    const url = shareUrl(bar);
+    const title = shareTitle(bar);
+    const kind = trigger.getAttribute("data-share");
 
     if (kind === "x") {
       if (trigger.tagName && trigger.tagName.toLowerCase() === "a") {
@@ -178,7 +178,7 @@
     }
 
     if (kind === "weibo") {
-      var weibo = "https://service.weibo.com/share/share.php?url=" +
+      const weibo = "https://service.weibo.com/share/share.php?url=" +
         encodeURIComponent(url) + "&title=" + encodeURIComponent(title);
       event.preventDefault();
       window.open(weibo, "_blank", "noopener");

@@ -6,13 +6,13 @@
    * - 快捷键 "/" 或 Ctrl/Cmd+K 打开，Escape 关闭；
    * - 搜索范围：文章标题、摘要、标签、正文纯文本。
    * ---------------------------------------------------------------------- */
-  var nav = document.querySelector(".navigation");
+  const nav = document.querySelector(".navigation");
   if (!nav) {
     return;
   }
 
   /* ---- DOM -------------------------------------------------------------- */
-  var overlay = document.createElement("div");
+  const overlay = document.createElement("div");
   overlay.className = "search-modal";
   overlay.setAttribute("role", "dialog");
   overlay.setAttribute("aria-modal", "true");
@@ -30,19 +30,19 @@
     '<div class="search-modal-foot"><span>↑↓ 选择</span><span>Enter 打开</span><span>Ctrl/⌘ K 搜索</span></div>' +
     '</div>';
 
-  var input     = overlay.querySelector(".search-modal-input");
-  var clearBtn  = overlay.querySelector(".search-modal-clear");
-  var list      = overlay.querySelector(".search-modal-results");
-  var emptyMsg  = overlay.querySelector(".search-modal-empty");
-  var trigger   = nav.querySelector(".nav-search-trigger");
-  var fuse      = null;
-  var indexData = [];
-  var activeData = [];
-  var loadTask  = null;
-  var results   = [];
-  var selected  = -1;
-  var lastActive = null;
-  var oldOverflow = "";
+  const input     = overlay.querySelector(".search-modal-input");
+  const clearBtn  = overlay.querySelector(".search-modal-clear");
+  const list      = overlay.querySelector(".search-modal-results");
+  const emptyMsg  = overlay.querySelector(".search-modal-empty");
+  const trigger   = nav.querySelector(".nav-search-trigger");
+  let fuse      = null;
+  let indexData = [];
+  let activeData = [];
+  let loadTask  = null;
+  let results   = [];
+  let selected  = -1;
+  let lastActive = null;
+  let oldOverflow = "";
 
   document.body.appendChild(overlay);
 
@@ -58,7 +58,7 @@
     if (trigger) {
       trigger.setAttribute("aria-label", t("nav.search", "全局搜索"));
     }
-    var foot = overlay.querySelector(".search-modal-foot");
+    const foot = overlay.querySelector(".search-modal-foot");
     if (foot) {
       foot.innerHTML = "<span>" + t("dyn.search.nav", "↑↓ 选择") + "</span>" +
         "<span>" + t("dyn.search.open", "Enter 打开") + "</span>" +
@@ -72,13 +72,13 @@
   }
 
   function editing() {
-    var tag = (document.activeElement || {}).tagName;
+    const tag = (document.activeElement || {}).tagName;
     return tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" ||
       (document.activeElement || {}).isContentEditable;
   }
 
   function escapeHtml(value) {
-    return String(value == null ? "" : value)
+    return String(value === null || value === undefined ? "" : value)
       .replace(/&/g, "&amp;")
       .replace(/</g, "&lt;")
       .replace(/>/g, "&gt;")
@@ -102,8 +102,8 @@
     if (currentLang() !== "en" || !item.i18n || !item.i18n.en) {
       return item;
     }
-    var en = item.i18n.en;
-    var copy = {};
+    const en = item.i18n.en;
+    const copy = {};
     Object.keys(item).forEach(function (key) {
       copy[key] = item[key];
     });
@@ -179,7 +179,7 @@
       waitForFuse(cb, fail);
       return;
     }
-    var s = document.createElement("script");
+    const s = document.createElement("script");
     s.src = src;
     s.onload = cb;
     s.onerror = function () {
@@ -194,8 +194,8 @@
       cb();
       return;
     }
-    var tries = 0;
-    var timer = window.setInterval(function () {
+    let tries = 0;
+    const timer = window.setInterval(function () {
       tries += 1;
       if (window.Fuse || tries > 40) {
         window.clearInterval(timer);
@@ -240,20 +240,20 @@
 
   /* ---- render results --------------------------------------------------- */
   function highlightText(text, query) {
-    var raw = String(text || "");
-    var html = escapeHtml(raw);
+    const raw = String(text || "");
+    const html = escapeHtml(raw);
     if (!query) { return html; }
     return html.replace(new RegExp("(" + escapeRegExp(query) + ")", "gi"), "<mark>$1</mark>");
   }
 
   function snippet(text, query) {
     if (!text) { return ""; }
-    var lower = text.toLowerCase();
-    var idx   = lower.indexOf(query.toLowerCase());
+    const lower = text.toLowerCase();
+    const idx   = lower.indexOf(query.toLowerCase());
     if (idx === -1) { return escapeHtml(text.slice(0, 150)); }
-    var start = Math.max(0, idx - 40);
-    var end   = Math.min(text.length, idx + query.length + 100);
-    var s = (start > 0 ? "…" : "") + text.slice(start, end) + (end < text.length ? "…" : "");
+    const start = Math.max(0, idx - 40);
+    const end   = Math.min(text.length, idx + query.length + 100);
+    const s = (start > 0 ? "…" : "") + text.slice(start, end) + (end < text.length ? "…" : "");
     return highlightText(s, query);
   }
 
@@ -263,7 +263,7 @@
 
   function openResult(idx) {
     if (!results[idx]) { return; }
-    var path = results[idx].item.path;
+    const path = results[idx].item.path;
     if (path) { window.location.href = path; }
   }
 
@@ -277,7 +277,7 @@
   }
 
   function render() {
-    var query = input.value.trim();
+    const query = input.value.trim();
     clearBtn.classList.toggle("visible", !!query);
     if (!query) {
       setEmpty(t("dyn.search.start", "输入关键词开始搜索"));
@@ -300,28 +300,69 @@
     }
 
     emptyMsg.style.display = "none";
-    list.innerHTML = results.map(function (r, i) {
-      var item = r.item;
-      var id = "search-result-" + i;
-      var tags = (item.tags || []).map(function (t) { return "<span>" + highlightText(t, query) + "</span>"; }).join("");
-      var title = highlightText(item.title || item.shortTitle || item.path, query);
-      var date = formatDate(item.date);
-      return '<li id="' + id + '" role="option" aria-selected="' + (i === 0 ? "true" : "false") + '" data-idx="' + i + '" class="' + (i === 0 ? "selected" : "") + '">' +
-        '<div class="search-result-top">' +
-        '<span class="search-result-kind">' + labelFor(item) + '</span>' +
-        (date ? '<span class="search-result-date">' + escapeHtml(date) + '</span>' : '') +
-        '</div>' +
-        '<div class="search-result-title">' + title + '</div>' +
-        '<div class="search-result-meta">' + escapeHtml(item.path) +
-        (tags ? ' <span class="search-result-tags">' + tags + '</span>' : '') + '</div>' +
-        '<div class="search-result-snippet">' + snippet(bestText(item), query) + '</div>' +
-        '</li>';
-    }).join("");
+    // Use DOM API to safely build result list
+    list.innerHTML = "";
+    results.forEach(function (r, i) {
+      const item = r.item;
+      const li = document.createElement("li");
+      li.id = "search-result-" + i;
+      li.setAttribute("role", "option");
+      li.setAttribute("aria-selected", i === 0 ? "true" : "false");
+      li.setAttribute("data-idx", String(i));
+      li.className = i === 0 ? "selected" : "";
+
+      const top = document.createElement("div");
+      top.className = "search-result-top";
+      const kind = document.createElement("span");
+      kind.className = "search-result-kind";
+      kind.textContent = labelFor(item);
+      top.appendChild(kind);
+      const date = formatDate(item.date);
+      if (date) {
+        const dateSpan = document.createElement("span");
+        dateSpan.className = "search-result-date";
+        dateSpan.textContent = date;
+        top.appendChild(dateSpan);
+      }
+
+      const titleDiv = document.createElement("div");
+      titleDiv.className = "search-result-title";
+      titleDiv.innerHTML = highlightText(item.title || item.shortTitle || item.path, query);
+
+      const meta = document.createElement("div");
+      meta.className = "search-result-meta";
+      meta.textContent = item.path;
+      if (item.tags && item.tags.length) {
+        const tagsSpan = document.createElement("span");
+        tagsSpan.className = "search-result-tags";
+        item.tags.forEach(function (tag) {
+          const tagEl = document.createElement("span");
+          tagEl.innerHTML = highlightText(tag, query);
+          tagsSpan.appendChild(tagEl);
+        });
+        meta.appendChild(document.createTextNode(" "));
+        meta.appendChild(tagsSpan);
+      }
+
+      const snippetDiv = document.createElement("div");
+      snippetDiv.className = "search-result-snippet";
+      snippetDiv.innerHTML = snippet(bestText(item), query);
+
+      li.appendChild(top);
+      li.appendChild(titleDiv);
+      li.appendChild(meta);
+      li.appendChild(snippetDiv);
+      list.appendChild(li);
+    });
     updateSelected();
   }
 
   /* ---- keyboard --------------------------------------------------------- */
-  input.addEventListener("input", render);
+  const debouncedRender = window.CWLUtils && window.CWLUtils.debounce
+    ? window.CWLUtils.debounce(render, 150)
+    : render;
+
+  input.addEventListener("input", debouncedRender);
 
   input.addEventListener("keydown", function (e) {
     if (e.key === "Escape") { close(); return; }
@@ -346,8 +387,8 @@
   });
 
   function updateSelected() {
-    var items = list.children;
-    for (var i = 0; i < items.length; i++) {
+    const items = list.children;
+    for (let i = 0; i < items.length; i++) {
       items[i].classList.toggle("selected", i === selected);
       items[i].setAttribute("aria-selected", i === selected ? "true" : "false");
     }
@@ -361,9 +402,9 @@
 
   /* ---- click handlers --------------------------------------------------- */
   list.addEventListener("click", function (e) {
-    var li = e.target.closest("li");
+    const li = e.target.closest("li");
     if (!li) { return; }
-    var idx = parseInt(li.getAttribute("data-idx"), 10);
+    const idx = parseInt(li.getAttribute("data-idx"), 10);
     openResult(idx);
   });
 
@@ -386,7 +427,7 @@
 
   /* ---- global shortcuts ------------------------------------------------- */
   document.addEventListener("keydown", function (e) {
-    var modalOpen = overlay.classList.contains("open");
+    const modalOpen = overlay.classList.contains("open");
 
     if (e.key === "Escape" && modalOpen) {
       close();

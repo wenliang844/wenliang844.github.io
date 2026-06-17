@@ -1,10 +1,10 @@
 (function () {
-  var task = null;
-  var queuedOpen = false;
+  let task = null;
+  let queuedOpen = false;
 
   function editing() {
-    var active = document.activeElement || {};
-    var tag = active.tagName;
+    const active = document.activeElement || {};
+    const tag = active.tagName;
     return tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || active.isContentEditable;
   }
 
@@ -19,7 +19,7 @@
     queuedOpen = queuedOpen || !!openAfterLoad;
     if (!task) {
       task = new Promise(function (resolve, reject) {
-        var script = document.createElement("script");
+        const script = document.createElement("script");
         script.src = "/js/search.js";
         script.defer = true;
         script.onload = function () {
@@ -41,7 +41,7 @@
   }
 
   document.addEventListener("click", function (event) {
-    var trigger = event.target.closest && event.target.closest(".nav-search-trigger");
+    const trigger = event.target.closest && event.target.closest(".nav-search-trigger");
     if (!trigger) {
       return;
     }
@@ -50,7 +50,7 @@
   });
 
   document.addEventListener("keydown", function (event) {
-    var modalOpen = document.body.classList.contains("search-open");
+    const modalOpen = document.body.classList.contains("search-open");
     if (modalOpen || editing()) {
       return;
     }

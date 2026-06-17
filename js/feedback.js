@@ -7,13 +7,13 @@
   var WEB3FORMS_ACCESS_KEY = "";
   var WEB3FORMS_ENDPOINT = "https://api.web3forms.com/submit";
 
-  var storageKey = "wenliang-feedback";
-  var form = document.getElementById("feedback-form");
-  var nameInput = document.getElementById("fb-name");
-  var contactInput = document.getElementById("fb-contact");
-  var messageInput = document.getElementById("fb-message");
-  var statusEl = document.getElementById("feedback-status");
-  var listEl = document.getElementById("feedback-list");
+  const storageKey = "wenliang-feedback";
+  const form = document.getElementById("feedback-form");
+  const nameInput = document.getElementById("fb-name");
+  const contactInput = document.getElementById("fb-contact");
+  const messageInput = document.getElementById("fb-message");
+  const statusEl = document.getElementById("feedback-status");
+  const listEl = document.getElementById("feedback-list");
 
   if (!form || !messageInput || !listEl) {
     return;
@@ -25,8 +25,8 @@
 
   function load() {
     try {
-      var raw = window.localStorage.getItem(storageKey);
-      var parsed = raw ? JSON.parse(raw) : [];
+      const raw = window.localStorage.getItem(storageKey);
+      const parsed = raw ? JSON.parse(raw) : [];
       return Array.isArray(parsed) ? parsed : [];
     } catch (error) {
       return [];
@@ -36,25 +36,27 @@
   function save(entries) {
     try {
       window.localStorage.setItem(storageKey, JSON.stringify(entries));
-    } catch (error) {}
+    } catch (error) {
+      // localStorage 存储失败，不影响功能
+    }
   }
 
   function formatTime(iso) {
-    var date = new Date(iso);
+    const date = new Date(iso);
     if (isNaN(date.getTime())) {
       return "";
     }
-    var pad = function (n) { return n < 10 ? "0" + n : String(n); };
+    const pad = function (n) { return n < 10 ? "0" + n : String(n); };
     return date.getFullYear() + "-" + pad(date.getMonth() + 1) + "-" + pad(date.getDate()) +
       " " + pad(date.getHours()) + ":" + pad(date.getMinutes());
   }
 
   function render() {
-    var entries = load();
+    const entries = load();
     listEl.replaceChildren();
 
     if (!entries.length) {
-      var empty = document.createElement("li");
+      const empty = document.createElement("li");
       empty.className = "feedback-empty";
       empty.textContent = t("contact.fb.empty", "还没有留言，来做第一个吧。");
       listEl.appendChild(empty);
@@ -62,21 +64,21 @@
     }
 
     entries.forEach(function (entry) {
-      var item = document.createElement("li");
+      const item = document.createElement("li");
       item.className = "feedback-item";
       item.dataset.id = entry.id;
 
-      var meta = document.createElement("div");
+      const meta = document.createElement("div");
       meta.className = "meta";
 
-      var name = document.createElement("strong");
+      const name = document.createElement("strong");
       name.textContent = entry.name || t("contact.fb.anon", "匿名");
 
-      var metaRight = document.createElement("span");
-      var when = formatTime(entry.time);
+      const metaRight = document.createElement("span");
+      const when = formatTime(entry.time);
       metaRight.appendChild(document.createTextNode(when + " · "));
 
-      var remove = document.createElement("button");
+      const remove = document.createElement("button");
       remove.type = "button";
       remove.dataset.remove = entry.id;
       remove.textContent = t("contact.fb.delete", "删除");
@@ -85,7 +87,7 @@
       meta.appendChild(name);
       meta.appendChild(metaRight);
 
-      var body = document.createElement("p");
+      const body = document.createElement("p");
       body.className = "body";
       body.textContent = entry.message || "";
 
@@ -102,11 +104,11 @@
   }
 
   listEl.addEventListener("click", function (event) {
-    var id = event.target && event.target.getAttribute("data-remove");
+    const id = event.target && event.target.getAttribute("data-remove");
     if (!id) {
       return;
     }
-    var entries = load().filter(function (entry) {
+    const entries = load().filter(function (entry) {
       return String(entry.id) !== String(id);
     });
     save(entries);
@@ -115,14 +117,14 @@
 
   form.addEventListener("submit", function (event) {
     event.preventDefault();
-    var message = messageInput.value.trim();
+    const message = messageInput.value.trim();
     if (!message) {
       setStatus(t("contact.fb.required", "请输入反馈内容。"));
       messageInput.focus();
       return;
     }
 
-    var entry = {
+    const entry = {
       id: String(Date.now()) + Math.random().toString(16).slice(2, 6),
       name: nameInput ? nameInput.value.trim() : "",
       contact: contactInput ? contactInput.value.trim() : "",
@@ -130,7 +132,7 @@
       time: new Date().toISOString()
     };
 
-    var entries = load();
+    const entries = load();
     entries.unshift(entry);
     save(entries);
     render();
