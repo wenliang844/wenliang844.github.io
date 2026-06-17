@@ -1,0 +1,127 @@
+# 📋 CWLBlog 项目分析报告索引
+
+> 生成日期：2026-06-18 | 分析工具：Claude Code 自主分析
+
+---
+
+## 🏥 项目健康度总评
+
+| 维度 | 评分 | 等级 |
+|------|------|------|
+| 代码质量 | 3.9 / 5 | 🟢 良好 |
+| 安全性 | 4.2 / 5 | 🟢 良好 |
+| 性能 | 4.0 / 5 | 🟢 良好 |
+| 架构设计 | 4.3 / 5 | 🟢 优秀 |
+| 工程化 | 3.5 / 5 | 🟡 中等 |
+| 用户体验 | 3.8 / 5 | 🟢 良好 |
+| 可维护性 | 3.7 / 5 | 🟢 良好 |
+| **综合** | **3.9 / 5** | **🟢 良好** |
+
+---
+
+## 📊 问题统计
+
+| 优先级 | 类别 | 文档 | 发现数量 |
+|--------|------|------|----------|
+| 🔴 第一 | Bug 与风险 | [bugs-and-risks.md](bugs-and-risks.md) | 12（中 4 / 低 8） |
+| 🔴 第一 | 安全审计 | [security-audit.md](security-audit.md) | 10（中 2 / 低 5 / 无 3） |
+| 🔴 第一 | 性能瓶颈 | [performance-bottlenecks.md](performance-bottlenecks.md) | 11（中 4 / 低 7） |
+| 🟡 第二 | 代码质量 | [code-quality.md](code-quality.md) | 10（中 3 / 低 7） |
+| 🟡 第二 | 架构评审 | [architecture-review.md](architecture-review.md) | 6（中 2 / 低 4） |
+| 🟡 第二 | 技术债务 | [tech-debt.md](tech-debt.md) | 10（中 2 / 低 8） |
+| 🟢 第三 | 新功能建议 | [new-features.md](new-features.md) | 10 |
+| 🟢 第三 | UX 优化 | [ux-improvements.md](ux-improvements.md) | 10（中 3 / 低 7） |
+| 🟢 第三 | 开发体验 | [devex-improvements.md](devex-improvements.md) | 10（中 2 / 低 8） |
+| 🔵 第四 | 模块分析-构建系统 | [module-reviews/build-system.md](module-reviews/build-system.md) | 5 |
+| 🔵 第四 | 模块分析-客户端JS | [module-reviews/client-javascript.md](module-reviews/client-javascript.md) | 5 |
+| 🔵 第四 | 竞品分析 | [competitive-analysis.md](competitive-analysis.md) | 6 |
+| | **总计** | | **105 条建议** |
+
+---
+
+## 🎯 按优先级排序的待办建议
+
+### 🥇 高价值低成本（推荐立即实施）
+
+| 编号 | 建议 | 来源 | 难度 |
+|------|------|------|------|
+| P-01 | 粒子动画空闲停止 | 性能 | ⭐ |
+| P-09 | shadowBlur 替换为双层绘制 | 性能 | ⭐ |
+| UX-01 | 移动端导航遮罩层 | UX | ⭐ |
+| CQ-01 | 统一 editing() 函数 | 代码质量 | ⭐ |
+| CQ-02 | 统一 copyText 函数 | 代码质量 | ⭐ |
+| CQ-04 | 统一 t() i18n 函数 | 代码质量 | ⭐ |
+| B-06 | 修复重复标题 ID | Bug | ⭐ |
+| F-04 | 主题跟随系统 | 功能 | ⭐ |
+| UX-04 | 进度条仅文章页显示 | UX | ⭐ |
+
+### 🥈 高价值中成本（建议近期规划）
+
+| 编号 | 建议 | 来源 | 难度 |
+|------|------|------|------|
+| S-05 | 添加 CSP 策略 | 安全 | ⭐⭐ |
+| P-02 | CSS 关键路径提取 | 性能 | ⭐⭐ |
+| P-03 | JS 文件合并 | 性能 | ⭐⭐ |
+| P-04 | Font Awesome 按需加载 | 性能 | ⭐⭐ |
+| CQ-06 | coder.js 拆分 | 代码质量 | ⭐⭐ |
+| CQ-05 | assistant.js i18n | 代码质量 | ⭐⭐ |
+| UX-03 | 图片 Lightbox | UX | ⭐⭐ |
+| DE-01 | GitHub Actions CI/CD | 工程化 | ⭐⭐ |
+| F-06 | 标签云可视化 | 功能 | ⭐ |
+| COMP-02 | 构建时代码高亮 | 竞品借鉴 | ⭐⭐ |
+
+### 🥉 低优先级（长期改进方向）
+
+| 编号 | 建议 | 来源 | 难度 |
+|------|------|------|------|
+| AR-03 | ES Modules 迁移 | 架构 | ⭐⭐⭐ |
+| F-07 | PWA 离线支持 | 功能 | ⭐⭐ |
+| F-02 | AI 助手接入 LLM | 功能 | ⭐⭐⭐ |
+| F-09 | 文章系列/专栏 | 功能 | ⭐⭐ |
+| DE-07 | 开发文档 | 工程化 | ⭐⭐ |
+| TD-09 | TypeScript / JSDoc 类型 | 技术债务 | ⭐⭐⭐ |
+
+---
+
+## 📁 文档目录结构
+
+```
+docs/
+└── suggestions/
+    ├── README.md                           ← 本文件（索引总览）
+    ├── bugs-and-risks.md                   ← 潜在 Bug 与崩溃风险
+    ├── security-audit.md                   ← 安全漏洞与防护建议
+    ├── performance-bottlenecks.md          ← 性能瓶颈与优化建议
+    ├── code-quality.md                     ← 代码质量分析
+    ├── architecture-review.md              ← 架构设计评审
+    ├── tech-debt.md                        ← 技术债务清单
+    ├── new-features.md                     ← 新功能建议
+    ├── ux-improvements.md                  ← 用户体验优化
+    ├── devex-improvements.md               ← 开发体验优化
+    ├── competitive-analysis.md             ← 同类项目对比
+    └── module-reviews/
+        ├── build-system.md                 ← 构建系统模块分析
+        └── client-javascript.md            ← 客户端 JS 模块分析
+```
+
+---
+
+## 📝 分析方法说明
+
+### 分析范围
+- **源码文件**：21 个 JS 文件（~4200 行）、10 个构建模块（~1500 行）、1 个 CSS 文件（4655 行）、6 篇 Markdown 文章
+- **配置文件**：package.json、.eslintrc.json、.gitignore
+- **测试文件**：3 个测试文件（41 个测试用例）
+
+### 分析方法
+1. 逐文件阅读全部源码
+2. 运行测试套件验证当前状态（41/41 通过）
+3. 运行 ESLint 检查（0 错误）
+4. 交叉引用模块间依赖关系
+5. 对比行业最佳实践和同类项目
+
+### 分析原则
+- **不修改任何现有代码文件**
+- **不修改任何配置文件**
+- **只输出分析报告和建议文档**
+- 每条建议包含：位置、现状、影响、方案、收益
