@@ -26,6 +26,7 @@ export const STATIC_PAGES = [
   { path: "/overleaf/", withDate: true },
   { path: "/contact/", withDate: true },
   { path: "/ai/", withDate: true },
+  { path: "/appreciation/", withDate: true },
   { path: "/categories/", withDate: false },
   { path: "/tags/", withDate: true },
 ];
@@ -59,6 +60,13 @@ export const SEARCH_PAGES = [
     path: "/overleaf/",
     tags: ["工具", "简历", "LaTeX", "Markdown", "HTML"],
     i18n: { en: { title: "Overleaf", summary: "Overleaf-style multi-format resume template with LaTeX, Markdown, moderncv and HTML source/preview editing plus PDF download.", tags: ["Tool", "Resume", "LaTeX", "Markdown", "HTML"] } },
+  },
+  {
+    title: "鉴赏",
+    summary: "个人鉴赏榜单：科技研究、影视作品与生活体验三张并列排行榜。",
+    path: "/appreciation/",
+    tags: ["鉴赏", "榜单", "影视"],
+    i18n: { en: { title: "Appreciation", summary: "A personal appreciation board: tech, film & TV and life experiences ranked side by side.", tags: ["Appreciation", "Ranking", "Film & TV"] } },
   },
   {
     title: "时间归档",

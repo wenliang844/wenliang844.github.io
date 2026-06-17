@@ -9,6 +9,7 @@ const NAV_ITEMS = [
   { href: "/overleaf/", label: "简历模版", key: "overleaf", i18n: "nav.overleaf" },
   { href: "/contact/", label: "联系", key: "contact", i18n: "nav.contact" },
   { href: "/ai/", label: "AI导航", key: "ai", i18n: "nav.ai" },
+  { href: "/appreciation/", label: "鉴赏", key: "appreciation", i18n: "nav.appreciation" },
 ];
 
 // 渲染主导航；active 标记当前栏目。
@@ -22,6 +23,7 @@ function renderNav(active) {
           <ul>
 ${items}
             <li><a class="nav-feedback" href="/contact/#feedback-title" data-i18n="nav.feedback" data-i18n-html><i class="fas fa-comment-dots" aria-hidden="true"></i> 留言反馈</a></li>
+            <li><button class="nav-subscribe" type="button" data-subscribe-open data-i18n="nav.subscribe" data-i18n-html><i class="fas fa-envelope" aria-hidden="true"></i> 订阅</button></li>
             <li><button class="theme-toggle" type="button" aria-label="Toggle dark mode" data-i18n-aria="nav.theme"><i class="fas fa-adjust"></i></button></li>
             <li><button class="lang-toggle" type="button" aria-label="Switch language">EN</button></li>
             <li><button class="nav-search-trigger" type="button" aria-label="全局搜索" data-i18n-aria="nav.search"><i class="fas fa-search"></i></button></li>
@@ -93,7 +95,7 @@ export function renderPage(opts) {
     og,
   } = opts;
 
-  const allScripts = ["/js/error-handler.js", "/js/utils.js", "/js/i18n.js", "/js/coder.js", "/js/search-loader.js", ...scripts];
+  const allScripts = ["/js/error-handler.js", "/js/utils.js", "/js/i18n.js", "/js/coder.js", "/js/search-loader.js", "/js/subscribe.js", ...scripts];
   const meta = renderMeta(og);
 
   const bodyI18n = [
@@ -132,6 +134,14 @@ ${renderNav(active)}
 ${main}
     <footer class="footer">
       <section class="container">
+        <div class="subscribe">
+          <p class="subscribe-title" data-i18n="subscribe.title">订阅更新 · 新文章邮件提醒</p>
+          <form class="subscribe-form" novalidate>
+            <input class="subscribe-input" type="email" name="email" required autocomplete="email" placeholder="输入你的邮箱" data-i18n-ph="subscribe.ph" aria-label="Email">
+            <button class="subscribe-btn" type="submit" data-i18n="subscribe.btn">订阅</button>
+          </form>
+          <p class="subscribe-status" role="status" aria-live="polite"></p>
+        </div>
         <p data-i18n="footer.text">© 2021 - 2026 CWL · Powered by Hugo · Theme inspired by Coder</p>
       </section>
     </footer>

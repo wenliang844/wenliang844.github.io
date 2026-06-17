@@ -18,6 +18,7 @@ import { renderPostPage, renderPostList } from "../src/templates/post.mjs";
 import { renderTagsPage } from "../src/templates/tags.mjs";
 import { renderCategoriesPage } from "../src/templates/categories.mjs";
 import { renderAiPage } from "../src/templates/ai.mjs";
+import { renderAppreciationPage } from "../src/templates/appreciation.mjs";
 import { escapeXml, rfc822, sitemapDate } from "../src/lib/format.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -431,6 +432,9 @@ async function main() {
 
   // AI 导航页
   await writeFileEnsured("ai/index.html", renderAiPage() + "\n");
+
+  // 鉴赏页
+  await writeFileEnsured("appreciation/index.html", renderAppreciationPage() + "\n");
 
   // sitemap + RSS
   await writeFileEnsured("sitemap.xml", buildSitemap(posts) + "\n");
