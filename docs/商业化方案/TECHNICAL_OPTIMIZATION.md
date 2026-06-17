@@ -168,7 +168,9 @@ done
 #### 1.1.3 脚本加载优化
 
 **当前策略**:
+
 ```html
+
 <script src="/js/utils.js"></script>  <!-- 同步 -->
 <script src="/js/coder.js" defer></script>  <!-- defer -->
 ```

@@ -408,10 +408,10 @@
 - **每年**: 完整安全审计，更新文档
 
 ### 相关文档
-- [安全指南](./docs/SECURITY.md)
-- [性能优化指南](./docs/PERFORMANCE.md)
-- [部署指南](./docs/DEPLOYMENT.md)
-- [架构文档](./docs/ARCHITECTURE.md)
+- [安全指南](SECURITY.md)
+- [性能优化指南](PERFORMANCE.md)
+- [部署指南](DEPLOYMENT.md)
+- [架构文档](ARCHITECTURE.md)
 
 ---
 
