@@ -83,6 +83,7 @@
     "subscribe.invalid": "Please enter a valid email address.",
     "subscribe.fail": "Submission failed, please try again later.",
     "subscribe.disabled": "Subscription is not enabled yet.",
+    "subscribe.close": "Close",
     "head.title.home": "CWLBlog",
     "head.desc.home": "CWL · An AI-native full-stack engineer's blog on AI pair-programming (Claude / Codex), Java, Spring and engineering practice.",
     "head.title.about": "About :: CWLBlog",

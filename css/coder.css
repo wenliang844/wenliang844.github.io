@@ -298,7 +298,7 @@ a:hover {
   color: var(--accent);
 }
 
-/* 导航「订阅」按钮——外链 Buttondown，渐变填充主 CTA */
+/* 导航「订阅」按钮——弹窗触发，渐变填充主 CTA */
 .nav-subscribe {
   position: relative;
   display: inline-flex;
@@ -309,15 +309,11 @@ a:hover {
   padding: 0.48rem 1.08rem;
   border: 0;
   border-radius: 999px;
+  border: 0;
   background: var(--grad);
   color: #fff;
-  cursor: pointer;
-  font: inherit;
   font-weight: 600;
-  line-height: 1;
-  white-space: nowrap;
-  box-shadow: 0 12px 30px -18px rgba(99, 102, 241, 0.9);
-  transition: transform 200ms ease, box-shadow 220ms ease, filter 180ms ease;
+  transition: opacity 180ms ease, transform 200ms ease, box-shadow 220ms ease;
 }
 
 .nav-subscribe:hover {
@@ -2346,6 +2342,139 @@ a.card:hover {
   .subscribe-form {
     flex-direction: column;
   }
+}
+
+/* 订阅弹窗（导航按钮触发）——复用 search-modal 的遮罩/卡片视觉 */
+.subscribe-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 95;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 12vh 1.5rem 2rem;
+  background: rgba(4, 8, 16, 0.5);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 180ms ease, visibility 180ms ease;
+}
+
+.subscribe-modal.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.subscribe-modal-card {
+  width: min(28rem, 100%);
+  border: 1px solid var(--glass-border);
+  border-radius: 1rem;
+  background: var(--surface-solid);
+  box-shadow: var(--shadow-glow);
+  padding: 1.5rem;
+  transform: translateY(12px);
+  transition: transform 200ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.subscribe-modal.open .subscribe-modal-card {
+  transform: none;
+}
+
+.subscribe-modal-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1.1rem;
+}
+
+.subscribe-modal-head h2 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.subscribe-modal-close {
+  flex-shrink: 0;
+  display: inline-grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border: 0;
+  border-radius: 999px;
+  background: var(--code);
+  color: var(--muted);
+  cursor: pointer;
+  transition: color 160ms ease, background 160ms ease;
+}
+
+.subscribe-modal-close:hover {
+  color: var(--accent);
+}
+
+.subscribe-modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.subscribe-modal-input {
+  width: 100%;
+  padding: 0.7rem 0.95rem;
+  font: inherit;
+  font-size: 0.95rem;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0.6rem;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.subscribe-modal-input::placeholder {
+  color: var(--muted);
+}
+
+.subscribe-modal-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.subscribe-modal-btn {
+  width: 100%;
+  padding: 0.7rem 1.3rem;
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #fff;
+  background: var(--grad);
+  border: none;
+  border-radius: 0.6rem;
+  cursor: pointer;
+  transition: opacity 0.2s ease, transform 0.1s ease;
+}
+
+.subscribe-modal-btn:hover:not(:disabled) {
+  opacity: 0.92;
+}
+
+.subscribe-modal-btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.subscribe-modal-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.subscribe-modal-status {
+  margin: 0.8rem 0 0;
+  min-height: 1.2em;
+  font-size: 0.85rem;
+  color: var(--muted);
+  text-align: center;
 }
 
 .not-found {
