@@ -39,8 +39,9 @@
 | 🔵 第四 | 模块分析-CSS | [module-reviews/css-analysis.md](module-reviews/css-analysis.md) | 5 |
 | 🔵 第四 | SEO 与可访问性 | [module-reviews/seo-analysis.md](module-reviews/seo-analysis.md) | 6 |
 | 🔵 第四 | 资源与内容分析 | [module-reviews/resource-analysis.md](module-reviews/resource-analysis.md) | 5 |
+| 🔵 第四 | HTML 页面一致性 | [module-reviews/html-pages.md](module-reviews/html-pages.md) | 4 |
 | 🔵 第四 | 竞品分析 | [competitive-analysis.md](competitive-analysis.md) | 6 |
-| | **总计** | | **136 条建议** |
+| | **总计** | | **140 条建议** |
 
 ---
 
@@ -116,7 +117,8 @@ docs/
         ├── overleaf.md                     ← Overleaf 简历编辑器模块分析
         ├── css-analysis.md                 ← CSS 样式系统分析
         ├── seo-analysis.md                 ← SEO 与可访问性专项分析
-        └── resource-analysis.md            ← 资源与内容深度分析
+        ├── resource-analysis.md            ← 资源与内容深度分析
+        └── html-pages.md                   ← 手写 HTML 页面一致性分析
 ```
 
 ---
