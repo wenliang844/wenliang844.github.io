@@ -3061,6 +3061,11 @@ body.search-open .search-modal .search-modal-card,
   cursor: pointer;
 }
 
+.overleaf-format-control select option {
+  background: var(--surface-solid);
+  color: var(--text);
+}
+
 .overleaf-format-control select:focus-visible {
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 28%, transparent);
 }
@@ -3161,13 +3166,13 @@ body.search-open .search-modal .search-modal-card,
   width: min(100%, 52rem);
   min-height: 73rem;
   margin: 0 auto;
-  padding: 3rem 3.2rem;
+  padding: 3.5rem 4rem;
   background: var(--overleaf-paper);
   color: var(--overleaf-ink);
-  border-radius: 0.2rem;
-  box-shadow: 0 1.6rem 4rem rgba(0, 0, 0, 0.24);
+  border-radius: 0.3rem;
+  box-shadow: 0 2rem 5rem rgba(0, 0, 0, 0.28);
   font-family: "Times New Roman", "Noto Serif SC", SimSun, serif;
-  line-height: 1.5;
+  line-height: 1.6;
 }
 
 .latex-preview-paper [contenteditable="true"] {
@@ -3183,46 +3188,52 @@ body.search-open .search-modal .search-modal-card,
 }
 
 .latex-resume-head {
-  padding-bottom: 1rem;
-  border-bottom: 2px solid var(--overleaf-ink);
+  padding-bottom: 1.2rem;
+  margin-bottom: 0.5rem;
+  border-bottom: 2.5px solid var(--overleaf-ink);
   text-align: center;
 }
 
 .latex-resume-head h1 {
-  margin: 0;
+  margin: 0 0 0.4rem;
   color: var(--overleaf-ink);
-  font-size: 2.25rem;
-  letter-spacing: 0;
+  font-size: 2.5rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
 }
 
 .latex-role,
 .latex-contact {
-  margin: 0.35rem 0 0;
+  margin: 0.4rem 0 0;
   color: var(--overleaf-muted);
+  font-size: 0.96rem;
 }
 
 .latex-role {
-  font-size: 1.08rem;
-  font-weight: 700;
+  font-size: 1.1rem;
+  font-weight: 600;
 }
 
 .latex-section {
-  margin-top: 1.25rem;
+  margin-top: 1.5rem;
 }
 
 .latex-section h2 {
-  margin: 0 0 0.6rem;
-  padding-bottom: 0.25rem;
-  border-bottom: 1px solid #d4dbe4;
+  margin: 0 0 0.8rem;
+  padding-bottom: 0.35rem;
+  border-bottom: 1.5px solid #d4dbe4;
   color: var(--overleaf-ink);
-  font-size: 1.05rem;
+  font-size: 1.15rem;
+  font-weight: 700;
   text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .latex-section p {
-  margin: 0.25rem 0 0;
-  color: #293542;
-  line-height: 1.65;
+  margin: 0.3rem 0 0;
+  color: #2a3744;
+  line-height: 1.7;
+  font-size: 0.98rem;
 }
 
 .latex-skill-text {
@@ -3230,31 +3241,35 @@ body.search-open .search-modal .search-modal-card,
 }
 
 .latex-entry {
-  margin-top: 0.75rem;
+  margin-top: 1rem;
+  padding-bottom: 0.5rem;
 }
 
 .latex-entry-head {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  gap: 1rem;
+  gap: 1.2rem;
   align-items: baseline;
 }
 
 .latex-entry-head strong {
   color: var(--overleaf-ink);
-  font-size: 1rem;
+  font-size: 1.05rem;
+  font-weight: 600;
 }
 
 .latex-entry-head span {
   color: var(--overleaf-muted);
-  font-size: 0.88rem;
+  font-size: 0.9rem;
+  font-style: italic;
   white-space: nowrap;
 }
 
 .latex-entry-sub {
   margin-top: 0.15rem;
-  color: var(--overleaf-green-dark);
-  font-weight: 700;
+  color: var(--overleaf-ink);
+  font-weight: 600;
+  font-size: 0.95rem;
 }
 
 @media print {

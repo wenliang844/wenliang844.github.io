@@ -69,8 +69,8 @@
         title: "教育与荣誉",
         entries: [
           {
-            title: "江西科技学院",
-            subtitle: "软件工程 · 本科",
+            title: "江西科技学院    软件工程 · 本科",
+            subtitle: "",
             meta: "2018.06 -- 2022.07",
             desc: "蓝桥杯国家二等奖（省一等奖）、ACM 程序设计竞赛铜奖、软考软件设计师（中级）。"
           }
@@ -583,12 +583,15 @@
     model = normalizeModel(model);
     const sections = model.sections.map(function (section, sectionIndex) {
       const entries = section.entries.map(function (entry, entryIndex) {
+        const subtitleHtml = entry.subtitle
+          ? '<div class="latex-entry-sub" contenteditable="true" data-entry-field="subtitle">' + escapeHtml(entry.subtitle) + "</div>"
+          : "";
         return '<div class="latex-entry" data-section-index="' + sectionIndex + '" data-entry-index="' + entryIndex + '">' +
           '<div class="latex-entry-head">' +
           '<strong contenteditable="true" data-entry-field="title">' + escapeHtml(entry.title) + "</strong>" +
           '<span contenteditable="true" data-entry-field="meta">' + escapeHtml(entry.meta) + "</span>" +
           "</div>" +
-          '<div class="latex-entry-sub" contenteditable="true" data-entry-field="subtitle">' + escapeHtml(entry.subtitle) + "</div>" +
+          subtitleHtml +
           '<p contenteditable="true" data-entry-field="desc">' + escapeHtml(entry.desc) + "</p>" +
           "</div>";
       }).join("");
@@ -701,9 +704,9 @@
   function loadInitialFormat() {
     try {
       const saved = window.localStorage.getItem(formatStorageKey);
-      return formats[saved] ? saved : "latex";
+      return formats[saved] ? saved : "markdown";
     } catch (error) {
-      return "latex";
+      return "markdown";
     }
   }
 
