@@ -97,6 +97,8 @@
 docs/
 └── suggestions/
     ├── README.md                           ← 本文件（索引总览）
+    ├── health-score.md                     ← 项目健康度评分报告
+    ├── work-report.md                      ← 工作报告
     ├── bugs-and-risks.md                   ← 潜在 Bug 与崩溃风险
     ├── security-audit.md                   ← 安全漏洞与防护建议
     ├── performance-bottlenecks.md          ← 性能瓶颈与优化建议
