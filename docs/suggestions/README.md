@@ -39,9 +39,9 @@
 | 🔵 第四 | 模块分析-CSS | [module-reviews/css-analysis.md](module-reviews/css-analysis.md) | 5 |
 | 🔵 第四 | SEO 与可访问性 | [module-reviews/seo-analysis.md](module-reviews/seo-analysis.md) | 6 |
 | 🔵 第四 | 资源与内容分析 | [module-reviews/resource-analysis.md](module-reviews/resource-analysis.md) | 5 |
-| 🔵 第四 | HTML 页面一致性 | [module-reviews/html-pages.md](module-reviews/html-pages.md) | 4 |
+| 🔵 第四 | HTML 页面一致性 | [module-reviews/html-pages.md](module-reviews/html-pages.md) | 5 |
 | 🔵 第四 | 竞品分析 | [competitive-analysis.md](competitive-analysis.md) | 6 |
-| | **总计** | | **140 条建议** |
+| | **总计** | | **141 条建议** |
 
 ---
 
