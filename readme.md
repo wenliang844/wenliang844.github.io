@@ -12,8 +12,8 @@ RSS 全文输出 + 邮件订阅（buttondown/follow.it）。√
 全站 Fuse.js 搜索√	
 
 1. 文章目录 TOC + 阅读进度条√
-2. 赞助页面创建,支付宝收银台,微信收益台,paypal,
-支付方式1
+2. 新增赞助页面
+   对接爱发电、支付宝收银台、微信收益台、PayPal.Me/chenwenliang4212
 
 做一个新的tab页面，叫做鉴赏并列以下几个排行榜√
 一个科技研究排行榜codexclaudeaijavapython
