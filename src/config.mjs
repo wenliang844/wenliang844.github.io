@@ -5,9 +5,9 @@ import { dirname, join } from "node:path";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 
-// OG 卡片缩略图（站点根相对路径）。仅当文件真实存在时构建才输出 og:image，
-// 缺图时分享卡片退化为纯文字（twitter:card=summary），避免卡片图裂。
-const OG_IMAGE = "/images/og-cover.png";
+// OG 卡片缩略图（站点根相对路径）。使用已存在的站点图标作为默认分享图，
+// 避免手写页和生成页在社交平台分享时缺少 og:image。
+const OG_IMAGE = "/images/favicon.png";
 export const SITE = {
   baseURL: "https://wenliang844.github.io",
   title: "CWLBlog",
@@ -21,6 +21,7 @@ export const SITE = {
 // withDate=false 的页面不输出 lastmod，对齐现有 sitemap。
 export const STATIC_PAGES = [
   { path: "/", withDate: true, priority: 0 },
+  { path: "/about/", withDate: true },
   { path: "/post/", withDate: true, insertPostsAfter: true },
   { path: "/editor/", withDate: true },
   { path: "/overleaf/", withDate: true },
@@ -34,6 +35,13 @@ export const STATIC_PAGES = [
 
 // 全局搜索索引中额外包含的静态页（文章页由构建脚本动态生成）。
 export const SEARCH_PAGES = [
+  {
+    title: "关于",
+    summary: "关于 CWL、技术栈、项目经历与博客内容。",
+    path: "/about/",
+    tags: ["关于"],
+    i18n: { en: { title: "About", summary: "About CWL, the tech stack, project experience and the blog.", tags: ["About"] } },
+  },
   {
     title: "Contact",
     summary: "联系方式与留言反馈。",

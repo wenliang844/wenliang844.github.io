@@ -62,12 +62,17 @@ test("build writes the expected static artifacts", async () => {
     ];
 
     assert.match(postsHtml, /class="post-tree"/);
+    assert.match(postsHtml, /<link rel="canonical" href="https:\/\/wenliang844.github.io\/post\/">/);
+    assert.match(postsHtml, /property="og:image" content="https:\/\/wenliang844.github.io\/images\/favicon.png"/);
     for (const text of appreciationTexts) {
       assert.ok(appreciationHtml.includes(text), `appreciation page missing: ${text}`);
     }
     assert.match(sitemap, /<urlset /);
+    assert.match(sitemap, /<loc>https:\/\/wenliang844.github.io\/about\/<\/loc>/);
     assert.match(rss, /<rss version="2.0"/);
+    assert.doesNotMatch(rss, /Hugo/);
     assert.equal(searchIndex.filter((item) => item.type === "post").length, 6);
+    assert.ok(searchIndex.some((item) => item.path === "/about/" && item.summary.includes("CWL")));
     assert.ok(searchIndex.some((item) => item.path === "/appreciation/" && item.summary.includes("娱乐项目")));
     assert.ok(searchIndex.every((item) => item.path && !item.path.includes("\\")));
   } finally {

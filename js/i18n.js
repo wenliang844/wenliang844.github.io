@@ -74,7 +74,7 @@
     "nav.sponsor": '<i class="fas fa-heart" aria-hidden="true"></i> Sponsor',
     "nav.theme": "Toggle dark mode",
     "nav.search": "Global search",
-    "footer.text": "© 2021 - 2026 CWL · Powered by Hugo · Theme inspired by Coder",
+    "footer.text": "© 2021 - 2026 CWL · Powered by Cwl · Theme inspired by Coder",
     "subscribe.title": "Subscribe · new posts by email",
     "subscribe.ph": "Enter your email",
     "subscribe.btn": "Subscribe",
@@ -263,6 +263,7 @@
     "sponsor.thanks.desc": "Every contribution helps keep this project running and the writing going.",
 
     // 编辑器页 editor
+    "editor.h1": "Markdown Editor",
     "editor.lead": "Edit Markdown online with live preview, auto-save to your browser, and export to Markdown or HTML.",
     "editor.btn.new": '<i class="fas fa-file"></i> New',
     "editor.btn.sample": '<i class="fas fa-magic"></i> Sample',
@@ -290,7 +291,7 @@
     "editor.tool.table": "Table",
     "editor.pane.markdown": "Markdown",
     "editor.pane.preview": "Preview",
-    "editor.note": "A static GitHub Pages site can't write to the repo directly; exported files can go into Hugo's <code>content/post/</code> or the current static-site build flow. Tip: select text then click a toolbar button to wrap it — Ctrl+B / Ctrl+I / Ctrl+K supported.",
+    "editor.note": "A static GitHub Pages site can't write to the repo directly; exported files can go into <code>src/posts/</code> or the current static-site build flow. Tip: select text then click a toolbar button to wrap it — Ctrl+B / Ctrl+I / Ctrl+K supported.",
     "editor.sample.title": "New Post Title",
     "editor.sample.markdown": "# New Post Title\n\n> Draft a new blog post here.\n\n## Goal\n\n- Clarify the problem context\n- Record the solution\n- Summarize follow-up improvements\n\n## Code Snippet\n\n```java\npublic class HelloBlog {\n    public static void main(String[] args) {\n        System.out.println(\"Hello, blog!\");\n    }\n}\n```\n\n[Back to post list](/post/)",
     "editor.fmt.bold": "bold text",

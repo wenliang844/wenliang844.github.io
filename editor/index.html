@@ -4,7 +4,17 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="在线 Markdown 博客编辑器。">
-  <meta name="generator" content="Hugo 0.82.0">
+  <link rel="canonical" href="https://wenliang844.github.io/editor/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="CWLBlog">
+  <meta property="og:title" content="Markdown 编辑器 :: CWLBlog">
+  <meta property="og:description" content="在线 Markdown 编辑器，实时预览与自动保存。">
+  <meta property="og:url" content="https://wenliang844.github.io/editor/">
+  <meta property="og:image" content="https://wenliang844.github.io/images/favicon.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Markdown 编辑器 :: CWLBlog">
+  <meta name="twitter:description" content="在线 Markdown 编辑器，实时预览与自动保存。">
+  <meta name="twitter:image" content="https://wenliang844.github.io/images/favicon.png">
   <link rel="icon" href="/images/favicon.png" type="image/png">
   <link rel="stylesheet" href="/css/fontawesome-all.min.css">
   <link rel="stylesheet" href="/css/coder.css">
@@ -32,14 +42,14 @@
         <nav class="navigation-list" aria-label="Main navigation" data-i18n-aria="nav.main">
           <ul>
           <li><a href="/post/" data-i18n="nav.blog">博客</a></li>
-          <li><a class="active" href="/editor/" data-i18n="nav.editor">编辑器</a></li>
-          <li><a href="/overleaf/" data-i18n="nav.overleaf">简历模版</a></li>
-          <li><a href="/contact/" data-i18n="nav.contact">联系</a></li>
           <li><a href="/ai/" data-i18n="nav.ai">AI导航</a></li>
           <li><a href="/appreciation/" data-i18n="nav.appreciation">鉴赏</a></li>
+          <li><a href="/overleaf/" data-i18n="nav.overleaf">简历模版</a></li>
+          <li><a class="active" href="/editor/" data-i18n="nav.editor">编辑器</a></li>
+          <li><a href="/contact/" data-i18n="nav.contact">联系</a></li>
             <li><a class="nav-feedback" href="/contact/#feedback-title" data-i18n="nav.feedback" data-i18n-html><i class="fas fa-comment-dots" aria-hidden="true"></i> 留言反馈</a></li>
             <li><button class="nav-subscribe" type="button" data-subscribe-open data-i18n="nav.subscribe" data-i18n-html><i class="fas fa-envelope" aria-hidden="true"></i> 订阅</button></li>
-            <li><a class="nav-sponsor" href="/sponsor/" data-i18n="nav.sponsor" data-i18n-html><i class="fas fa-heart" aria-hidden="true"></i> Sponsor</a></li>
+            <li><a class="nav-sponsor" href="/sponsor/" data-i18n="nav.sponsor" data-i18n-html><i class="fas fa-heart" aria-hidden="true"></i> 赞助</a></li>
             <li><button class="theme-toggle" type="button" aria-label="Toggle dark mode" data-i18n-aria="nav.theme"><i class="fas fa-adjust"></i></button></li>
             <li><button class="lang-toggle" type="button" aria-label="Switch language">EN</button></li>
             <li><button class="nav-search-trigger" type="button" aria-label="全局搜索" data-i18n-aria="nav.search"><i class="fas fa-search"></i></button></li>
@@ -51,21 +61,21 @@
       <section class="editor-page container">
         <header class="editor-header">
           <div>
-            <h1>Markdown Editor</h1>
+            <h1 data-i18n="editor.h1">Markdown 编辑器</h1>
             <p class="lead" data-i18n="editor.lead">在线编辑 Markdown，实时预览，自动保存到浏览器，并可导出为 Markdown 或 HTML。</p>
           </div>
           <div class="editor-actions">
-            <button class="editor-button" type="button" data-action="new" data-i18n="editor.btn.new" data-i18n-html><i class="fas fa-file"></i> New</button>
-            <button class="editor-button" type="button" data-action="sample" data-i18n="editor.btn.sample" data-i18n-html><i class="fas fa-magic"></i> Sample</button>
+            <button class="editor-button" type="button" data-action="new" data-i18n="editor.btn.new" data-i18n-html><i class="fas fa-file"></i> 新建</button>
+            <button class="editor-button" type="button" data-action="sample" data-i18n="editor.btn.sample" data-i18n-html><i class="fas fa-magic"></i> 示例</button>
             <button class="editor-button" type="button" data-action="copy-html" data-i18n="editor.btn.copyhtml" data-i18n-html><i class="fas fa-copy"></i> 复制 HTML</button>
-            <button class="editor-button" type="button" data-action="download-md" data-i18n="editor.btn.md" data-i18n-html><i class="fas fa-download"></i> MD</button>
-            <button class="editor-button" type="button" data-action="download-html" data-i18n="editor.btn.html" data-i18n-html><i class="fas fa-code"></i> HTML</button>
+            <button class="editor-button" type="button" data-action="download-md" data-i18n="editor.btn.md" data-i18n-html><i class="fas fa-download"></i> 导出 MD</button>
+            <button class="editor-button" type="button" data-action="download-html" data-i18n="editor.btn.html" data-i18n-html><i class="fas fa-code"></i> 导出 HTML</button>
           </div>
         </header>
         <div class="editor-meta">
-          <label><span data-i18n="editor.title.label">Title</span> <input id="post-title" type="text" placeholder="文章标题" data-i18n-ph="editor.title.ph"></label>
-          <label><span data-i18n="editor.slug.label">Slug</span> <input id="post-slug" type="text" placeholder="my-new-post" data-i18n-ph="editor.slug.ph"></label>
-          <label><span data-i18n="editor.date.label">Date</span> <input id="post-date" type="date"></label>
+          <label><span data-i18n="editor.title.label">标题</span> <input id="post-title" type="text" placeholder="文章标题" data-i18n-ph="editor.title.ph"></label>
+          <label><span data-i18n="editor.slug.label">别名</span> <input id="post-slug" type="text" placeholder="my-new-post" data-i18n-ph="editor.slug.ph"></label>
+          <label><span data-i18n="editor.date.label">日期</span> <input id="post-date" type="date"></label>
         </div>
         <div class="editor-toolbar" role="toolbar" aria-label="Markdown 格式工具" data-i18n-aria="editor.toolbar.aria">
           <button type="button" class="tool-btn" data-md="bold" title="加粗 (Ctrl+B)" aria-label="加粗" data-i18n-title="editor.tool.bold" data-i18n-aria="editor.tool.bold"><i class="fas fa-bold"></i></button>
@@ -92,7 +102,7 @@
             <article id="markdown-preview" class="markdown-preview article-content"></article>
           </section>
         </div>
-        <p class="editor-note" data-i18n="editor.note" data-i18n-html>静态 GitHub Pages 不能直接写入仓库；导出的文件可放入 Hugo 的 <code>content/post/</code> 或当前静态站点生成流程中。提示：选中文字后点工具按钮可包裹格式，支持 Ctrl+B / Ctrl+I / Ctrl+K。</p>
+        <p class="editor-note" data-i18n="editor.note" data-i18n-html>静态 GitHub Pages 不能直接写入仓库；导出的文件可放入当前静态站点生成流程的 <code>src/posts/</code>。提示：选中文字后点工具按钮可包裹格式，支持 Ctrl+B / Ctrl+I / Ctrl+K。</p>
       </section>
     </main>
     <footer class="footer">
@@ -105,13 +115,13 @@
           </form>
           <p class="subscribe-status" role="status" aria-live="polite"></p>
         </div>
-        <div class="sponsor-mini" aria-label="Sponsor support options" data-i18n-aria="sponsorMini.aria">
+        <div class="sponsor-mini" aria-label="赞助支持选项" data-i18n-aria="sponsorMini.aria">
           <p class="sponsor-mini-text" data-i18n="sponsorMini.text">如果内容对你有帮助，可以支持我继续更新。</p>
           <div class="sponsor-mini-actions">
-            <a class="sponsor-mini-btn sponsor-mini-primary" href="https://www.ifdian.net/order/create?plan_id=047bc28a6a1c11f182c452540025c377&product_type=0&remark=&affiliate_code=" target="_blank" rel="noopener noreferrer" data-i18n="sponsorMini.afdian">☕ Sponsor</a>
-            <a class="sponsor-mini-btn sponsor-mini-secondary" href="https://PayPal.Me/chenwenliang4212" target="_blank" rel="noopener noreferrer" data-i18n="sponsorMini.paypal">💳 PayPal Support</a>
+            <a class="sponsor-mini-btn sponsor-mini-primary" href="https://www.ifdian.net/order/create?plan_id=047bc28a6a1c11f182c452540025c377&product_type=0&remark=&affiliate_code=" target="_blank" rel="noopener noreferrer" data-i18n="sponsorMini.afdian">☕ 赞助</a>
+            <a class="sponsor-mini-btn sponsor-mini-secondary" href="https://PayPal.Me/chenwenliang4212" target="_blank" rel="noopener noreferrer" data-i18n="sponsorMini.paypal">💳 PayPal 支持</a>
           </div>
-        </div>        <p data-i18n="footer.text">© 2021 - 2026 CWL · Powered by Hugo · Theme inspired by Coder</p>
+        </div>        <p data-i18n="footer.text">© 2021 - 2026 CWL · Powered by Cwl · Theme inspired by Coder</p>
       </section>
     </footer>
   </div>

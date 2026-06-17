@@ -137,7 +137,7 @@ ${renderShare(post)}
 ${tocHtml}
       </div>
       <section class="comments container" aria-label="评论" data-i18n-aria="post.comments.aria">
-        <h2 data-i18n="post.comments"><i class="fas fa-comments" aria-hidden="true"></i> 评论</h2>
+        <h2 data-i18n="post.comments" data-i18n-html><i class="fas fa-comments" aria-hidden="true"></i> 评论</h2>
         <div id="giscus-thread"></div>
       </section>
 ${renderPager(nav.prev, nav.next)}
@@ -270,7 +270,7 @@ ${treeGroups}
         <section class="post-detail" aria-live="polite">
 ${panels}
           <section class="comments" aria-label="评论" data-i18n-aria="post.comments.aria">
-            <h2 data-i18n="post.comments"><i class="fas fa-comments" aria-hidden="true"></i> 评论</h2>
+            <h2 data-i18n="post.comments" data-i18n-html><i class="fas fa-comments" aria-hidden="true"></i> 评论</h2>
             <div id="giscus-thread" data-giscus-mode="switch"></div>
           </section>
         </section>

@@ -4,7 +4,7 @@
     <title>Tags on CWLBlog</title>
     <link>https://wenliang844.github.io/tags/</link>
     <description>Recent content in Tags on CWLBlog</description>
-    <generator>Hugo -- gohugo.io</generator>
+    <generator>Cwl static build</generator>
     <language>en-us</language><atom:link href="https://wenliang844.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
   </channel>
 </rss>

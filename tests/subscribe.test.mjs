@@ -6,7 +6,7 @@ import { join } from "node:path";
 
 const ROOT = join(import.meta.dirname, "..");
 
-test("nav subscribe button opens the footer subscribe form", async () => {
+test("nav subscribe button opens the subscribe modal", async () => {
   const jsCode = await readFile(join(ROOT, "js", "subscribe.js"), "utf8");
   const dom = new JSDOM(`<!doctype html>
     <html>
@@ -27,26 +27,23 @@ test("nav subscribe button opens the footer subscribe form", async () => {
 
   const { document } = dom.window;
   const root = document.querySelector(".subscribe");
-  const input = document.querySelector(".subscribe-input");
-  let scrollOptions = null;
-  let focused = false;
+  let modalFocused = false;
 
   root.scrollIntoView = function (options) {
-    scrollOptions = options;
-  };
-  input.focus = function () {
-    focused = true;
   };
 
   dom.window.eval(jsCode);
+  const modalInput = document.querySelector(".subscribe-modal-input");
+  modalInput.focus = function () {
+    modalFocused = true;
+  };
+
   document.querySelector("[data-subscribe-open]").click();
 
   await new Promise((resolve) => dom.window.setTimeout(resolve, 220));
 
   assert.equal(document.querySelector(".menu-toggle").checked, false);
-  assert.equal(scrollOptions.behavior, "smooth");
-  assert.equal(scrollOptions.block, "center");
-  assert.equal(focused, true);
-  assert.equal(root.classList.contains("subscribe--focus"), true);
-  assert.equal(document.querySelector(".subscribe-status").textContent, "输入邮箱即可订阅更新。");
+  assert.equal(document.querySelector(".subscribe-modal").classList.contains("open"), true);
+  assert.equal(modalFocused, true);
+  assert.equal(document.querySelector(".subscribe-modal-status").textContent, "");
 });

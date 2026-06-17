@@ -5,11 +5,11 @@ import { escapeAttr, escapeHtml } from "../lib/format.mjs";
 
 const NAV_ITEMS = [
   { href: "/post/", label: "博客", key: "blog", i18n: "nav.blog" },
-  { href: "/editor/", label: "编辑器", key: "editor", i18n: "nav.editor" },
-  { href: "/overleaf/", label: "简历模版", key: "overleaf", i18n: "nav.overleaf" },
-  { href: "/contact/", label: "联系", key: "contact", i18n: "nav.contact" },
   { href: "/ai/", label: "AI导航", key: "ai", i18n: "nav.ai" },
   { href: "/appreciation/", label: "鉴赏", key: "appreciation", i18n: "nav.appreciation" },
+  { href: "/overleaf/", label: "简历模版", key: "overleaf", i18n: "nav.overleaf" },
+  { href: "/editor/", label: "编辑器", key: "editor", i18n: "nav.editor" },
+  { href: "/contact/", label: "联系", key: "contact", i18n: "nav.contact" },
 ];
 
 export const SPONSOR_LINKS = {
@@ -29,7 +29,7 @@ function renderNav(active) {
 ${items}
             <li><a class="nav-feedback" href="/contact/#feedback-title" data-i18n="nav.feedback" data-i18n-html><i class="fas fa-comment-dots" aria-hidden="true"></i> 留言反馈</a></li>
             <li><button class="nav-subscribe" type="button" data-subscribe-open data-i18n="nav.subscribe" data-i18n-html><i class="fas fa-envelope" aria-hidden="true"></i> 订阅</button></li>
-            <li><a class="nav-sponsor${active === "sponsor" ? " active" : ""}" href="/sponsor/" data-i18n="nav.sponsor" data-i18n-html><i class="fas fa-heart" aria-hidden="true"></i> Sponsor</a></li>
+            <li><a class="nav-sponsor${active === "sponsor" ? " active" : ""}" href="/sponsor/" data-i18n="nav.sponsor" data-i18n-html><i class="fas fa-heart" aria-hidden="true"></i> 赞助</a></li>
             <li><button class="theme-toggle" type="button" aria-label="Toggle dark mode" data-i18n-aria="nav.theme"><i class="fas fa-adjust"></i></button></li>
             <li><button class="lang-toggle" type="button" aria-label="Switch language">EN</button></li>
             <li><button class="nav-search-trigger" type="button" aria-label="全局搜索" data-i18n-aria="nav.search"><i class="fas fa-search"></i></button></li>
@@ -45,11 +45,11 @@ function renderScripts(scripts) {
 }
 
 function renderSponsorFooterCta() {
-  return `        <div class="sponsor-mini" aria-label="Sponsor support options" data-i18n-aria="sponsorMini.aria">
+  return `        <div class="sponsor-mini" aria-label="赞助支持选项" data-i18n-aria="sponsorMini.aria">
           <p class="sponsor-mini-text" data-i18n="sponsorMini.text">如果内容对你有帮助，可以支持我继续更新。</p>
           <div class="sponsor-mini-actions">
-            <a class="sponsor-mini-btn sponsor-mini-primary" href="${SPONSOR_LINKS.afdian}" target="_blank" rel="noopener noreferrer" data-i18n="sponsorMini.afdian">☕ Sponsor</a>
-            <a class="sponsor-mini-btn sponsor-mini-secondary" href="${SPONSOR_LINKS.paypal}" target="_blank" rel="noopener noreferrer" data-i18n="sponsorMini.paypal">💳 PayPal Support</a>
+            <a class="sponsor-mini-btn sponsor-mini-primary" href="${SPONSOR_LINKS.afdian}" target="_blank" rel="noopener noreferrer" data-i18n="sponsorMini.afdian">☕ 赞助</a>
+            <a class="sponsor-mini-btn sponsor-mini-secondary" href="${SPONSOR_LINKS.paypal}" target="_blank" rel="noopener noreferrer" data-i18n="sponsorMini.paypal">💳 PayPal 支持</a>
           </div>
         </div>`;
 }
@@ -64,6 +64,7 @@ function renderMeta(og) {
   if (!og) return "";
   const url = `${SITE.baseURL}${og.path}`;
   const lines = [
+    `  <link rel="canonical" href="${escapeAttr(url)}">`,
     `  <meta property="og:type" content="${escapeAttr(og.type || "website")}">`,
     `  <meta property="og:site_name" content="${escapeAttr(SITE.title)}">`,
     `  <meta property="og:title" content="${escapeAttr(og.title)}">`,
@@ -126,7 +127,6 @@ export function renderPage(opts) {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="${escapeAttr(description)}">
-  <meta name="generator" content="Hugo 0.82.0">
   <link rel="icon" href="/images/favicon.png" type="image/png">
   <link rel="preconnect" href="https://giscus.app">
   <link rel="dns-prefetch" href="https://giscus.app">
@@ -159,7 +159,7 @@ ${main}
           <p class="subscribe-status" role="status" aria-live="polite"></p>
         </div>
 ${renderSponsorFooterCta()}
-        <p data-i18n="footer.text">© 2021 - 2026 CWL · Powered by Hugo · Theme inspired by Coder</p>
+        <p data-i18n="footer.text">© 2021 - 2026 CWL · Powered by Cwl · Theme inspired by Coder</p>
       </section>
     </footer>
   </div>

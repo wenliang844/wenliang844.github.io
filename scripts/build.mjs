@@ -357,7 +357,7 @@ function buildRss(posts) {
     <title>${escapeXml(SITE.title)}</title>
     <link>${escapeXml(`${SITE.baseURL}/`)}</link>
     <description>${escapeXml(`Recent content on ${SITE.title}`)}</description>
-    <generator>Hugo -- gohugo.io</generator>
+    <generator>Cwl static build</generator>
     <language>zh-CN</language>
     <lastBuildDate>${lastBuild}</lastBuildDate>
     <atom:link href="${escapeXml(`${SITE.baseURL}/index.xml`)}" rel="self" type="application/rss+xml" />
@@ -377,7 +377,7 @@ function buildPostRss(posts) {
     <title>${escapeXml(`Posts on ${SITE.title}`)}</title>
     <link>${escapeXml(`${SITE.baseURL}/post/`)}</link>
     <description>${escapeXml(`Recent content in Posts on ${SITE.title}`)}</description>
-    <generator>Hugo -- gohugo.io</generator>
+    <generator>Cwl static build</generator>
     <language>zh-CN</language>
     <lastBuildDate>${lastBuild}</lastBuildDate>
     <atom:link href="${escapeXml(`${SITE.baseURL}/post/index.xml`)}" rel="self" type="application/rss+xml" />
@@ -397,7 +397,7 @@ function buildCategoriesRss(posts) {
     <title>${escapeXml(`Time Archive on ${SITE.title}`)}</title>
     <link>${escapeXml(`${SITE.baseURL}/categories/`)}</link>
     <description>${escapeXml(`Project retrospectives by year on ${SITE.title}`)}</description>
-    <generator>Hugo -- gohugo.io</generator>
+    <generator>Cwl static build</generator>
     <language>zh-CN</language>
     <lastBuildDate>${lastBuild}</lastBuildDate>
     <atom:link href="${escapeXml(`${SITE.baseURL}/categories/index.xml`)}" rel="self" type="application/rss+xml" />

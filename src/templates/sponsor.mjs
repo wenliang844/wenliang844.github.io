@@ -4,9 +4,9 @@ export function renderSponsorPage() {
   const main = `    <main class="content">
       <section class="sponsor-page container" aria-labelledby="sponsor-title">
         <div class="sponsor-hero">
-          <span class="eyebrow" data-i18n="sponsor.eyebrow" data-i18n-html><i class="fas fa-heart" aria-hidden="true"></i> Independent work</span>
-          <h1 id="sponsor-title" data-i18n="sponsor.title">Support This Project ☕</h1>
-          <p class="lead" data-i18n="sponsor.lead">This project is built and maintained by an independent developer.</p>
+          <span class="eyebrow" data-i18n="sponsor.eyebrow" data-i18n-html><i class="fas fa-heart" aria-hidden="true"></i> 独立开发</span>
+          <h1 id="sponsor-title" data-i18n="sponsor.title">支持这个项目 ☕</h1>
+          <p class="lead" data-i18n="sponsor.lead">这个项目由一名独立开发者构建和维护。</p>
         </div>
 
         <div class="sponsor-layout">
@@ -21,10 +21,10 @@ export function renderSponsorPage() {
             </div>
 
             <div class="sponsor-amounts" aria-label="Suggested support" data-i18n-aria="sponsor.amounts.aria">
-              <span data-i18n="sponsor.amounts.label">Suggested support:</span>
-              <strong data-i18n="sponsor.amounts.coffee">¥5 (Coffee)</strong>
-              <strong data-i18n="sponsor.amounts.supporter">¥20 (Supporter)</strong>
-              <strong data-i18n="sponsor.amounts.backer">¥50 (Backer)</strong>
+              <span data-i18n="sponsor.amounts.label">建议支持：</span>
+              <strong data-i18n="sponsor.amounts.coffee">¥5（咖啡）</strong>
+              <strong data-i18n="sponsor.amounts.supporter">¥20（支持者）</strong>
+              <strong data-i18n="sponsor.amounts.backer">¥50（赞助者）</strong>
             </div>
 
             <div class="sponsor-method sponsor-method-primary">
@@ -33,26 +33,26 @@ export function renderSponsorPage() {
                 <h2 data-i18n="sponsor.afdian.title">支持持续更新</h2>
                 <p data-i18n="sponsor.afdian.desc">适合国内用户，跳转到爱发电完成赞助。</p>
               </div>
-              <a class="sponsor-pay-btn sponsor-pay-primary" href="${SPONSOR_LINKS.afdian}" target="_blank" rel="noopener noreferrer" data-i18n="sponsor.afdian.btn">☕ Sponsor via Afdian</a>
+              <a class="sponsor-pay-btn sponsor-pay-primary" href="${SPONSOR_LINKS.afdian}" target="_blank" rel="noopener noreferrer" data-i18n="sponsor.afdian.btn">☕ 通过爱发电赞助</a>
             </div>
 
             <div class="sponsor-method">
               <div>
                 <span class="sponsor-method-kicker" data-i18n="sponsor.paypal.kicker">🌍 PayPal（国际用户）</span>
-                <h2 data-i18n="sponsor.paypal.title">International support</h2>
-                <p data-i18n="sponsor.paypal.desc">For readers outside mainland China, PayPal is the simplest path.</p>
+                <h2 data-i18n="sponsor.paypal.title">面向国际用户</h2>
+                <p data-i18n="sponsor.paypal.desc">国外读者可以通过 PayPal 最方便地完成支持。</p>
               </div>
-              <a class="sponsor-pay-btn sponsor-pay-secondary" href="${SPONSOR_LINKS.paypal}" target="_blank" rel="noopener noreferrer" data-i18n="sponsor.paypal.btn">💳 Support via PayPal</a>
+              <a class="sponsor-pay-btn sponsor-pay-secondary" href="${SPONSOR_LINKS.paypal}" target="_blank" rel="noopener noreferrer" data-i18n="sponsor.paypal.btn">💳 通过 PayPal 支持</a>
             </div>
           </section>
 
           <aside class="sponsor-side" aria-label="Sponsor progress and domestic QR options" data-i18n-aria="sponsor.side.aria">
             <section class="sponsor-goal" aria-labelledby="sponsor-goal-title">
-              <h2 id="sponsor-goal-title" data-i18n="sponsor.goal.title">Monthly goal: ¥2000</h2>
+              <h2 id="sponsor-goal-title" data-i18n="sponsor.goal.title">本月目标：¥2000</h2>
               <div class="sponsor-progress" aria-label="Monthly sponsor goal progress 72%" data-i18n-aria="sponsor.goal.aria">
                 <span style="width: 72%"></span>
               </div>
-              <p data-i18n="sponsor.goal.percent">72% funded this month</p>
+              <p data-i18n="sponsor.goal.percent">本月已完成 72%</p>
             </section>
 
             <section class="sponsor-domestic" aria-labelledby="sponsor-domestic-title">
@@ -71,7 +71,7 @@ export function renderSponsorPage() {
             </section>
 
             <section class="sponsor-thanks" aria-labelledby="sponsor-thanks-title">
-              <h2 id="sponsor-thanks-title" data-i18n="sponsor.thanks.title">Thank you to all supporters ❤️</h2>
+              <h2 id="sponsor-thanks-title" data-i18n="sponsor.thanks.title">感谢所有支持者 ❤️</h2>
               <p data-i18n="sponsor.thanks.desc">每一次支持都会帮助这个项目继续运行、继续写下去。</p>
             </section>
           </aside>

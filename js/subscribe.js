@@ -51,10 +51,8 @@
     return;
   }
 
-  form.addEventListener("submit", function (event) {
-    event.preventDefault();
-
-    var email = input.value.trim();
+  function submitEmail(emailValue, setStatus, btn, onSuccess) {
+    var email = (emailValue || "").trim();
     if (!EMAIL_RE.test(email)) {
       setStatus(t("subscribe.invalid", "请输入有效的邮箱地址。"));
       return;
@@ -153,6 +151,9 @@
 
   var lastActive = null;
   var oldOverflow = "";
+  var raf = window.requestAnimationFrame || function (callback) {
+    return window.setTimeout(callback, 0);
+  };
 
   document.body.appendChild(overlay);
 
@@ -165,10 +166,14 @@
     oldOverflow = document.body.style.overflow;
     overlay.classList.add("open");
     document.body.style.overflow = "hidden";
+    var menu = document.querySelector(".menu-toggle");
+    if (menu) {
+      menu.checked = false;
+    }
     setModalStatus("");
     applyI18n();
     // 等可见性切换生效后再聚焦，否则 visibility:hidden→visible 过渡中 focus 无效。
-    requestAnimationFrame(function () {
+    raf(function () {
       modalInput.focus();
     });
   }

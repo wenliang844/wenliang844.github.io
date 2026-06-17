@@ -4,7 +4,7 @@
     <title>Posts on CWLBlog</title>
     <link>https://wenliang844.github.io/post/</link>
     <description>Recent content in Posts on CWLBlog</description>
-    <generator>Hugo -- gohugo.io</generator>
+    <generator>Cwl static build</generator>
     <language>zh-CN</language>
     <lastBuildDate>Tue, 16 Jun 2026 09:30:00 +0800</lastBuildDate>
     <atom:link href="https://wenliang844.github.io/post/index.xml" rel="self" type="application/rss+xml" />
