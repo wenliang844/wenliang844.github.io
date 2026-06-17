@@ -38,8 +38,9 @@
 | 🔵 第四 | 模块分析-Overleaf | [module-reviews/overleaf.md](module-reviews/overleaf.md) | 5 |
 | 🔵 第四 | 模块分析-CSS | [module-reviews/css-analysis.md](module-reviews/css-analysis.md) | 5 |
 | 🔵 第四 | SEO 与可访问性 | [module-reviews/seo-analysis.md](module-reviews/seo-analysis.md) | 6 |
+| 🔵 第四 | 资源与内容分析 | [module-reviews/resource-analysis.md](module-reviews/resource-analysis.md) | 5 |
 | 🔵 第四 | 竞品分析 | [competitive-analysis.md](competitive-analysis.md) | 6 |
-| | **总计** | | **131 条建议** |
+| | **总计** | | **136 条建议** |
 
 ---
 
@@ -66,7 +67,7 @@
 | S-05 | 添加 CSP 策略 | 安全 | ⭐⭐ |
 | P-02 | CSS 关键路径提取 | 性能 | ⭐⭐ |
 | P-03 | JS 文件合并 | 性能 | ⭐⭐ |
-| P-04 | Font Awesome 按需加载 | 性能 | ⭐⭐ |
+| P-04 | ~~Font Awesome 按需加载~~ ✅ 已优化 | 性能 | ~~⭐⭐~~ |
 | CQ-06 | coder.js 拆分 | 代码质量 | ⭐⭐ |
 | CQ-05 | assistant.js i18n | 代码质量 | ⭐⭐ |
 | UX-03 | 图片 Lightbox | UX | ⭐⭐ |
@@ -112,7 +113,8 @@ docs/
         ├── editor.md                       ← Markdown 编辑器模块分析
         ├── overleaf.md                     ← Overleaf 简历编辑器模块分析
         ├── css-analysis.md                 ← CSS 样式系统分析
-        └── seo-analysis.md                 ← SEO 与可访问性专项分析
+        ├── seo-analysis.md                 ← SEO 与可访问性专项分析
+        └── resource-analysis.md            ← 资源与内容深度分析
 ```
 
 ---
