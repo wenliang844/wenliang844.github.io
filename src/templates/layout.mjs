@@ -9,7 +9,7 @@ const NAV_ITEMS = [
   { href: "/appreciation/", label: "鉴赏", key: "appreciation", i18n: "nav.appreciation" },
   { href: "/overleaf/", label: "简历模版", key: "overleaf", i18n: "nav.overleaf" },
   { href: "/editor/", label: "编辑器", key: "editor", i18n: "nav.editor" },
-  { href: "/contact/", label: "联系", key: "contact", i18n: "nav.contact" },
+  { href: "/about/", label: "关于", key: "about", i18n: "nav.about" },
 ];
 
 export const SPONSOR_LINKS = {

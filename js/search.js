@@ -22,7 +22,7 @@
     '<div class="search-modal-head">' +
     '<i class="fas fa-search" aria-hidden="true"></i>' +
     '<input class="search-modal-input" type="text" placeholder="搜索文章标题、标签、内容…" autocomplete="off" spellcheck="false" role="combobox" aria-expanded="false" aria-controls="search-modal-results" aria-autocomplete="list">' +
-    '<button class="search-modal-clear" type="button" aria-label="清空搜索"><i class="fas fa-times" aria-hidden="true"></i></button>' +
+    '<button class="search-modal-clear" type="button" aria-label="清空搜索"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button>' +
     '<kbd class="search-modal-kbd">Esc</kbd>' +
     '</div>' +
     '<ul class="search-modal-results" id="search-modal-results" role="listbox"></ul>' +

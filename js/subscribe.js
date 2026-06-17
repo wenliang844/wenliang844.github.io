@@ -132,7 +132,7 @@
     '<div class="subscribe-modal-head">' +
     '<h2 id="subscribe-modal-title" data-i18n="subscribe.title">订阅更新 · 新文章邮件提醒</h2>' +
     '<button class="subscribe-modal-close" type="button" aria-label="关闭" data-i18n-aria="subscribe.close">' +
-    '<i class="fas fa-times"></i>' +
+    '<svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>' +
     '</button>' +
     '</div>' +
     '<form class="subscribe-modal-form" novalidate>' +
