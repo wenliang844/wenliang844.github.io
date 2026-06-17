@@ -79,6 +79,7 @@
     "subscribe.btn": "Subscribe",
     "subscribe.sending": "Submitting…",
     "subscribe.success": "Almost there! Check your inbox to confirm.",
+    "subscribe.ready": "Enter your email to subscribe to updates.",
     "subscribe.invalid": "Please enter a valid email address.",
     "subscribe.fail": "Submission failed, please try again later.",
     "subscribe.disabled": "Subscription is not enabled yet.",

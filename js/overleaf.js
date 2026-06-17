@@ -4,6 +4,7 @@
   const statusEl = document.getElementById("overleaf-status");
   const formatSelect = document.getElementById("resume-format");
   const sourceBadge = document.getElementById("resume-source-badge");
+  const previewScroll = preview ? preview.closest(".overleaf-preview-scroll") : null;
 
   if (!source || !preview) {
     return;
@@ -100,6 +101,12 @@
     return String(value === null || value === undefined ? "" : value).trim();
   }
 
+  function compactInline(value) {
+    return text(value)
+      .replace(/\s*\n+\s*/g, " ")
+      .replace(/\s{2,}/g, " ");
+  }
+
   function cloneModel(model) {
     return JSON.parse(JSON.stringify(model || defaultModel));
   }
@@ -109,8 +116,8 @@
     next.name = text(next.name) || defaultModel.name;
     next.role = text(next.role) || defaultModel.role;
     next.contact = text(next.contact) || defaultModel.contact;
-    next.summary = text(next.summary);
-    next.skills = Array.isArray(next.skills) ? next.skills.join(", ") : text(next.skills);
+    next.summary = compactInline(next.summary);
+    next.skills = compactInline(Array.isArray(next.skills) ? next.skills.join(", ") : next.skills);
     next.sections = Array.isArray(next.sections) ? next.sections : [];
     next.sections = next.sections.map(function (section) {
       return {
@@ -256,7 +263,7 @@
         return;
       }
       if (["skills", "技能", "专业技能"].indexOf(titleKey) >= 0) {
-        model.skills = block.body.replace(/^[-*]\s+/gm, "").replace(/\n+/g, ", ").trim();
+        model.skills = compactInline(block.body.replace(/^[-*]\s+/gm, ""));
         return;
       }
 
@@ -371,14 +378,20 @@
       sections.push({ title: sectionTitle, entries: entries });
     }
 
-    const skillsMatch = sourceText.match(/\\cvitem\{Skills\}\{([\s\S]*?)\}/) || sourceText.match(/\\cvitem\{\}\{([\s\S]*?)\}/);
+    const skillsSectionMatch = sourceText.match(/\\section\{Skills\}([\s\S]*?)(?=\\section\{|\\end\{document\}|$)/i);
+    let skills = defaultModel.skills;
+    if (skillsSectionMatch) {
+      const skillBody = skillsSectionMatch[1].trim();
+      const cvitemMatch = skillBody.match(/\\cvitem\{(?:Skills)?\}\{([\s\S]*?)\}/) || skillBody.match(/\\cvitem\{\}\{([\s\S]*?)\}/);
+      skills = cvitemMatch ? cvitemMatch[1] : skillBody;
+    }
 
     return normalizeModel({
       name: nameMatch ? latexUnescape((nameMatch[1] + nameMatch[2]).trim()) : defaultModel.name,
       role: readCommand(sourceText, "title", defaultModel.role),
       contact: composeContact(contact),
       summary: readCommand(sourceText, "quote", defaultModel.summary),
-      skills: skillsMatch ? latexUnescape(skillsMatch[1].trim()) : defaultModel.skills,
+      skills: latexUnescape(skills),
       sections: sections.length ? sections : defaultModel.sections
     });
   }
@@ -403,7 +416,7 @@
       "\\begin{document}",
       "\\makecvtitle",
       "\\section{Skills}",
-      "\\cvitem{Skills}{" + latexEscape(model.skills) + "}",
+      latexEscape(model.skills),
       ""
     ].filter(function (line) { return line !== ""; });
     model.sections.forEach(function (section) {
@@ -423,10 +436,13 @@
     }
     const doc = new DOMParser().parseFromString(sourceText, "text/html");
     const root = doc.querySelector(".resume-html") || doc.body;
-    const skills = Array.prototype.slice.call(root.querySelectorAll(".resume-skills li, .resume-skills span"))
-      .map(function (el) { return text(el.textContent); })
-      .filter(Boolean)
-      .join(", ");
+    const skillsText = root.querySelector(".resume-skills .resume-skill-text, .resume-skills p");
+    const skills = skillsText
+      ? text(skillsText.textContent)
+      : Array.prototype.slice.call(root.querySelectorAll(".resume-skills li, .resume-skills span"))
+        .map(function (el) { return text(el.textContent); })
+        .filter(Boolean)
+        .join(", ");
     const sections = Array.prototype.slice.call(root.querySelectorAll("section.resume-section")).map(function (section) {
       return {
         title: text((section.querySelector("h2") || {}).textContent),
@@ -452,7 +468,6 @@
 
   function renderHtml(model) {
     model = normalizeModel(model);
-    const skills = model.skills.split(/[,，]/).map(text).filter(Boolean);
     const sectionHtml = model.sections.map(function (section) {
       const entries = section.entries.map(function (entry) {
         return [
@@ -491,9 +506,7 @@
       "    </section>",
       '    <section class="resume-skills">',
       "      <h2>Skills</h2>",
-      "      <ul>",
-      skills.map(function (skill) { return "        <li>" + escapeHtml(skill) + "</li>"; }).join("\n"),
-      "      </ul>",
+      '      <p class="resume-skill-text">' + escapeHtml(model.skills) + "</p>",
       "    </section>",
       sectionHtml,
       "  </article>",
@@ -568,15 +581,6 @@
 
   function renderPreview(model) {
     model = normalizeModel(model);
-    const skills = model.skills
-      .split(/[,，]/)
-      .map(text)
-      .filter(Boolean)
-      .map(function (skill, index) {
-        return '<span contenteditable="true" data-skill-index="' + index + '">' + escapeHtml(skill) + "</span>";
-      })
-      .join("");
-
     const sections = model.sections.map(function (section, sectionIndex) {
       const entries = section.entries.map(function (entry, entryIndex) {
         return '<div class="latex-entry" data-section-index="' + sectionIndex + '" data-entry-index="' + entryIndex + '">' +
@@ -606,7 +610,7 @@
       "</section>" +
       '<section class="latex-section latex-skills">' +
       "<h2>Skills</h2>" +
-      '<div class="latex-skill-list">' + skills + "</div>" +
+      '<p class="latex-skill-text" contenteditable="true" data-resume-field="skills">' + escapeHtml(model.skills) + "</p>" +
       "</section>" +
       sections;
   }
@@ -626,13 +630,6 @@
     const field = target.getAttribute("data-resume-field");
     if (field) {
       currentModel[field] = value;
-      return;
-    }
-    if (target.hasAttribute("data-skill-index")) {
-      currentModel.skills = Array.prototype.slice.call(preview.querySelectorAll("[data-skill-index]"))
-        .map(function (el) { return text(el.textContent); })
-        .filter(Boolean)
-        .join(", ");
       return;
     }
     if (target.hasAttribute("data-section-title")) {
@@ -726,6 +723,26 @@
   syncFromSource();
 
   source.addEventListener("input", syncFromSource);
+
+  let scrolling = null;
+  function linkScroll(sourceEl, targetEl) {
+    if (!sourceEl || !targetEl) {return;}
+    sourceEl.addEventListener("scroll", function () {
+      if (scrolling && scrolling !== sourceEl) {
+        return;
+      }
+      scrolling = sourceEl;
+      const max = sourceEl.scrollHeight - sourceEl.clientHeight;
+      const ratio = max > 0 ? sourceEl.scrollTop / max : 0;
+      const targetMax = targetEl.scrollHeight - targetEl.clientHeight;
+      targetEl.scrollTop = ratio * targetMax;
+      window.requestAnimationFrame(function () {
+        scrolling = null;
+      });
+    }, { passive: true });
+  }
+  linkScroll(source, previewScroll);
+  linkScroll(previewScroll, source);
 
   if (formatSelect) {
     formatSelect.addEventListener("change", function () {

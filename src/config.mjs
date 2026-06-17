@@ -63,10 +63,10 @@ export const SEARCH_PAGES = [
   },
   {
     title: "鉴赏",
-    summary: "个人鉴赏榜单：科技研究、影视作品与生活体验三张并列排行榜。",
+    summary: "个人鉴赏榜单：科技研究、影视作品与娱乐项目三张并列排行榜。",
     path: "/appreciation/",
     tags: ["鉴赏", "榜单", "影视"],
-    i18n: { en: { title: "Appreciation", summary: "A personal appreciation board: tech, film & TV and life experiences ranked side by side.", tags: ["Appreciation", "Ranking", "Film & TV"] } },
+    i18n: { en: { title: "Appreciation", summary: "A personal appreciation board: tech, film & TV and entertainment projects ranked side by side.", tags: ["Appreciation", "Ranking", "Film & TV"] } },
   },
   {
     title: "时间归档",

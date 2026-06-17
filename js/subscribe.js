@@ -8,24 +8,18 @@
 
   // 注册 https://buttondown.com 后，把你的 username 填到这里（全站唯一一处）。
   // 留空则页脚订阅表单自动禁用，不会向无效端点发请求。
-  var BUTTONDOWN_USERNAME = "cwl";
+  const BUTTONDOWN_USERNAME = "cwl";
 
-  var root = document.querySelector(".subscribe");
+  const root = document.querySelector(".subscribe");
   if (!root) {
     return;
   }
 
-  var form = root.querySelector(".subscribe-form");
-  var input = root.querySelector(".subscribe-input");
-  var btn = root.querySelector(".subscribe-btn");
-  var statusEl = root.querySelector(".subscribe-status");
-  if (!form || !input) {
-    return;
-  }
-
-  var username = BUTTONDOWN_USERNAME.trim();
-  var ENDPOINT = "https://buttondown.com/api/emails/embed-subscribe/";
-  var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const form = root.querySelector(".subscribe-form");
+  const input = root.querySelector(".subscribe-input");
+  const btn = root.querySelector(".subscribe-btn");
+  const statusEl = root.querySelector(".subscribe-status");
+  const navButtons = document.querySelectorAll("[data-subscribe-open]");
 
   function t(key, fallback) {
     return window.cwlT ? window.cwlT(key, fallback) : fallback;
@@ -37,6 +31,37 @@
     }
   }
 
+  navButtons.forEach(function (button) {
+    button.addEventListener("click", function () {
+      const menuToggle = document.querySelector(".menu-toggle");
+
+      if (menuToggle) {
+        menuToggle.checked = false;
+      }
+
+      root.scrollIntoView({ behavior: "smooth", block: "center" });
+      root.classList.remove("subscribe--focus");
+      window.setTimeout(function () {
+        root.classList.add("subscribe--focus");
+        if (input && !input.disabled) {
+          input.focus({ preventScroll: true });
+        }
+        setStatus(t("subscribe.ready", "输入邮箱即可订阅更新。"));
+      }, 180);
+      window.setTimeout(function () {
+        root.classList.remove("subscribe--focus");
+      }, 1800);
+    });
+  });
+
+  if (!form || !input) {
+    return;
+  }
+
+  const username = BUTTONDOWN_USERNAME.trim();
+  const ENDPOINT = "https://buttondown.com/api/emails/embed-subscribe/";
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
   // 未配置用户名：禁用输入与按钮并提示，避免提交打到无效端点。
   // 提示也随语言切换刷新，保持与全站 i18n 一致。
   if (!username) {
@@ -44,7 +69,7 @@
     if (btn) {
       btn.disabled = true;
     }
-    var showDisabled = function () {
+    const showDisabled = function () {
       setStatus(t("subscribe.disabled", "订阅暂未开通。"));
     };
     showDisabled();
@@ -55,7 +80,7 @@
   form.addEventListener("submit", function (event) {
     event.preventDefault();
 
-    var email = input.value.trim();
+    const email = input.value.trim();
     if (!EMAIL_RE.test(email)) {
       setStatus(t("subscribe.invalid", "请输入有效的邮箱地址。"));
       input.focus();
@@ -67,7 +92,7 @@
     }
     setStatus(t("subscribe.sending", "提交中…"));
 
-    var body = new FormData();
+    const body = new FormData();
     body.append("email", email);
     body.append("embed", "1");
 

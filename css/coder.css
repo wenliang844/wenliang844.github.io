@@ -300,21 +300,40 @@ a:hover {
 
 /* 导航「订阅」按钮——外链 Buttondown，渐变填充主 CTA */
 .nav-subscribe {
+  position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  padding: 0.4rem 0.95rem;
+  justify-content: center;
+  gap: 0.45rem;
+  min-height: 2.35rem;
+  padding: 0.48rem 1.08rem;
+  border: 0;
   border-radius: 999px;
   background: var(--grad);
   color: #fff;
+  cursor: pointer;
+  font: inherit;
   font-weight: 600;
-  transition: opacity 180ms ease, transform 200ms ease, box-shadow 220ms ease;
+  line-height: 1;
+  white-space: nowrap;
+  box-shadow: 0 12px 30px -18px rgba(99, 102, 241, 0.9);
+  transition: transform 200ms ease, box-shadow 220ms ease, filter 180ms ease;
 }
 
 .nav-subscribe:hover {
   color: #fff;
-  opacity: 0.94;
   transform: translateY(-1px);
+  filter: saturate(1.08) brightness(1.03);
+  box-shadow: var(--shadow-glow);
+}
+
+.nav-subscribe:active {
+  transform: translateY(0);
+}
+
+.nav-subscribe:focus-visible {
+  outline: 3px solid var(--accent-soft);
+  outline-offset: 3px;
   box-shadow: var(--shadow-glow);
 }
 
@@ -2235,6 +2254,14 @@ a.card:hover {
   margin: 0 auto 1.5rem;
   padding-bottom: 1.5rem;
   border-bottom: 1px solid var(--border);
+  border-radius: 0.75rem;
+  transition: background-color 220ms ease, box-shadow 220ms ease, border-color 220ms ease;
+}
+
+.subscribe--focus {
+  background: var(--grad-soft);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent-soft), var(--shadow-glow);
 }
 
 .subscribe-title {
@@ -2274,23 +2301,32 @@ a.card:hover {
 
 .subscribe-btn {
   flex: 0 0 auto;
-  padding: 0.6rem 1.3rem;
+  min-height: 2.7rem;
+  padding: 0.68rem 1.35rem;
   font-size: 0.92rem;
   font-weight: 600;
   color: #fff;
   background: var(--grad);
   border: none;
-  border-radius: 0.6rem;
+  border-radius: 0.7rem;
   cursor: pointer;
-  transition: opacity 0.2s ease, transform 0.1s ease;
+  box-shadow: 0 14px 32px -22px rgba(99, 102, 241, 0.95);
+  transition: filter 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
 }
 
 .subscribe-btn:hover:not(:disabled) {
-  opacity: 0.92;
+  filter: saturate(1.08) brightness(1.03);
+  box-shadow: var(--shadow-glow);
 }
 
 .subscribe-btn:active:not(:disabled) {
   transform: translateY(1px);
+}
+
+.subscribe-btn:focus-visible {
+  outline: 3px solid var(--accent-soft);
+  outline-offset: 3px;
+  box-shadow: var(--shadow-glow);
 }
 
 .subscribe-btn:disabled {
@@ -2834,9 +2870,9 @@ body.search-open .search-modal .search-modal-card,
 }
 
 .overleaf-workspace {
-  width: min(100% - 2rem, 118rem);
+  width: min(100% - 2rem, 120rem);
   margin: 0 auto;
-  padding: 1.5rem 0 2.5rem;
+  padding: 1.25rem 0 2.5rem;
 }
 
 .overleaf-topbar {
@@ -2847,8 +2883,10 @@ body.search-open .search-modal .search-modal-card,
   margin-bottom: 1rem;
   padding: 1rem;
   border: 1px solid var(--border);
-  border-radius: 0.7rem;
-  background: linear-gradient(135deg, rgba(19, 138, 99, 0.16), rgba(40, 51, 64, 0.18));
+  border-radius: 0.55rem;
+  background:
+    linear-gradient(135deg, rgba(19, 138, 99, 0.14), rgba(40, 51, 64, 0.14)),
+    var(--surface);
 }
 
 .overleaf-topbar h1 {
@@ -2911,16 +2949,19 @@ body.search-open .search-modal .search-modal-card,
 
 .overleaf-grid {
   display: grid;
-  grid-template-columns: minmax(24rem, 0.92fr) minmax(28rem, 1.08fr);
+  grid-template-columns: minmax(25rem, 0.95fr) minmax(30rem, 1.05fr);
   gap: 1rem;
   min-height: clamp(42rem, 78vh, 68rem);
+  align-items: stretch;
 }
 
 .overleaf-source-panel,
 .overleaf-preview-panel {
+  display: flex;
+  flex-direction: column;
   min-width: 0;
   border: 1px solid var(--border);
-  border-radius: 0.7rem;
+  border-radius: 0.55rem;
   background: var(--surface);
   overflow: hidden;
   box-shadow: var(--shadow);
@@ -2952,8 +2993,9 @@ body.search-open .search-modal .search-modal-card,
 }
 
 #latex-source {
+  flex: 1 1 auto;
   width: 100%;
-  height: calc(100% - 3rem);
+  height: auto;
   min-height: 39rem;
   padding: 1rem 1.1rem;
   border: 0;
@@ -2971,8 +3013,13 @@ body.search-open .search-modal .search-modal-card,
   font-size: 0.92rem;
 }
 
+#latex-source:focus {
+  box-shadow: inset 0 0 0 2px rgba(19, 138, 99, 0.25);
+}
+
 .overleaf-preview-scroll {
-  height: calc(100% - 3rem);
+  flex: 1 1 auto;
+  height: auto;
   min-height: 39rem;
   overflow: auto;
   padding: 1.3rem;
@@ -2991,6 +3038,7 @@ body.search-open .search-modal .search-modal-card,
   border-radius: 0.2rem;
   box-shadow: 0 1.6rem 4rem rgba(0, 0, 0, 0.24);
   font-family: "Times New Roman", "Noto Serif SC", SimSun, serif;
+  line-height: 1.5;
 }
 
 .latex-preview-paper [contenteditable="true"] {
@@ -3048,22 +3096,8 @@ body.search-open .search-modal .search-modal-card,
   line-height: 1.65;
 }
 
-.latex-skill-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.45rem;
-}
-
-.latex-skill-list span {
-  display: inline-flex;
-  align-items: center;
-  min-height: 1.8rem;
-  padding: 0.18rem 0.55rem;
-  border: 1px solid #d7dee7;
-  border-radius: 999px;
-  background: #f5f7fa;
-  color: #263544;
-  font-size: 0.92rem;
+.latex-skill-text {
+  overflow-wrap: anywhere;
 }
 
 .latex-entry {
@@ -3194,6 +3228,10 @@ body.search-open .search-modal .search-modal-card,
 
   .theme-toggle {
     text-align: left;
+  }
+
+  .nav-subscribe {
+    width: 100%;
   }
 
   .home {
@@ -3351,7 +3389,7 @@ body.search-open .search-modal .search-modal-card,
 
   .latex-preview-paper {
     min-height: 60rem;
-    padding: 2rem 1.4rem;
+    padding: 2rem 1.35rem;
   }
 
   .latex-entry-head {

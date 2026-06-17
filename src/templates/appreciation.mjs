@@ -1,4 +1,4 @@
-// 鉴赏页：科技研究 / 影视作品 / 生活体验三张「排行榜」，并列展示。
+// 鉴赏页：科技研究 / 影视作品 / 娱乐项目三张「排行榜」，并列展示。
 // 与 ai.mjs 同构——数据驱动 + 双语 data-i18n-en 内联，复用 layout 外壳。
 import { renderPage } from "./layout.mjs";
 import { escapeAttr, escapeHtml } from "../lib/format.mjs";
@@ -45,10 +45,10 @@ const BOARDS = [
     icon: "fa-compass",
     items: [
       { name: "和有意思的人交流", nameEn: "Talking with interesting people" },
-      { name: "做成一件挑战性事件，得到超出预期的回报", nameEn: "Pulling off a challenge for a payoff beyond expectations" },
+      { name: "做成一件挑战性事件得到超出预期的回报", nameEn: "Pulling off a challenge for a payoff beyond expectations" },
       { name: "得到提高身体健康的方法", nameEn: "Finding a way to get healthier" },
       { name: "想出一个能有回报的套路", nameEn: "Cracking a play that actually pays off" },
-      { name: "学的一项新技能", nameEn: "Learning a new skill" },
+      { name: "学得一项新技能", nameEn: "Learning a new skill" },
       { name: "推翻一个之前错误的想法", nameEn: "Overturning a belief I had wrong" },
       { name: "独处", nameEn: "Time alone" },
       { name: "正向影响到身边的人", nameEn: "Having a positive effect on people around me" },
@@ -100,7 +100,7 @@ export function renderAppreciationPage() {
         <header class="rank-hero">
           <span class="eyebrow" data-i18n="appr.eyebrow" data-i18n-en-html='<i class="fas fa-star" aria-hidden="true"></i> Appreciation' data-i18n-html><i class="fas fa-star" aria-hidden="true"></i> Appreciation</span>
           <h1 data-i18n="appr.h1" data-i18n-en="Appreciation">鉴赏</h1>
-          <p class="lead" data-i18n="appr.lead" data-i18n-en="${escapeHtml("A personal list of what I love — in tech, in film and in everyday life — each set ranked by where it sits in my heart.")}">一份私人的「偏爱」清单——科技、影视与日常生活里那些值得反复回味的东西，各自排个心中的位次。</p>
+          <p class="lead" data-i18n="appr.lead" data-i18n-en="${escapeHtml("A personal list of what I love in tech, film, TV, and everyday fun, each set ranked by where it sits in my heart.")}">一份私人的「偏爱」清单：科技、影视与娱乐项目里那些值得反复回味的东西，各自排个心中的位次。</p>
         </header>
         <div class="rank-grid">
 ${BOARDS.map(renderBoard).join("\n")}
@@ -110,13 +110,13 @@ ${BOARDS.map(renderBoard).join("\n")}
 
   return renderPage({
     title: "鉴赏 :: CWLBlog",
-    description: "个人鉴赏榜单：科技研究、影视作品与生活体验三张并列排行榜。",
+    description: "个人鉴赏榜单：科技研究、影视作品与娱乐项目三张并列排行榜。",
     active: "appreciation",
     page: "appreciation",
     main,
     og: {
       title: "鉴赏 :: CWLBlog",
-      description: "个人鉴赏榜单：科技、影视与生活体验三张并列排行榜。",
+      description: "个人鉴赏榜单：科技、影视与娱乐项目三张并列排行榜。",
       path: "/appreciation/",
     },
   });
