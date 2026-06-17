@@ -1,6 +1,6 @@
 # CWLBlog 测试报告
 
-> 最新状态（2026-06-17）：本文件下方保留早期基线报告，部分严重问题已在后续优化轮次中修复。当前 `npm test` 为 38/38 通过，`npm run validate:production` 为 33 项通过、0 失败、0 警告，官方 npm registry 审计为 0 个已知漏洞。最新优化过程见 `docs/optimization-report.md`。
+> 最新状态（2026-06-17）：本文件下方保留早期基线报告，部分严重问题已在后续优化轮次中修复。当前 `npm test` 为 39/39 通过，`npm run validate:production` 为 33 项通过、0 失败、0 警告，官方 npm registry 审计为 0 个已知漏洞。最新优化过程见 `docs/optimization-report.md`。
 
 **测试时间：** 2026-06-17  
 **测试范围：** 全站 18 个页面 + 构建系统 + 测试套件  

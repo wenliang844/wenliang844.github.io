@@ -473,3 +473,25 @@
 
 - `npm test`：39 个测试全部通过。
 - `/post/#rule-engine-alerts` 等文章直达链接现在有原生锚点目标。
+
+## 第 16 轮：文章列表移动端侧栏 lint 修复
+
+时间：2026-06-17
+
+### 已完成内容
+
+- 修复 `js/blog.js` 中移动端文章目录浮层的块内函数声明。
+- 保持原有展开/收起逻辑不变，仅将 `setOpen` 改为函数表达式。
+
+### 发现的问题
+
+- `npm run lint` 报告 `no-inner-declarations`：`setOpen` 声明在 `if (sidebar)` 块内部。
+
+### 修复方案
+
+- 使用 `const setOpen = function (open) { ... };` 替代块内 `function setOpen(open)`。
+
+### 质量指标
+
+- `npm run lint`：通过。
+- `npm run validate`：通过。
