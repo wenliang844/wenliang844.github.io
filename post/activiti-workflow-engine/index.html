@@ -18,6 +18,7 @@
   <script src="/js/vendor/qrcode.min.js" defer></script>
   <script src="/js/share.js" defer></script>
   <script src="/js/giscus.js" defer></script>
+  <script src="/js/toc.js" defer></script>
   <meta property="og:type" content="article">
   <meta property="og:site_name" content="CWLBlog">
   <meta property="og:title" content="Activiti BPM 引擎实践">
@@ -53,26 +54,27 @@
       </section>
     </header>
     <main class="content container">
-      <article class="article">
-        <header class="article-header">
-          <span class="eyebrow">Workflow</span>
-          <h1 data-i18n="post.activiti-workflow-engine.title" data-i18n-en="Terminus Activiti: Lightweight BPM Engine Practice for Digital Business Processes">Terminus Activiti：面向业务流程数字化的轻量级 BPM 引擎实践</h1>
-          <div class="article-meta">
-            <time datetime="2022-02-09">February 9, 2022</time>
-            <span>·</span>
-            <a href="/post/#activiti-workflow-engine" data-i18n="post.meta.posts" data-i18n-en="Posts">文章</a>
-          </div>
-          <p class="article-summary" data-i18n="post.activiti-workflow-engine.summary" data-i18n-en="Engineering notes on enterprise workflow infrastructure around Activiti 7, BPMN 2.0, runtime APIs and Spring Boot auto-configuration.">围绕 Activiti 7、BPMN 2.0、运行时 API 和 Spring Boot 自动装配，梳理企业审批流与流程基础设施的工程实践。</p>
-          <div class="post-tags">
-            <a href="/post/?tag=Java" data-tag="Java" data-i18n="post.activiti-workflow-engine.tag.0" data-i18n-en="Java">Java</a><a href="/post/?tag=Spring%20Boot" data-tag="Spring Boot" data-i18n="post.activiti-workflow-engine.tag.1" data-i18n-en="Spring Boot">Spring Boot</a><a href="/post/?tag=Activiti%207" data-tag="Activiti 7" data-i18n="post.activiti-workflow-engine.tag.2" data-i18n-en="Activiti 7">Activiti 7</a><a href="/post/?tag=BPMN%202.0" data-tag="BPMN 2.0" data-i18n="post.activiti-workflow-engine.tag.3" data-i18n-en="BPMN 2.0">BPMN 2.0</a><a href="/post/?tag=%E5%B7%A5%E4%BD%9C%E6%B5%81" data-tag="工作流" data-i18n="post.activiti-workflow-engine.tag.4" data-i18n-en="Workflow">工作流</a>
-          </div>
-        </header>
-        <div class="article-content" data-i18n-lang="zh">
-          <h2>项目概述</h2>
+      <div class="post-layout">
+        <article class="article">
+          <header class="article-header">
+            <span class="eyebrow">Workflow</span>
+            <h1 data-i18n="post.activiti-workflow-engine.title" data-i18n-en="Terminus Activiti: Lightweight BPM Engine Practice for Digital Business Processes">Terminus Activiti：面向业务流程数字化的轻量级 BPM 引擎实践</h1>
+            <div class="article-meta">
+              <time datetime="2022-02-09">February 9, 2022</time>
+              <span>·</span>
+              <a href="/post/#activiti-workflow-engine" data-i18n="post.meta.posts" data-i18n-en="Posts">文章</a>
+            </div>
+            <p class="article-summary" data-i18n="post.activiti-workflow-engine.summary" data-i18n-en="Engineering notes on enterprise workflow infrastructure around Activiti 7, BPMN 2.0, runtime APIs and Spring Boot auto-configuration.">围绕 Activiti 7、BPMN 2.0、运行时 API 和 Spring Boot 自动装配，梳理企业审批流与流程基础设施的工程实践。</p>
+            <div class="post-tags">
+              <a href="/post/?tag=Java" data-tag="Java" data-i18n="post.activiti-workflow-engine.tag.0" data-i18n-en="Java">Java</a><a href="/post/?tag=Spring%20Boot" data-tag="Spring Boot" data-i18n="post.activiti-workflow-engine.tag.1" data-i18n-en="Spring Boot">Spring Boot</a><a href="/post/?tag=Activiti%207" data-tag="Activiti 7" data-i18n="post.activiti-workflow-engine.tag.2" data-i18n-en="Activiti 7">Activiti 7</a><a href="/post/?tag=BPMN%202.0" data-tag="BPMN 2.0" data-i18n="post.activiti-workflow-engine.tag.3" data-i18n-en="BPMN 2.0">BPMN 2.0</a><a href="/post/?tag=%E5%B7%A5%E4%BD%9C%E6%B5%81" data-tag="工作流" data-i18n="post.activiti-workflow-engine.tag.4" data-i18n-en="Workflow">工作流</a>
+            </div>
+          </header>
+          <div class="article-content" data-i18n-lang="zh">
+          <h2 id="toc-1-项目概述">项目概述</h2>
           <p>Terminus Activiti 是一个基于 Activiti 7.1.0-SNAPSHOT 的企业级工作流与 BPM（Business Process Management）项目。项目以 BPMN 2.0 流程引擎为核心，围绕流程定义、流程实例、人工任务、变量管理、事件监听、异步作业、连接器扩展和 Spring Boot 自动装配构建了一套可嵌入业务系统、可扩展到微服务架构的流程基础设施。</p>
           <p>从业务视角看，它解决的是企业系统中大量“状态流转 + 人工审批 + 系统协同 + 过程留痕”的通用问题，例如审批流、订单履约、内容审核、工单处理、任务协同、跨系统回调等。传统做法往往把流程逻辑硬编码在业务服务中，后续规则变更需要频繁发版；本项目通过 BPMN 建模和统一 Runtime API，把流程从业务代码中剥离出来，使业务人员、开发人员和系统管理员可以围绕同一套流程模型协作。</p>
-          <h2>业务价值</h2>
-          <h3>1. 流程标准化：把“隐式代码逻辑”变成“显式流程资产”</h3>
+          <h2 id="toc-2-业务价值">业务价值</h2>
+          <h3 id="toc-2-1-流程标准化-把-隐式代码逻辑-变成-显式流程资产-">1. 流程标准化：把“隐式代码逻辑”变成“显式流程资产”</h3>
           <p>项目支持以 BPMN 2.0 描述业务流程，并通过 <code>ProcessRuntime</code>、<code>TaskRuntime</code> 暴露流程启动、挂起、恢复、删除、任务认领、任务完成、变量读写等能力。业务系统不再需要在多个服务中重复维护状态机，而是把流程节点、网关、人工任务、服务任务、消息事件、信号事件等统一沉淀为流程资产。</p>
           <p>带来的直接收益是：</p>
           <ul>
@@ -81,13 +83,13 @@
           <li>流程实例、任务、变量、事件具备统一查询与审计基础。</li>
           <li>人工任务和系统任务边界清晰，便于跨团队协作。</li>
           </ul>
-          <h3>2. 复用统一流程底座，降低多业务线接入成本</h3>
+          <h3 id="toc-2-2-复用统一流程底座-降低多业务线接入成本">2. 复用统一流程底座，降低多业务线接入成本</h3>
           <p>项目将流程运行能力拆分为 API 层、引擎层、Spring 集成层和 examples 示例层。业务服务只需要接入统一的 Runtime API，就可以获得流程定义部署、流程实例管理、任务生命周期管理、变量管理和事件订阅能力。</p>
           <p>这种模式适合平台化复用：一个流程底座可以支撑多个业务域，业务域只关注自己的流程模型、连接器实现和权限策略，而不必重复建设流程引擎、任务中心、异步作业调度、流程事件分发等基础能力。</p>
-          <h3>3. 支撑业务扩展：Connector 把流程节点与外部服务解耦</h3>
+          <h3 id="toc-2-3-支撑业务扩展-connector-把流程节点与外部服务解耦">3. 支撑业务扩展：Connector 把流程节点与外部服务解耦</h3>
           <p>项目提供 <code>activiti-spring-connector</code> 和 <code>activiti-connector-model</code> 模块，用连接器定义外部动作、输入输出变量和服务任务绑定关系。流程模型中的服务任务可以通过 connector 连接到业务服务、规则服务、通知服务、内容处理服务等外部能力。</p>
           <p>这使流程引擎不必了解每个业务服务的内部实现，业务服务也不必侵入流程内核。流程与业务服务通过契约协作，更适合微服务架构下的独立开发、独立演进和灰度替换。</p>
-          <h2>技术架构</h2>
+          <h2 id="toc-3-技术架构">技术架构</h2>
           <p>项目采用 Maven 多模块工程，整体分层如下：</p>
           <table>
           <thead>
@@ -161,13 +163,13 @@
           </tr>
           </tbody></table>
           <p>这些数字说明项目不是单点功能封装，而是一套完整的流程平台内核：既有流程模型、引擎执行、持久化和异步任务，也有面向业务接入的 API、Spring Boot Starter、连接器和测试体系。</p>
-          <h2>技术深度</h2>
-          <h3>1. Runtime API 设计：用稳定契约隔离流程引擎复杂度</h3>
+          <h2 id="toc-4-技术深度">技术深度</h2>
+          <h3 id="toc-4-1-runtime-api-设计-用稳定契约隔离流程引擎复杂度">1. Runtime API 设计：用稳定契约隔离流程引擎复杂度</h3>
           <p>项目将业务接入入口收敛到 <code>ProcessRuntime</code> 和 <code>TaskRuntime</code> 两组接口。</p>
           <p><code>ProcessRuntime</code> 负责流程侧能力，包括流程定义查询、流程实例创建与启动、实例挂起与恢复、变量设置、消息接收、信号发送、流程元数据查询等。业务服务通过 payload 对象传参，避免直接依赖底层引擎实体。</p>
           <p><code>TaskRuntime</code> 负责人机协同能力，包括任务查询、创建、认领、释放、完成、保存变量、更新、删除、候选人和候选组维护等。接口注释中明确了鉴权语义，例如任务可见性、当前用户是否为 assignee、是否属于候选组等，为业务任务中心提供了清晰边界。</p>
           <p>这种 API 设计让流程引擎可以在内部调整持久化、缓存、异步执行策略，而不影响上层业务服务。</p>
-          <h3>2. 缓存设计：命令执行期实体缓存 + 查询匹配器</h3>
+          <h3 id="toc-4-2-缓存设计-命令执行期实体缓存-查询匹配器">2. 缓存设计：命令执行期实体缓存 + 查询匹配器</h3>
           <p>项目的缓存设计不是简单的外部 KV 缓存，而是流程引擎内部的一致性缓存。<code>EntityCache</code> 在一次 <code>Command</code> 执行期间保存实体快照，按实体类型和实体 ID 建立内存索引，并记录实体持久化状态，用于后续差异判断和数据库 flush。</p>
           <p>核心设计包括：</p>
           <ul>
@@ -178,7 +180,7 @@
           <li><code>cachematcher</code> 包下提供 30 个匹配器，覆盖执行树、任务、变量、事件订阅、Job、历史变量等高频查询场景。</li>
           </ul>
           <p>这套设计的业务价值在于：流程执行过程中经常需要反复读取同一流程实例、执行树、任务、变量和事件订阅。如果每一步都访问数据库，会形成大量短查询。通过命令上下文缓存，项目可以在保证事务内一致性的前提下减少数据库往返，并提升流程推进、任务完成和变量更新的响应效率。</p>
-          <h3>3. 性能优化：执行树预取、关系计数与异步作业调度</h3>
+          <h3 id="toc-4-3-性能优化-执行树预取-关系计数与异步作业调度">3. 性能优化：执行树预取、关系计数与异步作业调度</h3>
           <p>项目内置 <code>PerformanceSettings</code>，提供多项可配置的性能优化开关：</p>
           <ul>
           <li><code>enableEagerExecutionTreeFetching</code>：获取某个 execution 时一次性拉取整棵执行树，减少流程推进时的多次数据库往返。</li>
@@ -193,7 +195,7 @@
           <li>异步 Job 和 Timer Job 默认每次获取 1 条，以降低乐观锁冲突概率。</li>
           <li>Job 锁默认 5 分钟，过期 Job 每 60 秒扫描一次，默认分页大小 3。</li>
           </ul>
-        </div>
+          </div>
             <div class="post-share" data-share-url="/post/activiti-workflow-engine/" data-share-title="Activiti BPM 引擎实践" data-share-title-en="Activiti BPM Engine Practice">
               <span class="share-label" data-i18n="post.share"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg> 分享</span>
               <a class="share-btn" data-share="x" href="#" target="_blank" rel="noopener" aria-label="分享到 X" data-i18n-aria="post.share.x"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
@@ -201,7 +203,31 @@
               <button class="share-btn" type="button" data-share="wechat" aria-label="微信扫码分享" data-i18n-aria="post.share.wechat"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M8.691 2.188C3.891 2.188 0 5.476 0 9.53c0 2.212 1.17 4.203 3.002 5.55a.59.59 0 0 1 .213.665l-.39 1.48c-.019.07-.048.141-.048.213 0 .163.13.295.29.295a.326.326 0 0 0 .167-.054l1.903-1.114a.864.864 0 0 1 .717-.098 10.16 10.16 0 0 0 2.837.403c.276 0 .543-.027.811-.05-.857-2.578.157-4.972 1.932-6.446 1.703-1.415 3.882-1.98 5.853-1.838-.576-3.583-4.196-6.348-8.596-6.348zM5.785 5.991c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178A1.17 1.17 0 0 1 4.623 7.17c0-.651.52-1.18 1.162-1.18zm5.813 0c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178 1.17 1.17 0 0 1-1.162-1.178c0-.651.52-1.18 1.162-1.18zm5.34 2.867c-1.797-.052-3.746.512-5.28 1.786-1.72 1.428-2.687 3.72-1.78 6.22.942 2.453 3.666 4.229 6.884 4.229.826 0 1.622-.12 2.361-.336a.722.722 0 0 1 .598.082l1.584.926a.272.272 0 0 0 .14.047c.134 0 .24-.111.24-.247 0-.06-.023-.12-.038-.177l-.327-1.233a.582.582 0 0 1-.023-.156.49.49 0 0 1 .201-.398C23.024 18.48 24 16.82 24 14.98c0-3.21-2.931-5.837-6.656-6.088V8.89c-.135-.01-.27-.027-.406-.032zm-3.39 2.927c.535 0 .969.44.969.982a.976.976 0 0 1-.969.983.976.976 0 0 1-.969-.983c0-.542.434-.982.969-.982zm4.844 0c.535 0 .969.44.969.982a.976.976 0 0 1-.969.983.976.976 0 0 1-.969-.983c0-.542.434-.982.969-.982z"/></svg></button>
               <button class="share-btn" type="button" data-share="copy" aria-label="复制链接" data-i18n-aria="post.share.copy"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/></svg></button>
             </div>
-      </article>
+        </article>
+        <aside class="toc-sidebar is-open" aria-label="目录" data-i18n-aria="toc.aria">
+          <div class="toc-header">
+            <button class="toc-toggle" type="button" aria-expanded="true" aria-label="展开/收起目录" data-i18n-aria="toc.toggle">
+              <i class="fas fa-list" aria-hidden="true"></i>
+              <span data-i18n="toc.title">目录</span>
+              <i class="fas fa-chevron-down toc-chevron" aria-hidden="true"></i>
+            </button>
+          </div>
+          <nav class="toc-nav">
+            <ul>
+            <li><a href="#toc-1-项目概述" data-toc-id="toc-1-项目概述" data-i18n="toc.toc-1-项目概述" data-i18n-en="项目概述">项目概述</a></li>
+            <li><a href="#toc-2-业务价值" data-toc-id="toc-2-业务价值" data-i18n="toc.toc-2-业务价值" data-i18n-en="业务价值">业务价值</a></li>
+            <li class="toc-sub"><a href="#toc-2-1-流程标准化-把-隐式代码逻辑-变成-显式流程资产-" data-toc-id="toc-2-1-流程标准化-把-隐式代码逻辑-变成-显式流程资产-" data-i18n="toc.toc-2-1-流程标准化-把-隐式代码逻辑-变成-显式流程资产-" data-i18n-en="1. 流程标准化：把“隐式代码逻辑”变成“显式流程资产”">1. 流程标准化：把“隐式代码逻辑”变成“显式流程资产”</a></li>
+            <li class="toc-sub"><a href="#toc-2-2-复用统一流程底座-降低多业务线接入成本" data-toc-id="toc-2-2-复用统一流程底座-降低多业务线接入成本" data-i18n="toc.toc-2-2-复用统一流程底座-降低多业务线接入成本" data-i18n-en="2. 复用统一流程底座，降低多业务线接入成本">2. 复用统一流程底座，降低多业务线接入成本</a></li>
+            <li class="toc-sub"><a href="#toc-2-3-支撑业务扩展-connector-把流程节点与外部服务解耦" data-toc-id="toc-2-3-支撑业务扩展-connector-把流程节点与外部服务解耦" data-i18n="toc.toc-2-3-支撑业务扩展-connector-把流程节点与外部服务解耦" data-i18n-en="3. 支撑业务扩展：Connector 把流程节点与外部服务解耦">3. 支撑业务扩展：Connector 把流程节点与外部服务解耦</a></li>
+            <li><a href="#toc-3-技术架构" data-toc-id="toc-3-技术架构" data-i18n="toc.toc-3-技术架构" data-i18n-en="技术架构">技术架构</a></li>
+            <li><a href="#toc-4-技术深度" data-toc-id="toc-4-技术深度" data-i18n="toc.toc-4-技术深度" data-i18n-en="技术深度">技术深度</a></li>
+            <li class="toc-sub"><a href="#toc-4-1-runtime-api-设计-用稳定契约隔离流程引擎复杂度" data-toc-id="toc-4-1-runtime-api-设计-用稳定契约隔离流程引擎复杂度" data-i18n="toc.toc-4-1-runtime-api-设计-用稳定契约隔离流程引擎复杂度" data-i18n-en="1. Runtime API 设计：用稳定契约隔离流程引擎复杂度">1. Runtime API 设计：用稳定契约隔离流程引擎复杂度</a></li>
+            <li class="toc-sub"><a href="#toc-4-2-缓存设计-命令执行期实体缓存-查询匹配器" data-toc-id="toc-4-2-缓存设计-命令执行期实体缓存-查询匹配器" data-i18n="toc.toc-4-2-缓存设计-命令执行期实体缓存-查询匹配器" data-i18n-en="2. 缓存设计：命令执行期实体缓存 + 查询匹配器">2. 缓存设计：命令执行期实体缓存 + 查询匹配器</a></li>
+            <li class="toc-sub"><a href="#toc-4-3-性能优化-执行树预取-关系计数与异步作业调度" data-toc-id="toc-4-3-性能优化-执行树预取-关系计数与异步作业调度" data-i18n="toc.toc-4-3-性能优化-执行树预取-关系计数与异步作业调度" data-i18n-en="3. 性能优化：执行树预取、关系计数与异步作业调度">3. 性能优化：执行树预取、关系计数与异步作业调度</a></li>
+            </ul>
+          </nav>
+        </aside>
+      </div>
       <section class="comments container" aria-label="评论" data-i18n-aria="post.comments.aria">
         <h2 data-i18n="post.comments"><i class="fas fa-comments" aria-hidden="true"></i> 评论</h2>
         <div id="giscus-thread"></div>

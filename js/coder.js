@@ -1,11 +1,11 @@
 (function () {
-  var body = document.body;
+  const body = document.body;
 
   /* ----------------------------------------------------------------------
    * Color scheme toggle
    * -------------------------------------------------------------------- */
-  var STORAGE_KEY_THEME = "coder-color-scheme";
-  var stored = null;
+  const STORAGE_KEY_THEME = "coder-color-scheme";
+  let stored = null;
 
   try {
     stored = window.CWLUtils ? window.CWLUtils.storageGet(STORAGE_KEY_THEME) : window.localStorage.getItem(STORAGE_KEY_THEME);
@@ -21,7 +21,7 @@
 
   document.querySelectorAll(".theme-toggle").forEach(function (button) {
     button.addEventListener("click", function () {
-      var dark = body.classList.toggle("colorscheme-dark");
+      const dark = body.classList.toggle("colorscheme-dark");
       body.classList.toggle("colorscheme-light", !dark);
       try {
         if (window.CWLUtils) {
@@ -38,11 +38,11 @@
   /* ----------------------------------------------------------------------
    * Blog list: switch between inline article panels
    * -------------------------------------------------------------------- */
-  var postLinks = Array.prototype.slice.call(document.querySelectorAll(".post-tree-link[data-post-target]"));
-  var postPanels = Array.prototype.slice.call(document.querySelectorAll(".blog-article[id]"));
+  const postLinks = Array.prototype.slice.call(document.querySelectorAll(".post-tree-link[data-post-target]"));
+  const postPanels = Array.prototype.slice.call(document.querySelectorAll(".blog-article[id]"));
 
   function showPost(targetId, updateHash) {
-    var target = document.getElementById(targetId);
+    const target = document.getElementById(targetId);
     if (!target) {
       return;
     }
@@ -52,7 +52,7 @@
     });
 
     postLinks.forEach(function (link) {
-      var active = link.getAttribute("data-post-target") === targetId;
+      const active = link.getAttribute("data-post-target") === targetId;
       link.classList.toggle("active", active);
       if (active) {
         link.setAttribute("aria-current", "page");
@@ -78,9 +78,9 @@
       });
     });
 
-    var initialSlug = window.location.hash.replace("#", "");
-    var initialLink = postLinks.find(function (link) {
-      var panel = document.getElementById(link.getAttribute("data-post-target"));
+    const initialSlug = window.location.hash.replace("#", "");
+    const initialLink = postLinks.find(function (link) {
+      const panel = document.getElementById(link.getAttribute("data-post-target"));
       return panel && panel.dataset.postSlug === initialSlug;
     });
 
@@ -95,14 +95,14 @@
   /* ----------------------------------------------------------------------
    * Reading progress bar & scroll handling with throttle
    * -------------------------------------------------------------------- */
-  var progress = document.createElement("div");
+  const progress = document.createElement("div");
   progress.className = "read-progress";
   body.appendChild(progress);
 
   /* ----------------------------------------------------------------------
    * Back-to-top button
    * -------------------------------------------------------------------- */
-  var toTop = document.createElement("button");
+  const toTop = document.createElement("button");
   toTop.className = "to-top";
   toTop.type = "button";
   toTop.innerHTML = '<i class="fas fa-arrow-up" aria-hidden="true"></i>';
@@ -120,7 +120,7 @@
   }
 
   // 常量定义，避免魔法数字
-  var SCROLL_CONSTANTS = {
+  const SCROLL_CONSTANTS = {
     BACK_TO_TOP_THRESHOLD: 420,    // 显示返回顶部按钮的滚动距离
     READING_SPEED_CHINESE: 350,     // 中文阅读速度（字/分钟）
     READING_SPEED_ENGLISH: 200,     // 英文阅读速度（词/分钟）
@@ -138,17 +138,17 @@
   }
 
   function onScroll() {
-    var doc = document.documentElement;
-    var scrollTop = window.pageYOffset || doc.scrollTop;
-    var article = getActiveArticle();
-    var ratio = 0;
+    const doc = document.documentElement;
+    const scrollTop = window.pageYOffset || doc.scrollTop;
+    const article = getActiveArticle();
+    let ratio = 0;
 
     if (article) {
-      var articleTop = article.getBoundingClientRect().top + scrollTop;
-      var readableHeight = Math.max(1, article.scrollHeight - window.innerHeight * 0.65);
+      const articleTop = article.getBoundingClientRect().top + scrollTop;
+      const readableHeight = Math.max(1, article.scrollHeight - window.innerHeight * 0.65);
       ratio = clamp((scrollTop - articleTop) / readableHeight, 0, 1);
     } else {
-      var height = doc.scrollHeight - doc.clientHeight;
+      const height = doc.scrollHeight - doc.clientHeight;
       ratio = height > 0 ? scrollTop / height : 0;
     }
 
@@ -158,7 +158,7 @@
   }
 
   // 使用节流优化滚动性能
-  var throttledScroll = window.CWLUtils
+  const throttledScroll = window.CWLUtils
     ? window.CWLUtils.throttle(onScroll, SCROLL_CONSTANTS.SCROLL_THROTTLE)
     : onScroll;
 
@@ -170,7 +170,7 @@
    * Copy-to-clipboard buttons on code blocks
    * -------------------------------------------------------------------- */
   // 使用公共工具的 copyText 或降级实现
-  var copyText = window.CWLUtils && window.CWLUtils.copyText
+  const copyText = window.CWLUtils && window.CWLUtils.copyText
     ? window.CWLUtils.copyText
     : function (text) {
         if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -178,7 +178,7 @@
         }
         return new Promise(function (resolve, reject) {
           try {
-            var area = document.createElement("textarea");
+            const area = document.createElement("textarea");
             area.value = text;
             area.style.position = "fixed";
             area.style.opacity = "0";
@@ -197,12 +197,12 @@
     if (pre.querySelector(".code-copy")) {
       return;
     }
-    var button = document.createElement("button");
+    const button = document.createElement("button");
     button.type = "button";
     button.className = "code-copy";
     button.innerHTML = t("dyn.copy", '<i class="fas fa-copy" aria-hidden="true"></i> 复制');
     button.addEventListener("click", function () {
-      var code = pre.querySelector("code") || pre;
+      const code = pre.querySelector("code") || pre;
       copyText(code.innerText).then(function () {
         button.classList.add("copied");
         button.innerHTML = t("dyn.copied", '<i class="fas fa-check" aria-hidden="true"></i> 已复制');
@@ -219,9 +219,9 @@
    * Reading time + table of contents per article
    * -------------------------------------------------------------------- */
   function readingMinutes(text) {
-    var chinese = (text.match(/[一-龥]/g) || []).length;
-    var rest = text.replace(/[一-龥]/g, " ").trim();
-    var words = rest ? rest.split(/\s+/).length : 0;
+    const chinese = (text.match(/[一-龥]/g) || []).length;
+    const rest = text.replace(/[一-龥]/g, " ").trim();
+    const words = rest ? rest.split(/\s+/).length : 0;
     return Math.max(1, Math.round(
       chinese / SCROLL_CONSTANTS.READING_SPEED_CHINESE +
       words / SCROLL_CONSTANTS.READING_SPEED_ENGLISH
@@ -245,22 +245,38 @@
     if (heading.id) {
       return heading.id;
     }
-    var articleId = article.dataset.postSlug || article.id || "article";
-    var lang = contentBlock.getAttribute("data-i18n-lang") || "content";
+    const articleId = article.dataset.postSlug || article.id || "article";
+    const lang = contentBlock.getAttribute("data-i18n-lang") || "content";
     return "toc-" + slugify(articleId) + "-" + slugify(lang) + "-" + index + "-" + slugify(heading.textContent);
   }
 
   function clearToc(contentBlock) {
-    var existing = contentBlock.querySelector(".article-toc");
+    const existing = contentBlock.querySelector(".article-toc");
     if (existing) {
       existing.remove();
     }
+    const article = contentBlock.closest("article.article");
+    if (article) {
+      const lang = contentBlock.getAttribute("data-i18n-lang") || "content";
+      const articleToc = article.querySelector('.article-toc[data-toc-lang="' + lang + '"]');
+      if (articleToc) {
+        articleToc.remove();
+      }
+    }
+  }
+
+  function setArticleTocOpen(toc, open) {
+    const toggle = toc && toc.querySelector(".article-toc-toggle");
+    if (!toggle) {return;}
+    toc.classList.toggle("is-open", open);
+    toc.classList.toggle("is-collapsed", !open);
+    toggle.setAttribute("aria-expanded", String(open));
   }
 
   function buildToc(article, contentBlock) {
     clearToc(contentBlock);
 
-    var headings = Array.prototype.slice.call(contentBlock.querySelectorAll("h2, h3"))
+    const headings = Array.prototype.slice.call(contentBlock.querySelectorAll("h2, h3"))
       .filter(function (heading) {
         return (heading.textContent || "").trim();
       });
@@ -269,22 +285,33 @@
       return;
     }
 
-    var toc = document.createElement("nav");
-    toc.className = "article-toc";
+    const toc = document.createElement("aside");
+    toc.className = "article-toc is-open";
     toc.setAttribute("aria-label", t("dyn.toc.aria", "目录"));
+    toc.setAttribute("data-toc-lang", contentBlock.getAttribute("data-i18n-lang") || "content");
+    toc.hidden = contentBlock.hidden;
 
-    var title = document.createElement("strong");
-    title.textContent = t("dyn.toc", "目录");
-    toc.appendChild(title);
+    const toggle = document.createElement("button");
+    toggle.type = "button";
+    toggle.className = "article-toc-toggle";
+    toggle.setAttribute("aria-expanded", "true");
+    toggle.setAttribute("aria-label", t("dyn.toc.aria", "目录"));
+    toggle.innerHTML = '<i class="fas fa-list" aria-hidden="true"></i><span>' +
+      t("dyn.toc", "目录") +
+      '</span><i class="fas fa-chevron-down article-toc-chevron" aria-hidden="true"></i>';
+    toggle.addEventListener("click", function () {
+      setArticleTocOpen(toc, toggle.getAttribute("aria-expanded") !== "true");
+    });
+    toc.appendChild(toggle);
 
-    var list = document.createElement("ol");
+    const list = document.createElement("ol");
     headings.forEach(function (heading, index) {
       heading.id = uniqueHeadingId(article, contentBlock, heading, index);
 
-      var item = document.createElement("li");
+      const item = document.createElement("li");
       item.className = "toc-depth-" + heading.tagName.slice(1);
 
-      var link = document.createElement("a");
+      const link = document.createElement("a");
       link.href = "#" + heading.id;
       link.textContent = heading.textContent || "";
       link.addEventListener("click", function () {
@@ -296,21 +323,22 @@
     });
 
     toc.appendChild(list);
-    contentBlock.insertBefore(toc, contentBlock.firstChild);
+    article.appendChild(toc);
   }
 
   function updateActiveToc() {
-    var article = getActiveArticle();
-    var content = article && activeArticleContent(article);
-    if (!content) return;
+    const article = getActiveArticle();
+    const content = article && activeArticleContent(article);
+    if (!content) {return;}
 
-    var toc = content.querySelector(".article-toc");
-    if (!toc) return;
+    const lang = content.getAttribute("data-i18n-lang") || "content";
+    const toc = article.querySelector('.article-toc[data-toc-lang="' + lang + '"]');
+    if (!toc) {return;}
 
-    var headings = Array.prototype.slice.call(content.querySelectorAll("h2, h3[id]"));
-    if (!headings.length) return;
+    const headings = Array.prototype.slice.call(content.querySelectorAll("h2, h3[id]"));
+    if (!headings.length) {return;}
 
-    var active = headings[0];
+    let active = headings[0];
     headings.forEach(function (heading) {
       if (heading.getBoundingClientRect().top <= SCROLL_CONSTANTS.TOC_OFFSET) {
         active = heading;
@@ -318,7 +346,7 @@
     });
 
     toc.querySelectorAll("a").forEach(function (link) {
-      var isActive = link.getAttribute("href") === "#" + active.id;
+      const isActive = link.getAttribute("href") === "#" + active.id;
       link.classList.toggle("active", isActive);
       if (isActive) {
         link.setAttribute("aria-current", "true");
@@ -334,36 +362,45 @@
       button.innerHTML = t("dyn.copy", '<i class="fas fa-copy" aria-hidden="true"></i> 复制');
     });
     document.querySelectorAll(".reading-time").forEach(function (span) {
-      var article = span.closest("article.article");
-      var content = article && activeArticleContent(article);
-      if (!content) return;
-      var prefix = t("dyn.readingPrefix", "阅读约");
-      var suffix = t("dyn.readingSuffix", "分钟");
+      const article = span.closest("article.article");
+      const content = article && activeArticleContent(article);
+      if (!content) {return;}
+      const prefix = t("dyn.readingPrefix", "阅读约");
+      const suffix = t("dyn.readingSuffix", "分钟");
       span.innerHTML = '<i class="fas fa-clock" aria-hidden="true"></i> ' + prefix +
         " " + readingMinutes(content.textContent || "") + " " + suffix;
     });
     document.querySelectorAll(".article-toc").forEach(function (toc) {
+      const article = toc.closest("article.article");
+      const content = article && activeArticleContent(article);
+      const activeLang = content && (content.getAttribute("data-i18n-lang") || "content");
+      const tocLang = toc.getAttribute("data-toc-lang") || "content";
+      toc.hidden = Boolean(activeLang && tocLang !== activeLang);
       toc.setAttribute("aria-label", t("dyn.toc.aria", "目录"));
-      var strong = toc.querySelector("strong");
-      if (strong) {
-        strong.textContent = t("dyn.toc", "目录");
+      const toggle = toc.querySelector(".article-toc-toggle");
+      const title = toggle && toggle.querySelector("span");
+      if (toggle) {
+        toggle.setAttribute("aria-label", t("dyn.toc.aria", "目录"));
+      }
+      if (title) {
+        title.textContent = t("dyn.toc", "目录");
       }
     });
     onScroll();
   }
 
   document.querySelectorAll("article.article").forEach(function (article) {
-    var content = activeArticleContent(article);
-    var meta = article.querySelector(".article-meta");
+    const content = activeArticleContent(article);
+    const meta = article.querySelector(".article-meta");
     if (!content) {
       return;
     }
 
     if (meta && !meta.querySelector(".reading-time")) {
-      var span = document.createElement("span");
+      const span = document.createElement("span");
       span.className = "reading-time";
-      var prefix = t("dyn.readingPrefix", "阅读约");
-      var suffix = t("dyn.readingSuffix", "分钟");
+      const prefix = t("dyn.readingPrefix", "阅读约");
+      const suffix = t("dyn.readingSuffix", "分钟");
       span.innerHTML = '<i class="fas fa-clock" aria-hidden="true"></i> ' + prefix +
         " " + readingMinutes(content.textContent || "") + " " + suffix;
       meta.appendChild(document.createTextNode(" "));
@@ -386,8 +423,8 @@
   /* ----------------------------------------------------------------------
    * Scroll reveal
    * -------------------------------------------------------------------- */
-  var prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  var revealTargets = Array.prototype.slice.call(
+  const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const revealTargets = Array.prototype.slice.call(
     document.querySelectorAll(".card, .ai-card, .insight-list li, .timeline-stats div, .feedback-item, .post-item")
   );
 
@@ -395,7 +432,7 @@
     revealTargets.forEach(function (el) {
       el.classList.add("reveal");
     });
-    var observer = new IntersectionObserver(function (entries) {
+    const observer = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
         if (entry.isIntersecting) {
           entry.target.classList.add("is-visible");
@@ -409,7 +446,7 @@
   }
 
   // Animate skill bars (.skill-fill[data-level]) to their target width.
-  var skillFills = Array.prototype.slice.call(document.querySelectorAll(".skill-fill[data-level]"));
+  const skillFills = Array.prototype.slice.call(document.querySelectorAll(".skill-fill[data-level]"));
   if (skillFills.length) {
     skillFills.forEach(function (fill) {
       fill.style.setProperty("--level", fill.getAttribute("data-level"));
@@ -417,10 +454,10 @@
     if (!prefersReduced && "IntersectionObserver" in window) {
       // Observe the full-width track, not the zero-width fill (a zero-area
       // target never produces an intersection ratio).
-      var skillObserver = new IntersectionObserver(function (entries) {
+      const skillObserver = new IntersectionObserver(function (entries) {
         entries.forEach(function (entry) {
           if (entry.isIntersecting) {
-            var fill = entry.target.querySelector(".skill-fill");
+            const fill = entry.target.querySelector(".skill-fill");
             if (fill) {
               fill.classList.add("is-filled");
             }
@@ -429,7 +466,7 @@
         });
       }, { threshold: 0.4 });
       skillFills.forEach(function (fill) {
-        var track = fill.parentElement || fill;
+        const track = fill.parentElement || fill;
         skillObserver.observe(track);
       });
     } else {
@@ -442,18 +479,18 @@
   /* ----------------------------------------------------------------------
    * Cursor particle trail (decorative; skipped under reduced motion)
    * -------------------------------------------------------------------- */
-  var canvas = document.querySelector(".cursor-canvas");
+  const canvas = document.querySelector(".cursor-canvas");
   if (!canvas || prefersReduced) {
     return;
   }
 
-  var context = canvas.getContext("2d");
-  var particles = [];
-  var pointer = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
-  var hue = 190;
+  const context = canvas.getContext("2d");
+  const particles = [];
+  const pointer = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+  let hue = 190;
 
   function resizeCanvas() {
-    var ratio = window.devicePixelRatio || 1;
+    const ratio = window.devicePixelRatio || 1;
     canvas.width = Math.floor(window.innerWidth * ratio);
     canvas.height = Math.floor(window.innerHeight * ratio);
     canvas.style.width = window.innerWidth + "px";
@@ -480,8 +517,8 @@
   function draw() {
     context.clearRect(0, 0, window.innerWidth, window.innerHeight);
 
-    for (var index = particles.length - 1; index >= 0; index -= 1) {
-      var particle = particles[index];
+    for (let index = particles.length - 1; index >= 0; index -= 1) {
+      const particle = particles[index];
       particle.x += particle.vx;
       particle.y += particle.vy;
       particle.vy += 0.012;

@@ -66,6 +66,32 @@ function renderShare(post) {
             </div>`;
 }
 
+// 渲染文章目录
+function renderToc(toc, tocEn) {
+  if (!toc || toc.length === 0) return "";
+
+  const items = toc.map((item, index) => {
+    const enText = tocEn && tocEn[index] ? tocEn[index].text : item.text;
+    const indent = item.level === 3 ? ' class="toc-sub"' : '';
+    return `            <li${indent}><a href="#${item.id}" data-toc-id="${item.id}" data-i18n="toc.${item.id}" data-i18n-en="${escapeAttr(enText)}">${escapeHtml(item.text)}</a></li>`;
+  }).join("\n");
+
+  return `        <aside class="toc-sidebar is-open" aria-label="目录" data-i18n-aria="toc.aria">
+          <div class="toc-header">
+            <button class="toc-toggle" type="button" aria-expanded="true" aria-label="展开/收起目录" data-i18n-aria="toc.toggle">
+              <i class="fas fa-list" aria-hidden="true"></i>
+              <span data-i18n="toc.title">目录</span>
+              <i class="fas fa-chevron-down toc-chevron" aria-hidden="true"></i>
+            </button>
+          </div>
+          <nav class="toc-nav">
+            <ul>
+${items}
+            </ul>
+          </nav>
+        </aside>`;
+}
+
 // 单篇底部上一篇/下一篇导航。
 // prev = 更新的一篇（←），next = 更老的一篇（→）；缺失时回退到 /post/。
 function renderPager(prev, next) {
@@ -88,24 +114,28 @@ function renderPager(prev, next) {
  * @param {object} nav  { prev, next } 相邻文章
  */
 export function renderPostPage(post, nav) {
+  const tocHtml = renderToc(post.toc, post.tocEn);
   const main = `    <main class="content container">
-      <article class="article">
-        <header class="article-header">
-          <span class="eyebrow">${escapeHtml(post.eyebrow)}</span>
-          <h1 ${i18nText(`post.${post.slug}.title`, post.title, enValue(post, "title"))}>${escapeHtml(post.title)}</h1>
-          <div class="article-meta">
-            <time datetime="${isoDate(post.date)}">${longDate(post.date)}</time>
-            <span>·</span>
-            <a href="/post/#${post.slug}" data-i18n="post.meta.posts" data-i18n-en="Posts">文章</a>
-          </div>
-          <p class="article-summary" ${i18nText(`post.${post.slug}.summary`, post.summary, enValue(post, "summary"))}>${escapeHtml(post.summary)}</p>
-          <div class="post-tags">
-            ${renderTagLinks(post)}
-          </div>
-        </header>
-${renderI18nContent(post, "        ")}
+      <div class="post-layout">
+        <article class="article">
+          <header class="article-header">
+            <span class="eyebrow">${escapeHtml(post.eyebrow)}</span>
+            <h1 ${i18nText(`post.${post.slug}.title`, post.title, enValue(post, "title"))}>${escapeHtml(post.title)}</h1>
+            <div class="article-meta">
+              <time datetime="${isoDate(post.date)}">${longDate(post.date)}</time>
+              <span>·</span>
+              <a href="/post/#${post.slug}" data-i18n="post.meta.posts" data-i18n-en="Posts">文章</a>
+            </div>
+            <p class="article-summary" ${i18nText(`post.${post.slug}.summary`, post.summary, enValue(post, "summary"))}>${escapeHtml(post.summary)}</p>
+            <div class="post-tags">
+              ${renderTagLinks(post)}
+            </div>
+          </header>
+${renderI18nContent(post, "          ")}
 ${renderShare(post)}
-      </article>
+        </article>
+${tocHtml}
+      </div>
       <section class="comments container" aria-label="评论" data-i18n-aria="post.comments.aria">
         <h2 data-i18n="post.comments"><i class="fas fa-comments" aria-hidden="true"></i> 评论</h2>
         <div id="giscus-thread"></div>
@@ -120,7 +150,7 @@ ${renderPager(nav.prev, nav.next)}
     descriptionEn: enValue(post, "description"),
     active: "blog",
     page: "posts",
-    scripts: ["/js/vendor/qrcode.min.js", "/js/share.js", "/js/giscus.js"],
+    scripts: ["/js/vendor/qrcode.min.js", "/js/share.js", "/js/giscus.js", "/js/toc.js"],
     og: {
       type: "article",
       title: post.shortTitle,

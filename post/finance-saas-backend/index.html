@@ -18,6 +18,7 @@
   <script src="/js/vendor/qrcode.min.js" defer></script>
   <script src="/js/share.js" defer></script>
   <script src="/js/giscus.js" defer></script>
+  <script src="/js/toc.js" defer></script>
   <meta property="og:type" content="article">
   <meta property="og:site_name" content="CWLBlog">
   <meta property="og:title" content="企顾 SaaS 多模块平台">
@@ -53,22 +54,23 @@
       </section>
     </header>
     <main class="content container">
-      <article class="article">
-        <header class="article-header">
-          <span class="eyebrow">SaaS Backend</span>
-          <h1 data-i18n="post.finance-saas-backend.title" data-i18n-en="Qigu SaaS Multi-Module Platform Project Overview">企顾 SaaS 多模块平台项目介绍</h1>
-          <div class="article-meta">
-            <time datetime="2023-08-18">August 18, 2023</time>
-            <span>·</span>
-            <a href="/post/#finance-saas-backend" data-i18n="post.meta.posts" data-i18n-en="Posts">文章</a>
-          </div>
-          <p class="article-summary" data-i18n="post.finance-saas-backend.summary" data-i18n-en="A backend platform retrospective covering customer data assets, finance reports, notification delivery and search for enterprise-service SaaS.">围绕客户数据资产、财税报表处理、通知触达和搜索检索，复盘企业服务 SaaS 多模块后端平台建设。</p>
-          <div class="post-tags">
-            <a href="/post/?tag=Java" data-tag="Java" data-i18n="post.finance-saas-backend.tag.0" data-i18n-en="Java">Java</a><a href="/post/?tag=Spring%20Boot" data-tag="Spring Boot" data-i18n="post.finance-saas-backend.tag.1" data-i18n-en="Spring Boot">Spring Boot</a><a href="/post/?tag=Dubbo" data-tag="Dubbo" data-i18n="post.finance-saas-backend.tag.2" data-i18n-en="Dubbo">Dubbo</a><a href="/post/?tag=RocketMQ" data-tag="RocketMQ" data-i18n="post.finance-saas-backend.tag.3" data-i18n-en="RocketMQ">RocketMQ</a><a href="/post/?tag=Elasticsearch" data-tag="Elasticsearch" data-i18n="post.finance-saas-backend.tag.4" data-i18n-en="Elasticsearch">Elasticsearch</a>
-          </div>
-        </header>
-        <div class="article-content" data-i18n-lang="zh">
-          <h2>1. 项目概述</h2>
+      <div class="post-layout">
+        <article class="article">
+          <header class="article-header">
+            <span class="eyebrow">SaaS Backend</span>
+            <h1 data-i18n="post.finance-saas-backend.title" data-i18n-en="Qigu SaaS Multi-Module Platform Project Overview">企顾 SaaS 多模块平台项目介绍</h1>
+            <div class="article-meta">
+              <time datetime="2023-08-18">August 18, 2023</time>
+              <span>·</span>
+              <a href="/post/#finance-saas-backend" data-i18n="post.meta.posts" data-i18n-en="Posts">文章</a>
+            </div>
+            <p class="article-summary" data-i18n="post.finance-saas-backend.summary" data-i18n-en="A backend platform retrospective covering customer data assets, finance reports, notification delivery and search for enterprise-service SaaS.">围绕客户数据资产、财税报表处理、通知触达和搜索检索，复盘企业服务 SaaS 多模块后端平台建设。</p>
+            <div class="post-tags">
+              <a href="/post/?tag=Java" data-tag="Java" data-i18n="post.finance-saas-backend.tag.0" data-i18n-en="Java">Java</a><a href="/post/?tag=Spring%20Boot" data-tag="Spring Boot" data-i18n="post.finance-saas-backend.tag.1" data-i18n-en="Spring Boot">Spring Boot</a><a href="/post/?tag=Dubbo" data-tag="Dubbo" data-i18n="post.finance-saas-backend.tag.2" data-i18n-en="Dubbo">Dubbo</a><a href="/post/?tag=RocketMQ" data-tag="RocketMQ" data-i18n="post.finance-saas-backend.tag.3" data-i18n-en="RocketMQ">RocketMQ</a><a href="/post/?tag=Elasticsearch" data-tag="Elasticsearch" data-i18n="post.finance-saas-backend.tag.4" data-i18n-en="Elasticsearch">Elasticsearch</a>
+            </div>
+          </header>
+          <div class="article-content" data-i18n-lang="zh">
+          <h2 id="toc-1-1-项目概述">1. 项目概述</h2>
           <p>企顾 SaaS 多模块平台面向企业服务场景，围绕「客户数据资产、财税报表处理、通知触达、搜索检索」四类高频能力构建统一的业务中台。项目采用 Java 8 + Spring Boot 2.4.1 技术体系，并结合 Dubbo、RocketMQ、Redis/Redisson、JetCache、Elasticsearch、MyBatis、Druid、Nacos 等组件，形成可独立演进、可复用、可扩展的多模块微服务架构。</p>
           <p>从代码结构看，项目由 4 个主项目、26 个 Maven POM、22+ 个业务/能力子模块组成，覆盖 API、实现、Starter、Runtime、SDK、DAO、Web、Export SDK 等不同层次。仓库中共有 1,362 个 Java 文件，其中通知中心与报表模块占比最高，体现出平台在业务编排、异步处理、缓存一致性、导出性能和三方集成方面的工程复杂度。</p>
           <p>核心模块包括：</p>
@@ -106,12 +108,12 @@
           <td>Elasticsearch 搜索 SDK、索引构建、查询封装、Spring Boot Starter</td>
           </tr>
           </tbody></table>
-          <h2>2. 业务价值</h2>
+          <h2 id="toc-2-2-业务价值">2. 业务价值</h2>
           <p>该项目不是单一业务应用，而是支撑 SaaS 产品矩阵的「基础能力平台」。它将客户数据、通知触达、报表计算和搜索能力抽象成可复用服务，降低上层业务系统重复建设成本，并提升多租户 SaaS 场景下的交付效率。</p>
-          <h3>2.1 客户数据资产沉淀</h3>
+          <h3 id="toc-2-2-1-客户数据资产沉淀">2.1 客户数据资产沉淀</h3>
           <p><code>qiangu-saas-galaxy</code> 负责企业客户信息与工商画像管理，初始化表结构覆盖 13 类企业数据主题，包括企业基本信息、股东、主要人员、商标、专利、软件著作权、作品著作权、经营异常、变更记录、联系人、ICP备案、对外投资、资质备案等。</p>
           <p>这些数据支撑了客户识别、销售线索挖掘、风险判断、客户分层、工商信息查询等场景。表结构中围绕 <code>company_id</code>、<code>company_num</code>、<code>reg_num</code>、<code>tel</code> 等字段建立索引，说明系统针对企业维度查询、联系人检索和画像聚合做了查询路径设计。</p>
-          <h3>2.2 财税报表自动化</h3>
+          <h3 id="toc-2-2-2-财税报表自动化">2.2 财税报表自动化</h3>
           <p><code>qiangu-ftm-statement</code> 承担财税报表域能力，覆盖余额表、明细账、总账、辅助余额表、辅助明细账、利润表、现金流量表、三表合一、期初余额导入结果等 10 类导出/处理类型。</p>
           <p>业务价值主要体现在：</p>
           <ul>
@@ -120,7 +122,7 @@
           <li>支持单 Sheet、多 Sheet、文件流、异步文件路径等多种导出方式，满足页面下载、后台任务、批量归档等场景。</li>
           <li>通过缓存、消息队列和分布式锁保障报表计算结果的正确性与性能。</li>
           </ul>
-          <h3>2.3 全渠道通知触达</h3>
+          <h3 id="toc-2-2-3-全渠道通知触达">2.3 全渠道通知触达</h3>
           <p><code>qiangu-saas-notice</code> 将短信、邮件、站内信、App Push、微信公众号模板消息、外呼、语音识别封装为统一通知中心。业务系统不需要直接对接各类三方通道，只需要通过通知中心 API 或 MQ 事件发起触达。</p>
           <p>通知中心的业务收益包括：</p>
           <ul>
@@ -129,9 +131,9 @@
           <li>微信公众号模板消息支持批量发送，并与站内信联动，提升触达成功率。</li>
           <li>外呼模块兼容多个外呼供应商，并提供坐席状态、通话记录、录音转存、回调幂等等完整闭环。</li>
           </ul>
-          <h3>2.4 搜索能力平台化</h3>
+          <h3 id="toc-2-2-4-搜索能力平台化">2.4 搜索能力平台化</h3>
           <p><code>qiangu-saas-search</code> 将 Elasticsearch 的索引、查询、聚合、别名、模板、分词、批量写入等能力封装为 <code>search-api</code>、<code>search-core</code> 和 <code>spring-boot-starter-search</code>。业务模块可以通过 Starter 自动装配 <code>ESClient</code>、<code>Searcher</code>、<code>Indexer</code>，不用重复处理 ES 连接、节点探活、响应反序列化和异常封装。</p>
-          <h2>3. 技术架构</h2>
+          <h2 id="toc-3-3-技术架构">3. 技术架构</h2>
           <p>项目采用典型的多模块分层架构：</p>
           <pre><code class="language-text">API / SDK 层
             - gaia-notice-api
@@ -161,8 +163,8 @@
             - saas-platform-speech
           </code></pre>
           <p>整体上，系统通过 API 模块定义稳定契约，通过 Implement/Server 模块承载业务逻辑，通过 Starter/Runtime 模块完成运行时装配，通过 SDK 模块对外复用能力。这种拆分方式适合 SaaS 多业务线共用能力沉淀，也便于灰度升级和独立部署。</p>
-          <h2>4. 技术深度</h2>
-          <h3>4.1 微服务与服务治理实践</h3>
+          <h2 id="toc-4-4-技术深度">4. 技术深度</h2>
+          <h3 id="toc-4-4-1-微服务与服务治理实践">4.1 微服务与服务治理实践</h3>
           <p>项目中 <code>saas-galaxy-server</code>、<code>saas-galaxy-web</code> 启用了 <code>@EnableDiscoveryClient</code> 与 <code>@EnableDubbo</code>，并通过 Nacos/Consul 相关配置承接服务注册发现。Galaxy 的 API 自动配置模块引入 Dubbo Consumer AutoConfiguration，使调用方可以通过依赖 API + AutoConfigure 的方式接入远程服务。</p>
           <p>通知中心和报表中心则通过 API、Starter、SDK 的组合实现能力开放：</p>
           <ul>
@@ -171,7 +173,7 @@
           <li>SDK 模块沉淀外呼状态、报表导出等可复用能力。</li>
           <li>Runtime 模块提供独立运行入口，支持单独部署与本地调试。</li>
           </ul>
-        </div>
+          </div>
             <div class="post-share" data-share-url="/post/finance-saas-backend/" data-share-title="企顾 SaaS 多模块平台" data-share-title-en="Qigu SaaS Platform">
               <span class="share-label" data-i18n="post.share"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg> 分享</span>
               <a class="share-btn" data-share="x" href="#" target="_blank" rel="noopener" aria-label="分享到 X" data-i18n-aria="post.share.x"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
@@ -179,7 +181,30 @@
               <button class="share-btn" type="button" data-share="wechat" aria-label="微信扫码分享" data-i18n-aria="post.share.wechat"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M8.691 2.188C3.891 2.188 0 5.476 0 9.53c0 2.212 1.17 4.203 3.002 5.55a.59.59 0 0 1 .213.665l-.39 1.48c-.019.07-.048.141-.048.213 0 .163.13.295.29.295a.326.326 0 0 0 .167-.054l1.903-1.114a.864.864 0 0 1 .717-.098 10.16 10.16 0 0 0 2.837.403c.276 0 .543-.027.811-.05-.857-2.578.157-4.972 1.932-6.446 1.703-1.415 3.882-1.98 5.853-1.838-.576-3.583-4.196-6.348-8.596-6.348zM5.785 5.991c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178A1.17 1.17 0 0 1 4.623 7.17c0-.651.52-1.18 1.162-1.18zm5.813 0c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178 1.17 1.17 0 0 1-1.162-1.178c0-.651.52-1.18 1.162-1.18zm5.34 2.867c-1.797-.052-3.746.512-5.28 1.786-1.72 1.428-2.687 3.72-1.78 6.22.942 2.453 3.666 4.229 6.884 4.229.826 0 1.622-.12 2.361-.336a.722.722 0 0 1 .598.082l1.584.926a.272.272 0 0 0 .14.047c.134 0 .24-.111.24-.247 0-.06-.023-.12-.038-.177l-.327-1.233a.582.582 0 0 1-.023-.156.49.49 0 0 1 .201-.398C23.024 18.48 24 16.82 24 14.98c0-3.21-2.931-5.837-6.656-6.088V8.89c-.135-.01-.27-.027-.406-.032zm-3.39 2.927c.535 0 .969.44.969.982a.976.976 0 0 1-.969.983.976.976 0 0 1-.969-.983c0-.542.434-.982.969-.982zm4.844 0c.535 0 .969.44.969.982a.976.976 0 0 1-.969.983.976.976 0 0 1-.969-.983c0-.542.434-.982.969-.982z"/></svg></button>
               <button class="share-btn" type="button" data-share="copy" aria-label="复制链接" data-i18n-aria="post.share.copy"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/></svg></button>
             </div>
-      </article>
+        </article>
+        <aside class="toc-sidebar is-open" aria-label="目录" data-i18n-aria="toc.aria">
+          <div class="toc-header">
+            <button class="toc-toggle" type="button" aria-expanded="true" aria-label="展开/收起目录" data-i18n-aria="toc.toggle">
+              <i class="fas fa-list" aria-hidden="true"></i>
+              <span data-i18n="toc.title">目录</span>
+              <i class="fas fa-chevron-down toc-chevron" aria-hidden="true"></i>
+            </button>
+          </div>
+          <nav class="toc-nav">
+            <ul>
+            <li><a href="#toc-1-1-项目概述" data-toc-id="toc-1-1-项目概述" data-i18n="toc.toc-1-1-项目概述" data-i18n-en="1. 项目概述">1. 项目概述</a></li>
+            <li><a href="#toc-2-2-业务价值" data-toc-id="toc-2-2-业务价值" data-i18n="toc.toc-2-2-业务价值" data-i18n-en="2. 业务价值">2. 业务价值</a></li>
+            <li class="toc-sub"><a href="#toc-2-2-1-客户数据资产沉淀" data-toc-id="toc-2-2-1-客户数据资产沉淀" data-i18n="toc.toc-2-2-1-客户数据资产沉淀" data-i18n-en="2.1 客户数据资产沉淀">2.1 客户数据资产沉淀</a></li>
+            <li class="toc-sub"><a href="#toc-2-2-2-财税报表自动化" data-toc-id="toc-2-2-2-财税报表自动化" data-i18n="toc.toc-2-2-2-财税报表自动化" data-i18n-en="2.2 财税报表自动化">2.2 财税报表自动化</a></li>
+            <li class="toc-sub"><a href="#toc-2-2-3-全渠道通知触达" data-toc-id="toc-2-2-3-全渠道通知触达" data-i18n="toc.toc-2-2-3-全渠道通知触达" data-i18n-en="2.3 全渠道通知触达">2.3 全渠道通知触达</a></li>
+            <li class="toc-sub"><a href="#toc-2-2-4-搜索能力平台化" data-toc-id="toc-2-2-4-搜索能力平台化" data-i18n="toc.toc-2-2-4-搜索能力平台化" data-i18n-en="2.4 搜索能力平台化">2.4 搜索能力平台化</a></li>
+            <li><a href="#toc-3-3-技术架构" data-toc-id="toc-3-3-技术架构" data-i18n="toc.toc-3-3-技术架构" data-i18n-en="3. 技术架构">3. 技术架构</a></li>
+            <li><a href="#toc-4-4-技术深度" data-toc-id="toc-4-4-技术深度" data-i18n="toc.toc-4-4-技术深度" data-i18n-en="4. 技术深度">4. 技术深度</a></li>
+            <li class="toc-sub"><a href="#toc-4-4-1-微服务与服务治理实践" data-toc-id="toc-4-4-1-微服务与服务治理实践" data-i18n="toc.toc-4-4-1-微服务与服务治理实践" data-i18n-en="4.1 微服务与服务治理实践">4.1 微服务与服务治理实践</a></li>
+            </ul>
+          </nav>
+        </aside>
+      </div>
       <section class="comments container" aria-label="评论" data-i18n-aria="post.comments.aria">
         <h2 data-i18n="post.comments"><i class="fas fa-comments" aria-hidden="true"></i> 评论</h2>
         <div id="giscus-thread"></div>
