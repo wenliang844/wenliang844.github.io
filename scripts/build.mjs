@@ -19,6 +19,7 @@ import { renderTagsPage } from "../src/templates/tags.mjs";
 import { renderCategoriesPage } from "../src/templates/categories.mjs";
 import { renderAiPage } from "../src/templates/ai.mjs";
 import { renderAppreciationPage } from "../src/templates/appreciation.mjs";
+import { renderSponsorPage } from "../src/templates/sponsor.mjs";
 import { escapeXml, rfc822, sitemapDate } from "../src/lib/format.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -435,6 +436,9 @@ async function main() {
 
   // 鉴赏页
   await writeFileEnsured("appreciation/index.html", renderAppreciationPage() + "\n");
+
+  // 赞助页
+  await writeFileEnsured("sponsor/index.html", renderSponsorPage() + "\n");
 
   // sitemap + RSS
   await writeFileEnsured("sitemap.xml", buildSitemap(posts) + "\n");

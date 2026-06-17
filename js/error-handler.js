@@ -114,10 +114,11 @@
 
   // 全局未捕获错误处理
   window.addEventListener('error', function (event) {
-    ErrorHandler.log(event.error || new Error(event.message), 'window.onerror');
+    if (event.target !== window) {
+      return;
+    }
 
-    // 显示用户友好的消息
-    ErrorHandler.showUserMessage('页面遇到了一个问题，已自动记录。请刷新页面重试。');
+    ErrorHandler.log(event.error || new Error(event.message), 'window.onerror');
 
     // 阻止默认错误显示
     event.preventDefault();
@@ -129,8 +130,6 @@
       new Error(event.reason || 'Promise rejected'),
       'unhandledrejection'
     );
-
-    ErrorHandler.showUserMessage('操作失败，请稍后重试。');
 
     event.preventDefault();
   });
@@ -147,8 +146,8 @@
         'resource-error:' + tagName
       );
 
-      // 对关键资源加载失败给出提示
-      if (tagName === 'script' && src.includes('vendor')) {
+      // 只对本地关键 vendor 脚本加载失败给出提示，避免第三方资源失败误报为整页错误。
+      if (tagName === 'script' && src.includes('/js/vendor/')) {
         ErrorHandler.showUserMessage('部分功能加载失败，页面功能可能受限。');
       }
     }

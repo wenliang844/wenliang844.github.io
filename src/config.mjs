@@ -27,6 +27,7 @@ export const STATIC_PAGES = [
   { path: "/contact/", withDate: true },
   { path: "/ai/", withDate: true },
   { path: "/appreciation/", withDate: true },
+  { path: "/sponsor/", withDate: true },
   { path: "/categories/", withDate: false },
   { path: "/tags/", withDate: true },
 ];
@@ -67,6 +68,13 @@ export const SEARCH_PAGES = [
     path: "/appreciation/",
     tags: ["鉴赏", "榜单", "影视"],
     i18n: { en: { title: "Appreciation", summary: "A personal appreciation board: tech, film & TV and entertainment projects ranked side by side.", tags: ["Appreciation", "Ranking", "Film & TV"] } },
+  },
+  {
+    title: "Sponsor",
+    summary: "支持 CWLBlog 持续更新，可通过爱发电、PayPal 或国内扫码赞助。",
+    path: "/sponsor/",
+    tags: ["赞助", "支持"],
+    i18n: { en: { title: "Sponsor", summary: "Support CWLBlog via Afdian, PayPal or domestic scan payments.", tags: ["Sponsor", "Support"] } },
   },
   {
     title: "时间归档",

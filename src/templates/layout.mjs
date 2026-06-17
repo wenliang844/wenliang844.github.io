@@ -12,6 +12,11 @@ const NAV_ITEMS = [
   { href: "/appreciation/", label: "鉴赏", key: "appreciation", i18n: "nav.appreciation" },
 ];
 
+export const SPONSOR_LINKS = {
+  afdian: "https://www.ifdian.net/order/create?plan_id=047bc28a6a1c11f182c452540025c377&product_type=0&remark=&affiliate_code=",
+  paypal: "https://PayPal.Me/chenwenliang4212",
+};
+
 // 渲染主导航；active 标记当前栏目。
 function renderNav(active) {
   const items = NAV_ITEMS.map((item) => {
@@ -24,6 +29,7 @@ function renderNav(active) {
 ${items}
             <li><a class="nav-feedback" href="/contact/#feedback-title" data-i18n="nav.feedback" data-i18n-html><i class="fas fa-comment-dots" aria-hidden="true"></i> 留言反馈</a></li>
             <li><button class="nav-subscribe" type="button" data-subscribe-open data-i18n="nav.subscribe" data-i18n-html><i class="fas fa-envelope" aria-hidden="true"></i> 订阅</button></li>
+            <li><a class="nav-sponsor${active === "sponsor" ? " active" : ""}" href="/sponsor/" data-i18n="nav.sponsor" data-i18n-html><i class="fas fa-heart" aria-hidden="true"></i> Sponsor</a></li>
             <li><button class="theme-toggle" type="button" aria-label="Toggle dark mode" data-i18n-aria="nav.theme"><i class="fas fa-adjust"></i></button></li>
             <li><button class="lang-toggle" type="button" aria-label="Switch language">EN</button></li>
             <li><button class="nav-search-trigger" type="button" aria-label="全局搜索" data-i18n-aria="nav.search"><i class="fas fa-search"></i></button></li>
@@ -36,6 +42,16 @@ function renderScripts(scripts) {
   return scripts
     .map((src) => `  <script src="${src}" defer></script>`)
     .join("\n");
+}
+
+function renderSponsorFooterCta() {
+  return `        <div class="sponsor-mini" aria-label="Sponsor support options" data-i18n-aria="sponsorMini.aria">
+          <p class="sponsor-mini-text" data-i18n="sponsorMini.text">如果内容对你有帮助，可以支持我继续更新。</p>
+          <div class="sponsor-mini-actions">
+            <a class="sponsor-mini-btn sponsor-mini-primary" href="${SPONSOR_LINKS.afdian}" target="_blank" rel="noopener noreferrer" data-i18n="sponsorMini.afdian">☕ Sponsor</a>
+            <a class="sponsor-mini-btn sponsor-mini-secondary" href="${SPONSOR_LINKS.paypal}" target="_blank" rel="noopener noreferrer" data-i18n="sponsorMini.paypal">💳 PayPal Support</a>
+          </div>
+        </div>`;
 }
 
 /**
@@ -142,6 +158,7 @@ ${main}
           </form>
           <p class="subscribe-status" role="status" aria-live="polite"></p>
         </div>
+${renderSponsorFooterCta()}
         <p data-i18n="footer.text">© 2021 - 2026 CWL · Powered by Hugo · Theme inspired by Coder</p>
       </section>
     </footer>
