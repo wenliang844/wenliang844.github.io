@@ -60,6 +60,57 @@ test("post template escapes front matter text while preserving article HTML", ()
   assert.match(html, /<strong>trusted markdown html<\/strong>/);
 });
 
+test("post template renders next popup, related posts, bilingual body and JSON-LD images", () => {
+  const post = {
+    title: "Current Post",
+    titleEn: "Current Post EN",
+    shortTitle: "Current",
+    shortTitleEn: "Current EN",
+    slug: "current-post",
+    date: "2026-06-16",
+    eyebrow: "Case Study",
+    summary: "Summary",
+    summaryEn: "Summary EN",
+    description: "Description",
+    descriptionEn: "Description EN",
+    tags: ["Java"],
+    tagsEn: ["Java"],
+    images: ["/images/favicon.png", "./cover.png", "https://example.com/remote.png"],
+    readMinutes: 3,
+    contentHtml: "          <p>中文正文</p>",
+    contentHtmlEn: "          <p>English body</p>",
+  };
+  const next = {
+    ...post,
+    title: "Next Post",
+    shortTitle: "Next",
+    slug: "next-post",
+    date: "2026-01-01",
+    eyebrow: "Next",
+  };
+  const related = [{
+    ...post,
+    title: "Related Post",
+    shortTitle: "Related",
+    slug: "related-post",
+    date: "2025-01-01",
+    eyebrow: "Related",
+  }];
+
+  const html = renderPostPage(post, { prev: null, next, related });
+
+  assert.match(html, /src="\/js\/post-next\.js"/);
+  assert.match(html, /class="next-popup"/);
+  assert.match(html, /href="\/post\/next-post\/"/);
+  assert.match(html, /class="post-related"/);
+  assert.match(html, /href="\/post\/related-post\/"/);
+  assert.match(html, /data-i18n-lang="en" hidden/);
+  assert.match(html, /<script type="application\/ld\+json">/);
+  assert.match(html, /https:\/\/wenliang844\.github\.io\/images\/favicon\.png/);
+  assert.match(html, /https:\/\/wenliang844\.github\.io\/post\/current-post\/cover\.png/);
+  assert.match(html, /https:\/\/example\.com\/remote\.png/);
+});
+
 test("tags page escapes tag labels and i18n keys", () => {
   const html = renderTagsPage([{ tag: `bad"tag<script>`, tagEn: `Bad <Tag>`, count: 1 }]);
   assert.doesNotMatch(html, />bad"tag<script></);

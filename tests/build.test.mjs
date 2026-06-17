@@ -24,6 +24,7 @@ test("build writes the expected static artifacts", async () => {
     assert.match(stdout, /构建完成：6 篇文章/);
 
     const postsHtml = await readFile(join(outDir, "post", "index.html"), "utf8");
+    const singlePostHtml = await readFile(join(outDir, "post", "manage-system", "index.html"), "utf8");
     const appreciationHtml = await readFile(join(outDir, "appreciation", "index.html"), "utf8");
     const sitemap = await readFile(join(outDir, "sitemap.xml"), "utf8");
     const rss = await readFile(join(outDir, "index.xml"), "utf8");
@@ -68,7 +69,15 @@ test("build writes the expected static artifacts", async () => {
       assert.ok(appreciationHtml.includes(text), `appreciation page missing: ${text}`);
     }
     assert.match(sitemap, /<urlset /);
+    assert.match(sitemap, /xmlns:image="http:\/\/www\.google\.com\/schemas\/sitemap-image\/1\.1"/);
     assert.match(sitemap, /<loc>https:\/\/wenliang844.github.io\/about\/<\/loc>/);
+    // 单篇页：阅读时长占位、JSON-LD Article、相关文章、下一篇浮动卡。
+    assert.match(singlePostHtml, /class="reading-time"/);
+    assert.match(singlePostHtml, /<script type="application\/ld\+json">/);
+    assert.match(singlePostHtml, /"@type":"Article"/);
+    assert.match(singlePostHtml, /class="post-related"/);
+    assert.match(singlePostHtml, /class="next-popup"/);
+    assert.match(singlePostHtml, /\/js\/post-next\.js/);
     assert.match(rss, /<rss version="2.0"/);
     assert.doesNotMatch(rss, /Hugo/);
     assert.equal(searchIndex.filter((item) => item.type === "post").length, 6);
