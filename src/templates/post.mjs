@@ -30,8 +30,11 @@ function renderTagLinks(post) {
 }
 
 function renderI18nContent(post, indent) {
+  // 没有英文译文时，正文不打 data-i18n-lang 标记，保证任何语言下都显示（中文兜底）。
+  if (!post.contentHtmlEn) {
+    return `${indent}<div class="article-content">\n${post.contentHtml}\n${indent}</div>`;
+  }
   const zh = `${indent}<div class="article-content" data-i18n-lang="zh">\n${post.contentHtml}\n${indent}</div>`;
-  if (!post.contentHtmlEn) return zh;
   const en = `${indent}<div class="article-content" data-i18n-lang="en" hidden>\n${post.contentHtmlEn}\n${indent}</div>`;
   return `${zh}\n${en}`;
 }

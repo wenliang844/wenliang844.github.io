@@ -75,7 +75,7 @@
               <a href="/post/?tag=Java" data-tag="Java" data-i18n="post.activiti-workflow-engine.tag.0" data-i18n-en="Java">Java</a><a href="/post/?tag=Spring%20Boot" data-tag="Spring Boot" data-i18n="post.activiti-workflow-engine.tag.1" data-i18n-en="Spring Boot">Spring Boot</a><a href="/post/?tag=Activiti%207" data-tag="Activiti 7" data-i18n="post.activiti-workflow-engine.tag.2" data-i18n-en="Activiti 7">Activiti 7</a><a href="/post/?tag=BPMN%202.0" data-tag="BPMN 2.0" data-i18n="post.activiti-workflow-engine.tag.3" data-i18n-en="BPMN 2.0">BPMN 2.0</a><a href="/post/?tag=%E5%B7%A5%E4%BD%9C%E6%B5%81" data-tag="工作流" data-i18n="post.activiti-workflow-engine.tag.4" data-i18n-en="Workflow">工作流</a>
             </div>
           </header>
-          <div class="article-content" data-i18n-lang="zh">
+          <div class="article-content">
           <h2 id="toc-1-项目概述">项目概述</h2>
           <p>Terminus Activiti 是一个基于 Activiti 7.1.0-SNAPSHOT 的企业级工作流与 BPM（Business Process Management）项目。项目以 BPMN 2.0 流程引擎为核心，围绕流程定义、流程实例、人工任务、变量管理、事件监听、异步作业、连接器扩展和 Spring Boot 自动装配构建了一套可嵌入业务系统、可扩展到微服务架构的流程基础设施。</p>
           <p>从业务视角看，它解决的是企业系统中大量“状态流转 + 人工审批 + 系统协同 + 过程留痕”的通用问题，例如审批流、订单履约、内容审核、工单处理、任务协同、跨系统回调等。传统做法往往把流程逻辑硬编码在业务服务中，后续规则变更需要频繁发版；本项目通过 BPMN 建模和统一 Runtime API，把流程从业务代码中剥离出来，使业务人员、开发人员和系统管理员可以围绕同一套流程模型协作。</p>

@@ -75,7 +75,7 @@
               <a href="/post/?tag=Java" data-tag="Java" data-i18n="post.finance-saas-backend.tag.0" data-i18n-en="Java">Java</a><a href="/post/?tag=Spring%20Boot" data-tag="Spring Boot" data-i18n="post.finance-saas-backend.tag.1" data-i18n-en="Spring Boot">Spring Boot</a><a href="/post/?tag=Dubbo" data-tag="Dubbo" data-i18n="post.finance-saas-backend.tag.2" data-i18n-en="Dubbo">Dubbo</a><a href="/post/?tag=RocketMQ" data-tag="RocketMQ" data-i18n="post.finance-saas-backend.tag.3" data-i18n-en="RocketMQ">RocketMQ</a><a href="/post/?tag=Elasticsearch" data-tag="Elasticsearch" data-i18n="post.finance-saas-backend.tag.4" data-i18n-en="Elasticsearch">Elasticsearch</a>
             </div>
           </header>
-          <div class="article-content" data-i18n-lang="zh">
+          <div class="article-content">
           <h2 id="toc-1-1-项目概述">1. 项目概述</h2>
           <p>企顾 SaaS 多模块平台面向企业服务场景，围绕「客户数据资产、财税报表处理、通知触达、搜索检索」四类高频能力构建统一的业务中台。项目采用 Java 8 + Spring Boot 2.4.1 技术体系，并结合 Dubbo、RocketMQ、Redis/Redisson、JetCache、Elasticsearch、MyBatis、Druid、Nacos 等组件，形成可独立演进、可复用、可扩展的多模块微服务架构。</p>
           <p>从代码结构看，项目由 4 个主项目、26 个 Maven POM、22+ 个业务/能力子模块组成，覆盖 API、实现、Starter、Runtime、SDK、DAO、Web、Export SDK 等不同层次。仓库中共有 1,362 个 Java 文件，其中通知中心与报表模块占比最高，体现出平台在业务编排、异步处理、缓存一致性、导出性能和三方集成方面的工程复杂度。</p>
