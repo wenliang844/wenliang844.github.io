@@ -34,8 +34,12 @@
 | 🟢 第三 | 开发体验 | [devex-improvements.md](devex-improvements.md) | 10（中 2 / 低 8） |
 | 🔵 第四 | 模块分析-构建系统 | [module-reviews/build-system.md](module-reviews/build-system.md) | 5 |
 | 🔵 第四 | 模块分析-客户端JS | [module-reviews/client-javascript.md](module-reviews/client-javascript.md) | 5 |
+| 🔵 第四 | 模块分析-编辑器 | [module-reviews/editor.md](module-reviews/editor.md) | 5 |
+| 🔵 第四 | 模块分析-Overleaf | [module-reviews/overleaf.md](module-reviews/overleaf.md) | 5 |
+| 🔵 第四 | 模块分析-CSS | [module-reviews/css-analysis.md](module-reviews/css-analysis.md) | 5 |
+| 🔵 第四 | SEO 与可访问性 | [module-reviews/seo-analysis.md](module-reviews/seo-analysis.md) | 6 |
 | 🔵 第四 | 竞品分析 | [competitive-analysis.md](competitive-analysis.md) | 6 |
-| | **总计** | | **105 条建议** |
+| | **总计** | | **131 条建议** |
 
 ---
 
@@ -68,6 +72,9 @@
 | UX-03 | 图片 Lightbox | UX | ⭐⭐ |
 | DE-01 | GitHub Actions CI/CD | 工程化 | ⭐⭐ |
 | F-06 | 标签云可视化 | 功能 | ⭐ |
+| SEO-03 | 修复 sitemap priority | SEO | ⭐ |
+| SEO-01 | 首页 JSON-LD | SEO | ⭐ |
+| MR-EDITOR-03 | 编辑器代码高亮修复 | 模块分析 | ⭐ |
 | COMP-02 | 构建时代码高亮 | 竞品借鉴 | ⭐⭐ |
 
 ### 🥉 低优先级（长期改进方向）
@@ -101,7 +108,11 @@ docs/
     ├── competitive-analysis.md             ← 同类项目对比
     └── module-reviews/
         ├── build-system.md                 ← 构建系统模块分析
-        └── client-javascript.md            ← 客户端 JS 模块分析
+        ├── client-javascript.md            ← 客户端 JS 模块分析
+        ├── editor.md                       ← Markdown 编辑器模块分析
+        ├── overleaf.md                     ← Overleaf 简历编辑器模块分析
+        ├── css-analysis.md                 ← CSS 样式系统分析
+        └── seo-analysis.md                 ← SEO 与可访问性专项分析
 ```
 
 ---
