@@ -7,58 +7,24 @@
 
   // 注册 https://buttondown.com 后，把你的 username 填到这里（全站唯一一处）。
   // 留空则页脚订阅表单自动禁用，不会向无效端点发请求。
-  var BUTTONDOWN_USERNAME = "cwl";
+  const BUTTONDOWN_USERNAME = "cwl";
 
-  var root = document.querySelector(".subscribe");
-  if (!root) {
-    return;
-  }
-
-  var form = root.querySelector(".subscribe-form");
-  var input = root.querySelector(".subscribe-input");
-  var btn = root.querySelector(".subscribe-btn");
-  var statusEl = root.querySelector(".subscribe-status");
-  if (!form || !input) {
-    return;
-  }
-
-  var username = BUTTONDOWN_USERNAME.trim();
-  var ENDPOINT = "https://buttondown.com/api/emails/embed-subscribe/";
-  var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const username = BUTTONDOWN_USERNAME.trim();
+  const ENDPOINT = "https://buttondown.com/api/emails/embed-subscribe/";
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   function t(key, fallback) {
     return window.cwlT ? window.cwlT(key, fallback) : fallback;
   }
 
-  function setStatus(text) {
-    if (statusEl) {
-      statusEl.textContent = text || "";
-    }
-  }
-
-  // 未配置用户名：禁用输入与按钮并提示，避免提交打到无效端点。
-  // 提示也随语言切换刷新，保持与全站 i18n 一致。
-  if (!username) {
-    input.disabled = true;
-    if (btn) {
-      btn.disabled = true;
-    }
-    var showDisabled = function () {
-      setStatus(t("subscribe.disabled", "订阅暂未开通。"));
-    };
-    showDisabled();
-    document.addEventListener("cwl:langchange", showDisabled);
-    return;
-  }
-
   function submitEmail(emailValue, setStatus, btn, onSuccess) {
-    var email = (emailValue || "").trim();
+    const email = (emailValue || "").trim();
     if (!EMAIL_RE.test(email)) {
       setStatus(t("subscribe.invalid", "请输入有效的邮箱地址。"));
       return;
     }
 
-    if (btn) btn.disabled = true;
+    if (btn) {btn.disabled = true;}
     setStatus(t("subscribe.sending", "提交中…"));
 
     const body = new FormData();
@@ -71,35 +37,35 @@
       body: body
     }).then(function () {
       setStatus(t("subscribe.success", "差一步！请查收确认邮件完成订阅。"));
-      if (onSuccess) onSuccess();
+      if (onSuccess) {onSuccess();}
     }).catch(function () {
       setStatus(t("subscribe.fail", "提交失败，请稍后重试。"));
     }).then(function () {
-      if (btn) btn.disabled = false;
+      if (btn) {btn.disabled = false;}
     });
   }
 
   /* ---- 页脚表单 --------------------------------------------------------- */
-  var footerRoot = document.querySelector(".subscribe");
+  const footerRoot = document.querySelector(".subscribe");
   if (footerRoot) {
-    var footerForm = footerRoot.querySelector(".subscribe-form");
-    var footerInput = footerRoot.querySelector(".subscribe-input");
-    var footerBtn = footerRoot.querySelector(".subscribe-btn");
-    var footerStatus = footerRoot.querySelector(".subscribe-status");
+    const footerForm = footerRoot.querySelector(".subscribe-form");
+    const footerInput = footerRoot.querySelector(".subscribe-input");
+    const footerBtn = footerRoot.querySelector(".subscribe-btn");
+    const footerStatus = footerRoot.querySelector(".subscribe-status");
 
-    function setFooterStatus(text) {
-      if (footerStatus) footerStatus.textContent = text || "";
-    }
+    const setFooterStatus = function (text) {
+      if (footerStatus) {footerStatus.textContent = text || "";}
+    };
 
     // 未配置 username：禁用并提示
     if (!username && footerForm) {
       footerInput.disabled = true;
-      if (footerBtn) footerBtn.disabled = true;
-      var showDisabled = function () {
+      if (footerBtn) {footerBtn.disabled = true;}
+      const showFooterDisabled = function () {
         setFooterStatus(t("subscribe.disabled", "订阅暂未开通。"));
       };
-      showDisabled();
-      document.addEventListener("cwl:langchange", showDisabled);
+      showFooterDisabled();
+      document.addEventListener("cwl:langchange", showFooterDisabled);
     } else if (footerForm && footerInput) {
       footerForm.addEventListener("submit", function (e) {
         e.preventDefault();
@@ -121,7 +87,7 @@
     return;
   }
 
-  var overlay = document.createElement("div");
+  const overlay = document.createElement("div");
   overlay.className = "subscribe-modal";
   overlay.setAttribute("role", "dialog");
   overlay.setAttribute("aria-modal", "true");
@@ -143,22 +109,22 @@
     '<p class="subscribe-modal-status" role="status" aria-live="polite"></p>' +
     '</div>';
 
-  var modalInput = overlay.querySelector(".subscribe-modal-input");
-  var modalBtn = overlay.querySelector(".subscribe-modal-btn");
-  var modalStatus = overlay.querySelector(".subscribe-modal-status");
-  var modalForm = overlay.querySelector(".subscribe-modal-form");
-  var closeBtn = overlay.querySelector(".subscribe-modal-close");
+  const modalInput = overlay.querySelector(".subscribe-modal-input");
+  const modalBtn = overlay.querySelector(".subscribe-modal-btn");
+  const modalStatus = overlay.querySelector(".subscribe-modal-status");
+  const modalForm = overlay.querySelector(".subscribe-modal-form");
+  const closeBtn = overlay.querySelector(".subscribe-modal-close");
 
-  var lastActive = null;
-  var oldOverflow = "";
-  var raf = window.requestAnimationFrame || function (callback) {
+  let lastActive = null;
+  let oldOverflow = "";
+  const raf = window.requestAnimationFrame || function (callback) {
     return window.setTimeout(callback, 0);
   };
 
   document.body.appendChild(overlay);
 
   function setModalStatus(text) {
-    if (modalStatus) modalStatus.textContent = text || "";
+    if (modalStatus) {modalStatus.textContent = text || "";}
   }
 
   function openModal() {
@@ -166,7 +132,7 @@
     oldOverflow = document.body.style.overflow;
     overlay.classList.add("open");
     document.body.style.overflow = "hidden";
-    var menu = document.querySelector(".menu-toggle");
+    const menu = document.querySelector(".menu-toggle");
     if (menu) {
       menu.checked = false;
     }
@@ -189,7 +155,7 @@
   }
 
   function applyI18n() {
-    var title = overlay.querySelector("#subscribe-modal-title");
+    const title = overlay.querySelector("#subscribe-modal-title");
     if (title) {
       title.textContent = t("subscribe.title", "订阅更新 · 新文章邮件提醒");
     }
@@ -206,7 +172,7 @@
 
   // 导航按钮点击打开
   document.addEventListener("click", function (e) {
-    var btn = e.target.closest("[data-subscribe-open]");
+    const btn = e.target.closest("[data-subscribe-open]");
     if (btn) {
       e.preventDefault();
       openModal();

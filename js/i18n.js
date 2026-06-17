@@ -387,6 +387,12 @@
     "dyn.search.open": "Enter Open",
     "dyn.search.shortcut": "Ctrl/⌘ K Search",
     "dyn.blog.empty": "No matching posts. Try another keyword or tag.",
+    "dyn.blog.toc": "Article list",
+    "post.related.title": "Related posts",
+    "post.related.aria": "Related posts",
+    "post.next.eyebrow": "Up next",
+    "post.next.aria": "Up next recommendation",
+    "post.next.close": "Close",
     "dyn.comments.placeholder": "Comments are not configured yet. Add the giscus repo / repoId / categoryId values in <code>js/giscus.js</code> to enable GitHub Discussions comments.",
   };
 

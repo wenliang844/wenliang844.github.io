@@ -110,10 +110,15 @@ export function renderPage(opts) {
     page = "",
     main,
     og,
+    jsonLd,
   } = opts;
 
   const allScripts = ["/js/error-handler.js", "/js/utils.js", "/js/i18n.js", "/js/coder.js", "/js/search-loader.js", "/js/subscribe.js", ...scripts];
   const meta = renderMeta(og);
+  // JSON-LD 结构化数据：转义 "<" 防止 </script> 提前闭合脚本块。
+  const jsonLdTag = jsonLd
+    ? `\n  <script type="application/ld+json">${JSON.stringify(jsonLd).replace(/</g, "\\u003c")}</script>`
+    : "";
 
   const bodyI18n = [
     page ? `data-i18n-page="${page}"` : "",
@@ -132,7 +137,7 @@ export function renderPage(opts) {
   <link rel="dns-prefetch" href="https://giscus.app">
   <link rel="stylesheet" href="/css/fontawesome-all.min.css">
   <link rel="stylesheet" href="/css/coder.css">
-${renderScripts(allScripts)}${meta ? "\n" + meta : ""}
+${renderScripts(allScripts)}${meta ? "\n" + meta : ""}${jsonLdTag}
   <title>${escapeHtml(title)}</title>
 </head>
 <body class="${bodyClass}"${bodyI18n ? ` ${bodyI18n}` : ""}>

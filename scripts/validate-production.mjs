@@ -12,6 +12,7 @@ import { promisify } from 'node:util';
 
 const execFileAsync = promisify(execFile);
 const ROOT = process.cwd();
+const IS_WINDOWS = process.platform === 'win32';
 
 const checks = {
   passed: [],
@@ -70,7 +71,7 @@ async function checkDocumentation() {
   console.log('\n📚 检查文档...');
 
   const docs = [
-    'README.md',
+    'readme.md',
     'docs/SECURITY.md',
     'docs/PERFORMANCE.md',
     'docs/DEPLOYMENT.md',
@@ -150,32 +151,70 @@ async function runTests() {
 async function checkDependencies() {
   console.log('\n📦 检查依赖...');
 
-  try {
-    const { stdout } = await execFileAsync('npm', ['audit', '--json'], {
-      cwd: ROOT,
-      windowsHide: true
-    });
+  const runAudit = async (registry) => {
+    const args = ['audit', '--json'];
+    if (registry) {
+      args.push(`--registry=${registry}`);
+    }
 
-    const audit = JSON.parse(stdout);
-    const vulnerabilities = audit.metadata?.vulnerabilities;
-
-    if (vulnerabilities) {
-      const total = Object.values(vulnerabilities).reduce((sum, count) => sum + count, 0);
-      if (total === 0) {
-        pass('依赖无已知漏洞');
-      } else {
-        const critical = vulnerabilities.critical || 0;
-        const high = vulnerabilities.high || 0;
-        if (critical > 0 || high > 0) {
-          fail(`发现 ${critical} 个严重漏洞和 ${high} 个高危漏洞`);
-        } else {
-          warn(`发现 ${total} 个低危/中危漏洞`);
+    try {
+      const { stdout } = await execFileAsync('npm', args, {
+        cwd: ROOT,
+        windowsHide: true,
+        shell: IS_WINDOWS
+      });
+      return JSON.parse(stdout);
+    } catch (error) {
+      if (error.stdout) {
+        const audit = JSON.parse(error.stdout);
+        if (audit.metadata?.vulnerabilities) {
+          return audit;
         }
       }
+      throw error;
     }
+  };
+
+  const evaluateAudit = (audit) => {
+    const vulnerabilities = audit.metadata?.vulnerabilities;
+
+    if (!vulnerabilities) {
+      warn('npm audit 未返回漏洞统计信息');
+      return;
+    }
+
+    const total = vulnerabilities.total ??
+      Object.values(vulnerabilities).reduce((sum, count) => sum + count, 0);
+
+    if (total === 0) {
+      pass('依赖无已知漏洞');
+      return;
+    }
+
+    const critical = vulnerabilities.critical || 0;
+    const high = vulnerabilities.high || 0;
+    if (critical > 0 || high > 0) {
+      fail(`发现 ${critical} 个严重漏洞和 ${high} 个高危漏洞`);
+    } else {
+      warn(`发现 ${total} 个低危/中危漏洞`);
+    }
+  };
+
+  try {
+    evaluateAudit(await runAudit());
   } catch (error) {
-    // npm audit 在镜像源可能不可用
-    warn('npm audit 执行失败（可能是镜像源不支持）');
+    const output = [error.stdout, error.stderr, error.message].filter(Boolean).join('\n');
+    if (/security\/audits|NOT_IMPLEMENTED/i.test(output)) {
+      console.log('默认 npm registry 不支持 audit，切换官方 registry 重试...');
+      try {
+        evaluateAudit(await runAudit('https://registry.npmjs.org/'));
+      } catch {
+        warn('npm audit 执行失败（官方 registry 重试也未成功）');
+      }
+      return;
+    }
+
+    warn(`npm audit 执行失败: ${error.message}`);
   }
 }
 

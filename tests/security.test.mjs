@@ -99,16 +99,25 @@ test("localStorage operations handle quota errors gracefully", async () => {
 
   // Override global window temporarily
   const originalWindow = global.window;
+  const originalWarn = console.warn;
+  const warnings = [];
   global.window = mockWindow;
+  console.warn = function (...args) {
+    warnings.push(args);
+  };
 
-  const result = storageGet("test-key");
-  assert.equal(result, null, "storageGet should return null on error");
+  try {
+    const result = storageGet("test-key");
+    assert.equal(result, null, "storageGet should return null on error");
 
-  const setResult = storageSet("test-key", "value");
-  assert.equal(setResult, false, "storageSet should return false on error");
-
-  // Restore
-  global.window = originalWindow;
+    const setResult = storageSet("test-key", "value");
+    assert.equal(setResult, false, "storageSet should return false on error");
+    assert.equal(warnings.length, 2, "storage failures should be reported");
+  } finally {
+    // Restore
+    global.window = originalWindow;
+    console.warn = originalWarn;
+  }
 });
 
 test("date validation rejects invalid formats", async () => {
@@ -116,6 +125,7 @@ test("date validation rejects invalid formats", async () => {
 
   // Valid dates
   assert.equal(normalizeDate("2024-01-15"), "2024-01-15");
+  assert.equal(normalizeDate("2024-02-29"), "2024-02-29");
   assert.equal(normalizeDate(new Date("2024-01-15")), "2024-01-15");
 
   // Invalid dates should throw
@@ -123,10 +133,12 @@ test("date validation rejects invalid formats", async () => {
   assert.throws(() => normalizeDate("15-01-2024"), /Invalid date format/);
   assert.throws(() => normalizeDate("2024-1-5"), /Invalid date format/);
   assert.throws(() => normalizeDate("not-a-date"), /Invalid date format/);
+  assert.throws(() => normalizeDate("2024-02-30"), /Invalid date value/);
+  assert.throws(() => normalizeDate("2023-02-29"), /Invalid date value/);
 });
 
 test("slug validation rejects invalid characters", async () => {
-  const { validateSlug } = await import("../scripts/build.mjs");
+  const { validateSlug, validateUniqueSlug } = await import("../scripts/build.mjs");
 
   // Valid slugs should not throw
   assert.doesNotThrow(() => validateSlug("valid-slug", "test.md"));
@@ -140,6 +152,13 @@ test("slug validation rejects invalid characters", async () => {
   assert.throws(() => validateSlug("slug/with/slash", "test.md"), /Only letters, numbers/);
   assert.throws(() => validateSlug("slug<script>", "test.md"), /Only letters, numbers/);
   assert.throws(() => validateSlug("a".repeat(101), "test.md"), /too long/);
+
+  const seenSlugs = new Map();
+  assert.doesNotThrow(() => validateUniqueSlug("valid-slug", "first.md", seenSlugs));
+  assert.throws(
+    () => validateUniqueSlug("valid-slug", "second.md", seenSlugs),
+    /Duplicate slug/,
+  );
 });
 
 test("post validation rejects missing required fields", async () => {

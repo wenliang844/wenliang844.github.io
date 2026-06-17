@@ -1,5 +1,6 @@
 // 文章相关模板：单篇页、博客列表页（树形单页显隐）。
 import { renderPage } from "./layout.mjs";
+import { SITE } from "../config.mjs";
 import { isoDate, longDate, escapeAttr, escapeHtml } from "../lib/format.mjs";
 
 function enValue(post, key) {
@@ -12,6 +13,14 @@ function i18nText(key, zh, en, extra = "") {
 
 function tagEn(post, tag, index) {
   return (post.tagsEn && post.tagsEn[index]) || tag;
+}
+
+// 阅读时长占位：SSR 输出静态值作为无 JS 兜底；coder.js 会在运行时
+// 按当前语言重算并刷新（querySelectorAll(".reading-time")），
+// 且检测到已有 .reading-time 时不再重复追加。
+function renderReadingTime(post) {
+  const minutes = post.readMinutes || 1;
+  return `<span class="reading-time"><i class="fas fa-clock" aria-hidden="true"></i> <span data-i18n="dyn.readingPrefix">阅读约</span> ${minutes} <span data-i18n="dyn.readingSuffix">分钟</span></span>`;
 }
 
 // 列表页面板用：tags 渲染为 span，由 blog.js 接管就地筛选（span 之间不留空白）。
@@ -111,10 +120,77 @@ function renderPager(prev, next) {
       </nav>`;
 }
 
+// 下一篇浮动推荐卡：默认隐藏，post-next.js 在滚动接近底部时滑入。
+// next = 更老的一篇；无 next 时不渲染（renderPostPage 也不挂脚本）。
+function renderNextPopup(next) {
+  if (!next) return "";
+  return `      <aside class="next-popup" hidden aria-label="下一篇推荐" data-i18n-aria="post.next.aria">
+        <button class="next-popup-close" type="button" aria-label="关闭" data-i18n-aria="post.next.close"><i class="fas fa-times" aria-hidden="true"></i></button>
+        <span class="next-popup-eyebrow" data-i18n="post.next.eyebrow" data-i18n-en="Up next">下一篇</span>
+        <a class="next-popup-link" href="/post/${next.slug}/">
+          <span class="next-popup-title" ${i18nText(`post.${next.slug}.shortTitle`, next.shortTitle, enValue(next, "shortTitle"))}>${escapeHtml(next.shortTitle)}</span>
+        </a>
+      </aside>`;
+}
+
+// 相关文章：基于标签重叠由构建期算好（nav.related），渲染在文末 pager 之前。
+function renderRelated(related) {
+  if (!related || related.length === 0) return "";
+  const cards = related
+    .map((post) => `        <li>
+          <a class="related-card" href="/post/${post.slug}/">
+            <span class="related-eyebrow">${escapeHtml(post.eyebrow)}</span>
+            <span class="related-title" ${i18nText(`post.${post.slug}.shortTitle`, post.shortTitle, enValue(post, "shortTitle"))}>${escapeHtml(post.shortTitle)}</span>
+            <time datetime="${isoDate(post.date)}">${isoDate(post.date)}</time>
+          </a>
+        </li>`)
+    .join("\n");
+  return `      <nav class="post-related" aria-label="相关文章" data-i18n-aria="post.related.aria">
+        <h2 class="post-related-title" data-i18n="post.related.title" data-i18n-en="Related posts">相关文章</h2>
+        <ul class="related-list">
+${cards}
+        </ul>
+      </nav>`;
+}
+
+// Article 结构化数据（JSON-LD），数据均取自 post 对象。
+function buildArticleJsonLd(post) {
+  const url = `${SITE.baseURL}/post/${post.slug}/`;
+  const data = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: post.shortTitle,
+    name: post.title,
+    description: post.description,
+    datePublished: isoDate(post.date),
+    dateModified: isoDate(post.date),
+    inLanguage: "zh-CN",
+    keywords: post.tags.join(", "),
+    mainEntityOfPage: { "@type": "WebPage", "@id": url },
+    url,
+    author: { "@type": "Person", name: SITE.author || "CWL" },
+    publisher: {
+      "@type": "Organization",
+      name: SITE.title,
+      logo: { "@type": "ImageObject", url: `${SITE.baseURL}/images/favicon.png` },
+    },
+  };
+  if (post.images && post.images.length) {
+    data.image = post.images.map((src) =>
+      /^https?:\/\//i.test(src)
+        ? src
+        : src.startsWith("/")
+          ? `${SITE.baseURL}${src}`
+          : `${url}${src.replace(/^\.?\//, "")}`,
+    );
+  }
+  return data;
+}
+
 /**
  * 单篇文章页 → post/<slug>/index.html
  * @param {object} post 文章对象（含 contentHtml）
- * @param {object} nav  { prev, next } 相邻文章
+ * @param {object} nav  { prev, next, related } 相邻文章 + 相关文章
  */
 export function renderPostPage(post, nav) {
   const tocHtml = renderToc(post.toc, post.tocEn);
@@ -128,6 +204,8 @@ export function renderPostPage(post, nav) {
               <time datetime="${isoDate(post.date)}">${longDate(post.date)}</time>
               <span>·</span>
               <a href="/post/#${post.slug}" data-i18n="post.meta.posts" data-i18n-en="Posts">文章</a>
+              <span>·</span>
+              ${renderReadingTime(post)}
             </div>
             <p class="article-summary" ${i18nText(`post.${post.slug}.summary`, post.summary, enValue(post, "summary"))}>${escapeHtml(post.summary)}</p>
             <div class="post-tags">
@@ -143,8 +221,13 @@ ${tocHtml}
         <h2 data-i18n="post.comments" data-i18n-html><i class="fas fa-comments" aria-hidden="true"></i> 评论</h2>
         <div id="giscus-thread"></div>
       </section>
+${renderRelated(nav.related)}
 ${renderPager(nav.prev, nav.next)}
+${renderNextPopup(nav.next)}
     </main>`;
+
+  const scripts = ["/js/vendor/qrcode.min.js", "/js/share.js", "/js/giscus.js", "/js/toc.js"];
+  if (nav.next) scripts.push("/js/post-next.js");
 
   return renderPage({
     title: `${post.shortTitle} :: CWLBlog`,
@@ -153,7 +236,8 @@ ${renderPager(nav.prev, nav.next)}
     descriptionEn: enValue(post, "description"),
     active: "blog",
     page: "posts",
-    scripts: ["/js/vendor/qrcode.min.js", "/js/share.js", "/js/giscus.js", "/js/toc.js"],
+    scripts,
+    jsonLd: buildArticleJsonLd(post),
     og: {
       type: "article",
       title: post.shortTitle,
@@ -208,12 +292,15 @@ ${links}
 // 列表页右侧的单篇文章面板（与单篇页正文相同，但 meta 链接指向单篇）。
 function renderArticlePanel(post, isFirst) {
   const activeCls = isFirst ? " active" : "";
-  return `          <article class="article blog-article${activeCls}" id="post-${post.slug}" data-post-slug="${post.slug}">
+  return `          <span class="post-anchor" id="${escapeAttr(post.slug)}" aria-hidden="true"></span>
+          <article class="article blog-article${activeCls}" id="post-${post.slug}" data-post-slug="${post.slug}">
             <header class="article-header">
               <span class="eyebrow">${escapeHtml(post.eyebrow)}</span>
               <h1 ${i18nText(`post.${post.slug}.title`, post.title, enValue(post, "title"))}>${escapeHtml(post.title)}</h1>
               <div class="article-meta">
                 <time datetime="${isoDate(post.date)}">${longDate(post.date)}</time>
+                <span>·</span>
+                ${renderReadingTime(post)}
               </div>
               <p class="article-summary" ${i18nText(`post.${post.slug}.summary`, post.summary, enValue(post, "summary"))}>${escapeHtml(post.summary)}</p>
               <div class="post-tags">

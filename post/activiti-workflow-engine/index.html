@@ -19,6 +19,7 @@
   <script src="/js/share.js" defer></script>
   <script src="/js/giscus.js" defer></script>
   <script src="/js/toc.js" defer></script>
+  <script src="/js/post-next.js" defer></script>
   <link rel="canonical" href="https://wenliang844.github.io/post/activiti-workflow-engine/">
   <meta property="og:type" content="article">
   <meta property="og:site_name" content="CWLBlog">
@@ -30,6 +31,7 @@
   <meta name="twitter:image" content="https://wenliang844.github.io/images/favicon.png">
   <meta name="twitter:title" content="Activiti BPM 引擎实践">
   <meta name="twitter:description" content="基于 Activiti 7 的企业级工作流与 BPM 流程引擎实践。">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"Activiti BPM 引擎实践","name":"Terminus Activiti：面向业务流程数字化的轻量级 BPM 引擎实践","description":"基于 Activiti 7 的企业级工作流与 BPM 流程引擎实践。","datePublished":"2022-02-09","dateModified":"2022-02-09","inLanguage":"zh-CN","keywords":"Java, Spring Boot, Activiti 7, BPMN 2.0, 工作流","mainEntityOfPage":{"@type":"WebPage","@id":"https://wenliang844.github.io/post/activiti-workflow-engine/"},"url":"https://wenliang844.github.io/post/activiti-workflow-engine/","author":{"@type":"Person","name":"CWL"},"publisher":{"@type":"Organization","name":"CWLBlog","logo":{"@type":"ImageObject","url":"https://wenliang844.github.io/images/favicon.png"}}}</script>
   <title>Activiti BPM 引擎实践 :: CWLBlog</title>
 </head>
 <body class="colorscheme-dark" data-i18n-page="posts" data-i18n-title-en="Activiti BPM Engine Practice :: CWLBlog" data-i18n-desc-en="Enterprise workflow and BPM engine practice based on Activiti 7.">
@@ -69,6 +71,8 @@
               <time datetime="2022-02-09">February 9, 2022</time>
               <span>·</span>
               <a href="/post/#activiti-workflow-engine" data-i18n="post.meta.posts" data-i18n-en="Posts">文章</a>
+              <span>·</span>
+              <span class="reading-time"><i class="fas fa-clock" aria-hidden="true"></i> <span data-i18n="dyn.readingPrefix">阅读约</span> 7 <span data-i18n="dyn.readingSuffix">分钟</span></span>
             </div>
             <p class="article-summary" data-i18n="post.activiti-workflow-engine.summary" data-i18n-en="Engineering notes on enterprise workflow infrastructure around Activiti 7, BPMN 2.0, runtime APIs and Spring Boot auto-configuration.">围绕 Activiti 7、BPMN 2.0、运行时 API 和 Spring Boot 自动装配，梳理企业审批流与流程基础设施的工程实践。</p>
             <div class="post-tags">
@@ -238,10 +242,36 @@
         <h2 data-i18n="post.comments" data-i18n-html><i class="fas fa-comments" aria-hidden="true"></i> 评论</h2>
         <div id="giscus-thread"></div>
       </section>
+      <nav class="post-related" aria-label="相关文章" data-i18n-aria="post.related.aria">
+        <h2 class="post-related-title" data-i18n="post.related.title" data-i18n-en="Related posts">相关文章</h2>
+        <ul class="related-list">
+        <li>
+          <a class="related-card" href="/post/manage-system/">
+            <span class="related-eyebrow">System Refactor</span>
+            <span class="related-title" data-i18n="post.manage-system.shortTitle" data-i18n-en="Alert Platform Refactor">智能分析预警平台重构</span>
+            <time datetime="2025-09-16">2025-09-16</time>
+          </a>
+        </li>
+        <li>
+          <a class="related-card" href="/post/finance-saas-backend/">
+            <span class="related-eyebrow">SaaS Backend</span>
+            <span class="related-title" data-i18n="post.finance-saas-backend.shortTitle" data-i18n-en="Qigu SaaS Platform">企顾 SaaS 多模块平台</span>
+            <time datetime="2023-08-18">2023-08-18</time>
+          </a>
+        </li>
+        </ul>
+      </nav>
       <nav class="post-pager" aria-label="Post pagination">
         <a class="pager-prev" href="/post/finance-saas-backend/">← <span data-i18n="post.finance-saas-backend.shortTitle" data-i18n-en="Qigu SaaS Platform">企顾 SaaS 多模块平台</span></a>
         <a class="pager-next" href="/post/lowcode-schema-codegen/"><span data-i18n="post.lowcode-schema-codegen.shortTitle" data-i18n-en="LowCode Engine Practice">LowCode Engine 实践</span> →</a>
       </nav>
+      <aside class="next-popup" hidden aria-label="下一篇推荐" data-i18n-aria="post.next.aria">
+        <button class="next-popup-close" type="button" aria-label="关闭" data-i18n-aria="post.next.close"><i class="fas fa-times" aria-hidden="true"></i></button>
+        <span class="next-popup-eyebrow" data-i18n="post.next.eyebrow" data-i18n-en="Up next">下一篇</span>
+        <a class="next-popup-link" href="/post/lowcode-schema-codegen/">
+          <span class="next-popup-title" data-i18n="post.lowcode-schema-codegen.shortTitle" data-i18n-en="LowCode Engine Practice">LowCode Engine 实践</span>
+        </a>
+      </aside>
     </main>
     <footer class="footer">
       <section class="container">

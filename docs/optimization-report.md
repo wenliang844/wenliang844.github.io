@@ -265,3 +265,210 @@
 
 - 继续检查搜索弹窗和分享弹窗中动态 HTML 的用户可控数据边界。
 - 若继续扩展测试，优先补 jsdom 交互测试而不是只做静态字符串检查。
+
+## 第 9 轮：订阅弹窗与 lint 回归修复
+
+时间：2026-06-17
+
+### 已完成内容
+
+- 运行 `npm test`、`npm run lint`、临时构建和生产验证建立基线。
+- 修复 `js/subscribe.js` 中 ESLint 报告的重复声明、块内函数声明和 `var` 使用问题。
+- 精简订阅脚本启动逻辑，让导航订阅弹窗不再依赖页脚 `.subscribe` 表单存在。
+- 增加 jsdom 交互测试，覆盖“无页脚订阅块时导航按钮仍可打开弹窗”的场景。
+
+### 发现的问题
+
+- `npm run lint` 失败：`showDisabled` 在同一函数作用域重复声明，并触发 `no-inner-declarations`。
+- 订阅弹窗初始化被页脚订阅块绑定，未来页面若去掉 footer 表单，导航订阅按钮会失效。
+
+### 修复方案
+
+- 删除重复的顶部页脚探测逻辑，页脚表单和弹窗只共享 `submitEmail`。
+- 将页脚状态函数改为块内函数表达式，避免函数声明提升造成 lint 回归。
+- 新增 `tests/subscribe.test.mjs` 回归测试。
+
+### 性能与质量指标
+
+- `npm run lint`：修复前失败，修复后通过。
+- `npm test`：34 个测试提升到 36 个测试，全部通过。
+- 运行验证：`http://127.0.0.1:8137/`、文章页、RSS、搜索索引和 `/js/subscribe.js` 均返回 200。
+
+### 下一步计划
+
+- 继续收紧生产验证脚本，确保依赖审计在 Windows 与镜像 registry 环境下都能给出真实结论。
+
+## 第 10 轮：生产依赖审计脚本加固
+
+时间：2026-06-17
+
+### 已完成内容
+
+- 修复 `scripts/validate-production.mjs` 中 `npm audit` 在 Windows 下无法启动的问题。
+- 修复 `npm audit` 发现漏洞时非零退出码被误判为“执行失败”的问题。
+- 为默认 npm registry 不支持 audit 的环境增加官方 registry 自动重试。
+
+### 发现的问题
+
+- 当前默认 registry `npmmirror` 不支持 `/-/npm/v1/security/audits/quick`。
+- Node.js 在 Windows 下直接 `execFile('npm.cmd')` 会触发 `spawn EINVAL`，需要通过 shell 启动 npm。
+- 旧脚本没有解析 `npm audit` 非零退出时的 stdout JSON，存在真实漏洞被降级成 warning 的风险。
+
+### 修复方案
+
+- `runAudit()` 在成功和失败路径都解析 audit JSON；只要包含漏洞元数据，就进入统一评估逻辑。
+- Windows 下使用 `execFile('npm', args, { shell: true })` 启动 npm。
+- 默认 registry 不支持 audit 时，自动使用 `https://registry.npmjs.org/` 重试。
+
+### 性能与安全指标
+
+- `npm run validate:production`：33 项通过、0 失败、0 警告。
+- 依赖审计：官方 registry 返回 0 个已知漏洞。
+- `npm outdated --json`：仅 ESLint 存在 9.x 大版本可用；当前 8.57.1 无漏洞，暂不做破坏性迁移。
+
+### 下一步计划
+
+- 继续检查构建脚本的导入副作用、日期合法性和重复内容生成风险。
+
+## 第 11 轮：构建脚本副作用与内容数据校验
+
+时间：2026-06-17
+
+### 已完成内容
+
+- 为 `scripts/build.mjs` 增加 CLI 入口保护，测试 import 构建函数时不再顺带执行完整站点生成。
+- 将日期校验从“只校验格式”提升为“校验真实日历日期”。
+- 增加重复 slug 校验，避免多篇文章静默写入同一个 URL。
+- 捕获测试中预期的 `console.warn`，保留 localStorage 异常路径覆盖，同时减少 CI 输出噪声。
+
+### 发现的问题
+
+- 测试 import `normalizeDate`、`validateSlug`、`validatePost` 时会执行 `main()`，造成测试副作用和额外构建输出。
+- `2024-02-30`、`2023-02-29` 这类非法日期可以通过旧校验。
+- 重复 slug 会导致后处理文章覆盖先处理文章，构建没有显式失败。
+
+### 修复方案
+
+- 使用 `process.argv[1]` 与 `import.meta.url` 比较，只在 CLI 执行时运行 `main()`。
+- `normalizeDate()` 使用 UTC 日期反查年月日，拒绝不存在的日期。
+- 新增 `validateUniqueSlug()`，在读取文章时用 `Map` 检查重复 slug。
+- 更新 `tests/security.test.mjs`，覆盖闰年、非法日期和重复 slug。
+
+### 性能与质量指标
+
+- `npm test`：36 个测试全部通过，测试输出不再打印预期异常堆栈。
+- 测试耗时：约 1.38 秒。
+- `node scripts/build.mjs --out temp/verify-build-3`：通过，生成 6 篇文章。
+
+### 下一步计划
+
+- 继续执行完整 `npm run validate`，并在最终构建前同步生成产物。
+- 后续可考虑把首页、关于页等手写页面继续迁移到模板源，减少长期漂移。
+
+## 第 12 轮：测试覆盖率命令补齐
+
+时间：2026-06-17
+
+### 已完成内容
+
+- 使用 Node.js 内置测试覆盖率功能运行全量测试。
+- 在 `package.json` 中新增 `npm run test:coverage`，方便后续复现覆盖率指标。
+
+### 发现的问题
+
+- 项目已有测试入口，但没有可复现的覆盖率命令，最终报告只能描述测试数量，缺少覆盖率基线。
+
+### 修复方案
+
+- 新增脚本：`node --test --experimental-test-coverage tests/*.test.mjs`。
+- 保持现有测试框架不变，不引入额外覆盖率依赖。
+
+### 性能与覆盖率指标
+
+- 覆盖率：行覆盖 98.57%，分支覆盖 82.05%，函数覆盖 97.92%。
+- `scripts/build.mjs` 行覆盖 95.88%。
+- 所有模板与格式化模块行覆盖接近或达到 100%。
+
+### 下一步计划
+
+- 若继续提升分支覆盖，优先补充构建错误路径、空内容文章和 OG 图片缺失分支的测试。
+
+## 第 13 轮：搜索脚本懒加载回归修复
+
+时间：2026-06-17
+
+### 已完成内容
+
+- 扫描所有 HTML 中的搜索相关脚本加载方式。
+- 删除 `index.html`、`404.html`、`overleaf/index.html` 中对 `/js/vendor/fuse.min.js` 和 `/js/search.js` 的直接加载。
+- 保留 `/js/search-loader.js`，继续在用户首次打开搜索时懒加载搜索 bundle。
+- 新增测试，防止加载 `search-loader.js` 的页面再次预加载 Fuse/Search 主脚本。
+
+### 发现的问题
+
+- 项目已经实现搜索懒加载，但 3 个手写页面仍然直接加载 Fuse 和搜索主脚本。
+- 这会让首屏无搜索行为的访问也承担搜索 bundle 成本。
+
+### 修复方案
+
+- 移除重复脚本标签，统一依赖 `search-loader.js`。
+- 在 `tests/links.test.mjs` 中增加搜索 bundle 懒加载约束。
+
+### 性能与质量指标
+
+- 每个受影响页面减少约 39 KB 原始 JS 预加载（`fuse.min.js` 23,858 bytes + `search.js` 15,510 bytes）。
+- 3 个页面合计减少 118,104 bytes 的重复预加载。
+- `npm test`：37 个测试全部通过。
+
+### 下一步计划
+
+- 后续可继续拆分 `coder.css` 或按页面拆分大型编辑器/简历工具资源，但需要配合浏览器截图回归验证。
+
+## 第 14 轮：生产验证跨平台文档检查
+
+时间：2026-06-17
+
+### 已完成内容
+
+- 对齐生产验证脚本中的 README 文件名检查。
+- 将 `README.md` 改为仓库真实文件名 `readme.md`，避免 Linux/CI 环境大小写敏感时出现误报。
+
+### 发现的问题
+
+- Windows 文件系统大小写不敏感，旧检查会通过。
+- 在大小写敏感环境中，`README.md` 与 `readme.md` 不等价，生产验证会产生不必要 warning。
+
+### 修复方案
+
+- 更新 `scripts/validate-production.mjs` 文档清单中的文件名。
+
+### 质量指标
+
+- `npm run validate:production`：33 项通过、0 失败、0 警告。
+
+## 第 15 轮：文章列表锚点直达修复
+
+时间：2026-06-17
+
+### 已完成内容
+
+- 扫描根相对锚点链接，如 `/contact/#feedback-title` 与 `/post/#slug`。
+- 修复文章列表页文章面板缺少原生 `id=slug` 锚点的问题。
+- 新增测试，确保所有根相对锚点链接都能在目标 HTML 中找到对应 `id` 或 `name`。
+
+### 发现的问题
+
+- 单篇文章页的“文章”链接和归档页文章链接指向 `/post/#<slug>`。
+- 文章列表页实际 panel id 是 `post-<slug>`，没有原生 `id="<slug>"`。
+- JavaScript 会按 hash 切换 panel，但无 JS、外部直链或浏览器原生锚点行为无法命中目标。
+
+### 修复方案
+
+- 在 `src/templates/post.mjs` 的每个文章面板前生成轻量锚点：`<span class="post-anchor" id="<slug>" aria-hidden="true"></span>`。
+- 保持现有 `post-<slug>` panel id 和 `data-post-target` 行为不变，避免影响现有 JS 切换逻辑。
+- 在 `tests/links.test.mjs` 中增加根相对锚点目标校验。
+
+### 质量指标
+
+- `npm test`：38 个测试全部通过。
+- `/post/#rule-engine-alerts` 等文章直达链接现在有原生锚点目标。

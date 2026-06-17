@@ -47,3 +47,33 @@ test("nav subscribe button opens the subscribe modal", async () => {
   assert.equal(modalFocused, true);
   assert.equal(document.querySelector(".subscribe-modal-status").textContent, "");
 });
+
+test("nav subscribe button still works when the footer subscribe block is absent", async () => {
+  const jsCode = await readFile(join(ROOT, "js", "subscribe.js"), "utf8");
+  const dom = new JSDOM(`<!doctype html>
+    <html>
+      <body>
+        <input type="checkbox" class="menu-toggle" checked>
+        <button type="button" data-subscribe-open>订阅</button>
+      </body>
+    </html>`, {
+    runScripts: "outside-only",
+  });
+
+  const { document } = dom.window;
+  let modalFocused = false;
+
+  dom.window.eval(jsCode);
+  const modalInput = document.querySelector(".subscribe-modal-input");
+  modalInput.focus = function () {
+    modalFocused = true;
+  };
+
+  document.querySelector("[data-subscribe-open]").click();
+
+  await new Promise((resolve) => dom.window.setTimeout(resolve, 220));
+
+  assert.equal(document.querySelector(".menu-toggle").checked, false);
+  assert.equal(document.querySelector(".subscribe-modal").classList.contains("open"), true);
+  assert.equal(modalFocused, true);
+});

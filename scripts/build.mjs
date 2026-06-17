@@ -34,11 +34,25 @@ marked.setOptions({ gfm: true, breaks: false });
 
 // YAML 会把不带引号的 date 解析为 Date 对象；统一规范成 "YYYY-MM-DD" 字符串。
 export function normalizeDate(d) {
-  if (d instanceof Date) return d.toISOString().slice(0, 10);
+  if (d instanceof Date) {
+    if (Number.isNaN(d.getTime())) {
+      throw new Error("Invalid date value.");
+    }
+    return d.toISOString().slice(0, 10);
+  }
   const dateStr = String(d);
   // 验证日期格式 YYYY-MM-DD
   if (!/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
     throw new Error(`Invalid date format: "${dateStr}". Expected YYYY-MM-DD.`);
+  }
+  const [year, month, day] = dateStr.split("-").map((value) => Number.parseInt(value, 10));
+  const date = new Date(Date.UTC(year, month - 1, day));
+  if (
+    date.getUTCFullYear() !== year ||
+    date.getUTCMonth() !== month - 1 ||
+    date.getUTCDate() !== day
+  ) {
+    throw new Error(`Invalid date value: "${dateStr}".`);
   }
   return dateStr;
 }
@@ -54,6 +68,15 @@ export function validateSlug(slug, filename) {
   if (slug.length > 100) {
     throw new Error(`Invalid slug in ${filename}: "${slug}" is too long (max 100 characters).`);
   }
+}
+
+// 防止多个 Markdown 文件生成到同一个 URL，避免后写文章静默覆盖先写文章。
+export function validateUniqueSlug(slug, filename, seenSlugs) {
+  const existing = seenSlugs.get(slug);
+  if (existing) {
+    throw new Error(`Duplicate slug in ${filename}: "${slug}" already used by ${existing}.`);
+  }
+  seenSlugs.set(slug, filename);
 }
 
 // 验证文章必填字段
@@ -165,6 +188,7 @@ async function loadPosts() {
   const files = (await readdir(POSTS_DIR)).filter((f) => f.endsWith(".md"));
   const posts = [];
   const errors = [];
+  const seenSlugs = new Map();
 
   for (const file of files) {
     try {
@@ -183,6 +207,7 @@ async function loadPosts() {
 
       const slug = data.slug || file.replace(/\.md$/, "");
       validateSlug(slug, file);
+      validateUniqueSlug(slug, file, seenSlugs);
 
       // 检查内容是否为空
       if (!content.trim()) {
@@ -210,6 +235,8 @@ async function loadPosts() {
         contentHtmlEn: contentEnResult ? contentEnResult.html : "",
         toc: contentResult.toc,
         tocEn: contentEnResult ? contentEnResult.toc : [],
+        readMinutes: readingMinutes(stripHtml(contentResult.html)),
+        images: extractImages(contentResult.html),
       });
     } catch (error) {
       errors.push(`${file}: ${error.message}`);
@@ -236,6 +263,54 @@ async function writeFileEnsured(relPath, content) {
 // 去掉 HTML 标签，保留纯文本，供搜索索引全文检索。
 function stripHtml(html) {
   return html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+}
+
+// 阅读速度（与 js/coder.js 的 readingMinutes 保持一致）。
+const READING_SPEED_CHINESE = 350; // 字/分钟
+const READING_SPEED_ENGLISH = 200; // 词/分钟
+
+// 估算正文阅读分钟数（中文按字、其余按词），供 SSR 占位与无 JS 兜底。
+export function readingMinutes(text) {
+  const chinese = (text.match(/[一-龥]/g) || []).length;
+  const rest = text.replace(/[一-龥]/g, " ").trim();
+  const words = rest ? rest.split(/\s+/).length : 0;
+  return Math.max(
+    1,
+    Math.round(chinese / READING_SPEED_CHINESE + words / READING_SPEED_ENGLISH),
+  );
+}
+
+// 把文章内图片 src 解析为绝对 URL：协议开头原样返回，
+// 根相对（/ 开头）拼 baseURL，其余按文章目录 /post/<slug>/ 解析。
+function absoluteUrl(src, slug) {
+  if (/^https?:\/\//i.test(src)) return src;
+  if (src.startsWith("/")) return `${SITE.baseURL}${src}`;
+  return `${SITE.baseURL}/post/${slug}/${src.replace(/^\.?\//, "")}`;
+}
+
+// 从渲染后的正文 HTML 中提取图片 src（用于 image sitemap）。
+function extractImages(html) {
+  const urls = [];
+  const regex = /<img[^>]*\ssrc="([^"]+)"/g;
+  let match;
+  while ((match = regex.exec(html)) !== null) {
+    urls.push(match[1]);
+  }
+  return urls;
+}
+
+// 基于标签重叠为文章挑选相关文章：先按共同标签数降序，
+// 同数按日期更新优先；取前 limit 篇。
+export function relatedPosts(post, posts, limit = 3) {
+  const tags = new Set(post.tags);
+  if (tags.size === 0) return [];
+  return posts
+    .filter((p) => p.slug !== post.slug)
+    .map((p) => ({ post: p, shared: p.tags.filter((tag) => tags.has(tag)).length }))
+    .filter((entry) => entry.shared > 0)
+    .sort((a, b) => b.shared - a.shared || (a.post.date < b.post.date ? 1 : -1))
+    .slice(0, limit)
+    .map((entry) => entry.post);
 }
 
 function localizedPost(post) {
@@ -285,15 +360,19 @@ function buildSitemap(posts) {
 
     if (page.insertPostsAfter) {
       for (const post of posts) {
+        const loc = escapeXml(`${SITE.baseURL}/post/${post.slug}/`);
+        const images = post.images
+          .map((src) => `<image:image><image:loc>${escapeXml(absoluteUrl(src, post.slug))}</image:loc></image:image>`)
+          .join("");
         rows.push(
-          `  <url><loc>${escapeXml(`${SITE.baseURL}/post/${post.slug}/`)}</loc><lastmod>${sitemapDate(post.date)}</lastmod></url>`,
+          `  <url><loc>${loc}</loc><lastmod>${sitemapDate(post.date)}</lastmod>${images}</url>`,
         );
       }
     }
   }
 
   return `<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
 ${rows.join("\n")}
 </urlset>`;
 }
@@ -418,7 +497,11 @@ async function main() {
   // 单篇页
   for (let i = 0; i < posts.length; i++) {
     const post = posts[i];
-    const nav = { prev: posts[i - 1] || null, next: posts[i + 1] || null };
+    const nav = {
+      prev: posts[i - 1] || null,
+      next: posts[i + 1] || null,
+      related: relatedPosts(post, posts),
+    };
     await writeFileEnsured(`post/${post.slug}/index.html`, renderPostPage(post, nav) + "\n");
   }
 
@@ -453,7 +536,9 @@ async function main() {
   for (const p of posts) console.log(`  - post/${p.slug}/`);
 }
 
-main().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  main().catch((err) => {
+    console.error(err);
+    process.exit(1);
+  });
+}

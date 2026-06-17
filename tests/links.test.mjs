@@ -40,6 +40,10 @@ async function htmlFiles() {
   return stdout.trim().split(/\r?\n/).filter(Boolean);
 }
 
+function escapeRegExp(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 test("committed HTML files do not contain broken root-relative links", async () => {
   const broken = [];
 
@@ -81,6 +85,80 @@ test("HTML files load common scripts in a consistent order", async () => {
     }
     if (html.includes('class="navigation-list"') && !html.includes('class="nav-search-trigger"')) {
       failures.push(`${file}: missing global search trigger`);
+    }
+  }
+
+  assert.deepEqual(failures, []);
+});
+
+test("links opened in new tabs include noopener", async () => {
+  const failures = [];
+
+  for (const file of await htmlFiles()) {
+    const html = await readFile(join(ROOT, file), "utf8");
+    for (const match of html.matchAll(/<a\b[^>]*target="_blank"[^>]*>/g)) {
+      const tag = match[0];
+      if (!/\brel="[^"]*\bnoopener\b[^"]*"/.test(tag)) {
+        failures.push(`${file}: ${tag}`);
+      }
+    }
+  }
+
+  assert.deepEqual(failures, []);
+});
+
+test("HTML files lazy-load the search bundle through search-loader", async () => {
+  const failures = [];
+
+  for (const file of await htmlFiles()) {
+    const html = await readFile(join(ROOT, file), "utf8");
+    if (!html.includes('src="/js/search-loader.js"')) {
+      continue;
+    }
+    if (html.includes('src="/js/vendor/fuse.min.js"')) {
+      failures.push(`${file}: eagerly loads fuse.min.js`);
+    }
+    if (html.includes('src="/js/search.js"')) {
+      failures.push(`${file}: eagerly loads search.js`);
+    }
+  }
+
+  assert.deepEqual(failures, []);
+});
+
+test("root-relative anchor links point to existing targets", async () => {
+  const failures = [];
+  const cache = new Map();
+
+  for (const file of await htmlFiles()) {
+    const html = await readFile(join(ROOT, file), "utf8");
+    for (const match of html.matchAll(/\bhref="([^"]*#[^"]+)"/g)) {
+      const href = match[1];
+      if (!href.startsWith("/") || href.startsWith("//")) {
+        continue;
+      }
+
+      const hash = href.slice(href.indexOf("#") + 1);
+      if (!hash) {
+        continue;
+      }
+
+      const target = targetForHref(href);
+      if (!target || !(await exists(target))) {
+        continue;
+      }
+
+      let targetHtml = cache.get(target);
+      if (!targetHtml) {
+        targetHtml = await readFile(join(ROOT, target), "utf8");
+        cache.set(target, targetHtml);
+      }
+
+      const anchor = decodeURIComponent(hash);
+      const pattern = new RegExp(`\\b(?:id|name)="${escapeRegExp(anchor)}"`);
+      if (!pattern.test(targetHtml)) {
+        failures.push(`${file}: ${href} -> ${target}#${anchor}`);
+      }
     }
   }
 

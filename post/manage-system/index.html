@@ -19,6 +19,7 @@
   <script src="/js/share.js" defer></script>
   <script src="/js/giscus.js" defer></script>
   <script src="/js/toc.js" defer></script>
+  <script src="/js/post-next.js" defer></script>
   <link rel="canonical" href="https://wenliang844.github.io/post/manage-system/">
   <meta property="og:type" content="article">
   <meta property="og:site_name" content="CWLBlog">
@@ -30,6 +31,7 @@
   <meta name="twitter:image" content="https://wenliang844.github.io/images/favicon.png">
   <meta name="twitter:title" content="智能分析预警平台重构">
   <meta name="twitter:description" content="智能分析预警平台从视频采集到业务告警闭环的后端重构实践。">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"智能分析预警平台重构","name":"智能分析预警平台：从视频采集到业务告警的后端重构实践","description":"智能分析预警平台从视频采集到业务告警闭环的后端重构实践。","datePublished":"2025-09-16","dateModified":"2025-09-16","inLanguage":"zh-CN","keywords":"Java, Spring Boot, 视频分析, 规则引擎, ONNX Runtime","mainEntityOfPage":{"@type":"WebPage","@id":"https://wenliang844.github.io/post/manage-system/"},"url":"https://wenliang844.github.io/post/manage-system/","author":{"@type":"Person","name":"CWL"},"publisher":{"@type":"Organization","name":"CWLBlog","logo":{"@type":"ImageObject","url":"https://wenliang844.github.io/images/favicon.png"}}}</script>
   <title>智能分析预警平台重构 :: CWLBlog</title>
 </head>
 <body class="colorscheme-dark" data-i18n-page="posts" data-i18n-title-en="Alert Platform Refactor :: CWLBlog" data-i18n-desc-en="Backend refactor practice for an intelligent analysis alert platform from video capture to business alert loop.">
@@ -69,6 +71,8 @@
               <time datetime="2025-09-16">September 16, 2025</time>
               <span>·</span>
               <a href="/post/#manage-system" data-i18n="post.meta.posts" data-i18n-en="Posts">文章</a>
+              <span>·</span>
+              <span class="reading-time"><i class="fas fa-clock" aria-hidden="true"></i> <span data-i18n="dyn.readingPrefix">阅读约</span> 5 <span data-i18n="dyn.readingSuffix">分钟</span></span>
             </div>
             <p class="article-summary" data-i18n="post.manage-system.summary" data-i18n-en="A backend refactor retrospective covering video capture, algorithm recognition, standard fact persistence, rule judgment and formal alert creation.">围绕视频采集、算法识别、标准事实落库、规则判定和正式告警生成，复盘智能分析预警平台后端重构。</p>
             <div class="post-tags">
@@ -213,10 +217,43 @@
         <h2 data-i18n="post.comments" data-i18n-html><i class="fas fa-comments" aria-hidden="true"></i> 评论</h2>
         <div id="giscus-thread"></div>
       </section>
+      <nav class="post-related" aria-label="相关文章" data-i18n-aria="post.related.aria">
+        <h2 class="post-related-title" data-i18n="post.related.title" data-i18n-en="Related posts">相关文章</h2>
+        <ul class="related-list">
+        <li>
+          <a class="related-card" href="/post/rule-engine-alerts/">
+            <span class="related-eyebrow">Runtime Design</span>
+            <span class="related-title" data-i18n="post.rule-engine-alerts.shortTitle" data-i18n-en="Rule Engine and Alert Loop">规则引擎与告警闭环</span>
+            <time datetime="2026-06-16">2026-06-16</time>
+          </a>
+        </li>
+        <li>
+          <a class="related-card" href="/post/finance-saas-backend/">
+            <span class="related-eyebrow">SaaS Backend</span>
+            <span class="related-title" data-i18n="post.finance-saas-backend.shortTitle" data-i18n-en="Qigu SaaS Platform">企顾 SaaS 多模块平台</span>
+            <time datetime="2023-08-18">2023-08-18</time>
+          </a>
+        </li>
+        <li>
+          <a class="related-card" href="/post/activiti-workflow-engine/">
+            <span class="related-eyebrow">Workflow</span>
+            <span class="related-title" data-i18n="post.activiti-workflow-engine.shortTitle" data-i18n-en="Activiti BPM Engine Practice">Activiti BPM 引擎实践</span>
+            <time datetime="2022-02-09">2022-02-09</time>
+          </a>
+        </li>
+        </ul>
+      </nav>
       <nav class="post-pager" aria-label="Post pagination">
         <a class="pager-prev" href="/post/codex-claude-vibe-coding/">← <span data-i18n="post.codex-claude-vibe-coding.shortTitle" data-i18n-en="Codex and Claude Vibe Coding">Codex 与 Claude 的 Vibe Coding</span></a>
         <a class="pager-next" href="/post/finance-saas-backend/"><span data-i18n="post.finance-saas-backend.shortTitle" data-i18n-en="Qigu SaaS Platform">企顾 SaaS 多模块平台</span> →</a>
       </nav>
+      <aside class="next-popup" hidden aria-label="下一篇推荐" data-i18n-aria="post.next.aria">
+        <button class="next-popup-close" type="button" aria-label="关闭" data-i18n-aria="post.next.close"><i class="fas fa-times" aria-hidden="true"></i></button>
+        <span class="next-popup-eyebrow" data-i18n="post.next.eyebrow" data-i18n-en="Up next">下一篇</span>
+        <a class="next-popup-link" href="/post/finance-saas-backend/">
+          <span class="next-popup-title" data-i18n="post.finance-saas-backend.shortTitle" data-i18n-en="Qigu SaaS Platform">企顾 SaaS 多模块平台</span>
+        </a>
+      </aside>
     </main>
     <footer class="footer">
       <section class="container">

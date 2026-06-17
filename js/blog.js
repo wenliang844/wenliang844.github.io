@@ -206,11 +206,112 @@
     });
   });
 
+  // ---- Vim 风格 J/K 切换文章 ----------------------------------------------
+  // 复用 window.coderShowPost（coder.js 暴露）切换可见面板，跳过被筛选隐藏的项。
+  function editing() {
+    const el = document.activeElement || {};
+    const tag = el.tagName;
+    return tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || el.isContentEditable;
+  }
+
+  function visibleItems() {
+    return items.filter(function (item) {
+      return !item.li || !item.li.hidden;
+    });
+  }
+
+  function activeIndex(list) {
+    for (let i = 0; i < list.length; i++) {
+      if (list[i].panel && list[i].panel.classList.contains("active")) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  function move(delta) {
+    if (typeof window.coderShowPost !== "function") {
+      return;
+    }
+    const list = visibleItems();
+    if (!list.length) {
+      return;
+    }
+    let index = activeIndex(list);
+    index = index === -1 ? 0 : index + delta;
+    index = Math.max(0, Math.min(list.length - 1, index));
+    const target = list[index];
+    if (!target) {
+      return;
+    }
+    window.coderShowPost(target.link.getAttribute("data-post-target"), true);
+    if (target.link.scrollIntoView) {
+      target.link.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  document.addEventListener("keydown", function (event) {
+    if (event.defaultPrevented || event.ctrlKey || event.metaKey || event.altKey || editing()) {
+      return;
+    }
+    if (event.key === "j" || event.key === "J") {
+      event.preventDefault();
+      move(1);
+    } else if (event.key === "k" || event.key === "K") {
+      event.preventDefault();
+      move(-1);
+    }
+  });
+
+  // ---- 移动端浮动侧栏切换 --------------------------------------------------
+  const sidebar = document.querySelector(".post-tree");
+  if (sidebar) {
+    const fab = document.createElement("button");
+    fab.type = "button";
+    fab.className = "post-tree-fab";
+    fab.setAttribute("aria-expanded", "false");
+    fab.setAttribute("aria-label", t("dyn.blog.toc", "文章目录"));
+    fab.innerHTML = '<i class="fas fa-list" aria-hidden="true"></i>';
+
+    const setOpen = function (open) {
+      sidebar.classList.toggle("is-floating-open", open);
+      document.body.classList.toggle("post-tree-floating", open);
+      fab.setAttribute("aria-expanded", String(open));
+      fab.innerHTML = open
+        ? '<i class="fas fa-times" aria-hidden="true"></i>'
+        : '<i class="fas fa-list" aria-hidden="true"></i>';
+    };
+
+    fab.addEventListener("click", function () {
+      setOpen(!sidebar.classList.contains("is-floating-open"));
+    });
+
+    // 选中文章或点击树链接后自动收起浮层。
+    sidebar.addEventListener("click", function (event) {
+      if (event.target.closest(".post-tree-link")) {
+        setOpen(false);
+      }
+    });
+
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape" && sidebar.classList.contains("is-floating-open")) {
+        setOpen(false);
+      }
+    });
+
+    document.body.appendChild(fab);
+  }
+
   function refreshI18n() {
     empty.textContent = t("dyn.blog.empty", "没有匹配的文章，换个关键词或标签试试。");
     buildItems();
     rebuildTagFilter();
     apply();
+    const fab = document.querySelector(".post-tree-fab");
+    if (fab && fab.getAttribute("aria-expanded") === "false") {
+      fab.setAttribute("aria-label", t("dyn.blog.toc", "文章目录"));
+    }
   }
 
   buildItems();
