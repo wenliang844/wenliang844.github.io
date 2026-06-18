@@ -257,4 +257,31 @@
 | 🥉 低 | P-11 | CLS 改善 | 低 |
 | 📋 预防 | P-05 | 未来扩展准备 | — |
 
+---
+
+## 📌 P-12 [新增]: `backdrop-filter` 过度使用，移动端 GPU 压力大
+
+- **📍 位置**：`css/coder.css`（18 个元素使用 `backdrop-filter: blur()`）
+- **📝 当前状况**：导航栏、搜索弹窗、订阅弹窗、分享弹窗、AI 助手面板等多个组件使用了 `backdrop-filter: blur()`。在移动端 Safari 和低端 Android 上，多个毛玻璃效果叠加会导致明显掉帧。统计：
+  - 导航栏：`blur(16px) saturate(140%)` — 最昂贵
+  - 搜索/订阅/分享弹窗：`blur(10px)` × 4
+  - AI 助手面板：`blur(10px)` × 2
+  - 其他组件：`blur(8px)` × 2
+- **⚠️ 影响程度**：中（移动端用户体验明显受影响）
+- **💡 建议方案**：
+  ```css
+  /* 移动端降级：用半透明背景替代毛玻璃 */
+  @media (max-width: 768px) {
+    .navigation,
+    .search-modal-card,
+    .subscribe-modal-card {
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+      background: var(--surface-solid);
+    }
+  }
+  ```
+- **📊 预期收益**：移动端帧率提升 10-20%，减少 GPU 内存占用
+- **🔗 相关建议**：[MR-CSS-06](module-reviews/css-analysis.md#mr-css-06)
+
 > 整体评估：当前站点性能良好（静态站点天然轻量），主要优化空间在动画性能和资源加载策略上。

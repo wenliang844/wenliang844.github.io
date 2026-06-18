@@ -118,4 +118,44 @@
 
 ---
 
+## 📌 MR-CSS-06 [新增]: 过度使用 `backdrop-filter` 和 `filter: blur()`，移动端性能隐患
+
+- **📍 位置**：`css/coder.css`（36 处 `backdrop-filter`、21 处 `filter: blur()`、21 处 `!important`）
+- **📝 当前状况**：CSS 文件中大量使用 GPU 密集型属性：
+  - `backdrop-filter: blur()` 出现 18 次（含 `-webkit-` 前缀共 36 处）
+  - `filter: blur()` 出现 6 次（含其他 filter 共 21 处）
+  - `!important` 出现 9 次（含 -webkit- 共 21 处）
+
+  主要使用场景：
+  - 导航栏毛玻璃效果（`backdrop-filter: blur(16px) saturate(140%)`）
+  - 搜索/订阅/分享弹窗背景（`backdrop-filter: blur(10px)`）
+  - 环境光背景（`filter: blur(8px)` on `body::before`）
+  - 头像悬停效果（`filter: saturate(1.08) brightness(1.04)`）
+
+  在 iOS Safari 和低端 Android 设备上，多个 `backdrop-filter` 叠加会导致明显掉帧。
+- **⚠️ 影响程度**：中（移动端用户体验受影响）
+- **💡 建议方案**：
+  1. **移动端降级**：在小屏幕上用半透明背景替代 `backdrop-filter`：
+     ```css
+     @media (max-width: 768px) {
+       .navigation {
+         backdrop-filter: none;
+         background: var(--surface-solid);
+       }
+       .search-modal-card,
+       .subscribe-modal-card {
+         backdrop-filter: none;
+         background: var(--surface-solid);
+       }
+     }
+     ```
+  2. **减少 blur 半径**：`blur(16px)` → `blur(8px)` 可显著降低 GPU 负载
+  3. **合并 backdrop-filter**：多个弹窗不需要同时存在，只有当前打开的那个需要
+  4. **`body::before` 动画**：添加 `will-change: transform` 提示浏览器优化
+
+- **📊 预期收益**：移动端帧率提升 10-20%，减少 GPU 内存占用
+- **🔗 相关建议**：[P-01](../performance-bottlenecks.md#p-01), [MR-CSS-03](#mr-css-03)
+
+---
+
 ## 模块健康度评分：3.8 / 5 — 良好
