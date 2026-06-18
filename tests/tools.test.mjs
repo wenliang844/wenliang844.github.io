@@ -315,6 +315,35 @@ test("tools page ignores delegated events from non-element targets", async () =>
   }
 });
 
+test("tools page ignores unknown tab targets without clearing selection", async () => {
+  const { dom } = await loadToolsPage();
+  const { document } = dom.window;
+  try {
+    const jsonTab = document.querySelector('[data-tool-tab="json"]');
+    const jsonPanel = document.querySelector('[data-tool-panel="json"]');
+
+    const outsideTab = document.createElement("button");
+    outsideTab.setAttribute("data-tool-tab", "time");
+    document.body.appendChild(outsideTab);
+    outsideTab.click();
+
+    assert.equal(jsonTab.classList.contains("active"), true);
+    assert.equal(jsonTab.getAttribute("aria-selected"), "true");
+    assert.equal(jsonPanel.hidden, false);
+
+    const unknownTab = document.createElement("button");
+    unknownTab.setAttribute("data-tool-tab", "missing");
+    document.querySelector(".tools-tabs").appendChild(unknownTab);
+    unknownTab.click();
+
+    assert.equal(jsonTab.classList.contains("active"), true);
+    assert.equal(jsonTab.getAttribute("aria-selected"), "true");
+    assert.equal(jsonPanel.hidden, false);
+  } finally {
+    dom.window.close();
+  }
+});
+
 test("tools page localizes English placeholders and dynamic statuses", async () => {
   const { dom } = await loadToolsPage({ i18n: true });
   const { document } = dom.window;

@@ -109,9 +109,18 @@
   }
 
   function switchTool(id, options) {
-    const tabs = Array.prototype.slice.call(document.querySelectorAll("[data-tool-tab]"));
+    const tabs = Array.prototype.slice.call(document.querySelectorAll(".tools-tabs [data-tool-tab]"));
     const panels = Array.prototype.slice.call(document.querySelectorAll("[data-tool-panel]"));
-    let selectedTab = null;
+    const selectedTab = tabs.find(function (tab) {
+      return tab.getAttribute("data-tool-tab") === id;
+    });
+    const selectedPanel = panels.find(function (panel) {
+      return panel.getAttribute("data-tool-panel") === id;
+    });
+
+    if (!selectedTab || !selectedPanel) {
+      return false;
+    }
 
     tabs.forEach(function (tab) {
       const active = tab.getAttribute("data-tool-tab") === id;
@@ -120,15 +129,10 @@
       tab.setAttribute("tabindex", active ? "0" : "-1");
       if (active) {
         tab.setAttribute("aria-current", "true");
-        selectedTab = tab;
       } else {
         tab.removeAttribute("aria-current");
       }
     });
-
-    if (!selectedTab) {
-      return false;
-    }
 
     panels.forEach(function (panel) {
       const active = panel.getAttribute("data-tool-panel") === id;
@@ -193,7 +197,7 @@
 
   document.addEventListener("click", function (event) {
     const tab = closest(event.target, "[data-tool-tab]");
-    if (tab) {
+    if (tab && tab.closest(".tools-tabs")) {
       switchTool(tab.getAttribute("data-tool-tab"));
       return;
     }
