@@ -74,6 +74,34 @@ test("assistant quick search uses the existing search trigger", async () => {
   assert.equal(opened, true);
 });
 
+test("assistant ranks partial page title matches ahead of generic keywords", async () => {
+  const dom = await loadAssistant();
+  const { document, Event } = dom.window;
+
+  document.querySelector(".assistant-fab").click();
+  const input = document.querySelector(".assistant-input");
+  input.value = "工具";
+  document.querySelector(".assistant-form").dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+
+  const firstLink = document.querySelector(".assistant-links a");
+  assert.equal(firstLink.textContent, "工具箱");
+  assert.equal(firstLink.getAttribute("href"), "/tools/");
+});
+
+test("assistant keeps AI navigation discoverable for AI queries", async () => {
+  const dom = await loadAssistant();
+  const { document, Event } = dom.window;
+
+  document.querySelector(".assistant-fab").click();
+  const input = document.querySelector(".assistant-input");
+  input.value = "AI";
+  document.querySelector(".assistant-form").dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+
+  const firstLink = document.querySelector(".assistant-links a");
+  assert.equal(firstLink.textContent, "AI导航");
+  assert.equal(firstLink.getAttribute("href"), "/ai/");
+});
+
 test("assistant can render English labels through the i18n bridge", async () => {
   const dom = await loadAssistant({
     lang: "en",

@@ -63,7 +63,8 @@
   function score(item, query) {
     const lower = query.toLowerCase();
     const titleScore = [item.title, item.titleEn].filter(Boolean).some(function (title) {
-      return lower.includes(String(title).toLowerCase());
+      const normalizedTitle = String(title).toLowerCase();
+      return lower.includes(normalizedTitle) || normalizedTitle.includes(lower);
     }) ? 8 : 0;
     return item.keywords.reduce(function (sum, keyword) {
       const normalized = String(keyword).toLowerCase();
