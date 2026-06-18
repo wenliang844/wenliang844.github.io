@@ -14,20 +14,12 @@
 
 ---
 
-## 📌 B-02: `coder.js` 粒子数组 splice 在遍历中执行，可能导致跳过元素
+## 📌 B-02 [已修复]: `coder.js` 粒子数组 splice 在遍历中执行，可能导致跳过元素
 
-- **📍 位置**：`js/coder.js:520-529`
-- **📝 当前状况**：`draw()` 函数中使用 `for (let index = particles.length - 1; index >= 0; index -= 1)` 倒序遍历并在 `splice` 后 `continue`。虽然倒序遍历 + splice 在逻辑上是正确的，但 `splice` 在高频调用（60fps）中每帧可能执行多次，产生 GC 压力。
-- **⚠️ 影响程度**：低
-- **💡 建议方案**：
-  ```javascript
-  // 用 swap-and-pop 替代 splice，避免数组重分配
-  function removeParticle(index) {
-    particles[index] = particles[particles.length - 1];
-    particles.pop();
-  }
-  ```
-- **📊 预期收益**：减少 GC 暂停，动画更流畅
+- **📍 原位置**：`js/coder.js`
+- **✅ 修复状态**：粒子删除已使用 `removeParticle(index)` 的 swap-and-pop 策略，避免在动画热路径中调用 `splice()`。
+- **🧪 回归测试**：`tests/coder-deep.test.mjs` 新增源码守卫，确认粒子热路径不包含 `.splice(`，并保留 `removeParticle()`、尾元素交换和 `pop()`。
+- **📊 实际收益**：降低粒子高频过期删除时的数组搬移和 GC 压力。
 - **🔗 相关建议**：[B-01](#b-01)
 
 ---
@@ -139,7 +131,7 @@
 |------|------|------|
 | 🔴 高 | 0 | — |
 | 🟡 中 | 1 | B-08 |
-| ✅ 已修复 | 10 | B-01, B-03, B-04, B-05, B-06, B-07, B-09, B-10, B-11, B-12 |
-| 🟢 低 | 1 | B-02 |
+| ✅ 已修复 | 11 | B-01, B-02, B-03, B-04, B-05, B-06, B-07, B-09, B-10, B-11, B-12 |
+| 🟢 低 | 0 | — |
 
 > 整体评估：无高危 Bug，代码质量良好。主要风险集中在维护一致性（重复逻辑）和废弃 API 使用上。

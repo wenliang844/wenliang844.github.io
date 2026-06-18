@@ -5935,3 +5935,41 @@
 
 - 运行全量质量门禁并提交第三十八轮性能/一致性优化。
 - 继续处理不触碰 `assistant.js` 外部改动的低风险技术债。
+
+## 第 176 轮：粒子删除热路径回归守卫
+
+时间：2026-06-18
+
+### 已完成内容
+
+- 确认 `js/coder.js` 的粒子删除路径已经使用 `removeParticle(index)` 的 swap-and-pop 策略。
+- 扩展 `tests/coder-deep.test.mjs`，新增源码守卫，防止粒子动画热路径回退到 `.splice()`。
+- 更新 B-02、建议索引、健康评分、工作报告和本轮工作报告。
+
+### 发现的问题
+
+- 建议清单仍记录 B-02 为待修复，但当前代码已经使用尾元素交换 + `pop()` 删除过期粒子。
+- 缺少专门测试守卫，未来维护时仍可能把热路径改回 `splice()`。
+
+### 修复方案
+
+- 保留现有 swap-and-pop 实现，不做不必要重构。
+- 新增源码级回归测试，断言不出现 `.splice(`，并锁定 `removeParticle()`、尾元素交换和 `pop()`。
+- 将 B-02 文档状态校准为已修复。
+
+### 性能、安全与质量指标
+
+- `node --test tests/coder-deep.test.mjs tests/coder.test.mjs`：37 个文章页运行时测试全部通过。
+- `npm run lint:check`：通过。
+- `npm test`：569 个测试全部通过。
+- `npm run build`：通过，成功生成 6 篇文章页面。
+- `node --test tests/performance.test.mjs`：13 个性能测试全部通过。
+- `npm run validate:production`：33 项检查通过，0 失败，0 警告。
+- `npm run test:coverage`：569 个测试全部通过；行覆盖率 93.29%，分支覆盖率 75.29%，函数覆盖率 90.80%，均高于覆盖率阈值。
+- `npm audit --audit-level=moderate --registry=https://registry.npmjs.org`：0 个中高危漏洞。
+- 性能收益：减少未来回退导致的数组搬移和 GC 压力风险。
+
+### 下一步计划
+
+- 运行全量质量门禁并提交第三十九轮性能测试守卫优化。
+- 继续筛选不触碰 `assistant.js` 外部改动的技术债或 UX 项。

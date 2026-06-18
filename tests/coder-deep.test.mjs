@@ -506,3 +506,12 @@ test("coder.js cursor particles avoid canvas shadowBlur in the animation loop", 
   assert.doesNotMatch(code, /shadowBlur/, "cursor particles should avoid shadowBlur in per-frame drawing");
   assert.match(code, /globalAlpha/, "cursor particles should use alpha layers for glow");
 });
+
+test("coder.js cursor particles remove expired items without splice", async () => {
+  const code = await readFile(join(ROOT, "js", "coder.js"), "utf8");
+
+  assert.doesNotMatch(code, /\.splice\(/, "particle hot path should avoid splice allocations");
+  assert.match(code, /function removeParticle\(index\)/, "should keep a dedicated particle removal helper");
+  assert.match(code, /particles\[index\]\s*=\s*particles\[particles\.length - 1\]/, "should use swap-and-pop removal");
+  assert.match(code, /particles\.pop\(\)/, "should pop the swapped tail particle");
+});
