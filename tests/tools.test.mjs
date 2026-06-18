@@ -300,6 +300,7 @@ test("time conversion output rerenders after language changes", async () => {
     assert.equal(document.documentElement.getAttribute("lang"), "en");
     assert.match(document.querySelector("#timestamp-output").textContent, /Milliseconds: 1718697600000/);
     assert.match(document.querySelector("#timestamp-output").textContent, /Local time: EN_LOCAL_TIME/);
+    assert.equal(document.querySelector("#time-status").textContent, "Converted");
   } finally {
     dom.window.close();
   }

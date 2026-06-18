@@ -287,6 +287,10 @@
     Object.keys(timeResults).forEach(function (id) {
       text(id, formatTimeResult(timeResults[id]));
     });
+    const timeStatus = document.getElementById("time-status");
+    if (timeStatus && timeStatus.classList.contains("is-ok") && Object.keys(timeResults).length) {
+      setStatus("time-status", t("tools.status.converted", "转换完成"), "ok");
+    }
   });
   window.setInterval(updateNow, 1000);
 })();
