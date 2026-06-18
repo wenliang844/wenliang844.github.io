@@ -219,6 +219,7 @@
     "tools.error.json": "JSON parse failed: ",
     "tools.error.base64Encode": "Base64 encoding failed.",
     "tools.error.base64Decode": "Base64 decoding failed. Please enter valid Base64 text.",
+    "tools.error.urlEncode": "URL encoding failed. Please enter text that can be encoded.",
     "tools.error.urlDecode": "URL decoding failed. Please enter valid URL-encoded text.",
     "tools.error.timestampInput": "Enter a seconds or milliseconds timestamp.",
     "tools.error.timestampDate": "The timestamp cannot be converted to a valid date.",

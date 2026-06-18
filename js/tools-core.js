@@ -71,7 +71,7 @@
     try {
       return ok(encodeURIComponent(String(input || "")));
     } catch (error) {
-      return fail("URL 编码失败：" + error.message);
+      return fail("URL 编码失败：请输入可编码的文本", "urlEncode");
     }
   }
 

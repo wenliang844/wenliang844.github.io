@@ -79,6 +79,9 @@ test("tools core handles Base64, URL, timestamps, UUID and JWT", async () => {
   const encodedUrl = tools.encodeUrl("a b/中文");
   assert.equal(encodedUrl.ok, true);
   assert.equal(encodedUrl.value, "a%20b%2F%E4%B8%AD%E6%96%87");
+  const badUrlEncode = tools.encodeUrl("\uD800");
+  assert.equal(badUrlEncode.ok, false);
+  assert.equal(badUrlEncode.code, "urlEncode");
   const decodedUrl = tools.decodeUrl("a%20b%2F%E4%B8%AD%E6%96%87");
   assert.equal(decodedUrl.ok, true);
   assert.equal(decodedUrl.value, "a b/中文");
@@ -146,6 +149,12 @@ test("navigation can wrap translated toolbox labels", async () => {
 
   assert.match(css, /\.navigation-list\s*{\s*min-width:\s*0;/);
   assert.match(css, /\.navigation-list ul\s*{[^}]*flex-wrap:\s*wrap;[^}]*justify-content:\s*flex-end;/s);
+});
+
+test("toolbox i18n includes URL encode error text", async () => {
+  const i18n = await readFile(join(ROOT, "js", "i18n.js"), "utf8");
+
+  assert.match(i18n, /"tools\.error\.urlEncode": "URL encoding failed\./);
 });
 
 test("failed tool operations clear stale outputs", async () => {
