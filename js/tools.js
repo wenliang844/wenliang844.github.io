@@ -48,7 +48,7 @@
   }
 
   function toolTabs(panels) {
-    const seen = {};
+    const seen = Object.create(null);
     return Array.prototype.slice.call(document.querySelectorAll(".tools-tabs [data-tool-tab]")).filter(function (tab) {
       const id = tab.getAttribute("data-tool-tab");
       if (!panelFor(id, panels) || seen[id]) {
