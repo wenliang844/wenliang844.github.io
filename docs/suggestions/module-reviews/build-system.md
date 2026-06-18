@@ -76,13 +76,15 @@ if (errors.length > 0) { throw new Error(...); }
 
 ---
 
-## 📌 MR-BUILD-03: `tidyHtml()` 的空行压缩可能影响 Markdown 渲染结果
+## 📌 MR-BUILD-03 [已修复]: `tidyHtml()` 的空行压缩可能影响 Markdown 渲染结果
 
-- **📍 位置**：`scripts/build.mjs:132-144`
-- **📝 当前状况**：`tidyHtml()` 将连续空行压缩为单行，但用 `\x00` 占位保护 `<pre>` 块。如果文章中使用 HTML 块级元素（如 `<div>`、`<details>`），这些块之间的空行会被压缩，可能影响某些 CSS 布局（如 margin collapsing）。
+- **📍 原位置**：`scripts/build.mjs:132-144`
+- **✅ 修复状态**：`tidyHtml()` 已扩展保护 `<pre>`、`<div>`、`<details>`、`<table>`、`<script>`、`<style>`、`<textarea>` 等空白敏感 HTML 块，再压缩普通块间空行。
+- **🧪 回归测试**：`tests/build-extra.test.mjs` 新增 `tidyHtml` HTML 块空行保护测试，并验证 `renderContent()` 在 tidying 后仍保留标题 ID 生成。
+- **📝 原状况**：`tidyHtml()` 将连续空行压缩为单行，但用 `\x00` 占位保护 `<pre>` 块。如果文章中使用 HTML 块级元素（如 `<div>`、`<details>`），这些块之间的空行会被压缩，可能影响某些 CSS 布局（如 margin collapsing）。
 - **⚠️ 影响程度**：低
 - **💡 建议方案**：扩大保护范围，不仅保护 `<pre>` 还保护 `<div>`、`<details>`、`<table>` 等块级元素。
-- **📊 预期收益**：HTML 块元素布局更准确
+- **📊 实际收益**：HTML 块内部空白不再被全局压缩误伤，同时普通输出块间空行仍保持整洁。
 - **🔗 相关建议**：无
 
 ---

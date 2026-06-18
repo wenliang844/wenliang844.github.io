@@ -1,7 +1,7 @@
 // Deep test: build.mjs 辅助函数 — collectTags, stripHtml, extractToc, tidyHtml, absoluteUrl, buildSearchIndex i18n
 import test from "node:test";
 import assert from "node:assert/strict";
-import { normalizeDate, validateSlug, validatePost, readingMinutes, relatedPosts } from "../scripts/build.mjs";
+import { normalizeDate, validateSlug, validatePost, tidyHtml, renderContent, readingMinutes, relatedPosts } from "../scripts/build.mjs";
 import { readFile, mkdir, mkdtemp, rm } from "node:fs/promises";
 import { join } from "node:path";
 import { execFile } from "node:child_process";
@@ -175,6 +175,50 @@ test("RSS variants share one channel renderer", async () => {
   assert.match(source, /function buildRssFeed\(posts, \{ title, link, description, selfHref \}\)/);
   assert.equal((source.match(/return buildRssFeed\(posts,/g) || []).length, 3);
   assert.equal((source.match(/<generator>Cwl static build<\/generator>/g) || []).length, 1);
+});
+
+test("tidyHtml preserves blank lines inside protected HTML blocks", () => {
+  const rawHtml = `<section>Before</section>
+
+
+<details>
+
+<summary>More</summary>
+
+<div>
+
+Line A
+
+Line B
+
+</div>
+
+</details>
+
+<p>After</p>`;
+
+  const html = tidyHtml(rawHtml);
+
+  assert.ok(html.includes("<details>\n\n<summary>More</summary>"), "details block should keep its internal blank line");
+  assert.ok(html.includes("Line A\n\nLine B"), "nested block content should keep internal blank lines");
+  assert.ok(!html.includes("<section>Before</section>\n\n\n<details>"), "blank lines between normal output blocks should still be compacted");
+  assert.ok(!html.includes("</details>\n\n\n<p>After</p>"), "blank lines after protected blocks should still be compacted");
+});
+
+test("renderContent keeps heading ids after HTML tidying", () => {
+  const markdown = `<details>
+
+<summary>More</summary>
+
+</details>
+
+## Section
+
+After`;
+
+  const { html } = renderContent(markdown);
+
+  assert.match(html, /<h2 id="toc-1-section">Section<\/h2>/);
 });
 
 // ─── robots.txt 内容验证 ────────────────────────────────────────────────────

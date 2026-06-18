@@ -32,7 +32,7 @@
 | 🟢 第三 | 新功能建议 | [new-features.md](new-features.md) | 10 |
 | 🟢 第三 | UX 优化 | [ux-improvements.md](ux-improvements.md) | 10（中 2 / 低 2 / 已修复 6） |
 | 🟢 第三 | 开发体验 | [devex-improvements.md](devex-improvements.md) | 10（低 5 / 部分 1 / 已修复 4） |
-| 🔵 第四 | 模块分析-构建系统 | [module-reviews/build-system.md](module-reviews/build-system.md) | 5（低 3 / 已修复 2） |
+| 🔵 第四 | 模块分析-构建系统 | [module-reviews/build-system.md](module-reviews/build-system.md) | 5（低 2 / 已修复 3） |
 | 🔵 第四 | 模块分析-客户端JS | [module-reviews/client-javascript.md](module-reviews/client-javascript.md) | 5 |
 | 🔵 第四 | 模块分析-编辑器 | [module-reviews/editor.md](module-reviews/editor.md) | 5 |
 | 🔵 第四 | 模块分析-Overleaf | [module-reviews/overleaf.md](module-reviews/overleaf.md) | 5 |
@@ -97,6 +97,7 @@
 已完成：UX-02 导航搜索按钮增加本地化快捷键 tooltip 与 aria 提示。
 已完成：TD-08 移除全局 `scroll-behavior: smooth`，由 JS 按需控制平滑滚动。
 已完成：UX-08 移动端文章分享条改为紧凑换行布局。
+已完成：MR-BUILD-03 扩展 `tidyHtml()` 的 HTML 块保护范围，避免压缩块内空行。
 
 ### 🥈 高价值中成本（建议近期规划）
 

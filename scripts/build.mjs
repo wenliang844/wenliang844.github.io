@@ -160,11 +160,11 @@ function parseFrontMatter(raw, file) {
 }
 
 // marked 在内联 HTML 块后会多输出空行；压缩块间空行让产物更干净。
-// 先用 \x00（不会出现在正文）包裹占位序号抽出 <pre> 代码块，
-// 避免压掉代码内部的空行，压缩后再还原。
-function tidyHtml(html) {
+// 先用 \x00（不会出现在正文）包裹占位序号抽出空白敏感 HTML 块，
+// 避免压掉代码、折叠面板、表格等块内部的空行，压缩后再还原。
+export function tidyHtml(html) {
   const blocks = [];
-  let s = html.replace(/<pre[\s\S]*?<\/pre>/g, (m) => {
+  let s = html.replace(/<(pre|div|details|table|script|style|textarea)\b[\s\S]*?<\/\1>/gi, (m) => {
     blocks.push(m);
     return "\x00" + (blocks.length - 1) + "\x00";
   });

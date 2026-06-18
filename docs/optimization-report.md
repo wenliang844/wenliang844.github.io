@@ -6214,3 +6214,43 @@
 
 - 运行全量质量门禁并提交第四十五轮 UX 优化。
 - 继续处理不触碰 `assistant.js` 外部改动的低风险构建系统、UX 或安全文档一致性项目。
+
+## 第 183 轮：扩展 HTML tidying 块保护
+
+时间：2026-06-18
+
+### 已完成内容
+
+- 将 `scripts/build.mjs` 的 `tidyHtml()` 导出为可测试构建 helper。
+- 将 `tidyHtml()` 的占位保护范围从 `<pre>` 扩展到 `<pre>`、`<div>`、`<details>`、`<table>`、`<script>`、`<style>`、`<textarea>`。
+- 保留普通 HTML 输出块间连续空行压缩逻辑，继续让生成产物保持紧凑。
+- 扩展 `tests/build-extra.test.mjs`，新增 HTML 块内部空行保护测试和 `renderContent()` 标题 ID 烟测。
+- 更新 MR-BUILD-03、建议索引、健康评分、工作报告和本轮工作报告。
+
+### 发现的问题
+
+- `tidyHtml()` 原先只保护 `<pre>`，如果文章正文使用 `<details>`、`<div>`、`<table>` 等原生 HTML 块，块内空行会被全局压缩一起处理。
+- 对代码块以外的 HTML 块而言，空行可能承载可读性、布局或第三方组件语义，统一压缩存在误伤风险。
+- 既有测试覆盖构建产物结构，但没有直接锁定 `tidyHtml()` 的 HTML 块保护边界。
+
+### 修复方案
+
+- 使用带反向引用的标签保护表达式抽出空白敏感块，压缩后再恢复原始块内容。
+- 将 `tidyHtml()` 作为命名导出暴露给测试，避免只能通过完整构建间接覆盖。
+- 新增测试确认受保护块内部空行保留，而普通块间三连空行仍会被压缩。
+
+### 性能、安全与质量指标
+
+- `node --test tests/build-extra.test.mjs tests/build-deep.test.mjs tests/integration.test.mjs`：93 个构建相关测试全部通过。
+- `npm run lint:check`：通过。
+- `npm test`：577 个测试全部通过。
+- `npm run build`：通过，成功生成 6 篇文章页面。
+- `npm run validate:production`：33 项检查通过，0 失败，0 警告。
+- `npm run test:coverage`：577 个测试全部通过；行覆盖率 93.22%，分支覆盖率 75.08%，函数覆盖率 90.84%，均高于覆盖率阈值。
+- `npm audit --audit-level=moderate --registry=https://registry.npmjs.org`：0 个中高危漏洞。
+- 质量收益：HTML tidying 从只保护代码块扩展为保护常见空白敏感块，降低未来文章使用原生 HTML 时的渲染漂移风险。
+
+### 下一步计划
+
+- 运行全量质量门禁并提交第四十六轮构建系统稳健性优化。
+- 继续处理不触碰 `assistant.js` 外部改动的低风险安全、工程化或 UX 项。
