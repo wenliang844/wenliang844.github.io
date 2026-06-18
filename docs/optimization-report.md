@@ -3586,3 +3586,36 @@
 - 继续做最终状态检查。
 - 保持组合测试与浏览器验证指标作为最终报告基线。
 - 到达 7 小时后收口。
+
+## 第 112 轮：性能测试抽样与体积风险记录
+
+时间：2026-06-18
+
+### 已完成内容
+
+- 运行现有性能测试套件，检查 HTML/JS/CSS 体积、资源引用、favicon、sitemap、RSS 和重复脚本。
+- 量化当前工作树与 HEAD 中 `js/assistant.js`、`css/coder.css` 的体积差异。
+- 记录当前并行脏改引入的体积阈值风险。
+
+### 发现的问题
+
+- `node --test tests/performance.test.mjs`：13 个测试中 11 个通过、2 个失败。
+- 失败项 1：当前工作树 `js/assistant.js` 约 54.1KB，超过非 vendor JS 50KB 阈值；HEAD 中该文件约 12.5KB。
+- 失败项 2：当前工作树 `css/coder.css` 约 111.1KB，超过 CSS 105KB 阈值；HEAD 中该文件约 83.9KB。
+- `tests/performance.test.mjs` 本身也处于未提交脏状态，性能阈值不在本轮调整。
+
+### 修复方案
+
+- 本轮不修改性能阈值，也不提交 `js/assistant.js` / `css/coder.css` 的并行大改。
+- 将体积超限作为后续独立性能债务，建议在并行改动稳定后拆分助手脚本和 CSS。
+
+### 性能、覆盖率与质量指标
+
+- `node --test tests/performance.test.mjs`：11/13 通过，失败集中在 JS/CSS 体积阈值。
+- 最新工具箱专项基线仍为 `npm run test:toolbox`：51/51 通过。
+
+### 下一步计划
+
+- 最终报告中列出该性能测试残余风险。
+- 不把并行脏改纳入本次提交范围。
+- 到达 7 小时后收口。
