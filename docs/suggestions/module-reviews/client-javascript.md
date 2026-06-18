@@ -117,10 +117,12 @@ if (!form || !messageInput || !listEl) { return; }
 
 ---
 
-## 📌 MR-JS-05: `giscus.js` 中 MutationObserver 在 `unload` 时断开，但现代浏览器推荐 `visibilitychange`
+## 📌 MR-JS-05 [已修复]: `giscus.js` 中 MutationObserver 在 `unload` 时断开，但现代浏览器推荐 `pagehide`
 
-- **📍 位置**：`js/giscus.js:122-143`
-- **📝 当前状况**：
+- **📍 原位置**：`js/giscus.js:122-143`
+- **✅ 修复状态**：`giscus.js` 已将 observer 清理事件从 `unload` 改为 `pagehide`，保留页面离开时清理能力，同时避免 `unload` 对 bfcache 的负面影响。
+- **🧪 回归测试**：`tests/js-behavior.test.mjs` 新增源码守卫，确认使用 `pagehide` 且不再注册 `unload` 清理。
+- **📝 原状况**：
   ```javascript
   window.addEventListener("unload", function () {
     if (observer) { observer.disconnect(); }
@@ -128,13 +130,7 @@ if (!form || !messageInput || !listEl) { return; }
   ```
   `unload` 事件在现代浏览器中不可靠（特别是移动端 bfcache 场景），推荐使用 `pagehide` 或 `visibilitychange`。
 - **⚠️ 影响程度**：低（Observer 在页面卸载时自动清理）
-- **💡 建议方案**：
-  ```javascript
-  window.addEventListener("pagehide", function () {
-    if (observer) { observer.disconnect(); }
-  });
-  ```
-- **📊 预期收益**：更可靠的资源清理
+- **📊 实际收益**：更可靠且 bfcache 友好的资源清理。
 - **🔗 相关建议**：[TD-01](../tech-debt.md#td-01)
 
 ---

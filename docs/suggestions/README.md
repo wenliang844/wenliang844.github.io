@@ -33,7 +33,7 @@
 | 🟢 第三 | UX 优化 | [ux-improvements.md](ux-improvements.md) | 10（中 2 / 低 1 / 已修复 7） |
 | 🟢 第三 | 开发体验 | [devex-improvements.md](devex-improvements.md) | 10（低 5 / 部分 1 / 已修复 4） |
 | 🔵 第四 | 模块分析-构建系统 | [module-reviews/build-system.md](module-reviews/build-system.md) | 5（低 2 / 已修复 3） |
-| 🔵 第四 | 模块分析-客户端JS | [module-reviews/client-javascript.md](module-reviews/client-javascript.md) | 5（低 4 / 已修复 1） |
+| 🔵 第四 | 模块分析-客户端JS | [module-reviews/client-javascript.md](module-reviews/client-javascript.md) | 5（低 3 / 已修复 2） |
 | 🔵 第四 | 模块分析-编辑器 | [module-reviews/editor.md](module-reviews/editor.md) | 5 |
 | 🔵 第四 | 模块分析-Overleaf | [module-reviews/overleaf.md](module-reviews/overleaf.md) | 5 |
 | 🔵 第四 | 模块分析-CSS | [module-reviews/css-analysis.md](module-reviews/css-analysis.md) | 5 |
@@ -102,6 +102,7 @@
 已完成：S-09 `validate:posts` 增加公开内容敏感标记扫描，防止内部笔记进入搜索索引。
 已完成：MR-JS-04 `blog.js` 启动期文章项缓存只构建一次，消除重复 DOM 查询。
 已完成：S-10 JWT 解码工具增加常驻签名未验证警示，防止安全决策误用。
+已完成：MR-JS-05 `giscus.js` observer 清理改用 `pagehide`，避免 `unload` 影响 bfcache。
 
 ### 🥈 高价值中成本（建议近期规划）
 

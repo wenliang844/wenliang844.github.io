@@ -6414,3 +6414,42 @@
 
 - 运行全量质量门禁并提交第五十轮安全/UX 优化。
 - 继续处理不触碰 `assistant.js` 外部改动的低风险工程化、安全或 UX 项。
+
+## 第 188 轮：giscus observer 清理事件现代化
+
+时间：2026-06-19
+
+### 已完成内容
+
+- 将 `js/giscus.js` 中 observer 清理事件从 `unload` 改为 `pagehide`。
+- 保留页面离开时断开 `MutationObserver` 的资源清理能力。
+- 扩展 `tests/js-behavior.test.mjs`，新增源码守卫，确认使用 `pagehide` 且不再注册 `unload` 清理。
+- 更新 MR-JS-05、建议索引、健康评分、工作报告和本轮工作报告。
+
+### 发现的问题
+
+- `unload` 在现代浏览器中不可靠，且可能影响 bfcache。
+- giscus 列表页模式依赖 `MutationObserver` 监听文章面板 active 类变化，清理逻辑应该使用更现代的页面生命周期事件。
+- 原测试只确认 giscus 基础加载和占位渲染，没有约束生命周期清理事件。
+
+### 修复方案
+
+- 使用 `pagehide` 替代 `unload` 作为 observer 清理触发时机。
+- 保持 `observer.disconnect()` 逻辑不变，降低行为变化范围。
+- 用源码测试防止后续重新引入 `unload`。
+
+### 性能、安全与质量指标
+
+- `node --test tests/js-behavior.test.mjs tests/security-extended.test.mjs tests/performance.test.mjs`：初次运行发现 `coder.css` 工作树 CRLF 导致文件大小预算误报；已将该文件工作树换行恢复为 LF 后，`tests/performance.test.mjs` 13 个性能测试全部通过。
+- `npm run lint:check`：通过。
+- `npm test`：581 个测试全部通过。
+- `npm run build`：通过，成功生成 6 篇文章页面。
+- `npm run validate:production`：33 项检查通过，0 失败，0 警告。
+- `npm run test:coverage`：581 个测试全部通过；行覆盖率 93.30%，分支覆盖率 75.45%，函数覆盖率 90.87%，均高于覆盖率阈值。
+- `npm audit --audit-level=moderate --registry=https://registry.npmjs.org`：0 个中高危漏洞。
+- 工程化收益：giscus observer 清理更符合现代页面生命周期，减少 bfcache 兼容性风险。
+
+### 下一步计划
+
+- 运行全量质量门禁并提交第五十一轮工程化优化。
+- 继续处理不触碰 `assistant.js` 外部改动的低风险工程化、安全或 UX 项。

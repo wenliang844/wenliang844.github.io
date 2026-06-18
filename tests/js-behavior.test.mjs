@@ -325,6 +325,12 @@ test("giscus.js renders placeholder without innerHTML", async () => {
   assert.match(code, /replaceChildren\(createPlaceholder\(\)\)/, "should replace placeholder with DOM nodes");
 });
 
+test("giscus.js cleans observer up on pagehide", async () => {
+  const code = await readFile(join(ROOT, "js", "giscus.js"), "utf8");
+  assert.match(code, /addEventListener\("pagehide"/, "should use pagehide for bfcache-friendly cleanup");
+  assert.doesNotMatch(code, /addEventListener\("unload"/, "should avoid unload cleanup");
+});
+
 // ─── feedback.js 测试 ─────────────────────────────────────────────────────────
 
 test("feedback.js does not hardcode API keys", async () => {

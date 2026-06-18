@@ -155,8 +155,8 @@
     observer.observe(panel, { attributes: true, attributeFilter: ["class"] });
   });
 
-  // 清理：页面卸载时断开 observer，防止内存泄漏
-  window.addEventListener("unload", function () {
+  // 清理：页面离开时断开 observer，同时保留 bfcache 兼容性。
+  window.addEventListener("pagehide", function () {
     if (observer) {
       observer.disconnect();
     }
