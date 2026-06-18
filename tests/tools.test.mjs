@@ -153,6 +153,11 @@ test("tools core handles Base64, URL, timestamps, UUID and JWT", async () => {
   const invalidAlphabet = tools.decodeJwt(standardBase64Jwt);
   assert.equal(invalidAlphabet.ok, false);
   assert.equal(invalidAlphabet.code, "jwtBase64");
+
+  const primitiveJwt = ["bnVsbA", "bnVsbA", "signature"].join(".");
+  const primitiveDecoded = tools.decodeJwt(primitiveJwt);
+  assert.equal(primitiveDecoded.ok, false);
+  assert.equal(primitiveDecoded.code, "jwtJson");
   assert.equal(tools.decodeJwt("bad").ok, false);
 });
 

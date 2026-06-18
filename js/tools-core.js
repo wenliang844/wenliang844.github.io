@@ -208,6 +208,10 @@
     return decodeBase64(padded);
   }
 
+  function isJsonObject(value) {
+    return value !== null && typeof value === "object" && !Array.isArray(value);
+  }
+
   function decodeJwt(input) {
     const token = text(input).trim();
     const parts = token.split(".");
@@ -220,9 +224,14 @@
       return fail("JWT 解码失败：header 或 payload 不是合法的 Base64URL", "jwtBase64");
     }
     try {
+      const headerJson = JSON.parse(header.value);
+      const payloadJson = JSON.parse(payload.value);
+      if (!isJsonObject(headerJson) || !isJsonObject(payloadJson)) {
+        return fail("JWT 解析失败：header 或 payload 不是合法 JSON 对象", "jwtJson");
+      }
       return ok({
-        header: JSON.stringify(JSON.parse(header.value), null, 2),
-        payload: JSON.stringify(JSON.parse(payload.value), null, 2),
+        header: JSON.stringify(headerJson, null, 2),
+        payload: JSON.stringify(payloadJson, null, 2),
       });
     } catch (error) {
       return fail("JWT 解析失败：header 或 payload 不是合法 JSON", "jwtJson");
