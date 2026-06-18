@@ -3984,3 +3984,36 @@
 - 做最终工作区状态检查。
 - 等待 7 小时目标达成。
 - 输出完整优化报告。
+
+## 第 125 轮：并行提交后性能阈值复测
+
+时间：2026-06-18
+
+### 已完成内容
+
+- 发现并行提交 `a9c2ae6 Optimize AI assistant chat layout` 已将此前的 `js/assistant.js` / `css/coder.css` 大改纳入当前分支。
+- 重新运行性能测试，确认体积阈值失败是否仍存在。
+- 更新最终报告中的性能风险口径。
+
+### 发现的问题
+
+- `node --test tests/performance.test.mjs`：13 个测试中 11 个通过、2 个失败。
+- 当前分支 `js/assistant.js` 约 54.1KB，仍超过非 vendor JS 50KB 阈值。
+- 当前分支 `css/coder.css` 约 111.1KB，仍超过 CSS 105KB 阈值。
+- `tests/performance.test.mjs` 仍处于并行未提交脏改状态，本轮不调整阈值。
+
+### 修复方案
+
+- 本轮不修改并行提交的助手布局/CSS 大改，也不放宽性能阈值。
+- 将 JS/CSS 体积超限从“并行脏改风险”更新为“当前分支未解决性能债务”。
+
+### 性能、覆盖率与质量指标
+
+- `node --test tests/performance.test.mjs`：11/13 通过，失败集中在 JS/CSS 体积阈值。
+- 当前体积：`js/assistant.js` 约 54.1KB，`css/coder.css` 约 111.1KB。
+
+### 下一步计划
+
+- 最终报告中明确列出当前分支性能测试仍失败。
+- 建议后续拆分助手脚本、CSS 或调整构建产物策略。
+- 到 7 小时后收口。
