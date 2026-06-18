@@ -26,6 +26,8 @@
     { action: "ai", key: "assistant.quick.ai", fallback: "查看 AI 导航" },
   ];
 
+  const MAX_MESSAGES = 40;
+
   function t(key, fallback) {
     return window.cwlT ? window.cwlT(key, fallback) : fallback;
   }
@@ -257,6 +259,9 @@
         item.appendChild(linkList);
       }
       messages.appendChild(item);
+      while (messages.children.length > MAX_MESSAGES) {
+        messages.removeChild(messages.firstElementChild);
+      }
       messages.scrollTop = messages.scrollHeight;
     }
 

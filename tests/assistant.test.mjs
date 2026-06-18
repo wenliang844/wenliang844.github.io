@@ -102,6 +102,23 @@ test("assistant keeps AI navigation discoverable for AI queries", async () => {
   assert.equal(firstLink.getAttribute("href"), "/ai/");
 });
 
+test("assistant caps message history to avoid unbounded DOM growth", async () => {
+  const dom = await loadAssistant();
+  const { document, Event } = dom.window;
+
+  document.querySelector(".assistant-fab").click();
+  const input = document.querySelector(".assistant-input");
+  const form = document.querySelector(".assistant-form");
+  for (let i = 0; i < 45; i += 1) {
+    input.value = "工具箱 " + i;
+    form.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+  }
+
+  const messages = document.querySelectorAll(".assistant-message");
+  assert.equal(messages.length, 40);
+  assert.match(messages[messages.length - 1].textContent, /工具箱/);
+});
+
 test("assistant can render English labels through the i18n bridge", async () => {
   const dom = await loadAssistant({
     lang: "en",
