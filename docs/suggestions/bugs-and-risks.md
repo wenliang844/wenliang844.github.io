@@ -126,13 +126,12 @@
 
 ---
 
-## 📌 B-10: `feedback.js` 中 `formatTime` 使用 `isNaN(date.getTime())` 但未用 `Number.isNaN`
+## 📌 B-10 [已修复]: `feedback.js` 中 `formatTime` 使用 `isNaN(date.getTime())` 但未用 `Number.isNaN`
 
-- **📍 位置**：`js/feedback.js:46`
-- **📝 当前状况**：`isNaN(date.getTime())` 会将 `undefined` 也判定为 `true`（全局 `isNaN` 会先做类型转换），虽然在此上下文中 `date.getTime()` 总是返回数字，但 ESLint 规则 `eqeqeq` 和现代 JS 最佳实践推荐使用 `Number.isNaN()`。
-- **⚠️ 影响程度**：低
-- **💡 建议方案**：将 `isNaN` 替换为 `Number.isNaN`
-- **📊 预期收益**：代码风格一致性，消除潜在的类型转换问题
+- **📍 位置**：`js/feedback.js`
+- **✅ 修复状态**：`formatTime()` 已改用 `Number.isNaN(date.getTime())`，避免全局 `isNaN` 的隐式类型转换。
+- **🧪 回归测试**：`tests/feedback.test.mjs` 新增源码测试，防止日期校验回退到全局 `isNaN`。
+- **📊 实际收益**：代码风格与其他时间处理模块一致，消除潜在的类型转换维护风险。
 - **🔗 相关建议**：[CQ-01 代码质量](code-quality.md#cq-01)
 
 ---
@@ -163,7 +162,7 @@
 |------|------|------|
 | 🔴 高 | 0 | — |
 | 🟡 中 | 2 | B-05, B-08 |
-| ✅ 已修复 | 4 | B-01, B-06, B-11, B-12 |
-| 🟢 低 | 6 | B-02, B-03, B-04, B-07, B-09, B-10 |
+| ✅ 已修复 | 5 | B-01, B-06, B-10, B-11, B-12 |
+| 🟢 低 | 5 | B-02, B-03, B-04, B-07, B-09 |
 
 > 整体评估：无高危 Bug，代码质量良好。主要风险集中在维护一致性（重复逻辑）和废弃 API 使用上。

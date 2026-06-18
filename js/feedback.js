@@ -43,7 +43,7 @@
 
   function formatTime(iso) {
     const date = new Date(iso);
-    if (isNaN(date.getTime())) {
+    if (Number.isNaN(date.getTime())) {
       return "";
     }
     const pad = function (n) { return n < 10 ? "0" + n : String(n); };

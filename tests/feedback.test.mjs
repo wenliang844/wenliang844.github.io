@@ -199,6 +199,12 @@ test("feedback.js uses textContent and createElement for rendering", async () =>
   assert.match(code, /\.replaceChildren\(\)/, "should use replaceChildren for list clearing");
 });
 
+test("feedback.js uses Number.isNaN for invalid dates", async () => {
+  const code = await readFile(join(ROOT, "js", "feedback.js"), "utf8");
+  assert.match(code, /Number\.isNaN\(date\.getTime\(\)\)/, "should avoid global isNaN coercion");
+  assert.doesNotMatch(code, /[^.\w]isNaN\(date\.getTime\(\)\)/, "should not use global isNaN for dates");
+});
+
 // ─── Time formatting ──────────────────────────────────────────────────────
 
 test("feedback.js entry shows formatted time", async () => {

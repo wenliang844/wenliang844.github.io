@@ -4705,3 +4705,38 @@
 ### 下一步计划
 
 - 提交第七轮移动端 UX 修复。
+
+## 第 145 轮：反馈时间校验现代化
+
+时间：2026-06-18
+
+### 已完成内容
+
+- 将 `js/feedback.js` 中 `formatTime()` 的全局 `isNaN(date.getTime())` 替换为 `Number.isNaN(date.getTime())`。
+- 扩展 `tests/feedback.test.mjs`，锁定反馈时间格式化必须使用 `Number.isNaN()`。
+- 更新 B-10、索引和健康评分文档。
+
+### 发现的问题
+
+- `feedback.js` 是少数仍使用全局 `isNaN` 的业务脚本；虽然当前参数来自 `Date#getTime()`，但全局 `isNaN` 会做隐式类型转换，不符合项目其他模块的现代写法。
+
+### 修复方案
+
+- 直接替换为 `Number.isNaN(date.getTime())`。
+- 用源码测试防止后续日期校验回退为全局 `isNaN`。
+
+### 性能、安全与质量指标
+
+- `node --test tests/feedback.test.mjs tests/security.test.mjs`：19 个测试全部通过。
+- `npx eslint js/*.js`：通过。
+- `npm test`：527 个测试全部通过，耗时约 7.56 秒。
+- `npm run build`：通过，6 篇文章输出成功。
+- `npm run validate:production`：33 项通过、0 失败、0 警告。
+- `node --test tests/performance.test.mjs`：13 个测试全部通过。
+- `npm run test:coverage`：527 个测试全部通过；当前覆盖率 line 92.68%、branch 74.95%、funcs 89.33%。
+- `npm audit --audit-level=moderate --registry=https://registry.npmjs.org`：0 vulnerabilities。
+- 质量收益：反馈时间格式化与 relay/tools 等模块的日期校验风格一致。
+
+### 下一步计划
+
+- 提交第八轮代码质量修复。
