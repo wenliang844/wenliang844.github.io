@@ -31,6 +31,38 @@
     return window.cwlT ? window.cwlT(key, fallback) : fallback;
   }
 
+  function treeToggleIcon(open) {
+    const paths = open
+      ? [
+        "M8 3v3a2 2 0 0 1-2 2H3",
+        "M21 8h-3a2 2 0 0 1-2-2V3",
+        "M3 16h3a2 2 0 0 1 2 2v3",
+        "M16 21v-3a2 2 0 0 1 2-2h3",
+      ]
+      : [
+        "M8 3H5a2 2 0 0 0-2 2v3",
+        "M16 3h3a2 2 0 0 1 2 2v3",
+        "M21 16v3a2 2 0 0 1-2 2h-3",
+        "M8 21H5a2 2 0 0 1-2-2v-3",
+      ];
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("class", "post-tree-fab-icon");
+    svg.setAttribute("viewBox", "0 0 24 24");
+    svg.setAttribute("fill", "none");
+    svg.setAttribute("stroke", "currentColor");
+    svg.setAttribute("stroke-width", "2");
+    svg.setAttribute("stroke-linecap", "round");
+    svg.setAttribute("stroke-linejoin", "round");
+    svg.setAttribute("aria-hidden", "true");
+    svg.setAttribute("focusable", "false");
+    paths.forEach(function (pathData) {
+      const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      path.setAttribute("d", pathData);
+      svg.appendChild(path);
+    });
+    return svg;
+  }
+
   function buildItems() {
     items = links.map(function (link) {
       const li = link.closest("li");
@@ -267,24 +299,59 @@
   // ---- 移动端浮动侧栏切换 --------------------------------------------------
   const sidebar = document.querySelector(".post-tree");
   if (sidebar) {
+    if (!sidebar.id) {
+      sidebar.id = "post-tree-sidebar";
+    }
     const fab = document.createElement("button");
     fab.type = "button";
     fab.className = "post-tree-fab";
-    fab.setAttribute("aria-expanded", "false");
-    fab.setAttribute("aria-label", t("dyn.blog.toc", "文章目录"));
-    fab.innerHTML = '<i class="fas fa-list" aria-hidden="true"></i>';
+    fab.setAttribute("aria-controls", sidebar.id);
+
+    const collapseBtn = document.createElement("button");
+    collapseBtn.type = "button";
+    collapseBtn.className = "post-tree-collapse";
+    collapseBtn.setAttribute("aria-controls", sidebar.id);
+
+    function updateFab(open) {
+      const label = t("dyn.blog.expandTree", "展开文章目录");
+      while (fab.firstChild) {
+        fab.removeChild(fab.firstChild);
+      }
+      fab.appendChild(treeToggleIcon(false));
+      fab.classList.toggle("is-hidden", open);
+      fab.setAttribute("aria-expanded", String(open));
+      fab.setAttribute("aria-label", label);
+      fab.setAttribute("title", label);
+    }
+
+    function updateCollapseButton() {
+      const label = t("dyn.blog.collapseTree", "收起文章目录");
+      while (collapseBtn.firstChild) {
+        collapseBtn.removeChild(collapseBtn.firstChild);
+      }
+      collapseBtn.appendChild(treeToggleIcon(true));
+      collapseBtn.setAttribute("aria-expanded", "true");
+      collapseBtn.setAttribute("aria-label", label);
+      collapseBtn.setAttribute("title", label);
+    }
 
     const setOpen = function (open) {
       sidebar.classList.toggle("is-floating-open", open);
       document.body.classList.toggle("post-tree-floating", open);
-      fab.setAttribute("aria-expanded", String(open));
-      fab.innerHTML = open
-        ? '<i class="fas fa-times" aria-hidden="true"></i>'
-        : '<i class="fas fa-list" aria-hidden="true"></i>';
+      updateFab(open);
+      updateCollapseButton();
     };
 
+    updateFab(false);
+    updateCollapseButton();
+
     fab.addEventListener("click", function () {
-      setOpen(!sidebar.classList.contains("is-floating-open"));
+      setOpen(true);
+    });
+
+    collapseBtn.addEventListener("click", function () {
+      setOpen(false);
+      fab.focus();
     });
 
     // 选中文章或点击树链接后自动收起浮层。
@@ -300,6 +367,7 @@
       }
     });
 
+    sidebar.appendChild(collapseBtn);
     document.body.appendChild(fab);
   }
 
@@ -309,8 +377,18 @@
     rebuildTagFilter();
     apply();
     const fab = document.querySelector(".post-tree-fab");
-    if (fab && fab.getAttribute("aria-expanded") === "false") {
-      fab.setAttribute("aria-label", t("dyn.blog.toc", "文章目录"));
+    if (fab) {
+      const open = fab.getAttribute("aria-expanded") === "true";
+      const label = t("dyn.blog.expandTree", "展开文章目录");
+      fab.classList.toggle("is-hidden", open);
+      fab.setAttribute("aria-label", label);
+      fab.setAttribute("title", label);
+    }
+    const collapseBtn = document.querySelector(".post-tree-collapse");
+    if (collapseBtn) {
+      const label = t("dyn.blog.collapseTree", "收起文章目录");
+      collapseBtn.setAttribute("aria-label", label);
+      collapseBtn.setAttribute("title", label);
     }
   }
 

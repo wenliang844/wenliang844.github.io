@@ -60,6 +60,9 @@ test("coder.css contains blog tree selectors", async () => {
   assert.ok(css.includes(".blog-layout"), "should have blog-layout");
   assert.ok(css.includes(".post-tree"), "should have post-tree");
   assert.ok(css.includes(".post-tree-link"), "should have post-tree-link");
+  assert.ok(/\.post-tree\s*{[^}]*position:\s*sticky;/s.test(css), "post-tree should be sticky on desktop");
+  assert.ok(css.includes(".post-tree-fab-icon"), "mobile post tree toggle should have an icon selector");
+  assert.ok(css.includes(".post-tree-collapse"), "mobile floating post tree should have an internal collapse button");
   assert.ok(css.includes(".post-detail"), "should have post-detail");
   assert.ok(css.includes(".tree-group"), "should have tree-group");
 });
@@ -88,6 +91,16 @@ test("coder.css contains AI navigation selectors", async () => {
   assert.ok(css.includes(".ai-tool-tags"), "should have ai-tool-tags");
 });
 
+test("coder.css contains relay ranking selectors", async () => {
+  const css = await readFile(join(ROOT, "css", "coder.css"), "utf8");
+
+  assert.ok(css.includes(".relay-page"), "should have relay-page");
+  assert.ok(css.includes(".relay-toolbar"), "should have relay-toolbar");
+  assert.ok(css.includes(".relay-filters"), "should have relay-filters");
+  assert.ok(css.includes(".relay-card"), "should have relay-card");
+  assert.ok(css.includes(".relay-score"), "should have relay-score");
+});
+
 test("coder.css contains appreciation page selectors", async () => {
   const css = await readFile(join(ROOT, "css", "coder.css"), "utf8");
 
@@ -114,6 +127,8 @@ test("coder.css contains assistant selectors", async () => {
   assert.ok(css.includes(".assistant-fab"), "should have assistant-fab");
   assert.ok(css.includes(".assistant-panel"), "should have assistant-panel");
   assert.ok(css.includes(".assistant-panel[hidden]"), "should have assistant-panel[hidden]");
+  assert.ok(css.includes(".assistant-widget.fullscreen"), "should have assistant fullscreen state");
+  assert.ok(css.includes(".assistant-relay-cta"), "should have assistant relay CTA");
   assert.ok(css.includes(".assistant-message"), "should have assistant-message");
   assert.ok(css.includes(".assistant-input"), "should have assistant-input");
 });

@@ -99,6 +99,7 @@ test("sitemap contains all static pages", async () => {
     for (const path of requiredPaths) {
       assert.ok(sitemap.includes(`<loc>${path}</loc>`), `sitemap missing: ${path}`);
     }
+    assert.ok(!sitemap.includes("<loc>https://wenliang844.github.io/ai/relay/</loc>"));
 
     // 必须包含所有文章
     const slugs = [

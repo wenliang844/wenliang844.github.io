@@ -46,7 +46,8 @@
         <label class="menu-button" for="menu-toggle"><i class="fas fa-bars"></i></label>
         <nav class="navigation-list" aria-label="Main navigation" data-i18n-aria="nav.main">
           <ul>
-          <li><a class="active" href="/post/" data-i18n="nav.blog">博客</a></li>
+          <li><a class="active nav-blog-main" href="/post/" data-i18n="nav.blog" data-i18n-html data-i18n-en-html="&lt;i class=&quot;fas fa-book-open&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt; Blog"><i class="fas fa-book-open" aria-hidden="true"></i> 博客</a></li>
+          <li><a class="nav-ai-experience" href="/?assistant=fullscreen" target="_blank" rel="noopener noreferrer" data-i18n="nav.tryAi" data-i18n-html data-i18n-en-html="&lt;i class=&quot;fas fa-robot&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt; Try AI"><i class="fas fa-robot" aria-hidden="true"></i> 体验AI</a></li>
           <li><a href="/ai/" data-i18n="nav.ai">AI导航</a></li>
           <li><a href="/tools/" data-i18n="nav.tools">工具箱</a></li>
           <li><a href="/appreciation/" data-i18n="nav.appreciation">鉴赏</a></li>
@@ -74,7 +75,7 @@
               <span>·</span>
               <a href="/post/#rule-engine-alerts" data-i18n="post.meta.posts" data-i18n-en="Posts">文章</a>
               <span>·</span>
-              <span class="reading-time"><i class="fas fa-clock" aria-hidden="true"></i> <span data-i18n="dyn.readingPrefix">阅读约</span> 5 <span data-i18n="dyn.readingSuffix">分钟</span></span>
+              <span class="reading-time"><i class="fas fa-clock" aria-hidden="true"></i> <span data-i18n="dyn.readingPrefix">约</span> 5 <span data-i18n="dyn.readingSuffix">分钟</span></span>
             </div>
             <p class="article-summary" data-i18n="post.rule-engine-alerts.summary" data-i18n-en="Design notes on the rule engine and alert loop, from standard facts and rule context to window aggregation and formal alerts.">从标准事实、规则上下文、窗口聚合到正式告警，梳理智能分析平台中规则引擎和告警闭环的设计。</p>
             <div class="post-tags">
@@ -235,7 +236,7 @@
         <a class="pager-prev" href="/post/">← <span data-i18n="post.meta.posts" data-i18n-en="Posts">文章</span></a>
         <a class="pager-next" href="/post/codex-claude-vibe-coding/"><span data-i18n="post.codex-claude-vibe-coding.shortTitle" data-i18n-en="Codex and Claude Vibe Coding">Codex 与 Claude 的 Vibe Coding</span> →</a>
       </nav>
-      <aside class="next-popup" hidden aria-label="下一篇推荐" data-i18n-aria="post.next.aria">
+      <aside class="next-popup" hidden aria-label="下一篇推荐" data-i18n-aria="post.next.aria" data-next-url="/post/codex-claude-vibe-coding/" data-next-title="Codex 与 Claude 的 Vibe Coding" data-next-title-en="Codex and Claude Vibe Coding">
         <button class="next-popup-close" type="button" aria-label="关闭" data-i18n-aria="post.next.close"><i class="fas fa-times" aria-hidden="true"></i></button>
         <span class="next-popup-eyebrow" data-i18n="post.next.eyebrow" data-i18n-en="Up next">下一篇</span>
         <a class="next-popup-link" href="/post/codex-claude-vibe-coding/">

@@ -4,7 +4,25 @@ import { SITE } from "../config.mjs";
 import { escapeAttr, escapeHtml } from "../lib/format.mjs";
 
 const NAV_ITEMS = [
-  { href: "/post/", label: "博客", key: "blog", i18n: "nav.blog" },
+  {
+    href: "/post/",
+    label: "博客",
+    key: "blog",
+    i18n: "nav.blog",
+    className: "nav-blog-main",
+    html: '<i class="fas fa-book-open" aria-hidden="true"></i> 博客',
+    htmlEn: '<i class="fas fa-book-open" aria-hidden="true"></i> Blog',
+  },
+  {
+    href: "/?assistant=fullscreen",
+    label: "体验AI",
+    key: "try-ai",
+    i18n: "nav.tryAi",
+    className: "nav-ai-experience",
+    html: '<i class="fas fa-robot" aria-hidden="true"></i> 体验AI',
+    htmlEn: '<i class="fas fa-robot" aria-hidden="true"></i> Try AI',
+    target: "_blank",
+  },
   { href: "/ai/", label: "AI导航", key: "ai", i18n: "nav.ai" },
   { href: "/tools/", label: "工具箱", key: "tools", i18n: "nav.tools" },
   { href: "/appreciation/", label: "鉴赏", key: "appreciation", i18n: "nav.appreciation" },
@@ -21,8 +39,12 @@ export const SPONSOR_LINKS = {
 // 渲染主导航；active 标记当前栏目。
 function renderNav(active) {
   const items = NAV_ITEMS.map((item) => {
-    const cls = item.key === active ? ' class="active"' : "";
-    return `          <li><a${cls} href="${item.href}" data-i18n="${item.i18n}">${item.label}</a></li>`;
+    const classes = [item.key === active ? "active" : "", item.className || ""].filter(Boolean).join(" ");
+    const cls = classes ? ` class="${classes}"` : "";
+    const target = item.target ? ` target="${item.target}" rel="noopener noreferrer"` : "";
+    const i18nHtml = item.html ? " data-i18n-html" : "";
+    const i18nEn = item.htmlEn ? ` data-i18n-en-html="${escapeAttr(item.htmlEn)}"` : "";
+    return `          <li><a${cls} href="${item.href}"${target} data-i18n="${item.i18n}"${i18nHtml}${i18nEn}>${item.html || item.label}</a></li>`;
   }).join("\n");
 
   return `        <nav class="navigation-list" aria-label="Main navigation" data-i18n-aria="nav.main">

@@ -20,7 +20,7 @@ function tagEn(post, tag, index) {
 // 且检测到已有 .reading-time 时不再重复追加。
 function renderReadingTime(post) {
   const minutes = post.readMinutes || 1;
-  return `<span class="reading-time"><i class="fas fa-clock" aria-hidden="true"></i> <span data-i18n="dyn.readingPrefix">阅读约</span> ${minutes} <span data-i18n="dyn.readingSuffix">分钟</span></span>`;
+  return `<span class="reading-time"><i class="fas fa-clock" aria-hidden="true"></i> <span data-i18n="dyn.readingPrefix">约</span> ${minutes} <span data-i18n="dyn.readingSuffix">分钟</span></span>`;
 }
 
 // 列表页面板用：tags 渲染为 span，由 blog.js 接管就地筛选（span 之间不留空白）。
@@ -122,9 +122,12 @@ function renderPager(prev, next) {
 
 // 下一篇浮动推荐卡：默认隐藏，post-next.js 在滚动接近底部时滑入。
 // next = 更老的一篇；无 next 时不渲染（renderPostPage 也不挂脚本）。
-function renderNextPopup(next) {
+function renderNextPopup(next, prev) {
   if (!next) return "";
-  return `      <aside class="next-popup" hidden aria-label="下一篇推荐" data-i18n-aria="post.next.aria">
+  const prevAttrs = prev
+    ? ` data-prev-url="/post/${prev.slug}/" data-prev-title="${escapeAttr(prev.shortTitle)}" data-prev-title-en="${escapeAttr(enValue(prev, "shortTitle"))}"`
+    : "";
+  return `      <aside class="next-popup" hidden aria-label="下一篇推荐" data-i18n-aria="post.next.aria" data-next-url="/post/${next.slug}/" data-next-title="${escapeAttr(next.shortTitle)}" data-next-title-en="${escapeAttr(enValue(next, "shortTitle"))}"${prevAttrs}>
         <button class="next-popup-close" type="button" aria-label="关闭" data-i18n-aria="post.next.close"><i class="fas fa-times" aria-hidden="true"></i></button>
         <span class="next-popup-eyebrow" data-i18n="post.next.eyebrow" data-i18n-en="Up next">下一篇</span>
         <a class="next-popup-link" href="/post/${next.slug}/">
@@ -223,7 +226,7 @@ ${tocHtml}
       </section>
 ${renderRelated(nav.related)}
 ${renderPager(nav.prev, nav.next)}
-${renderNextPopup(nav.next)}
+${renderNextPopup(nav.next, nav.prev)}
     </main>`;
 
   const scripts = ["/js/vendor/qrcode.min.js", "/js/share.js", "/js/giscus.js", "/js/toc.js"];

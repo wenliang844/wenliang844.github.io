@@ -102,14 +102,19 @@
   /* ----------------------------------------------------------------------
    * Back-to-top button
    * -------------------------------------------------------------------- */
-  const toTop = document.createElement("button");
-  toTop.className = "to-top";
+  const existingToTop = document.querySelector(".to-top");
+  const toTop = existingToTop || document.createElement("button");
+  toTop.classList.add("to-top");
   toTop.type = "button";
-  toTop.innerHTML = '<i class="fas fa-arrow-up" aria-hidden="true"></i>';
+  if (!toTop.innerHTML.trim()) {
+    toTop.innerHTML = '<i class="fas fa-arrow-up" aria-hidden="true"></i>';
+  }
   toTop.addEventListener("click", function () {
     window.scrollTo({ top: 0, behavior: "smooth" });
   });
-  body.appendChild(toTop);
+  if (!existingToTop) {
+    body.appendChild(toTop);
+  }
 
   function t(key, fallback) {
     return window.cwlT ? window.cwlT(key, fallback) : fallback;
@@ -365,7 +370,7 @@
       const article = span.closest("article.article");
       const content = article && activeArticleContent(article);
       if (!content) {return;}
-      const prefix = t("dyn.readingPrefix", "阅读约");
+      const prefix = t("dyn.readingPrefix", "约");
       const suffix = t("dyn.readingSuffix", "分钟");
       span.innerHTML = '<i class="fas fa-clock" aria-hidden="true"></i> ' + prefix +
         " " + readingMinutes(content.textContent || "") + " " + suffix;
@@ -399,7 +404,7 @@
     if (meta && !meta.querySelector(".reading-time")) {
       const span = document.createElement("span");
       span.className = "reading-time";
-      const prefix = t("dyn.readingPrefix", "阅读约");
+      const prefix = t("dyn.readingPrefix", "约");
       const suffix = t("dyn.readingSuffix", "分钟");
       span.innerHTML = '<i class="fas fa-clock" aria-hidden="true"></i> ' + prefix +
         " " + readingMinutes(content.textContent || "") + " " + suffix;
@@ -423,7 +428,9 @@
   /* ----------------------------------------------------------------------
    * Scroll reveal
    * -------------------------------------------------------------------- */
-  const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const prefersReduced = window.matchMedia
+    ? window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    : false;
   const revealTargets = Array.prototype.slice.call(
     document.querySelectorAll(".card, .ai-card, .insight-list li, .timeline-stats div, .feedback-item, .post-item")
   );

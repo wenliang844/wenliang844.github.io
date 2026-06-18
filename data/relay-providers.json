@@ -1,0 +1,376 @@
+{
+  "meta": {
+    "schemaVersion": 2,
+    "generatedAt": "2026-06-18T02:10:48.191Z",
+    "source": "cc-switch-export",
+    "sections": {
+      "linuxdo": {
+        "label": "LinuxDo 站",
+        "source": "cc-switch-export",
+        "generatedAt": "2026-06-18T02:10:48.191Z",
+        "totalProviders": 19
+      },
+      "commercial": {
+        "label": "商业站",
+        "source": "external-actions",
+        "generatedAt": null,
+        "totalProviders": 0
+      }
+    },
+    "totalProviders": 19,
+    "totalLinuxdoProviders": 19,
+    "totalCommercialProviders": 0
+  },
+  "providers": [
+    {
+      "name": "小米-claude-6.29",
+      "format": "claude",
+      "formatLabel": "Claude/Anthropic",
+      "endpoint": "https://token-plan-cn.xiaomimimo.com/anthropic",
+      "websiteUrl": "https://platform.xiaomimimo.com/console/plan-manage",
+      "models": [
+        "mimo-v2.5-pro"
+      ],
+      "healthStatus": "healthy",
+      "lastTestedAt": "2026-06-17T01:47:28.000Z",
+      "successRate": 100,
+      "latencyMs": 954,
+      "failureSummary": "",
+      "isCurrent": true,
+      "score": 97,
+      "tags": []
+    },
+    {
+      "name": "codex公益站-codex-350账号uu远程",
+      "format": "chatgpt",
+      "formatLabel": "ChatGPT/OpenAI",
+      "endpoint": "https://new.sharedchat.cc/codex",
+      "websiteUrl": "https://new.sharedchat.cc/list",
+      "models": [
+        "gpt-5.5"
+      ],
+      "healthStatus": "healthy",
+      "lastTestedAt": "2026-06-11T09:23:53.000Z",
+      "successRate": 100,
+      "latencyMs": 451,
+      "failureSummary": "",
+      "isCurrent": false,
+      "score": 96,
+      "tags": []
+    },
+    {
+      "name": "freemodel-codex-6.17-不稳定",
+      "format": "chatgpt",
+      "formatLabel": "ChatGPT/OpenAI",
+      "endpoint": "https://api.freemodel.dev/v1",
+      "websiteUrl": "https://freemodel.dev/dashboard/usage",
+      "models": [],
+      "healthStatus": "healthy",
+      "lastTestedAt": "2026-06-05T07:12:06.732Z",
+      "successRate": null,
+      "latencyMs": null,
+      "failureSummary": "",
+      "isCurrent": false,
+      "score": 71,
+      "tags": [
+        "不稳定"
+      ]
+    },
+    {
+      "name": "aerolink",
+      "format": "claude",
+      "formatLabel": "Claude/Anthropic",
+      "endpoint": "https://capi.aerolink.lat",
+      "websiteUrl": "https://aerolink.lat/dashboard/api-keys",
+      "models": [
+        "claude-haiku-4-5-20251001",
+        "claude-opus-4-8"
+      ],
+      "healthStatus": "degraded",
+      "lastTestedAt": "2026-06-17T01:47:26.000Z",
+      "successRate": 100,
+      "latencyMs": 9529,
+      "failureSummary": "",
+      "isCurrent": false,
+      "score": 70,
+      "tags": []
+    },
+    {
+      "name": "aerolink copy",
+      "format": "claude",
+      "formatLabel": "Claude/Anthropic",
+      "endpoint": "https://capi.aerolink.lat",
+      "websiteUrl": "https://aerolink.lat/dashboard/api-keys",
+      "models": [],
+      "healthStatus": "unknown",
+      "lastTestedAt": null,
+      "successRate": null,
+      "latencyMs": null,
+      "failureSummary": "",
+      "isCurrent": false,
+      "score": 52,
+      "tags": []
+    },
+    {
+      "name": "linux.do临时",
+      "format": "claude",
+      "formatLabel": "Claude/Anthropic",
+      "endpoint": "https://nexus.apimf.top",
+      "websiteUrl": "https://nexus.apimf.top",
+      "models": [],
+      "healthStatus": "unknown",
+      "lastTestedAt": null,
+      "successRate": null,
+      "latencyMs": null,
+      "failureSummary": "",
+      "isCurrent": false,
+      "score": 52,
+      "tags": []
+    },
+    {
+      "name": "PackyCode",
+      "format": "chatgpt",
+      "formatLabel": "ChatGPT/OpenAI",
+      "endpoint": "https://api-slb.packyapi.com/v1",
+      "websiteUrl": "https://www.packyapi.com",
+      "models": [],
+      "healthStatus": "unknown",
+      "lastTestedAt": null,
+      "successRate": null,
+      "latencyMs": null,
+      "failureSummary": "",
+      "isCurrent": false,
+      "score": 52,
+      "tags": []
+    },
+    {
+      "name": "linixdo-codex-需要刷DLC copy",
+      "format": "claude",
+      "formatLabel": "Claude/Anthropic",
+      "endpoint": "https://gw2.oops.asia",
+      "websiteUrl": "https://gw2.oops.asia/keys",
+      "models": [],
+      "healthStatus": "unknown",
+      "lastTestedAt": null,
+      "successRate": null,
+      "latencyMs": null,
+      "failureSummary": "",
+      "isCurrent": false,
+      "score": 50,
+      "tags": []
+    },
+    {
+      "name": "app.ofox.ai付费",
+      "format": "chatgpt",
+      "formatLabel": "ChatGPT/OpenAI",
+      "endpoint": "https://api.ofox.ai/v1",
+      "websiteUrl": "https://app.ofox.ai/manage/api-keys",
+      "models": [],
+      "healthStatus": "unknown",
+      "lastTestedAt": null,
+      "successRate": null,
+      "latencyMs": null,
+      "failureSummary": "",
+      "isCurrent": false,
+      "score": 48,
+      "tags": []
+    },
+    {
+      "name": "duckCoding-codex-需要签到额度少",
+      "format": "chatgpt",
+      "formatLabel": "ChatGPT/OpenAI",
+      "endpoint": "https://www.duckcoding.ai/v1",
+      "websiteUrl": "https://www.duckcoding.ai/keys",
+      "models": [],
+      "healthStatus": "unknown",
+      "lastTestedAt": null,
+      "successRate": null,
+      "latencyMs": null,
+      "failureSummary": "",
+      "isCurrent": false,
+      "score": 48,
+      "tags": [
+        "需要签到",
+        "额度少"
+      ]
+    },
+    {
+      "name": "linixdo-codex-需要刷DLC",
+      "format": "claude",
+      "formatLabel": "Claude/Anthropic",
+      "endpoint": "https://gw2.oops.asia",
+      "websiteUrl": "https://gw2.oops.asia/keys",
+      "models": [
+        "claude-sonnet-4-6",
+        "gpt-5.5"
+      ],
+      "healthStatus": "unknown",
+      "lastTestedAt": null,
+      "successRate": 28.8,
+      "latencyMs": 3629,
+      "failureSummary": "",
+      "isCurrent": false,
+      "score": 46,
+      "tags": []
+    },
+    {
+      "name": "君的公益站-codex-需要签到",
+      "format": "claude",
+      "formatLabel": "Claude/Anthropic",
+      "endpoint": "https://muyuan.do",
+      "websiteUrl": "https://muyuan.do",
+      "models": [
+        "claude-opus-4-7",
+        "claude-opus-4-8",
+        "claude-sonnet-4-6"
+      ],
+      "healthStatus": "down",
+      "lastTestedAt": "2026-06-17T01:46:45.000Z",
+      "successRate": 33.3,
+      "latencyMs": 1803,
+      "failureSummary": "频率限制",
+      "isCurrent": false,
+      "score": 39,
+      "tags": [
+        "需要签到"
+      ]
+    },
+    {
+      "name": "anyRouter-需要签到稳定慢降智",
+      "format": "chatgpt",
+      "formatLabel": "ChatGPT/OpenAI",
+      "endpoint": "https://a-ocnfniawgw.cn-shanghai.fcapp.run",
+      "websiteUrl": "https://anyrouter.top/console",
+      "models": [
+        "gpt-5.5"
+      ],
+      "healthStatus": "down",
+      "lastTestedAt": "2026-06-11T05:56:11.000Z",
+      "successRate": 0,
+      "latencyMs": 844,
+      "failureSummary": "请求格式可能不匹配",
+      "isCurrent": true,
+      "score": 36,
+      "tags": [
+        "需要签到",
+        "慢"
+      ]
+    },
+    {
+      "name": "CHY需要签到",
+      "format": "claude",
+      "formatLabel": "Claude/Anthropic",
+      "endpoint": "https://chybenzun.top",
+      "websiteUrl": "https://chybenzun.top/profile",
+      "models": [
+        "claude-haiku-4-5-20251001"
+      ],
+      "healthStatus": "down",
+      "lastTestedAt": "2026-06-17T01:47:08.000Z",
+      "successRate": 0,
+      "latencyMs": 610,
+      "failureSummary": "服务端错误",
+      "isCurrent": false,
+      "score": 33,
+      "tags": [
+        "需要签到"
+      ]
+    },
+    {
+      "name": "linuxdo-codex-需要刷DLC-65分",
+      "format": "chatgpt",
+      "formatLabel": "ChatGPT/OpenAI",
+      "endpoint": "https://gw2.oops.asia",
+      "websiteUrl": "https://gw2.oops.asia/dashboard",
+      "models": [
+        "gpt-5.5"
+      ],
+      "healthStatus": "down",
+      "lastTestedAt": "2026-06-15T07:07:10.000Z",
+      "successRate": 0,
+      "latencyMs": 849,
+      "failureSummary": "路径或模型不可用",
+      "isCurrent": false,
+      "score": 33,
+      "tags": []
+    },
+    {
+      "name": "sub2api",
+      "format": "claude",
+      "formatLabel": "Claude/Anthropic",
+      "endpoint": "https://sub.100xlabs.space",
+      "websiteUrl": "https://sub.100xlabs.space/keys",
+      "models": [
+        "claude-haiku-4-5-20251001"
+      ],
+      "healthStatus": "down",
+      "lastTestedAt": "2026-06-17T01:47:04.000Z",
+      "successRate": 0,
+      "latencyMs": 597,
+      "failureSummary": "服务不可用或超时",
+      "isCurrent": false,
+      "score": 29,
+      "tags": []
+    },
+    {
+      "name": "k40",
+      "format": "claude",
+      "formatLabel": "Claude/Anthropic",
+      "endpoint": "https://k40.shengqainbang.cn",
+      "websiteUrl": "https://k40.shengqainbang.cn/keys",
+      "models": [
+        "claude-haiku-4-5-20251001"
+      ],
+      "healthStatus": "down",
+      "lastTestedAt": "2026-06-17T01:47:11.000Z",
+      "successRate": 0,
+      "latencyMs": 605,
+      "failureSummary": "服务不可用或超时",
+      "isCurrent": false,
+      "score": 28,
+      "tags": []
+    },
+    {
+      "name": "anyRouter-需要签到",
+      "format": "claude",
+      "formatLabel": "Claude/Anthropic",
+      "endpoint": "https://a-ocnfniawgw.cn-shanghai.fcapp.run",
+      "websiteUrl": "https://anyrouter.top/console",
+      "models": [
+        "claude-haiku-4-5",
+        "claude-opus-4-8"
+      ],
+      "healthStatus": "down",
+      "lastTestedAt": "2026-06-17T01:46:52.000Z",
+      "successRate": 0,
+      "latencyMs": 390,
+      "failureSummary": "请求格式可能不匹配",
+      "isCurrent": false,
+      "score": 20,
+      "tags": [
+        "需要签到"
+      ]
+    },
+    {
+      "name": "freemodel-codex-6.17",
+      "format": "claude",
+      "formatLabel": "Claude/Anthropic",
+      "endpoint": "https://cc.freemodel.dev",
+      "websiteUrl": "https://freemodel.dev/dashboard",
+      "models": [
+        "claude-haiku-4-5",
+        "claude-opus-4-7",
+        "claude-opus-4-8"
+      ],
+      "healthStatus": "down",
+      "lastTestedAt": "2026-06-17T01:47:15.000Z",
+      "successRate": 0,
+      "latencyMs": 1333,
+      "failureSummary": "鉴权失败或权限不足",
+      "isCurrent": false,
+      "score": 10,
+      "tags": []
+    }
+  ],
+  "commercialProviders": []
+}

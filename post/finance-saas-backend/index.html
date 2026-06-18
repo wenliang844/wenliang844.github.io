@@ -46,7 +46,8 @@
         <label class="menu-button" for="menu-toggle"><i class="fas fa-bars"></i></label>
         <nav class="navigation-list" aria-label="Main navigation" data-i18n-aria="nav.main">
           <ul>
-          <li><a class="active" href="/post/" data-i18n="nav.blog">博客</a></li>
+          <li><a class="active nav-blog-main" href="/post/" data-i18n="nav.blog" data-i18n-html data-i18n-en-html="&lt;i class=&quot;fas fa-book-open&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt; Blog"><i class="fas fa-book-open" aria-hidden="true"></i> 博客</a></li>
+          <li><a class="nav-ai-experience" href="/?assistant=fullscreen" target="_blank" rel="noopener noreferrer" data-i18n="nav.tryAi" data-i18n-html data-i18n-en-html="&lt;i class=&quot;fas fa-robot&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt; Try AI"><i class="fas fa-robot" aria-hidden="true"></i> 体验AI</a></li>
           <li><a href="/ai/" data-i18n="nav.ai">AI导航</a></li>
           <li><a href="/tools/" data-i18n="nav.tools">工具箱</a></li>
           <li><a href="/appreciation/" data-i18n="nav.appreciation">鉴赏</a></li>
@@ -74,7 +75,7 @@
               <span>·</span>
               <a href="/post/#finance-saas-backend" data-i18n="post.meta.posts" data-i18n-en="Posts">文章</a>
               <span>·</span>
-              <span class="reading-time"><i class="fas fa-clock" aria-hidden="true"></i> <span data-i18n="dyn.readingPrefix">阅读约</span> 5 <span data-i18n="dyn.readingSuffix">分钟</span></span>
+              <span class="reading-time"><i class="fas fa-clock" aria-hidden="true"></i> <span data-i18n="dyn.readingPrefix">约</span> 5 <span data-i18n="dyn.readingSuffix">分钟</span></span>
             </div>
             <p class="article-summary" data-i18n="post.finance-saas-backend.summary" data-i18n-en="A backend platform retrospective covering customer data assets, finance reports, notification delivery and search for enterprise-service SaaS.">围绕客户数据资产、财税报表处理、通知触达和搜索检索，复盘企业服务 SaaS 多模块后端平台建设。</p>
             <div class="post-tags">
@@ -244,7 +245,7 @@
         <a class="pager-prev" href="/post/manage-system/">← <span data-i18n="post.manage-system.shortTitle" data-i18n-en="Alert Platform Refactor">智能分析预警平台重构</span></a>
         <a class="pager-next" href="/post/activiti-workflow-engine/"><span data-i18n="post.activiti-workflow-engine.shortTitle" data-i18n-en="Activiti BPM Engine Practice">Activiti BPM 引擎实践</span> →</a>
       </nav>
-      <aside class="next-popup" hidden aria-label="下一篇推荐" data-i18n-aria="post.next.aria">
+      <aside class="next-popup" hidden aria-label="下一篇推荐" data-i18n-aria="post.next.aria" data-next-url="/post/activiti-workflow-engine/" data-next-title="Activiti BPM 引擎实践" data-next-title-en="Activiti BPM Engine Practice" data-prev-url="/post/manage-system/" data-prev-title="智能分析预警平台重构" data-prev-title-en="Alert Platform Refactor">
         <button class="next-popup-close" type="button" aria-label="关闭" data-i18n-aria="post.next.close"><i class="fas fa-times" aria-hidden="true"></i></button>
         <span class="next-popup-eyebrow" data-i18n="post.next.eyebrow" data-i18n-en="Up next">下一篇</span>
         <a class="next-popup-link" href="/post/activiti-workflow-engine/">

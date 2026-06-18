@@ -90,6 +90,14 @@ test("post template renders next popup, related posts, bilingual body and JSON-L
     date: "2026-01-01",
     eyebrow: "Next",
   };
+  const prev = {
+    ...post,
+    title: "Previous Post",
+    shortTitle: "Previous",
+    slug: "previous-post",
+    date: "2026-06-17",
+    eyebrow: "Previous",
+  };
   const related = [{
     ...post,
     title: "Related Post",
@@ -99,10 +107,13 @@ test("post template renders next popup, related posts, bilingual body and JSON-L
     eyebrow: "Related",
   }];
 
-  const html = renderPostPage(post, { prev: null, next, related });
+  const html = renderPostPage(post, { prev, next, related });
 
+  assert.match(html, /<span data-i18n="dyn\.readingPrefix">约<\/span> 3 <span data-i18n="dyn\.readingSuffix">分钟<\/span>/);
   assert.match(html, /src="\/js\/post-next\.js"/);
   assert.match(html, /class="next-popup"/);
+  assert.match(html, /data-next-url="\/post\/next-post\/"/);
+  assert.match(html, /data-prev-url="\/post\/previous-post\/"/);
   assert.match(html, /href="\/post\/next-post\/"/);
   assert.match(html, /class="post-related"/);
   assert.match(html, /href="\/post\/related-post\/"/);

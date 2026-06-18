@@ -46,7 +46,8 @@
         <label class="menu-button" for="menu-toggle"><i class="fas fa-bars"></i></label>
         <nav class="navigation-list" aria-label="Main navigation" data-i18n-aria="nav.main">
           <ul>
-          <li><a class="active" href="/post/" data-i18n="nav.blog">博客</a></li>
+          <li><a class="active nav-blog-main" href="/post/" data-i18n="nav.blog" data-i18n-html data-i18n-en-html="&lt;i class=&quot;fas fa-book-open&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt; Blog"><i class="fas fa-book-open" aria-hidden="true"></i> 博客</a></li>
+          <li><a class="nav-ai-experience" href="/?assistant=fullscreen" target="_blank" rel="noopener noreferrer" data-i18n="nav.tryAi" data-i18n-html data-i18n-en-html="&lt;i class=&quot;fas fa-robot&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt; Try AI"><i class="fas fa-robot" aria-hidden="true"></i> 体验AI</a></li>
           <li><a href="/ai/" data-i18n="nav.ai">AI导航</a></li>
           <li><a href="/tools/" data-i18n="nav.tools">工具箱</a></li>
           <li><a href="/appreciation/" data-i18n="nav.appreciation">鉴赏</a></li>
@@ -74,7 +75,7 @@
               <span>·</span>
               <a href="/post/#activiti-workflow-engine" data-i18n="post.meta.posts" data-i18n-en="Posts">文章</a>
               <span>·</span>
-              <span class="reading-time"><i class="fas fa-clock" aria-hidden="true"></i> <span data-i18n="dyn.readingPrefix">阅读约</span> 7 <span data-i18n="dyn.readingSuffix">分钟</span></span>
+              <span class="reading-time"><i class="fas fa-clock" aria-hidden="true"></i> <span data-i18n="dyn.readingPrefix">约</span> 7 <span data-i18n="dyn.readingSuffix">分钟</span></span>
             </div>
             <p class="article-summary" data-i18n="post.activiti-workflow-engine.summary" data-i18n-en="Engineering notes on enterprise workflow infrastructure around Activiti 7, BPMN 2.0, runtime APIs and Spring Boot auto-configuration.">围绕 Activiti 7、BPMN 2.0、运行时 API 和 Spring Boot 自动装配，梳理企业审批流与流程基础设施的工程实践。</p>
             <div class="post-tags">
@@ -267,7 +268,7 @@
         <a class="pager-prev" href="/post/finance-saas-backend/">← <span data-i18n="post.finance-saas-backend.shortTitle" data-i18n-en="Qigu SaaS Platform">企顾 SaaS 多模块平台</span></a>
         <a class="pager-next" href="/post/lowcode-schema-codegen/"><span data-i18n="post.lowcode-schema-codegen.shortTitle" data-i18n-en="LowCode Engine Practice">LowCode Engine 实践</span> →</a>
       </nav>
-      <aside class="next-popup" hidden aria-label="下一篇推荐" data-i18n-aria="post.next.aria">
+      <aside class="next-popup" hidden aria-label="下一篇推荐" data-i18n-aria="post.next.aria" data-next-url="/post/lowcode-schema-codegen/" data-next-title="LowCode Engine 实践" data-next-title-en="LowCode Engine Practice" data-prev-url="/post/finance-saas-backend/" data-prev-title="企顾 SaaS 多模块平台" data-prev-title-en="Qigu SaaS Platform">
         <button class="next-popup-close" type="button" aria-label="关闭" data-i18n-aria="post.next.close"><i class="fas fa-times" aria-hidden="true"></i></button>
         <span class="next-popup-eyebrow" data-i18n="post.next.eyebrow" data-i18n-en="Up next">下一篇</span>
         <a class="next-popup-link" href="/post/lowcode-schema-codegen/">

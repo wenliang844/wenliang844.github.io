@@ -83,6 +83,21 @@ test("renderAiPage has proper OG and page metadata", () => {
   assert.match(html, /href="https:\/\/wenliang844\.github\.io\/ai\/"/);
 });
 
+test("renderAiPage includes the relay ranking tab content", () => {
+  const html = renderAiPage();
+  assert.match(html, /data-ai-tab="relay"/);
+  assert.match(html, /id="relay"/);
+  assert.match(html, /data-relay-filter="chatgpt"/);
+  assert.match(html, /data-relay-filter="claude"/);
+  assert.match(html, /id="relay-search-input"/);
+  assert.match(html, /LinuxDo 站/);
+  assert.match(html, /商业站/);
+  assert.match(html, /id="relay-list-linuxdo"/);
+  assert.match(html, /id="relay-list-commercial"/);
+  assert.match(html, /src="\/js\/relay\.js"/);
+  assert.match(html, /href="https:\/\/wenliang844\.github\.io\/ai\/"/);
+});
+
 // ─── Categories 页面测试 ───────────────────────────────────────────────────────
 
 test("renderCategoriesPage groups posts by year", () => {

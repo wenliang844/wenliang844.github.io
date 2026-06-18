@@ -1,4 +1,5 @@
 import { renderPage } from "./layout.mjs";
+import { renderRelayContent } from "./relay.mjs";
 
 const GROUPS = [
   {
@@ -258,10 +259,24 @@ export function renderAiPage() {
       <section class="ai-nav-page container">
         <header class="ai-nav-hero">
           <span class="eyebrow" data-i18n="ai.eyebrow" data-i18n-en-html='<i class="fas fa-robot" aria-hidden="true"></i> AI Toolkit' data-i18n-html><i class="fas fa-robot" aria-hidden="true"></i> AI Toolkit</span>
-          <h1 data-i18n="ai.h1" data-i18n-en="AI Navigation">AI导航网站</h1>
-          <p class="lead" data-i18n="ai.lead" data-i18n-en="${text("A hand-picked directory of AI websites and tools I use often, grouped by workflow so each link is easy to find when inspiration is moving fast.")}">整理我常用的 AI 网站和 AI 工具，按使用场景分类展示，方便需要时快速打开。</p>
+          <h1 data-i18n="ai.h1" data-i18n-en="AI Navigation">AI导航</h1>
+          <p class="lead" data-i18n="ai.lead" data-i18n-en="${text("A hand-picked directory of AI websites and tools I use often, plus a relay ranking for comparing available AI proxy routes.")}">整理常用 AI 网站和工具，同时提供中转站排行榜，方便在一个页面内快速查找和对比。</p>
         </header>
+        <div class="ai-tabs">
+          <div class="ai-tab-list" role="tablist" aria-label="AI 页面内容">
+            <button class="ai-tab active" id="ai-tab-nav" type="button" role="tab" data-ai-tab="nav" aria-controls="ai-panel-nav" aria-selected="true" data-i18n="ai.tab.nav" data-i18n-html data-i18n-en-html='<i class="fas fa-compass" aria-hidden="true"></i> AI Websites'><i class="fas fa-compass" aria-hidden="true"></i> AI导航网站</button>
+            <button class="ai-tab" id="ai-tab-relay" type="button" role="tab" data-ai-tab="relay" aria-controls="ai-panel-relay" aria-selected="false" tabindex="-1" data-i18n="ai.tab.relay" data-i18n-html data-i18n-en-html='<i class="fas fa-network-wired" aria-hidden="true"></i> Relay Ranking'><i class="fas fa-network-wired" aria-hidden="true"></i> 中转站排行榜</button>
+          </div>
+          <div class="ai-tab-panels">
+            <section class="ai-tab-panel active" id="ai-panel-nav" data-ai-panel="nav" role="tabpanel" aria-labelledby="ai-tab-nav">
 ${GROUPS.map(renderGroup).join("\n")}
+            </section>
+            <span id="relay" class="sr-only">中转站排行榜</span>
+            <section class="ai-tab-panel relay-page ai-relay-panel" id="ai-panel-relay" data-ai-panel="relay" role="tabpanel" aria-labelledby="ai-tab-relay" hidden>
+${renderRelayContent({ includeHero: false })}
+            </section>
+          </div>
+        </div>
       </section>
     </main>`;
 
@@ -269,6 +284,7 @@ ${GROUPS.map(renderGroup).join("\n")}
     title: "AI导航 :: CWLBlog",
     description: "常用 AI 网站和 AI 工具导航，按对话搜索、编程开发、创作设计、效率知识与国产模型分类整理。",
     active: "ai",
+    scripts: ["/js/relay.js", "/js/ai-tabs.js"],
     page: "ai",
     main,
     og: {

@@ -1,5 +1,5 @@
 // 下一篇浮动推荐：滚动接近文章底部时，从右下角滑入 .next-popup。
-// 标记基于 data-share-url（单篇页 URL）记忆关闭状态，本次会话内不再弹出。
+// 推荐目标由构建期 prev/next 导航数据渲染到 data-next-url / 链接 href。
 (function () {
   const popup = document.querySelector(".next-popup");
   if (!popup) {
@@ -12,7 +12,11 @@
   }
 
   const link = popup.querySelector(".next-popup-link");
-  const dismissKey = "cwl-next-dismissed:" + (link ? link.getAttribute("href") : window.location.pathname);
+  const nextUrl = popup.dataset.nextUrl || (link ? link.getAttribute("href") : "") || window.location.pathname;
+  if (link && !link.getAttribute("href")) {
+    link.setAttribute("href", nextUrl);
+  }
+  const dismissKey = "cwl-next-dismissed:" + nextUrl;
 
   function dismissed() {
     try {

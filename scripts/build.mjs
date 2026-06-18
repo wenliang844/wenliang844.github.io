@@ -378,6 +378,24 @@ ${rows.join("\n")}
 </urlset>`;
 }
 
+function buildRobots() {
+  return `User-agent: *
+Allow: /
+
+# 优先抓取
+Allow: /post/
+Allow: /tags/
+Allow: /categories/
+Allow: /ai/
+
+# 排除资源文件夹
+Disallow: /js/vendor/
+Disallow: /css/fontawesome/
+
+# Sitemap
+Sitemap: ${SITE.baseURL}/sitemap.xml`;
+}
+
 // 统计所有文章的标签及出现次数，按文章数降序、同数按名称升序排列。
 function collectTags(posts) {
   const counts = new Map();
@@ -529,6 +547,7 @@ async function main() {
 
   // sitemap + RSS
   await writeFileEnsured("sitemap.xml", buildSitemap(posts) + "\n");
+  await writeFileEnsured("robots.txt", buildRobots() + "\n");
   await writeFileEnsured("index.xml", buildRss(posts) + "\n");
   await writeFileEnsured("post/index.xml", buildPostRss(posts) + "\n");
   await writeFileEnsured("categories/index.xml", buildCategoriesRss(posts) + "\n");

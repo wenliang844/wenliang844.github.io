@@ -44,7 +44,8 @@
         <label class="menu-button" for="menu-toggle"><i class="fas fa-bars"></i></label>
         <nav class="navigation-list" aria-label="Main navigation" data-i18n-aria="nav.main">
           <ul>
-          <li><a class="active" href="/post/" data-i18n="nav.blog">博客</a></li>
+          <li><a class="active nav-blog-main" href="/post/" data-i18n="nav.blog" data-i18n-html data-i18n-en-html="&lt;i class=&quot;fas fa-book-open&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt; Blog"><i class="fas fa-book-open" aria-hidden="true"></i> 博客</a></li>
+          <li><a class="nav-ai-experience" href="/?assistant=fullscreen" target="_blank" rel="noopener noreferrer" data-i18n="nav.tryAi" data-i18n-html data-i18n-en-html="&lt;i class=&quot;fas fa-robot&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt; Try AI"><i class="fas fa-robot" aria-hidden="true"></i> 体验AI</a></li>
           <li><a href="/ai/" data-i18n="nav.ai">AI导航</a></li>
           <li><a href="/tools/" data-i18n="nav.tools">工具箱</a></li>
           <li><a href="/appreciation/" data-i18n="nav.appreciation">鉴赏</a></li>
@@ -169,7 +170,7 @@
               <div class="article-meta">
                 <time datetime="2026-06-16">June 16, 2026</time>
                 <span>·</span>
-                <span class="reading-time"><i class="fas fa-clock" aria-hidden="true"></i> <span data-i18n="dyn.readingPrefix">阅读约</span> 5 <span data-i18n="dyn.readingSuffix">分钟</span></span>
+                <span class="reading-time"><i class="fas fa-clock" aria-hidden="true"></i> <span data-i18n="dyn.readingPrefix">约</span> 5 <span data-i18n="dyn.readingSuffix">分钟</span></span>
               </div>
               <p class="article-summary" data-i18n="post.rule-engine-alerts.summary" data-i18n-en="Design notes on the rule engine and alert loop, from standard facts and rule context to window aggregation and formal alerts.">从标准事实、规则上下文、窗口聚合到正式告警，梳理智能分析平台中规则引擎和告警闭环的设计。</p>
               <div class="post-tags">
@@ -296,7 +297,7 @@
               <div class="article-meta">
                 <time datetime="2026-02-01">February 1, 2026</time>
                 <span>·</span>
-                <span class="reading-time"><i class="fas fa-clock" aria-hidden="true"></i> <span data-i18n="dyn.readingPrefix">阅读约</span> 7 <span data-i18n="dyn.readingSuffix">分钟</span></span>
+                <span class="reading-time"><i class="fas fa-clock" aria-hidden="true"></i> <span data-i18n="dyn.readingPrefix">约</span> 7 <span data-i18n="dyn.readingSuffix">分钟</span></span>
               </div>
               <p class="article-summary" data-i18n="post.codex-claude-vibe-coding.summary" data-i18n-en="A note on combining Codex's engineering execution with Claude's long-context reasoning to turn vibe coding into a shippable workflow.">记录如何把 Codex 的工程执行力与 Claude 的长上下文理解结合起来，让 Vibe Coding 从随手试验变成可交付的开发流程。</p>
               <div class="post-tags">
@@ -423,7 +424,7 @@
               <div class="article-meta">
                 <time datetime="2025-09-16">September 16, 2025</time>
                 <span>·</span>
-                <span class="reading-time"><i class="fas fa-clock" aria-hidden="true"></i> <span data-i18n="dyn.readingPrefix">阅读约</span> 5 <span data-i18n="dyn.readingSuffix">分钟</span></span>
+                <span class="reading-time"><i class="fas fa-clock" aria-hidden="true"></i> <span data-i18n="dyn.readingPrefix">约</span> 5 <span data-i18n="dyn.readingSuffix">分钟</span></span>
               </div>
               <p class="article-summary" data-i18n="post.manage-system.summary" data-i18n-en="A backend refactor retrospective covering video capture, algorithm recognition, standard fact persistence, rule judgment and formal alert creation.">围绕视频采集、算法识别、标准事实落库、规则判定和正式告警生成，复盘智能分析预警平台后端重构。</p>
               <div class="post-tags">
@@ -550,7 +551,7 @@
               <div class="article-meta">
                 <time datetime="2023-08-18">August 18, 2023</time>
                 <span>·</span>
-                <span class="reading-time"><i class="fas fa-clock" aria-hidden="true"></i> <span data-i18n="dyn.readingPrefix">阅读约</span> 5 <span data-i18n="dyn.readingSuffix">分钟</span></span>
+                <span class="reading-time"><i class="fas fa-clock" aria-hidden="true"></i> <span data-i18n="dyn.readingPrefix">约</span> 5 <span data-i18n="dyn.readingSuffix">分钟</span></span>
               </div>
               <p class="article-summary" data-i18n="post.finance-saas-backend.summary" data-i18n-en="A backend platform retrospective covering customer data assets, finance reports, notification delivery and search for enterprise-service SaaS.">围绕客户数据资产、财税报表处理、通知触达和搜索检索，复盘企业服务 SaaS 多模块后端平台建设。</p>
               <div class="post-tags">
@@ -679,7 +680,7 @@
               <div class="article-meta">
                 <time datetime="2022-02-09">February 9, 2022</time>
                 <span>·</span>
-                <span class="reading-time"><i class="fas fa-clock" aria-hidden="true"></i> <span data-i18n="dyn.readingPrefix">阅读约</span> 7 <span data-i18n="dyn.readingSuffix">分钟</span></span>
+                <span class="reading-time"><i class="fas fa-clock" aria-hidden="true"></i> <span data-i18n="dyn.readingPrefix">约</span> 7 <span data-i18n="dyn.readingSuffix">分钟</span></span>
               </div>
               <p class="article-summary" data-i18n="post.activiti-workflow-engine.summary" data-i18n-en="Engineering notes on enterprise workflow infrastructure around Activiti 7, BPMN 2.0, runtime APIs and Spring Boot auto-configuration.">围绕 Activiti 7、BPMN 2.0、运行时 API 和 Spring Boot 自动装配，梳理企业审批流与流程基础设施的工程实践。</p>
               <div class="post-tags">
@@ -830,7 +831,7 @@
               <div class="article-meta">
                 <time datetime="2022-02-01">February 1, 2022</time>
                 <span>·</span>
-                <span class="reading-time"><i class="fas fa-clock" aria-hidden="true"></i> <span data-i18n="dyn.readingPrefix">阅读约</span> 7 <span data-i18n="dyn.readingSuffix">分钟</span></span>
+                <span class="reading-time"><i class="fas fa-clock" aria-hidden="true"></i> <span data-i18n="dyn.readingPrefix">约</span> 7 <span data-i18n="dyn.readingSuffix">分钟</span></span>
               </div>
               <p class="article-summary" data-i18n="post.lowcode-schema-codegen.summary" data-i18n-en="A low-code platform foundation covering protocol design, designer core, materials, renderers and code generation tooling.">从低代码协议、设计器内核、物料体系、渲染器到出码工具链，梳理企业级中后台低代码平台底座。</p>
               <div class="post-tags">

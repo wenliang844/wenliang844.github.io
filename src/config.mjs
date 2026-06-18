@@ -58,6 +58,13 @@ export const SEARCH_PAGES = [
     i18n: { en: { title: "AI Navigation", summary: "A categorized directory of frequently used AI websites and tools.", tags: ["AI", "Tools", "Navigation"] } },
   },
   {
+    title: "中转站排行榜",
+    summary: "分组展示 LinuxDo 站和商业站 AI 中转站数据，包含路由格式、端点、模型、健康状态、成功率和响应耗时。",
+    path: "/ai/#relay",
+    tags: ["AI", "中转站", "ChatGPT", "Claude", "OpenAI", "Anthropic"],
+    i18n: { en: { title: "Relay Ranking", summary: "Grouped AI relay data for LinuxDo and commercial providers, including route format, endpoint, model, health, success rate and latency.", tags: ["AI", "Relay", "ChatGPT", "Claude", "OpenAI", "Anthropic"] } },
+  },
+  {
     title: "在线工具箱",
     summary: "浏览器本地运行的开发工具箱：JSON 格式化、时间戳转换、Base64、URL 编解码、UUID 生成器和 JWT 解码。",
     path: "/tools/",
