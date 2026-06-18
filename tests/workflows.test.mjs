@@ -21,6 +21,10 @@ test("CI workflow runs quality gates without write permissions", async () => {
   assert.equal(stepByName.get("Setup Node.js").with["node-version"], 22);
   assert.equal(stepByName.get("Setup Node.js").with.cache, "npm");
   assert.equal(packageJson.engines.node, "20 || >=22");
+  assert.equal(
+    packageJson.scripts["test:coverage"],
+    "node --test --experimental-test-coverage --test-coverage-lines=90 --test-coverage-branches=70 --test-coverage-functions=85 tests/*.test.mjs",
+  );
 
   [
     "npm ci",

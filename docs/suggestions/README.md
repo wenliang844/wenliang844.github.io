@@ -80,6 +80,7 @@
 已完成：SEO-02 为生成静态页和手写工具页补充页面级 JSON-LD 结构化数据。
 已完成：SEO-05 支持文章 `modified` front matter，并用于 Article JSON-LD 的 `dateModified`。
 已完成：DE-09 声明 Node.js engines，并通过 workflow 测试与 CI Node 版本对齐。
+已完成：DE-02 为 `test:coverage` 增加 Node 原生覆盖率阈值，CI 可阻断明显覆盖率回退。
 
 ### 🥈 高价值中成本（建议近期规划）
 

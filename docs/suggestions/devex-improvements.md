@@ -14,28 +14,28 @@
 
 ---
 
-## 📌 DE-02: 测试运行无 watch 模式下的增量反馈
+## 📌 DE-02 [部分修复]: 测试运行无 watch 模式下的增量反馈
 
 - **📍 位置**：`package.json` scripts
 - **📝 当前状况**：
   ```json
   "test": "node --test tests/*.test.mjs",
-  "test:watch": "node --test --watch tests/*.test.mjs"
+  "test:watch": "node --test --watch tests/*.test.mjs",
+  "test:coverage": "node --test --experimental-test-coverage --test-coverage-lines=90 --test-coverage-branches=70 --test-coverage-functions=85 tests/*.test.mjs"
   ```
-  测试使用 Node.js 内置测试运行器（`node:test`），功能完整但缺少：
+  测试使用 Node.js 内置测试运行器（`node:test`），并已具备 watch 模式和 CI 覆盖率阈值门禁；仍缺少：
   - 测试结果彩色输出
   - 测试覆盖率报告可视化
   - 与 CI 集成的 JUnit XML 输出
 - **⚠️ 影响程度**：低
+- **✅ 已完成**：`test:coverage` 增加 Node 原生覆盖率阈值：lines 90%、branches 70%、functions 85%，CI 会在覆盖率明显回退时失败。
+- **🧪 回归测试**：`tests/workflows.test.mjs` 验证 CI 继续执行 `npm run test:coverage`，并锁定 package script 中的阈值参数。
 - **💡 建议方案**：
   1. **短期**：保持 `node:test`（零依赖，轻量）
-  2. **中期**：添加测试覆盖率阈值检查：
-     ```json
-     "test:coverage": "node --test --experimental-test-coverage tests/*.test.mjs 2>&1 | grep -q '100.00%' || exit 1"
-     ```
-  3. **长期**：考虑迁移至 Vitest（如果项目规模增长）
+  2. **中期**：如需可视化报告，再引入覆盖率 HTML/JUnit 输出
+  3. **长期**：项目规模继续增长时考虑迁移至 Vitest
 
-- **📊 预期收益**：测试反馈更直观，覆盖率可视化
+- **📊 实际收益**：覆盖率门禁从“只记录指标”升级为“自动阻断明显回退”，同时保持零新增依赖。
 - **🔗 相关建议**：[TD-10](tech-debt.md#td-10)
 
 ---
@@ -232,10 +232,10 @@
 |------|----------|----------|------|
 | 代码规范 | ESLint ✅ | + Prettier | 小 |
 | 测试 | 41 个测试 ✅ | + E2E 测试 | 中 |
-| CI/CD | precommit + GitHub Actions ✅ | 覆盖率阈值 / 部署自动化 | 小 |
+| CI/CD | precommit + GitHub Actions + 覆盖率阈值 ✅ | 部署自动化 | 小 |
 | 文档 | readme.md | + 完整开发文档 | 中 |
 | 依赖管理 | npm ✅ | + Dependabot | 小 |
 | 开发体验 | http-server | + 热重载 | 小 |
 | 类型安全 | 无 | + JSDoc / TS | 大 |
 
-> 综合评估：工程化基础扎实（ESLint + 测试 + 构建脚本 + GitHub Actions），主要差距在部署自动化、覆盖率阈值和文档完整性上。
+> 综合评估：工程化基础扎实（ESLint + 测试 + 构建脚本 + GitHub Actions + 覆盖率阈值），主要差距在部署自动化和文档完整性上。
