@@ -173,6 +173,33 @@ export function tidyHtml(html) {
   return s.trim();
 }
 
+export function addImageLoadingHints(html) {
+  const blocks = [];
+  let s = html.replace(/<(pre|script|style|textarea)\b[\s\S]*?<\/\1>/gi, (m) => {
+    blocks.push(m);
+    return "\x00" + (blocks.length - 1) + "\x00";
+  });
+
+  s = s.replace(/<img\b[^>]*>/gi, (tag) => {
+    const additions = [];
+    if (!/\sloading\s*=/i.test(tag)) {
+      additions.push('loading="lazy"');
+    }
+    if (!/\sdecoding\s*=/i.test(tag)) {
+      additions.push('decoding="async"');
+    }
+    if (!additions.length) {
+      return tag;
+    }
+
+    const body = tag.replace(/\s*\/?>$/, "").trimEnd();
+    const closing = /\/\s*>$/.test(tag) ? " />" : ">";
+    return `${body} ${additions.join(" ")}${closing}`;
+  });
+
+  return s.replace(/\x00(\d+)\x00/g, (_, i) => blocks[Number(i)]);
+}
+
 function headingSlug(text) {
   return text.replace(/[^\w一-龥]+/g, "-").replace(/^-+|-+$/g, "").toLowerCase().slice(0, 50) || "section";
 }
@@ -214,7 +241,7 @@ function extractToc(html) {
 
 // 把正文 Markdown 渲染为 HTML，为标题添加 id，并缩进对齐到 article-content 内部（10 空格）。
 export function renderContent(markdown) {
-  const html = tidyHtml(marked.parse(markdown));
+  const html = addImageLoadingHints(tidyHtml(marked.parse(markdown)));
   const rendered = renderHeadings(html);
 
   const indented = rendered.html

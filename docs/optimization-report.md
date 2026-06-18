@@ -6496,3 +6496,44 @@
 
 - 运行全量质量门禁并提交第五十二轮性能优化。
 - 继续处理不触碰 `assistant.js` 外部改动的低风险性能、工程化或 UX 项。
+
+## 第 190 轮：Markdown 正文图片加载提示
+
+时间：2026-06-19
+
+### 已完成内容
+
+- 在 `scripts/build.mjs` 中新增 `addImageLoadingHints()`，构建 Markdown 正文 HTML 时为真实 `<img>` 标签补齐 `loading="lazy"` 与 `decoding="async"`。
+- 保留已有显式 `loading` / `decoding` 策略，避免覆盖作者手动声明的首屏图片加载行为。
+- 对 `pre`、`script`、`style`、`textarea` 等原文敏感块做占位保护，避免示例代码中的 `<img>` 被误改。
+- 扩展 `tests/build-deep.test.mjs`，覆盖 Markdown 图片增强、已有属性保留和 preformatted 示例保护。
+- 将 P-11 标记为部分修复，并同步建议索引、健康评分、工作报告和本轮工作报告。
+
+### 发现的问题
+
+- 构建后的正文图片缺少浏览器原生延迟加载和异步解码提示，非首屏图片可能更早占用带宽与解码资源。
+- P-11 的完整 CLS 修复还需要注入 `width` / `height`，但当前 `renderContent()` 是同步函数，项目也没有图片尺寸解析依赖。
+- 当前已提交文章正文没有实际 Markdown 图片，构建产物无 HTML 差异；风险主要面向后续内容增长。
+
+### 修复方案
+
+- 在 Markdown 转 HTML、HTML 空行整理后统一增强图片标签，再继续执行标题 ID / TOC 生成。
+- 对已有加载策略的图片只补缺失属性，不覆盖 `loading="eager"` 等作者显式意图。
+- 将尺寸注入作为后续项保留，避免本轮引入异步构建改造或新图片解析依赖。
+
+### 性能、安全与质量指标
+
+- `node --test tests/build-deep.test.mjs tests/build-extra.test.mjs tests/build.test.mjs tests/integration.test.mjs tests/performance.test.mjs`：111 个构建、集成与性能测试全部通过。
+- `npm run lint:check`：通过。
+- `npm test`：584 个测试全部通过。
+- `npm run build`：通过，成功生成 6 篇文章页面。
+- `npm run validate:production`：33 项检查通过，0 失败，0 警告。
+- `npm run test:coverage`：584 个测试全部通过；行覆盖率 93.37%，分支覆盖率 75.76%，函数覆盖率 91.09%，均高于覆盖率阈值。
+- `npm audit --audit-level=moderate --registry=https://registry.npmjs.org`：0 个中高危漏洞。
+- 性能收益：后续 Markdown 正文图片默认延迟加载并异步解码，减少非首屏图片对带宽与主线程的影响。
+- 剩余风险：图片尺寸属性尚未自动注入，CLS 预留空间仍需后续实现。
+
+### 下一步计划
+
+- 运行全量质量门禁并提交第五十三轮性能优化。
+- 继续处理不触碰 `assistant.js` 外部改动的低风险性能、工程化或 UX 项。

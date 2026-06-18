@@ -1,7 +1,7 @@
 // Deep test: build.mjs — uncovered code paths (empty file, empty content, error aggregation, absoluteUrl)
 import test from "node:test";
 import assert from "node:assert/strict";
-import { normalizeDate, normalizeModifiedDate, normalizeCover, validateSlug, validatePost, renderContent, readingMinutes, relatedPosts } from "../scripts/build.mjs";
+import { addImageLoadingHints, normalizeDate, normalizeModifiedDate, normalizeCover, validateSlug, validatePost, renderContent, readingMinutes, relatedPosts } from "../scripts/build.mjs";
 
 // ─── normalizeDate edge cases ─────────────────────────────────────────────
 
@@ -204,6 +204,25 @@ test("renderContent generates unique heading ids shared with TOC", () => {
   for (const item of result.toc) {
     assert.match(result.html, new RegExp(`id="${item.id}"`));
   }
+});
+
+test("renderContent adds lazy loading hints to markdown images", () => {
+  const { html } = renderContent(`
+![Diagram](/images/posts/diagram.png)
+
+<img src="/images/posts/eager.png" alt="Eager" loading="eager" decoding="sync">
+`);
+
+  assert.match(html, /<img src="\/images\/posts\/diagram\.png" alt="Diagram" loading="lazy" decoding="async">/);
+  assert.match(html, /<img src="\/images\/posts\/eager\.png" alt="Eager" loading="eager" decoding="sync">/);
+});
+
+test("addImageLoadingHints leaves preformatted examples unchanged", () => {
+  const html = addImageLoadingHints(`<pre><code><img src="/example.png"></code></pre>
+<p><img src="/real.png" alt="Real"></p>`);
+
+  assert.match(html, /<pre><code><img src="\/example\.png"><\/code><\/pre>/);
+  assert.match(html, /<p><img src="\/real\.png" alt="Real" loading="lazy" decoding="async"><\/p>/);
 });
 
 // ─── readingMinutes boundary cases ────────────────────────────────────────

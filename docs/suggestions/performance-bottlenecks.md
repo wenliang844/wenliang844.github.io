@@ -164,18 +164,15 @@
 
 ---
 
-## 📌 P-11: 图片无尺寸属性，可能导致布局偏移 (CLS)
+## 📌 P-11 [部分修复]: 图片无尺寸属性，可能导致布局偏移 (CLS)
 
 - **📍 位置**：文章正文中通过 Markdown 插入的 `<img>` 标签
-- **📝 当前状况**：Markdown 渲染后的 `<img>` 标签没有 `width` 和 `height` 属性，浏览器在图片加载前无法预留空间，导致 CLS（Cumulative Layout Shift）。
+- **✅ 已完成**：构建脚本已在 `renderContent()` 阶段为正文图片补齐 `loading="lazy"` 和 `decoding="async"`，已有显式 `loading` / `decoding` 的图片不会被覆盖。
+- **🧪 回归测试**：`tests/build-deep.test.mjs` 覆盖 Markdown 图片默认增强、已有属性保留，以及 `pre` 示例块不被误改。
+- **📝 剩余问题**：Markdown 渲染后的 `<img>` 标签仍未自动注入 `width` 和 `height`，浏览器在图片加载前无法完全预留空间。
 - **⚠️ 影响程度**：低（当前文章图片较少）
-- **💡 建议方案**：在构建脚本的 `renderContent()` 中，为 `<img>` 标签添加 `loading="lazy"` 属性：
-  ```javascript
-  htmlWithIds = htmlWithIds.replace(/<img([^>]*)>/g, '<img$1 loading="lazy">');
-  ```
-  长期方案：在 Markdown 渲染时解析图片尺寸并注入 `width`/`height`。
-
-- **📊 预期收益**：CLS 分数改善，图片延迟加载减少首屏带宽
+- **💡 后续方案**：在 Markdown 渲染时解析本地图片尺寸并注入 `width`/`height`，远程图片可允许在 front matter 或 Markdown 扩展语法中声明尺寸。
+- **📊 实际收益**：正文图片延迟加载并异步解码，减少非首屏图片对带宽和主线程解码的影响；CLS 尺寸预留仍需后续补齐。
 - **🔗 相关建议**：[UX-03](ux-improvements.md#ux-03)
 
 ---
@@ -193,7 +190,7 @@
 | 🥉 低 | P-06 | 搜索体验提升 | 低 |
 | 🥉 低 | P-08 | resize 性能 | 低 |
 | 🥉 低 | P-10 | 第三方连接优化 | 低 |
-| 🥉 低 | P-11 | CLS 改善 | 低 |
+| 🟨 部分 | P-11 | 图片加载优化已完成，尺寸预留待补齐 | 低 |
 | 📋 预防 | P-05 | 未来扩展准备 | — |
 
 ---
