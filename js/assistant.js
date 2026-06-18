@@ -154,11 +154,16 @@
     const panel = el("div", "assistant-panel");
     panel.id = "assistant-panel";
     panel.hidden = true;
+    panel.setAttribute("role", "dialog");
+    panel.setAttribute("aria-labelledby", "assistant-title");
+    panel.setAttribute("aria-describedby", "assistant-privacy");
 
     const head = el("header", "assistant-head");
     const titleWrap = el("div");
     const title = el("strong", "", t("assistant.title", "AI 助手"));
+    title.id = "assistant-title";
     const privacy = el("span", "", t("assistant.privacy", "本地规则版，不会发送你的输入"));
+    privacy.id = "assistant-privacy";
     const close = el("button", "assistant-close");
     close.type = "button";
     close.setAttribute("aria-label", t("assistant.close", "关闭 AI 助手"));
@@ -219,7 +224,7 @@
       });
     }
 
-    function setOpen(open) {
+    function setOpen(open, options) {
       root.classList.toggle("open", open);
       document.body.classList.toggle("assistant-open", open);
       panel.hidden = !open;
@@ -227,6 +232,8 @@
       toggle.setAttribute("aria-label", open ? t("assistant.minimize", "最小化 AI 助手") : t("assistant.open", "打开 AI 助手"));
       if (open) {
         input.focus();
+      } else if (options && options.returnFocus) {
+        toggle.focus();
       }
     }
 
@@ -271,7 +278,7 @@
       setOpen(panel.hidden);
     });
     close.addEventListener("click", function () {
-      setOpen(false);
+      setOpen(false, { returnFocus: true });
     });
     quick.addEventListener("click", function (event) {
       const btn = event.target.closest("[data-assistant-action]");
@@ -301,7 +308,7 @@
     });
     document.addEventListener("keydown", function (event) {
       if (event.key === "Escape" && !panel.hidden) {
-        setOpen(false);
+        setOpen(false, { returnFocus: true });
       }
     });
     document.addEventListener("cwl:langchange", updateStaticText);

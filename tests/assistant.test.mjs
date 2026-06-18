@@ -38,7 +38,11 @@ test("assistant opens, answers locally and escapes user input", async () => {
   assert.ok(toggle, "assistant floating button should be created");
   toggle.click();
   assert.equal(document.body.classList.contains("assistant-open"), true);
-  assert.equal(document.querySelector(".assistant-panel").hidden, false);
+  const panel = document.querySelector(".assistant-panel");
+  assert.equal(panel.hidden, false);
+  assert.equal(panel.getAttribute("role"), "dialog");
+  assert.equal(panel.getAttribute("aria-labelledby"), "assistant-title");
+  assert.equal(panel.getAttribute("aria-describedby"), "assistant-privacy");
 
   const input = document.querySelector(".assistant-input");
   input.value = '<img src=x onerror=alert(1)> 工具箱在哪里';
@@ -55,6 +59,7 @@ test("assistant opens, answers locally and escapes user input", async () => {
   document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
   assert.equal(document.querySelector(".assistant-panel").hidden, true);
   assert.equal(document.body.classList.contains("assistant-open"), false);
+  assert.equal(document.activeElement, toggle);
 });
 
 test("assistant quick search uses the existing search trigger", async () => {

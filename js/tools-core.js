@@ -7,6 +7,15 @@
     return { ok: false, error: message, code: code || "unknown" };
   }
 
+  function bytesToBinary(bytes) {
+    const chunkSize = 0x8000;
+    let binary = "";
+    for (let i = 0; i < bytes.length; i += chunkSize) {
+      binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunkSize));
+    }
+    return binary;
+  }
+
   function parseJson(input) {
     try {
       return ok(JSON.parse(String(input || "")));
@@ -31,13 +40,11 @@
       let binary = "";
       if (root.TextEncoder) {
         const bytes = new root.TextEncoder().encode(raw);
-        bytes.forEach(function (byte) {
-          binary += String.fromCharCode(byte);
-        });
+        binary = bytesToBinary(bytes);
       } else {
         binary = unescape(encodeURIComponent(raw));
       }
-      return ok(btoa(binary));
+      return ok(root.btoa(binary));
     } catch (error) {
       return fail("Base64 编码失败：" + error.message, "base64Encode");
     }
@@ -52,7 +59,7 @@
         bytes[i] = binary.charCodeAt(i);
       }
       if (root.TextDecoder) {
-        return ok(new root.TextDecoder().decode(bytes));
+        return ok(new root.TextDecoder("utf-8", { fatal: true }).decode(bytes));
       }
       return ok(decodeURIComponent(escape(binary)));
     } catch (error) {

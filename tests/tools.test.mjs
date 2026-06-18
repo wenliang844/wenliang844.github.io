@@ -62,6 +62,12 @@ test("tools core handles Base64, URL, timestamps, UUID and JWT", async () => {
   assert.equal(decodedBase64.ok, true);
   assert.equal(decodedBase64.value, "你好 Codex");
   assert.equal(tools.decodeBase64("%%bad").ok, false);
+  assert.equal(tools.decodeBase64("/w==").ok, false);
+
+  const largeText = "chunk-safe-base64-".repeat(6000);
+  const encodedLarge = tools.encodeBase64(largeText);
+  assert.equal(encodedLarge.ok, true);
+  assert.equal(tools.decodeBase64(encodedLarge.value).value, largeText);
 
   const encodedUrl = tools.encodeUrl("a b/中文");
   assert.equal(encodedUrl.ok, true);

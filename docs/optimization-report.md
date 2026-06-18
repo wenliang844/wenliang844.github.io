@@ -541,3 +541,46 @@
 - 继续审计工具箱大输入场景，评估 JSON/JWT/Base64 大文本处理是否需要输入大小保护。
 - 继续检查 AI 助手站内匹配规则是否需要从静态数组迁移到搜索索引，减少重复维护。
 - 继续补浏览器级端到端测试脚本，将当前手工浏览器回归沉淀为可重复命令。
+
+## 第 18 轮：Base64 文本边界与助手可访问性
+
+时间：2026-06-18
+
+### 已完成内容
+
+- 对工具箱大输入场景做微基准：Base64 1MB/10MB、JSON 0.3MB/3.3MB/10.3MB。
+- 将 Base64 编码的字节转二进制字符串逻辑改为分块转换，避免未来大输入实现使用展开参数时触发调用栈风险。
+- 将 Base64 解码改为严格 UTF-8 文本解码，合法 Base64 但非 UTF-8 文本不再静默显示替换字符。
+- 为 Base64 非 UTF-8 输入和大文本往返补充回归测试。
+- 为 AI 助手面板增加 `role="dialog"`、`aria-labelledby`、`aria-describedby`。
+- 关闭按钮和 Escape 关闭后把焦点返回悬浮按钮，改善键盘和读屏体验。
+
+### 发现的问题
+
+- `decodeBase64("/w==")` 这类合法 Base64 但非 UTF-8 文本会被浏览器 `TextDecoder` 默认替换为 `�`，用户容易误以为解码结果有效。
+- AI 助手视觉上是浮层对话框，但缺少 dialog 语义与标题/说明关联。
+- Escape 关闭助手后焦点没有明确返回打开按钮，键盘用户需要重新定位。
+
+### 修复方案
+
+- `js/tools-core.js` 新增 `bytesToBinary()`，按 32KB chunk 拼接二进制字符串。
+- `decodeBase64()` 使用 `new TextDecoder("utf-8", { fatal: true })`，保留旧浏览器 fallback 的异常行为。
+- `tests/tools.test.mjs` 增加非 UTF-8 Base64 拒绝和大文本 Base64 往返测试。
+- `js/assistant.js` 为面板、标题和隐私说明补充 ARIA 关系，并在关闭路径支持 `returnFocus`。
+- `tests/assistant.test.mjs` 覆盖 dialog 语义和 Escape 焦点返回。
+
+### 性能、覆盖率与质量指标
+
+- Base64 10MB 基线：编码约 30ms，解码约 67ms。
+- Base64 10MB 优化后：编码约 31ms，解码约 61ms。
+- JSON 10.3MB 格式化约 159ms，压缩约 135ms；暂不需要硬性限流。
+- `npm test`：221 个测试全部通过。
+- `npm run test:coverage`：行覆盖 98.71%，分支覆盖 88.14%，函数覆盖 96.75%。
+- `npm run build`：通过。
+- 浏览器回归：非 UTF-8 Base64 显示错误状态；AI 助手 dialog 语义、Escape 关闭和焦点返回通过；控制台无站点 warning/error。
+
+### 下一步计划
+
+- 继续评估 AI 助手匹配规则与 `search-index.json` 的重复维护问题。
+- 继续检查工具箱复制、剪贴板失败和英文模式下的错误状态一致性。
+- 考虑将本轮浏览器回归沉淀成 Playwright/Node 可重复脚本。
