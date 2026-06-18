@@ -16,12 +16,14 @@ jobs:
       RELAY_COMMERCIAL_TOKEN: ${{ secrets.RELAY_COMMERCIAL_TOKEN }}
       RELAY_COMMERCIAL_HEADERS: ${{ secrets.RELAY_COMMERCIAL_HEADERS }}
       RELAY_COMMERCIAL_SOURCE_NAME: ${{ vars.RELAY_COMMERCIAL_SOURCE_NAME }}
+      RELAY_COMMERCIAL_REQUIRED: "1"
+      RELAY_COMMERCIAL_MIN_COUNT: "1"
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm

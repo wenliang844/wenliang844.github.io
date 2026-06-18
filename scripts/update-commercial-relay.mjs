@@ -39,6 +39,10 @@ function cleanScore(value) {
   return Math.max(0, Math.min(100, Math.round(number)));
 }
 
+function cleanBoolean(value) {
+  return ["1", "true", "yes", "on"].includes(String(value || "").trim().toLowerCase());
+}
+
 function cleanText(value, fallback = "") {
   return String(value ?? fallback).trim();
 }
@@ -128,6 +132,9 @@ function authHeaders() {
 async function fetchCommercialProviders() {
   const sourceUrl = process.env.RELAY_COMMERCIAL_SOURCE_URL;
   if (!sourceUrl) {
+    if (cleanBoolean(process.env.RELAY_COMMERCIAL_REQUIRED)) {
+      throw new Error("未配置 RELAY_COMMERCIAL_SOURCE_URL，无法同步商业站数据。请在仓库 Actions secrets 中添加该 secret。");
+    }
     console.log("未配置 RELAY_COMMERCIAL_SOURCE_URL，跳过商业站同步。");
     return null;
   }
@@ -145,6 +152,10 @@ async function main() {
   const providers = await fetchCommercialProviders();
   if (!providers) {
     return;
+  }
+  const minProviderCount = cleanNumber(process.env.RELAY_COMMERCIAL_MIN_COUNT, 0);
+  if (providers.length < minProviderCount) {
+    throw new Error(`商业站数据数量 ${providers.length} 小于最低要求 ${minProviderCount}，请检查外部数据源。`);
   }
 
   const now = new Date().toISOString();
