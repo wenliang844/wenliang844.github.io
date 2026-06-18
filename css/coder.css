@@ -332,10 +332,6 @@ a:hover {
   position: relative;
 }
 
-.nav-more details {
-  position: relative;
-}
-
 .nav-more summary {
   display: inline-flex;
   align-items: center;
@@ -377,7 +373,7 @@ a:hover {
   visibility: hidden;
   transform: translateY(-0.35rem);
   pointer-events: none;
-  transition: opacity 160ms ease, transform 160ms ease, visibility 160ms ease;
+  transition: opacity 160ms ease, transform 160ms ease;
 }
 
 .nav-more:hover .nav-more-menu,
@@ -392,7 +388,6 @@ a:hover {
 .nav-more-menu a {
   display: flex;
   align-items: center;
-  width: 100%;
   padding: 0.55rem 0.7rem;
   border-radius: 0.5rem;
   white-space: nowrap;
