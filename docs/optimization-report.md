@@ -6173,3 +6173,44 @@
 
 - 运行全量质量门禁并提交第四十四轮技术债优化。
 - 继续处理不触碰 `assistant.js` 外部改动的低风险 UX、构建系统或文档一致性项目。
+
+## 第 182 轮：移动端分享条紧凑布局
+
+时间：2026-06-18
+
+### 已完成内容
+
+- 在 `css/coder.css` 的 480px 窄屏媒体规则中为 `.post-share` 增加换行布局。
+- 让 `.share-label` 在窄屏独占一行，避免与 4 个分享按钮挤在同一行。
+- 让 `.share-btn` 在窄屏等宽排列并允许收缩，避免按钮组水平溢出。
+- 删除已冗余的 reduced-motion `html { scroll-behavior: auto; }`，保持 CSS 体积预算内。
+- 扩展 `tests/css.test.mjs`，新增移动端分享条布局回归测试。
+- 更新 UX-08、建议索引、健康评分、工作报告和本轮工作报告。
+
+### 发现的问题
+
+- 分享条在窄屏下包含标签和 4 个按钮，原样横排会显得拥挤。
+- 现有 480px 媒体规则只处理订阅表单和赞助按钮，没有覆盖文章分享条。
+- 原有 CSS 测试只确认分享选择器存在，没有验证移动端布局策略。
+
+### 修复方案
+
+- 在窄屏下对 `.post-share` 启用 `flex-wrap: wrap`。
+- 设置 `.share-label { width: 100%; }`，标签作为按钮组上方标题。
+- 设置 `.share-btn { flex: 1; min-width: 0; }`，4 个按钮稳定等宽分布。
+
+### 性能、安全与质量指标
+
+- `node --test tests/css.test.mjs tests/performance.test.mjs`：45 个 CSS 与性能测试全部通过，`coder.css` 为 117.96KB，低于 118KB 预算。
+- `npm run lint:check`：通过。
+- `npm test`：575 个测试全部通过。
+- `npm run build`：通过，成功生成 6 篇文章页面。
+- `npm run validate:production`：33 项检查通过，0 失败，0 警告。
+- `npm run test:coverage`：575 个测试全部通过；行覆盖率 93.27%，分支覆盖率 75.33%，函数覆盖率 90.84%，均高于覆盖率阈值。
+- `npm audit --audit-level=moderate --registry=https://registry.npmjs.org`：0 个中高危漏洞。
+- UX 收益：窄屏分享区从拥挤横排变为标签加等宽按钮组，减少溢出和不自然换行风险。
+
+### 下一步计划
+
+- 运行全量质量门禁并提交第四十五轮 UX 优化。
+- 继续处理不触碰 `assistant.js` 外部改动的低风险构建系统、UX 或安全文档一致性项目。

@@ -176,6 +176,14 @@ test("coder.css contains share selectors", async () => {
   assert.ok(css.includes(".share-label"), "should have share-label");
 });
 
+test("coder.css makes the share bar compact on narrow screens", async () => {
+  const css = await readFile(join(ROOT, "css", "coder.css"), "utf8");
+
+  assert.match(css, /@media\s*\(max-width:\s*480px\)\s*{[\s\S]*?\.post-share\s*{[^}]*flex-wrap:\s*wrap;[^}]*}/);
+  assert.match(css, /@media\s*\(max-width:\s*480px\)\s*{[\s\S]*?\.share-label\s*{[^}]*width:\s*100%;[^}]*}/);
+  assert.match(css, /@media\s*\(max-width:\s*480px\)\s*{[\s\S]*?\.share-btn\s*{[^}]*flex:\s*1;[^}]*min-width:\s*0;[^}]*}/);
+});
+
 test("coder.css contains tag selectors", async () => {
   const css = await readFile(join(ROOT, "css", "coder.css"), "utf8");
 

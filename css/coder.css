@@ -2960,7 +2960,11 @@ a.card:hover {
   filter: saturate(1.08) brightness(1.03);
 }
 
-@media (max-width: 480px) {
+@media(max-width:480px) {
+  .post-share { flex-wrap: wrap; }
+  .share-label { width: 100%; }
+  .share-btn { flex: 1; min-width: 0; }
+
   .subscribe-form {
     flex-direction: column;
   }
@@ -5804,10 +5808,6 @@ body.assistant-fullscreen .site-shell {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
-
   body::before,
   .avatar::before,
   .home h1 {
