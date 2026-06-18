@@ -130,6 +130,49 @@ test("tools tabs expose selected state and support keyboard navigation", async (
   }
 });
 
+test("failed tool operations clear stale outputs", async () => {
+  const { dom } = await loadToolsPage();
+  const { document } = dom.window;
+  try {
+    document.querySelector("#json-input").value = '{"ok":true}';
+    document.querySelector('[data-json-action="format"]').click();
+    assert.match(document.querySelector("#json-output").value, /"ok": true/);
+
+    document.querySelector("#json-input").value = "{bad";
+    document.querySelector('[data-json-action="format"]').click();
+    assert.equal(document.querySelector("#json-output").value, "");
+    assert.equal(document.querySelector("#json-status").classList.contains("is-error"), true);
+
+    document.querySelector('[data-tool-tab="time"]').click();
+    document.querySelector("#timestamp-input").value = "1718697600";
+    document.querySelector('[data-time-action="from-timestamp"]').click();
+    assert.match(document.querySelector("#timestamp-output").textContent, /1718697600000/);
+
+    document.querySelector("#timestamp-input").value = "not-a-time";
+    document.querySelector('[data-time-action="from-timestamp"]').click();
+    assert.equal(document.querySelector("#timestamp-output").textContent, "");
+    assert.equal(document.querySelector("#time-status").classList.contains("is-error"), true);
+
+    document.querySelector('[data-tool-tab="jwt"]').click();
+    document.querySelector("#jwt-input").value = [
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9",
+      "eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkNXTCJ9",
+      "signature",
+    ].join(".");
+    document.querySelector("[data-jwt-decode]").click();
+    assert.match(document.querySelector("#jwt-header-output").value, /"typ": "JWT"/);
+    assert.match(document.querySelector("#jwt-payload-output").value, /"name": "CWL"/);
+
+    document.querySelector("#jwt-input").value = "bad";
+    document.querySelector("[data-jwt-decode]").click();
+    assert.equal(document.querySelector("#jwt-header-output").value, "");
+    assert.equal(document.querySelector("#jwt-payload-output").value, "");
+    assert.equal(document.querySelector("#jwt-status").classList.contains("is-error"), true);
+  } finally {
+    dom.window.close();
+  }
+});
+
 test("uuid placeholder is not copied and generated UUID survives i18n updates", async () => {
   const { copiedText, dom } = await loadToolsPage();
   const { document } = dom.window;

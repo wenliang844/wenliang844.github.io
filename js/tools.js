@@ -46,6 +46,7 @@
       value(outputId, result.value);
       setStatus(statusId, t("tools.status.done", "处理完成"), "ok");
     } else {
+      value(outputId, "");
       setStatus(statusId, errorMessage(result), "error");
     }
   }
@@ -234,6 +235,7 @@
         text(action === "from-timestamp" ? "timestamp-output" : "datetime-output", formatTimeResult(result.value));
         setStatus("time-status", t("tools.status.converted", "转换完成"), "ok");
       } else {
+        text(action === "from-timestamp" ? "timestamp-output" : "datetime-output", "");
         setStatus("time-status", errorMessage(result), "error");
       }
       return;
@@ -252,6 +254,8 @@
         value("jwt-payload-output", result.value.payload);
         setStatus("jwt-status", t("tools.status.jwt", "JWT 已解码。本工具不校验签名。"), "ok");
       } else {
+        value("jwt-header-output", "");
+        value("jwt-payload-output", "");
         setStatus("jwt-status", errorMessage(result), "error");
       }
       return;
