@@ -36,11 +36,23 @@ test("coder.css contains navigation selectors", async () => {
   assert.ok(css.includes(".navigation-list"), "should have navigation-list");
   assert.ok(css.includes(".menu-toggle"), "should have menu-toggle");
   assert.ok(css.includes(".menu-button"), "should have menu-button");
+  assert.ok(css.includes(".menu-overlay"), "should have menu-overlay");
   assert.ok(css.includes(".theme-toggle"), "should have theme-toggle");
   assert.ok(css.includes(".nav-search-trigger"), "should have nav-search-trigger");
   assert.ok(css.includes(".nav-subscribe"), "should have nav-subscribe");
   assert.ok(css.includes(".nav-sponsor"), "should have nav-sponsor");
   assert.ok(css.includes(".nav-feedback"), "should have nav-feedback");
+});
+
+test("mobile navigation overlay closes the menu without JavaScript", async () => {
+  const css = await readFile(join(ROOT, "css", "coder.css"), "utf8");
+
+  assert.match(css, /\.menu-toggle,\s*\.menu-button,\s*\.menu-overlay\s*{\s*display:\s*none;/s);
+  assert.match(css, /\.menu-toggle:checked\s*~\s*\.menu-overlay\s*{[^}]*position:\s*fixed;[^}]*inset:\s*0;[^}]*z-index:\s*8;[^}]*display:\s*block;/s);
+  assert.match(css, /\.navigation-list\s*{[^}]*z-index:\s*10;/s);
+  const overlayRuleIndex = css.indexOf(".menu-toggle:checked ~ .menu-overlay");
+  const mobileMenuRuleIndex = css.indexOf(".navigation-list", overlayRuleIndex);
+  assert.ok(overlayRuleIndex < mobileMenuRuleIndex, "overlay rule should appear before the mobile menu panel rule so the panel stays above it");
 });
 
 test("coder.css contains article selectors", async () => {

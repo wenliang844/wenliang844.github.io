@@ -5121,3 +5121,44 @@
 
 - 提交第十八轮性能优化。
 - 继续评估剩余安全项或性能瓶颈。
+
+## 第 156 轮：补齐移动端导航点击外部关闭
+
+时间：2026-06-18
+
+### 已完成内容
+
+- 在共享布局模板中为移动端菜单加入 `.menu-overlay` label，打开菜单时可点击遮罩关闭。
+- 为 404、首页、关于、联系、编辑器和 Overleaf 等手写 HTML 页面同步导航 overlay。
+- 更新构建产物，使文章、标签、工具箱、AI、赞赏、赞助等生成页保持同一导航结构。
+- 新增模板、CSS 和全 HTML 扫描测试，防止移动端导航 overlay 回退。
+- 更新 UX-01、索引和健康评分文档，将移动端导航无遮罩项标记为已修复。
+
+### 发现的问题
+
+- 移动端汉堡菜单只依赖 checkbox toggle，打开后没有遮罩层；用户点击菜单外区域无法关闭导航。
+- 共享模板修复后，仍有 6 个手写 HTML 页面不会被构建脚本覆盖，需要同步补齐。
+- 建议索引和健康评分仍把已完成的 UX-01、P-09、S-05 作为待办展示，容易误导下一轮排期。
+
+### 修复方案
+
+- 使用 `<label class="menu-overlay" for="menu-toggle" aria-hidden="true"></label>` 复用原生 label/checkbox 行为，无需新增 JavaScript。
+- 在移动端媒体查询中仅当 `.menu-toggle:checked` 时显示固定遮罩，并保持 `.navigation-list` 的 z-index 高于 overlay。
+- 增加 `tests/i18n-a11y.test.mjs` HTML 扫描，确保所有已提交 HTML 中含 `menu-toggle` 的页面都具备 overlay。
+- 清理建议索引和健康评分中的已修复待办项。
+
+### 性能、安全与质量指标
+
+- `node --test tests/templates.test.mjs tests/css.test.mjs tests/i18n-a11y.test.mjs`：47 个测试全部通过。
+- `npx eslint js/*.js`：通过。
+- `node --test tests/performance.test.mjs`：13 个性能测试全部通过。
+- `npm test`：539 个测试全部通过，耗时约 12.86 秒。
+- `npm run validate:production`：33 项检查通过，0 失败，0 警告。
+- `npm run test:coverage`：539 个测试全部通过；行覆盖率 92.71%，分支覆盖率 74.95%，函数覆盖率 89.33%。
+- `npm audit --audit-level=moderate --registry=https://registry.npmjs.org`：0 个中高危漏洞。
+- 用户体验收益：移动端导航支持点击菜单外区域关闭，且无 JS 场景仍可使用。
+
+### 下一步计划
+
+- 提交第十九轮用户体验优化。
+- 继续评估剩余高收益 SEO、性能或工程化配置项。

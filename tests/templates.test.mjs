@@ -37,6 +37,7 @@ test("layout escapes title and metadata", () => {
   assert.match(html, /object-src 'none'/);
   assert.match(html, /frame-src https:\/\/giscus\.app/);
   assert.match(html, /connect-src 'self' https:/);
+  assert.match(html, /<label class="menu-overlay" for="menu-toggle" aria-hidden="true"><\/label>/);
 });
 
 test("post template escapes front matter text while preserving article HTML", () => {

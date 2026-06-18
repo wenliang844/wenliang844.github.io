@@ -603,7 +603,8 @@ a:hover {
 }
 
 .menu-toggle,
-.menu-button {
+.menu-button,
+.menu-overlay {
   display: none;
 }
 
@@ -4949,6 +4950,14 @@ body.assistant-fullscreen .site-shell {
   .menu-button {
     display: block;
     font-size: 1.4rem;
+  }
+
+  .menu-toggle:checked ~ .menu-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 8;
+    display: block;
+    background: rgba(15, 23, 42, 0.42);
   }
 
   .navigation-list {

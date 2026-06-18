@@ -200,6 +200,7 @@ ${renderScripts(allScripts)}${meta ? "\n" + meta : ""}${jsonLdTag}
         <a class="navigation-title" href="/">CWLBlog</a>
         <input type="checkbox" id="menu-toggle" class="menu-toggle" aria-label="Toggle menu" data-i18n-aria="nav.menu">
         <label class="menu-button" for="menu-toggle"><i class="fas fa-bars"></i></label>
+        <label class="menu-overlay" for="menu-toggle" aria-hidden="true"></label>
 ${renderNav(active)}
       </section>
     </header>

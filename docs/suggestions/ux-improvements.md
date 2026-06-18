@@ -4,32 +4,12 @@
 
 ---
 
-## 📌 UX-01: 移动端导航菜单无遮罩层，点击外部区域无法关闭
+## 📌 UX-01 [已修复]: 移动端导航菜单无遮罩层，点击外部区域无法关闭
 
-- **📍 位置**：`index.html:37-38`、`css/coder.css`（menu-toggle 相关）
-- **📝 当前状况**：移动端汉堡菜单通过 checkbox toggle 实现，打开后菜单列表从上方滑出，但没有半透明遮罩层。用户点击菜单外的区域无法关闭菜单（需要再次点击汉堡按钮）。
-- **⚠️ 影响程度**：中
-- **💡 建议方案**：
-  ```css
-  /* 添加遮罩层 */
-  .menu-toggle:checked ~ .navigation-list::before {
-    content: "";
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.4);
-    z-index: -1;
-  }
-  ```
-  或用 JS 添加点击外部关闭：
-  ```javascript
-  document.addEventListener("click", function(e) {
-    const toggle = document.getElementById("menu-toggle");
-    if (toggle && toggle.checked && !e.target.closest(".navigation")) {
-      toggle.checked = false;
-    }
-  });
-  ```
-- **📊 预期收益**：移动端导航体验更符合用户习惯
+- **📍 位置**：`src/templates/layout.mjs`、`css/coder.css`、手写 HTML 页面导航区
+- **✅ 修复状态**：导航 checkbox 后增加 `.menu-overlay` label，移动端菜单打开时显示固定遮罩；点击遮罩会通过原生 label/checkbox 关系关闭菜单，无需新增脚本。
+- **🧪 回归测试**：`tests/templates.test.mjs` 覆盖模板输出，`tests/css.test.mjs` 锁定遮罩层级，`tests/i18n-a11y.test.mjs` 扫描所有 HTML 页面。
+- **📊 实际收益**：移动端用户可点击菜单外区域关闭导航，保留无 JS 可用性并减少遮挡困扰。
 - **🔗 相关建议**：[P-01](performance-bottlenecks.md#p-01)
 
 ---
@@ -251,7 +231,6 @@
 
 | 优先级 | 编号 | 影响用户范围 | 实施难度 |
 |--------|------|-------------|----------|
-| 🥇 | UX-01 | 移动端用户 | 低 |
 | 🥇 | UX-03 | 文章读者 | 低 |
 | 🥇 | UX-09 | 无障碍用户 | 中 |
 | 🥈 | UX-05 | 订阅用户 | 低 |

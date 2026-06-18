@@ -13,7 +13,7 @@
 | 性能 | 4.0 / 5 | 🟢 良好 |
 | 架构设计 | 4.3 / 5 | 🟢 优秀 |
 | 工程化 | 3.5 / 5 | 🟡 中等 |
-| 用户体验 | 3.8 / 5 | 🟢 良好 |
+| 用户体验 | 4.0 / 5 | 🟢 良好 |
 | 可维护性 | 3.7 / 5 | 🟢 良好 |
 | **综合** | **3.9 / 5** | **🟢 良好** |
 
@@ -30,7 +30,7 @@
 | 🟡 第二 | 架构评审 | [architecture-review.md](architecture-review.md) | 7（中 3 / 低 4） |
 | 🟡 第二 | 技术债务 | [tech-debt.md](tech-debt.md) | 10（中 2 / 低 8） |
 | 🟢 第三 | 新功能建议 | [new-features.md](new-features.md) | 10 |
-| 🟢 第三 | UX 优化 | [ux-improvements.md](ux-improvements.md) | 10（中 3 / 低 6 / 已修复 1） |
+| 🟢 第三 | UX 优化 | [ux-improvements.md](ux-improvements.md) | 10（中 2 / 低 6 / 已修复 2） |
 | 🟢 第三 | 开发体验 | [devex-improvements.md](devex-improvements.md) | 10（中 2 / 低 8） |
 | 🔵 第四 | 模块分析-构建系统 | [module-reviews/build-system.md](module-reviews/build-system.md) | 5 |
 | 🔵 第四 | 模块分析-客户端JS | [module-reviews/client-javascript.md](module-reviews/client-javascript.md) | 5 |
@@ -51,7 +51,6 @@
 
 | 编号 | 建议 | 来源 | 难度 |
 |------|------|------|------|
-| UX-01 | 移动端导航遮罩层 | UX | ⭐ |
 | F-04 | 主题跟随系统 | 功能 | ⭐ |
 
 已完成：S-00 移除前端硬编码 API key，并新增无 key 阻断和源码密钥扫描回归测试。
@@ -71,6 +70,7 @@
 已完成：CQ-04 稳定业务模块统一委托 `CWLUtils.t`。
 已完成：S-05 全站添加 meta CSP，并新增 HTML 扫描回归测试。
 已完成：P-09 粒子动画移除 `shadowBlur`，改用双层绘制模拟辉光。
+已完成：UX-01 移动端导航增加点击外部关闭遮罩，并新增模板/CSS/HTML 扫描回归测试。
 
 ### 🥈 高价值中成本（建议近期规划）
 

@@ -63,6 +63,17 @@ test("navigation has aria-label", async () => {
   assert.deepEqual(failures, []);
 });
 
+test("mobile navigation has a click-outside overlay", async () => {
+  const failures = [];
+  for (const file of await htmlFiles()) {
+    const html = await readFile(join(ROOT, file), "utf8");
+    if (html.includes('id="menu-toggle"') && !html.includes('class="menu-overlay" for="menu-toggle" aria-hidden="true"')) {
+      failures.push(`${file}: missing mobile menu overlay`);
+    }
+  }
+  assert.deepEqual(failures, []);
+});
+
 test("interactive elements have accessible labels", async () => {
   const failures = [];
   for (const file of await htmlFiles()) {
