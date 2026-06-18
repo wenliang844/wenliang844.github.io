@@ -4140,3 +4140,56 @@
 - 执行最终状态检查。
 - 等待 7 小时目标达成。
 - 输出最终报告并标记目标完成。
+
+## 最终汇总：在线工具箱与 AI 助手悬浮球优化
+
+时间：2026-06-18
+
+### 完整优化报告
+
+- 本阶段从第 97 轮持续到第 129 轮，围绕在线工具箱和 AI 助手悬浮球完成复制可靠性、DOM 边界、工具页助手 UX、测试覆盖、浏览器验证、构建验证、安全抽样和性能风险记录。
+- 核心目标路径当前状态：`npm run test:toolbox` 51/51 通过；`npm run build` 通过；浏览器工具页默认收起助手、JSON 格式化、复制、悬浮球重开、Enter 提交和 fullscreen 入口均验证通过。
+- 当前分支存在一个未解决性能债务：`tests/performance.test.mjs` 仍因 `js/assistant.js` 与 `css/coder.css` 体积超过阈值失败。
+
+### Bug 修复清单
+
+- 修复 `CWLUtils.copyText()` / `legacyCopy()` 对 `0` 等假值复制不保真的问题。
+- 修复 legacy 复制路径在 `document.body` 不可用时直接失败的问题，退回 `document.documentElement`。
+- 优化工具页加载后 AI 助手默认收起，避免遮挡工具操作区。
+- 保留 `assistant=fullscreen`、`ai=fullscreen`、`#assistant-fullscreen` 三类显式打开路径。
+- 将工具页助手初始化监听器改为一次性监听，减少无意义保留。
+
+### 性能优化清单
+
+- 工具页当前时间计时器暂停、复制降级清理、一次性初始化监听器等优化已由前后轮次覆盖。
+- 当前未解决：`js/assistant.js` 约 54.1KB 超过 50KB 阈值，`css/coder.css` 约 111.1KB 超过 105KB 阈值。
+- 建议后续拆分助手脚本、拆分或精简 CSS、按页面懒加载助手增强模块。
+
+### 安全优化清单
+
+- 保持工具箱输出使用 `value` / `textContent`，避免 HTML 注入。
+- 安全测试 `tests/security.test.mjs` 6/6 通过。
+- 广覆盖安全相关测试中，`tools-core.js`、`tools.js`、`assistant.js` 均未使用 `eval` / `Function` 构造器；HTML 未发现 inline handler、`javascript:` 或外部 CDN vendor 脚本。
+
+### 测试覆盖率变化
+
+- 工具箱与助手组合测试从本阶段开始的 46 个提升到 51 个。
+- 新增 `tests/assistant-tools-page.test.mjs`，覆盖工具页助手默认收起、悬浮球重开和三类 fullscreen 入口。
+- 最终覆盖率抽样：32 个测试通过；总体 line 95.55%，branch 79.66%，functions 76.00%；`src/templates/tools.mjs` line 100.00%，branch 95.83%，functions 100.00%。
+- 排除已知性能阈值测试后，tracked 测试 253/253 通过。
+
+### 所有代码变更摘要
+
+- `js/utils.js`：复制文本归一化、legacy copy 容器兜底。
+- `js/tools.js`：工具页加载后收起助手面板、保留 fullscreen、一次性 DOMContentLoaded 监听器。
+- `tests/tools.test.mjs`：复制假值、bodyless DOM 等回归覆盖。
+- `tests/assistant-tools-page.test.mjs`：新增工具页助手集成测试。
+- `package.json`：将工具页助手集成测试纳入 `test:assistant` 与 `test:toolbox`。
+- `docs/optimization-report.md`：持续记录第 97-129 轮发现、修复、指标和风险。
+
+### 后续建议
+
+- 优先处理当前分支性能体积债务，让 `tests/performance.test.mjs` 恢复全绿。
+- 将 AI 助手大脚本拆为核心悬浮球、站内问答、LLM 配置/请求三个模块，按需加载。
+- 将 `coder.css` 按页面或功能拆分，至少拆出助手和工具页样式。
+- 在 CI 中保留 `test:toolbox`、安全测试、覆盖率抽样和性能测试，避免工具页/助手回归。
