@@ -3679,3 +3679,35 @@
 - 到达 7 小时后执行最终状态检查。
 - 输出完整优化报告。
 - 标记目标完成。
+
+## 第 115 轮：最终覆盖率抽样
+
+时间：2026-06-18
+
+### 已完成内容
+
+- 运行包含最新工具页助手测试的覆盖率抽样。
+- 覆盖助手 Enter、工具页默认收起、悬浮球重开、三种 fullscreen 入口和工具箱核心流程。
+- 更新最终报告使用的覆盖率口径。
+
+### 发现的问题
+
+- 本轮未发现新的测试失败。
+- 覆盖率抽样未覆盖全部普通页面模板，仍以工具箱/助手相关路径为主。
+
+### 修复方案
+
+- 本轮为覆盖率抽样与证据记录，没有新增生产代码修复。
+- 将未覆盖的 `src/lib/format.mjs` 和 `src/templates/layout.mjs` 行作为后续非工具箱范围补充项。
+
+### 性能、覆盖率与质量指标
+
+- `node --test --experimental-test-coverage tests/assistant-enter.test.mjs tests/assistant-tools-page.test.mjs tests/tools.test.mjs`：32 个测试全部通过，耗时约 3.08 秒。
+- 覆盖率抽样：总体 line 95.55%，branch 79.66%，funcs 76.00%。
+- `src/templates/tools.mjs`：line 100.00%，branch 95.83%，funcs 100.00%。
+
+### 下一步计划
+
+- 保持最终覆盖率口径。
+- 等待 7 小时目标达成后做最后状态检查。
+- 输出最终报告并标记目标完成。
