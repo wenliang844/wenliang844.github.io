@@ -79,6 +79,7 @@
 已完成：DE-01 新增 GitHub Actions CI 质量门禁，并补充只检查不改写的 `lint:check`。
 已完成：SEO-02 为生成静态页和手写工具页补充页面级 JSON-LD 结构化数据。
 已完成：SEO-05 支持文章 `modified` front matter，并用于 Article JSON-LD 的 `dateModified`。
+已完成：DE-09 声明 Node.js engines，并通过 workflow 测试与 CI Node 版本对齐。
 
 ### 🥈 高价值中成本（建议近期规划）
 

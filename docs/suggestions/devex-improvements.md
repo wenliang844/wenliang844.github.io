@@ -192,19 +192,12 @@
 
 ---
 
-## 📌 DE-09: 建议添加 `package.json` 的 `engines` 字段
+## 📌 DE-09 [已修复]: 建议添加 `package.json` 的 `engines` 字段
 
 - **📍 位置**：`package.json`
-- **📝 当前状况**：项目使用 ES Modules（`"type": "module"`）和 Node.js 内置测试运行器（需要 Node.js >= 18），但没有声明最低 Node.js 版本要求。
-- **⚠️ 影响程度**：低
-- **💡 建议方案**：
-  ```json
-  "engines": {
-    "node": ">=18.0.0"
-  }
-  ```
-  这样 `npm install` 在低版本 Node.js 上会发出警告。
-- **📊 预期收益**：避免在不兼容的 Node.js 版本上运行出错
+- **✅ 修复状态**：新增 `"engines": { "node": "20 || >=22" }`，与当前 jsdom 依赖链和 CI Node 22 配置对齐，避开不受依赖支持的 Node 21。
+- **🧪 回归测试**：`tests/workflows.test.mjs` 同时验证 CI 使用 Node 22，并确认 package engines 已声明。
+- **📊 实际收益**：在不兼容 Node 版本上安装依赖时提前提示，减少低版本运行测试或构建时才失败的排查成本。
 - **🔗 相关建议**：[TD-02](tech-debt.md#td-02)
 
 ---

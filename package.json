@@ -4,6 +4,9 @@
   "private": true,
   "type": "module",
   "description": "CWLBlog 静态站点构建脚本：从 src/posts/*.md 生成文章页、列表页、sitemap 与 RSS。",
+  "engines": {
+    "node": "20 || >=22"
+  },
   "scripts": {
     "build": "node scripts/build.mjs",
     "test": "node --test tests/*.test.mjs",

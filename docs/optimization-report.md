@@ -5492,3 +5492,41 @@
 
 - 提交第二十七轮 SEO 优化。
 - 继续评估文章图片资源项、覆盖率阈值或低风险工程化项。
+
+## 第 165 轮：声明 Node.js 运行时版本
+
+时间：2026-06-18
+
+### 已完成内容
+
+- 在 `package.json` 新增 `engines.node`，声明支持 `20 || >=22`。
+- 选择该范围以匹配当前 jsdom 依赖链中 `node: 20 || >=22` 的约束，并与 CI Node 22 配置保持一致。
+- 扩展 `tests/workflows.test.mjs`，在验证 CI Node 22 的同时确认 package engines 已声明。
+- 更新 DE-09、建议索引和本轮工作报告。
+
+### 发现的问题
+
+- 项目依赖 ES Modules、Node 内置测试运行器和 jsdom 27，但根 `package.json` 未声明 Node 版本要求。
+- CI 已固定 Node 22，本地安装却缺少对应提示；低版本 Node 会在安装或测试时才暴露兼容问题。
+
+### 修复方案
+
+- 使用 `20 || >=22` 表达当前依赖支持窗口，避免误纳入 Node 21。
+- 用 workflow 测试锁定 CI 与 package engines 的一致性。
+
+### 性能、安全与质量指标
+
+- `node --test tests/workflows.test.mjs`：2 个 workflow 测试全部通过。
+- `npm run lint:check`：通过。
+- `npm test`：549 个测试全部通过。
+- `npm run build`：通过，成功生成 6 篇文章页面。
+- `node --test tests/performance.test.mjs`：13 个性能测试全部通过。
+- `npm run validate:production`：33 项检查通过，0 失败，0 警告。
+- `npm run test:coverage`：549 个测试全部通过；行覆盖率 93.04%，分支覆盖率 75.39%，函数覆盖率 89.96%。
+- `npm audit --audit-level=moderate --registry=https://registry.npmjs.org`：0 个中高危漏洞。
+- 工程化收益：本地 Node 版本不匹配时能更早得到 npm engines 提示。
+
+### 下一步计划
+
+- 提交第二十八轮工程化优化。
+- 继续评估文章图片资源项、覆盖率阈值或低风险 UX 项。
