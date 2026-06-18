@@ -20,13 +20,18 @@ async function loadToolsCore() {
 async function loadToolsPage(options = {}) {
   const coreCode = await readFile(join(ROOT, "js", "tools-core.js"), "utf8");
   const toolsCode = await readFile(join(ROOT, "js", "tools.js"), "utf8");
+  const i18nCode = options.i18n ? await readFile(join(ROOT, "js", "i18n.js"), "utf8") : "";
   let copiedText = null;
   const dom = new JSDOM(renderToolsPage(), {
     pretendToBeVisual: true,
     runScripts: "outside-only",
     url: "https://wenliang844.github.io/tools/",
   });
+  dom.window.localStorage.clear();
   dom.window.eval(coreCode);
+  if (i18nCode) {
+    dom.window.eval(i18nCode);
+  }
   if (options.copyText !== false) {
     dom.window.CWLUtils = {
       copyText(value) {
@@ -149,6 +154,31 @@ test("tools tabs expose selected state and support keyboard navigation", async (
     timeTab.dispatchEvent(new KeyboardEvent("keydown", { key: "End", bubbles: true, cancelable: true }));
     assert.equal(jwtTab.getAttribute("aria-selected"), "true");
     assert.equal(document.querySelector("#tool-jwt").hidden, false);
+  } finally {
+    dom.window.close();
+  }
+});
+
+test("tools page localizes English placeholders and dynamic statuses", async () => {
+  const { dom } = await loadToolsPage({ i18n: true });
+  const { document } = dom.window;
+  try {
+    assert.equal(document.querySelector("#base64-input").getAttribute("placeholder"), "输入要编码或解码的文本");
+
+    document.querySelector(".lang-toggle").click();
+    assert.equal(document.documentElement.getAttribute("lang"), "en");
+    assert.equal(document.querySelector(".tools-header h1").textContent, "Toolbox");
+    assert.equal(document.querySelector(".tools-tabs").getAttribute("aria-label"), "Tool list");
+    assert.equal(document.querySelector("#base64-input").getAttribute("placeholder"), "Text to encode or decode");
+    assert.equal(document.querySelector("#url-input").getAttribute("placeholder"), "https://example.com/?q=search");
+
+    document.querySelector('[data-tool-tab="uuid"]').click();
+    document.querySelector('[data-copy-target="uuid-output"]').click();
+    await new Promise((resolve) => {
+      dom.window.setTimeout(resolve, 0);
+    });
+    assert.equal(document.querySelector("#uuid-status").textContent, "Nothing to copy");
+    assert.equal(document.querySelector("#uuid-status").classList.contains("is-error"), true);
   } finally {
     dom.window.close();
   }
