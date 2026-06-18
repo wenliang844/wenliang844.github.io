@@ -28,7 +28,7 @@
 | 🔴 第一 | 性能瓶颈 | [performance-bottlenecks.md](performance-bottlenecks.md) | 12（中 3 / 低 6 / 已修复 3） |
 | 🟡 第二 | 代码质量 | [code-quality.md](code-quality.md) | 10（中 2 / 低 2 / 已修复 6） |
 | 🟡 第二 | 架构评审 | [architecture-review.md](architecture-review.md) | 7（中 3 / 低 4） |
-| 🟡 第二 | 技术债务 | [tech-debt.md](tech-debt.md) | 10（中 2 / 低 8） |
+| 🟡 第二 | 技术债务 | [tech-debt.md](tech-debt.md) | 10（中 2 / 低 7 / 已修复 1） |
 | 🟢 第三 | 新功能建议 | [new-features.md](new-features.md) | 10 |
 | 🟢 第三 | UX 优化 | [ux-improvements.md](ux-improvements.md) | 10（中 2 / 低 3 / 已修复 5） |
 | 🟢 第三 | 开发体验 | [devex-improvements.md](devex-improvements.md) | 10（低 5 / 部分 1 / 已修复 4） |
@@ -95,6 +95,7 @@
 已完成：MR-BUILD-02 提取 RSS channel renderer，三种 feed 共用同一套 XML 外壳逻辑。
 已完成：UX-05 订阅邮箱无效时增加输入框错误态和 `aria-invalid` 反馈。
 已完成：UX-02 导航搜索按钮增加本地化快捷键 tooltip 与 aria 提示。
+已完成：TD-08 移除全局 `scroll-behavior: smooth`，由 JS 按需控制平滑滚动。
 
 ### 🥈 高价值中成本（建议近期规划）
 

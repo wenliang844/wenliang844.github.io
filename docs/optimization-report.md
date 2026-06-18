@@ -6134,3 +6134,42 @@
 
 - 运行全量质量门禁并提交第四十三轮 UX 优化。
 - 继续处理不触碰 `assistant.js` 外部改动的低风险 UX 或工程化项目。
+
+## 第 181 轮：移除全局平滑滚动策略
+
+时间：2026-06-18
+
+### 已完成内容
+
+- 移除 `css/coder.css` 中 `html { scroll-behavior: smooth; }` 的全局滚动策略。
+- 保留 `coder.js`、`toc.js`、`blog.js` 等交互中的显式 `behavior: "smooth"`，让平滑滚动只发生在明确需要的路径。
+- 扩展 `tests/css.test.mjs`，新增基础 `html` 规则不得强制全站平滑滚动的源码级回归测试。
+- 更新 TD-08、建议索引、健康评分、工作报告和本轮工作报告。
+
+### 发现的问题
+
+- 全局 `scroll-behavior: smooth` 会让所有锚点跳转都进入平滑滚动，影响期望瞬时定位的场景。
+- 项目已有多个 JS 交互显式控制滚动动画，全局 CSS 策略与局部行为控制存在职责重叠。
+- 原有测试只覆盖选择器存在性，没有守卫滚动策略不会再次回退成全站默认。
+
+### 修复方案
+
+- 从基础 `html` 规则移除 `scroll-behavior: smooth`。
+- 将滚动动画职责保留在具体交互代码中，由调用方按需指定 `behavior: "smooth"`。
+- 增加 CSS 回归测试，避免后续样式调整重新引入全局平滑滚动。
+
+### 性能、安全与质量指标
+
+- `node --test tests/css.test.mjs tests/performance.test.mjs`：44 个 CSS 与性能测试全部通过。
+- `npm run lint:check`：通过。
+- `npm test`：574 个测试全部通过。
+- `npm run build`：通过，成功生成 6 篇文章页面。
+- `npm run validate:production`：33 项检查通过，0 失败，0 警告。
+- `npm run test:coverage`：574 个测试全部通过；行覆盖率 93.27%，分支覆盖率 75.33%，函数覆盖率 90.84%，均高于覆盖率阈值。
+- `npm audit --audit-level=moderate --registry=https://registry.npmjs.org`：0 个中高危漏洞。
+- UX/性能收益：降低全站锚点跳转的非预期动画成本，使平滑滚动只由明确交互触发。
+
+### 下一步计划
+
+- 运行全量质量门禁并提交第四十四轮技术债优化。
+- 继续处理不触碰 `assistant.js` 外部改动的低风险 UX、构建系统或文档一致性项目。

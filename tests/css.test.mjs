@@ -228,6 +228,14 @@ test("coder.css hides to-top button until scroll state is initialized", async ()
   assert.match(css, /\.to-top\.visible\s*{[^}]*opacity:\s*1;[^}]*pointer-events:\s*auto;/s);
 });
 
+test("coder.css leaves smooth scrolling to JavaScript", async () => {
+  const css = await readFile(join(ROOT, "css", "coder.css"), "utf8");
+
+  const htmlRule = css.match(/html\s*{[^}]*}/);
+  assert.ok(htmlRule, "should have a base html rule");
+  assert.ok(!/scroll-behavior\s*:\s*smooth/.test(htmlRule[0]), "html rule should not force every anchor navigation to scroll smoothly");
+});
+
 // ─── 暗色模式支持 ─────────────────────────────────────────────────────────────
 
 test("coder.css contains dark mode color scheme", async () => {

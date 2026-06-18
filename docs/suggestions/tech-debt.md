@@ -150,10 +150,12 @@
 
 ---
 
-## 📌 TD-08: CSS 中使用了 `scroll-behavior: smooth`，与 JS 平滑滚动冲突
+## 📌 TD-08 [已修复]: CSS 中使用了 `scroll-behavior: smooth`，与 JS 平滑滚动冲突
 
-- **📍 位置**：`css/coder.css:77`
-- **📝 当前状况**：
+- **📍 原位置**：`css/coder.css:77`
+- **✅ 修复状态**：已移除 `html` 全局 `scroll-behavior: smooth`，滚动动画继续由 `coder.js`、`toc.js`、`blog.js` 等需要的交互显式控制。
+- **🧪 回归测试**：`tests/css.test.mjs` 新增源码守卫，确认基础 `html` 规则不会重新强制全站锚点平滑滚动。
+- **📝 原状况**：
   ```css
   html { scroll-behavior: smooth; }
   ```
