@@ -40,21 +40,12 @@
 
 ---
 
-## 📌 MR-EDITOR-03: `marked.setOptions` 使用已废弃的 `highlight` 回调
+## 📌 MR-EDITOR-03 [已修复]: `marked.setOptions` 使用已废弃的 `highlight` 回调
 
-- **📍 位置**：`js/editor.js:64-83`
-- **📝 当前状况**：
-  ```javascript
-  window.marked.setOptions({
-    gfm: true,
-    breaks: true,
-    highlight: function (code, lang) { ... }
-  });
-  ```
-  `marked` v5+ 已移除 `highlight` 选项，推荐使用 `marked-highlight` 扩展。当前使用的是 `marked@18`，`highlight` 选项已被忽略。
-- **⚠️ 影响程度**：中（代码高亮在编辑器中不生效）
-- **💡 建议方案**：使用 `markedHighlight` 扩展或在渲染后手动高亮（当前第 160-171 行的 `hljs.highlightElement` 已经做了兜底）。
-- **📊 预期收益**：编辑器中代码高亮正确生效
+- **📍 位置**：`js/editor.js`
+- **✅ 修复状态**：已移除 `marked.setOptions({ highlight })` 废弃配置，编辑器改为在 Markdown 渲染后统一调用 `hljs.highlightElement()` 高亮代码块。
+- **🧪 回归测试**：`tests/editor.test.mjs` 使用 fake `marked`/`hljs` 验证不再传入 `highlight` 选项，并确认渲染后的代码块会被高亮。
+- **📊 实际收益**：避免 `marked@18` 忽略废弃配置造成误导，编辑器代码高亮路径更清晰。
 - **🔗 相关建议**：[COMP-02](../competitive-analysis.md#comp-02)
 
 ---

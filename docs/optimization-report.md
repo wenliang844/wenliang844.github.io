@@ -5242,3 +5242,42 @@
 
 - 提交第二十一轮 SEO 优化。
 - 继续评估编辑器代码高亮、其他静态页结构化数据或 CI 配置。
+
+## 第 159 轮：移除编辑器废弃 marked highlight 配置
+
+时间：2026-06-18
+
+### 已完成内容
+
+- 从 `js/editor.js` 移除 `marked.setOptions({ highlight })` 废弃配置。
+- 明确编辑器代码高亮路径：Markdown 渲染完成后统一调用 `hljs.highlightElement()`。
+- 新增 fake `marked`/`hljs` 回归测试，验证不再传入 deprecated `highlight` 选项，并确认代码块被高亮。
+- 更新 MR-EDITOR-03、索引和健康评分文档。
+
+### 发现的问题
+
+- `marked@18` 已不再支持旧版 `highlight` option，当前配置会被忽略。
+- 虽然编辑器已有渲染后 `highlightElement()` 兜底，但注释和配置仍暗示 marked 内置高亮生效，容易误导后续维护。
+- 既有编辑器测试没有覆盖 marked + hljs 同时存在时的高亮路径。
+
+### 修复方案
+
+- 保留 `marked` 的 `gfm` 与 `breaks` 配置，删除无效 `highlight` 回调。
+- 将代码注释改为说明 marked v5+ 后的渲染后高亮策略。
+- 使用测试替身模拟 `marked.parse()` 输出 fenced code HTML，并检查 `hljs.highlightElement()` 调用与 `data-highlighted` 标记。
+
+### 性能、安全与质量指标
+
+- `node --test tests/editor.test.mjs tests/js-behavior.test.mjs`：50 个测试全部通过。
+- `npx eslint js/*.js`：通过。
+- `npm test`：541 个测试全部通过，耗时约 7.95 秒。
+- `npm run build`：通过，成功生成 6 篇文章页面。
+- `npm run validate:production`：33 项检查通过，0 失败，0 警告。
+- `npm run test:coverage`：541 个测试全部通过；行覆盖率 92.72%，分支覆盖率 74.91%，函数覆盖率 89.33%。
+- `npm audit --audit-level=moderate --registry=https://registry.npmjs.org`：0 个中高危漏洞。
+- 功能收益：编辑器代码高亮逻辑与当前 marked 版本一致，减少无效配置和维护误判。
+
+### 下一步计划
+
+- 提交第二十二轮编辑器功能修复。
+- 继续评估其他静态页结构化数据、CI 配置或文章图片资源项。

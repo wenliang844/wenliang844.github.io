@@ -73,6 +73,7 @@
 已完成：UX-01 移动端导航增加点击外部关闭遮罩，并新增模板/CSS/HTML 扫描回归测试。
 已完成：SEO-03 修复 sitemap priority，首页/文章/静态页输出合理优先级。
 已完成：SEO-01 首页补充 WebSite JSON-LD，并新增结构化数据解析测试。
+已完成：MR-EDITOR-03 移除 marked 废弃 highlight 选项，改为渲染后调用 `hljs.highlightElement()`。
 
 ### 🥈 高价值中成本（建议近期规划）
 
@@ -86,7 +87,6 @@
 | UX-03 | 图片 Lightbox | UX | ⭐⭐ |
 | DE-01 | GitHub Actions CI/CD | 工程化 | ⭐⭐ |
 | F-06 | 标签云可视化 | 功能 | ⭐ |
-| MR-EDITOR-03 | 编辑器代码高亮修复 | 模块分析 | ⭐ |
 | COMP-02 | 构建时代码高亮 | 竞品借鉴 | ⭐⭐ |
 
 ### 🥉 低优先级（长期改进方向）

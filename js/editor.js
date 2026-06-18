@@ -57,26 +57,13 @@
       .replace(/^-+|-+$/g, "") || "new-post";
   }
 
-  // Configure marked once: GitHub-flavored Markdown with hard line breaks,
-  // and syntax highlighting via highlight.js when available.
+  // Configure marked once: GitHub-flavored Markdown with hard line breaks.
+  // marked v5+ ignores the old highlight option; code blocks are highlighted
+  // after rendering through highlightElement below.
   if (window.marked && typeof window.marked.setOptions === "function") {
     window.marked.setOptions({
       gfm: true,
-      breaks: true,
-      highlight: function (code, lang) {
-        if (window.hljs) {
-          try {
-            if (lang && window.hljs.getLanguage(lang)) {
-              return window.hljs.highlight(code, { language: lang }).value;
-            }
-            return window.hljs.highlightAuto(code).value;
-          } catch (error) {
-            // 高亮失败，返回原始代码
-            return code;
-          }
-        }
-        return code;
-      }
+      breaks: true
     });
   }
 
@@ -154,7 +141,7 @@
 
   function render() {
     preview.innerHTML = renderMarkdown(markdownInput.value);
-    // Re-highlight any code blocks marked says were not pre-highlighted.
+    // Highlight rendered code blocks after marked has produced the preview.
     if (window.hljs) {
       preview.querySelectorAll("pre code").forEach(function (block) {
         if (!block.dataset.highlighted) {

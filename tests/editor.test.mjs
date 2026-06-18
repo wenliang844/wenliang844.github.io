@@ -304,6 +304,40 @@ test("editor.js preview updates when markdown input changes", async () => {
   dom.window.close();
 });
 
+test("editor.js highlights rendered code blocks without deprecated marked highlight option", async () => {
+  const dom = new JSDOM(EDITOR_HTML, {
+    runScripts: "outside-only",
+    url: "https://wenliang844.github.io/editor/",
+  });
+  const setOptionsCalls = [];
+  const highlighted = [];
+  dom.window.marked = {
+    setOptions(options) {
+      setOptionsCalls.push(options);
+    },
+    parse() {
+      return '<pre><code class="language-js">const x = 1;</code></pre>';
+    },
+  };
+  dom.window.hljs = {
+    highlightElement(block) {
+      highlighted.push(block);
+      block.classList.add("hljs");
+    },
+  };
+
+  await loadEditor(dom);
+
+  assert.equal(setOptionsCalls.length, 1);
+  assert.equal(setOptionsCalls[0].gfm, true);
+  assert.equal(setOptionsCalls[0].breaks, true);
+  assert.equal(Object.hasOwn(setOptionsCalls[0], "highlight"), false);
+  assert.equal(highlighted.length, 1);
+  assert.equal(highlighted[0].dataset.highlighted, "yes");
+  assert.ok(dom.window.document.getElementById("markdown-preview").querySelector("code.hljs"));
+  dom.window.close();
+});
+
 // ─── Stats display ────────────────────────────────────────────────────────
 
 test("editor.js stats shows word and character count", async () => {
