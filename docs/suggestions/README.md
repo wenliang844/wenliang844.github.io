@@ -25,7 +25,7 @@
 |--------|------|------|----------|
 | 🔴 第一 | Bug 与风险 | [bugs-and-risks.md](bugs-and-risks.md) | 12（中 1 / 低 0 / 已修复 11） |
 | 🔴 第一 | 安全审计 | [security-audit.md](security-audit.md) | 11（高 1 / 中 1 / 低 4 / 无 2 / 已修复 3） |
-| 🔴 第一 | 性能瓶颈 | [performance-bottlenecks.md](performance-bottlenecks.md) | 12（中 3 / 低 4 / 部分 1 / 已修复 4） |
+| 🔴 第一 | 性能瓶颈 | [performance-bottlenecks.md](performance-bottlenecks.md) | 12（中 3 / 低 3 / 部分 1 / 已修复 5） |
 | 🟡 第二 | 代码质量 | [code-quality.md](code-quality.md) | 10（中 2 / 低 2 / 已修复 6） |
 | 🟡 第二 | 架构评审 | [architecture-review.md](architecture-review.md) | 7（中 3 / 低 4） |
 | 🟡 第二 | 技术债务 | [tech-debt.md](tech-debt.md) | 10（中 2 / 低 7 / 已修复 1） |
@@ -105,6 +105,7 @@
 已完成：MR-JS-05 `giscus.js` observer 清理改用 `pagehide`，避免 `unload` 影响 bfcache。
 已完成：P-10 全站补齐第三方 resource hints，并新增已提交 HTML 扫描回归测试。
 部分完成：P-11 Markdown 正文图片构建期补齐 `loading="lazy"` 与 `decoding="async"`，图片尺寸注入留作后续。
+已完成：P-08 `coder.js` resize 阅读进度更新改用独立 200ms throttle，避免复用 scroll 节流状态。
 
 ### 🥈 高价值中成本（建议近期规划）
 

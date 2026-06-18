@@ -516,3 +516,12 @@ test("coder.js cursor particles remove expired items without splice", async () =
   assert.match(code, /particles\[index\]\s*=\s*particles\[particles\.length - 1\]/, "should use swap-and-pop removal");
   assert.match(code, /particles\.pop\(\)/, "should pop the swapped tail particle");
 });
+
+test("coder.js uses an independent throttle for resize progress updates", async () => {
+  const code = await readFile(join(ROOT, "js", "coder.js"), "utf8");
+
+  assert.match(code, /RESIZE_THROTTLE:\s*200/, "resize should have its own throttle interval");
+  assert.match(code, /const throttledResize =[\s\S]*?CWLUtils\.throttle\(onScroll, SCROLL_CONSTANTS\.RESIZE_THROTTLE\)/);
+  assert.match(code, /addEventListener\("resize", throttledResize\)/);
+  assert.doesNotMatch(code, /addEventListener\("resize", throttledScroll\)/);
+});

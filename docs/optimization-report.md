@@ -6537,3 +6537,42 @@
 
 - 运行全量质量门禁并提交第五十三轮性能优化。
 - 继续处理不触碰 `assistant.js` 外部改动的低风险性能、工程化或 UX 项。
+
+## 第 191 轮：阅读进度 resize 独立节流
+
+时间：2026-06-19
+
+### 已完成内容
+
+- 在 `js/coder.js` 中为阅读进度、返回顶部和 TOC active 更新的 resize 路径新增独立 `RESIZE_THROTTLE`。
+- 将 resize 监听从复用 `throttledScroll` 改为绑定 `throttledResize`，保留 scroll 的 100ms 节流，同时让窗口尺寸变化使用 200ms 节流。
+- 扩展 `tests/coder-deep.test.mjs`，新增源码守卫，防止 resize 重新绑定到 `throttledScroll`。
+- 更新 P-08、建议索引、健康评分、工作报告和本轮工作报告。
+
+### 发现的问题
+
+- `scroll` 和 `resize` 原先共用同一个 throttled handler，窗口拖拽时会以滚动路径的 100ms 节流频率更新阅读进度和 TOC。
+- 共用同一个 throttle 实例也会让 resize 与 scroll 共享节流状态，两个事件序列在临界时可能互相影响尾随调用。
+- 原测试覆盖了滚动功能和工具函数 throttle，但没有约束 `coder.js` 对 resize 的具体绑定方式。
+
+### 修复方案
+
+- 增加 `SCROLL_CONSTANTS.RESIZE_THROTTLE = 200`，为 resize 生成独立 `throttledResize`。
+- `scroll` 继续使用 passive 监听和 100ms throttle，resize 使用独立 200ms throttle。
+- 用源码测试同时确认 `RESIZE_THROTTLE`、`throttledResize` 绑定和禁止 `resize -> throttledScroll` 回退。
+
+### 性能、安全与质量指标
+
+- `node --test tests/coder-deep.test.mjs tests/coder.test.mjs tests/js-behavior.test.mjs tests/performance.test.mjs`：87 个 coder、JS 行为与性能测试全部通过。
+- `npm run lint:check`：通过。
+- `npm test`：585 个测试全部通过。
+- `npm run build`：通过，成功生成 6 篇文章页面。
+- `npm run validate:production`：33 项检查通过，0 失败，0 警告。
+- `npm run test:coverage`：585 个测试全部通过；行覆盖率 93.37%，分支覆盖率 75.76%，函数覆盖率 91.09%，均高于覆盖率阈值。
+- `npm audit --audit-level=moderate --registry=https://registry.npmjs.org`：0 个中高危漏洞。
+- 性能收益：窗口拖拽时减少阅读进度、返回顶部和 TOC active 更新频率，并避免 resize 与 scroll 共用节流状态。
+
+### 下一步计划
+
+- 运行全量质量门禁并提交第五十四轮性能优化。
+- 继续处理不触碰 `assistant.js` 外部改动的低风险性能、工程化或 UX 项。

@@ -184,7 +184,8 @@
   const SCROLL_CONSTANTS = {
     BACK_TO_TOP_THRESHOLD: 420,    // 显示返回顶部按钮的滚动距离
     TOC_OFFSET: 125,                // TOC 激活偏移量
-    SCROLL_THROTTLE: 100            // 滚动事件节流时间（毫秒）
+    SCROLL_THROTTLE: 100,           // 滚动事件节流时间（毫秒）
+    RESIZE_THROTTLE: 200            // resize 事件节流时间（毫秒）
   };
 
   function clamp(value, min, max) {
@@ -220,9 +221,12 @@
   const throttledScroll = window.CWLUtils
     ? window.CWLUtils.throttle(onScroll, SCROLL_CONSTANTS.SCROLL_THROTTLE)
     : onScroll;
+  const throttledResize = window.CWLUtils
+    ? window.CWLUtils.throttle(onScroll, SCROLL_CONSTANTS.RESIZE_THROTTLE)
+    : onScroll;
 
   window.addEventListener("scroll", throttledScroll, { passive: true });
-  window.addEventListener("resize", throttledScroll);
+  window.addEventListener("resize", throttledResize);
   onScroll();
   body.classList.add("to-top-ready");
 

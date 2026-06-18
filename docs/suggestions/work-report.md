@@ -42,7 +42,7 @@
 ## 测试状态
 
 ```
-✔ 584+ 测试通过（0 失败）
+✔ 585+ 测试通过（0 失败）
 ✔ ESLint 0 错误
 ✔ 构建成功（6 篇文章）
 ```
@@ -83,6 +83,7 @@
 21. ✅ **giscus 清理事件**：已将 observer 清理从 `unload` 改为 bfcache 友好的 `pagehide`
 22. ✅ **第三方资源提示缺失**：已为评论、订阅和赞助域名补齐 resource hints，并用全站 HTML 扫描防回退
 23. 🟨 **Markdown 正文图片加载提示**：已在构建期补齐 `loading="lazy"` 与 `decoding="async"`，尺寸属性仍待后续注入
+24. ✅ **resize 更新复用 scroll 节流**：已为阅读进度 resize 路径拆出独立 200ms throttle，减少窗口拖拽时的重绘压力
 
 ---
 

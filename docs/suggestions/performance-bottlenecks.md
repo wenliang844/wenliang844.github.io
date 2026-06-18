@@ -123,23 +123,12 @@
 
 ---
 
-## 📌 P-08: `coder.js` 滚动事件已节流但 `resize` 事件未节流
+## 📌 P-08 [已修复]: `coder.js` 滚动事件已节流但 `resize` 事件未节流
 
-- **📍 位置**：`js/coder.js:165-166`
-- **📝 当前状况**：
-  ```javascript
-  window.addEventListener("scroll", throttledScroll, { passive: true });
-  window.addEventListener("resize", throttledScroll);
-  ```
-  `scroll` 事件使用了 `throttle` 节流（100ms），但 `resize` 事件直接绑定同一个函数，没有独立节流。窗口拖拽时 resize 事件可能每秒触发 60+ 次。
-- **⚠️ 影响程度**：低
-- **💡 建议方案**：
-  ```javascript
-  window.addEventListener("resize", window.CWLUtils
-    ? window.CWLUtils.throttle(onScroll, 200)
-    : onScroll);
-  ```
-- **📊 预期收益**：窗口拖拽时减少不必要的重绘
+- **📍 原位置**：`js/coder.js` 阅读进度条与返回顶部滚动处理
+- **✅ 修复状态**：`resize` 已拆成独立 `throttledResize`，使用 `SCROLL_CONSTANTS.RESIZE_THROTTLE = 200`，不再复用 100ms 的 `throttledScroll`。
+- **🧪 回归测试**：`tests/coder-deep.test.mjs` 新增源码守卫，确认 resize 使用独立节流并禁止回退到 `addEventListener("resize", throttledScroll)`。
+- **📊 实际收益**：窗口拖拽时降低阅读进度、返回顶部和 TOC active 更新频率，并避免 resize 与 scroll 共用节流状态。
 - **🔗 相关建议**：[B-01](bugs-and-risks.md#b-01)
 
 ---
@@ -188,7 +177,7 @@
 | 🥈 中 | P-04 | CSS 体积减小 | 中 |
 | 🥈 中 | P-07 | 列表页渲染优化 | 低 |
 | 🥉 低 | P-06 | 搜索体验提升 | 低 |
-| 🥉 低 | P-08 | resize 性能 | 低 |
+| ✅ 已修复 | P-08 | resize 独立节流 | 低 |
 | 🥉 低 | P-10 | 第三方连接优化 | 低 |
 | 🟨 部分 | P-11 | 图片加载优化已完成，尺寸预留待补齐 | 低 |
 | 📋 预防 | P-05 | 未来扩展准备 | — |
