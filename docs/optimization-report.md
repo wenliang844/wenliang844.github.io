@@ -5042,3 +5042,44 @@
 
 - 提交第十六轮代码质量优化。
 - 继续评估剩余重复逻辑或更高收益的安全配置改进。
+
+## 第 154 轮：补充全站 meta CSP
+
+时间：2026-06-18
+
+### 已完成内容
+
+- 在 `src/templates/layout.mjs` 增加共享 Content Security Policy meta 策略。
+- 重新构建模板生成页，使所有构建产物带上 CSP。
+- 为 404、首页、关于、联系、编辑器和 Overleaf 等手写 HTML 页面补齐同款 CSP。
+- 新增全站 HTML 扫描测试，确认每个已提交 HTML 都包含 CSP 且保留关键指令。
+- 更新 S-05、安全索引、健康评分和本报告。
+
+### 发现的问题
+
+- GitHub Pages 静态托管无法直接配置响应头，项目此前没有 CSP 防护。
+- 首次模板层修复后，安全测试发现 6 个手写 HTML 页面未经过构建模板，仍缺少 CSP。
+- `frame-ancestors` 不能通过 meta CSP 生效，因此不应写入 meta 策略造成误导。
+
+### 修复方案
+
+- 使用 meta CSP 覆盖 GitHub Pages 可支持的资源加载约束：`default-src 'self'`、`object-src 'none'`、`base-uri 'self'`、`script-src` 限定站内和 giscus、`frame-src` 限定 giscus、`form-action` 限定站内/Buttondown/Web3Forms。
+- `connect-src` 保留 `https:`，兼容 AI 助手用户自定义 HTTPS API 端点。
+- `style-src 'unsafe-inline'` 保留，兼容当前运行时样式属性；后续若迁移到外部样式或 nonce，可继续收紧。
+
+### 性能、安全与质量指标
+
+- `npm run build`：通过，成功生成 6 篇文章页面。
+- `node --test tests/templates.test.mjs tests/security-extended.test.mjs tests/integration.test.mjs tests/links.test.mjs`：29 个测试全部通过。
+- `npx eslint js/*.js`：通过。
+- `npm test`：536 个测试全部通过，耗时约 7.60 秒。
+- `npm run validate:production`：33 项检查通过，0 失败，0 警告。
+- `node --test tests/performance.test.mjs`：13 个性能测试全部通过。
+- `npm run test:coverage`：536 个测试全部通过；行覆盖率 92.71%，分支覆盖率 74.95%，函数覆盖率 89.33%。
+- `npm audit --audit-level=moderate --registry=https://registry.npmjs.org`：0 个中高危漏洞。
+- 安全收益：全站默认资源加载来源被显式约束，禁止 object 插件加载，降低 XSS 后续利用面。
+
+### 下一步计划
+
+- 提交第十七轮安全优化。
+- 继续评估剩余安全项或性能瓶颈。

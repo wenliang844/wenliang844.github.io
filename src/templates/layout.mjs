@@ -38,6 +38,19 @@ export const SPONSOR_LINKS = {
   paypal: "https://PayPal.Me/chenwenliang4212",
 };
 
+const CONTENT_SECURITY_POLICY = [
+  "default-src 'self'",
+  "base-uri 'self'",
+  "object-src 'none'",
+  "script-src 'self' 'unsafe-inline' https://giscus.app",
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data: https:",
+  "font-src 'self' data:",
+  "connect-src 'self' https:",
+  "frame-src https://giscus.app",
+  "form-action 'self' https://buttondown.com https://api.web3forms.com",
+].join("; ");
+
 // 渲染主导航；active 标记当前栏目。
 function renderNavItem(item, active, indent = "          ") {
   const classes = [item.key === active ? "active" : "", item.className || ""].filter(Boolean).join(" ");
@@ -168,6 +181,7 @@ export function renderPage(opts) {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="${escapeAttr(CONTENT_SECURITY_POLICY)}">
   <meta name="description" content="${escapeAttr(description)}">
   <link rel="icon" href="/images/favicon.png" type="image/png">
   <link rel="preconnect" href="https://giscus.app">

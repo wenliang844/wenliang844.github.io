@@ -187,6 +187,37 @@ test("all script tags with src have defer attribute", async () => {
 
 // ─── 内容安全策略检查 ─────────────────────────────────────────────────────────
 
+test("committed HTML files include the shared Content Security Policy", async () => {
+  const files = await htmlFiles();
+  const missing = [];
+  const incomplete = [];
+
+  for (const file of files) {
+    const html = await readFile(join(ROOT, file), "utf8");
+    const match = html.match(/<meta http-equiv="Content-Security-Policy" content="([^"]+)">/);
+    if (!match) {
+      missing.push(file);
+      continue;
+    }
+
+    const policy = match[1];
+    for (const directive of [
+      "default-src 'self'",
+      "object-src 'none'",
+      "script-src 'self' 'unsafe-inline' https://giscus.app",
+      "connect-src 'self' https:",
+      "frame-src https://giscus.app",
+    ]) {
+      if (!policy.includes(directive)) {
+        incomplete.push(`${file}: missing ${directive}`);
+      }
+    }
+  }
+
+  assert.deepEqual(missing, [], "HTML files missing CSP meta tag");
+  assert.deepEqual(incomplete, [], "HTML files with incomplete CSP directives");
+});
+
 test("no HTML files contain data: protocol in href attributes", async () => {
   const files = await htmlFiles();
   const violations = [];

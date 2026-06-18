@@ -33,6 +33,10 @@ test("layout escapes title and metadata", () => {
   assert.match(html, /property="og:title" content="OG &lt;title&gt;"/);
   assert.match(html, /href="\/tools\/" data-i18n="nav.tools">工具箱<\/a>/);
   assert.match(html, /src="\/js\/assistant\.js"/);
+  assert.match(html, /http-equiv="Content-Security-Policy"/);
+  assert.match(html, /object-src 'none'/);
+  assert.match(html, /frame-src https:\/\/giscus\.app/);
+  assert.match(html, /connect-src 'self' https:/);
 });
 
 test("post template escapes front matter text while preserving article HTML", () => {

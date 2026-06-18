@@ -101,26 +101,19 @@
 
 ---
 
-## 📌 S-05: 缺少 Content Security Policy (CSP) 头
+## 📌 S-05 [已修复]: 缺少 Content Security Policy (CSP) 头
 
-- **📍 位置**：所有 HTML 页面
-- **📝 当前状况**：站点没有设置 CSP 响应头。对于 GitHub Pages 托管的静态站点，无法在服务器层面设置 HTTP 头，但可以通过 `<meta http-equiv="Content-Security-Policy">` 标签实现。
-- **⚠️ 影响程度**：中
-- **💡 建议方案**：在 `<head>` 中添加 CSP meta 标签：
+- **📍 位置**：所有 HTML 页面、`src/templates/layout.mjs`
+- **✅ 修复状态**：模板生成页和手写 HTML 页面已统一添加 `<meta http-equiv="Content-Security-Policy">`。
+- **🧪 回归测试**：`tests/security-extended.test.mjs` 新增全站 HTML 扫描，确认每个已提交 HTML 都包含共享 CSP 且保留关键指令。
+- **⚠️ 原影响程度**：中
+- **🛡️ 当前策略**：
   ```html
-  <meta http-equiv="Content-Security-Policy" content="
-    default-src 'self';
-    script-src 'self' 'unsafe-inline' https://giscus.app https://buttondown.com;
-    style-src 'self' 'unsafe-inline';
-    img-src 'self' https: data:;
-    connect-src 'self' https://buttondown.com https://api.web3forms.com;
-    frame-src https://giscus.app;
-    font-src 'self';
-  ">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' 'unsafe-inline' https://giscus.app; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https:; frame-src https://giscus.app; form-action 'self' https://buttondown.com https://api.web3forms.com">
   ```
-  注意：当前内联脚本（主题切换、错误处理样式）需要 `'unsafe-inline'`，长期应迁移到外部文件或 nonce 机制。
+  说明：`connect-src` 保留 `https:` 以兼容 AI 助手用户自定义 HTTPS API 端点；`style-src 'unsafe-inline'` 用于兼容现有运行时样式属性。`frame-ancestors` 不能通过 meta CSP 生效，未来若迁移到可配置 HTTP header 的托管平台，可在响应头中补充。
 
-- **📊 预期收益**：防御 XSS 注入，限制外部资源加载
+- **📊 实际收益**：限制默认资源加载来源，禁止插件对象加载，约束 giscus iframe 和表单提交目标，降低 XSS 后续扩展面。
 - **🔗 相关建议**：[S-01](#s-01), [TD-02](tech-debt.md#td-02)
 
 ---
