@@ -26,6 +26,7 @@ test("build writes the expected static artifacts", async () => {
     const postsHtml = await readFile(join(outDir, "post", "index.html"), "utf8");
     const singlePostHtml = await readFile(join(outDir, "post", "manage-system", "index.html"), "utf8");
     const appreciationHtml = await readFile(join(outDir, "appreciation", "index.html"), "utf8");
+    const toolsHtml = await readFile(join(outDir, "tools", "index.html"), "utf8");
     const sitemap = await readFile(join(outDir, "sitemap.xml"), "utf8");
     const rss = await readFile(join(outDir, "index.xml"), "utf8");
     const searchIndex = JSON.parse(await readFile(join(outDir, "search-index.json"), "utf8"));
@@ -71,6 +72,13 @@ test("build writes the expected static artifacts", async () => {
     assert.match(sitemap, /<urlset /);
     assert.match(sitemap, /xmlns:image="http:\/\/www\.google\.com\/schemas\/sitemap-image\/1\.1"/);
     assert.match(sitemap, /<loc>https:\/\/wenliang844.github.io\/about\/<\/loc>/);
+    assert.match(sitemap, /<loc>https:\/\/wenliang844.github.io\/tools\/<\/loc>/);
+    assert.match(toolsHtml, /在线工具箱/);
+    assert.match(toolsHtml, /JSON 格式化/);
+    assert.match(toolsHtml, /JWT 解码/);
+    assert.match(toolsHtml, /\/js\/tools-core\.js/);
+    assert.match(toolsHtml, /\/js\/tools\.js/);
+    assert.match(toolsHtml, /\/js\/assistant\.js/);
     // 单篇页：阅读时长占位、JSON-LD Article、相关文章、下一篇浮动卡。
     assert.match(singlePostHtml, /class="reading-time"/);
     assert.match(singlePostHtml, /<script type="application\/ld\+json">/);
@@ -82,6 +90,7 @@ test("build writes the expected static artifacts", async () => {
     assert.doesNotMatch(rss, /Hugo/);
     assert.equal(searchIndex.filter((item) => item.type === "post").length, 6);
     assert.ok(searchIndex.some((item) => item.path === "/about/" && item.summary.includes("CWL")));
+    assert.ok(searchIndex.some((item) => item.path === "/tools/" && item.summary.includes("JSON")));
     assert.ok(searchIndex.some((item) => item.path === "/appreciation/" && item.summary.includes("娱乐项目")));
     assert.ok(searchIndex.every((item) => item.path && !item.path.includes("\\")));
   } finally {

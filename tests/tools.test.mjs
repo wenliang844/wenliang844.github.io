@@ -1,0 +1,144 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
+import { JSDOM } from "jsdom";
+import { renderToolsPage } from "../src/templates/tools.mjs";
+
+const ROOT = join(import.meta.dirname, "..");
+
+async function loadToolsCore() {
+  const code = await readFile(join(ROOT, "js", "tools-core.js"), "utf8");
+  const dom = new JSDOM("<!doctype html><html><body></body></html>", {
+    runScripts: "outside-only",
+    url: "https://wenliang844.github.io/tools/",
+  });
+  dom.window.eval(code);
+  return dom.window.CWLToolsCore;
+}
+
+async function loadToolsPage() {
+  const coreCode = await readFile(join(ROOT, "js", "tools-core.js"), "utf8");
+  const toolsCode = await readFile(join(ROOT, "js", "tools.js"), "utf8");
+  let copiedText = null;
+  const dom = new JSDOM(renderToolsPage(), {
+    pretendToBeVisual: true,
+    runScripts: "outside-only",
+    url: "https://wenliang844.github.io/tools/",
+  });
+  dom.window.eval(coreCode);
+  dom.window.CWLUtils = {
+    copyText(value) {
+      copiedText = value;
+      return Promise.resolve();
+    },
+  };
+  dom.window.eval(toolsCode);
+  return {
+    copiedText() {
+      return copiedText;
+    },
+    dom,
+  };
+}
+
+test("tools core formats and minifies JSON with clear errors", async () => {
+  const tools = await loadToolsCore();
+  const formatted = tools.formatJson('{"name":"CWL"}');
+  assert.equal(formatted.ok, true);
+  assert.equal(formatted.value, '{\n  "name": "CWL"\n}');
+  const minified = tools.minifyJson('{"name":"CWL"}');
+  assert.equal(minified.ok, true);
+  assert.equal(minified.value, '{"name":"CWL"}');
+  assert.equal(tools.formatJson("{bad").ok, false);
+  assert.match(tools.formatJson("{bad").error, /JSON 解析失败/);
+});
+
+test("tools core handles Base64, URL, timestamps, UUID and JWT", async () => {
+  const tools = await loadToolsCore();
+  const encoded = tools.encodeBase64("你好 Codex");
+  assert.equal(encoded.ok, true);
+  const decodedBase64 = tools.decodeBase64(encoded.value);
+  assert.equal(decodedBase64.ok, true);
+  assert.equal(decodedBase64.value, "你好 Codex");
+  assert.equal(tools.decodeBase64("%%bad").ok, false);
+
+  const encodedUrl = tools.encodeUrl("a b/中文");
+  assert.equal(encodedUrl.ok, true);
+  assert.equal(encodedUrl.value, "a%20b%2F%E4%B8%AD%E6%96%87");
+  const decodedUrl = tools.decodeUrl("a%20b%2F%E4%B8%AD%E6%96%87");
+  assert.equal(decodedUrl.ok, true);
+  assert.equal(decodedUrl.value, "a b/中文");
+  assert.equal(tools.decodeUrl("%E0%A4%A").ok, false);
+
+  const timestamp = tools.normalizeTimestamp("1718697600");
+  assert.equal(timestamp.ok, true);
+  assert.equal(timestamp.value.seconds, 1718697600);
+  assert.equal(timestamp.value.milliseconds, 1718697600000);
+  assert.equal(tools.dateToTimestamp("2026-06-18T00:00:00").ok, true);
+  assert.match(tools.generateUuid(), /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i);
+
+  const jwt = [
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9",
+    "eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkNXTCJ9",
+    "signature",
+  ].join(".");
+  const decoded = tools.decodeJwt(jwt);
+  assert.equal(decoded.ok, true);
+  assert.match(decoded.value.header, /"typ": "JWT"/);
+  assert.match(decoded.value.payload, /"name": "CWL"/);
+  assert.equal(tools.decodeJwt("bad").ok, false);
+});
+
+test("tools tabs expose selected state and support keyboard navigation", async () => {
+  const { dom } = await loadToolsPage();
+  const { document, KeyboardEvent } = dom.window;
+  try {
+    const jsonTab = document.querySelector('[data-tool-tab="json"]');
+    const timeTab = document.querySelector('[data-tool-tab="time"]');
+    const jwtTab = document.querySelector('[data-tool-tab="jwt"]');
+
+    assert.equal(document.querySelector(".tools-tabs").getAttribute("role"), "tablist");
+    assert.equal(jsonTab.getAttribute("role"), "tab");
+    assert.equal(document.querySelector("#tool-json").getAttribute("role"), "tabpanel");
+    assert.equal(jsonTab.getAttribute("aria-selected"), "true");
+    assert.equal(timeTab.getAttribute("aria-selected"), "false");
+
+    jsonTab.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true, cancelable: true }));
+    assert.equal(timeTab.getAttribute("aria-selected"), "true");
+    assert.equal(document.querySelector("#tool-time").hidden, false);
+    assert.equal(document.querySelector("#tool-json").hidden, true);
+
+    timeTab.dispatchEvent(new KeyboardEvent("keydown", { key: "End", bubbles: true, cancelable: true }));
+    assert.equal(jwtTab.getAttribute("aria-selected"), "true");
+    assert.equal(document.querySelector("#tool-jwt").hidden, false);
+  } finally {
+    dom.window.close();
+  }
+});
+
+test("uuid placeholder is not copied and generated UUID survives i18n updates", async () => {
+  const { copiedText, dom } = await loadToolsPage();
+  const { document } = dom.window;
+  try {
+    document.querySelector('[data-tool-tab="uuid"]').click();
+    document.querySelector('[data-copy-target="uuid-output"]').click();
+    await Promise.resolve();
+
+    assert.equal(copiedText(), null);
+    assert.equal(document.querySelector("#uuid-status").classList.contains("is-error"), true);
+    assert.match(document.querySelector("#uuid-status").textContent, /没有可复制的内容/);
+
+    document.querySelector("[data-uuid-generate]").click();
+    const generated = document.querySelector("#uuid-output").textContent;
+    assert.match(generated, /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i);
+    assert.equal(document.querySelector("#uuid-output").hasAttribute("data-empty"), false);
+    assert.equal(document.querySelector("#uuid-output").hasAttribute("data-i18n"), false);
+
+    document.querySelector('[data-copy-target="uuid-output"]').click();
+    await Promise.resolve();
+    assert.equal(copiedText(), generated);
+  } finally {
+    dom.window.close();
+  }
+});

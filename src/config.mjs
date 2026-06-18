@@ -23,6 +23,7 @@ export const STATIC_PAGES = [
   { path: "/", withDate: true, priority: 0 },
   { path: "/about/", withDate: true },
   { path: "/post/", withDate: true, insertPostsAfter: true },
+  { path: "/tools/", withDate: true },
   { path: "/editor/", withDate: true },
   { path: "/overleaf/", withDate: true },
   { path: "/contact/", withDate: true },
@@ -55,6 +56,13 @@ export const SEARCH_PAGES = [
     path: "/ai/",
     tags: ["AI", "工具", "导航"],
     i18n: { en: { title: "AI Navigation", summary: "A categorized directory of frequently used AI websites and tools.", tags: ["AI", "Tools", "Navigation"] } },
+  },
+  {
+    title: "在线工具箱",
+    summary: "浏览器本地运行的开发工具箱：JSON 格式化、时间戳转换、Base64、URL 编解码、UUID 生成器和 JWT 解码。",
+    path: "/tools/",
+    tags: ["工具", "JSON", "时间戳", "Base64", "URL", "UUID", "JWT"],
+    i18n: { en: { title: "Toolbox", summary: "Browser-only developer toolbox for JSON formatting, timestamp conversion, Base64, URL codec, UUID generation and JWT decoding.", tags: ["Tool", "JSON", "Timestamp", "Base64", "URL", "UUID", "JWT"] } },
   },
   {
     title: "Editor",

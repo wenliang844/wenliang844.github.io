@@ -31,6 +31,8 @@ test("layout escapes title and metadata", () => {
   assert.match(html, /<title>Unsafe &lt;title&gt;<\/title>/);
   assert.match(html, /<meta name="description" content="bad &quot;description&quot; &lt;tag&gt;">/);
   assert.match(html, /property="og:title" content="OG &lt;title&gt;"/);
+  assert.match(html, /href="\/tools\/" data-i18n="nav.tools">工具箱<\/a>/);
+  assert.match(html, /src="\/js\/assistant\.js"/);
 });
 
 test("post template escapes front matter text while preserving article HTML", () => {

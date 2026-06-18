@@ -67,6 +67,7 @@ test("HTML files load common scripts in a consistent order", async () => {
     "/js/i18n.js",
     "/js/coder.js",
     "/js/search-loader.js",
+    "/js/assistant.js",
   ];
   const failures = [];
 

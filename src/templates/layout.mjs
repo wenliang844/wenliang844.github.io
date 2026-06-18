@@ -6,6 +6,7 @@ import { escapeAttr, escapeHtml } from "../lib/format.mjs";
 const NAV_ITEMS = [
   { href: "/post/", label: "博客", key: "blog", i18n: "nav.blog" },
   { href: "/ai/", label: "AI导航", key: "ai", i18n: "nav.ai" },
+  { href: "/tools/", label: "工具箱", key: "tools", i18n: "nav.tools" },
   { href: "/appreciation/", label: "鉴赏", key: "appreciation", i18n: "nav.appreciation" },
   { href: "/overleaf/", label: "简历模版", key: "overleaf", i18n: "nav.overleaf" },
   { href: "/editor/", label: "编辑器", key: "editor", i18n: "nav.editor" },
@@ -113,7 +114,7 @@ export function renderPage(opts) {
     jsonLd,
   } = opts;
 
-  const allScripts = ["/js/error-handler.js", "/js/utils.js", "/js/i18n.js", "/js/coder.js", "/js/search-loader.js", "/js/subscribe.js", ...scripts];
+  const allScripts = ["/js/error-handler.js", "/js/utils.js", "/js/i18n.js", "/js/coder.js", "/js/search-loader.js", "/js/subscribe.js", "/js/assistant.js", ...scripts];
   const meta = renderMeta(og);
   // JSON-LD 结构化数据：转义 "<" 防止 </script> 提前闭合脚本块。
   const jsonLdTag = jsonLd

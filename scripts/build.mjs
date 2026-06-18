@@ -18,6 +18,7 @@ import { renderPostPage, renderPostList } from "../src/templates/post.mjs";
 import { renderTagsPage } from "../src/templates/tags.mjs";
 import { renderCategoriesPage } from "../src/templates/categories.mjs";
 import { renderAiPage } from "../src/templates/ai.mjs";
+import { renderToolsPage } from "../src/templates/tools.mjs";
 import { renderAppreciationPage } from "../src/templates/appreciation.mjs";
 import { renderSponsorPage } from "../src/templates/sponsor.mjs";
 import { escapeXml, rfc822, sitemapDate } from "../src/lib/format.mjs";
@@ -516,6 +517,9 @@ async function main() {
 
   // AI 导航页
   await writeFileEnsured("ai/index.html", renderAiPage() + "\n");
+
+  // 在线工具箱
+  await writeFileEnsured("tools/index.html", renderToolsPage() + "\n");
 
   // 鉴赏页
   await writeFileEnsured("appreciation/index.html", renderAppreciationPage() + "\n");

@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="CWLBlog 在线工具箱：JSON 格式化、时间戳转换、Base64、URL 编解码、UUID 生成器和 JWT 解码。">
+  <link rel="icon" href="/images/favicon.png" type="image/png">
+  <link rel="preconnect" href="https://giscus.app">
+  <link rel="dns-prefetch" href="https://giscus.app">
+  <link rel="stylesheet" href="/css/fontawesome-all.min.css">
+  <link rel="stylesheet" href="/css/coder.css">
+  <script src="/js/error-handler.js" defer></script>
+  <script src="/js/utils.js" defer></script>
+  <script src="/js/i18n.js" defer></script>
+  <script src="/js/coder.js" defer></script>
+  <script src="/js/search-loader.js" defer></script>
+  <script src="/js/subscribe.js" defer></script>
+  <script src="/js/assistant.js" defer></script>
+  <script src="/js/tools-core.js" defer></script>
+  <script src="/js/tools.js" defer></script>
+  <link rel="canonical" href="https://wenliang844.github.io/tools/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="CWLBlog">
+  <meta property="og:title" content="在线工具箱 :: CWLBlog">
+  <meta property="og:description" content="JSON、时间戳、Base64、URL、UUID 与 JWT 等常用开发工具。">
+  <meta property="og:url" content="https://wenliang844.github.io/tools/">
+  <meta property="og:image" content="https://wenliang844.github.io/images/favicon.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://wenliang844.github.io/images/favicon.png">
+  <meta name="twitter:title" content="在线工具箱 :: CWLBlog">
+  <meta name="twitter:description" content="JSON、时间戳、Base64、URL、UUID 与 JWT 等常用开发工具。">
+  <title>在线工具箱 :: CWLBlog</title>
+</head>
+<body class="colorscheme-dark" data-i18n-page="tools" data-i18n-title-en="Toolbox :: CWLBlog" data-i18n-desc-en="CWLBlog online toolbox: JSON formatting, timestamp conversion, Base64, URL codec, UUID generator and JWT decoder.">
+  <div class="cursor-glow" aria-hidden="true"></div>
+  <canvas class="cursor-canvas" aria-hidden="true"></canvas>
+  <div class="site-shell">
+    <header class="navigation">
+      <section class="container">
+        <a class="navigation-title" href="/">CWLBlog</a>
+        <input type="checkbox" id="menu-toggle" class="menu-toggle" aria-label="Toggle menu" data-i18n-aria="nav.menu">
+        <label class="menu-button" for="menu-toggle"><i class="fas fa-bars"></i></label>
+        <nav class="navigation-list" aria-label="Main navigation" data-i18n-aria="nav.main">
+          <ul>
+          <li><a href="/post/" data-i18n="nav.blog">博客</a></li>
+          <li><a href="/ai/" data-i18n="nav.ai">AI导航</a></li>
+          <li><a class="active" href="/tools/" data-i18n="nav.tools">工具箱</a></li>
+          <li><a href="/appreciation/" data-i18n="nav.appreciation">鉴赏</a></li>
+          <li><a href="/overleaf/" data-i18n="nav.overleaf">简历模版</a></li>
+          <li><a href="/editor/" data-i18n="nav.editor">编辑器</a></li>
+          <li><a href="/about/" data-i18n="nav.about">关于</a></li>
+            <li><a class="nav-feedback" href="/contact/#feedback-title" data-i18n="nav.feedback" data-i18n-html><i class="fas fa-comment-dots" aria-hidden="true"></i> 留言反馈</a></li>
+            <li><button class="nav-subscribe" type="button" data-subscribe-open data-i18n="nav.subscribe" data-i18n-html><i class="fas fa-envelope" aria-hidden="true"></i> 订阅</button></li>
+            <li><a class="nav-sponsor" href="/sponsor/" data-i18n="nav.sponsor" data-i18n-html><i class="fas fa-heart" aria-hidden="true"></i> 赞助</a></li>
+            <li><button class="theme-toggle" type="button" aria-label="Toggle dark mode" data-i18n-aria="nav.theme"><i class="fas fa-adjust"></i></button></li>
+            <li><button class="lang-toggle" type="button" aria-label="Switch language">EN</button></li>
+            <li><button class="nav-search-trigger" type="button" aria-label="全局搜索" data-i18n-aria="nav.search"><i class="fas fa-search"></i></button></li>
+          </ul>
+        </nav>
+      </section>
+    </header>
+    <main class="content">
+      <section class="tools-page container">
+        <header class="tools-header">
+          <span class="eyebrow" data-i18n="tools.eyebrow" data-i18n-en-html='<i class="fas fa-toolbox" aria-hidden="true"></i> Online Toolbox' data-i18n-html><i class="fas fa-toolbox" aria-hidden="true"></i> Online Toolbox</span>
+          <h1 data-i18n="tools.h1" data-i18n-en="Toolbox">在线工具箱</h1>
+          <p class="lead" data-i18n="tools.lead" data-i18n-en="Useful browser-only tools for JSON, timestamps, Base64, URLs, UUID and JWT decoding.">常用开发小工具，全部在浏览器本地运行，不依赖后端。</p>
+        </header>
+        <div class="tools-shell">
+          <nav class="tools-tabs" role="tablist" aria-label="工具列表">
+            <button class="tool-tab active" id="tool-tab-json" type="button" role="tab" data-tool-tab="json" aria-controls="tool-json" aria-label="JSON 格式化" aria-selected="true" tabindex="0" data-i18n-aria="tools.nav.json" data-i18n-en-aria="JSON Formatter" aria-current="true">
+              <i class="fas fa-code" aria-hidden="true"></i>
+              <span data-i18n="tools.nav.json" data-i18n-en="JSON Formatter">JSON 格式化</span>
+            </button>
+            <button class="tool-tab" id="tool-tab-time" type="button" role="tab" data-tool-tab="time" aria-controls="tool-time" aria-label="时间戳转换" aria-selected="false" tabindex="-1" data-i18n-aria="tools.nav.time" data-i18n-en-aria="Timestamp Converter">
+              <i class="fas fa-clock" aria-hidden="true"></i>
+              <span data-i18n="tools.nav.time" data-i18n-en="Timestamp Converter">时间戳转换</span>
+            </button>
+            <button class="tool-tab" id="tool-tab-base64" type="button" role="tab" data-tool-tab="base64" aria-controls="tool-base64" aria-label="Base64 编解码" aria-selected="false" tabindex="-1" data-i18n-aria="tools.nav.base64" data-i18n-en-aria="Base64 Codec">
+              <i class="fas fa-lock" aria-hidden="true"></i>
+              <span data-i18n="tools.nav.base64" data-i18n-en="Base64 Codec">Base64 编解码</span>
+            </button>
+            <button class="tool-tab" id="tool-tab-url" type="button" role="tab" data-tool-tab="url" aria-controls="tool-url" aria-label="URL 编解码" aria-selected="false" tabindex="-1" data-i18n-aria="tools.nav.url" data-i18n-en-aria="URL Codec">
+              <i class="fas fa-link" aria-hidden="true"></i>
+              <span data-i18n="tools.nav.url" data-i18n-en="URL Codec">URL 编解码</span>
+            </button>
+            <button class="tool-tab" id="tool-tab-uuid" type="button" role="tab" data-tool-tab="uuid" aria-controls="tool-uuid" aria-label="UUID 生成器" aria-selected="false" tabindex="-1" data-i18n-aria="tools.nav.uuid" data-i18n-en-aria="UUID Generator">
+              <i class="fas fa-fingerprint" aria-hidden="true"></i>
+              <span data-i18n="tools.nav.uuid" data-i18n-en="UUID Generator">UUID 生成器</span>
+            </button>
+            <button class="tool-tab" id="tool-tab-jwt" type="button" role="tab" data-tool-tab="jwt" aria-controls="tool-jwt" aria-label="JWT 解码" aria-selected="false" tabindex="-1" data-i18n-aria="tools.nav.jwt" data-i18n-en-aria="JWT Decoder">
+              <i class="fas fa-key" aria-hidden="true"></i>
+              <span data-i18n="tools.nav.jwt" data-i18n-en="JWT Decoder">JWT 解码</span>
+            </button>
+          </nav>
+          <div class="tools-panels">
+        <section class="tool-panel active" id="tool-json" data-tool-panel="json" role="tabpanel" aria-labelledby="tool-tab-json" tabindex="0">
+          <header class="tool-panel-head">
+            <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-code"></i></span>
+            <div>
+              <h2 data-i18n="tools.json.title" data-i18n-en="JSON Formatter">JSON 格式化</h2>
+              <p data-i18n="tools.json.desc" data-i18n-en="Format, minify and validate JSON text.">格式化、压缩和校验 JSON 文本。</p>
+            </div>
+          </header>
+          <div class="tool-grid">
+            <label class="tool-field"><span data-i18n="tools.label.jsonInput">输入 JSON</span>
+              <textarea id="json-input" spellcheck="false" placeholder='{"name":"CWLBlog"}'></textarea>
+            </label>
+            <label class="tool-field"><span data-i18n="tools.label.output">输出结果</span>
+              <textarea id="json-output" spellcheck="false" readonly></textarea>
+            </label>
+          </div>
+          <div class="tool-actions">
+            <button class="tool-btn primary" type="button" data-json-action="format" data-i18n="tools.btn.format" data-i18n-html><i class="fas fa-align-left" aria-hidden="true"></i> 格式化</button>
+            <button class="tool-btn" type="button" data-json-action="minify" data-i18n="tools.btn.minify" data-i18n-html><i class="fas fa-compress-alt" aria-hidden="true"></i> 压缩</button>
+            <button class="tool-btn" type="button" data-copy-target="json-output" data-i18n="tools.btn.copyResult" data-i18n-html><i class="fas fa-copy" aria-hidden="true"></i> 复制结果</button>
+          </div>
+          <p class="tool-status" id="json-status" role="status" aria-live="polite"></p>
+        </section>
+        <section class="tool-panel" id="tool-time" data-tool-panel="time" role="tabpanel" aria-labelledby="tool-tab-time" tabindex="0" hidden>
+          <header class="tool-panel-head">
+            <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-clock"></i></span>
+            <div>
+              <h2 data-i18n="tools.time.title" data-i18n-en="Timestamp Converter">时间戳转换</h2>
+              <p data-i18n="tools.time.desc" data-i18n-en="Convert seconds/milliseconds timestamps and local date time.">秒/毫秒时间戳与本地日期时间互转。</p>
+            </div>
+          </header>
+          <div class="time-now">
+            <span data-i18n="tools.label.now">当前时间戳</span>
+            <strong id="time-now-ms">-</strong>
+            <small id="time-now-local">-</small>
+          </div>
+          <div class="tool-grid">
+            <div class="tool-field">
+              <label for="timestamp-input" data-i18n="tools.label.timestamp">时间戳（秒或毫秒）</label>
+              <input id="timestamp-input" type="text" inputmode="numeric" placeholder="1718697600">
+              <button class="tool-btn primary" type="button" data-time-action="from-timestamp" data-i18n="tools.btn.toDate" data-i18n-html><i class="fas fa-arrow-right" aria-hidden="true"></i> 转日期</button>
+              <pre class="tool-output" id="timestamp-output"></pre>
+            </div>
+            <div class="tool-field">
+              <label for="datetime-input" data-i18n="tools.label.datetime">日期时间</label>
+              <input id="datetime-input" type="datetime-local">
+              <button class="tool-btn primary" type="button" data-time-action="from-date" data-i18n="tools.btn.toTimestamp" data-i18n-html><i class="fas fa-arrow-right" aria-hidden="true"></i> 转时间戳</button>
+              <pre class="tool-output" id="datetime-output"></pre>
+            </div>
+          </div>
+          <p class="tool-status" id="time-status" role="status" aria-live="polite"></p>
+        </section>
+        <section class="tool-panel" id="tool-base64" data-tool-panel="base64" role="tabpanel" aria-labelledby="tool-tab-base64" tabindex="0" hidden>
+          <header class="tool-panel-head">
+            <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-lock"></i></span>
+            <div>
+              <h2 data-i18n="tools.base64.title" data-i18n-en="Base64 Codec">Base64 编解码</h2>
+              <p data-i18n="tools.base64.desc" data-i18n-en="Encode and decode text with Base64, including Unicode.">文本与 Base64 互转，支持中文。</p>
+            </div>
+          </header>
+          <div class="tool-grid">
+            <label class="tool-field"><span data-i18n="tools.label.input">输入</span>
+              <textarea id="base64-input" spellcheck="false" placeholder="输入要编码或解码的文本"></textarea>
+            </label>
+            <label class="tool-field"><span data-i18n="tools.label.output">输出结果</span>
+              <textarea id="base64-output" spellcheck="false" readonly></textarea>
+            </label>
+          </div>
+          <div class="tool-actions">
+            <button class="tool-btn primary" type="button" data-codec-action="base64-encode" data-i18n="tools.btn.encode" data-i18n-html><i class="fas fa-arrow-down" aria-hidden="true"></i> 编码</button>
+            <button class="tool-btn" type="button" data-codec-action="base64-decode" data-i18n="tools.btn.decode" data-i18n-html><i class="fas fa-arrow-up" aria-hidden="true"></i> 解码</button>
+            <button class="tool-btn" type="button" data-copy-target="base64-output" data-i18n="tools.btn.copyResult" data-i18n-html><i class="fas fa-copy" aria-hidden="true"></i> 复制结果</button>
+          </div>
+          <p class="tool-status" id="base64-status" role="status" aria-live="polite"></p>
+        </section>
+        <section class="tool-panel" id="tool-url" data-tool-panel="url" role="tabpanel" aria-labelledby="tool-tab-url" tabindex="0" hidden>
+          <header class="tool-panel-head">
+            <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-link"></i></span>
+            <div>
+              <h2 data-i18n="tools.url.title" data-i18n-en="URL Codec">URL 编解码</h2>
+              <p data-i18n="tools.url.desc" data-i18n-en="Use encodeURIComponent and decodeURIComponent.">使用 encodeURIComponent / decodeURIComponent。</p>
+            </div>
+          </header>
+          <div class="tool-grid">
+            <label class="tool-field"><span data-i18n="tools.label.input">输入</span>
+              <textarea id="url-input" spellcheck="false" placeholder="https://example.com/?q=中文"></textarea>
+            </label>
+            <label class="tool-field"><span data-i18n="tools.label.output">输出结果</span>
+              <textarea id="url-output" spellcheck="false" readonly></textarea>
+            </label>
+          </div>
+          <div class="tool-actions">
+            <button class="tool-btn primary" type="button" data-codec-action="url-encode" data-i18n="tools.btn.encode" data-i18n-html><i class="fas fa-arrow-down" aria-hidden="true"></i> 编码</button>
+            <button class="tool-btn" type="button" data-codec-action="url-decode" data-i18n="tools.btn.decode" data-i18n-html><i class="fas fa-arrow-up" aria-hidden="true"></i> 解码</button>
+            <button class="tool-btn" type="button" data-copy-target="url-output" data-i18n="tools.btn.copyResult" data-i18n-html><i class="fas fa-copy" aria-hidden="true"></i> 复制结果</button>
+          </div>
+          <p class="tool-status" id="url-status" role="status" aria-live="polite"></p>
+        </section>
+        <section class="tool-panel" id="tool-uuid" data-tool-panel="uuid" role="tabpanel" aria-labelledby="tool-tab-uuid" tabindex="0" hidden>
+          <header class="tool-panel-head">
+            <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-fingerprint"></i></span>
+            <div>
+              <h2 data-i18n="tools.uuid.title" data-i18n-en="UUID Generator">UUID 生成器</h2>
+              <p data-i18n="tools.uuid.desc" data-i18n-en="Generate and copy UUID v4 values.">一键生成 UUID v4 并复制。</p>
+            </div>
+          </header>
+          <div class="uuid-box">
+            <output id="uuid-output" data-empty="true" data-i18n="tools.uuid.empty">点击生成 UUID</output>
+          </div>
+          <div class="tool-actions">
+            <button class="tool-btn primary" type="button" data-uuid-generate data-i18n="tools.btn.generateUuid" data-i18n-html><i class="fas fa-sync-alt" aria-hidden="true"></i> 生成 UUID</button>
+            <button class="tool-btn" type="button" data-copy-target="uuid-output" data-i18n="tools.btn.copy" data-i18n-html><i class="fas fa-copy" aria-hidden="true"></i> 复制</button>
+          </div>
+          <p class="tool-status" id="uuid-status" role="status" aria-live="polite"></p>
+        </section>
+        <section class="tool-panel" id="tool-jwt" data-tool-panel="jwt" role="tabpanel" aria-labelledby="tool-tab-jwt" tabindex="0" hidden>
+          <header class="tool-panel-head">
+            <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-key"></i></span>
+            <div>
+              <h2 data-i18n="tools.jwt.title" data-i18n-en="JWT Decoder">JWT 解码</h2>
+              <p data-i18n="tools.jwt.desc" data-i18n-en="Locally parse header and payload without signature verification.">本地解析 header 和 payload，不校验签名。</p>
+            </div>
+          </header>
+          <label class="tool-field"><span data-i18n="tools.label.jwt">JWT</span>
+            <textarea id="jwt-input" spellcheck="false" placeholder="eyJhbGciOi..."></textarea>
+          </label>
+          <div class="tool-actions">
+            <button class="tool-btn primary" type="button" data-jwt-decode data-i18n="tools.btn.decodeJwt" data-i18n-html><i class="fas fa-unlock-alt" aria-hidden="true"></i> 解码</button>
+          </div>
+          <div class="jwt-grid">
+            <label class="tool-field"><span data-i18n="tools.label.header">Header</span>
+              <textarea id="jwt-header-output" spellcheck="false" readonly></textarea>
+            </label>
+            <label class="tool-field"><span data-i18n="tools.label.payload">Payload</span>
+              <textarea id="jwt-payload-output" spellcheck="false" readonly></textarea>
+            </label>
+          </div>
+          <p class="tool-status" id="jwt-status" role="status" aria-live="polite"></p>
+        </section>
+          </div>
+        </div>
+      </section>
+    </main>
+    <footer class="footer">
+      <section class="container">
+        <div class="subscribe">
+          <p class="subscribe-title" data-i18n="subscribe.title">订阅更新 · 新文章邮件提醒</p>
+          <form class="subscribe-form" novalidate>
+            <input class="subscribe-input" type="email" name="email" required autocomplete="email" placeholder="输入你的邮箱" data-i18n-ph="subscribe.ph" aria-label="Email">
+            <button class="subscribe-btn" type="submit" data-i18n="subscribe.btn">订阅</button>
+          </form>
+          <p class="subscribe-status" role="status" aria-live="polite"></p>
+        </div>
+        <div class="sponsor-mini" aria-label="赞助支持选项" data-i18n-aria="sponsorMini.aria">
+          <p class="sponsor-mini-text" data-i18n="sponsorMini.text">如果内容对你有帮助，可以支持我继续更新。</p>
+          <div class="sponsor-mini-actions">
+            <a class="sponsor-mini-btn sponsor-mini-primary" href="https://www.ifdian.net/order/create?plan_id=047bc28a6a1c11f182c452540025c377&product_type=0&remark=&affiliate_code=" target="_blank" rel="noopener noreferrer" data-i18n="sponsorMini.afdian">☕ 赞助</a>
+            <a class="sponsor-mini-btn sponsor-mini-secondary" href="https://PayPal.Me/chenwenliang4212" target="_blank" rel="noopener noreferrer" data-i18n="sponsorMini.paypal">💳 PayPal 支持</a>
+          </div>
+        </div>
+        <p data-i18n="footer.text">© 2021 - 2026 CWL · Powered by Cwl · Theme inspired by Coder</p>
+      </section>
+    </footer>
+  </div>
+</body>
+</html>
