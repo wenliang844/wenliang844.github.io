@@ -4318,10 +4318,11 @@ body.colorscheme-dark .assistant-widget {
 }
 
 .assistant-widget.fullscreen {
-  top: var(--assistant-fullscreen-top, 5.6rem);
+  top: 0;
   right: 0;
   bottom: 0;
   left: 0;
+  z-index: 120;
   width: auto;
   height: auto;
 }
@@ -4343,10 +4344,6 @@ body.assistant-fullscreen {
 
 body.assistant-fullscreen .site-shell {
   z-index: auto;
-}
-
-body.assistant-fullscreen .navigation {
-  z-index: 80;
 }
 
 .assistant-panel[hidden] {
@@ -5133,10 +5130,6 @@ body.assistant-fullscreen .navigation {
   .assistant-widget {
     right: 1rem;
     bottom: 5.2rem;
-  }
-
-  .assistant-widget.fullscreen {
-    top: var(--assistant-fullscreen-top, 4.6rem);
   }
 
   .assistant-panel {

@@ -52,11 +52,6 @@
       stream: true,
     },
   };
-  const LLM_DEMO_KEYS = {
-    openai: "sk-MdXmOYyoCUSDwDaC4zxNOYUKyp45ZSIXJJOapbloAawi3LRW",
-    anthropic: "tp-cm4es5h6ehs1m9p2i2su9894nuyiwh2nomdswvjfaix86pxr",
-  };
-
   function t(key, fallback) {
     return window.cwlT ? window.cwlT(key, fallback) : fallback;
   }
@@ -314,7 +309,7 @@
 
   function withEffectiveApiKey(config) {
     const clean = Object.assign({}, config);
-    clean.apiKey = String(clean.apiKey || LLM_DEMO_KEYS[normalizeFormat(clean.format)] || "");
+    clean.apiKey = String(clean.apiKey || "").trim();
     return clean;
   }
 
@@ -993,7 +988,7 @@
     const keyInput = el("input", "assistant-api-key");
     keyInput.type = "password";
     keyInput.autocomplete = "off";
-    keyInput.placeholder = "留空使用内置体验 key";
+    keyInput.placeholder = "请输入你自己的 API key";
     keyLabel.appendChild(keyInput);
 
     const modelLabel = el("label", "assistant-config-field");

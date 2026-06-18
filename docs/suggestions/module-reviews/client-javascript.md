@@ -177,15 +177,15 @@ if (!form || !messageInput || !listEl) { return; }
   - ✅ 错误消息归一化和用户友好提示
 
   **问题**：
-  - ❌ 硬编码 demo API key（S-00）
+  - ✅ 已移除硬编码 demo API key（S-00）
   - ❌ 未接入 i18n（CQ-05）
   - ❌ 1568 行单文件（AR-07）
-  - ❌ placeholder 文案"留空使用内置体验 key"暗示 key 泄露是预期行为
+  - ✅ placeholder 已改为提示用户输入自己的 API key
   - ❌ `LLM_PRESETS` 中的中转站 endpoint 硬编码，无法动态更新
 
 - **⚠️ 影响程度**：中（功能完整但安全和维护性需改进）
 - **💡 建议方案**：
-  1. **安全**：清空 `LLM_DEMO_KEYS`，移除"留空使用内置体验 key"提示
+  1. **安全**：保持前端无内置 API key；如需公共体验额度，应通过服务端代理、配额和限流实现
   2. **拆分**：按职责拆分为 4-5 个模块（见 AR-07）
   3. **i18n**：将所有硬编码中文移入 i18n.js 的 EN 字典
   4. **配置化**：将 `LLM_PRESETS` 移到 `data/relay-providers.json` 中

@@ -9,8 +9,9 @@ const DISMISS_KEY = "cwl.assistant.dismissed";
 
 async function loadAssistant(options = {}) {
   const code = await readFile(join(ROOT, "js", "assistant.js"), "utf8");
+  const body = options.body || '<button class="nav-search-trigger" type="button">Search</button>';
   const dom = new JSDOM(
-    "<!doctype html><html><body><button class=\"nav-search-trigger\" type=\"button\">Search</button></body></html>",
+    `<!doctype html><html><body>${body}</body></html>`,
     {
       runScripts: "outside-only",
       url: options.url || "https://assistant-test-" + Math.random().toString(36).slice(2) + ".example/",
@@ -257,7 +258,7 @@ test("assistant config is collapsible and opacity is adjustable", async () => {
   assert.equal(localStorage.getItem("cwl.assistant.opacity"), "75");
 });
 
-test("assistant uses the built-in OpenAI demo key without displaying or saving it", async () => {
+test("assistant requires an explicit OpenAI API key before sending requests", async () => {
   const calls = [];
   const dom = await loadAssistant({
     fetch: async (url, init) => {
@@ -279,6 +280,7 @@ test("assistant uses the built-in OpenAI demo key without displaying or saving i
   assert.equal(document.querySelector(".assistant-endpoint").value, "https://free.lyclaude.site/v1/responses");
   assert.equal(document.querySelector(".assistant-api-key").value, "");
   assert.equal(document.querySelector(".assistant-stream input").checked, true);
+  assert.equal(document.querySelector(".assistant-api-key").getAttribute("placeholder"), "请输入你自己的 API key");
 
   document.querySelector('[data-assistant-mode="llm"]').click();
   const input = document.querySelector(".assistant-input");
@@ -287,13 +289,12 @@ test("assistant uses the built-in OpenAI demo key without displaying or saving i
 
   await wait();
 
-  assert.equal(calls.length, 1);
-  assert.equal(calls[0].url, "https://free.lyclaude.site/v1/responses");
-  assert.equal(calls[0].init.headers.Authorization, "Bearer sk-MdXmOYyoCUSDwDaC4zxNOYUKyp45ZSIXJJOapbloAawi3LRW");
+  assert.equal(calls.length, 0);
+  assert.match(document.querySelector(".assistant-messages").textContent, /请先填写 API key/);
   assert.equal(JSON.parse(localStorage.getItem("cwl.assistant.llmConfig")).apiKey, "");
 });
 
-test("assistant defaults LLM mode to Claude with its built-in demo key hidden", async () => {
+test("assistant defaults LLM mode to Claude without a bundled API key", async () => {
   const calls = [];
   const dom = await loadAssistant();
   const { document, Event } = dom.window;
@@ -322,9 +323,16 @@ test("assistant defaults LLM mode to Claude with its built-in demo key hidden", 
 
   await wait();
 
-  assert.equal(calls.length, 1);
-  assert.equal(calls[0].url, "https://token-plan-cn.xiaomimimo.com/anthropic/v1/messages");
-  assert.equal(calls[0].init.headers["x-api-key"], "tp-cm4es5h6ehs1m9p2i2su9894nuyiwh2nomdswvjfaix86pxr");
+  assert.equal(calls.length, 0);
+  assert.match(document.querySelector(".assistant-messages").textContent, /请先填写 API key/);
+});
+
+test("assistant source does not bundle LLM API keys", async () => {
+  const code = await readFile(join(ROOT, "js", "assistant.js"), "utf8");
+  assert.doesNotMatch(code, /LLM_DEMO_KEYS/);
+  assert.doesNotMatch(code, /sk-[A-Za-z0-9_-]{20,}/);
+  assert.doesNotMatch(code, /tp-[A-Za-z0-9_-]{20,}/);
+  assert.doesNotMatch(code, /留空使用内置体验 key/);
 });
 
 test("assistant supports fullscreen mode", async () => {
@@ -347,6 +355,25 @@ test("assistant supports fullscreen mode", async () => {
   assert.equal(document.querySelector(".assistant-widget").classList.contains("fullscreen"), false);
   assert.equal(document.body.classList.contains("assistant-fullscreen"), false);
   assert.equal(document.querySelector(".assistant-panel").hidden, false);
+});
+
+test("assistant fullscreen starts below the navigation", async () => {
+  const dom = await loadAssistant({
+    body: '<header class="navigation"><div class="container"></div></header><button class="nav-search-trigger" type="button">Search</button>',
+  });
+  const { document, KeyboardEvent } = dom.window;
+  const nav = document.querySelector(".navigation");
+  Object.defineProperty(nav, "getBoundingClientRect", {
+    value: () => ({ height: 104 }),
+  });
+
+  document.querySelector(".assistant-fullscreen").click();
+
+  const widget = document.querySelector(".assistant-widget");
+  assert.equal(widget.style.getPropertyValue("--assistant-fullscreen-top"), "104px");
+
+  document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+  assert.equal(widget.style.getPropertyValue("--assistant-fullscreen-top"), "");
 });
 
 test("assistant query parameter starts fullscreen", async () => {

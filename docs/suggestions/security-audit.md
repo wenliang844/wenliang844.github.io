@@ -4,32 +4,26 @@
 
 ---
 
-## 📌 S-00 [新增·高危]: `assistant.js` 硬编码 Demo API Key 泄露
+## 📌 S-00 [已修复]: `assistant.js` 硬编码 Demo API Key 泄露
 
-- **📍 位置**：`js/assistant.js:54-57`
-- **📝 当前状况**：
+- **📍 原位置**：`js/assistant.js:54-57`
+- **📝 原始状况**：
   ```javascript
-  const LLM_DEMO_KEYS = {
-    openai: "sk-MdXmOYyoCUSDwDaC4zxNOYUKyp45ZSIXJJOapbloAawi3LRW",
-    anthropic: "tp-cm4es5h6ehs1m9p2i2su9894nuyiwh2nomdswvjfaix86pxr",
+  const DEMO_KEY_MAP = {
+    openai: "sk-***",
+    anthropic: "tp-***",
   };
   ```
-  这两个 API key 以明文硬编码在前端 JS 中，且在 `withEffectiveApiKey()`（第 317 行）中作为用户未配置 key 时的默认值使用。任何用户打开浏览器开发者工具 Network 面板即可看到请求中的 key。
-- **⚠️ 影响程度**：🔴 **高**
+  这两个 API key 曾以明文硬编码在前端 JS 中，且在 `withEffectiveApiKey()` 中作为用户未配置 key 时的默认值使用。任何用户打开浏览器开发者工具 Network 面板即可看到请求中的 key。
+- **✅ 修复状态**：已移除前端 demo key 映射，AI 助手现在必须由用户显式输入自己的 API key 才会发起 LLM 请求，并新增回归测试防止常见 key 前缀形式的密钥再次进入前端包。
+- **⚠️ 原影响程度**：🔴 **高**
   - API key 可被提取滥用，产生费用
   - 违反 API 提供商服务条款，可能导致账号封禁
   - 中转站 endpoint 同时暴露（`free.lyclaude.site`、`token-plan-cn.xiaomimimo.com`）
-- **💡 建议方案**：
-  1. **立即**：清空 `LLM_DEMO_KEYS`，改为引导用户在 AI 助手设置中输入自己的 key
+- **💡 后续建议**：
+  1. **已完成**：清空前端默认 key，改为引导用户在 AI 助手设置中输入自己的 key
   2. **短期**：部署 Cloudflare Workers 代理，key 存服务端环境变量
   3. **长期**：实现用量配额和请求频率限制
-  ```javascript
-  // 替换方案
-  const LLM_DEMO_KEYS = {
-    openai: "",    // 不再提供默认 key
-    anthropic: "",
-  };
-  ```
 - **📊 预期收益**：消除 API 费用风险，符合安全最佳实践
 - **🔗 相关建议**：[[architecture-review]] AI 助手架构重构
 

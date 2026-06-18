@@ -4432,3 +4432,37 @@
 
 - 本轮为小范围布局修复，未引入外部依赖。
 - 后续验证项：`npm run lint`、`npm test`、`npm run build`、`tests/performance.test.mjs`。
+
+## 第 138 轮：AI 助手前端 API Key 泄露修复
+
+时间：2026-06-18
+
+### 已完成内容
+
+- 移除 `js/assistant.js` 中前端打包的 OpenAI/Anthropic demo API key。
+- 将 AI 助手大模型调用改为必须使用用户显式输入的 API key。
+- 更新 API key 输入框提示，避免继续暗示存在内置体验 key。
+- 增加回归测试，确认未填写 key 时不会发起 LLM 请求，并扫描源码防止旧 demo-key 常量和常见密钥前缀再次进入前端包。
+- 更新 `docs/suggestions/security-audit.md`，将 S-00 从高危待修标记为已修复。
+
+### 发现的问题
+
+- `assistant.js` 曾包含明文 demo key，任何访客都可以从前端脚本或 Network 请求中提取。
+- 旧测试把“无用户 key 也能调用内置 demo key”固化成预期行为，存在安全回归风险。
+
+### 修复方案
+
+- 删除旧 demo-key 常量。
+- `withEffectiveApiKey()` 只保留用户显式配置的 key，并做 trim 归一化。
+- 将测试预期改为“未配置 key 时提示用户填写，且不会调用 fetch”。
+
+### 性能、安全与质量指标
+
+- `npm run test:assistant`：26 个测试全部通过，耗时约 1.60 秒。
+- 安全收益：消除前端 API key 明文泄露和被滥用产生费用的风险。
+- 覆盖变化：助手专项测试从 24 个扩展到 26 个，新增无 key 阻断与源码密钥扫描。
+
+### 下一步计划
+
+- 运行全量测试、构建、生产验证和覆盖率复测。
+- 本轮提交只纳入 AI 助手安全修复、相关测试与文档，避免混入无关工作流改动。
