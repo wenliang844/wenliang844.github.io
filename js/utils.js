@@ -54,6 +54,11 @@
     return new Promise(function (resolve, reject) {
       let area = null;
       try {
+        const container = document.body || document.documentElement;
+        if (!container) {
+          reject(new Error("copy container unavailable"));
+          return;
+        }
         area = document.createElement("textarea");
         area.value = value;
         area.style.position = "fixed";
@@ -61,7 +66,7 @@
         area.style.top = "-9999px";
         area.style.opacity = "0";
         area.setAttribute("readonly", "");
-        document.body.appendChild(area);
+        container.appendChild(area);
         area.select();
         area.setSelectionRange(0, value.length);
         const success = document.execCommand("copy");

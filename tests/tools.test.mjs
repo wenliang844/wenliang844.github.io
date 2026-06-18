@@ -754,3 +754,31 @@ test("copy utility preserves falsey values in legacy fallback", async () => {
     dom.window.close();
   }
 });
+
+test("copy utility works when document body is unavailable", async () => {
+  const code = await readFile(join(ROOT, "js", "utils.js"), "utf8");
+  const dom = new JSDOM("<!doctype html><html><head></head><body></body></html>", {
+    runScripts: "outside-only",
+    url: "https://wenliang844.github.io/tools/",
+  });
+  const { document } = dom.window;
+  let copiedValue = null;
+  try {
+    document.body.remove();
+    Object.defineProperty(dom.window.navigator, "clipboard", {
+      configurable: true,
+      value: undefined,
+    });
+    document.execCommand = function () {
+      copiedValue = document.querySelector("textarea").value;
+      return true;
+    };
+    dom.window.eval(code);
+
+    await assert.doesNotReject(() => dom.window.CWLUtils.copyText("bodyless copy"));
+    assert.equal(copiedValue, "bodyless copy");
+    assert.equal(document.querySelectorAll("textarea").length, 0);
+  } finally {
+    dom.window.close();
+  }
+});

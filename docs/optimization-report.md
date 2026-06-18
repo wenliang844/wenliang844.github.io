@@ -3182,3 +3182,34 @@
 - 继续检查复制工具和 DOM 环境边界条件。
 - 继续抽样运行浏览器验证，关注页面 console、溢出和交互状态。
 - 接近 6 小时时输出阶段工作报告。
+
+## 第 99 轮：复制降级 bodyless DOM 兜底
+
+时间：2026-06-18
+
+### 已完成内容
+
+- 加固 `CWLUtils.legacyCopy()` 临时 `textarea` 的挂载容器选择。
+- 当 `document.body` 不可用时，自动退回挂载到 `document.documentElement`。
+- 新增 bodyless DOM 回归测试，验证复制成功且临时节点仍会清理。
+
+### 发现的问题
+
+- legacy 复制路径原先直接调用 `document.body.appendChild()`。
+- 如果脚本在非标准 DOM、提前执行环境或测试沙箱中没有 `body`，复制降级会直接失败。
+
+### 修复方案
+
+- 在 legacy 复制前解析 `document.body || document.documentElement` 作为临时节点容器。
+- 如果容器完全不可用，返回明确的 `copy container unavailable` 错误。
+
+### 性能、覆盖率与质量指标
+
+- `npm run test:tools`：27 个测试全部通过，耗时约 2.58 秒。
+- `npm run build`：静态站点构建通过，6 篇文章输出成功。
+
+### 下一步计划
+
+- 运行工具箱与 AI 助手组合回归。
+- 继续检查工具箱复制按钮状态与浏览器真实交互。
+- 准备 6 小时阶段报告。
