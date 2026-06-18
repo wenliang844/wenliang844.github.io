@@ -38,6 +38,15 @@ export const SPONSOR_LINKS = {
   paypal: "https://PayPal.Me/chenwenliang4212",
 };
 
+const RESOURCE_HINTS = [
+  { rel: "preconnect", href: "https://giscus.app" },
+  { rel: "dns-prefetch", href: "https://giscus.app" },
+  { rel: "preconnect", href: "https://buttondown.com" },
+  { rel: "dns-prefetch", href: "https://buttondown.com" },
+  { rel: "dns-prefetch", href: "https://www.ifdian.net" },
+  { rel: "dns-prefetch", href: "https://paypal.me" },
+];
+
 const CONTENT_SECURITY_POLICY = [
   "default-src 'self'",
   "base-uri 'self'",
@@ -101,6 +110,12 @@ ${moreItems}
 function renderScripts(scripts) {
   return scripts
     .map((src) => `  <script src="${src}" defer></script>`)
+    .join("\n");
+}
+
+function renderResourceHints() {
+  return RESOURCE_HINTS
+    .map(({ rel, href }) => `  <link rel="${rel}" href="${escapeAttr(href)}">`)
     .join("\n");
 }
 
@@ -216,8 +231,7 @@ export function renderPage(opts) {
   <meta http-equiv="Content-Security-Policy" content="${escapeAttr(CONTENT_SECURITY_POLICY)}">
   <meta name="description" content="${escapeAttr(description)}">
   <link rel="icon" href="/images/favicon.png" type="image/png">
-  <link rel="preconnect" href="https://giscus.app">
-  <link rel="dns-prefetch" href="https://giscus.app">
+${renderResourceHints()}
   <link rel="stylesheet" href="/css/fontawesome-all.min.css">
   <link rel="stylesheet" href="/css/coder.css">
 ${renderScripts(allScripts)}${meta ? "\n" + meta : ""}${jsonLdTag}

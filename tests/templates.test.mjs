@@ -38,6 +38,12 @@ test("layout escapes title and metadata", () => {
   assert.match(html, /object-src 'none'/);
   assert.match(html, /frame-src https:\/\/giscus\.app/);
   assert.match(html, /connect-src 'self' https:/);
+  assert.match(html, /<link rel="preconnect" href="https:\/\/giscus\.app">/);
+  assert.match(html, /<link rel="dns-prefetch" href="https:\/\/giscus\.app">/);
+  assert.match(html, /<link rel="preconnect" href="https:\/\/buttondown\.com">/);
+  assert.match(html, /<link rel="dns-prefetch" href="https:\/\/buttondown\.com">/);
+  assert.match(html, /<link rel="dns-prefetch" href="https:\/\/www\.ifdian\.net">/);
+  assert.match(html, /<link rel="dns-prefetch" href="https:\/\/paypal\.me">/);
   assert.match(html, /<label class="menu-overlay" for="menu-toggle" aria-hidden="true"><\/label>/);
 });
 

@@ -154,21 +154,12 @@
 
 ---
 
-## 📌 P-10: 无资源预加载提示（preconnect / prefetch）
+## 📌 P-10 [已修复]: 无资源预加载提示（preconnect / prefetch）
 
 - **📍 位置**：所有页面 `<head>`
-- **📝 当前状况**：当前页面仅对 `giscus.app` 设置了 `preconnect` 和 `dns-prefetch`。但以下第三方域缺少预连接：
-  - `buttondown.com`（订阅功能）
-  - `api.web3forms.com`（反馈功能，当前未启用）
-  - `www.ifdian.net`（赞助链接）
-  - `PayPal.Me`（赞助链接）
-- **⚠️ 影响程度**：低
-- **💡 建议方案**：在 `<head>` 中添加：
-  ```html
-  <link rel="preconnect" href="https://buttondown.com">
-  <link rel="dns-prefetch" href="https://www.ifdian.net">
-  ```
-- **📊 预期收益**：第三方资源连接建立时间减少 50-150ms
+- **✅ 修复状态**：`src/templates/layout.mjs` 已集中声明第三方 resource hints；生成页和 404、首页、about、contact、editor、overleaf 等手写页均已补齐。
+- **🧪 回归测试**：`tests/templates.test.mjs` 覆盖模板输出；`tests/performance.test.mjs` 扫描所有已提交 HTML，确保 `giscus.app`、`buttondown.com`、`www.ifdian.net` 和 `paypal.me` 的连接提示不缺失。
+- **📊 实际收益**：订阅、评论和赞助入口的 DNS/连接建立可提前完成，减少首次交互时的第三方连接等待。
 - **🔗 相关建议**：[P-04](#p-04)
 
 ---

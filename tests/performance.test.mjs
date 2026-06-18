@@ -107,6 +107,30 @@ test("all HTML files reference the favicon", async () => {
   assert.deepEqual(missing, [], "HTML files missing favicon reference");
 });
 
+test("committed HTML files include third-party resource hints", async () => {
+  const files = await htmlFiles();
+  const hints = [
+    '<link rel="preconnect" href="https://giscus.app">',
+    '<link rel="dns-prefetch" href="https://giscus.app">',
+    '<link rel="preconnect" href="https://buttondown.com">',
+    '<link rel="dns-prefetch" href="https://buttondown.com">',
+    '<link rel="dns-prefetch" href="https://www.ifdian.net">',
+    '<link rel="dns-prefetch" href="https://paypal.me">',
+  ];
+  const missing = [];
+
+  for (const file of files) {
+    const html = await readFile(join(ROOT, file), "utf8");
+    for (const hint of hints) {
+      if (!html.includes(hint)) {
+        missing.push(`${file}: ${hint}`);
+      }
+    }
+  }
+
+  assert.deepEqual(missing, [], "HTML files missing third-party resource hints");
+});
+
 test("favicon file exists", async () => {
   try {
     await stat(join(ROOT, "images", "favicon.png"));

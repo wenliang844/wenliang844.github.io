@@ -6453,3 +6453,46 @@
 
 - 运行全量质量门禁并提交第五十一轮工程化优化。
 - 继续处理不触碰 `assistant.js` 外部改动的低风险工程化、安全或 UX 项。
+
+## 第 189 轮：全站第三方 resource hints
+
+时间：2026-06-19
+
+### 已完成内容
+
+- 在 `src/templates/layout.mjs` 中集中声明评论、订阅和赞助相关第三方域名的 resource hints。
+- 为模板生成页补齐 `buttondown.com` 的 `preconnect` / `dns-prefetch`，以及 `www.ifdian.net`、`paypal.me` 的 `dns-prefetch`。
+- 同步更新 404、首页、about、contact、editor、overleaf 等手写静态页，避免发布面只有部分页面预热第三方连接。
+- 扩展 `tests/templates.test.mjs`，覆盖布局模板中的第三方 hint 输出。
+- 扩展 `tests/performance.test.mjs`，扫描所有已提交 HTML，确保全站 head 中的第三方 hint 不缺失。
+- 更新 P-10、建议索引、健康评分、工作报告和本轮工作报告。
+
+### 发现的问题
+
+- 页面原本只为 `giscus.app` 设置了连接提示，订阅表单与赞助入口的第三方域名缺少 DNS/连接预热。
+- 首页、联系页、404、about、editor、overleaf 是手写 HTML，不经过 `renderPage()`，仅修改模板会导致全站不一致。
+- 原测试只覆盖资源存在和大小，没有约束所有已提交 HTML 的 resource hints 一致性。
+
+### 修复方案
+
+- 将模板页的第三方连接提示收敛到 `RESOURCE_HINTS` 数据结构，由 `renderResourceHints()` 统一渲染。
+- 保留 `giscus.app` 的现有 `preconnect` / `dns-prefetch`，新增 `buttondown.com` 的 `preconnect` / `dns-prefetch`。
+- 对 `www.ifdian.net` 和 `paypal.me` 使用 `dns-prefetch`，降低普通页面为低频赞助跳转提前建立完整连接的成本。
+- 手写静态页补齐同一组 `<link rel="...">`，并用性能测试扫描所有已提交 HTML 防止遗漏。
+
+### 性能、安全与质量指标
+
+- `node --test tests/templates.test.mjs tests/templates-extended.test.mjs tests/performance.test.mjs`：49 个模板与性能测试全部通过。
+- `npm run lint:check`：通过。
+- `npm test`：582 个测试全部通过。
+- `npm run build`：通过，成功生成 6 篇文章页面。
+- `npm run validate:production`：33 项检查通过，0 失败，0 警告。
+- `npm run test:coverage`：582 个测试全部通过；行覆盖率 93.27%，分支覆盖率 75.28%，函数覆盖率 90.94%，均高于覆盖率阈值。
+- `npm audit --audit-level=moderate --registry=https://registry.npmjs.org`：0 个中高危漏洞。
+- `git diff --check`：仅输出既有 CRLF 换行提示，无空白错误。
+- 性能收益：订阅、评论和赞助入口在用户交互前即可完成 DNS 查询或预连接，减少第三方入口首次使用的连接建立等待。
+
+### 下一步计划
+
+- 运行全量质量门禁并提交第五十二轮性能优化。
+- 继续处理不触碰 `assistant.js` 外部改动的低风险性能、工程化或 UX 项。
