@@ -5894,3 +5894,44 @@
 
 - 运行全量质量门禁并提交第三十七轮工程化优化。
 - 继续筛选不触碰 `assistant.js` 外部改动的低风险质量项。
+
+## 第 175 轮：跳过单篇页重复目录构建
+
+时间：2026-06-18
+
+### 已完成内容
+
+- 在 `js/coder.js` 新增 `hasServerRenderedToc()`，检测单篇文章页 `.post-layout` 内是否已有 SSR `.toc-sidebar`。
+- 单篇页已有 SSR 目录时，跳过动态 `.article-toc` 构建；博客列表页仍保留运行时动态目录。
+- 扩展 `tests/coder-deep.test.mjs`，验证 SSR TOC 存在时不会再创建重复动态 TOC。
+- 更新 B-07、建议索引、健康评分、工作报告和本轮工作报告。
+
+### 发现的问题
+
+- 单篇文章页已经由构建脚本输出 `.toc-sidebar`，且由 `toc.js` 负责交互和高亮。
+- `coder.js` 此前仍会扫描同一篇文章的标题，并追加第二套 `.article-toc`。
+- 这会带来重复 DOM、重复标题扫描和潜在视觉重复风险。
+
+### 修复方案
+
+- 明确职责：单篇页目录由 SSR + `toc.js` 管理，博客列表页目录由 `coder.js` 动态生成。
+- 在 article 所属 `.post-layout` 内检测 `.toc-sidebar`，只在没有 SSR 目录时构建动态目录。
+- 保持阅读时间、滚动进度和列表页 TOC 行为不变。
+
+### 性能、安全与质量指标
+
+- `node --test tests/coder-deep.test.mjs tests/coder.test.mjs`：36 个文章页运行时测试全部通过。
+- `node --test tests/templates.test.mjs tests/links.test.mjs`：11 个模板/链接测试全部通过。
+- `npm run lint:check`：通过。
+- `npm test`：568 个测试全部通过。
+- `npm run build`：通过，成功生成 6 篇文章页面。
+- `node --test tests/performance.test.mjs`：13 个性能测试全部通过。
+- `npm run validate:production`：33 项检查通过，0 失败，0 警告。
+- `npm run test:coverage`：568 个测试全部通过；行覆盖率 93.29%，分支覆盖率 75.29%，函数覆盖率 90.80%，均高于覆盖率阈值。
+- `npm audit --audit-level=moderate --registry=https://registry.npmjs.org`：0 个中高危漏洞。
+- 性能收益：单篇页避免重复标题扫描和重复目录 DOM 构建。
+
+### 下一步计划
+
+- 运行全量质量门禁并提交第三十八轮性能/一致性优化。
+- 继续处理不触碰 `assistant.js` 外部改动的低风险技术债。

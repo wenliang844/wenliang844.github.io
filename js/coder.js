@@ -307,6 +307,11 @@
     toggle.setAttribute("aria-expanded", String(open));
   }
 
+  function hasServerRenderedToc(article) {
+    const layout = article.closest(".post-layout");
+    return Boolean(layout && layout.querySelector(".toc-sidebar"));
+  }
+
   function buildToc(article, contentBlock) {
     clearToc(contentBlock);
 
@@ -441,10 +446,12 @@
       meta.appendChild(span);
     }
 
-    // Build a TOC only for longer articles (>= 3 section headings).
-    Array.from(article.querySelectorAll(".article-content")).forEach(function (contentBlock) {
-      buildToc(article, contentBlock);
-    });
+    // Single post pages already include an SSR TOC; list panels still build one dynamically.
+    if (!hasServerRenderedToc(article)) {
+      Array.from(article.querySelectorAll(".article-content")).forEach(function (contentBlock) {
+        buildToc(article, contentBlock);
+      });
+    }
   });
 
   document.addEventListener("cwl:langchange", updateDynamicText);

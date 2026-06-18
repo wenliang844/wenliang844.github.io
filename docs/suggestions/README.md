@@ -23,7 +23,7 @@
 
 | 优先级 | 类别 | 文档 | 发现数量 |
 |--------|------|------|----------|
-| 🔴 第一 | Bug 与风险 | [bugs-and-risks.md](bugs-and-risks.md) | 12（中 1 / 低 2 / 已修复 9） |
+| 🔴 第一 | Bug 与风险 | [bugs-and-risks.md](bugs-and-risks.md) | 12（中 1 / 低 1 / 已修复 10） |
 | 🔴 第一 | 安全审计 | [security-audit.md](security-audit.md) | 11（高 1 / 中 1 / 低 5 / 无 3 / 已修复 1） |
 | 🔴 第一 | 性能瓶颈 | [performance-bottlenecks.md](performance-bottlenecks.md) | 12（中 3 / 低 6 / 已修复 3） |
 | 🟡 第二 | 代码质量 | [code-quality.md](code-quality.md) | 10（中 2 / 低 2 / 已修复 6） |
@@ -89,6 +89,7 @@
 已完成：P-06 搜索资源空闲预热，降低首次打开搜索的冷启动等待。
 已完成：B-05/MR-EDITOR-04 统一阅读时间计算，消除构建端、文章页和编辑器算法漂移风险。
 已完成：MR-BUILD-05 页面脚本合并去重，避免模板误传造成重复加载。
+已完成：B-07 单篇页已有 SSR 目录时跳过动态 TOC 构建，避免重复目录。
 
 ### 🥈 高价值中成本（建议近期规划）
 

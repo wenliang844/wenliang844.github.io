@@ -157,6 +157,26 @@ test("coder.js builds TOC for articles with 3+ headings", async () => {
   dom.window.close();
 });
 
+test("coder.js skips dynamic TOC when single post SSR TOC exists", async () => {
+  const dom = buildDom(`<!doctype html><html lang="zh-CN"><body class="colorscheme-dark">
+    <div class="post-layout">
+      <article class="article">
+        <div class="article-content">
+          <h2 id="toc-1-one">Section One</h2>
+          <h2 id="toc-2-two">Section Two</h2>
+          <h2 id="toc-3-three">Section Three</h2>
+        </div>
+      </article>
+      <aside class="toc-sidebar"><nav class="toc-nav"><a href="#toc-1-one">Section One</a></nav></aside>
+    </div>
+  </body></html>`);
+  await loadCoder(dom);
+
+  assert.ok(dom.window.document.querySelector(".toc-sidebar"), "SSR TOC should remain");
+  assert.equal(dom.window.document.querySelector(".article-toc"), null, "should not build a duplicate dynamic TOC");
+  dom.window.close();
+});
+
 // ─── TOC 不构建（< 3 个标题时） ─────────────────────────────────────────────
 
 test("coder.js does not build TOC for articles with fewer than 3 headings", async () => {
