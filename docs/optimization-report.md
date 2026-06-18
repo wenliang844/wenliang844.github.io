@@ -659,3 +659,35 @@
 - 继续评估助手数据与 `search-index.json` 的重复维护问题。
 - 继续检查助手英文模式下中文查询、英文查询混用时的返回文案和链接排序。
 - 沉淀本轮浏览器检查为可重复脚本。
+
+## 第 21 轮：工具箱与助手定向测试命令
+
+时间：2026-06-18
+
+### 已完成内容
+
+- 在 `package.json` 中新增 `npm run test:toolbox`。
+- 该命令只运行 `tests/assistant.test.mjs` 和 `tests/tools.test.mjs`。
+- 保留全量 `npm test`、`npm run test:coverage` 和 `npm run build` 验证流程。
+
+### 发现的问题
+
+- 工具箱/助手每轮小改动都需要手动输入两个测试文件路径，复现成本偏高。
+- 全量测试很完整，但对当前功能的快速红绿反馈不够直接。
+
+### 修复方案
+
+- 新增脚本：`node --test tests/assistant.test.mjs tests/tools.test.mjs`。
+- 不引入新依赖，不改变 CI/validate 现有路径。
+
+### 性能、覆盖率与质量指标
+
+- `npm run test:toolbox`：11 个测试全部通过，耗时约 1.1 秒。
+- `npm test`：224 个测试全部通过。
+- `npm run test:coverage`：行覆盖 98.71%，分支覆盖 88.14%，函数覆盖 96.75%。
+- `npm run build`：通过。
+
+### 下一步计划
+
+- 继续把浏览器验证步骤脚本化或文档化，补齐移动端截图和控制台日志检查的可重复路径。
+- 继续审计助手英文/中文混合查询的返回质量。
