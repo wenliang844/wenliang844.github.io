@@ -56,9 +56,15 @@
         binary = bytesToBinary(bytes);
       } else {
         const unescape = getGlobal("unescape");
+        if (typeof unescape !== "function") {
+          return fail("Base64 编码失败：当前浏览器缺少文本编码能力", "base64Encode");
+        }
         binary = unescape(encodeURIComponent(raw));
       }
       const btoa = getGlobal("btoa");
+      if (typeof btoa !== "function") {
+        return fail("Base64 编码失败：当前浏览器不支持 btoa", "base64Encode");
+      }
       return ok(btoa(binary));
     } catch (error) {
       return fail("Base64 编码失败：" + error.message, "base64Encode");
@@ -69,6 +75,9 @@
     try {
       const clean = text(input).trim();
       const atob = getGlobal("atob");
+      if (typeof atob !== "function") {
+        return fail("Base64 解码失败：当前浏览器不支持 atob", "base64Decode");
+      }
       const binary = atob(clean);
       const bytes = new Uint8Array(binary.length);
       for (let i = 0; i < binary.length; i += 1) {
@@ -79,6 +88,9 @@
         return ok(new TextDecoder("utf-8", { fatal: true }).decode(bytes));
       }
       const escape = getGlobal("escape");
+      if (typeof escape !== "function") {
+        return fail("Base64 解码失败：当前浏览器缺少文本解码能力", "base64Decode");
+      }
       return ok(decodeURIComponent(escape(binary)));
     } catch (error) {
       return fail("Base64 解码失败：请输入合法的 Base64 文本", "base64Decode");

@@ -44,6 +44,14 @@ async function loadToolsCore(options = {}) {
       value: options.crypto,
     });
   }
+  if (options.globals) {
+    Object.entries(options.globals).forEach(([name, value]) => {
+      Object.defineProperty(dom.window, name, {
+        configurable: true,
+        value,
+      });
+    });
+  }
   dom.window.eval(code);
   return dom.window.CWLToolsCore;
 }
@@ -121,6 +129,32 @@ test("tools core Base64 fallback works when text codec access is blocked", async
 
   assert.equal(encoded.ok, true);
   assert.equal(tools.decodeBase64(encoded.value).value, "你好 blocked codec");
+});
+
+test("tools core reports unavailable Base64 runtime APIs clearly", async () => {
+  let tools = await loadToolsCore({ globals: { btoa: undefined } });
+  let result = tools.encodeBase64("x");
+  assert.equal(result.ok, false);
+  assert.equal(result.code, "base64Encode");
+  assert.match(result.error, /不支持 btoa/);
+
+  tools = await loadToolsCore({ globals: { atob: undefined } });
+  result = tools.decodeBase64("eA==");
+  assert.equal(result.ok, false);
+  assert.equal(result.code, "base64Decode");
+  assert.match(result.error, /不支持 atob/);
+
+  tools = await loadToolsCore({ noTextCodec: true, globals: { unescape: undefined } });
+  result = tools.encodeBase64("x");
+  assert.equal(result.ok, false);
+  assert.equal(result.code, "base64Encode");
+  assert.match(result.error, /缺少文本编码能力/);
+
+  tools = await loadToolsCore({ noTextCodec: true, globals: { escape: undefined } });
+  result = tools.decodeBase64("eA==");
+  assert.equal(result.ok, false);
+  assert.equal(result.code, "base64Decode");
+  assert.match(result.error, /缺少文本解码能力/);
 });
 
 test("tools core UUID generation falls back when crypto methods fail", async () => {
