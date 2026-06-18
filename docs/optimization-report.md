@@ -2016,3 +2016,36 @@
 - 继续审计工具箱剩余动态状态与错误恢复路径。
 - 继续定期运行组合回归。
 - 继续推进可独立提交的小范围修复。
+
+## 第 62 轮：UUID crypto getter 防崩溃
+
+时间：2026-06-18
+
+### 已完成内容
+
+- 继续审计 UUID 生成器的浏览器 API 防御边界。
+- 增加 `getCrypto()` 安全读取 helper。
+- 新增测试模拟 `window.crypto` getter 抛错的环境。
+
+### 发现的问题
+
+- 第 40 轮已处理 `randomUUID()` / `getRandomValues()` 调用抛错。
+- 但如果 `root.crypto` 属性读取本身抛错，旧逻辑仍会在降级前崩溃。
+- 受限 iframe、测试桩或异常浏览器扩展环境可能暴露这类 getter 异常。
+
+### 修复方案
+
+- 使用 `getCrypto()` 包裹 `root.crypto` 读取。
+- crypto 访问失败时返回 `null`，继续走 `Math.random()` 兼容兜底，避免 UI 崩溃。
+- 扩展 `loadToolsCore()` 测试加载器支持 `cryptoThrows` 场景。
+
+### 性能、覆盖率与质量指标
+
+- `npm run test:tools`：17 个测试全部通过，耗时约 2.2 秒。
+- `npm run build`：通过。
+
+### 下一步计划
+
+- 继续审计工具核心其它浏览器全局 getter 的异常边界。
+- 继续保持 UUID 生成的格式与版本位测试覆盖。
+- 继续组合回归确认助手不受影响。

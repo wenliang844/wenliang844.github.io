@@ -87,8 +87,16 @@
     }
   }
 
+  function getCrypto() {
+    try {
+      return root.crypto;
+    } catch (error) {
+      return null;
+    }
+  }
+
   function generateUuid() {
-    const crypto = root.crypto;
+    const crypto = getCrypto();
     if (crypto && typeof crypto.randomUUID === "function") {
       try {
         return crypto.randomUUID();

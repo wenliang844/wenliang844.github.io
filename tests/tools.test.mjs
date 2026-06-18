@@ -17,7 +17,14 @@ async function loadToolsCore(options = {}) {
     dom.window.TextEncoder = undefined;
     dom.window.TextDecoder = undefined;
   }
-  if (options.crypto) {
+  if (options.cryptoThrows) {
+    Object.defineProperty(dom.window, "crypto", {
+      configurable: true,
+      get() {
+        throw new Error("crypto blocked");
+      },
+    });
+  } else if (Object.prototype.hasOwnProperty.call(options, "crypto")) {
     Object.defineProperty(dom.window, "crypto", {
       configurable: true,
       value: options.crypto,
@@ -110,6 +117,12 @@ test("tools core UUID generation falls back when crypto methods fail", async () 
   });
 
   assert.equal(tools.generateUuid(), "00010203-0405-4607-8809-0a0b0c0d0e0f");
+});
+
+test("tools core UUID generation survives blocked crypto access", async () => {
+  const tools = await loadToolsCore({ cryptoThrows: true });
+
+  assert.match(tools.generateUuid(), /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i);
 });
 
 test("tools core handles Base64, URL, timestamps, UUID and JWT", async () => {
