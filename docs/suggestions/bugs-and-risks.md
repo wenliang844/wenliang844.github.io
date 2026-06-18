@@ -147,13 +147,12 @@
 
 ---
 
-## 📌 B-12: `blog.js` 中 `editing()` 函数与 `coder.js`、`search-loader.js` 重复定义
+## 📌 B-12 [已修复]: `blog.js` 中 `editing()` 函数与 `search.js`、`search-loader.js` 重复定义
 
-- **📍 位置**：`js/blog.js:211-215`、`js/coder.js`（隐含）、`js/search-loader.js:5-9`
-- **📝 当前状况**：三个文件各自定义了功能完全相同的 `editing()` 函数，用于检测当前焦点是否在输入元素上。这是典型的代码重复，且 `utils.js` 中已有 `Utils.isEditing()` 方法。
-- **⚠️ 影响程度**：低（功能正确，但维护成本高）
-- **💡 建议方案**：统一使用 `window.CWLUtils.isEditing()`
-- **📊 预期收益**：消除 3 处重复代码，单一维护点
+- **📍 位置**：`js/blog.js`、`js/search.js`、`js/search-loader.js`
+- **✅ 修复状态**：快捷键模块统一调用 `window.CWLUtils.isEditing()`，删除重复的 DOM tag 判断。
+- **🧪 回归测试**：`tests/js-behavior.test.mjs` 锁定公共 helper 复用；`tests/blog.test.mjs` 继续验证输入框聚焦时 J/K 快捷键不会切换文章。
+- **📊 实际收益**：消除 3 处重复代码，避免未来只改一处导致快捷键行为漂移。
 - **🔗 相关建议**：[CQ-02](code-quality.md#cq-02)
 
 ---
@@ -164,7 +163,7 @@
 |------|------|------|
 | 🔴 高 | 0 | — |
 | 🟡 中 | 2 | B-05, B-08 |
-| ✅ 已修复 | 3 | B-01, B-06, B-11 |
-| 🟢 低 | 7 | B-02, B-03, B-04, B-07, B-09, B-10, B-12 |
+| ✅ 已修复 | 4 | B-01, B-06, B-11, B-12 |
+| 🟢 低 | 6 | B-02, B-03, B-04, B-07, B-09, B-10 |
 
 > 整体评估：无高危 Bug，代码质量良好。主要风险集中在维护一致性（重复逻辑）和废弃 API 使用上。

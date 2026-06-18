@@ -3,9 +3,7 @@
   let queuedOpen = false;
 
   function editing() {
-    const active = document.activeElement || {};
-    const tag = active.tagName;
-    return tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || active.isContentEditable;
+    return Boolean(window.CWLUtils && window.CWLUtils.isEditing && window.CWLUtils.isEditing());
   }
 
   function loadSearch(openAfterLoad) {

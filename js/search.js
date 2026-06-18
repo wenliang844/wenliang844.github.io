@@ -72,9 +72,7 @@
   }
 
   function editing() {
-    const tag = (document.activeElement || {}).tagName;
-    return tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" ||
-      (document.activeElement || {}).isContentEditable;
+    return Boolean(window.CWLUtils && window.CWLUtils.isEditing && window.CWLUtils.isEditing());
   }
 
   function escapeHtml(value) {

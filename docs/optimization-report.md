@@ -4633,3 +4633,41 @@
 ### 下一步计划
 
 - 提交第五轮 UX 与技术债务修复。
+
+## 第 143 轮：快捷键编辑态判断去重
+
+时间：2026-06-18
+
+### 已完成内容
+
+- 将 `js/blog.js`、`js/search-loader.js`、`js/search.js` 中的快捷键编辑态判断统一委托给 `window.CWLUtils.isEditing()`。
+- 删除三个模块中重复维护的 `INPUT/TEXTAREA/SELECT/contenteditable` 判断逻辑。
+- 新增源码回归测试，确认快捷键模块复用公共 helper，且不再复制 input tag 判断。
+- 更新 CQ-01、B-12、CQ-10、索引和健康评分文档。
+
+### 发现的问题
+
+- 旧 `editing()` 逻辑在多个快捷键模块中重复定义；如果未来要支持更多可编辑元素，需要逐个文件同步修改。
+- 代码质量文档中 CQ-10 仍把已解决的构建期标题遍历重复列为待修项。
+
+### 修复方案
+
+- 保留各模块内部的 `editing()` 包装函数作为调用点，但实际判断统一走 `CWLUtils.isEditing()`。
+- 使用源码测试锁定公共 helper 复用，避免重复判断再次回流到模块内。
+- 同步文档状态，将 CQ-01/B-12/CQ-10 标记为已修复。
+
+### 性能、安全与质量指标
+
+- `node --test tests/blog.test.mjs tests/js-behavior.test.mjs tests/security.test.mjs`：46 个测试全部通过。
+- `npx eslint js/*.js`：通过。
+- `npm test`：526 个测试全部通过，耗时约 9.09 秒。
+- `npm run build`：通过，6 篇文章输出成功。
+- `npm run validate:production`：33 项通过、0 失败、0 警告。
+- `node --test tests/performance.test.mjs`：13 个测试全部通过。
+- `npm run test:coverage`：526 个测试全部通过；当前覆盖率 line 92.68%、branch 74.95%、funcs 89.33%。
+- `npm audit --audit-level=moderate --registry=https://registry.npmjs.org`：0 vulnerabilities。
+- 质量收益：快捷键编辑态规则回到单一维护点，减少 3 处重复逻辑。
+
+### 下一步计划
+
+- 提交第六轮代码质量修复。

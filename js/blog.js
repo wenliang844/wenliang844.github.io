@@ -241,9 +241,7 @@
   // ---- Vim 风格 J/K 切换文章 ----------------------------------------------
   // 复用 window.coderShowPost（coder.js 暴露）切换可见面板，跳过被筛选隐藏的项。
   function editing() {
-    const el = document.activeElement || {};
-    const tag = el.tagName;
-    return tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || el.isContentEditable;
+    return Boolean(window.CWLUtils && window.CWLUtils.isEditing && window.CWLUtils.isEditing());
   }
 
   function visibleItems() {

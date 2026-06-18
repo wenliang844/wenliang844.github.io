@@ -23,10 +23,10 @@
 
 | 优先级 | 类别 | 文档 | 发现数量 |
 |--------|------|------|----------|
-| 🔴 第一 | Bug 与风险 | [bugs-and-risks.md](bugs-and-risks.md) | 12（中 2 / 低 7 / 已修复 3） |
+| 🔴 第一 | Bug 与风险 | [bugs-and-risks.md](bugs-and-risks.md) | 12（中 2 / 低 6 / 已修复 4） |
 | 🔴 第一 | 安全审计 | [security-audit.md](security-audit.md) | 11（高 1 / 中 2 / 低 5 / 无 3） |
 | 🔴 第一 | 性能瓶颈 | [performance-bottlenecks.md](performance-bottlenecks.md) | 12（中 5 / 低 7） |
-| 🟡 第二 | 代码质量 | [code-quality.md](code-quality.md) | 10（中 3 / 低 7） |
+| 🟡 第二 | 代码质量 | [code-quality.md](code-quality.md) | 10（中 2 / 低 6 / 已修复 2） |
 | 🟡 第二 | 架构评审 | [architecture-review.md](architecture-review.md) | 7（中 3 / 低 4） |
 | 🟡 第二 | 技术债务 | [tech-debt.md](tech-debt.md) | 10（中 2 / 低 8） |
 | 🟢 第三 | 新功能建议 | [new-features.md](new-features.md) | 10 |
@@ -53,7 +53,6 @@
 |------|------|------|------|
 | P-09 | shadowBlur 替换为双层绘制 | 性能 | ⭐ |
 | UX-01 | 移动端导航遮罩层 | UX | ⭐ |
-| CQ-01 | 统一 editing() 函数 | 代码质量 | ⭐ |
 | CQ-02 | 统一 copyText 函数 | 代码质量 | ⭐ |
 | CQ-04 | 统一 t() i18n 函数 | 代码质量 | ⭐ |
 | F-04 | 主题跟随系统 | 功能 | ⭐ |
@@ -62,6 +61,8 @@
 已完成：P-01 粒子动画空闲停止，并新增 fake canvas 回归测试。
 已完成：B-06 构建期标题 ID 去重，并新增 TOC/正文锚点一致性回归测试。
 已完成：UX-04 非文章页隐藏阅读进度条；B-11 替换废弃 `pageYOffset`。
+已完成：CQ-01/B-12 统一快捷键编辑态判断到 `CWLUtils.isEditing()`。
+已完成：CQ-10 构建期 TOC 与正文标题处理合并为单次遍历。
 
 ### 🥈 高价值中成本（建议近期规划）
 

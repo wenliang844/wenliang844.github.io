@@ -130,6 +130,15 @@ test("utils.js isEditing function exists", async () => {
   assert.equal(typeof dom.window.CWLUtils.isEditing, "function");
 });
 
+test("keyboard shortcut modules reuse CWLUtils.isEditing", async () => {
+  const files = ["blog.js", "search-loader.js", "search.js"];
+  for (const file of files) {
+    const code = await readFile(join(ROOT, "js", file), "utf8");
+    assert.ok(code.includes("CWLUtils.isEditing"), `${file} should call shared editing helper`);
+    assert.equal(code.includes('tag === "INPUT"'), false, `${file} should not duplicate input tag checks`);
+  }
+});
+
 // ─── error-handler.js 测试 ────────────────────────────────────────────────────
 
 test("error-handler.js registers global error handlers", async () => {
