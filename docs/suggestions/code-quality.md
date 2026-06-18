@@ -24,21 +24,12 @@
 
 ---
 
-## 📌 CQ-03: `escapeHtml` 在 3 个上下文中独立实现
+## 📌 CQ-03 [已修复]: `escapeHtml` 在 3 个上下文中独立实现
 
-- **📍 位置**：
-  - `src/lib/format.mjs:57-59`（构建脚本，服务端）
-  - `js/utils.js:15-22`（客户端工具库）
-  - `js/search.js:80-87`（搜索模块，内联）
-- **📝 当前状况**：三个独立的 `escapeHtml` 实现，功能基本相同但细节略有差异：
-  - `format.mjs`：`escapeAttr + '&#39;'` 转义
-  - `utils.js`：完整的 5 种字符转义
-  - `search.js`：与 `utils.js` 完全相同但独立实现
-
-  `search.js` 的实现是不必要的重复，因为它在同一 IIFE 中可以访问 `window.CWLUtils.escapeHtml`。
-- **⚠️ 影响程度**：低
-- **💡 建议方案**：`search.js` 中移除内联 `escapeHtml`，改用 `window.CWLUtils.escapeHtml`。构建脚本的实现保留（Node.js 环境无法使用浏览器 API）。
-- **📊 预期收益**：消除 1 处重复，减少搜索模块体积
+- **📍 原位置**：`src/lib/format.mjs`、`js/utils.js`、`js/search.js`
+- **✅ 修复状态**：`search.js` 已删除本地 `escapeHtml`，搜索结果高亮改用 DOM text node + `<mark>` 节点渲染。服务端 `format.mjs` 与客户端 `utils.js` 保留各自边界内的转义 helper。
+- **🧪 回归测试**：`tests/js-behavior.test.mjs` 新增源码测试，确认 `search.js` 不再保留本地 `escapeHtml` 或手写 HTML entity 编码表。
+- **📊 实际收益**：消除搜索模块的重复转义实现，并进一步降低字符串 HTML 渲染维护风险。
 - **🔗 相关建议**：[S-01](security-audit.md#s-01)
 
 ---
@@ -194,7 +185,7 @@
 | 命名规范 | ⭐⭐⭐⭐ | 一致的 camelCase，语义清晰 |
 | 注释质量 | ⭐⭐⭐⭐⭐ | 每个文件/函数都有清晰的中文注释 |
 | 错误处理 | ⭐⭐⭐⭐ | try-catch 覆盖 localStorage、网络请求等 |
-| 代码重复 | ⭐⭐⭐⭐ | 剩余 3 处明显重复（escapeHtml, t(), readingMinutes 相关仍需继续治理） |
+| 代码重复 | ⭐⭐⭐⭐ | 剩余 2 处明显重复（t(), readingMinutes 相关仍需继续治理） |
 | 文件粒度 | ⭐⭐⭐ | coder.js 过大（560 行），其他文件合理 |
 | 现代化程度 | ⭐⭐⭐⭐ | 主要旧式 DOM 集合转换已替换为 ES2015+ 写法 |
 | XSS 防护 | ⭐⭐⭐⭐⭐ | 全面的转义处理 |

@@ -157,6 +157,12 @@ test("copy consumers delegate fallback logic to CWLUtils.copyText", async () => 
   }
 });
 
+test("search.js no longer duplicates escapeHtml", async () => {
+  const code = await readFile(join(ROOT, "js", "search.js"), "utf8");
+  assert.doesNotMatch(code, /function\s+escapeHtml\b/, "search.js should not keep a local escapeHtml copy");
+  assert.doesNotMatch(code, /&lt;|&gt;|&quot;|&#39;/, "search.js should not manually encode HTML entities");
+});
+
 // ─── error-handler.js 测试 ────────────────────────────────────────────────────
 
 test("error-handler.js registers global error handlers", async () => {

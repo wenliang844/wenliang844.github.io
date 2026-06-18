@@ -4965,3 +4965,39 @@
 
 - 提交第十四轮代码质量修复。
 - 继续评估剩余重复逻辑或工程化配置改进。
+
+## 第 152 轮：搜索转义重复文档收敛
+
+时间：2026-06-18
+
+### 已完成内容
+
+- 为 `tests/js-behavior.test.mjs` 增加源码回归测试，确认 `search.js` 不再保留本地 `escapeHtml` 或手写 HTML entity 编码表。
+- 将 CQ-03 标记为已修复，说明搜索模块已改为 DOM text node + `<mark>` 渲染。
+- 更新索引和健康评分文档。
+
+### 发现的问题
+
+- 第 150 轮已经删除了 `search.js` 的内联 `escapeHtml`，但代码质量文档仍把它列为待处理重复实现。
+
+### 修复方案
+
+- 用源码测试锁定该重复实现不会回流。
+- 同步文档状态，保留服务端 `format.mjs` 与客户端 `utils.js` 两个合理边界。
+
+### 性能、安全与质量指标
+
+- `node --test tests/js-behavior.test.mjs`：31 个测试全部通过。
+- `npx eslint js/*.js`：通过。
+- `npm test`：533 个测试全部通过，耗时约 7.33 秒。
+- `npm run build`：通过，成功生成 6 篇文章页面。
+- `npm run validate:production`：33 项检查通过，0 失败，0 警告。
+- `node --test tests/performance.test.mjs`：13 个性能测试全部通过。
+- `npm run test:coverage`：533 个测试全部通过；行覆盖率 92.68%，分支覆盖率 74.95%，函数覆盖率 89.33%。
+- `npm audit --audit-level=moderate --registry=https://registry.npmjs.org`：0 个中高危漏洞。
+- 质量收益：文档与代码状态一致，减少后续重复排查成本。
+
+### 下一步计划
+
+- 提交第十五轮文档/测试收敛。
+- 继续评估剩余重复逻辑或更高收益的安全配置改进。
