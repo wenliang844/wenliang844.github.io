@@ -1,7 +1,7 @@
 // Deep test: build.mjs — uncovered code paths (empty file, empty content, error aggregation, absoluteUrl)
 import test from "node:test";
 import assert from "node:assert/strict";
-import { normalizeDate, normalizeModifiedDate, validateSlug, validatePost, renderContent, readingMinutes, relatedPosts } from "../scripts/build.mjs";
+import { normalizeDate, normalizeModifiedDate, normalizeCover, validateSlug, validatePost, renderContent, readingMinutes, relatedPosts } from "../scripts/build.mjs";
 
 // ─── normalizeDate edge cases ─────────────────────────────────────────────
 
@@ -61,6 +61,18 @@ test("normalizeModifiedDate rejects dates before publish date", () => {
     () => normalizeModifiedDate("2024-06-17", "2024-06-18", "test.md"),
     /before published date/,
   );
+});
+
+test("normalizeCover accepts site image and remote http URLs", () => {
+  assert.equal(normalizeCover("/images/posts/cover.png", "test.md"), "/images/posts/cover.png");
+  assert.equal(normalizeCover("https://example.com/cover.png", "test.md"), "https://example.com/cover.png");
+  assert.equal(normalizeCover(null, "test.md"), null);
+});
+
+test("normalizeCover rejects unsafe or unexpected paths", () => {
+  assert.throws(() => normalizeCover("javascript:alert(1)", "test.md"), /must start with/);
+  assert.throws(() => normalizeCover("/post/cover.png", "test.md"), /must start with/);
+  assert.throws(() => normalizeCover(42, "test.md"), /must be a string/);
 });
 
 // ─── validateSlug boundary cases ──────────────────────────────────────────

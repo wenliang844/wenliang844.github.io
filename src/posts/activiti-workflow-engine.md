@@ -10,6 +10,7 @@ summary: "围绕 Activiti 7、BPMN 2.0、运行时 API 和 Spring Boot 自动装
 summaryEn: "Engineering notes on enterprise workflow infrastructure around Activiti 7, BPMN 2.0, runtime APIs and Spring Boot auto-configuration."
 description: "基于 Activiti 7 的企业级工作流与 BPM 流程引擎实践。"
 descriptionEn: "Enterprise workflow and BPM engine practice based on Activiti 7."
+cover: "/images/posts/activiti-workflow-engine.png"
 tags: [Java, Spring Boot, Activiti 7, BPMN 2.0, 工作流]
 tagsEn: [Java, Spring Boot, Activiti 7, BPMN 2.0, Workflow]
 ---

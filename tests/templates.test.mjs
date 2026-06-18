@@ -82,6 +82,7 @@ test("post template renders next popup, related posts, bilingual body and JSON-L
     descriptionEn: "Description EN",
     tags: ["Java"],
     tagsEn: ["Java"],
+    cover: "/images/posts/current-post.png",
     images: ["/images/favicon.png", "./cover.png", "https://example.com/remote.png"],
     readMinutes: 3,
     contentHtml: "          <p>中文正文</p>",
@@ -124,6 +125,8 @@ test("post template renders next popup, related posts, bilingual body and JSON-L
   assert.match(html, /href="\/post\/related-post\/"/);
   assert.match(html, /data-i18n-lang="en" hidden/);
   assert.match(html, /<script type="application\/ld\+json">/);
+  assert.match(html, /property="og:image" content="https:\/\/wenliang844\.github\.io\/images\/posts\/current-post\.png"/);
+  assert.match(html, /name="twitter:image" content="https:\/\/wenliang844\.github\.io\/images\/posts\/current-post\.png"/);
   assert.match(html, /https:\/\/wenliang844\.github\.io\/images\/favicon\.png/);
   assert.match(html, /https:\/\/wenliang844\.github\.io\/post\/current-post\/cover\.png/);
   assert.match(html, /https:\/\/example\.com\/remote\.png/);

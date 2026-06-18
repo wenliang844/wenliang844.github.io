@@ -55,6 +55,7 @@ test("build sitemap includes image:image entries for posts with images", async (
     assert.match(sitemap, /xmlns:image="http:\/\/www\.google\.com\/schemas\/sitemap-image\/1\.1"/);
     // 应包含 post URL
     assert.match(sitemap, /<loc>https:\/\/wenliang844\.github\.io\/post\/manage-system\/<\/loc>/);
+    assert.match(sitemap, /<image:loc>https:\/\/wenliang844\.github\.io\/images\/posts\/manage-system\.png<\/image:loc>/);
   } finally {
     await rm(outDir, { recursive: true, force: true });
   }

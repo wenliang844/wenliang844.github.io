@@ -52,24 +52,13 @@
 
 ---
 
-## 📌 RES-02: 所有文章无图片，image sitemap 和 JSON-LD image 字段为空
+## 📌 RES-02 [已修复]: 所有文章无图片，image sitemap 和 JSON-LD image 字段为空
 
 - **📍 位置**：`src/posts/*.md`（718 行总计）
-- **📝 当前状况**：6 篇 Markdown 文章均不包含 `<img>` 标签，全部是纯文本和代码块。这意味着：
-  - `post.images` 数组始终为空
-  - JSON-LD `image` 字段不输出
-  - sitemap 的 `image:image` 扩展不生效
-  - OG `og:image` 使用站点 favicon（所有文章相同）
-- **⚠️ 影响程度**：中（社交分享效果受限）
-- **💡 建议方案**：
-  1. 为每篇文章添加封面图（技术架构图、流程图等）
-  2. 在 front-matter 中支持 `cover` 字段：
-     ```yaml
-     cover: /images/posts/manage-system-pipeline.png
-     ```
-  3. 构建时自动设置为 OG image 和 JSON-LD image
-
-- **📊 预期收益**：社交平台分享时显示专属图片，点击率提升
+- **✅ 修复状态**：6 篇文章均新增 `cover` front matter，并生成 1200×630 PNG 社交封面图，保存于 `images/posts/`。
+- **✅ 构建支持**：`scripts/build.mjs` 新增 `normalizeCover()`，将 cover 排入 `post.images` 首位；单篇页 OG/Twitter image、Article JSON-LD `image` 和 sitemap `image:image` 均使用文章专属封面。
+- **🧪 回归测试**：`tests/build-deep.test.mjs` 覆盖 cover 路径校验；`tests/templates.test.mjs` 覆盖单篇页 OG/Twitter image；`tests/build-extra.test.mjs` 覆盖 sitemap image 输出。
+- **📊 实际收益**：社交平台分享时显示文章专属图片，不再全部使用 favicon 兜底。
 - **🔗 相关建议**：[F-08](../new-features.md#f-08)
 
 ---

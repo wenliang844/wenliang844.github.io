@@ -71,6 +71,22 @@ export function normalizeModifiedDate(modified, date, filename = "post") {
   return normalized;
 }
 
+export function normalizeCover(cover, filename = "post") {
+  if (!cover) {
+    return null;
+  }
+  if (typeof cover !== "string") {
+    throw new Error(`Invalid cover in ${filename}: cover must be a string.`);
+  }
+  if (cover.length > 300) {
+    throw new Error(`Invalid cover in ${filename}: cover path is too long (max 300 characters).`);
+  }
+  if (!/^(\/images\/|https?:\/\/)/i.test(cover)) {
+    throw new Error(`Invalid cover in ${filename}: cover must start with /images/ or http(s)://.`);
+  }
+  return cover;
+}
+
 // 验证 slug 是否合法（仅包含字母、数字、连字符、下划线）
 export function validateSlug(slug, filename) {
   if (!slug || typeof slug !== "string") {
@@ -244,6 +260,11 @@ async function loadPosts() {
 
       const date = normalizeDate(data.date);
       const modified = normalizeModifiedDate(data.modified, date, file);
+      const cover = normalizeCover(data.cover, file);
+      const contentImages = extractImages(contentResult.html);
+      const images = cover
+        ? [cover, ...contentImages.filter((src) => src !== cover)]
+        : contentImages;
 
       posts.push({
         title: data.title,
@@ -253,6 +274,7 @@ async function loadPosts() {
         slug,
         date,
         modified,
+        cover,
         eyebrow: data.eyebrow || "项目",
         summary: data.summary,
         summaryEn: data.summaryEn,
@@ -265,7 +287,7 @@ async function loadPosts() {
         toc: contentResult.toc,
         tocEn: contentEnResult ? contentEnResult.toc : [],
         readMinutes: readingMinutes(stripHtml(contentResult.html)),
-        images: extractImages(contentResult.html),
+        images,
       });
     } catch (error) {
       errors.push(`${file}: ${error.message}`);

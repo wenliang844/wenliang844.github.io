@@ -265,6 +265,7 @@ ${renderNextPopup(nav.next, nav.prev)}
       title: post.shortTitle,
       description: post.description,
       path: `/post/${post.slug}/`,
+      image: post.cover,
     },
     main,
   });

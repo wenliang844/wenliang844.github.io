@@ -5603,3 +5603,44 @@
 
 - 提交第三十轮 UX 优化。
 - 继续评估文章图片资源项、性能优化项或更高价值的内容型 SEO 改进。
+
+## 第 168 轮：补充文章专属社交封面
+
+时间：2026-06-18
+
+### 已完成内容
+
+- 为 6 篇文章新增 `cover` front matter。
+- 生成 6 张 1200×630 PNG 社交封面图，保存到 `images/posts/`。
+- `scripts/build.mjs` 新增 `normalizeCover()`，校验 cover 必须为 `/images/` 或 http(s) 图片路径。
+- 构建时将 cover 排入 `post.images` 首位，使 Article JSON-LD `image`、sitemap `image:image` 和单篇页 OG/Twitter image 使用文章专属封面。
+- 更新 RES-02、建议索引、健康评分、工作报告和本轮工作报告。
+
+### 发现的问题
+
+- 文章正文均无图片，虽然站点已有 favicon 兜底，但所有文章分享卡片使用同一图片，社交平台区分度不足。
+- Article JSON-LD `image` 和 sitemap `image:image` 依赖 `post.images`，缺少显式 cover 时无法稳定输出文章级图片信号。
+
+### 修复方案
+
+- 在 front matter 增加 `cover` 字段，并通过构建期校验阻断非图片路径和异常协议。
+- 生成统一规格的本地 PNG 社交卡片，避免外链图片失效。
+- 让单篇文章页优先使用 `post.cover` 渲染 OG/Twitter image，同时保留站点默认图给非文章页兜底。
+
+### 性能、安全与质量指标
+
+- `node --test tests/build-deep.test.mjs tests/build-extra.test.mjs tests/templates.test.mjs tests/templates-extended.test.mjs`：118 个构建/模板测试全部通过。
+- 图片资产：6 张 PNG，均为 1200×630；单张约 137KB-149KB。
+- `npm run lint:check`：通过。
+- `npm test`：552 个测试全部通过。
+- `npm run build`：通过，成功生成 6 篇文章页面。
+- `node --test tests/performance.test.mjs`：13 个性能测试全部通过。
+- `npm run validate:production`：33 项检查通过，0 失败，0 警告。
+- `npm run test:coverage`：552 个测试全部通过；行覆盖率 93.14%，分支覆盖率 75.17%，函数覆盖率 90.46%，均高于覆盖率阈值。
+- `npm audit --audit-level=moderate --registry=https://registry.npmjs.org`：0 个中高危漏洞。
+- SEO 收益：文章专属封面进入 Open Graph、Twitter Card、Article JSON-LD 和 image sitemap。
+
+### 下一步计划
+
+- 提交第三十一轮内容型 SEO 优化。
+- 继续评估图片展示体验、Lightbox 或更高价值的性能改进。

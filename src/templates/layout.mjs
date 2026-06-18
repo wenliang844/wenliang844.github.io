@@ -106,13 +106,14 @@ function renderSponsorFooterCta() {
 
 /**
  * 渲染 Open Graph + Twitter 卡片 meta。
- * 有缩略图（SITE.ogImage 非 null）→ 大图卡 summary_large_image；
+ * 有缩略图（文章 og.image 或 SITE.ogImage 非 null）→ 大图卡 summary_large_image；
  * 无缩略图 → 纯文字卡 summary，避免分享时图裂。
- * @param {{title: string, description: string, path: string, type?: string}} og
+ * @param {{title: string, description: string, path: string, type?: string, image?: string}} og
  */
 function renderMeta(og) {
   if (!og) return "";
   const url = `${SITE.baseURL}${og.path}`;
+  const image = og.image || SITE.ogImage;
   const lines = [
     `  <link rel="canonical" href="${escapeAttr(url)}">`,
     `  <meta property="og:type" content="${escapeAttr(og.type || "website")}">`,
@@ -121,8 +122,8 @@ function renderMeta(og) {
     `  <meta property="og:description" content="${escapeAttr(og.description)}">`,
     `  <meta property="og:url" content="${escapeAttr(url)}">`,
   ];
-  if (SITE.ogImage) {
-    const img = `${SITE.baseURL}${SITE.ogImage}`;
+  if (image) {
+    const img = /^https?:\/\//i.test(image) ? image : `${SITE.baseURL}${image}`;
     lines.push(`  <meta property="og:image" content="${escapeAttr(img)}">`);
     lines.push(`  <meta name="twitter:card" content="summary_large_image">`);
     lines.push(`  <meta name="twitter:image" content="${escapeAttr(img)}">`);

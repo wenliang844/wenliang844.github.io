@@ -82,6 +82,7 @@
 已完成：DE-09 声明 Node.js engines，并通过 workflow 测试与 CI Node 版本对齐。
 已完成：DE-02 为 `test:coverage` 增加 Node 原生覆盖率阈值，CI 可阻断明显覆盖率回退。
 已完成：F-04 主题模式支持 auto/light/dark，无本地偏好时跟随系统主题。
+已完成：RES-02 为 6 篇文章补充 cover 和 1200×630 社交封面，并接入 OG、JSON-LD 与 image sitemap。
 
 ### 🥈 高价值中成本（建议近期规划）
 
