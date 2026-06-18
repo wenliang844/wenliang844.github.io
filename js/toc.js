@@ -9,6 +9,8 @@
   const tocLinks = tocSidebar.querySelectorAll(".toc-nav a");
   const articleContent = document.querySelector(".article-content");
 
+  const currentScrollY = () => window.scrollY || document.documentElement.scrollTop || 0;
+
   // 展开/收起目录
   if (tocToggle) {
     const setTocOpen = (open) => {
@@ -69,7 +71,7 @@
         if (targetElement) {
           const offset = 80; // 导航栏高度
           const elementPosition = targetElement.getBoundingClientRect().top;
-          const offsetPosition = elementPosition + window.pageYOffset - offset;
+          const offsetPosition = elementPosition + currentScrollY() - offset;
 
           window.scrollTo({
             top: offsetPosition,
@@ -93,7 +95,7 @@
         setTimeout(() => {
           const offset = 80;
           const elementPosition = targetElement.getBoundingClientRect().top;
-          const offsetPosition = elementPosition + window.pageYOffset - offset;
+          const offsetPosition = elementPosition + currentScrollY() - offset;
 
           window.scrollTo({
             top: offsetPosition,

@@ -4587,3 +4587,49 @@
 ### 下一步计划
 
 - 提交第四轮构建质量修复。
+
+## 第 142 轮：非文章页阅读进度条与首页助手体验优化
+
+时间：2026-06-18
+
+### 已完成内容
+
+- 优化 `js/coder.js` 的阅读进度条逻辑：仅在存在活动文章时显示进度条，首页、工具箱等非文章页设置为 `hidden`。
+- 将 `js/coder.js` 中的滚动位置读取从 `window.pageYOffset` 替换为 `window.scrollY || doc.scrollTop`。
+- 将 `js/toc.js` 的目录滚动定位改为 `window.scrollY`，并保留 `document.documentElement.scrollTop` fallback。
+- 调整首页 AI 助手默认行为：非全屏模式下保持最小化，用户点击浮动按钮后再展开，避免遮挡首页首屏内容。
+- 为首页 AI 助手增加导航高度感知，使用 `--assistant-nav-height` 让面板停靠在导航下方，并覆盖移动端尺寸。
+- 更新 `tests/coder.test.mjs` 和 `tests/coder-deep.test.mjs`，覆盖文章页显示、非文章页隐藏和初始化滚动路径。
+- 更新 `tests/assistant.test.mjs` 和 `tests/css.test.mjs`，覆盖首页最小化启动、导航高度变量和首页助手 CSS。
+- 更新 UX-04、B-11、技术债务、安全审计、索引和健康评分文档。
+
+### 发现的问题
+
+- 旧进度条在所有页面都显示，非文章页面会把普通页面滚动误表达为“阅读进度”。
+- `pageYOffset` 仍在滚动逻辑中使用，虽然兼容但属于旧别名，容易在后续代码中继续扩散。
+- 首页助手旧逻辑会自动展开，容易盖住首页首屏内容；固定 bottom 停靠也没有考虑导航高度。
+
+### 修复方案
+
+- `onScroll()` 统一通过 `getActiveArticle()` 判断当前是否有文章上下文；没有文章时隐藏进度条并保持宽度为 0。
+- 使用现代 `scrollY` 读取滚动位置，在 TOC 专用脚本里封装 `currentScrollY()` fallback。
+- 用回归测试锁定非文章页隐藏行为，避免后续改动重新显示进度条。
+- `shouldAutoOpen()` 在首页默认返回最小化状态，仅保留显式 fullscreen 参数的自动展开。
+- 通过 `updateNavigationOffset()` 在初始化、resize 和语言切换后刷新助手的导航高度变量。
+
+### 性能、安全与质量指标
+
+- `node --test tests/coder.test.mjs tests/coder-deep.test.mjs`：33 个测试全部通过。
+- `npx eslint js/*.js`：通过。
+- `npm test`：525 个测试全部通过，耗时约 7.78 秒。
+- `npm run build`：通过，6 篇文章输出成功。
+- `npm run validate:production`：33 项通过、0 失败、0 警告。
+- `node --test tests/performance.test.mjs`：13 个测试全部通过。
+- `npm run test:coverage`：525 个测试全部通过；当前覆盖率 line 92.68%、branch 74.95%、funcs 89.33%。
+- `npm audit --audit-level=moderate --registry=https://registry.npmjs.org`：0 vulnerabilities。
+- 用户体验收益：非文章页减少误导性视觉状态，文章页阅读进度保持原行为；首页助手不再默认遮挡首屏内容。
+- 兼容性收益：减少废弃滚动 API 使用点。
+
+### 下一步计划
+
+- 提交第五轮 UX 与技术债务修复。

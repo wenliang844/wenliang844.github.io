@@ -34,6 +34,18 @@ test("coder.js creates reading progress bar", async () => {
   await loadCoder(dom);
   const bar = dom.window.document.querySelector(".read-progress");
   assert.ok(bar, "should create read-progress element");
+  assert.equal(bar.hidden, false, "should show progress on article pages");
+  dom.window.close();
+});
+
+test("coder.js hides reading progress bar on non-article pages", async () => {
+  const dom = buildDom(`<!doctype html><html lang="zh-CN"><body class="colorscheme-dark">
+    <main class="container"><h1>Tools</h1><p>Utility page content.</p></main>
+  </body></html>`, { url: "https://wenliang844.github.io/tools/" });
+  await loadCoder(dom);
+  const bar = dom.window.document.querySelector(".read-progress");
+  assert.ok(bar, "should still create read-progress element for consistent layout hooks");
+  assert.equal(bar.hidden, true, "should hide progress when no article is active");
   dom.window.close();
 });
 

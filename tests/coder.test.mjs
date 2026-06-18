@@ -176,7 +176,7 @@ test("coder.js creates back-to-top button", async () => {
 
 // ─── Progress bar ─────────────────────────────────────────────────────────
 
-test("coder.js creates reading progress bar", async () => {
+test("coder.js hides reading progress bar on non-article pages", async () => {
   const dom = buildDom(`<!doctype html><html lang="zh-CN"><body class="colorscheme-dark"></body></html>`);
   const utilsCode = await readFile(join(ROOT, "js", "utils.js"), "utf8");
   const coderCode = await readFile(join(ROOT, "js", "coder.js"), "utf8");
@@ -185,6 +185,7 @@ test("coder.js creates reading progress bar", async () => {
 
   const progress = dom.window.document.querySelector(".read-progress");
   assert.ok(progress, "progress bar created");
+  assert.equal(progress.hidden, true, "progress bar is hidden without an article");
   dom.window.close();
 });
 

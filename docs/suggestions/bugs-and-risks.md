@@ -137,13 +137,12 @@
 
 ---
 
-## 📌 B-11: `coder.js` 中 `window.pageYOffset` 已废弃
+## 📌 B-11 [已修复]: `coder.js` 中 `window.pageYOffset` 已废弃
 
-- **📍 位置**：`js/coder.js:142`
-- **📝 当前状况**：`window.pageYOffset` 是 `window.scrollY` 的别名，已被标记为废弃。虽然目前所有浏览器都支持，但新代码应使用 `window.scrollY`。
-- **⚠️ 影响程度**：低
-- **💡 建议方案**：替换为 `window.scrollY || doc.scrollTop`
-- **📊 预期收益**：跟进 Web 标准演进
+- **📍 位置**：`js/coder.js`、`js/toc.js`
+- **✅ 修复状态**：滚动偏移读取改用 `window.scrollY`，并在 `toc.js` 中保留 `document.documentElement.scrollTop` fallback。
+- **🧪 回归测试**：`tests/coder.test.mjs` 与 `tests/coder-deep.test.mjs` 覆盖滚动初始化路径。
+- **📊 实际收益**：跟进现代 Web API，避免继续扩散废弃别名。
 - **🔗 相关建议**：[TD-01](tech-debt.md#td-01)
 
 ---
@@ -165,7 +164,7 @@
 |------|------|------|
 | 🔴 高 | 0 | — |
 | 🟡 中 | 2 | B-05, B-08 |
-| ✅ 已修复 | 2 | B-01, B-06 |
-| 🟢 低 | 8 | B-02, B-03, B-04, B-07, B-09, B-10, B-11, B-12 |
+| ✅ 已修复 | 3 | B-01, B-06, B-11 |
+| 🟢 低 | 7 | B-02, B-03, B-04, B-07, B-09, B-10, B-12 |
 
 > 整体评估：无高危 Bug，代码质量良好。主要风险集中在维护一致性（重复逻辑）和废弃 API 使用上。

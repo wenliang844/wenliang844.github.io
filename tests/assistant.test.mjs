@@ -9,11 +9,12 @@ const DISMISS_KEY = "cwl.assistant.dismissed";
 
 async function loadAssistant(options = {}) {
   const code = await readFile(join(ROOT, "js", "assistant.js"), "utf8");
+  const body = options.body || '<button class="nav-search-trigger" type="button">Search</button>';
   const dom = new JSDOM(
-    "<!doctype html><html><body><button class=\"nav-search-trigger\" type=\"button\">Search</button></body></html>",
+    `<!doctype html><html><body>${body}</body></html>`,
     {
       runScripts: "outside-only",
-      url: options.url || "https://assistant-test-" + Math.random().toString(36).slice(2) + ".example/",
+      url: options.url || "https://assistant-test-" + Math.random().toString(36).slice(2) + ".example/post/",
     },
   );
   if (options.lang) {
@@ -119,17 +120,42 @@ test("assistant remembers dismissal on non-home pages for the current session", 
   assert.equal(dismissedDom.window.document.body.classList.contains("assistant-open"), false);
 });
 
-test("assistant opens on the homepage even after a session dismissal", async () => {
+test("assistant keeps the homepage minimized until the floating button is clicked", async () => {
   const dom = await loadAssistant({
     url: "https://example.test/",
+    body: '<header class="navigation"><div class="container"></div></header><button class="nav-search-trigger" type="button">Search</button>',
     sessionStorage: {
       [DISMISS_KEY]: "1",
     },
   });
   const { document } = dom.window;
 
+  const toggle = document.querySelector(".assistant-fab");
+  assert.equal(document.querySelector(".assistant-panel").hidden, true);
+  assert.equal(document.body.classList.contains("assistant-open"), false);
+  assert.equal(toggle.getAttribute("aria-expanded"), "false");
+
+  toggle.click();
+
   assert.equal(document.querySelector(".assistant-panel").hidden, false);
   assert.equal(document.body.classList.contains("assistant-open"), true);
+  assert.equal(toggle.getAttribute("aria-expanded"), "true");
+});
+
+test("assistant tracks navigation height for the homepage top dock", async () => {
+  const dom = await loadAssistant({
+    url: "https://example.test/",
+    body: '<header class="navigation"><div class="container"></div></header><button class="nav-search-trigger" type="button">Search</button>',
+  });
+  const { document, Event } = dom.window;
+  const nav = document.querySelector(".navigation");
+  Object.defineProperty(nav, "getBoundingClientRect", {
+    value: () => ({ height: 96 }),
+  });
+
+  dom.window.dispatchEvent(new Event("resize"));
+
+  assert.equal(document.querySelector(".assistant-widget").style.getPropertyValue("--assistant-nav-height"), "96px");
 });
 
 test("assistant ranks partial page title matches ahead of generic keywords", async () => {

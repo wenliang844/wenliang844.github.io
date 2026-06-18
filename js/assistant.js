@@ -350,7 +350,13 @@
   }
 
   function shouldAutoOpen() {
-    return shouldStartFullscreen() || isHomePage() || sessionGet(DISMISS_KEY) !== "1";
+    if (shouldStartFullscreen()) {
+      return true;
+    }
+    if (isHomePage()) {
+      return false;
+    }
+    return sessionGet(DISMISS_KEY) !== "1";
   }
 
   function rememberDismissed() {
@@ -1202,6 +1208,20 @@
       root.style.removeProperty("--assistant-fullscreen-top");
     }
 
+    function updateNavigationOffset() {
+      const nav = document.querySelector(".navigation");
+      if (!nav) {
+        root.style.removeProperty("--assistant-nav-height");
+        return;
+      }
+      const navHeight = Math.ceil(nav.getBoundingClientRect().height);
+      if (navHeight > 0) {
+        root.style.setProperty("--assistant-nav-height", navHeight + "px");
+      } else {
+        root.style.removeProperty("--assistant-nav-height");
+      }
+    }
+
     function setFullscreen(nextFullscreen) {
       fullscreen = Boolean(nextFullscreen);
       root.classList.toggle("fullscreen", fullscreen);
@@ -1552,11 +1572,14 @@
     });
     document.addEventListener("cwl:langchange", function () {
       updateStaticText();
+      window.requestAnimationFrame(updateNavigationOffset);
       window.requestAnimationFrame(updateFullscreenOffset);
     });
+    window.addEventListener("resize", updateNavigationOffset);
     window.addEventListener("resize", updateFullscreenOffset);
     setOpacity(opacityInput.value);
     setConfigExpanded(false);
+    updateNavigationOffset();
     updateStaticText();
     setOpen(shouldAutoOpen(), { skipFocus: true });
     if (shouldStartFullscreen()) {

@@ -128,6 +128,8 @@ test("coder.css contains assistant selectors", async () => {
   assert.ok(css.includes(".assistant-panel"), "should have assistant-panel");
   assert.ok(css.includes(".assistant-panel[hidden]"), "should have assistant-panel[hidden]");
   assert.ok(css.includes(".assistant-widget.fullscreen"), "should have assistant fullscreen state");
+  assert.match(css, /body\[data-i18n-page="home"\]\s+\.assistant-widget:not\(\.fullscreen\)\s*{[^}]*top:\s*calc\(var\(--assistant-nav-height,\s*5\.6rem\)\s*\+\s*0\.9rem\);[^}]*bottom:\s*auto;[^}]*z-index:\s*45;/s);
+  assert.match(css, /body\[data-i18n-page="home"\]\s+\.assistant-widget:not\(\.fullscreen\)\s+\.assistant-panel\s*{[^}]*top:\s*4rem;[^}]*bottom:\s*auto;/s);
   assert.ok(css.includes(".assistant-relay-cta"), "should have assistant relay CTA");
   assert.ok(css.includes(".assistant-message"), "should have assistant-message");
   assert.ok(css.includes(".assistant-input"), "should have assistant-input");

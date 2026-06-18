@@ -11,7 +11,6 @@
 
   | 废弃 API | 位置 | 现代替代 |
   |----------|------|----------|
-  | `window.pageYOffset` | coder.js:142 | `window.scrollY` |
   | `window.performance.timing` | performance-monitor.js:47-66 | `PerformanceNavigationTiming` |
   | `document.execCommand("copy")` | utils.js:59, coder.js:189, share.js:68 | `navigator.clipboard.writeText()` |
   | `Array.prototype.slice.call()` | coder.js:41, blog.js:8 等 | `Array.from()` 或展开运算符 |
@@ -20,9 +19,6 @@
 - **⚠️ 影响程度**：低（当前功能不受影响，未来浏览器可能移除）
 - **💡 建议方案**：逐步替换：
   ```javascript
-  // pageYOffset → scrollY
-  const scrollTop = window.scrollY || doc.scrollTop;
-
   // performance.timing → PerformanceNavigationTiming
   const nav = performance.getEntriesByType("navigation")[0];
 
@@ -30,7 +26,7 @@
   const items = Array.from(document.querySelectorAll(".foo"));
   ```
 - **📊 预期收益**：跟上 Web 标准演进，消除控制台 deprecation 警告
-- **🔗 相关建议**：[B-09](bugs-and-risks.md#b-09), [B-11](bugs-and-risks.md#b-11), [CQ-07](code-quality.md#cq-07)
+- **🔗 相关建议**：[B-09](bugs-and-risks.md#b-09), [CQ-07](code-quality.md#cq-07)
 
 ---
 
@@ -234,7 +230,7 @@
 
 | 类别 | 数量 | 严重程度 |
 |------|------|----------|
-| 废弃 API | 4 处 | 低 |
+| 废弃 API | 3 处 | 低 |
 | 过时依赖 | 2 个 | 低 |
 | 死代码 | 3 个文件 | 低 |
 | 缺少类型 | 全局 | 低 |

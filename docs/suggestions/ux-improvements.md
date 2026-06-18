@@ -90,24 +90,12 @@
 
 ---
 
-## 📌 UX-04: 阅读进度条在非文章页面仍显示
+## 📌 UX-04 [已修复]: 阅读进度条在非文章页面仍显示
 
-- **📍 位置**：`js/coder.js:98-101`
-- **📝 当前状况**：阅读进度条（`.read-progress`）在所有页面都创建并显示，包括首页、工具箱、编辑器等非文章页面。在这些页面上，进度条反映的是整个页面的滚动进度，可能误导用户。
-- **⚠️ 影响程度**：低
-- **💡 建议方案**：只在文章页面显示进度条：
-  ```javascript
-  const article = getActiveArticle();
-  if (!article && !document.querySelector("article.article")) {
-    progress.style.display = "none";
-    return; // 非文章页面不初始化进度条
-  }
-  ```
-  或用 CSS 在非文章页隐藏：
-  ```css
-  body:not([data-i18n-page="posts"]) .read-progress { display: none; }
-  ```
-- **📊 预期收益**：非文章页面视觉更干净
+- **📍 位置**：`js/coder.js`
+- **✅ 修复状态**：滚动处理会检测当前是否存在活动文章；无文章页面保留 `.read-progress` 布局钩子但设置 `hidden`，避免首页、工具箱等页面显示误导性的阅读进度。
+- **🧪 回归测试**：`tests/coder.test.mjs` 与 `tests/coder-deep.test.mjs` 覆盖文章页显示和非文章页隐藏。
+- **📊 实际收益**：非文章页面视觉更干净，文章页阅读进度行为保持不变。
 - **🔗 相关建议**：[TD-08](tech-debt.md#td-08)
 
 ---
@@ -266,7 +254,6 @@
 | 🥇 | UX-01 | 移动端用户 | 低 |
 | 🥇 | UX-03 | 文章读者 | 低 |
 | 🥇 | UX-09 | 无障碍用户 | 中 |
-| 🥈 | UX-04 | 所有用户 | 低 |
 | 🥈 | UX-05 | 订阅用户 | 低 |
 | 🥉 | UX-02 | 搜索用户 | 低 |
 | 🥉 | UX-06 | 反馈用户 | 低 |

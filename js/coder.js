@@ -144,17 +144,17 @@
 
   function onScroll() {
     const doc = document.documentElement;
-    const scrollTop = window.pageYOffset || doc.scrollTop;
+    const scrollTop = window.scrollY || doc.scrollTop;
     const article = getActiveArticle();
     let ratio = 0;
 
     if (article) {
+      progress.hidden = false;
       const articleTop = article.getBoundingClientRect().top + scrollTop;
       const readableHeight = Math.max(1, article.scrollHeight - window.innerHeight * 0.65);
       ratio = clamp((scrollTop - articleTop) / readableHeight, 0, 1);
     } else {
-      const height = doc.scrollHeight - doc.clientHeight;
-      ratio = height > 0 ? scrollTop / height : 0;
+      progress.hidden = true;
     }
 
     progress.style.width = (ratio * 100).toFixed(2) + "%";
