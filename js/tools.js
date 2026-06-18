@@ -4,6 +4,8 @@
     return;
   }
 
+  const timeResults = {};
+
   function t(key, fallback) {
     return window.cwlT ? window.cwlT(key, fallback) : fallback;
   }
@@ -235,14 +237,17 @@
     const timeAction = closest(event.target, "[data-time-action]");
     if (timeAction) {
       const action = timeAction.getAttribute("data-time-action");
+      const outputId = action === "from-timestamp" ? "timestamp-output" : "datetime-output";
       const result = action === "from-timestamp"
         ? core.normalizeTimestamp(inputValue("timestamp-input"))
         : core.dateToTimestamp(inputValue("datetime-input"));
       if (result.ok) {
-        text(action === "from-timestamp" ? "timestamp-output" : "datetime-output", formatTimeResult(result.value));
+        timeResults[outputId] = result.value;
+        text(outputId, formatTimeResult(result.value));
         setStatus("time-status", t("tools.status.converted", "转换完成"), "ok");
       } else {
-        text(action === "from-timestamp" ? "timestamp-output" : "datetime-output", "");
+        delete timeResults[outputId];
+        text(outputId, "");
         setStatus("time-status", errorMessage(result), "error");
       }
       return;
@@ -286,6 +291,11 @@
 
   updateNow();
   initTimeInput();
-  document.addEventListener("cwl:langchange", updateNow);
+  document.addEventListener("cwl:langchange", function () {
+    updateNow();
+    Object.keys(timeResults).forEach(function (id) {
+      text(id, formatTimeResult(timeResults[id]));
+    });
+  });
   window.setInterval(updateNow, 1000);
 })();

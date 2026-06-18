@@ -284,6 +284,27 @@ test("tools page localizes English placeholders and dynamic statuses", async () 
   }
 });
 
+test("time conversion output rerenders after language changes", async () => {
+  const { dom } = await loadToolsPage({ i18n: true });
+  const { document } = dom.window;
+  dom.window.Date.prototype.toLocaleString = function (localeArg) {
+    return localeArg === "en-US" ? "EN_LOCAL_TIME" : "ZH_LOCAL_TIME";
+  };
+  try {
+    document.querySelector('[data-tool-tab="time"]').click();
+    document.querySelector("#timestamp-input").value = "1718697600";
+    document.querySelector('[data-time-action="from-timestamp"]').click();
+    assert.match(document.querySelector("#timestamp-output").textContent, /本地时间: ZH_LOCAL_TIME/);
+
+    document.querySelector(".lang-toggle").click();
+    assert.equal(document.documentElement.getAttribute("lang"), "en");
+    assert.match(document.querySelector("#timestamp-output").textContent, /Milliseconds: 1718697600000/);
+    assert.match(document.querySelector("#timestamp-output").textContent, /Local time: EN_LOCAL_TIME/);
+  } finally {
+    dom.window.close();
+  }
+});
+
 test("navigation can wrap translated toolbox labels", async () => {
   const css = await readFile(join(ROOT, "css", "coder.css"), "utf8");
 
