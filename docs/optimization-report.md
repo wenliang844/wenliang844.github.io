@@ -4404,3 +4404,29 @@
 - `npm run validate:production`：33 项通过、0 失败、0 警告。
 - `npm audit --audit-level=moderate --registry=https://registry.npmjs.org`：0 vulnerabilities。
 - `tests/performance.test.mjs`：13/13 通过，`coder.css` 保持在 115KB 阈值内。
+
+## 第 137 轮：助手全屏布局偏移修复
+
+时间：2026-06-18
+
+### 已完成内容
+
+- 修复助手全屏模式固定依赖 `5.6rem` / `4.6rem` 导航高度的问题，改为读取实际 `.navigation` 高度并写入 `--assistant-fullscreen-top`。
+- 在窗口尺寸变化和语言切换后刷新全屏偏移，降低移动端、翻译文本变化或导航高度变化时的遮挡风险。
+- 同步建议文档中的源码规模、测试数量和当前质量基线。
+
+### 发现的问题
+
+- 助手全屏状态的顶部偏移使用静态 CSS 值，导航高度发生变化时可能遮挡面板顶部。
+- 文档中的源码规模仍停留在工具箱扩展前，测试数量也与当前基线不一致。
+
+### 修复方案
+
+- 在 `js/assistant.js` 中新增 `updateFullscreenOffset()`，进入全屏、resize 和语言切换时重新计算偏移。
+- 在 `css/coder.css` 中使用 `--assistant-fullscreen-top` 变量控制全屏顶部位置，保留桌面和移动端 fallback。
+- 更新 `docs/suggestions/README.md` 的源码规模与测试基线。
+
+### 性能、覆盖率与质量指标
+
+- 本轮为小范围布局修复，未引入外部依赖。
+- 后续验证项：`npm run lint`、`npm test`、`npm run build`、`tests/performance.test.mjs`。
