@@ -3311,3 +3311,35 @@
 - 继续做最终阶段浏览器 fullscreen 抽样。
 - 运行最终组合回归与构建。
 - 汇总完整优化报告和后续建议。
+
+## 第 103 轮：工具页助手 fullscreen 浏览器验证
+
+时间：2026-06-18
+
+### 已完成内容
+
+- 使用浏览器打开 `/tools/?assistant=fullscreen`。
+- 验证第 101 轮工具页默认收起逻辑不会覆盖显式 fullscreen 启动。
+- 检查 fullscreen 状态、面板可见性、console 和横向溢出。
+
+### 发现的问题
+
+- 本轮未发现 fullscreen 回归。
+- 工具页默认收起逻辑正确跳过显式 fullscreen 场景。
+
+### 修复方案
+
+- 本轮为浏览器验证与证据记录，没有新增生产代码修复。
+- 保留 `shouldKeepAssistantOpen()` 对 `assistant=fullscreen`、`ai=fullscreen` 和 `#assistant-fullscreen` 的判断。
+
+### 性能、覆盖率与质量指标
+
+- 浏览器状态：`assistant-open=true`，`assistant-fullscreen=true`，面板 `hidden=false`。
+- 浏览器 console `warn/error`：0。
+- 工具页横向溢出：0。
+
+### 下一步计划
+
+- 继续运行最终组合回归与构建。
+- 检查当前提交历史和工作区，避免收尾报告混入并行脏改。
+- 汇总最终优化报告。
