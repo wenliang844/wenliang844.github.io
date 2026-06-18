@@ -23,7 +23,7 @@
 
 | 优先级 | 类别 | 文档 | 发现数量 |
 |--------|------|------|----------|
-| 🔴 第一 | Bug 与风险 | [bugs-and-risks.md](bugs-and-risks.md) | 12（中 4 / 低 8） |
+| 🔴 第一 | Bug 与风险 | [bugs-and-risks.md](bugs-and-risks.md) | 12（中 2 / 低 8 / 已修复 2） |
 | 🔴 第一 | 安全审计 | [security-audit.md](security-audit.md) | 11（高 1 / 中 2 / 低 5 / 无 3） |
 | 🔴 第一 | 性能瓶颈 | [performance-bottlenecks.md](performance-bottlenecks.md) | 12（中 5 / 低 7） |
 | 🟡 第二 | 代码质量 | [code-quality.md](code-quality.md) | 10（中 3 / 低 7） |
@@ -56,12 +56,12 @@
 | CQ-01 | 统一 editing() 函数 | 代码质量 | ⭐ |
 | CQ-02 | 统一 copyText 函数 | 代码质量 | ⭐ |
 | CQ-04 | 统一 t() i18n 函数 | 代码质量 | ⭐ |
-| B-06 | 修复重复标题 ID | Bug | ⭐ |
 | F-04 | 主题跟随系统 | 功能 | ⭐ |
 | UX-04 | 进度条仅文章页显示 | UX | ⭐ |
 
 已完成：S-00 移除前端硬编码 API key，并新增无 key 阻断和源码密钥扫描回归测试。
 已完成：P-01 粒子动画空闲停止，并新增 fake canvas 回归测试。
+已完成：B-06 构建期标题 ID 去重，并新增 TOC/正文锚点一致性回归测试。
 
 ### 🥈 高价值中成本（建议近期规划）
 

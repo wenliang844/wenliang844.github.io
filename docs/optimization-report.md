@@ -4544,3 +4544,46 @@
 ### 下一步计划
 
 - 提交第三轮性能优化。
+
+## 第 141 轮：构建期重复标题锚点修复
+
+时间：2026-06-18
+
+### 已完成内容
+
+- 修复 `scripts/build.mjs` 中 `extractToc()` 与 `renderContent()` 各自生成标题 ID 的重复逻辑。
+- 新增共享的标题 slug、唯一 ID 和标题渲染流程，正文标题与 TOC 统一来自同一次 `renderHeadings()` 结果。
+- 重复 h2/h3 标题会自动追加 `-2`, `-3` 后缀，避免页面内出现重复锚点。
+- 导出 `renderContent()` 供构建深度测试直接覆盖。
+- 新增重复标题回归测试，验证 TOC id 与正文标题 `id` 完全一致。
+- 重新构建静态文章页，同步更新已有文章中的 TOC 锚点。
+- 更新 B-06 建议文档、索引和健康评分，将该项从待修复移入已修复。
+
+### 发现的问题
+
+- 旧构建逻辑用两段正则分别生成 TOC 与正文标题 ID，维护时容易出现规则漂移。
+- 标题 slug 未去除首尾连字符，含中文引号或标点的标题会生成较粗糙的锚点。
+- 重复标题不会去重，同一篇文章内可能出现相同 `id`，导致 TOC 跳转到错误位置。
+
+### 修复方案
+
+- 用 `headingSlug()` 统一清理标题文本，保留中英文和数字，去掉首尾连字符，空标题回退到 `section`。
+- 用 `uniqueHeadingId()` 记录已生成 ID，重复时追加稳定序号。
+- 让 `extractToc()` 复用 `renderHeadings()` 的 TOC 结果，避免与正文渲染逻辑分叉。
+
+### 性能、安全与质量指标
+
+- `node --test tests/build-deep.test.mjs tests/build.test.mjs tests/templates.test.mjs`：55 个测试全部通过。
+- `npx eslint js/*.js`：通过。
+- `npm test`：523 个测试全部通过，耗时约 7.70 秒。
+- `npm run build`：通过，6 篇文章输出成功。
+- `npm run validate:production`：33 项通过、0 失败、0 警告。
+- `node --test tests/performance.test.mjs`：13 个测试全部通过。
+- `npm run test:coverage`：523 个测试全部通过；当前覆盖率 line 92.68%、branch 74.95%、funcs 89.33%。
+- `npm audit --audit-level=moderate --registry=https://registry.npmjs.org`：0 vulnerabilities。
+- 质量收益：消除页面内重复 heading id 风险，减少构建期 TOC 逻辑重复。
+- 性能影响：构建期只在单次 replace 中同时产出正文与 TOC，运行时无额外成本。
+
+### 下一步计划
+
+- 提交第四轮构建质量修复。

@@ -143,45 +143,56 @@ function tidyHtml(html) {
   return s.trim();
 }
 
-// 从 HTML 中提取标题生成目录数据
-function extractToc(html) {
-  const headings = [];
-  const regex = /<(h[2-3])>(.*?)<\/\1>/gs;
-  let match;
-  let h2Index = 0;
-
-  while ((match = regex.exec(html)) !== null) {
-    const level = parseInt(match[1][1]); // h2 -> 2, h3 -> 3
-    const text = match[2].replace(/<[^>]+>/g, ''); // 移除内联标签
-    const id = `toc-${level === 2 ? ++h2Index : h2Index}-${text.replace(/[^\w一-龥]+/g, '-').toLowerCase().slice(0, 50)}`;
-
-    headings.push({ level, text, id });
-  }
-
-  return headings;
+function headingSlug(text) {
+  return text.replace(/[^\w一-龥]+/g, "-").replace(/^-+|-+$/g, "").toLowerCase().slice(0, 50) || "section";
 }
 
-// 把正文 Markdown 渲染为 HTML，为标题添加 id，并缩进对齐到 article-content 内部（10 空格）。
-function renderContent(markdown) {
-  const html = tidyHtml(marked.parse(markdown));
-  const toc = extractToc(html);
+function uniqueHeadingId(base, seen) {
+  let id = base;
+  let index = 2;
+  while (seen.has(id)) {
+    id = `${base}-${index}`;
+    index += 1;
+  }
+  seen.add(id);
+  return id;
+}
 
-  // 为标题添加 id
-  let htmlWithIds = html;
-  let h2Index = 0;
-  htmlWithIds = htmlWithIds.replace(/<(h[2-3])>(.*?)<\/\1>/gs, (match, tag, content) => {
+function createHeadingId(level, text, state) {
+  const section = level === 2 ? ++state.h2Index : state.h2Index;
+  return uniqueHeadingId(`toc-${section}-${headingSlug(text)}`, state.seen);
+}
+
+function renderHeadings(html) {
+  const toc = [];
+  const state = { h2Index: 0, seen: new Set() };
+  const htmlWithIds = html.replace(/<(h[2-3])>(.*?)<\/\1>/gs, (match, tag, content) => {
     const level = parseInt(tag[1]);
-    const text = content.replace(/<[^>]+>/g, '');
-    const id = `toc-${level === 2 ? ++h2Index : h2Index}-${text.replace(/[^\w一-龥]+/g, '-').toLowerCase().slice(0, 50)}`;
+    const text = content.replace(/<[^>]+>/g, "");
+    const id = createHeadingId(level, text, state);
+    toc.push({ level, text, id });
     return `<${tag} id="${id}">${content}</${tag}>`;
   });
 
-  const indented = htmlWithIds
+  return { html: htmlWithIds, toc };
+}
+
+// 从 HTML 中提取标题生成目录数据
+function extractToc(html) {
+  return renderHeadings(html).toc;
+}
+
+// 把正文 Markdown 渲染为 HTML，为标题添加 id，并缩进对齐到 article-content 内部（10 空格）。
+export function renderContent(markdown) {
+  const html = tidyHtml(marked.parse(markdown));
+  const rendered = renderHeadings(html);
+
+  const indented = rendered.html
     .split("\n")
     .map((line) => (line ? "          " + line : line))
     .join("\n");
 
-  return { html: indented, toc };
+  return { html: indented, toc: rendered.toc };
 }
 
 // 读取并解析所有文章，按日期倒序（最新在前）。

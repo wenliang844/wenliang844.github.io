@@ -75,22 +75,12 @@
 
 ---
 
-## 📌 B-06: `extractToc()` 和 `renderContent()` 中标题 ID 生成逻辑重复，且不处理重复标题
+## 📌 B-06 [已修复]: `extractToc()` 和 `renderContent()` 中标题 ID 生成逻辑重复，且不处理重复标题
 
-- **📍 位置**：`scripts/build.mjs:147-185`
-- **📝 当前状况**：`extractToc()` 和 `renderContent()` 都独立生成标题 ID，使用相同的正则和 `h2Index` 逻辑。如果一篇文章有两个相同文本的 h2 标题，会生成相同的 ID，导致 TOC 跳转错乱。`coder.js` 的 `buildToc()` 使用 `uniqueHeadingId()` 处理了这个问题，但构建脚本没有。
-- **⚠️ 影响程度**：中
-- **💡 建议方案**：在 `renderContent()` 中用 `Set` 记录已生成的 ID，重复时追加 `-2`, `-3` 后缀：
-  ```javascript
-  const usedIds = new Set();
-  let finalId = id;
-  let suffix = 2;
-  while (usedIds.has(finalId)) {
-    finalId = `${id}-${suffix++}`;
-  }
-  usedIds.add(finalId);
-  ```
-- **📊 预期收益**：消除重复标题导致的 TOC 跳转错误
+- **📍 位置**：`scripts/build.mjs`
+- **✅ 修复状态**：标题 ID 生成已提取到共享流程，正文标题和 TOC 使用同一次 `renderHeadings()` 结果；重复标题会追加 `-2`, `-3` 后缀。
+- **🧪 回归测试**：`tests/build-deep.test.mjs` 覆盖重复 h2/h3 标题，并验证 TOC id 与正文 `id` 一致。
+- **📊 实际收益**：消除重复标题导致的 TOC 跳转错乱，并减少 `extractToc()` / `renderContent()` 逻辑漂移。
 - **🔗 相关建议**：[B-07](#b-07)
 
 ---
@@ -174,7 +164,8 @@
 | 等级 | 数量 | 编号 |
 |------|------|------|
 | 🔴 高 | 0 | — |
-| 🟡 中 | 4 | B-01, B-05, B-06, B-08 |
-| 🟢 低 | 8 | B-02, B-03, B-04, B-07, B-09, B-010, B-011, B-012 |
+| 🟡 中 | 2 | B-05, B-08 |
+| ✅ 已修复 | 2 | B-01, B-06 |
+| 🟢 低 | 8 | B-02, B-03, B-04, B-07, B-09, B-10, B-11, B-12 |
 
 > 整体评估：无高危 Bug，代码质量良好。主要风险集中在维护一致性（重复逻辑）和废弃 API 使用上。

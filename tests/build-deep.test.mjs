@@ -1,7 +1,7 @@
 // Deep test: build.mjs — uncovered code paths (empty file, empty content, error aggregation, absoluteUrl)
 import test from "node:test";
 import assert from "node:assert/strict";
-import { normalizeDate, validateSlug, validatePost, readingMinutes, relatedPosts } from "../scripts/build.mjs";
+import { normalizeDate, validateSlug, validatePost, renderContent, readingMinutes, relatedPosts } from "../scripts/build.mjs";
 
 // ─── normalizeDate edge cases ─────────────────────────────────────────────
 
@@ -156,6 +156,27 @@ test("validatePost rejects empty string fields as missing", () => {
     summary: "",
     description: "",
   }, "test.md"), /Missing required fields/);
+});
+
+test("renderContent generates unique heading ids shared with TOC", () => {
+  const result = renderContent(`
+## Duplicate
+### Child
+### Child
+## Duplicate
+### Child
+`);
+
+  assert.deepEqual(result.toc.map((item) => item.id), [
+    "toc-1-duplicate",
+    "toc-1-child",
+    "toc-1-child-2",
+    "toc-2-duplicate",
+    "toc-2-child",
+  ]);
+  for (const item of result.toc) {
+    assert.match(result.html, new RegExp(`id="${item.id}"`));
+  }
 });
 
 // ─── readingMinutes boundary cases ────────────────────────────────────────
