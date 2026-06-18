@@ -31,6 +31,16 @@ async function loadToolsCore(options = {}) {
       },
     });
   }
+  if (options.globalThrows) {
+    options.globalThrows.forEach((name) => {
+      Object.defineProperty(dom.window, name, {
+        configurable: true,
+        get() {
+          throw new Error(name + " blocked");
+        },
+      });
+    });
+  }
   if (options.cryptoThrows) {
     Object.defineProperty(dom.window, "crypto", {
       configurable: true,
@@ -185,6 +195,20 @@ test("tools core reports unavailable Base64 runtime APIs clearly", async () => {
   assert.equal(result.ok, false);
   assert.equal(result.code, "base64Decode");
   assert.match(result.error, /缺少文本解码能力/);
+});
+
+test("tools core reports blocked Base64 runtime API access clearly", async () => {
+  let tools = await loadToolsCore({ globalThrows: ["btoa"] });
+  let result = tools.encodeBase64("x");
+  assert.equal(result.ok, false);
+  assert.equal(result.code, "base64Encode");
+  assert.match(result.error, /不支持 btoa/);
+
+  tools = await loadToolsCore({ globalThrows: ["atob"] });
+  result = tools.decodeBase64("eA==");
+  assert.equal(result.ok, false);
+  assert.equal(result.code, "base64Decode");
+  assert.match(result.error, /不支持 atob/);
 });
 
 test("tools core UUID generation falls back when crypto methods fail", async () => {
