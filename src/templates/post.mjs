@@ -216,7 +216,7 @@ function buildPostListJsonLd(posts, description) {
  */
 export function renderPostPage(post, nav) {
   const tocHtml = renderToc(post.toc, post.tocEn);
-  const main = `    <main class="content container">
+  const main = `    <main id="main-content" class="content container">
       <div class="post-layout">
         <article class="article">
           <header class="article-header">
@@ -348,7 +348,7 @@ export function renderPostList(posts, stats) {
     .map((post, i) => renderArticlePanel(post, i === 0))
     .join("\n\n");
 
-  const main = `    <main class="content">
+  const main = `    <main id="main-content" class="content">
       <section class="blog-layout container" aria-label="Blog">
         <aside class="post-tree" aria-label="文章目录" data-i18n-aria="post.tree.aria">
           <div class="post-tree-header">

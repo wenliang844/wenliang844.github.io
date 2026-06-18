@@ -30,7 +30,7 @@
 | 🟡 第二 | 架构评审 | [architecture-review.md](architecture-review.md) | 7（中 3 / 低 4） |
 | 🟡 第二 | 技术债务 | [tech-debt.md](tech-debt.md) | 10（中 2 / 低 7 / 已修复 1） |
 | 🟢 第三 | 新功能建议 | [new-features.md](new-features.md) | 10 |
-| 🟢 第三 | UX 优化 | [ux-improvements.md](ux-improvements.md) | 10（中 2 / 低 1 / 已修复 7） |
+| 🟢 第三 | UX 优化 | [ux-improvements.md](ux-improvements.md) | 10（中 1 / 低 1 / 已修复 8） |
 | 🟢 第三 | 开发体验 | [devex-improvements.md](devex-improvements.md) | 10（低 5 / 部分 1 / 已修复 4） |
 | 🔵 第四 | 模块分析-构建系统 | [module-reviews/build-system.md](module-reviews/build-system.md) | 5（低 2 / 已修复 3） |
 | 🔵 第四 | 模块分析-客户端JS | [module-reviews/client-javascript.md](module-reviews/client-javascript.md) | 5（低 3 / 已修复 2） |
@@ -106,6 +106,7 @@
 已完成：P-10 全站补齐第三方 resource hints，并新增已提交 HTML 扫描回归测试。
 部分完成：P-11 Markdown 正文图片构建期补齐 `loading="lazy"` 与 `decoding="async"`，图片尺寸注入留作后续。
 已完成：P-08 `coder.js` resize 阅读进度更新改用独立 200ms throttle，避免复用 scroll 节流状态。
+已完成：UX-09 全站新增跳过导航链接和 `#main-content` 目标，并用 HTML/CSS 扫描测试防回退。
 
 ### 🥈 高价值中成本（建议近期规划）
 

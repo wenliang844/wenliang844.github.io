@@ -256,7 +256,7 @@ ${group.tools.map((tool, toolIndex) => renderTool(tool, groupIndex, toolIndex)).
 
 export function renderAiPage() {
   const description = "中转站排行榜与常用 AI 网站导航，支持快速对比 AI 中转站路由、模型、健康状态、成功率和响应耗时。";
-  const main = `    <main class="content">
+  const main = `    <main id="main-content" class="content">
       <section class="ai-nav-page container">
         <header class="ai-nav-hero">
           <span class="eyebrow" data-i18n="ai.eyebrow" data-i18n-en-html='<i class="fas fa-robot" aria-hidden="true"></i> AI Toolkit' data-i18n-html><i class="fas fa-robot" aria-hidden="true"></i> AI Toolkit</span>

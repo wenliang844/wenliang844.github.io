@@ -96,7 +96,7 @@ ${board.items.map((item, itemIndex) => renderItem(item, boardIndex, itemIndex)).
 
 export function renderAppreciationPage() {
   const description = "个人鉴赏榜单：科技研究、影视作品与娱乐项目三张并列排行榜。";
-  const main = `    <main class="content">
+  const main = `    <main id="main-content" class="content">
       <section class="rank-page container">
         <header class="rank-hero">
           <span class="eyebrow" data-i18n="appr.eyebrow" data-i18n-en-html='<i class="fas fa-star" aria-hidden="true"></i> Appreciation' data-i18n-html><i class="fas fa-star" aria-hidden="true"></i> Appreciation</span>

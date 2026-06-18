@@ -74,6 +74,20 @@ test("mobile navigation has a click-outside overlay", async () => {
   assert.deepEqual(failures, []);
 });
 
+test("all HTML files include a skip link to the main content", async () => {
+  const failures = [];
+  for (const file of await htmlFiles()) {
+    const html = await readFile(join(ROOT, file), "utf8");
+    if (!html.includes('class="skip-link" href="#main-content"')) {
+      failures.push(`${file}: missing skip link`);
+    }
+    if (!/<main\b[^>]*\bid="main-content"/.test(html)) {
+      failures.push(`${file}: missing main-content target`);
+    }
+  }
+  assert.deepEqual(failures, []);
+});
+
 test("interactive elements have accessible labels", async () => {
   const failures = [];
   for (const file of await htmlFiles()) {

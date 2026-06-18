@@ -156,34 +156,22 @@
 
 ---
 
-## 📌 UX-09: 无障碍（Accessibility）改进清单
+## 📌 UX-09 [已修复]: 无障碍（Accessibility）改进清单
 
 - **📍 位置**：全站
-- **📝 当前状况**：项目已有较好的 ARIA 基础（`aria-label`、`aria-expanded`、`role` 等），但以下方面可以改进：
+- **✅ 修复状态**：全站已新增键盘可聚焦的 `.skip-link`，指向每页唯一的 `#main-content`；公共模板和 404、首页、about、contact、editor、overleaf 等手写页均已覆盖。
+- **🧪 回归测试**：`tests/i18n-a11y.test.mjs` 扫描所有已提交 HTML，确认 skip link 和 main target 同时存在；`tests/css.test.mjs` 验证 skip link 默认隐藏、聚焦时显示。
+- **📝 当前状况**：项目已有较好的 ARIA 基础（`aria-label`、`aria-expanded`、`role` 等），以下状态已更新：
 
   | 项目 | 现状 | 建议 |
   |------|------|------|
-  | 跳过导航链接 | ❌ 缺失 | 添加 "Skip to main content" 链接 |
+  | 跳过导航链接 | ✅ 已实现 | 全站链接到 `#main-content` |
   | 焦点可见性 | ⚠️ 部分 | 确保所有交互元素有 `:focus-visible` 样式 |
   | 颜色对比度 | ✅ 良好 | 暗色主题下 muted 文本对比度约 4.5:1 |
   | 表单标签 | ✅ 良好 | 所有 input 都有 label/aria-label |
   | 动画减弱 | ✅ 已实现 | `prefers-reduced-motion` 检测 |
 
-- **⚠️ 影响程度**：中
-- **💡 建议方案**：添加跳过导航链接：
-  ```html
-  <a class="skip-link" href="#main-content">跳到主要内容</a>
-  ```
-  CSS：
-  ```css
-  .skip-link {
-    position: absolute; top: -100px; left: 0;
-    background: var(--accent); color: #fff;
-    padding: 8px 16px; z-index: 10001;
-  }
-  .skip-link:focus { top: 0; }
-  ```
-- **📊 预期收益**：WCAG 2.1 AA 合规性提升，键盘用户和屏幕阅读器体验改善
+- **📊 实际收益**：键盘用户可直接跳到主要内容，减少重复穿过导航的成本，WCAG 2.1 AA 体验更完整。
 - **🔗 相关建议**：[S-05](security-audit.md#s-05)
 
 ---

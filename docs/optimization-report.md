@@ -6576,3 +6576,46 @@
 
 - 运行全量质量门禁并提交第五十四轮性能优化。
 - 继续处理不触碰 `assistant.js` 外部改动的低风险性能、工程化或 UX 项。
+
+## 第 192 轮：全站跳过导航链接
+
+时间：2026-06-19
+
+### 已完成内容
+
+- 在公共布局 `src/templates/layout.mjs` 中新增 `.skip-link`，指向 `#main-content`。
+- 为所有模板页的 `<main>` 增加 `id="main-content"`，覆盖文章页、博客列表、标签、归档、AI、工具、鉴赏和赞助页。
+- 为 404、首页、about、contact、editor、overleaf 等手写页补齐 skip link 和 main target。
+- 在 `css/coder.css` 中新增 skip link 样式，默认移出视口，键盘聚焦时显示在页面左上角。
+- 在 `js/i18n.js` 中新增 `nav.skip` 英文文案。
+- 扩展 `tests/i18n-a11y.test.mjs`，扫描所有已提交 HTML，确认 skip link 和 `#main-content` 同时存在。
+- 扩展 `tests/css.test.mjs`，验证 skip link 默认隐藏、聚焦时可见。
+- 更新 UX-09、建议索引、健康评分、工作报告和本轮工作报告。
+
+### 发现的问题
+
+- 全站已有较好的 ARIA 与焦点基础，但键盘用户进入页面后仍需要重复穿过导航才能到达正文。
+- 生成页和手写页来源不同，必须同时覆盖公共模板与手写 HTML，否则发布面会出现跳过导航能力不一致。
+- 原有可访问性测试覆盖 lang、viewport、ARIA、footer 等基础项，但没有检查 skip link。
+
+### 修复方案
+
+- 使用固定定位的 `.skip-link`，默认 `translateY(-150%)` 隐藏，`:focus` / `:focus-visible` 时回到视口内。
+- 统一目标 id 为 `main-content`，避免每个页面维护不同锚点。
+- 用 HTML 扫描测试覆盖所有已提交页面，防止后续新增手写页或生成页遗漏。
+
+### 性能、安全与质量指标
+
+- `node --test tests/i18n-a11y.test.mjs tests/css.test.mjs tests/templates.test.mjs tests/templates-extended.test.mjs tests/performance.test.mjs`：97 个可访问性、CSS、模板与性能测试全部通过。
+- `npm run lint:check`：通过。
+- `npm test`：587 个测试全部通过。
+- `npm run build`：通过，成功生成 6 篇文章页面。
+- `npm run validate:production`：33 项检查通过，0 失败，0 警告。
+- `npm run test:coverage`：587 个测试全部通过；行覆盖率 93.32%，分支覆盖率 75.52%，函数覆盖率 91.09%，均高于覆盖率阈值。
+- `npm audit --audit-level=moderate --registry=https://registry.npmjs.org`：0 个中高危漏洞。
+- UX 收益：键盘用户可一键跳到主要内容，减少重复导航成本，WCAG 2.1 AA 体验更完整。
+
+### 下一步计划
+
+- 运行全量质量门禁并提交第五十五轮 UX 优化。
+- 继续处理不触碰 `assistant.js` 外部改动的低风险 UX、性能或工程化项。

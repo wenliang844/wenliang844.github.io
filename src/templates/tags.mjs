@@ -20,7 +20,7 @@ export function renderTagsPage(tagStats) {
     )
     .join("\n");
 
-  const main = `    <main class="content">
+  const main = `    <main id="main-content" class="content">
       <section class="list-page container">
         <h1 data-i18n="tags.title" data-i18n-en="Tags">标签</h1>
         <p class="lead" data-i18n="tags.lead">按技术标签浏览文章，点击任意标签跳转到博客列表并自动筛选。</p>

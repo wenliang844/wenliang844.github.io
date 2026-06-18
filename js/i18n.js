@@ -61,6 +61,7 @@
   const EN = {
     // 通用
     "nav.main": "Main navigation",
+    "nav.skip": "Skip to main content",
     "nav.menu": "Toggle menu",
     "nav.about": "About",
     "nav.blog": "Blog",

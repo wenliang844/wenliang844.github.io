@@ -392,7 +392,7 @@ ${toolHeader(tool)}
 
 export function renderToolsPage() {
   const description = "CWLBlog 在线工具箱：JSON、时间戳、Base64、URL、UUID、JWT、哈希、密码、颜色、正则、Markdown、Diff、Cron 和二维码等本地工具。";
-  const main = `    <main class="content">
+  const main = `    <main id="main-content" class="content">
       <section class="tools-page container">
         <header class="tools-header">
           <span class="eyebrow" data-i18n="tools.eyebrow" data-i18n-en-html='<i class="fas fa-toolbox" aria-hidden="true"></i> Online Toolbox' data-i18n-html><i class="fas fa-toolbox" aria-hidden="true"></i> Online Toolbox</span>

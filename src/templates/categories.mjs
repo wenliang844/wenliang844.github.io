@@ -45,7 +45,7 @@ ${links}
 
 export function renderCategoriesPage(posts, stats) {
   const groups = groupPostsByYear(posts).map(renderYearGroup).join("\n");
-  const main = `    <main class="content">
+  const main = `    <main id="main-content" class="content">
       <section class="list-page container">
         <h1 data-i18n="categories.title" data-i18n-en="Time Archive">时间归档</h1>
         <p class="lead" data-i18n="categories.lead">按年份回看项目复盘，从 AI Coding、低代码与工作流基础设施，到 SaaS 后台，再到智能分析预警和规则引擎告警闭环。</p>

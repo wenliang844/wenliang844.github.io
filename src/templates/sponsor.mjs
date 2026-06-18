@@ -2,7 +2,7 @@ import { SPONSOR_LINKS, buildPageJsonLd, renderPage } from "./layout.mjs";
 
 export function renderSponsorPage() {
   const description = "Support CWLBlog via Afdian, PayPal, WeChat or Alipay.";
-  const main = `    <main class="content">
+  const main = `    <main id="main-content" class="content">
       <section class="sponsor-page container" aria-labelledby="sponsor-title">
         <div class="sponsor-hero">
           <span class="eyebrow" data-i18n="sponsor.eyebrow" data-i18n-html><i class="fas fa-heart" aria-hidden="true"></i> 独立开发</span>

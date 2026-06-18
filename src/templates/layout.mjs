@@ -238,6 +238,7 @@ ${renderScripts(allScripts)}${meta ? "\n" + meta : ""}${jsonLdTag}
   <title>${escapeHtml(title)}</title>
 </head>
 <body class="${bodyClass}"${bodyI18n ? ` ${bodyI18n}` : ""}>
+  <a class="skip-link" href="#main-content" data-i18n="nav.skip">跳到主要内容</a>
   <div class="cursor-glow" aria-hidden="true"></div>
   <canvas class="cursor-canvas" aria-hidden="true"></canvas>
   <div class="site-shell">

@@ -30,6 +30,20 @@ test("coder.css contains layout selectors", async () => {
   assert.ok(css.includes(".content"), "should have content selector");
 });
 
+test("coder.css exposes skip link on keyboard focus", async () => {
+  const css = await readFile(join(ROOT, "css", "coder.css"), "utf8");
+  const baseRule = css.match(/\.skip-link\s*{([^}]*)}/s);
+  const focusRule = css.match(/\.skip-link:focus,\s*\.skip-link:focus-visible\s*{([^}]*)}/s);
+
+  assert.ok(baseRule, "skip link base rule should exist");
+  assert.ok(focusRule, "skip link focus rule should exist");
+  assert.match(baseRule[1], /position:\s*fixed;/);
+  assert.match(baseRule[1], /z-index:\s*10001;/);
+  assert.match(baseRule[1], /transform:\s*translateY\(-150%\);/);
+  assert.match(focusRule[1], /transform:\s*translateY\(0\);/);
+  assert.match(focusRule[1], /outline:/);
+});
+
 test("coder.css contains navigation selectors", async () => {
   const css = await readFile(join(ROOT, "css", "coder.css"), "utf8");
 
