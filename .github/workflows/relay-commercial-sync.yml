@@ -46,8 +46,9 @@ jobs:
             echo "No commercial relay data changes."
             exit 0
           fi
+          git diff --stat
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/relay-providers.json ai/relay/index.html search-index.json sitemap.xml robots.txt index.xml post/index.xml categories/index.xml
+          git add data/relay-providers.json ai/index.html search-index.json sitemap.xml robots.txt index.xml post/index.xml categories/index.xml
           git commit -m "chore: sync commercial relay data"
           git push
