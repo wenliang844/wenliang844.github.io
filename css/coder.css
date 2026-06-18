@@ -4323,11 +4323,12 @@ body.colorscheme-dark .assistant-widget {
 }
 
 .assistant-widget.fullscreen {
-  inset: 5.6rem 0 0;
-  right: auto;
-  bottom: auto;
-  width: 100vw;
-  height: calc(100vh - 5.6rem);
+  top: var(--assistant-fullscreen-top, 5.6rem);
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: auto;
+  height: auto;
 }
 
 .assistant-widget.fullscreen .assistant-panel {
@@ -4343,6 +4344,10 @@ body.colorscheme-dark .assistant-widget {
 
 body.assistant-fullscreen {
   overflow: hidden;
+}
+
+body.assistant-fullscreen .site-shell {
+  z-index: auto;
 }
 
 body.assistant-fullscreen .navigation {
@@ -5136,8 +5141,10 @@ body.assistant-fullscreen .navigation {
   }
 
   .assistant-widget.fullscreen {
-    inset: 4.6rem 0 0;
-    height: calc(100vh - 4.6rem);
+    top: var(--assistant-fullscreen-top, 4.6rem);
+    right: 0;
+    bottom: 0;
+    left: 0;
   }
 
   .assistant-panel {

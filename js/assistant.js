@@ -1203,10 +1203,22 @@
       fullscreenBtn.appendChild(fullscreenIcon(fullscreen));
     }
 
+    function updateFullscreenOffset() {
+      if (!fullscreen) {
+        root.style.removeProperty("--assistant-fullscreen-top");
+        return;
+      }
+      const nav = document.querySelector(".navigation");
+      const fallback = window.matchMedia && window.matchMedia("(max-width: 768px)").matches ? 74 : 90;
+      const navHeight = nav ? Math.ceil(nav.getBoundingClientRect().height) : fallback;
+      root.style.setProperty("--assistant-fullscreen-top", Math.max(navHeight, fallback) + "px");
+    }
+
     function setFullscreen(nextFullscreen) {
       fullscreen = Boolean(nextFullscreen);
       root.classList.toggle("fullscreen", fullscreen);
       document.body.classList.toggle("assistant-fullscreen", fullscreen);
+      updateFullscreenOffset();
       updateFullscreenButton();
       if (fullscreen && panel.hidden) {
         setOpen(true);
@@ -1550,7 +1562,11 @@
         setOpen(false, { returnFocus: true });
       }
     });
-    document.addEventListener("cwl:langchange", updateStaticText);
+    document.addEventListener("cwl:langchange", function () {
+      updateStaticText();
+      window.requestAnimationFrame(updateFullscreenOffset);
+    });
+    window.addEventListener("resize", updateFullscreenOffset);
     setOpacity(opacityInput.value);
     setConfigExpanded(false);
     updateStaticText();
