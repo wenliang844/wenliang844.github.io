@@ -5363,3 +5363,46 @@
 
 - 提交第二十四轮编辑器导出修复。
 - 继续评估其他静态页结构化数据、CI 配置或文章图片资源项。
+
+## 第 162 轮：新增 GitHub Actions CI 质量门禁
+
+时间：2026-06-18
+
+### 已完成内容
+
+- 新增 `.github/workflows/ci.yml`，在 `push`、`pull_request` 和手动触发时运行通用质量门禁。
+- CI 权限限制为 `contents: read`，避免普通验证流程拥有写权限。
+- CI 使用 Node.js 22 和 npm cache，依次运行依赖安装、lint 检查、全量测试、构建、生产验证、覆盖率和依赖审计。
+- 在 `package.json` 新增 `lint:check`，供 CI 使用只检查不改写的 ESLint 命令。
+- 扩展 `tests/workflows.test.mjs`，解析 CI YAML 并验证触发分支、权限、Node 配置和关键命令。
+- 更新 DE-01、建议索引、健康评分和工程化成熟度文档。
+
+### 发现的问题
+
+- 项目已有商业 relay 定时同步 workflow，但缺少通用 PR/push 质量门禁。
+- 现有 `lint` 脚本带 `--fix`，不适合在 CI 中作为只读检查步骤使用。
+- 工程化建议文档仍将 CI/CD 作为未完成中等风险项。
+
+### 修复方案
+
+- 新建独立 CI workflow，不混入 relay 同步 workflow，保持职责清晰。
+- CI 使用 `npm run lint:check` 而非 `npm run lint`，避免验证过程修改工作区。
+- 将本地持续执行的验证链路固化到 CI：`npm test`、`npm run build`、`npm run validate:production`、`npm run test:coverage` 和中高危 `npm audit`。
+- 用 YAML 解析测试锁住 workflow 结构，防止后续误删关键门禁。
+
+### 性能、安全与质量指标
+
+- `node --test tests/workflows.test.mjs`：2 个 workflow 测试全部通过。
+- `npm run lint:check`：通过。
+- `npm test`：543 个测试全部通过。
+- `npm run build`：通过，成功生成 6 篇文章页面。
+- `node --test tests/performance.test.mjs`：13 个性能测试全部通过。
+- `npm run validate:production`：33 项检查通过，0 失败，0 警告。
+- `npm run test:coverage`：543 个测试全部通过；行覆盖率 92.72%，分支覆盖率 74.91%，函数覆盖率 89.33%。
+- `npm audit --audit-level=moderate --registry=https://registry.npmjs.org`：0 个中高危漏洞。
+- 工程化收益：PR 和主分支提交具备自动质量门禁，降低手动漏跑验证导致的回归风险。
+
+### 下一步计划
+
+- 提交第二十五轮工程化优化。
+- 继续评估其他静态页结构化数据、文章图片资源项或覆盖率阈值。

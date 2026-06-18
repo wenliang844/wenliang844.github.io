@@ -4,33 +4,12 @@
 
 ---
 
-## 📌 DE-01: 无自动化 CI/CD 流程
+## 📌 DE-01 [已修复]: 无自动化 CI/CD 流程
 
-- **📍 位置**：项目根目录
-- **📝 当前状况**：项目依赖手动 `npm run build && git push` 部署到 GitHub Pages。虽然有 `precommit` 脚本（`npm run validate`），但没有 GitHub Actions 自动化流程。
-- **⚠️ 影响程度**：中
-- **💡 建议方案**：添加 GitHub Actions workflow：
-  ```yaml
-  # .github/workflows/deploy.yml
-  name: Build & Deploy
-  on:
-    push:
-      branches: [master]
-  jobs:
-    build:
-      runs-on: ubuntu-latest
-      steps:
-        - uses: actions/checkout@v4
-        - uses: actions/setup-node@v4
-          with: { node-version: 20 }
-        - run: npm ci
-        - run: npm run validate
-        - uses: peaceiris/actions-gh-pages@v3
-          with:
-            github_token: ${{ secrets.GITHUB_TOKEN }}
-            publish_dir: .
-  ```
-- **📊 预期收益**：推送即部署，自动化验证，减少人为失误
+- **📍 位置**：`.github/workflows/ci.yml`、`package.json`
+- **✅ 修复状态**：新增通用 CI workflow，覆盖 `push`、`pull_request` 和手动触发；权限限制为 `contents: read`；质量门禁包括 `npm ci`、`npm run lint:check`、`npm test`、`npm run build`、`npm run validate:production`、`npm run test:coverage` 和中高危依赖审计。
+- **🧪 回归测试**：`tests/workflows.test.mjs` 解析 workflow YAML，验证触发分支、只读权限、Node/npm cache 配置和关键质量步骤。
+- **📊 实际收益**：提交和 PR 会自动执行完整质量门禁，减少本地漏跑测试、构建或审计导致的回归风险。
 - **🔗 相关建议**：[DE-02](#de-02)
 
 ---
@@ -260,10 +239,10 @@
 |------|----------|----------|------|
 | 代码规范 | ESLint ✅ | + Prettier | 小 |
 | 测试 | 41 个测试 ✅ | + E2E 测试 | 中 |
-| CI/CD | precommit ✅ | + GitHub Actions | 中 |
+| CI/CD | precommit + GitHub Actions ✅ | 覆盖率阈值 / 部署自动化 | 小 |
 | 文档 | readme.md | + 完整开发文档 | 中 |
 | 依赖管理 | npm ✅ | + Dependabot | 小 |
 | 开发体验 | http-server | + 热重载 | 小 |
 | 类型安全 | 无 | + JSDoc / TS | 大 |
 
-> 综合评估：工程化基础扎实（ESLint + 测试 + 构建脚本），主要差距在 CI/CD 自动化和文档完整性上。
+> 综合评估：工程化基础扎实（ESLint + 测试 + 构建脚本 + GitHub Actions），主要差距在部署自动化、覆盖率阈值和文档完整性上。

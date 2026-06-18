@@ -12,7 +12,7 @@
 | 安全性 | 3.5 / 5 | 🟡 中等 |
 | 性能 | 4.0 / 5 | 🟢 良好 |
 | 架构设计 | 4.3 / 5 | 🟢 优秀 |
-| 工程化 | 3.5 / 5 | 🟡 中等 |
+| 工程化 | 4.0 / 5 | 🟢 良好 |
 | 用户体验 | 4.0 / 5 | 🟢 良好 |
 | 可维护性 | 3.7 / 5 | 🟢 良好 |
 | **综合** | **3.9 / 5** | **🟢 良好** |
@@ -76,6 +76,7 @@
 已完成：MR-EDITOR-03 移除 marked 废弃 highlight 选项，改为渲染后调用 `hljs.highlightElement()`。
 已完成：MR-EDITOR-01/02 清理编辑器重复 escape/copy 记录，并将 HTML 复制委托 `CWLUtils.copyText`。
 已完成：MR-EDITOR-05 编辑器导出补齐 shortTitle、summary、description 必填 front matter。
+已完成：DE-01 新增 GitHub Actions CI 质量门禁，并补充只检查不改写的 `lint:check`。
 
 ### 🥈 高价值中成本（建议近期规划）
 
@@ -87,7 +88,6 @@
 | CQ-06 | coder.js 拆分 | 代码质量 | ⭐⭐ |
 | CQ-05 | assistant.js i18n | 代码质量 | ⭐⭐ |
 | UX-03 | 图片 Lightbox | UX | ⭐⭐ |
-| DE-01 | GitHub Actions CI/CD | 工程化 | ⭐⭐ |
 | F-06 | 标签云可视化 | 功能 | ⭐ |
 | COMP-02 | 构建时代码高亮 | 竞品借鉴 | ⭐⭐ |
 
