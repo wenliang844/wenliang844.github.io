@@ -17,36 +17,19 @@
 | Twitter Card | ✅ | summary_large_image 或 summary |
 | Sitemap | ✅ | 含图片扩展 |
 | RSS Feed | ✅ | 3 个 RSS（首页、文章、分类） |
-| JSON-LD | ✅ | 文章页有 Article 结构化数据 |
+| JSON-LD | ✅ | 首页有 WebSite，文章页有 Article 结构化数据 |
 | `robots.txt` | ✅ | 存在 |
 | 语义化 HTML | ✅ | header, main, article, section, nav, footer |
 | 图片 alt 属性 | ⚠️ | Markdown 图片有 alt，但部分装饰图标用 `aria-hidden` |
 
 ---
 
-## 📌 SEO-01: 首页缺少 JSON-LD 结构化数据
+## 📌 SEO-01 [已修复]: 首页缺少 JSON-LD 结构化数据
 
 - **📍 位置**：`index.html`（手写页面）
-- **📝 当前状况**：首页没有 `<script type="application/ld+json">` 标签。文章页有 Article JSON-LD，但首页缺少 WebSite 或 Person 类型的结构化数据。
-- **⚠️ 影响程度**：中
-- **💡 建议方案**：在首页 `<head>` 中添加：
-  ```html
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    "name": "CWLBlog",
-    "url": "https://wenliang844.github.io/",
-    "author": {
-      "@type": "Person",
-      "name": "CWL",
-      "url": "https://wenliang844.github.io/about/"
-    },
-    "description": "CWL · AI 全栈工程师的个人博客"
-  }
-  </script>
-  ```
-- **📊 预期收益**：Google 搜索结果中显示站点名称和作者信息
+- **✅ 修复状态**：首页 `<head>` 已补充 `WebSite` JSON-LD，包含站点名称、URL、描述、作者与发布者信息。
+- **🧪 回归测试**：`tests/build-extra.test.mjs` 解析首页 JSON-LD，验证 `@context`、`@type`、站点 URL 和作者字段。
+- **📊 实际收益**：搜索引擎能更明确识别站点实体和作者归属。
 - **🔗 相关建议**：无
 
 ---

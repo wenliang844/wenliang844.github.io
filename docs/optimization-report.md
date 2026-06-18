@@ -5204,3 +5204,41 @@
 
 - 提交第二十轮 SEO 优化。
 - 继续评估首页 JSON-LD、编辑器代码高亮或工程化 CI 配置。
+
+## 第 158 轮：补充首页 WebSite JSON-LD
+
+时间：2026-06-18
+
+### 已完成内容
+
+- 在首页 `index.html` 的 `<head>` 中新增 `WebSite` JSON-LD。
+- 结构化数据包含站点名称、URL、描述、作者和发布者信息。
+- 新增首页 JSON-LD 解析测试，确认 `@context`、`@type`、站点 URL 和作者字段正确。
+- 更新 SEO-01、索引、健康评分和工作报告，将首页 JSON-LD 标记为已修复。
+
+### 发现的问题
+
+- 文章页已有 Article JSON-LD，但手写首页缺少 WebSite/Person 结构化数据。
+- SEO 文档和健康评分仍将首页 JSON-LD 作为主要待办项。
+
+### 修复方案
+
+- 在首页直接补充紧凑 JSON-LD，复用既有站点描述、 canonical URL 和关于页作者入口。
+- 使用 `tests/build-extra.test.mjs` 直接解析首页 JSON-LD，避免只靠字符串包含判断。
+- 保留 CSP 中当前允许的内联脚本策略；新增 JSON-LD 不加载外部资源，不引入执行逻辑。
+
+### 性能、安全与质量指标
+
+- `node --test tests/build-extra.test.mjs tests/security-extended.test.mjs`：42 个测试全部通过。
+- `npx eslint js/*.js`：通过。
+- `node --test tests/performance.test.mjs`：13 个性能测试全部通过。
+- `npm test`：540 个测试全部通过，耗时约 12.87 秒。
+- `npm run validate:production`：33 项检查通过，0 失败，0 警告。
+- `npm run test:coverage`：540 个测试全部通过；行覆盖率 92.72%，分支覆盖率 74.91%，函数覆盖率 89.33%。
+- `npm audit --audit-level=moderate --registry=https://registry.npmjs.org`：0 个中高危漏洞。
+- SEO 收益：首页具备 WebSite 结构化数据，站点实体和作者归属更清晰。
+
+### 下一步计划
+
+- 提交第二十一轮 SEO 优化。
+- 继续评估编辑器代码高亮、其他静态页结构化数据或 CI 配置。

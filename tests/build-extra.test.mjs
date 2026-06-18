@@ -207,6 +207,21 @@ test("article pages include valid JSON-LD structured data", async () => {
   }
 });
 
+test("home page includes valid WebSite JSON-LD structured data", async () => {
+  const html = await readFile(join(ROOT, "index.html"), "utf8");
+  const ldMatch = html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/);
+  assert.ok(ldMatch, "home page should have JSON-LD script");
+
+  const ld = JSON.parse(ldMatch[1]);
+  assert.equal(ld["@context"], "https://schema.org");
+  assert.equal(ld["@type"], "WebSite");
+  assert.equal(ld.name, "CWLBlog");
+  assert.equal(ld.url, "https://wenliang844.github.io/");
+  assert.equal(ld.author["@type"], "Person");
+  assert.equal(ld.author.name, "CWL");
+  assert.equal(ld.author.url, "https://wenliang844.github.io/about/");
+});
+
 // ─── 文章页 canonical 和 og 标签 ────────────────────────────────────────────
 
 test("article pages have canonical URL and Open Graph tags", async () => {
