@@ -116,9 +116,7 @@
     body.appendChild(toTop);
   }
 
-  function t(key, fallback) {
-    return window.cwlT ? window.cwlT(key, fallback) : fallback;
-  }
+  const t = window.CWLUtils.t;
 
   function updateToTop() {
     toTop.setAttribute("aria-label", t("dyn.totop", "返回顶部"));

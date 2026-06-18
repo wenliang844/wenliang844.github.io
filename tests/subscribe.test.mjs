@@ -7,6 +7,7 @@ import { join } from "node:path";
 const ROOT = join(import.meta.dirname, "..");
 
 test("nav subscribe button opens the subscribe modal", async () => {
+  const utilsCode = await readFile(join(ROOT, "js", "utils.js"), "utf8");
   const jsCode = await readFile(join(ROOT, "js", "subscribe.js"), "utf8");
   const dom = new JSDOM(`<!doctype html>
     <html>
@@ -32,6 +33,7 @@ test("nav subscribe button opens the subscribe modal", async () => {
   root.scrollIntoView = function (options) {
   };
 
+  dom.window.eval(utilsCode);
   dom.window.eval(jsCode);
   const modalInput = document.querySelector(".subscribe-modal-input");
   modalInput.focus = function () {
@@ -49,6 +51,7 @@ test("nav subscribe button opens the subscribe modal", async () => {
 });
 
 test("nav subscribe button still works when the footer subscribe block is absent", async () => {
+  const utilsCode = await readFile(join(ROOT, "js", "utils.js"), "utf8");
   const jsCode = await readFile(join(ROOT, "js", "subscribe.js"), "utf8");
   const dom = new JSDOM(`<!doctype html>
     <html>
@@ -63,6 +66,7 @@ test("nav subscribe button still works when the footer subscribe block is absent
   const { document } = dom.window;
   let modalFocused = false;
 
+  dom.window.eval(utilsCode);
   dom.window.eval(jsCode);
   const modalInput = document.querySelector(".subscribe-modal-input");
   modalInput.focus = function () {

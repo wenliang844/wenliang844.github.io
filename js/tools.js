@@ -7,9 +7,7 @@
   const timeResults = {};
   let nowTimer = null;
 
-  function t(key, fallback) {
-    return window.cwlT ? window.cwlT(key, fallback) : fallback;
-  }
+  const t = window.CWLUtils.t;
 
   function locale() {
     return window.cwlLang && window.cwlLang() === "en" ? "en-US" : undefined;

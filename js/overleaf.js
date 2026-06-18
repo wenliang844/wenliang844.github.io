@@ -102,9 +102,7 @@
     ]
   };
 
-  function t(key, fallback) {
-    return window.cwlT ? window.cwlT(key, fallback) : fallback;
-  }
+  const t = window.CWLUtils.t;
 
   function setStatus(text) {
     if (statusEl) {

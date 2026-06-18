@@ -34,29 +34,12 @@
 
 ---
 
-## 📌 CQ-04: `t()` i18n 辅助函数在 7 个文件中各自定义
+## 📌 CQ-04 [已修复]: `t()` i18n 辅助函数在多个文件中各自定义
 
-- **📍 位置**：
-  - `js/coder.js:114-116`
-  - `js/blog.js:30-32`
-  - `js/search.js:50-52`
-  - `js/share.js:24-26`
-  - `js/subscribe.js:16-18`
-  - `js/tools.js:7-9`
-  - `js/assistant.js`（未使用 t()，硬编码中文）
-- **📝 当前状况**：每个需要 i18n 的 JS 文件都定义了自己的 `t()` 包装函数：
-  ```javascript
-  function t(key, fallback) {
-    return window.cwlT ? window.cwlT(key, fallback) : fallback;
-  }
-  ```
-  这是完全相同的 3 行代码重复了 6 次。
-- **⚠️ 影响程度**：低（代码冗余但不影响功能）
-- **💡 建议方案**：两种方案选其一：
-  1. **保守方案**：在 `utils.js` 中添加 `Utils.t = function(key, fb) { return window.cwlT ? window.cwlT(key, fb) : fb; }`
-  2. **彻底方案**：`i18n.js` 加载后直接将 `cwlT` 暴露为全局函数（已实现），各模块直接调用 `cwlT(key, fallback)` 而不需包装
-
-- **📊 预期收益**：减少约 18 行重复代码
+- **📍 原位置**：`js/blog.js`、`js/coder.js`、`js/editor.js`、`js/feedback.js`、`js/giscus.js`、`js/overleaf.js`、`js/search.js`、`js/share.js`、`js/subscribe.js`、`js/tools.js`
+- **✅ 修复状态**：新增 `window.CWLUtils.t(key, fallback)`，稳定业务模块统一使用公共 i18n helper，不再维护本地 `function t(...)` 包装。
+- **🧪 回归测试**：`tests/utils-deep.test.mjs` 覆盖 `CWLUtils.t` 的翻译代理和 fallback；`tests/js-behavior.test.mjs` 新增源码测试，确认稳定模块使用 `CWLUtils.t` 且不再定义本地 `t()`。
+- **📊 实际收益**：消除 10 个模块中的重复 i18n wrapper，后续翻译 fallback 规则只需维护一处。`assistant.js` 的更大范围 i18n 文案治理继续归入 CQ-05。
 - **🔗 相关建议**：[CQ-01](#cq-01), [CQ-05](#cq-05)
 
 ---
@@ -185,7 +168,7 @@
 | 命名规范 | ⭐⭐⭐⭐ | 一致的 camelCase，语义清晰 |
 | 注释质量 | ⭐⭐⭐⭐⭐ | 每个文件/函数都有清晰的中文注释 |
 | 错误处理 | ⭐⭐⭐⭐ | try-catch 覆盖 localStorage、网络请求等 |
-| 代码重复 | ⭐⭐⭐⭐ | 剩余 2 处明显重复（t(), readingMinutes 相关仍需继续治理） |
+| 代码重复 | ⭐⭐⭐⭐ | 剩余 1 处明显重复（readingMinutes 相关仍需继续治理；assistant 文案治理另见 CQ-05） |
 | 文件粒度 | ⭐⭐⭐ | coder.js 过大（560 行），其他文件合理 |
 | 现代化程度 | ⭐⭐⭐⭐ | 主要旧式 DOM 集合转换已替换为 ES2015+ 写法 |
 | XSS 防护 | ⭐⭐⭐⭐⭐ | 全面的转义处理 |

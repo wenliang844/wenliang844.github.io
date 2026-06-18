@@ -20,7 +20,9 @@ const SUBSCRIBE_HTML = `<!doctype html><html lang="zh-CN"><body class="colorsche
 </body></html>`;
 
 async function loadSubscribe(dom) {
+  const utilsCode = await readFile(join(ROOT, "js", "utils.js"), "utf8");
   const code = await readFile(join(ROOT, "js", "subscribe.js"), "utf8");
+  dom.window.eval(utilsCode);
   dom.window.eval(code);
   return dom;
 }

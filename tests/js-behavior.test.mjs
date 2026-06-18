@@ -64,6 +64,7 @@ test("utils.js exports all expected utility functions", async () => {
   assert.equal(typeof utils.storageSet, "function");
   assert.equal(typeof utils.clamp, "function");
   assert.equal(typeof utils.isEditing, "function");
+  assert.equal(typeof utils.t, "function");
 });
 
 test("utils.js throttle delays execution", async () => {
@@ -161,6 +162,26 @@ test("search.js no longer duplicates escapeHtml", async () => {
   const code = await readFile(join(ROOT, "js", "search.js"), "utf8");
   assert.doesNotMatch(code, /function\s+escapeHtml\b/, "search.js should not keep a local escapeHtml copy");
   assert.doesNotMatch(code, /&lt;|&gt;|&quot;|&#39;/, "search.js should not manually encode HTML entities");
+});
+
+test("i18n consumers use CWLUtils.t instead of local wrappers", async () => {
+  const files = [
+    "blog.js",
+    "coder.js",
+    "editor.js",
+    "feedback.js",
+    "giscus.js",
+    "overleaf.js",
+    "search.js",
+    "share.js",
+    "subscribe.js",
+    "tools.js",
+  ];
+  for (const file of files) {
+    const code = await readFile(join(ROOT, "js", file), "utf8");
+    assert.match(code, /CWLUtils\.t/, `${file} should use the shared i18n helper`);
+    assert.doesNotMatch(code, /function\s+t\s*\(/, `${file} should not define a local t() wrapper`);
+  }
 });
 
 // ─── error-handler.js 测试 ────────────────────────────────────────────────────

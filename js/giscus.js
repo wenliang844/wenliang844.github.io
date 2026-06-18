@@ -25,9 +25,7 @@
 
   const configured = config.repo && config.repoId && config.categoryId;
 
-  function t(key, fallback) {
-    return window.cwlT ? window.cwlT(key, fallback) : fallback;
-  }
+  const t = window.CWLUtils.t;
 
   function createPlaceholder() {
     const message = t("dyn.comments.placeholder", "评论区尚未配置。站长在 <code>js/giscus.js</code> 填入 GitHub 仓库的 giscus 配置（repo / repoId / categoryId）后，即可启用基于 GitHub Discussions 的评论。");

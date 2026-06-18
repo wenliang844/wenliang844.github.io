@@ -22,6 +22,16 @@
   };
 
   /**
+   * 获取国际化文案，缺少 i18n 运行时时返回兜底文案
+   * @param {string} key - 文案 key
+   * @param {string} fallback - 兜底文案
+   * @returns {string}
+   */
+  Utils.t = function (key, fallback) {
+    return window.cwlT ? window.cwlT(key, fallback) : fallback;
+  };
+
+  /**
    * 复制文本到剪贴板（带降级处理）
    * @param {string} text - 需要复制的文本
    * @returns {Promise<void>}

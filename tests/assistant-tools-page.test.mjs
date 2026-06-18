@@ -9,6 +9,7 @@ const ROOT = join(import.meta.dirname, "..");
 
 async function loadToolsWithAssistant(url) {
   const assistantCode = await readFile(join(ROOT, "js", "assistant.js"), "utf8");
+  const utilsCode = await readFile(join(ROOT, "js", "utils.js"), "utf8");
   const coreCode = await readFile(join(ROOT, "js", "tools-core.js"), "utf8");
   const toolsCode = await readFile(join(ROOT, "js", "tools.js"), "utf8");
   const dom = new JSDOM(renderToolsPage(), {
@@ -18,6 +19,7 @@ async function loadToolsWithAssistant(url) {
   });
   dom.window.localStorage.clear();
   dom.window.sessionStorage.clear();
+  dom.window.eval(utilsCode);
   dom.window.eval(assistantCode);
   dom.window.eval(coreCode);
   dom.window.eval(toolsCode);

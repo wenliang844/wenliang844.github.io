@@ -78,6 +78,7 @@ async function loadToolsPage(options = {}) {
   const markedCode = await readFile(join(ROOT, "js", "vendor", "marked.min.js"), "utf8");
   const purifyCode = await readFile(join(ROOT, "js", "vendor", "purify.min.js"), "utf8");
   const qrCode = await readFile(join(ROOT, "js", "vendor", "qrcode.min.js"), "utf8");
+  const utilsCode = await readFile(join(ROOT, "js", "utils.js"), "utf8");
   const coreCode = await readFile(join(ROOT, "js", "tools-core.js"), "utf8");
   const toolsCode = await readFile(join(ROOT, "js", "tools.js"), "utf8");
   const i18nCode = options.i18n ? await readFile(join(ROOT, "js", "i18n.js"), "utf8") : "";
@@ -93,12 +94,14 @@ async function loadToolsPage(options = {}) {
   dom.window.eval(markedCode);
   dom.window.eval(purifyCode);
   dom.window.eval(qrCode);
+  dom.window.eval(utilsCode);
   dom.window.eval(coreCode);
   if (i18nCode) {
     dom.window.eval(i18nCode);
   }
   if (options.copyText !== false) {
     dom.window.CWLUtils = {
+      t: dom.window.CWLUtils.t,
       copyText(value) {
         copiedText = value;
         return Promise.resolve();

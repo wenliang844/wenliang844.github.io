@@ -19,7 +19,9 @@ const FEEDBACK_HTML = `<!doctype html><html lang="zh-CN"><body class="colorschem
 </body></html>`;
 
 async function loadFeedback(dom) {
+  const utilsCode = await readFile(join(ROOT, "js", "utils.js"), "utf8");
   const code = await readFile(join(ROOT, "js", "feedback.js"), "utf8");
+  dom.window.eval(utilsCode);
   dom.window.eval(code);
   return dom;
 }

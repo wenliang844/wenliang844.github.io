@@ -47,9 +47,7 @@
   document.body.appendChild(overlay);
 
   /* ---- helpers ---------------------------------------------------------- */
-  function t(key, fallback) {
-    return window.cwlT ? window.cwlT(key, fallback) : fallback;
-  }
+  const t = window.CWLUtils.t;
 
   function applyI18n() {
     overlay.setAttribute("aria-label", t("dyn.search.aria", "搜索文章"));

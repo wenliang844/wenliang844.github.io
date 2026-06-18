@@ -13,9 +13,7 @@
   const ENDPOINT = "https://buttondown.com/api/emails/embed-subscribe/";
   const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-  function t(key, fallback) {
-    return window.cwlT ? window.cwlT(key, fallback) : fallback;
-  }
+  const t = window.CWLUtils.t;
 
   function submitEmail(emailValue, setStatus, btn, onSuccess) {
     const email = (emailValue || "").trim();

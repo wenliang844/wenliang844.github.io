@@ -5001,3 +5001,44 @@
 
 - 提交第十五轮文档/测试收敛。
 - 继续评估剩余重复逻辑或更高收益的安全配置改进。
+
+## 第 153 轮：统一 i18n helper
+
+时间：2026-06-18
+
+### 已完成内容
+
+- 在 `js/utils.js` 新增 `CWLUtils.t(key, fallback)`，集中处理 `window.cwlT` 代理和 fallback。
+- 将 `blog`、`coder`、`editor`、`feedback`、`giscus`、`overleaf`、`search`、`share`、`subscribe`、`tools` 等稳定模块的本地 `t()` 包装替换为公共 helper。
+- 更新测试加载顺序，让单模块测试也按生产脚本顺序先加载 `utils.js`。
+- 增加 `CWLUtils.t` 行为测试和源码守卫，避免本地 `t()` wrapper 回流。
+- 更新 CQ-04、索引和健康评分文档。
+
+### 发现的问题
+
+- 多个前端模块重复维护同构的 `function t(key, fallback)`，翻译 fallback 规则散落在各业务脚本中。
+- 部分单模块测试未模拟生产页的 `utils.js -> i18n.js -> 业务脚本` 加载顺序，容易掩盖公共工具依赖关系。
+
+### 修复方案
+
+- 将翻译 helper 纳入 `CWLUtils`，保持原有 `window.cwlT` 行为和 fallback 语义不变。
+- 稳定业务模块直接使用 `window.CWLUtils.t`。
+- 对独立测试补充 `utils.js` 加载，工具页复制测试保留可控 `copyText` stub 并继承公共 `t`。
+- `assistant.js` 当前存在并行未提交改动，本轮不改动也不暂存；其完整 i18n 文案治理继续归入 CQ-05。
+
+### 性能、安全与质量指标
+
+- `node --test tests/js-behavior.test.mjs tests/utils-deep.test.mjs tests/blog.test.mjs tests/coder.test.mjs tests/editor.test.mjs tests/feedback.test.mjs tests/giscus.test.mjs tests/overleaf.test.mjs tests/search.test.mjs tests/share.test.mjs tests/subscribe-deep.test.mjs tests/tools.test.mjs tests/assistant-tools-page.test.mjs`：177 个测试全部通过。
+- `npx eslint js/*.js`：通过。
+- `npm test`：535 个测试全部通过，耗时约 8.06 秒。
+- `npm run build`：通过，成功生成 6 篇文章页面。
+- `npm run validate:production`：33 项检查通过，0 失败，0 警告。
+- `node --test tests/performance.test.mjs`：13 个性能测试全部通过。
+- `npm run test:coverage`：535 个测试全部通过；行覆盖率 92.68%，分支覆盖率 74.95%，函数覆盖率 89.33%。
+- `npm audit --audit-level=moderate --registry=https://registry.npmjs.org`：0 个中高危漏洞。
+- 质量收益：减少 10 个模块中的重复 i18n wrapper，翻译 fallback 维护点收敛到 `utils.js`。
+
+### 下一步计划
+
+- 提交第十六轮代码质量优化。
+- 继续评估剩余重复逻辑或更高收益的安全配置改进。

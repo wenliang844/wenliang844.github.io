@@ -24,12 +24,9 @@
   const empty = document.createElement("p");
   empty.className = "tree-empty";
   empty.hidden = true;
-  empty.textContent = window.cwlT ? window.cwlT("dyn.blog.empty", "没有匹配的文章，换个关键词或标签试试。") : "没有匹配的文章，换个关键词或标签试试。";
+  const t = window.CWLUtils.t;
+  empty.textContent = t("dyn.blog.empty", "没有匹配的文章，换个关键词或标签试试。");
   treeNav.appendChild(empty);
-
-  function t(key, fallback) {
-    return window.cwlT ? window.cwlT(key, fallback) : fallback;
-  }
 
   function treeToggleIcon(open) {
     const paths = open

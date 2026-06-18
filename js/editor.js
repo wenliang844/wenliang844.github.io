@@ -35,9 +35,7 @@
     "[返回博客列表](/post/)"
   ].join("\n");
 
-  function t(key, fallback) {
-    return window.cwlT ? window.cwlT(key, fallback) : fallback;
-  }
+  const t = window.CWLUtils.t;
 
   function sampleTitle() {
     return t("editor.sample.title", "新文章标题");

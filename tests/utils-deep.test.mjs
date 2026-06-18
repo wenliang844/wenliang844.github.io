@@ -107,6 +107,23 @@ test("utils.js escapeHtml handles complex XSS vectors", async () => {
   dom.window.close();
 });
 
+// ─── t 国际化兜底 ───────────────────────────────────────────────────────────
+
+test("utils.js t delegates to cwlT and falls back when unavailable", async () => {
+  const dom = new JSDOM(`<!doctype html><html><body></body></html>`, {
+    runScripts: "outside-only",
+    url: "https://wenliang844.github.io/",
+  });
+  await loadUtils(dom);
+
+  assert.equal(dom.window.CWLUtils.t("missing.key", "兜底文案"), "兜底文案");
+
+  dom.window.cwlT = (key, fallback) => key === "known.key" ? "Translated" : fallback;
+  assert.equal(dom.window.CWLUtils.t("known.key", "Fallback"), "Translated");
+  assert.equal(dom.window.CWLUtils.t("other.key", "Fallback"), "Fallback");
+  dom.window.close();
+});
+
 // ─── isEditing 检测 ────────────────────────────────────────────────────────
 
 test("utils.js isEditing detects input/textarea/select focus", async () => {
@@ -409,6 +426,7 @@ test("utils.js exports all expected utilities on CWLUtils", async () => {
   assert.equal(typeof utils.storageSet, "function");
   assert.equal(typeof utils.clamp, "function");
   assert.equal(typeof utils.isEditing, "function");
+  assert.equal(typeof utils.t, "function");
   dom.window.close();
 });
 
