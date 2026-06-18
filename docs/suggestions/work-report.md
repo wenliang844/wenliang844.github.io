@@ -85,6 +85,7 @@
 23. 🟨 **Markdown 正文图片加载提示**：已在构建期补齐 `loading="lazy"` 与 `decoding="async"`，尺寸属性仍待后续注入
 24. ✅ **resize 更新复用 scroll 节流**：已为阅读进度 resize 路径拆出独立 200ms throttle，减少窗口拖拽时的重绘压力
 25. ✅ **跳过导航链接缺失**：已为全站添加 skip link 和 `#main-content` 目标，改善键盘用户访问效率
+26. ✅ **缺少结构化变更日志**：已新增根目录 CHANGELOG.md，并通过 workflow 测试约束标题、日期和分类结构
 
 ---
 

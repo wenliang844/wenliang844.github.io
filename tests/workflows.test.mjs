@@ -83,3 +83,15 @@ test("Dependabot keeps npm and GitHub Actions dependencies current", async () =>
   assert.equal(actionsUpdates.schedule.interval, "weekly");
   assert.equal(actionsUpdates["open-pull-requests-limit"], 5);
 });
+
+test("project changelog records dated release history", async () => {
+  const changelog = await readFile(join(ROOT, "CHANGELOG.md"), "utf8");
+
+  assert.match(changelog, /^# Changelog$/m);
+  assert.match(changelog, /^## 2026-06-19$/m);
+  assert.match(changelog, /^## 2026-06-18$/m);
+  assert.match(changelog, /^### Added$/m);
+  assert.match(changelog, /^### Changed$/m);
+  assert.match(changelog, /^### Fixed$/m);
+  assert.match(changelog, /^### Security$/m);
+});
