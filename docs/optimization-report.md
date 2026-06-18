@@ -6374,3 +6374,43 @@
 
 - 运行全量质量门禁并提交第四十九轮性能/代码质量优化。
 - 继续处理不触碰 `assistant.js` 外部改动的低风险安全、工程化或 UX 项。
+
+## 第 187 轮：JWT 解码未验证警示
+
+时间：2026-06-19
+
+### 已完成内容
+
+- 在 `src/templates/tools.mjs` 的 JWT 工具输出区旁增加常驻签名未验证警示。
+- 复用现有 `.tool-status.is-error` 视觉样式，并通过 `role="note"` 让提示保持为静态说明而非动态状态。
+- 强化 `js/tools.js` 与 `js/i18n.js` 的 JWT 解码成功文案，明确“不可用于安全决策”。
+- 扩展 `tests/tools.test.mjs`，覆盖静态警示、英文切换和成功状态文案。
+- 更新 S-10、建议索引、健康评分、工作报告和本轮工作报告。
+
+### 发现的问题
+
+- JWT 解码工具本身只解析 header 和 payload，纯前端环境无法可靠验证签名。
+- 原 UI 只在解码成功后提示“不校验签名”，用户在输入或查看输出区时缺少常驻上下文提醒。
+- 成功状态提示没有明确说明“不可用于安全决策”，存在用户误把解码结果当作可信结果的理解风险。
+
+### 修复方案
+
+- 在 JWT 面板中新增 `role="note"` 的常驻警示，说明解码内容未经签名验证。
+- 将警示文案接入 i18n，确保中英文模式都清晰表达风险。
+- 保留动态 `jwt-status` 作为操作结果反馈，但同步强化成功文案。
+
+### 性能、安全与质量指标
+
+- `node --test tests/tools.test.mjs tests/templates-extended.test.mjs tests/css.test.mjs tests/security-extended.test.mjs tests/js-behavior.test.mjs`：138 个工具箱、模板、CSS、安全与 JS 行为测试全部通过。
+- `npm run lint:check`：通过。
+- `npm test`：580 个测试全部通过。
+- `npm run build`：通过，成功生成 6 篇文章页面。
+- `npm run validate:production`：33 项检查通过，0 失败，0 警告。
+- `npm run test:coverage`：580 个测试全部通过；行覆盖率 93.30%，分支覆盖率 75.45%，函数覆盖率 90.87%，均高于覆盖率阈值。
+- `npm audit --audit-level=moderate --registry=https://registry.npmjs.org`：0 个中高危漏洞。
+- 安全/UX 收益：JWT 解码内容的信任边界在用户查看输出前已经可见，降低误用于鉴权或安全判断的风险。
+
+### 下一步计划
+
+- 运行全量质量门禁并提交第五十轮安全/UX 优化。
+- 继续处理不触碰 `assistant.js` 外部改动的低风险工程化、安全或 UX 项。

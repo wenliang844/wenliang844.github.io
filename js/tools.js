@@ -489,7 +489,7 @@
       if (result.ok) {
         value("jwt-header-output", result.value.header);
         value("jwt-payload-output", result.value.payload);
-        setStatusKey("jwt-status", "tools.status.jwt", "JWT 已解码。本工具不校验签名。", "ok");
+        setStatusKey("jwt-status", "tools.status.jwt", "JWT 已解码。内容未经签名验证，不可用于安全决策。", "ok");
       } else {
         value("jwt-header-output", "");
         value("jwt-payload-output", "");

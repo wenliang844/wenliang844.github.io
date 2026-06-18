@@ -24,7 +24,7 @@
 | 优先级 | 类别 | 文档 | 发现数量 |
 |--------|------|------|----------|
 | 🔴 第一 | Bug 与风险 | [bugs-and-risks.md](bugs-and-risks.md) | 12（中 1 / 低 0 / 已修复 11） |
-| 🔴 第一 | 安全审计 | [security-audit.md](security-audit.md) | 11（高 1 / 中 1 / 低 4 / 无 3 / 已修复 2） |
+| 🔴 第一 | 安全审计 | [security-audit.md](security-audit.md) | 11（高 1 / 中 1 / 低 4 / 无 2 / 已修复 3） |
 | 🔴 第一 | 性能瓶颈 | [performance-bottlenecks.md](performance-bottlenecks.md) | 12（中 3 / 低 6 / 已修复 3） |
 | 🟡 第二 | 代码质量 | [code-quality.md](code-quality.md) | 10（中 2 / 低 2 / 已修复 6） |
 | 🟡 第二 | 架构评审 | [architecture-review.md](architecture-review.md) | 7（中 3 / 低 4） |
@@ -101,6 +101,7 @@
 已完成：UX-06 反馈列表增加确认后清空全部本地留言能力。
 已完成：S-09 `validate:posts` 增加公开内容敏感标记扫描，防止内部笔记进入搜索索引。
 已完成：MR-JS-04 `blog.js` 启动期文章项缓存只构建一次，消除重复 DOM 查询。
+已完成：S-10 JWT 解码工具增加常驻签名未验证警示，防止安全决策误用。
 
 ### 🥈 高价值中成本（建议近期规划）
 

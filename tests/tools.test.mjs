@@ -445,6 +445,8 @@ test("tools tabs expose selected state and support keyboard navigation", async (
     assert.equal(document.querySelector("#base64-input").getAttribute("data-i18n-en-ph"), "Text to encode or decode");
     assert.equal(document.querySelector("#url-input").getAttribute("data-i18n-en-ph"), "https://example.com/?q=search");
     assert.equal(document.querySelector("#html-input").getAttribute("data-i18n-ph"), "tools.html.placeholder");
+    assert.equal(document.querySelector("#tool-jwt .jwt-warning").getAttribute("data-i18n"), "tools.jwt.warning");
+    assert.match(document.querySelector("#tool-jwt .jwt-warning").textContent, /未经签名验证/);
     assert.equal(jsonTab.getAttribute("role"), "tab");
     assert.equal(document.querySelector("#tool-json").getAttribute("role"), "tabpanel");
     assert.equal(jsonTab.getAttribute("aria-selected"), "true");
@@ -537,6 +539,7 @@ test("tools page localizes English placeholders and dynamic statuses", async () 
     assert.equal(document.querySelector("#url-input").getAttribute("placeholder"), "https://example.com/?q=search");
     document.querySelector('[data-tool-tab="jwt"]').click();
     assert.match(document.querySelector("[data-jwt-decode]").textContent, /Decode JWT/);
+    assert.match(document.querySelector("#tool-jwt .jwt-warning").textContent, /signature-verified/);
 
     const localeCalls = [];
     dom.window.Date.prototype.toLocaleString = function (localeArg) {
@@ -718,7 +721,10 @@ test("tool success and copy statuses rerender after language changes", async () 
 
     assert.equal(document.querySelector("#json-status").textContent, "Done");
     assert.equal(document.querySelector("#uuid-status").textContent, "Copied");
-    assert.equal(document.querySelector("#jwt-status").textContent, "JWT decoded. This tool does not verify the signature.");
+    assert.equal(
+      document.querySelector("#jwt-status").textContent,
+      "JWT decoded. The content has not been signature-verified; do not use it for security decisions.",
+    );
   } finally {
     dom.window.close();
   }
