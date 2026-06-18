@@ -134,6 +134,24 @@ test("validate-posts reports empty post directories", async () => {
   }
 });
 
+test("validate-posts rejects public content markers", async () => {
+  const postsDir = await makePostsDir();
+  try {
+    await writeFile(join(postsDir, "internal-note.md"), postMarkdown({}, "## 正文\n\nTODO: remove private launch note."), "utf8");
+
+    await assert.rejects(
+      runValidatePosts(["--posts-dir", relative(ROOT, postsDir)]),
+      (error) => {
+        assert.match(error.stderr, /Public content marker "TODO"/);
+        assert.match(error.stderr, /internal-note\.md:\d+/);
+        return true;
+      },
+    );
+  } finally {
+    await rm(postsDir, { recursive: true, force: true });
+  }
+});
+
 test("validate-posts prints warnings for empty content bodies", async () => {
   const postsDir = await makePostsDir();
   try {

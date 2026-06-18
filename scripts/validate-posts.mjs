@@ -17,6 +17,7 @@ import {
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, "..");
 const DEFAULT_POSTS_DIR = join(ROOT, "src", "posts");
+const PUBLIC_CONTENT_MARKER = /\b(TODO|FIXME|HACK|XXX|SECRET|PASSWORD|PRIVATE_KEY|API_KEY|TOKEN)\b/i;
 
 function parseFrontMatter(raw, file) {
   const match = raw.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?/);
@@ -60,6 +61,16 @@ function validateTagFields(data, file) {
   }
 }
 
+function validatePublicContent(raw, file) {
+  const lines = raw.split(/\r?\n/);
+  for (const [index, line] of lines.entries()) {
+    const match = line.match(PUBLIC_CONTENT_MARKER);
+    if (match) {
+      throw new Error(`Public content marker "${match[1]}" found in ${file}:${index + 1}.`);
+    }
+  }
+}
+
 export async function validatePosts(postsDir = DEFAULT_POSTS_DIR) {
   const files = (await readdir(postsDir)).filter((file) => file.endsWith(".md")).sort();
   const errors = [];
@@ -76,6 +87,7 @@ export async function validatePosts(postsDir = DEFAULT_POSTS_DIR) {
       if (!raw.trim()) {
         throw new Error("File is empty.");
       }
+      validatePublicContent(raw, file);
 
       const { data, content } = parseFrontMatter(raw, file);
       validatePost(data, file);

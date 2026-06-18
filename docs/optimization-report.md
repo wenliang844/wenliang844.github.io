@@ -6294,3 +6294,44 @@
 
 - 运行全量质量门禁并提交第四十七轮 UX 优化。
 - 继续处理不触碰 `assistant.js` 外部改动的低风险安全、工程化或 UX 项。
+
+## 第 185 轮：公开文章敏感标记校验
+
+时间：2026-06-19
+
+### 已完成内容
+
+- 在 `scripts/validate-posts.mjs` 中增加公开内容标记扫描。
+- 阻断 `TODO`、`FIXME`、`HACK`、`XXX`、`SECRET`、`PASSWORD`、`PRIVATE_KEY`、`API_KEY`、`TOKEN` 等标记进入已发布文章。
+- 错误信息包含文件名和行号，方便作者快速定位。
+- 扩展 `tests/validate-posts.test.mjs`，新增临时文章敏感标记阻断用例。
+- 更新 S-09、建议索引、健康评分、工作报告和本轮工作报告。
+
+### 发现的问题
+
+- 搜索索引会公开每篇文章正文摘要，如果文章正文残留内部笔记或敏感标记，这些内容会随 `search-index.json` 一起公开。
+- 现有 `validate:posts` 已覆盖 front matter、slug、日期、封面和空正文，但没有检查公开正文中的敏感发布标记。
+- 建议文档只给出了手工 grep 方案，尚未接入自动质量门禁。
+
+### 修复方案
+
+- 在文章校验阶段扫描原始 Markdown 文件全文，命中敏感标记时抛出错误。
+- 保持 `validate:posts` 作为统一入口，使本地 `npm run validate:posts`、`npm run validate` 和 CI 都能继承该检查。
+- 新增测试使用临时 posts 目录验证错误输出包含 marker、文件和行号。
+
+### 性能、安全与质量指标
+
+- `node --test tests/validate-posts.test.mjs tests/security-extended.test.mjs`：22 个文章校验与安全测试全部通过。
+- `npm run validate:posts`：通过，6 篇文章检查通过。
+- `npm run lint:check`：通过。
+- `npm test`：579 个测试全部通过。
+- `npm run build`：通过，成功生成 6 篇文章页面。
+- `npm run validate:production`：33 项检查通过，0 失败，0 警告。
+- `npm run test:coverage`：579 个测试全部通过；行覆盖率 93.29%，分支覆盖率 75.45%，函数覆盖率 90.87%，均高于覆盖率阈值。
+- `npm audit --audit-level=moderate --registry=https://registry.npmjs.org`：0 个中高危漏洞。
+- 安全收益：内部笔记、临时 TODO 和常见密钥标记会在生成公开搜索索引前被阻断。
+
+### 下一步计划
+
+- 运行全量质量门禁并提交第四十八轮安全/工程化优化。
+- 继续处理不触碰 `assistant.js` 外部改动的低风险安全、工程化或 UX 项。

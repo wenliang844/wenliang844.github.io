@@ -168,10 +168,12 @@
 
 ---
 
-## 📌 S-09: 搜索索引 (`search-index.json`) 暴露文章正文摘要
+## 📌 S-09 [已修复]: 搜索索引 (`search-index.json`) 暴露文章正文摘要
 
-- **📍 位置**：`scripts/build.mjs:329-347`
-- **📝 当前状况**：搜索索引包含每篇文章的前 600 字纯文本（`stripHtml(p.contentHtml).slice(0, 600)`）。这是公开博客内容，不是安全问题，但需要注意：
+- **📍 原位置**：`scripts/build.mjs:329-347`
+- **✅ 修复状态**：`scripts/validate-posts.mjs` 已增加公开内容标记扫描，发现 `TODO`、`FIXME`、`HACK`、`XXX`、`SECRET`、`PASSWORD`、`PRIVATE_KEY`、`API_KEY`、`TOKEN` 时阻断文章校验。
+- **🧪 回归测试**：`tests/validate-posts.test.mjs` 新增临时文章敏感标记用例，确认 `validate:posts` 会报告文件与行号。
+- **📝 原状况**：搜索索引包含每篇文章的前 600 字纯文本（`stripHtml(p.contentHtml).slice(0, 600)`）。这是公开博客内容，不是安全问题，但需要注意：
   - 如果文章中包含内部笔记、TODO 或敏感注释，会被索引
   - 索引文件是公开可访问的 JSON
 - **⚠️ 影响程度**：低
@@ -179,7 +181,7 @@
   ```bash
   grep -rn "TODO\|FIXME\|HACK\|XXX\|SECRET" src/posts/
   ```
-- **📊 预期收益**：防止意外泄露内部信息
+- **📊 实际收益**：敏感标记和内部笔记在生成搜索索引前被本地/CI 质量门禁拦截。
 - **🔗 相关建议**：无
 
 ---

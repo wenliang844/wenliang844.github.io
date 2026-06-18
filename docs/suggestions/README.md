@@ -24,7 +24,7 @@
 | 优先级 | 类别 | 文档 | 发现数量 |
 |--------|------|------|----------|
 | 🔴 第一 | Bug 与风险 | [bugs-and-risks.md](bugs-and-risks.md) | 12（中 1 / 低 0 / 已修复 11） |
-| 🔴 第一 | 安全审计 | [security-audit.md](security-audit.md) | 11（高 1 / 中 1 / 低 5 / 无 3 / 已修复 1） |
+| 🔴 第一 | 安全审计 | [security-audit.md](security-audit.md) | 11（高 1 / 中 1 / 低 4 / 无 3 / 已修复 2） |
 | 🔴 第一 | 性能瓶颈 | [performance-bottlenecks.md](performance-bottlenecks.md) | 12（中 3 / 低 6 / 已修复 3） |
 | 🟡 第二 | 代码质量 | [code-quality.md](code-quality.md) | 10（中 2 / 低 2 / 已修复 6） |
 | 🟡 第二 | 架构评审 | [architecture-review.md](architecture-review.md) | 7（中 3 / 低 4） |
@@ -99,6 +99,7 @@
 已完成：UX-08 移动端文章分享条改为紧凑换行布局。
 已完成：MR-BUILD-03 扩展 `tidyHtml()` 的 HTML 块保护范围，避免压缩块内空行。
 已完成：UX-06 反馈列表增加确认后清空全部本地留言能力。
+已完成：S-09 `validate:posts` 增加公开内容敏感标记扫描，防止内部笔记进入搜索索引。
 
 ### 🥈 高价值中成本（建议近期规划）
 
