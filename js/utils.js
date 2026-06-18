@@ -27,20 +27,21 @@
    * @returns {Promise<void>}
    */
   Utils.copyText = function (text) {
+    const value = String(text === null || text === undefined ? "" : text);
     // 优先使用现代 Clipboard API
     try {
       const clipboard = window.navigator && window.navigator.clipboard;
       if (clipboard && typeof clipboard.writeText === "function") {
-        return clipboard.writeText(text).catch(function (_clipboardError) {
+        return clipboard.writeText(value).catch(function (_clipboardError) {
           // Clipboard API 失败时降级到 execCommand
-          return Utils.legacyCopy(text);
+          return Utils.legacyCopy(value);
         });
       }
     } catch (_clipboardError) {
-      return Utils.legacyCopy(text);
+      return Utils.legacyCopy(value);
     }
     // 不支持 Clipboard API，直接使用 execCommand
-    return Utils.legacyCopy(text);
+    return Utils.legacyCopy(value);
   };
 
   /**
@@ -49,11 +50,12 @@
    * @returns {Promise<void>}
    */
   Utils.legacyCopy = function (text) {
+    const value = String(text === null || text === undefined ? "" : text);
     return new Promise(function (resolve, reject) {
       let area = null;
       try {
         area = document.createElement("textarea");
-        area.value = text;
+        area.value = value;
         area.style.position = "fixed";
         area.style.left = "-9999px";
         area.style.top = "-9999px";
@@ -61,7 +63,7 @@
         area.setAttribute("readonly", "");
         document.body.appendChild(area);
         area.select();
-        area.setSelectionRange(0, text.length);
+        area.setSelectionRange(0, value.length);
         const success = document.execCommand("copy");
         if (success) {
           resolve();
