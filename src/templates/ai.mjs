@@ -1,4 +1,4 @@
-import { renderPage } from "./layout.mjs";
+import { buildPageJsonLd, renderPage } from "./layout.mjs";
 import { renderRelayContent } from "./relay.mjs";
 
 const GROUPS = [
@@ -255,6 +255,7 @@ ${group.tools.map((tool, toolIndex) => renderTool(tool, groupIndex, toolIndex)).
 }
 
 export function renderAiPage() {
+  const description = "中转站排行榜与常用 AI 网站导航，支持快速对比 AI 中转站路由、模型、健康状态、成功率和响应耗时。";
   const main = `    <main class="content">
       <section class="ai-nav-page container">
         <header class="ai-nav-hero">
@@ -282,10 +283,26 @@ ${GROUPS.map(renderGroup).join("\n")}
 
   return renderPage({
     title: "中转站排名 :: CWLBlog",
-    description: "中转站排行榜与常用 AI 网站导航，支持快速对比 AI 中转站路由、模型、健康状态、成功率和响应耗时。",
+    description,
     active: "ai",
     scripts: ["/js/relay.js", "/js/ai-tabs.js"],
     page: "ai",
+    jsonLd: buildPageJsonLd({
+      type: "CollectionPage",
+      name: "CWLBlog AI 中转站排名",
+      description,
+      path: "/ai/",
+      mainEntity: {
+        "@type": "ItemList",
+        numberOfItems: GROUPS.reduce((sum, group) => sum + group.tools.length, 0),
+        itemListElement: GROUPS.flatMap((group) => group.tools).map((tool, index) => ({
+          "@type": "ListItem",
+          position: index + 1,
+          name: tool.name,
+          url: tool.url,
+        })),
+      },
+    }),
     main,
     og: {
       title: "中转站排名 :: CWLBlog",

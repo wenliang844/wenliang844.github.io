@@ -1,4 +1,4 @@
-import { renderPage } from "./layout.mjs";
+import { buildPageJsonLd, renderPage } from "./layout.mjs";
 
 const TOOLS = [
   { id: "json", icon: "fa-code", title: "JSON 格式化", titleEn: "JSON Formatter", desc: "格式化、压缩和校验 JSON 文本。", descEn: "Format, minify and validate JSON text." },
@@ -390,6 +390,7 @@ ${toolHeader(tool)}
 }
 
 export function renderToolsPage() {
+  const description = "CWLBlog 在线工具箱：JSON、时间戳、Base64、URL、UUID、JWT、哈希、密码、颜色、正则、Markdown、Diff、Cron 和二维码等本地工具。";
   const main = `    <main class="content">
       <section class="tools-page container">
         <header class="tools-header">
@@ -425,12 +426,22 @@ ${renderQrTool()}
 
   return renderPage({
     title: "在线工具箱 :: CWLBlog",
-    description: "CWLBlog 在线工具箱：JSON、时间戳、Base64、URL、UUID、JWT、哈希、密码、颜色、正则、Markdown、Diff、Cron 和二维码等本地工具。",
+    description,
     titleEn: "Toolbox :: CWLBlog",
     descriptionEn: "CWLBlog online toolbox: JSON, timestamps, Base64, URL, UUID, JWT, hashes, passwords, colors, regex, Markdown, diff, cron and QR tools.",
     active: "tools",
     page: "tools",
     scripts: ["/js/vendor/marked.min.js", "/js/vendor/purify.min.js", "/js/vendor/qrcode.min.js", "/js/tools-core.js", "/js/tools.js"],
+    jsonLd: buildPageJsonLd({
+      type: "WebApplication",
+      name: "CWLBlog 在线工具箱",
+      description,
+      path: "/tools/",
+      applicationCategory: "DeveloperApplication",
+      operatingSystem: "Any",
+      offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+      featureList: TOOLS.map((tool) => tool.titleEn || tool.title),
+    }),
     main,
     og: {
       title: "在线工具箱 :: CWLBlog",

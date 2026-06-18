@@ -17,7 +17,7 @@
 | Twitter Card | ✅ | summary_large_image 或 summary |
 | Sitemap | ✅ | 含图片扩展 |
 | RSS Feed | ✅ | 3 个 RSS（首页、文章、分类） |
-| JSON-LD | ✅ | 首页有 WebSite，文章页有 Article 结构化数据 |
+| JSON-LD | ✅ | 首页有 WebSite，文章页有 Article，静态页有 Person/CollectionPage/WebApplication/ContactPage 等结构化数据 |
 | `robots.txt` | ✅ | 存在 |
 | 语义化 HTML | ✅ | header, main, article, section, nav, footer |
 | 图片 alt 属性 | ⚠️ | Markdown 图片有 alt，但部分装饰图标用 `aria-hidden` |
@@ -34,17 +34,12 @@
 
 ---
 
-## 📌 SEO-02: 静态页面缺少 JSON-LD
+## 📌 SEO-02 [已修复]: 静态页面缺少 JSON-LD
 
-- **📍 位置**：`src/templates/layout.mjs`、手写 HTML 页面
-- **📝 当前状况**：只有文章页通过 `renderPostPage()` 生成 JSON-LD。以下页面缺少结构化数据：
-  - 关于页（应有 Person 类型）
-  - 博客列表页（应有 CollectionPage 类型）
-  - 工具箱页（应有 WebApplication 类型）
-  - 首页（应有 WebSite 类型）
-- **⚠️ 影响程度**：中
-- **💡 建议方案**：在 `renderPage()` 中支持传入 `jsonLd` 参数（已支持），为各页面添加对应的结构化数据。
-- **📊 预期收益**：搜索引擎更好地理解站点结构
+- **📍 位置**：`src/templates/layout.mjs`、`src/templates/*.mjs`、手写 HTML 页面
+- **✅ 修复状态**：新增 `buildPageJsonLd()` / `siteUrl()` helper；博客列表、时间归档、标签、AI、工具箱、鉴赏、赞助等生成页输出对应结构化数据；关于、联系、编辑器、Overleaf 手写页补充 Person / ContactPage / WebApplication JSON-LD。
+- **🧪 回归测试**：`tests/templates-extended.test.mjs` 验证模板输出的类型和关键字段；`tests/build-extra.test.mjs` 解析生成页和手写页 JSON-LD，确认 `@context`、`@type` 与绝对 URL。
+- **📊 实际收益**：搜索引擎能更明确识别站点页面类型、工具应用、集合列表、作者实体和联系方式。
 
 ---
 

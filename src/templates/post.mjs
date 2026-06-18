@@ -1,5 +1,5 @@
 // 文章相关模板：单篇页、博客列表页（树形单页显隐）。
-import { renderPage } from "./layout.mjs";
+import { buildPageJsonLd, renderPage } from "./layout.mjs";
 import { SITE } from "../config.mjs";
 import { isoDate, longDate, escapeAttr, escapeHtml } from "../lib/format.mjs";
 
@@ -188,6 +188,25 @@ function buildArticleJsonLd(post) {
     );
   }
   return data;
+}
+
+function buildPostListJsonLd(posts, description) {
+  return buildPageJsonLd({
+    type: "CollectionPage",
+    name: "CWLBlog 文章",
+    description,
+    path: "/post/",
+    mainEntity: {
+      "@type": "ItemList",
+      numberOfItems: posts.length,
+      itemListElement: posts.map((post, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        name: post.shortTitle,
+        url: `${SITE.baseURL}/post/${post.slug}/`,
+      })),
+    },
+  });
 }
 
 /**
@@ -379,6 +398,7 @@ ${panels}
     active: "blog",
     page: "posts",
     scripts: ["/js/blog.js", "/js/vendor/qrcode.min.js", "/js/share.js", "/js/giscus.js"],
+    jsonLd: buildPostListJsonLd(posts, description),
     og: { type: "website", title: "Posts", description, path: "/post/" },
     main,
   });

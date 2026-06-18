@@ -1,6 +1,7 @@
-import { SPONSOR_LINKS, renderPage } from "./layout.mjs";
+import { SPONSOR_LINKS, buildPageJsonLd, renderPage } from "./layout.mjs";
 
 export function renderSponsorPage() {
+  const description = "Support CWLBlog via Afdian, PayPal, WeChat or Alipay.";
   const main = `    <main class="content">
       <section class="sponsor-page container" aria-labelledby="sponsor-title">
         <div class="sponsor-hero">
@@ -81,13 +82,31 @@ export function renderSponsorPage() {
 
   return renderPage({
     title: "Sponsor :: CWLBlog",
-    description: "Support CWLBlog via Afdian, PayPal, WeChat or Alipay.",
+    description,
     titleEn: "Sponsor :: CWLBlog",
-    descriptionEn: "Support CWLBlog via Afdian, PayPal, WeChat or Alipay.",
+    descriptionEn: description,
     active: "sponsor",
     scripts: [],
     bodyClass: "colorscheme-dark",
     page: "sponsor",
+    jsonLd: buildPageJsonLd({
+      type: "WebPage",
+      name: "Sponsor CWLBlog",
+      description,
+      path: "/sponsor/",
+      potentialAction: [
+        {
+          "@type": "DonateAction",
+          name: "Support via Afdian",
+          target: SPONSOR_LINKS.afdian,
+        },
+        {
+          "@type": "DonateAction",
+          name: "Support via PayPal",
+          target: SPONSOR_LINKS.paypal,
+        },
+      ],
+    }),
     main,
     og: {
       title: "Sponsor CWLBlog",

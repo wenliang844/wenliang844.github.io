@@ -18,6 +18,12 @@ async function runBuild(args = []) {
   });
 }
 
+function extractJsonLd(html) {
+  const ldMatch = html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/);
+  assert.ok(ldMatch, "page should include JSON-LD script");
+  return JSON.parse(ldMatch[1]);
+}
+
 // ─── collectTags 排序与去重 ─────────────────────────────────────────────────
 
 test("build produces tag cloud sorted by count descending", async () => {
@@ -209,10 +215,7 @@ test("article pages include valid JSON-LD structured data", async () => {
 
 test("home page includes valid WebSite JSON-LD structured data", async () => {
   const html = await readFile(join(ROOT, "index.html"), "utf8");
-  const ldMatch = html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/);
-  assert.ok(ldMatch, "home page should have JSON-LD script");
-
-  const ld = JSON.parse(ldMatch[1]);
+  const ld = extractJsonLd(html);
   assert.equal(ld["@context"], "https://schema.org");
   assert.equal(ld["@type"], "WebSite");
   assert.equal(ld.name, "CWLBlog");
@@ -220,6 +223,50 @@ test("home page includes valid WebSite JSON-LD structured data", async () => {
   assert.equal(ld.author["@type"], "Person");
   assert.equal(ld.author.name, "CWL");
   assert.equal(ld.author.url, "https://wenliang844.github.io/about/");
+});
+
+test("generated static pages include valid JSON-LD structured data", async () => {
+  const tempRoot = join(ROOT, "temp");
+  await mkdir(tempRoot, { recursive: true });
+  const outDir = await mkdtemp(join(tempRoot, "cwlblog-static-jsonld-"));
+  try {
+    await runBuild(["--out", outDir]);
+    const pages = [
+      ["post/index.html", "CollectionPage"],
+      ["tools/index.html", "WebApplication"],
+      ["ai/index.html", "CollectionPage"],
+      ["categories/index.html", "CollectionPage"],
+      ["tags/index.html", "CollectionPage"],
+      ["appreciation/index.html", "CollectionPage"],
+      ["sponsor/index.html", "WebPage"],
+    ];
+
+    for (const [page, type] of pages) {
+      const ld = extractJsonLd(await readFile(join(outDir, ...page.split("/")), "utf8"));
+      assert.equal(ld["@context"], "https://schema.org", `${page} should use schema.org context`);
+      assert.equal(ld["@type"], type, `${page} should use ${type} JSON-LD`);
+      assert.match(ld.url, /^https:\/\/wenliang844\.github\.io\//, `${page} should use absolute URL`);
+      assert.equal(ld.isPartOf["@type"], "WebSite", `${page} should link back to the site entity`);
+    }
+  } finally {
+    await rm(outDir, { recursive: true, force: true });
+  }
+});
+
+test("hand-written static pages include valid JSON-LD structured data", async () => {
+  const pages = [
+    ["about/index.html", "Person"],
+    ["contact/index.html", "ContactPage"],
+    ["editor/index.html", "WebApplication"],
+    ["overleaf/index.html", "WebApplication"],
+  ];
+
+  for (const [page, type] of pages) {
+    const ld = extractJsonLd(await readFile(join(ROOT, ...page.split("/")), "utf8"));
+    assert.equal(ld["@context"], "https://schema.org", `${page} should use schema.org context`);
+    assert.equal(ld["@type"], type, `${page} should use ${type} JSON-LD`);
+    assert.match(ld.url, /^https:\/\/wenliang844\.github\.io\//, `${page} should use absolute URL`);
+  }
 });
 
 // ─── 文章页 canonical 和 og 标签 ────────────────────────────────────────────

@@ -1,6 +1,6 @@
 // 鉴赏页：科技研究 / 影视作品 / 娱乐项目三张「排行榜」，并列展示。
 // 与 ai.mjs 同构——数据驱动 + 双语 data-i18n-en 内联，复用 layout 外壳。
-import { renderPage } from "./layout.mjs";
+import { buildPageJsonLd, renderPage } from "./layout.mjs";
 import { escapeAttr, escapeHtml } from "../lib/format.mjs";
 
 // 三张榜单。每个 item 至少有 name（中文/默认显示），可选：
@@ -95,6 +95,7 @@ ${board.items.map((item, itemIndex) => renderItem(item, boardIndex, itemIndex)).
 }
 
 export function renderAppreciationPage() {
+  const description = "个人鉴赏榜单：科技研究、影视作品与娱乐项目三张并列排行榜。";
   const main = `    <main class="content">
       <section class="rank-page container">
         <header class="rank-hero">
@@ -110,9 +111,25 @@ ${BOARDS.map(renderBoard).join("\n")}
 
   return renderPage({
     title: "鉴赏 :: CWLBlog",
-    description: "个人鉴赏榜单：科技研究、影视作品与娱乐项目三张并列排行榜。",
+    description,
     active: "appreciation",
     page: "appreciation",
+    jsonLd: buildPageJsonLd({
+      type: "CollectionPage",
+      name: "CWLBlog 鉴赏榜单",
+      description,
+      path: "/appreciation/",
+      mainEntity: {
+        "@type": "ItemList",
+        numberOfItems: BOARDS.reduce((sum, board) => sum + board.items.length, 0),
+        itemListElement: BOARDS.flatMap((board) => board.items).map((item, index) => ({
+          "@type": "ListItem",
+          position: index + 1,
+          name: item.nameEn || item.name,
+          item: { "@type": "Thing", name: item.name, alternateName: item.nameEn || item.name },
+        })),
+      },
+    }),
     main,
     og: {
       title: "鉴赏 :: CWLBlog",

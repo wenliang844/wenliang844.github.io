@@ -61,7 +61,7 @@
 
 ### ⚠️ 需要关注的问题
 1. **代码重复**：5 处明显重复（editing, copyText, escapeHtml, t(), readingMinutes）
-2. **SEO 改进空间**：其他静态页结构化数据仍可继续补充
+2. **SEO 改进空间**：文章图片、更新时间和多语言 URL 策略仍可继续补充
 3. **文章无图片**：影响社交分享效果
 4. **assistant.js 未接入 i18n**：英文用户看到中文
 5. **CSS backdrop-filter 过度使用**：移动端性能隐患（18 个元素）

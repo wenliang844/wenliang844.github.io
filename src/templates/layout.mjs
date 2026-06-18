@@ -134,6 +134,27 @@ function renderMeta(og) {
   return lines.join("\n");
 }
 
+export function siteUrl(path) {
+  return `${SITE.baseURL}${path}`;
+}
+
+export function buildPageJsonLd({ type = "WebPage", name, description, path, ...extra }) {
+  return {
+    "@context": "https://schema.org",
+    "@type": type,
+    name,
+    description,
+    url: siteUrl(path),
+    inLanguage: "zh-CN",
+    isPartOf: {
+      "@type": "WebSite",
+      name: SITE.title,
+      url: siteUrl("/"),
+    },
+    ...extra,
+  };
+}
+
 /**
  * 生成完整 HTML 文档。
  * @param {object} opts

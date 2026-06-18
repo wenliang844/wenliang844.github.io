@@ -10,6 +10,12 @@ import { renderSponsorPage } from "../src/templates/sponsor.mjs";
 import { renderPostPage, renderPostList } from "../src/templates/post.mjs";
 import { renderTagsPage } from "../src/templates/tags.mjs";
 
+function extractJsonLd(html) {
+  const match = html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/);
+  assert.ok(match, "page should include JSON-LD");
+  return JSON.parse(match[1]);
+}
+
 // ─── Tools 页面测试 ────────────────────────────────────────────────────────────
 
 test("renderToolsPage includes all 16 tool panels", () => {
@@ -67,6 +73,43 @@ test("renderToolsPage has i18n data attributes", () => {
   assert.match(html, /data-i18n="tools\.h1"/);
   assert.match(html, /data-i18n="tools\.lead"/);
   assert.match(html, /data-i18n="tools\.eyebrow"/);
+});
+
+test("generated static templates include page-specific JSON-LD", () => {
+  const posts = [
+    { slug: "a", shortTitle: "A", shortTitleEn: "A", title: "A", titleEn: "A", date: "2024-06-01", eyebrow: "项目", summary: "S", summaryEn: "S", tags: ["Java"], tagsEn: ["Java"], contentHtml: "<p>A</p>", contentHtmlEn: "", readMinutes: 1, images: [] },
+    { slug: "b", shortTitle: "B", shortTitleEn: "B", title: "B", titleEn: "B", date: "2023-01-01", eyebrow: "项目", summary: "S", summaryEn: "S", tags: ["Node"], tagsEn: ["Node"], contentHtml: "<p>B</p>", contentHtmlEn: "", readMinutes: 1, images: [] },
+  ];
+  const stats = { count: 2, systems: 2, startYear: "2023", endYear: "2024", yearCount: 2, range: "2023-2024" };
+
+  const toolsLd = extractJsonLd(renderToolsPage());
+  assert.equal(toolsLd["@type"], "WebApplication");
+  assert.equal(toolsLd.applicationCategory, "DeveloperApplication");
+  assert.ok(toolsLd.featureList.includes("JSON Formatter"));
+
+  const aiLd = extractJsonLd(renderAiPage());
+  assert.equal(aiLd["@type"], "CollectionPage");
+  assert.equal(aiLd.mainEntity.numberOfItems, 20);
+
+  const postListLd = extractJsonLd(renderPostList(posts, stats));
+  assert.equal(postListLd["@type"], "CollectionPage");
+  assert.equal(postListLd.mainEntity.itemListElement[0].url, "https://wenliang844.github.io/post/a/");
+
+  const categoriesLd = extractJsonLd(renderCategoriesPage(posts, stats));
+  assert.equal(categoriesLd["@type"], "CollectionPage");
+  assert.equal(categoriesLd.mainEntity.numberOfItems, 2);
+
+  const tagsLd = extractJsonLd(renderTagsPage([{ tag: "Java", tagEn: "Java", count: 1 }]));
+  assert.equal(tagsLd["@type"], "CollectionPage");
+  assert.equal(tagsLd.mainEntity.itemListElement[0].url, "https://wenliang844.github.io/post/?tag=Java");
+
+  const appreciationLd = extractJsonLd(renderAppreciationPage());
+  assert.equal(appreciationLd["@type"], "CollectionPage");
+  assert.equal(appreciationLd.mainEntity.numberOfItems, 26);
+
+  const sponsorLd = extractJsonLd(renderSponsorPage());
+  assert.equal(sponsorLd["@type"], "WebPage");
+  assert.equal(sponsorLd.potentialAction[0]["@type"], "DonateAction");
 });
 
 // ─── AI 导航页面测试 ───────────────────────────────────────────────────────────

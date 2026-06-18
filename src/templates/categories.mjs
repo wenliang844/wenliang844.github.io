@@ -1,6 +1,6 @@
 // 时间归档页 → categories/index.html
 // 这里沿用现有文章目录样式，把“分类”落到年份维度。
-import { renderPage } from "./layout.mjs";
+import { buildPageJsonLd, renderPage, siteUrl } from "./layout.mjs";
 import { escapeAttr, escapeHtml, isoDate } from "../lib/format.mjs";
 
 function enValue(post, key) {
@@ -79,6 +79,22 @@ ${groups}
       "A year-based archive of CWLBlog project retrospectives covering AI coding, low-code, workflow, SaaS backend, intelligent analysis and rule engines.",
     active: "blog",
     page: "categories",
+    jsonLd: buildPageJsonLd({
+      type: "CollectionPage",
+      name: "CWLBlog 时间归档",
+      description,
+      path: "/categories/",
+      mainEntity: {
+        "@type": "ItemList",
+        numberOfItems: posts.length,
+        itemListElement: posts.map((post, index) => ({
+          "@type": "ListItem",
+          position: index + 1,
+          name: post.shortTitle,
+          url: siteUrl(`/post/${post.slug}/`),
+        })),
+      },
+    }),
     og: { type: "website", title: "Time Archive", description, path: "/categories/" },
     main,
   });

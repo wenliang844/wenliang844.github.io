@@ -5406,3 +5406,47 @@
 
 - 提交第二十五轮工程化优化。
 - 继续评估其他静态页结构化数据、文章图片资源项或覆盖率阈值。
+
+## 第 163 轮：补齐静态页面 JSON-LD 结构化数据
+
+时间：2026-06-18
+
+### 已完成内容
+
+- 在 `src/templates/layout.mjs` 新增 `siteUrl()` 和 `buildPageJsonLd()`，统一页面级 JSON-LD 的站点 URL、语言和 `isPartOf` 信息。
+- 为博客列表、时间归档、标签、AI、工具箱、鉴赏和赞助等生成页补充 `CollectionPage`、`WebApplication` 或 `WebPage` 结构化数据。
+- 为关于、联系、编辑器和 Overleaf 手写页补充 `Person`、`ContactPage` 和 `WebApplication` JSON-LD。
+- 重新构建生成页，使 `post/index.html`、`tools/index.html`、`ai/index.html`、`categories/index.html`、`tags/index.html`、`appreciation/index.html`、`sponsor/index.html` 写入结构化数据。
+- 扩展模板和构建测试，解析 JSON-LD 并验证类型、绝对 URL、站点实体和关键字段。
+- 更新 SEO-02、建议索引、健康评分和本轮工作报告。
+
+### 发现的问题
+
+- 首页已有 WebSite JSON-LD，文章页已有 Article JSON-LD，但静态工具页、集合页和手写页缺少页面级结构化数据。
+- `renderPage()` 已支持 `jsonLd` 参数，但缺少统一 helper，直接在各模板手写容易出现 URL 和站点实体不一致。
+- 既有测试只覆盖首页和文章页 JSON-LD，没有覆盖其他静态页面。
+
+### 修复方案
+
+- 生成页统一通过 `buildPageJsonLd()` 输出结构化数据，集合页使用 `ItemList` 描述文章、标签、AI 工具或榜单条目。
+- 工具型页面使用 `WebApplication`，并声明 `DeveloperApplication`、`operatingSystem: Any` 和免费 `Offer`。
+- 手写 about/contact/editor/overleaf 页面直接加入紧凑 JSON-LD，并用构建测试解析验证。
+- 通过模板级测试和产物级测试双层覆盖，防止模板改动或手写页遗漏。
+
+### 性能、安全与质量指标
+
+- `node --test tests/templates-extended.test.mjs tests/build-extra.test.mjs`：59 个测试全部通过。
+- `node --test tests/build-extra.test.mjs tests/i18n-a11y.test.mjs tests/security-extended.test.mjs`：58 个测试全部通过。
+- `npm run lint:check`：通过。
+- `npm test`：546 个测试全部通过。
+- `npm run build`：通过，成功生成 6 篇文章页面。
+- `node --test tests/performance.test.mjs`：13 个性能测试全部通过。
+- `npm run validate:production`：33 项检查通过，0 失败，0 警告。
+- `npm run test:coverage`：546 个测试全部通过；行覆盖率 93.01%，分支覆盖率 75.17%，函数覆盖率 89.92%。
+- `npm audit --audit-level=moderate --registry=https://registry.npmjs.org`：0 个中高危漏洞。
+- SEO 收益：站点静态页面具备更完整的结构化数据，页面类型和实体关系更清晰。
+
+### 下一步计划
+
+- 提交第二十六轮 SEO 优化。
+- 继续评估文章图片资源项、覆盖率阈值或 remaining 低风险 SEO 项。

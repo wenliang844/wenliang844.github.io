@@ -1,7 +1,7 @@
 // 标签云页 → tags/index.html
 // 复用现有 .list-page / .tag-filter / .tag-chip 样式，零新增 CSS。
 // 每个标签链接到 /post/?tag=<标签>，由 blog.js 在列表页就地激活筛选。
-import { renderPage } from "./layout.mjs";
+import { buildPageJsonLd, renderPage, siteUrl } from "./layout.mjs";
 import { escapeAttr, escapeHtml } from "../lib/format.mjs";
 
 // 把标签文本编码进 URL（保留可读性，空格等交给 encodeURIComponent）。
@@ -37,6 +37,23 @@ ${chips}
     titleEn: "Tags :: CWLBlog",
     active: "blog",
     page: "tags",
+    jsonLd: buildPageJsonLd({
+      type: "CollectionPage",
+      name: "CWLBlog 标签",
+      description,
+      path: "/tags/",
+      mainEntity: {
+        "@type": "ItemList",
+        numberOfItems: tagStats.length,
+        itemListElement: tagStats.map(({ tag, tagEn, count }, index) => ({
+          "@type": "ListItem",
+          position: index + 1,
+          name: tagEn || tag,
+          url: siteUrl(tagHref(tag)),
+          item: { "@type": "Thing", name: tag, alternateName: tagEn || tag, additionalProperty: { "@type": "PropertyValue", name: "postCount", value: count } },
+        })),
+      },
+    }),
     og: { type: "website", title: "Tags", description, path: "/tags/" },
     main,
   });
