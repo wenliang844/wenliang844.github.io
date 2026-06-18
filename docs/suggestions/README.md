@@ -25,9 +25,9 @@
 |--------|------|------|----------|
 | 🔴 第一 | Bug 与风险 | [bugs-and-risks.md](bugs-and-risks.md) | 12（中 4 / 低 8） |
 | 🔴 第一 | 安全审计 | [security-audit.md](security-audit.md) | 11（高 1 / 中 2 / 低 5 / 无 3） |
-| 🔴 第一 | 性能瓶颈 | [performance-bottlenecks.md](performance-bottlenecks.md) | 11（中 4 / 低 7） |
+| 🔴 第一 | 性能瓶颈 | [performance-bottlenecks.md](performance-bottlenecks.md) | 12（中 5 / 低 7） |
 | 🟡 第二 | 代码质量 | [code-quality.md](code-quality.md) | 10（中 3 / 低 7） |
-| 🟡 第二 | 架构评审 | [architecture-review.md](architecture-review.md) | 6（中 2 / 低 4） |
+| 🟡 第二 | 架构评审 | [architecture-review.md](architecture-review.md) | 7（中 3 / 低 4） |
 | 🟡 第二 | 技术债务 | [tech-debt.md](tech-debt.md) | 10（中 2 / 低 8） |
 | 🟢 第三 | 新功能建议 | [new-features.md](new-features.md) | 10 |
 | 🟢 第三 | UX 优化 | [ux-improvements.md](ux-improvements.md) | 10（中 3 / 低 7） |

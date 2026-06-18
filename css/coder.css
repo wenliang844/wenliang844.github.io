@@ -5137,9 +5137,6 @@ body.assistant-fullscreen .navigation {
 
   .assistant-widget.fullscreen {
     top: var(--assistant-fullscreen-top, 4.6rem);
-    right: 0;
-    bottom: 0;
-    left: 0;
   }
 
   .assistant-panel {
