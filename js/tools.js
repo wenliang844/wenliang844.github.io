@@ -37,14 +37,17 @@
     return target && typeof target.closest === "function" ? target.closest(selector) : null;
   }
 
-  function setStatus(id, message, type) {
-    const el = document.getElementById(id);
+  function setStatusElement(el, message, type) {
     if (!el) {
       return;
     }
     el.textContent = message || "";
     el.classList.toggle("is-error", type === "error");
     el.classList.toggle("is-ok", type === "ok");
+  }
+
+  function setStatus(id, message, type) {
+    setStatusElement(document.getElementById(id), message, type);
   }
 
   function applyResult(result, outputId, statusId) {
@@ -90,11 +93,7 @@
     const isPlaceholder = target && target.getAttribute("data-empty") === "true";
     const data = !isPlaceholder && target && ("value" in target ? target.value : target.textContent);
     if (!data) {
-      if (status) {
-        status.textContent = t("tools.status.copyEmpty", "没有可复制的内容");
-        status.classList.add("is-error");
-        status.classList.remove("is-ok");
-      }
+      setStatusElement(status, t("tools.status.copyEmpty", "没有可复制的内容"), "error");
       return;
     }
     const copier = window.CWLUtils && window.CWLUtils.copyText
@@ -103,17 +102,9 @@
     Promise.resolve().then(function () {
       return copier(data);
     }).then(function () {
-      if (status) {
-        status.textContent = t("tools.status.copied", "已复制");
-        status.classList.remove("is-error");
-        status.classList.add("is-ok");
-      }
+      setStatusElement(status, t("tools.status.copied", "已复制"), "ok");
     }).catch(function () {
-      if (status) {
-        status.textContent = t("tools.status.copyFail", "复制失败，请手动选择复制");
-        status.classList.add("is-error");
-        status.classList.remove("is-ok");
-      }
+      setStatusElement(status, t("tools.status.copyFail", "复制失败，请手动选择复制"), "error");
     });
   }
 
