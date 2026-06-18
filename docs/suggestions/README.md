@@ -75,6 +75,7 @@
 已完成：SEO-01 首页补充 WebSite JSON-LD，并新增结构化数据解析测试。
 已完成：MR-EDITOR-03 移除 marked 废弃 highlight 选项，改为渲染后调用 `hljs.highlightElement()`。
 已完成：MR-EDITOR-01/02 清理编辑器重复 escape/copy 记录，并将 HTML 复制委托 `CWLUtils.copyText`。
+已完成：MR-EDITOR-05 编辑器导出补齐 shortTitle、summary、description 必填 front matter。
 
 ### 🥈 高价值中成本（建议近期规划）
 

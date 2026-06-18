@@ -5320,3 +5320,46 @@
 
 - 提交第二十三轮代码质量优化。
 - 继续评估其他静态页结构化数据、CI 配置或文章图片资源项。
+
+## 第 161 轮：补齐编辑器导出必填 front matter
+
+时间：2026-06-18
+
+### 已完成内容
+
+- 在 `editor/index.html` 新增短标题、摘要和描述输入项，并补充英文 i18n 文案。
+- 在 `js/editor.js` 中保存、恢复、清空和示例填充 `shortTitle`、`summary`、`description`。
+- 将 Markdown 导出的 front matter 扩展为 `title`、`shortTitle`、`date`、`summary`、`description`、`draft`，覆盖当前构建脚本的必填字段。
+- 新增 YAML 字符串转义 helper，避免标题、摘要、描述中的引号或反斜杠破坏导出格式。
+- 扩展编辑器测试，拦截导出 Blob 并验证必填字段与引号转义。
+- 更新 MR-EDITOR-05、建议索引和健康评分文档。
+
+### 发现的问题
+
+- 编辑器导出的 Markdown 只包含 `title`、`date` 和 `draft`。
+- `scripts/build.mjs` 的文章校验要求 `title`、`shortTitle`、`date`、`summary`、`description` 均存在，导致编辑器导出的文件无法直接进入构建流程。
+- 既有测试只确认标题引号保留，没有验证下载文件真实 front matter 内容。
+
+### 修复方案
+
+- 在编辑器元信息区域补齐构建必需字段，并纳入 localStorage 状态。
+- 标题输入时在短标题为空的情况下自动同步，降低用户重复输入成本。
+- 摘要和描述为空时使用安全默认值，描述默认跟随摘要。
+- 通过 `FileReader` 读取导出 Blob，验证下载路径生成的 Markdown，而不是只检查内部输入值。
+
+### 性能、安全与质量指标
+
+- `node --test tests/editor.test.mjs tests/i18n-a11y.test.mjs tests/js-behavior.test.mjs`：65 个测试全部通过。
+- `npx eslint js/*.js`：通过。
+- `npm test`：542 个测试全部通过。
+- `npm run build`：通过，成功生成 6 篇文章页面。
+- `node --test tests/performance.test.mjs`：13 个性能测试全部通过。
+- `npm run validate:production`：33 项检查通过，0 失败，0 警告。
+- `npm run test:coverage`：542 个测试全部通过；行覆盖率 92.72%，分支覆盖率 74.91%，函数覆盖率 89.33%。
+- `npm audit --audit-level=moderate --registry=https://registry.npmjs.org`：0 个中高危漏洞。
+- 用户体验收益：编辑器导出 Markdown 可直接用于当前文章构建流程，减少手工补字段和构建失败。
+
+### 下一步计划
+
+- 提交第二十四轮编辑器导出修复。
+- 继续评估其他静态页结构化数据、CI 配置或文章图片资源项。

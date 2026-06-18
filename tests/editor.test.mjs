@@ -9,8 +9,11 @@ const ROOT = join(import.meta.dirname, "..");
 
 const EDITOR_HTML = `<!doctype html><html lang="zh-CN"><body class="colorscheme-dark">
   <input type="text" id="post-title" value="">
+  <input type="text" id="post-short-title" value="">
   <input type="text" id="post-slug" value="">
   <input type="date" id="post-date" value="">
+  <input type="text" id="post-summary" value="">
+  <input type="text" id="post-description" value="">
   <textarea id="markdown-input"></textarea>
   <div id="markdown-preview"></div>
   <span id="editor-stats"></span>
@@ -51,8 +54,11 @@ test("editor.js loads with sample content", async () => {
   const { document } = dom.window;
 
   assert.ok(document.getElementById("post-title").value.length > 0, "title should be pre-filled");
+  assert.ok(document.getElementById("post-short-title").value.length > 0, "short title should be pre-filled");
   assert.ok(document.getElementById("post-slug").value.length > 0, "slug should be pre-filled");
   assert.ok(document.getElementById("post-date").value.match(/^\d{4}-\d{2}-\d{2}$/), "date should be YYYY-MM-DD");
+  assert.ok(document.getElementById("post-summary").value.length > 0, "summary should be pre-filled");
+  assert.ok(document.getElementById("post-description").value.length > 0, "description should be pre-filled");
   assert.ok(document.getElementById("markdown-input").value.length > 0, "markdown should be pre-filled");
   assert.ok(document.getElementById("markdown-preview").innerHTML.length > 0, "preview should have content");
   dom.window.close();
@@ -367,7 +373,10 @@ test("editor.js new action clears all fields", async () => {
   document.querySelector('[data-action="new"]').click();
 
   assert.equal(document.getElementById("post-title").value, "");
+  assert.equal(document.getElementById("post-short-title").value, "");
   assert.equal(document.getElementById("post-slug").value, "");
+  assert.equal(document.getElementById("post-summary").value, "");
+  assert.equal(document.getElementById("post-description").value, "");
   assert.equal(document.getElementById("markdown-input").value, "");
   assert.ok(document.getElementById("post-date").value.match(/^\d{4}-\d{2}-\d{2}$/), "date should be set to today");
   dom.window.close();
@@ -390,6 +399,9 @@ test("editor.js sample action loads sample content", async () => {
   // Then load sample
   document.querySelector('[data-action="sample"]').click();
   assert.ok(document.getElementById("post-title").value.length > 0, "title should be filled");
+  assert.ok(document.getElementById("post-short-title").value.length > 0, "short title should be filled");
+  assert.ok(document.getElementById("post-summary").value.length > 0, "summary should be filled");
+  assert.ok(document.getElementById("post-description").value.length > 0, "description should be filled");
   assert.ok(document.getElementById("markdown-input").value.includes("```"), "sample should contain code block");
   dom.window.close();
 });
@@ -404,11 +416,32 @@ test("editor.js generates proper front matter", async () => {
   await loadEditor(dom);
   const { document } = dom.window;
 
+  const blobs = [];
+  dom.window.URL.createObjectURL = function (blob) {
+    blobs.push(blob);
+    return "blob:test";
+  };
+  dom.window.URL.revokeObjectURL = function () {};
+  dom.window.HTMLAnchorElement.prototype.click = function () {};
   document.getElementById("post-title").value = 'My "Great" Post';
-  // The frontMatter function is internal; we verify through download-md action
-  // by checking the source value formatting
-  const title = document.getElementById("post-title").value;
-  assert.ok(title.includes('"Great"'), "title preserves quotes");
+  document.getElementById("post-short-title").value = "Great Post";
+  document.getElementById("post-summary").value = "Short summary";
+  document.getElementById("post-description").value = "Search description";
+  document.getElementById("markdown-input").value = "# Body";
+
+  document.querySelector('[data-action="download-md"]').click();
+  const markdown = await new Promise((resolve, reject) => {
+    const reader = new dom.window.FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsText(blobs[0]);
+  });
+
+  assert.match(markdown, /title: "My \\"Great\\" Post"/);
+  assert.match(markdown, /shortTitle: "Great Post"/);
+  assert.match(markdown, /summary: "Short summary"/);
+  assert.match(markdown, /description: "Search description"/);
+  assert.match(markdown, /draft: false/);
   dom.window.close();
 });
 

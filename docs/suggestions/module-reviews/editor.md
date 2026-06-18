@@ -57,13 +57,12 @@
 
 ---
 
-## 📌 MR-EDITOR-05: 导出的 Markdown 缺少必填字段
+## 📌 MR-EDITOR-05 [已修复]: 导出的 Markdown 缺少必填字段
 
-- **📍 位置**：`js/editor.js:108-121`
-- **📝 当前状况**：`frontMatter()` 只生成 `title`、`date` 和 `draft`，但构建脚本要求的必填字段是 `title`、`shortTitle`、`date`、`summary`、`description`。导出的文件无法直接通过构建验证。
-- **⚠️ 影响程度**：中（用户体验问题）
-- **💡 建议方案**：在编辑器中添加 `shortTitle`、`summary`、`description` 输入框，或在导出时提醒用户补充。
-- **📊 预期收益**：导出的 Markdown 可直接用于构建
+- **📍 位置**：`editor/index.html`、`js/editor.js`
+- **✅ 修复状态**：编辑器新增短标题、摘要和描述输入；`frontMatter()` 导出 `title`、`shortTitle`、`date`、`summary`、`description` 和 `draft`。
+- **🧪 回归测试**：`tests/editor.test.mjs` 拦截导出 Blob，验证 Markdown front matter 包含构建脚本必填字段并正确转义标题引号。
+- **📊 实际收益**：导出的 Markdown 可直接进入当前 `src/posts/` 构建流程，减少用户手工补字段导致的构建失败。
 - **🔗 相关建议**：无
 
 ---

@@ -1,13 +1,16 @@
 (function () {
   const storageKey = "wenliang-markdown-editor";
   const titleInput = document.getElementById("post-title");
+  const shortTitleInput = document.getElementById("post-short-title");
   const slugInput = document.getElementById("post-slug");
   const dateInput = document.getElementById("post-date");
+  const summaryInput = document.getElementById("post-summary");
+  const descriptionInput = document.getElementById("post-description");
   const markdownInput = document.getElementById("markdown-input");
   const preview = document.getElementById("markdown-preview");
   const statsEl = document.getElementById("editor-stats");
 
-  if (!titleInput || !slugInput || !dateInput || !markdownInput || !preview) {
+  if (!titleInput || !shortTitleInput || !slugInput || !dateInput || !summaryInput || !descriptionInput || !markdownInput || !preview) {
     return;
   }
 
@@ -39,6 +42,10 @@
 
   function sampleTitle() {
     return t("editor.sample.title", "新文章标题");
+  }
+
+  function sampleSummary() {
+    return t("editor.sample.summary", "在这里记录一篇新的博客。");
   }
 
   function sampleMarkdown() {
@@ -90,15 +97,27 @@
     return html;
   }
 
-  function frontMatter() {
-    // Escape double quotes and backslashes in title
-    const escapedTitle = titleInput.value
+  function yamlString(value) {
+    const normalized = (value || "")
+      .replace(/\r?\n/g, " ")
+      .trim();
+    return "\"" + normalized
       .replace(/\\/g, "\\\\")
-      .replace(/"/g, '\\"');
+      .replace(/"/g, '\\"') + "\"";
+  }
+
+  function frontMatter() {
+    const title = titleInput.value.trim();
+    const shortTitle = shortTitleInput.value.trim() || title;
+    const summary = summaryInput.value.trim() || sampleSummary();
+    const description = descriptionInput.value.trim() || summary;
     return [
       "---",
-      "title: \"" + escapedTitle + "\"",
+      "title: " + yamlString(title),
+      "shortTitle: " + yamlString(shortTitle),
       "date: " + dateInput.value,
+      "summary: " + yamlString(summary),
+      "description: " + yamlString(description),
       "draft: false",
       "---",
       ""
@@ -108,8 +127,11 @@
   function currentState() {
     return {
       title: titleInput.value,
+      shortTitle: shortTitleInput.value,
       slug: slugInput.value,
       date: dateInput.value,
+      summary: summaryInput.value,
+      description: descriptionInput.value,
       markdown: markdownInput.value
     };
   }
@@ -179,8 +201,11 @@
     }
 
     titleInput.value = stored && stored.title ? stored.title : sampleTitle();
+    shortTitleInput.value = stored && stored.shortTitle ? stored.shortTitle : titleInput.value;
     slugInput.value = stored && stored.slug ? stored.slug : slugify(titleInput.value);
     dateInput.value = stored && stored.date ? stored.date : today();
+    summaryInput.value = stored && stored.summary ? stored.summary : sampleSummary();
+    descriptionInput.value = stored && stored.description ? stored.description : summaryInput.value;
     markdownInput.value = stored && stored.markdown ? stored.markdown : sampleMarkdown();
   }
 
@@ -315,10 +340,16 @@
 
   titleInput.addEventListener("input", function () {
     slugInput.value = slugify(titleInput.value);
+    if (!shortTitleInput.value.trim()) {
+      shortTitleInput.value = titleInput.value;
+    }
     debouncedRender();
   });
+  shortTitleInput.addEventListener("input", saveState);
   slugInput.addEventListener("input", saveState);
   dateInput.addEventListener("input", saveState);
+  summaryInput.addEventListener("input", saveState);
+  descriptionInput.addEventListener("input", saveState);
   markdownInput.addEventListener("input", debouncedRender);
 
   function copyHtml(button) {
@@ -340,16 +371,22 @@
 
       if (action === "new") {
         titleInput.value = "";
+        shortTitleInput.value = "";
         slugInput.value = "";
         dateInput.value = today();
+        summaryInput.value = "";
+        descriptionInput.value = "";
         markdownInput.value = "";
         render();
       }
 
       if (action === "sample") {
         titleInput.value = sampleTitle();
+        shortTitleInput.value = titleInput.value;
         slugInput.value = slugify(titleInput.value);
         dateInput.value = today();
+        summaryInput.value = sampleSummary();
+        descriptionInput.value = summaryInput.value;
         markdownInput.value = sampleMarkdown();
         render();
       }
