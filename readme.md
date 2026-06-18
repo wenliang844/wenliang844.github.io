@@ -2,6 +2,12 @@
 npm run build      # 从 src/posts 重新生成所有页面(本次:6 篇)
 npm run dev
 
+项目文档:
+- [变更日志](CHANGELOG.md)
+- [部署说明](docs/DEPLOYMENT.md)
+- [安全说明](docs/SECURITY.md)
+- [性能说明](docs/PERFORMANCE.md)
+
 待办清单:
 社交分享,文章底部加"分享到 X / 复制链接 / 微信二维码"，配合已有的 og: 标签。√
 图片懒加载 + 点击放大（lightbox）——技术文章配图体验。√

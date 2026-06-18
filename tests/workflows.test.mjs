@@ -85,9 +85,11 @@ test("Dependabot keeps npm and GitHub Actions dependencies current", async () =>
 });
 
 test("project changelog records dated release history", async () => {
+  const readme = await readFile(join(ROOT, "readme.md"), "utf8");
   const changelog = await readFile(join(ROOT, "CHANGELOG.md"), "utf8");
   const productionValidator = await readFile(join(ROOT, "scripts", "validate-production.mjs"), "utf8");
 
+  assert.match(readme, /\[变更日志\]\(CHANGELOG\.md\)/);
   assert.match(changelog, /^# Changelog$/m);
   assert.match(changelog, /^## 2026-06-19$/m);
   assert.match(changelog, /^## 2026-06-18$/m);
