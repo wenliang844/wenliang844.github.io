@@ -118,10 +118,11 @@
 
 ---
 
-## 📌 MR-CSS-06 [新增]: 过度使用 `backdrop-filter` 和 `filter: blur()`，移动端性能隐患
+## 📌 MR-CSS-06 [已修复]: 过度使用 `backdrop-filter` 和 `filter: blur()`，移动端性能隐患
 
 - **📍 位置**：`css/coder.css`（36 处 `backdrop-filter`、21 处 `filter: blur()`、21 处 `!important`）
-- **📝 当前状况**：CSS 文件中大量使用 GPU 密集型属性：
+- **✅ 修复状态**：新增移动端 `max-width: 768px` 降级规则，导航、卡片、弹窗、浮层、工具栏和下一篇推荐在小屏幕上关闭 `backdrop-filter` / `-webkit-backdrop-filter`，关键浮层改用实色 surface 背景。
+- **📝 原始状况**：CSS 文件中大量使用 GPU 密集型属性：
   - `backdrop-filter: blur()` 出现 18 次（含 `-webkit-` 前缀共 36 处）
   - `filter: blur()` 出现 6 次（含其他 filter 共 21 处）
   - `!important` 出现 9 次（含 -webkit- 共 21 处）
@@ -133,29 +134,10 @@
   - 头像悬停效果（`filter: saturate(1.08) brightness(1.04)`）
 
   在 iOS Safari 和低端 Android 设备上，多个 `backdrop-filter` 叠加会导致明显掉帧。
-- **⚠️ 影响程度**：中（移动端用户体验受影响）
-- **💡 建议方案**：
-  1. **移动端降级**：在小屏幕上用半透明背景替代 `backdrop-filter`：
-     ```css
-     @media (max-width: 768px) {
-       .navigation {
-         backdrop-filter: none;
-         background: var(--surface-solid);
-       }
-       .search-modal-card,
-       .subscribe-modal-card {
-         backdrop-filter: none;
-         background: var(--surface-solid);
-       }
-     }
-     ```
-  2. **减少 blur 半径**：`blur(16px)` → `blur(8px)` 可显著降低 GPU 负载
-  3. **合并 backdrop-filter**：多个弹窗不需要同时存在，只有当前打开的那个需要
-  4. **`body::before` 动画**：添加 `will-change: transform` 提示浏览器优化
-
-- **📊 预期收益**：移动端帧率提升 10-20%，减少 GPU 内存占用
+- **🧪 回归测试**：`tests/css.test.mjs` 锁定移动端 blur 降级规则，`tests/performance.test.mjs` 继续约束 `coder.css` 不超过 118KB。
+- **📊 实际收益**：移动端减少背景模糊采样与合成压力；桌面端视觉保持不变，CSS 文件仍低于体积门禁。
 - **🔗 相关建议**：[P-01](../performance-bottlenecks.md#p-01), [MR-CSS-03](#mr-css-03)
 
 ---
 
-## 模块健康度评分：3.8 / 5 — 良好
+## 模块健康度评分：3.9 / 5 — 良好

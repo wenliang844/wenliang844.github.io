@@ -244,6 +244,18 @@ test("coder.css contains responsive media queries", async () => {
   assert.ok(css.includes("max-width") || css.includes("min-width"), "should use width-based breakpoints");
 });
 
+test("coder.css disables backdrop blur on mobile", async () => {
+  const css = await readFile(join(ROOT, "css", "coder.css"), "utf8");
+  const mobileBackdropRule =
+    /@media\s*\(max-width:\s*768px\)\s*{[\s\S]*?\.navigation,[\s\S]*?\.search-modal,[\s\S]*?\.next-popup\s*{[\s\S]*?backdrop-filter:\s*none;[\s\S]*?-webkit-backdrop-filter:\s*none;[\s\S]*?}/;
+
+  assert.match(css, mobileBackdropRule);
+  assert.match(
+    css,
+    /@media\s*\(max-width:\s*768px\)\s*{[\s\S]*?\.navigation,[\s\S]*?\.search-modal,[\s\S]*?\.next-popup\s*{[\s\S]*?background:\s*var\(--surface-solid,\s*var\(--surface\)\);/,
+  );
+});
+
 // ─── 可访问性相关样式 ──────────────────────────────────────────────────────────
 
 test("coder.css has focus styles for interactive elements", async () => {

@@ -5794,6 +5794,17 @@ body.assistant-fullscreen .site-shell {
   .post-tree.is-floating-open { opacity: 1; visibility: visible; pointer-events: auto; }
 }
 
+@media(max-width:768px) {
+  .navigation,.navigation-list,.social-links a,.project-card,.ai-card,.card,.ai-tool-card,.rank-board,.post-tree,.insight-list li,.feedback-form,.sponsor-panel,.sponsor-side>section,.share-qr-overlay,.subscribe-modal,.to-top,.search-modal,.tools-toolbar,.next-popup {
+    backdrop-filter:none;
+    -webkit-backdrop-filter:none;
+  }
+
+  .navigation,.navigation-list,.post-tree,.share-qr-overlay,.subscribe-modal,.search-modal,.next-popup {
+    background:var(--surface-solid,var(--surface));
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;

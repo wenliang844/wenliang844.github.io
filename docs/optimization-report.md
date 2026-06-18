@@ -5684,3 +5684,44 @@
 
 - 提交第三十二轮工程化优化。
 - 继续评估近期规划项中的 CSS 关键路径、JS 合并或 assistant.js i18n。
+
+## 第 170 轮：移动端毛玻璃性能降级
+
+时间：2026-06-18
+
+### 已完成内容
+
+- 在 `css/coder.css` 新增移动端 `max-width: 768px` 覆盖规则。
+- 导航、移动菜单、卡片、弹窗、工具栏、浮层和下一篇推荐在小屏幕上关闭 `backdrop-filter` 与 `-webkit-backdrop-filter`。
+- 关键浮层改用 `--surface-solid` 背景，减少关闭毛玻璃后的可读性风险。
+- 扩展 `tests/css.test.mjs`，验证移动端 blur 降级规则、WebKit 前缀和实色背景。
+- 更新 P-12、MR-CSS-06、建议索引、健康评分、工作报告和本轮工作报告。
+
+### 发现的问题
+
+- `coder.css` 中多处 `backdrop-filter: blur()` 在移动端会增加 GPU 背景采样和合成成本。
+- 直接新增规则一度让 `coder.css` 超出 118KB 性能门禁，说明 CSS 体积已经贴近阈值，需要控制新增样式体积。
+- 文档仍将移动端毛玻璃压力标记为未修复状态。
+
+### 修复方案
+
+- 保留桌面端现有视觉，只在移动端关闭高成本 backdrop blur。
+- 通过紧凑覆盖规则控制新增 CSS 体积，保持 `coder.css` 为 117.936KB，低于 118KB 门禁。
+- 用 CSS 源码测试和性能体积测试双重约束，防止后续回退。
+
+### 性能、安全与质量指标
+
+- `node --test tests/css.test.mjs`：29 个 CSS 测试全部通过。
+- `node --test tests/performance.test.mjs`：13 个性能测试全部通过。
+- `npm run lint:check`：通过。
+- `npm test`：554 个测试全部通过。
+- `npm run build`：通过，成功生成 6 篇文章页面。
+- `npm run validate:production`：33 项检查通过，0 失败，0 警告。
+- `npm run test:coverage`：554 个测试全部通过；行覆盖率 93.14%，分支覆盖率 75.17%，函数覆盖率 90.46%，均高于覆盖率阈值。
+- `npm audit --audit-level=moderate --registry=https://registry.npmjs.org`：0 个中高危漏洞。
+- 性能收益：移动端减少高成本背景模糊采样，桌面视觉保持不变。
+
+### 下一步计划
+
+- 提交第三十三轮性能优化。
+- 继续评估 CSS 关键路径、JS 请求合并或 assistant.js i18n。
