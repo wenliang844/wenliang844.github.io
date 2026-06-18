@@ -1492,3 +1492,36 @@
 - 继续审计工具箱状态提示和失败路径。
 - 继续检查公共工具函数的异常处理一致性。
 - 继续维持每轮提交和报告记录。
+
+## 第 46 轮：工具箱事件委托防崩溃
+
+时间：2026-06-18
+
+### 已完成内容
+
+- 审计 `js/tools.js` 的 click / keydown 事件委托。
+- 增加安全 `closest()` helper，统一处理非 Element 事件目标。
+- 新增测试模拟 document 作为事件目标时的 click 和 keydown。
+
+### 发现的问题
+
+- 旧逻辑在 click handler 中直接调用 `event.target.closest(...)`。
+- 如果事件目标是 `document` 或其它没有 `closest()` 的对象，会抛出 TypeError。
+- 这类异常会影响工具箱页面的全局交互稳定性，尤其是自动化、插件或脚本派发事件时。
+
+### 修复方案
+
+- 新增 `closest(target, selector)`，仅当 `target.closest` 是函数时才调用。
+- 将 click handler 中所有 `event.target.closest(...)` 调整为安全 helper。
+- keydown handler 也复用同一 helper，保持行为一致。
+
+### 性能、覆盖率与质量指标
+
+- `npm run test:tools`：15 个测试全部通过，耗时约 1.5 秒。
+- `npm run build`：通过。
+
+### 下一步计划
+
+- 继续真实浏览器验证工具箱主要交互路径。
+- 继续审计页面绑定层其它事件入口。
+- 继续扩展高价值异常路径的 jsdom 回归测试。

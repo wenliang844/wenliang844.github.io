@@ -229,6 +229,23 @@ test("tools tabs expose selected state and support keyboard navigation", async (
   }
 });
 
+test("tools page ignores delegated events from non-element targets", async () => {
+  const { dom } = await loadToolsPage();
+  const { document, Event, KeyboardEvent } = dom.window;
+  const errors = [];
+  dom.window.addEventListener("error", (event) => {
+    errors.push(event.error || event.message);
+  });
+  try {
+    document.dispatchEvent(new Event("click", { bubbles: true }));
+    document.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }));
+
+    assert.deepEqual(errors, []);
+  } finally {
+    dom.window.close();
+  }
+});
+
 test("tools page localizes English placeholders and dynamic statuses", async () => {
   const { dom } = await loadToolsPage({ i18n: true });
   const { document } = dom.window;

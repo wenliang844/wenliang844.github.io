@@ -31,6 +31,10 @@
     return el ? el.value : "";
   }
 
+  function closest(target, selector) {
+    return target && typeof target.closest === "function" ? target.closest(selector) : null;
+  }
+
   function setStatus(id, message, type) {
     const el = document.getElementById(id);
     if (!el) {
@@ -192,13 +196,13 @@
   }
 
   document.addEventListener("click", function (event) {
-    const tab = event.target.closest("[data-tool-tab]");
+    const tab = closest(event.target, "[data-tool-tab]");
     if (tab) {
       switchTool(tab.getAttribute("data-tool-tab"));
       return;
     }
 
-    const jsonAction = event.target.closest("[data-json-action]");
+    const jsonAction = closest(event.target, "[data-json-action]");
     if (jsonAction) {
       const action = jsonAction.getAttribute("data-json-action");
       applyResult(
@@ -209,7 +213,7 @@
       return;
     }
 
-    const codecAction = event.target.closest("[data-codec-action]");
+    const codecAction = closest(event.target, "[data-codec-action]");
     if (codecAction) {
       const action = codecAction.getAttribute("data-codec-action");
       const map = {
@@ -225,7 +229,7 @@
       return;
     }
 
-    const timeAction = event.target.closest("[data-time-action]");
+    const timeAction = closest(event.target, "[data-time-action]");
     if (timeAction) {
       const action = timeAction.getAttribute("data-time-action");
       const result = action === "from-timestamp"
@@ -241,13 +245,13 @@
       return;
     }
 
-    if (event.target.closest("[data-uuid-generate]")) {
+    if (closest(event.target, "[data-uuid-generate]")) {
       setGeneratedUuid(core.generateUuid());
       setStatus("uuid-status", t("tools.status.uuid", "UUID 已生成"), "ok");
       return;
     }
 
-    if (event.target.closest("[data-jwt-decode]")) {
+    if (closest(event.target, "[data-jwt-decode]")) {
       const result = core.decodeJwt(inputValue("jwt-input"));
       if (result.ok) {
         value("jwt-header-output", result.value.header);
@@ -261,14 +265,14 @@
       return;
     }
 
-    const copy = event.target.closest("[data-copy-target]");
+    const copy = closest(event.target, "[data-copy-target]");
     if (copy) {
       copyFrom(copy.getAttribute("data-copy-target"));
     }
   });
 
   document.addEventListener("keydown", function (event) {
-    const tab = event.target.closest && event.target.closest("[data-tool-tab]");
+    const tab = closest(event.target, "[data-tool-tab]");
     if (!tab || !tab.closest(".tools-tabs")) {
       return;
     }
