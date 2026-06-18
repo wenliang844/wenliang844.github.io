@@ -5083,3 +5083,41 @@
 
 - 提交第十七轮安全优化。
 - 继续评估剩余安全项或性能瓶颈。
+
+## 第 155 轮：优化粒子动画绘制热路径
+
+时间：2026-06-18
+
+### 已完成内容
+
+- 将 `js/coder.js` cursor 粒子绘制从 `shadowBlur` 阴影渲染改为双层圆绘制。
+- 新增 `drawParticle()`，用外层低透明度圆模拟辉光、内层实心圆保留粒子主体。
+- 扩展 `tests/coder-deep.test.mjs`，确认 cursor 粒子热路径不再使用 `shadowBlur`。
+- 更新 P-09、索引、健康评分和本报告。
+
+### 发现的问题
+
+- 粒子动画虽然已经具备空闲停止机制，但活跃时仍在每个粒子每帧设置 `shadowBlur`，容易触发 canvas 阴影绘制的高成本路径。
+
+### 修复方案
+
+- 移除逐帧 `shadowColor` / `shadowBlur` 设置。
+- 使用 `globalAlpha` 分两次绘制同色圆形，先绘制较大的半透明辉光层，再绘制核心粒子层。
+- 每个粒子绘制结束后恢复 `globalAlpha = 1`，避免污染后续 canvas 状态。
+
+### 性能、安全与质量指标
+
+- `node --test tests/coder-deep.test.mjs tests/coder.test.mjs tests/js-behavior.test.mjs`：66 个测试全部通过。
+- `node --test tests/performance.test.mjs`：13 个性能测试全部通过。
+- `npx eslint js/*.js`：通过。
+- `npm test`：537 个测试全部通过，耗时约 7.87 秒。
+- `npm run build`：通过，成功生成 6 篇文章页面。
+- `npm run validate:production`：33 项检查通过，0 失败，0 警告。
+- `npm run test:coverage`：537 个测试全部通过；行覆盖率 92.71%，分支覆盖率 74.95%，函数覆盖率 89.33%。
+- `npm audit --audit-level=moderate --registry=https://registry.npmjs.org`：0 个中高危漏洞。
+- 性能收益：避免 canvas 阴影渲染热路径，降低低端设备上粒子动画活跃期间的逐帧绘制成本。
+
+### 下一步计划
+
+- 提交第十八轮性能优化。
+- 继续评估剩余安全项或性能瓶颈。

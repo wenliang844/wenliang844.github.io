@@ -423,3 +423,10 @@ test("coder.js cursor particles only animate while particles are active", async 
   assert.equal(rafQueue.length, 0, "particle loop should stop after particles decay");
   dom.window.close();
 });
+
+test("coder.js cursor particles avoid canvas shadowBlur in the animation loop", async () => {
+  const code = await readFile(join(ROOT, "js", "coder.js"), "utf8");
+
+  assert.doesNotMatch(code, /shadowBlur/, "cursor particles should avoid shadowBlur in per-frame drawing");
+  assert.match(code, /globalAlpha/, "cursor particles should use alpha layers for glow");
+});

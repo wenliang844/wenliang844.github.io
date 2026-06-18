@@ -152,35 +152,12 @@
 
 ---
 
-## 📌 P-09: `coder.js` 中 `shadowBlur` 每帧重置，GPU 开销大
+## 📌 P-09 [已修复]: `coder.js` 中 `shadowBlur` 每帧重置，GPU 开销大
 
-- **📍 位置**：`js/coder.js:534-538`
-- **📝 当前状况**：
-  ```javascript
-  context.shadowColor = "hsla(" + particle.hue + ", 90%, 62%, 0.7)";
-  context.shadowBlur = 14;
-  context.arc(particle.x, particle.y, ...);
-  context.fill();
-  context.shadowBlur = 0;
-  ```
-  每个粒子每帧都设置 `shadowBlur`，这会触发 canvas 的阴影渲染（软件回退路径），在低性能设备上可能掉帧。
-- **⚠️ 影响程度**：中
-- **💡 建议方案**：
-  1. 移除 `shadowBlur`，改用两层绘制（一层大半径低透明度模拟辉光）：
-     ```javascript
-     // 外层辉光
-     context.globalAlpha = particle.life * 0.3;
-     context.fillStyle = "hsla(" + particle.hue + ", 90%, 62%, 1)";
-     context.arc(particle.x, particle.y, particle.radius * particle.life * 2, 0, Math.PI * 2);
-     context.fill();
-     // 内层实心
-     context.globalAlpha = particle.life;
-     context.arc(particle.x, particle.y, particle.radius * particle.life, 0, Math.PI * 2);
-     context.fill();
-     ```
-  2. 或使用 OffscreenCanvas（如果支持）预渲染辉光纹理
-
-- **📊 预期收益**：粒子动画帧率提升 20-40%（低端设备），GPU 内存减少
+- **📍 原位置**：`js/coder.js` 粒子动画绘制循环
+- **✅ 修复状态**：粒子绘制已移除 `shadowColor` / `shadowBlur`，改为外层低透明圆 + 内层实心圆的双层绘制，用 `globalAlpha` 模拟辉光。
+- **🧪 回归测试**：`tests/coder-deep.test.mjs` 新增源码守卫，确认 cursor 粒子热路径不再使用 `shadowBlur`，并继续覆盖粒子空闲时停止动画循环。
+- **📊 实际收益**：避开 canvas 阴影渲染路径，降低低性能设备上的逐帧绘制成本。
 - **🔗 相关建议**：[P-01](#p-01)
 
 ---
@@ -225,7 +202,7 @@
 | 优先级 | 编号 | 预期收益 | 实施难度 |
 |--------|------|----------|----------|
 | 🥇 高 | P-01 | CPU/GPU 节省显著 | 低 |
-| 🥇 高 | P-09 | 动画帧率提升 | 低 |
+| ✅ 已修复 | P-09 | 动画帧率提升 | 低 |
 | 🥈 中 | P-02 | 首屏渲染加速 | 中 |
 | 🥈 中 | P-03 | HTTP 请求减少 | 中 |
 | 🥈 中 | P-04 | CSS 体积减小 | 中 |

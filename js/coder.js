@@ -522,6 +522,23 @@
     animationFrame = 0;
   }
 
+  function drawParticle(particle) {
+    const coreRadius = particle.radius * particle.life;
+    const glowRadius = coreRadius * 2.4;
+
+    context.globalAlpha = particle.life * 0.28;
+    context.beginPath();
+    context.fillStyle = "hsla(" + particle.hue + ", 90%, 62%, 1)";
+    context.arc(particle.x, particle.y, glowRadius, 0, Math.PI * 2);
+    context.fill();
+
+    context.globalAlpha = particle.life;
+    context.beginPath();
+    context.arc(particle.x, particle.y, coreRadius, 0, Math.PI * 2);
+    context.fill();
+    context.globalAlpha = 1;
+  }
+
   function draw() {
     animationFrame = 0;
     if (document.hidden || !particles.length) {
@@ -542,13 +559,7 @@
         continue;
       }
 
-      context.beginPath();
-      context.fillStyle = "hsla(" + particle.hue + ", 90%, 62%, " + particle.life + ")";
-      context.shadowColor = "hsla(" + particle.hue + ", 90%, 62%, 0.7)";
-      context.shadowBlur = 14;
-      context.arc(particle.x, particle.y, particle.radius * particle.life, 0, Math.PI * 2);
-      context.fill();
-      context.shadowBlur = 0;
+      drawParticle(particle);
     }
 
     scheduleDraw();

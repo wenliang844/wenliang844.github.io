@@ -25,7 +25,7 @@
 |--------|------|------|----------|
 | 🔴 第一 | Bug 与风险 | [bugs-and-risks.md](bugs-and-risks.md) | 12（中 2 / 低 2 / 已修复 8） |
 | 🔴 第一 | 安全审计 | [security-audit.md](security-audit.md) | 11（高 1 / 中 1 / 低 5 / 无 3 / 已修复 1） |
-| 🔴 第一 | 性能瓶颈 | [performance-bottlenecks.md](performance-bottlenecks.md) | 12（中 5 / 低 7） |
+| 🔴 第一 | 性能瓶颈 | [performance-bottlenecks.md](performance-bottlenecks.md) | 12（中 4 / 低 7 / 已修复 1） |
 | 🟡 第二 | 代码质量 | [code-quality.md](code-quality.md) | 10（中 2 / 低 2 / 已修复 6） |
 | 🟡 第二 | 架构评审 | [architecture-review.md](architecture-review.md) | 7（中 3 / 低 4） |
 | 🟡 第二 | 技术债务 | [tech-debt.md](tech-debt.md) | 10（中 2 / 低 8） |
@@ -51,7 +51,6 @@
 
 | 编号 | 建议 | 来源 | 难度 |
 |------|------|------|------|
-| P-09 | shadowBlur 替换为双层绘制 | 性能 | ⭐ |
 | UX-01 | 移动端导航遮罩层 | UX | ⭐ |
 | F-04 | 主题跟随系统 | 功能 | ⭐ |
 
@@ -71,6 +70,7 @@
 已完成：CQ-03 移除 `search.js` 内联 `escapeHtml` 重复实现。
 已完成：CQ-04 稳定业务模块统一委托 `CWLUtils.t`。
 已完成：S-05 全站添加 meta CSP，并新增 HTML 扫描回归测试。
+已完成：P-09 粒子动画移除 `shadowBlur`，改用双层绘制模拟辉光。
 
 ### 🥈 高价值中成本（建议近期规划）
 
