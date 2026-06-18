@@ -5854,3 +5854,43 @@
 
 - 运行全量质量门禁并提交第三十六轮代码质量优化。
 - 继续从不触碰 `assistant.js` 外部改动的性能、工程化或可维护性项目中筛选下一轮。
+
+## 第 174 轮：页面脚本合并去重
+
+时间：2026-06-18
+
+### 已完成内容
+
+- 在 `src/templates/layout.mjs` 中将默认核心脚本抽为 `CORE_SCRIPTS`。
+- `renderPage()` 合并核心脚本和页面脚本时改用 `Set` 去重，保留原始加载顺序。
+- 扩展 `tests/templates.test.mjs`，验证核心脚本重复传入和页面脚本重复传入时都只输出一次。
+- 更新 MR-BUILD-05、建议索引、健康评分、工作报告和本轮工作报告。
+
+### 发现的问题
+
+- `renderPage()` 此前直接拼接核心脚本和页面脚本。
+- 如果未来某个模板误把 `/js/utils.js` 等核心脚本再次传入 `scripts`，生成 HTML 会重复加载同一个脚本。
+- 重复脚本可能造成额外请求、重复事件绑定或初始化逻辑重复执行。
+
+### 修复方案
+
+- 保留核心脚本优先加载顺序。
+- 用 `new Set([...CORE_SCRIPTS, ...scripts])` 去除重复项。
+- 增加模板层单元测试，防止后续回退为直接数组拼接。
+
+### 性能、安全与质量指标
+
+- `node --test tests/templates.test.mjs tests/templates-extended.test.mjs`：35 个模板测试全部通过。
+- `node --test tests/links.test.mjs tests/performance.test.mjs`：18 个链接/性能测试全部通过。
+- `npm run lint:check`：通过。
+- `npm test`：567 个测试全部通过。
+- `npm run build`：通过，成功生成 6 篇文章页面。
+- `npm run validate:production`：33 项检查通过，0 失败，0 警告。
+- `npm run test:coverage`：567 个测试全部通过；行覆盖率 93.24%，分支覆盖率 75.04%，函数覆盖率 90.80%，均高于覆盖率阈值。
+- `npm audit --audit-level=moderate --registry=https://registry.npmjs.org`：0 个中高危漏洞。
+- 工程化收益：模板调用方即使误传重复脚本，也不会污染生成 HTML。
+
+### 下一步计划
+
+- 运行全量质量门禁并提交第三十七轮工程化优化。
+- 继续筛选不触碰 `assistant.js` 外部改动的低风险质量项。

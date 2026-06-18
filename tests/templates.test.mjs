@@ -40,6 +40,22 @@ test("layout escapes title and metadata", () => {
   assert.match(html, /<label class="menu-overlay" for="menu-toggle" aria-hidden="true"><\/label>/);
 });
 
+test("layout deduplicates core and page scripts", () => {
+  const html = renderPage({
+    title: "Scripts",
+    description: "Script test",
+    active: "",
+    scripts: ["/js/utils.js", "/js/tools.js", "/js/tools.js"],
+    bodyClass: "colorscheme-dark",
+    page: "",
+    main: "<main></main>",
+  });
+
+  assert.equal((html.match(/src="\/js\/utils\.js"/g) || []).length, 1);
+  assert.equal((html.match(/src="\/js\/tools\.js"/g) || []).length, 1);
+  assert.match(html, /src="\/js\/assistant\.js"/);
+});
+
 test("post template escapes front matter text while preserving article HTML", () => {
   const post = {
     title: `Title <img src=x onerror=alert(1)>`,

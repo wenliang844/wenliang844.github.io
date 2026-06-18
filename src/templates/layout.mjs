@@ -51,6 +51,16 @@ const CONTENT_SECURITY_POLICY = [
   "form-action 'self' https://buttondown.com https://api.web3forms.com",
 ].join("; ");
 
+const CORE_SCRIPTS = [
+  "/js/error-handler.js",
+  "/js/utils.js",
+  "/js/i18n.js",
+  "/js/coder.js",
+  "/js/search-loader.js",
+  "/js/subscribe.js",
+  "/js/assistant.js",
+];
+
 // 渲染主导航；active 标记当前栏目。
 function renderNavItem(item, active, indent = "          ") {
   const classes = [item.key === active ? "active" : "", item.className || ""].filter(Boolean).join(" ");
@@ -185,7 +195,7 @@ export function renderPage(opts) {
     jsonLd,
   } = opts;
 
-  const allScripts = ["/js/error-handler.js", "/js/utils.js", "/js/i18n.js", "/js/coder.js", "/js/search-loader.js", "/js/subscribe.js", "/js/assistant.js", ...scripts];
+  const allScripts = [...new Set([...CORE_SCRIPTS, ...scripts])];
   const meta = renderMeta(og);
   // JSON-LD 结构化数据：转义 "<" 防止 </script> 提前闭合脚本块。
   const jsonLdTag = jsonLd

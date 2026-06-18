@@ -104,23 +104,12 @@ if (errors.length > 0) { throw new Error(...); }
 
 ---
 
-## 📌 MR-BUILD-05: `renderPage()` 的 `scripts` 数组与 `allScripts` 合并逻辑不直观
+## 📌 MR-BUILD-05 [已修复]: `renderPage()` 的 `scripts` 数组与 `allScripts` 合并逻辑不直观
 
-- **📍 位置**：`src/templates/layout.mjs:117`
-- **📝 当前状况**：`renderPage()` 将固定的 7 个核心脚本与页面特有脚本合并：
-  ```javascript
-  const allScripts = ["/js/error-handler.js", "/js/utils.js", "/js/i18n.js",
-                      "/js/coder.js", "/js/search-loader.js", "/js/subscribe.js",
-                      "/js/assistant.js", ...scripts];
-  ```
-  如果某个页面的 `scripts` 中包含了核心脚本（如误传 `/js/utils.js`），会导致重复加载。
-- **⚠️ 影响程度**：低
-- **💡 建议方案**：添加去重逻辑：
-  ```javascript
-  const core = ["/js/error-handler.js", ...];
-  const allScripts = [...new Set([...core, ...scripts])];
-  ```
-- **📊 预期收益**：防御性编程，防止重复加载
+- **📍 原位置**：`src/templates/layout.mjs`
+- **✅ 修复状态**：核心脚本已提取为 `CORE_SCRIPTS`，并通过 `new Set([...CORE_SCRIPTS, ...scripts])` 合并去重。
+- **🧪 回归测试**：`tests/templates.test.mjs` 覆盖核心脚本和页面脚本重复传入时只输出一次。
+- **📊 实际收益**：防止未来模板误传重复脚本导致浏览器重复请求与重复执行。
 - **🔗 相关建议**：[AR-01](../architecture-review.md#ar-01)
 
 ---
