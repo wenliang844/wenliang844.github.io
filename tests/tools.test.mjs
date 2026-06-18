@@ -89,6 +89,11 @@ test("tools core handles Base64, URL, timestamps, UUID and JWT", async () => {
   assert.equal(timestamp.value.seconds, 1718697600);
   assert.equal(timestamp.value.milliseconds, 1718697600000);
   assert.equal(tools.dateToTimestamp("2026-06-18T00:00:00").ok, true);
+  assert.equal(tools.dateToTimestamp("2026-06-18T23:59:58.123").ok, true);
+  assert.equal(tools.dateToTimestamp("0099-01-01T00:00").ok, true);
+  assert.equal(tools.dateToTimestamp("2026-02-30T00:00").ok, false);
+  assert.equal(tools.dateToTimestamp("2026-06-18T24:00").ok, false);
+  assert.equal(tools.dateToTimestamp("2026-06-18 00:00").ok, false);
   assert.match(tools.generateUuid(), /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i);
 
   const jwt = [

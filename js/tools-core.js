@@ -128,13 +128,51 @@
     });
   }
 
+  function parseLocalDateTime(raw) {
+    const match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{1,3}))?)?$/.exec(raw);
+    if (!match) {
+      return null;
+    }
+    const year = Number(match[1]);
+    const month = Number(match[2]);
+    const day = Number(match[3]);
+    const hour = Number(match[4]);
+    const minute = Number(match[5]);
+    const second = match[6] === undefined ? 0 : Number(match[6]);
+    const millisecond = match[7] === undefined ? 0 : Number(match[7].padEnd(3, "0"));
+    if (
+      month < 1 || month > 12 ||
+      day < 1 || day > 31 ||
+      hour < 0 || hour > 23 ||
+      minute < 0 || minute > 59 ||
+      second < 0 || second > 59
+    ) {
+      return null;
+    }
+    const date = new Date(0);
+    date.setFullYear(year, month - 1, day);
+    date.setHours(hour, minute, second, millisecond);
+    if (
+      date.getFullYear() !== year ||
+      date.getMonth() !== month - 1 ||
+      date.getDate() !== day ||
+      date.getHours() !== hour ||
+      date.getMinutes() !== minute ||
+      date.getSeconds() !== second ||
+      date.getMilliseconds() !== millisecond
+    ) {
+      return null;
+    }
+    return date;
+  }
+
   function dateToTimestamp(value) {
     const raw = String(value || "").trim();
     if (!raw) {
       return fail("请选择或输入日期时间", "dateRequired");
     }
-    const date = new Date(raw);
-    if (Number.isNaN(date.getTime())) {
+    const date = parseLocalDateTime(raw);
+    if (!date) {
       return fail("日期时间格式无效", "dateInvalid");
     }
     const ms = date.getTime();
