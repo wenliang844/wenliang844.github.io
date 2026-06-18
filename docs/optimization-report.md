@@ -6254,3 +6254,43 @@
 
 - 运行全量质量门禁并提交第四十六轮构建系统稳健性优化。
 - 继续处理不触碰 `assistant.js` 外部改动的低风险安全、工程化或 UX 项。
+
+## 第 184 轮：反馈列表清空全部
+
+时间：2026-06-18
+
+### 已完成内容
+
+- 在 `js/feedback.js` 中为多条本地反馈渲染 `data-clear-all` 清空按钮。
+- 点击清空按钮时调用确认框，确认后清空 localStorage 并重新渲染空状态。
+- 在 `js/i18n.js` 增加英文 `contact.fb.clearAll` 与 `contact.fb.confirmClear` 文案。
+- 扩展 `tests/feedback.test.mjs`，覆盖确认后批量清空 DOM、空状态和 localStorage。
+- 更新 UX-06、建议索引、健康评分、工作报告和本轮工作报告。
+
+### 发现的问题
+
+- 反馈页面可以逐条删除留言，但本地留言积累较多时需要重复点击。
+- 批量删除属于破坏性操作，需要确认步骤避免误清空。
+- 原有测试覆盖单条删除和多条提交，但没有覆盖批量管理路径。
+
+### 修复方案
+
+- 在 `render()` 中仅当 `entries.length > 1` 时渲染清空按钮，避免单条留言时增加不必要操作。
+- 复用列表事件委托处理 `data-clear-all`，确认后保存空数组并重新渲染。
+- 不增加新的 CSS 体积，保持 `coder.css` 低于 118KB 预算。
+
+### 性能、安全与质量指标
+
+- `node --test tests/feedback.test.mjs tests/css.test.mjs tests/i18n-deep.test.mjs tests/performance.test.mjs`：71 个反馈、CSS、i18n 与性能测试全部通过，`coder.css` 为 117.95KB。
+- `npm run lint:check`：通过。
+- `npm test`：578 个测试全部通过。
+- `npm run build`：通过，成功生成 6 篇文章页面。
+- `npm run validate:production`：33 项检查通过，0 失败，0 警告。
+- `npm run test:coverage`：578 个测试全部通过；行覆盖率 93.27%，分支覆盖率 75.33%，函数覆盖率 90.84%，均高于覆盖率阈值。
+- `npm audit --audit-level=moderate --registry=https://registry.npmjs.org`：0 个中高危漏洞。
+- UX 收益：多条本地反馈可一次清空，减少重复删除操作，同时通过确认框降低误操作风险。
+
+### 下一步计划
+
+- 运行全量质量门禁并提交第四十七轮 UX 优化。
+- 继续处理不触碰 `assistant.js` 外部改动的低风险安全、工程化或 UX 项。

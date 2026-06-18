@@ -427,6 +427,8 @@
     "contact.fb.empty": "No feedback yet. Be the first to leave a note.",
     "contact.fb.anon": "Anonymous",
     "contact.fb.delete": "Delete",
+    "contact.fb.clearAll": "Clear all",
+    "contact.fb.confirmClear": "Clear all feedback?",
     "contact.fb.required": "Please enter your feedback.",
     "contact.fb.saved": "Saved locally. Thanks for the feedback!",
     "contact.fb.sent": "Submitted and sent to the site owner. Thanks!",

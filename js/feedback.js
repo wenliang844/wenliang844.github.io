@@ -61,6 +61,17 @@
       return;
     }
 
+    if (entries.length > 1) {
+      const actions = document.createElement("li");
+      actions.className = "feedback-actions";
+      const clearAll = document.createElement("button");
+      clearAll.type = "button";
+      clearAll.dataset.clearAll = "true";
+      clearAll.textContent = t("contact.fb.clearAll", "清空全部");
+      actions.appendChild(clearAll);
+      listEl.appendChild(actions);
+    }
+
     entries.forEach(function (entry) {
       const item = document.createElement("li");
       item.className = "feedback-item";
@@ -102,6 +113,15 @@
   }
 
   listEl.addEventListener("click", function (event) {
+    const clearAll = event.target && event.target.closest("[data-clear-all]");
+    if (clearAll) {
+      if (window.confirm(t("contact.fb.confirmClear", "确定清空所有反馈？"))) {
+        save([]);
+        render();
+      }
+      return;
+    }
+
     const id = event.target && event.target.getAttribute("data-remove");
     if (!id) {
       return;

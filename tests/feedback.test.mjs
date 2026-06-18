@@ -167,6 +167,30 @@ test("feedback.js supports multiple submissions", async () => {
   dom.window.close();
 });
 
+test("feedback.js clears all entries after confirmation", async () => {
+  const dom = new JSDOM(FEEDBACK_HTML, {
+    runScripts: "outside-only",
+    url: "https://wenliang844.github.io/contact/",
+  });
+  dom.window.confirm = () => true;
+  await loadFeedback(dom);
+  const { document, Event } = dom.window;
+
+  for (let i = 1; i <= 2; i++) {
+    document.getElementById("fb-message").value = `批量删除 ${i}`;
+    document.getElementById("feedback-form").dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+  }
+
+  const clearAll = document.querySelector("[data-clear-all]");
+  assert.ok(clearAll, "should show clear-all button for multiple entries");
+  clearAll.click();
+
+  assert.equal(document.querySelectorAll(".feedback-item").length, 0, "should remove all entries");
+  assert.ok(document.querySelector(".feedback-empty"), "should return to empty state");
+  assert.equal(JSON.parse(dom.window.localStorage.getItem("wenliang-feedback")).length, 0, "should clear storage");
+  dom.window.close();
+});
+
 // ─── Message input cleared after submit ───────────────────────────────────
 
 test("feedback.js clears message input after successful submission", async () => {
