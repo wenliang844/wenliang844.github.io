@@ -148,7 +148,7 @@ export function renderToolsPage() {
           <p class="lead" data-i18n="tools.lead" data-i18n-en="Useful browser-only tools for JSON, timestamps, Base64, URLs, UUID and JWT decoding.">常用开发小工具，全部在浏览器本地运行，不依赖后端。</p>
         </header>
         <div class="tools-shell">
-          <nav class="tools-tabs" role="tablist" aria-label="工具列表">
+          <nav class="tools-tabs" role="tablist" aria-label="工具列表" data-i18n-aria="tools.tabs" data-i18n-en-aria="Tool list">
 ${TOOLS.map(toolNav).join("\n")}
           </nav>
           <div class="tools-panels">

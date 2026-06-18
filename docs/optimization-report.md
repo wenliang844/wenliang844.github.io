@@ -801,3 +801,39 @@
 - 继续检查工具箱时间戳边界，如极大整数、负数和时区展示一致性。
 - 继续审计 AI 助手请求/取消/模式切换的可独立修复点。
 - 继续保持每轮小范围提交，避免混入并行未提交功能。
+
+## 第 25 轮：工具箱英文可访问名称与导航溢出
+
+时间：2026-06-18
+
+### 已完成内容
+
+- 审计工具箱英文模式下的 tablist 可访问名称。
+- 为工具 tab 容器补充 `data-i18n-aria` 和英文内联文案。
+- 修复英文导航文案过长时桌面导航撑出页面宽度的问题。
+- 补充工具箱测试，覆盖 tablist i18n 属性和导航可换行 CSS 约束。
+
+### 发现的问题
+
+- `.tools-tabs` 的 `aria-label` 固定为“工具列表”，英文模式下读屏仍会读中文。
+- 工具箱页面切换英文后，顶部导航文案变长，单行 flex 导航在 1280px 宽度下产生横向溢出。
+- 当前工作区存在并行未提交的助手默认模式改动，导致 `npm run test:toolbox` 组合命令一度被助手测试期望不一致影响；工具箱单测本身通过。
+
+### 修复方案
+
+- 在 `src/templates/tools.mjs` 中为 `.tools-tabs` 增加 `data-i18n-aria="tools.tabs"` 和 `data-i18n-en-aria="Tool list"`。
+- 在 `js/i18n.js` 中增加 `tools.tabs` 英文词条。
+- 在导航 CSS 中为 `.navigation-list` 设置 `min-width: 0`，并允许 `.navigation-list ul` 换行、右对齐和收紧间距。
+
+### 性能、覆盖率与质量指标
+
+- `node --test tests/tools.test.mjs`：7 个测试全部通过。
+- `npm run build`：通过。
+- 浏览器回归：工具箱英文模式 `aria-label="Tool list"`；英文和中文模式页面均无横向溢出，控制台 warning/error 为 0。
+- 组合回归状态：`npm run test:toolbox` 曾通过 19/19；随后因并行未提交助手默认模式从 LLM 改回站点模式，而测试仍期待 LLM 默认激活，组合命令出现 1 个助手测试失败，和本轮工具箱改动无关。
+
+### 下一步计划
+
+- 继续跟踪并行助手默认模式改动，等其稳定后恢复完整 `npm run test:toolbox` 作为提交门禁。
+- 继续检查工具箱英文模式下其它 aria-label、placeholder 和按钮宽度。
+- 继续关注 CSS 体积超限问题，但避免混入当前并行 CSS 大改。

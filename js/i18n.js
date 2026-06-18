@@ -166,6 +166,7 @@
     "tools.eyebrow": '<i class="fas fa-toolbox" aria-hidden="true"></i> Online Toolbox',
     "tools.h1": "Toolbox",
     "tools.lead": "Useful browser-only tools for JSON, timestamps, Base64, URLs, UUID and JWT decoding.",
+    "tools.tabs": "Tool list",
     "tools.nav.json": "JSON Formatter",
     "tools.nav.time": "Timestamp Converter",
     "tools.nav.base64": "Base64 Codec",

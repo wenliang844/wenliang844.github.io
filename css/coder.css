@@ -213,10 +213,16 @@ a:hover {
   color: transparent;
 }
 
+.navigation-list {
+  min-width: 0;
+}
+
 .navigation-list ul {
   display: flex;
   align-items: center;
-  gap: 1.7rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.8rem 1.1rem;
   margin: 0;
   padding: 0;
   list-style: none;

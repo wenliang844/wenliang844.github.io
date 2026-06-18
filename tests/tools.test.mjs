@@ -116,7 +116,10 @@ test("tools tabs expose selected state and support keyboard navigation", async (
     const timeTab = document.querySelector('[data-tool-tab="time"]');
     const jwtTab = document.querySelector('[data-tool-tab="jwt"]');
 
-    assert.equal(document.querySelector(".tools-tabs").getAttribute("role"), "tablist");
+    const tabList = document.querySelector(".tools-tabs");
+    assert.equal(tabList.getAttribute("role"), "tablist");
+    assert.equal(tabList.getAttribute("data-i18n-aria"), "tools.tabs");
+    assert.equal(tabList.getAttribute("data-i18n-en-aria"), "Tool list");
     assert.equal(jsonTab.getAttribute("role"), "tab");
     assert.equal(document.querySelector("#tool-json").getAttribute("role"), "tabpanel");
     assert.equal(jsonTab.getAttribute("aria-selected"), "true");
@@ -133,6 +136,13 @@ test("tools tabs expose selected state and support keyboard navigation", async (
   } finally {
     dom.window.close();
   }
+});
+
+test("navigation can wrap translated toolbox labels", async () => {
+  const css = await readFile(join(ROOT, "css", "coder.css"), "utf8");
+
+  assert.match(css, /\.navigation-list\s*{\s*min-width:\s*0;/);
+  assert.match(css, /\.navigation-list ul\s*{[^}]*flex-wrap:\s*wrap;[^}]*justify-content:\s*flex-end;/s);
 });
 
 test("failed tool operations clear stale outputs", async () => {
