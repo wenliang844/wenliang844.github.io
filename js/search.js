@@ -464,4 +464,5 @@
   });
   applyI18n();
   window.cwlOpenSearch = open;
+  window.cwlPreloadSearch = loadIndex;
 })();

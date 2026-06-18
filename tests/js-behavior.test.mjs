@@ -237,6 +237,17 @@ test("search-loader.js lazily loads search dependencies", async () => {
   assert.ok(code.includes("trigger") || code.includes("click") || code.includes("addEventListener"), "should handle user interaction");
 });
 
+test("search-loader.js preloads search during idle time", async () => {
+  const loader = await readFile(join(ROOT, "js", "search-loader.js"), "utf8");
+  const search = await readFile(join(ROOT, "js", "search.js"), "utf8");
+
+  assert.match(loader, /requestIdleCallback\(preloadSearch,\s*{\s*timeout:\s*3500\s*}\)/);
+  assert.match(loader, /setTimeout\(preloadSearch,\s*2500\)/);
+  assert.match(loader, /loadSearch\(false\)/);
+  assert.match(loader, /cwlPreloadSearch\(\)\.catch/);
+  assert.match(search, /window\.cwlPreloadSearch\s*=\s*loadIndex/);
+});
+
 // ─── share.js 测试 ────────────────────────────────────────────────────────────
 
 test("share.js handles multiple share targets", async () => {

@@ -84,10 +84,11 @@
 
 ---
 
-## 📌 P-06: Fuse.js 搜索在首次打开时才加载，冷启动延迟明显
+## 📌 P-06 [已修复]: Fuse.js 搜索在首次打开时才加载，冷启动延迟明显
 
 - **📍 位置**：`js/search-loader.js` 和 `js/search.js:211-239`
-- **📝 当前状况**：Fuse.js 和搜索索引在用户首次触发搜索时才加载。加载流程：
+- **✅ 修复状态**：`search-loader.js` 在浏览器空闲期预加载搜索主脚本，并调用 `search.js` 暴露的 `window.cwlPreloadSearch()` 预热 Fuse.js 与 `/search-index.json`；不支持 `requestIdleCallback` 的浏览器使用 2.5 秒 `setTimeout` 降级。
+- **📝 原始状况**：Fuse.js 和搜索索引在用户首次触发搜索时才加载。加载流程：
   1. 用户按 `/` 或点击搜索按钮
   2. 动态加载 `/js/vendor/fuse.min.js`（~25KB gzip）
   3. `fetch("/search-index.json")` 获取索引
@@ -95,17 +96,8 @@
   5. 渲染搜索结果
 
   步骤 2-4 在首次搜索时引入 200-500ms 延迟。
-- **⚠️ 影响程度**：低
-- **💡 建议方案**：
-  ```javascript
-  // 在页面空闲时预加载（不阻塞首屏）
-  if ("requestIdleCallback" in window) {
-    requestIdleCallback(function () {
-      loadSearch(false); // 预加载但不打开
-    });
-  }
-  ```
-- **📊 预期收益**：首次搜索体验从"加载中"变为"即时响应"
+- **🧪 回归测试**：`tests/js-behavior.test.mjs` 验证 idle 预热、`setTimeout` 降级、`loadSearch(false)` 和 `cwlPreloadSearch` 入口。
+- **📊 实际收益**：搜索资源在首屏空闲后预热，用户首次打开搜索时更可能直接进入已构建索引状态。
 - **🔗 相关建议**：[P-05](#p-05)
 
 ---

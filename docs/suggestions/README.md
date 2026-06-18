@@ -10,7 +10,7 @@
 |------|------|------|
 | 代码质量 | 3.9 / 5 | 🟢 良好 |
 | 安全性 | 3.5 / 5 | 🟡 中等 |
-| 性能 | 4.1 / 5 | 🟢 良好 |
+| 性能 | 4.2 / 5 | 🟢 良好 |
 | 架构设计 | 4.3 / 5 | 🟢 优秀 |
 | 工程化 | 4.2 / 5 | 🟢 良好 |
 | 用户体验 | 4.0 / 5 | 🟢 良好 |
@@ -25,7 +25,7 @@
 |--------|------|------|----------|
 | 🔴 第一 | Bug 与风险 | [bugs-and-risks.md](bugs-and-risks.md) | 12（中 2 / 低 2 / 已修复 8） |
 | 🔴 第一 | 安全审计 | [security-audit.md](security-audit.md) | 11（高 1 / 中 1 / 低 5 / 无 3 / 已修复 1） |
-| 🔴 第一 | 性能瓶颈 | [performance-bottlenecks.md](performance-bottlenecks.md) | 12（中 3 / 低 7 / 已修复 2） |
+| 🔴 第一 | 性能瓶颈 | [performance-bottlenecks.md](performance-bottlenecks.md) | 12（中 3 / 低 6 / 已修复 3） |
 | 🟡 第二 | 代码质量 | [code-quality.md](code-quality.md) | 10（中 2 / 低 2 / 已修复 6） |
 | 🟡 第二 | 架构评审 | [architecture-review.md](architecture-review.md) | 7（中 3 / 低 4） |
 | 🟡 第二 | 技术债务 | [tech-debt.md](tech-debt.md) | 10（中 2 / 低 8） |
@@ -86,6 +86,7 @@
 已完成：DE-03 新增 Dependabot 周期更新检查，覆盖 npm devDependencies 与 GitHub Actions。
 已完成：P-12 移动端关闭高成本 `backdrop-filter`，降低小屏 GPU 合成压力。
 已完成：DE-08 新增独立文章 front matter 校验命令，并接入本地 validate 与 CI。
+已完成：P-06 搜索资源空闲预热，降低首次打开搜索的冷启动等待。
 
 ### 🥈 高价值中成本（建议近期规划）
 

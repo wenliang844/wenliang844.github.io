@@ -5768,3 +5768,44 @@
 
 - 提交第三十四轮工程化优化。
 - 继续评估 CSS 关键路径、JS 请求合并或不触碰外部改动的代码质量项。
+
+## 第 172 轮：搜索资源空闲预热
+
+时间：2026-06-18
+
+### 已完成内容
+
+- 在 `js/search.js` 暴露 `window.cwlPreloadSearch = loadIndex`，允许外部预热 Fuse.js 和搜索索引但不打开搜索弹窗。
+- 在 `js/search-loader.js` 增加 idle 预热：支持 `requestIdleCallback(preloadSearch, { timeout: 3500 })`，并为不支持该 API 的浏览器提供 2.5 秒 `setTimeout` 降级。
+- 预热失败时吞掉错误，不影响页面主流程；用户点击或快捷键打开搜索时仍走原有强制打开路径。
+- 扩展 `tests/js-behavior.test.mjs`，锁定 idle 预热、降级定时器、`loadSearch(false)` 和 `cwlPreloadSearch` 入口。
+- 更新 P-06、建议索引、健康评分、工作报告和本轮工作报告。
+
+### 发现的问题
+
+- 搜索主脚本、Fuse.js 和 `/search-index.json` 此前都在首次点击或快捷键打开搜索时才加载。
+- 当前搜索索引体积较小，但首次搜索仍需要等待脚本加载、索引请求和 Fuse 实例构建。
+- 既有懒加载策略对首屏友好，但未利用首屏空闲时间提前准备搜索体验。
+
+### 修复方案
+
+- 保持首屏不阻塞：页面加载后仍只加载轻量 `search-loader.js`。
+- 浏览器进入空闲期后加载 `search.js`，再调用 `cwlPreloadSearch()` 预热 Fuse 和索引。
+- 对老浏览器使用延迟定时器降级，避免因为缺少 `requestIdleCallback` 而丢失优化。
+
+### 性能、安全与质量指标
+
+- `node --test tests/js-behavior.test.mjs`：33 个 JS 行为测试全部通过。
+- `npm run lint:check`：通过。
+- `npm test`：563 个测试全部通过。
+- `npm run build`：通过，成功生成 6 篇文章页面。
+- `node --test tests/performance.test.mjs`：13 个性能测试全部通过。
+- `npm run validate:production`：33 项检查通过，0 失败，0 警告。
+- `npm run test:coverage`：563 个测试全部通过；行覆盖率 93.27%，分支覆盖率 75.29%，函数覆盖率 90.80%，均高于覆盖率阈值。
+- `npm audit --audit-level=moderate --registry=https://registry.npmjs.org`：0 个中高危漏洞。
+- 性能收益：搜索资源可在用户首次打开前完成预热，降低首次搜索冷启动等待。
+
+### 下一步计划
+
+- 提交第三十五轮性能优化。
+- 继续评估 CSS 关键路径、JS 请求合并或其它不冲突的低风险性能项。

@@ -23,6 +23,8 @@
         script.onload = function () {
           if (queuedOpen && window.cwlOpenSearch) {
             window.cwlOpenSearch();
+          } else if (window.cwlPreloadSearch) {
+            window.cwlPreloadSearch().catch(function () {});
           }
           queuedOpen = false;
           resolve();
@@ -36,6 +38,21 @@
       });
     }
     return task;
+  }
+
+  function preloadSearch() {
+    loadSearch(false).catch(function () {});
+  }
+
+  function scheduleIdlePreload() {
+    if (window.cwlOpenSearch || !document.querySelector(".nav-search-trigger")) {
+      return;
+    }
+    if ("requestIdleCallback" in window) {
+      window.requestIdleCallback(preloadSearch, { timeout: 3500 });
+    } else {
+      window.setTimeout(preloadSearch, 2500);
+    }
   }
 
   document.addEventListener("click", function (event) {
@@ -57,4 +74,6 @@
       loadSearch(true);
     }
   });
+
+  scheduleIdlePreload();
 })();
