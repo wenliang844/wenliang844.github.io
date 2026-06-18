@@ -7,8 +7,8 @@
   "scripts": {
     "build": "node scripts/build.mjs",
     "test": "node --test tests/*.test.mjs",
-    "test:assistant": "node --test tests/assistant.test.mjs tests/assistant-enter.test.mjs",
-    "test:toolbox": "node --test tests/assistant.test.mjs tests/assistant-enter.test.mjs tests/tools.test.mjs",
+    "test:assistant": "node --test tests/assistant.test.mjs tests/assistant-enter.test.mjs tests/assistant-tools-page.test.mjs",
+    "test:toolbox": "node --test tests/assistant.test.mjs tests/assistant-enter.test.mjs tests/assistant-tools-page.test.mjs tests/tools.test.mjs",
     "test:tools": "node --test tests/tools.test.mjs",
     "test:coverage": "node --test --experimental-test-coverage tests/*.test.mjs",
     "test:watch": "node --test --watch tests/*.test.mjs",

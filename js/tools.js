@@ -299,6 +299,42 @@
     el.value = now.toISOString().slice(0, 16);
   }
 
+  function shouldKeepAssistantOpen() {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      return params.get("assistant") === "fullscreen" ||
+        params.get("ai") === "fullscreen" ||
+        window.location.hash === "#assistant-fullscreen";
+    } catch (_error) {
+      return false;
+    }
+  }
+
+  function minimizeAssistantPanel() {
+    if (shouldKeepAssistantOpen() || document.body.classList.contains("assistant-fullscreen")) {
+      return;
+    }
+    const root = document.querySelector(".assistant-widget");
+    const panel = document.querySelector(".assistant-panel");
+    const toggle = document.querySelector(".assistant-fab");
+    if (!root || !panel || !toggle) {
+      return;
+    }
+    root.classList.remove("open");
+    panel.hidden = true;
+    document.body.classList.remove("assistant-open");
+    toggle.setAttribute("aria-expanded", "false");
+    toggle.setAttribute("aria-label", t("assistant.open", "打开 AI 助手"));
+  }
+
+  function minimizeAssistantAfterInit() {
+    if (document.readyState === "complete") {
+      minimizeAssistantPanel();
+    } else {
+      document.addEventListener("DOMContentLoaded", minimizeAssistantPanel);
+    }
+  }
+
   document.addEventListener("click", function (event) {
     const tab = closest(event.target, "[data-tool-tab]");
     if (tab && tab.closest(".tools-tabs")) {
@@ -390,6 +426,7 @@
 
   syncNowTimer();
   initTimeInput();
+  minimizeAssistantAfterInit();
   document.addEventListener("visibilitychange", syncNowTimer);
   document.addEventListener("cwl:langchange", function () {
     updateNow();
