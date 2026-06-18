@@ -52,13 +52,12 @@
 
 ---
 
-## 📌 B-05: `coder.js` 中 `readingMinutes` 与 `build.mjs` 中重复定义，行为可能漂移
+## 📌 B-05 [已修复]: `coder.js` 中 `readingMinutes` 与 `build.mjs` 中重复定义，行为可能漂移
 
-- **📍 位置**：`js/coder.js:221-229` 和 `scripts/build.mjs:274-282`
-- **📝 当前状况**：阅读时间计算逻辑在客户端（coder.js）和服务端（build.mjs）各实现了一份。两处使用相同的 `READING_SPEED_CHINESE = 350` 和 `READING_SPEED_ENGLISH = 200` 常量，但没有共享机制。如果只修改一处，SSR 占位值与客户端计算值将不一致，导致阅读时间闪烁。
-- **⚠️ 影响程度**：中
-- **💡 建议方案**：将常量提取到 `src/lib/reading.mjs` 并在构建脚本中导入；客户端通过内联 `<script>` 设置全局常量 `window.READING_SPEED_CHINESE = 350`
-- **📊 预期收益**：消除 SSR/CSR 不一致风险，单一数据源
+- **📍 原位置**：`js/coder.js`、`js/editor.js` 和 `scripts/build.mjs`
+- **✅ 修复状态**：构建端阅读时间已提取到 `src/lib/reading.mjs`，`scripts/build.mjs` 复用并重新导出该 helper；客户端统一通过 `CWLUtils.readingMinutes()` 供 `coder.js` 与 `editor.js` 调用。
+- **🧪 回归测试**：`tests/build-extended.test.mjs` 验证 build re-export 与共享 helper 一致，`tests/utils.test.mjs` 覆盖客户端 helper，`tests/editor.test.mjs` 覆盖编辑器统计复用路径。
+- **📊 实际收益**：消除 SSR 占位、文章页运行时和编辑器统计之间的阅读时间算法漂移风险。
 - **🔗 相关建议**：[CQ-02 代码重复](code-quality.md#cq-02)
 
 ---
@@ -140,8 +139,8 @@
 | 等级 | 数量 | 编号 |
 |------|------|------|
 | 🔴 高 | 0 | — |
-| 🟡 中 | 2 | B-05, B-08 |
-| ✅ 已修复 | 8 | B-01, B-03, B-04, B-06, B-09, B-10, B-11, B-12 |
+| 🟡 中 | 1 | B-08 |
+| ✅ 已修复 | 9 | B-01, B-03, B-04, B-05, B-06, B-09, B-10, B-11, B-12 |
 | 🟢 低 | 2 | B-02, B-07 |
 
 > 整体评估：无高危 Bug，代码质量良好。主要风险集中在维护一致性（重复逻辑）和废弃 API 使用上。

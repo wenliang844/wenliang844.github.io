@@ -88,6 +88,7 @@ describe("Utils - File Structure Validation", () => {
       'storageGet',
       'storageSet',
       'clamp',
+      'readingMinutes',
       'isEditing'
     ];
 
@@ -101,6 +102,22 @@ describe("Utils - File Structure Validation", () => {
     assert.ok(content.includes('/**'), "Should have JSDoc comments");
     assert.ok(content.includes('@param'), "Should document parameters");
     assert.ok(content.includes('@returns'), "Should document return values");
+  });
+});
+
+describe("Utils - Reading Time", () => {
+  it("should expose readingMinutes on CWLUtils", async () => {
+    const dom = new JSDOM("<!doctype html><body></body>", {
+      runScripts: "outside-only",
+      url: "https://wenliang844.github.io/",
+    });
+    const content = await readFile("js/utils.js", "utf8");
+    dom.window.eval(content);
+
+    assert.equal(dom.window.CWLUtils.readingMinutes(""), 1);
+    assert.equal(dom.window.CWLUtils.readingMinutes("中".repeat(700)), 2);
+    assert.equal(dom.window.CWLUtils.readingMinutes("word ".repeat(400).trim()), 2);
+    dom.window.close();
   });
 });
 

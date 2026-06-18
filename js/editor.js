@@ -155,7 +155,7 @@
     const rest = text.replace(/[一-龥]/g, " ").trim();
     const words = rest ? rest.split(/\s+/).length : 0;
     const totalWords = chinese + words;
-    const minutes = Math.max(1, Math.round(chinese / 350 + words / 200));
+    const minutes = window.CWLUtils.readingMinutes(text);
     statsEl.textContent = t("editor.stats", "{words} 词 · {chars} 字符 · 约 {minutes} 分钟")
       .replace("{words}", totalWords)
       .replace("{chars}", chars)

@@ -64,6 +64,22 @@ test("editor.js loads with sample content", async () => {
   dom.window.close();
 });
 
+test("editor.js stats use shared CWLUtils readingMinutes", async () => {
+  const dom = new JSDOM(EDITOR_HTML, {
+    runScripts: "outside-only",
+    url: "https://wenliang844.github.io/editor/",
+  });
+  await loadEditor(dom);
+  const { document } = dom.window;
+
+  const textarea = document.getElementById("markdown-input");
+  textarea.value = "中".repeat(700);
+  textarea.dispatchEvent(new dom.window.Event("input"));
+
+  assert.match(document.getElementById("editor-stats").textContent, /2/);
+  dom.window.close();
+});
+
 // ─── Auto slugify ─────────────────────────────────────────────────────────
 
 test("editor.js auto-generates slug from title", async () => {

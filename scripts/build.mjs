@@ -22,6 +22,7 @@ import { renderToolsPage } from "../src/templates/tools.mjs";
 import { renderAppreciationPage } from "../src/templates/appreciation.mjs";
 import { renderSponsorPage } from "../src/templates/sponsor.mjs";
 import { escapeXml, rfc822, sitemapDate } from "../src/lib/format.mjs";
+import { readingMinutes } from "../src/lib/reading.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, "..");
@@ -316,20 +317,7 @@ function stripHtml(html) {
   return html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
 }
 
-// 阅读速度（与 js/coder.js 的 readingMinutes 保持一致）。
-const READING_SPEED_CHINESE = 350; // 字/分钟
-const READING_SPEED_ENGLISH = 200; // 词/分钟
-
-// 估算正文阅读分钟数（中文按字、其余按词），供 SSR 占位与无 JS 兜底。
-export function readingMinutes(text) {
-  const chinese = (text.match(/[一-龥]/g) || []).length;
-  const rest = text.replace(/[一-龥]/g, " ").trim();
-  const words = rest ? rest.split(/\s+/).length : 0;
-  return Math.max(
-    1,
-    Math.round(chinese / READING_SPEED_CHINESE + words / READING_SPEED_ENGLISH),
-  );
-}
+export { readingMinutes };
 
 // 把文章内图片 src 解析为绝对 URL：协议开头原样返回，
 // 根相对（/ 开头）拼 baseURL，其余按文章目录 /post/<slug>/ 解析。

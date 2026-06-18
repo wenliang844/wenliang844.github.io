@@ -197,6 +197,19 @@
   };
 
   /**
+   * 估算正文阅读分钟数（中文按字、其余按词）
+   * @param {string} text - 需要估算的正文
+   * @returns {number} 至少为 1 的阅读分钟数
+   */
+  Utils.readingMinutes = function (text) {
+    const value = String(text === null || text === undefined ? "" : text);
+    const chinese = (value.match(/[一-龥]/g) || []).length;
+    const rest = value.replace(/[一-龥]/g, " ").trim();
+    const words = rest ? rest.split(/\s+/).length : 0;
+    return Math.max(1, Math.round(chinese / 350 + words / 200));
+  };
+
+  /**
    * 检查当前是否在编辑状态（焦点在输入框等元素上）
    * @returns {boolean}
    */

@@ -9,6 +9,7 @@ import {
   relatedPosts,
   readingMinutes,
 } from "../scripts/build.mjs";
+import { readingMinutes as sharedReadingMinutes } from "../src/lib/reading.mjs";
 
 // ─── normalizeDate 边界测试 ────────────────────────────────────────────────────
 
@@ -177,6 +178,11 @@ test("readingMinutes handles mixed Chinese and English", () => {
   const result = readingMinutes(text);
   assert.ok(result >= 1, "should be at least 1");
   assert.ok(result <= 5, "should be reasonable for this text length");
+});
+
+test("build readingMinutes re-exports the shared reading helper", () => {
+  const text = "中文内容".repeat(100) + " " + "word ".repeat(200);
+  assert.equal(readingMinutes(text), sharedReadingMinutes(text));
 });
 
 // ─── relatedPosts 测试 ──────────────────────────────────────────────────────────

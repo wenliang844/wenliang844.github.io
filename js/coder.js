@@ -183,8 +183,6 @@
   // 常量定义，避免魔法数字
   const SCROLL_CONSTANTS = {
     BACK_TO_TOP_THRESHOLD: 420,    // 显示返回顶部按钮的滚动距离
-    READING_SPEED_CHINESE: 350,     // 中文阅读速度（字/分钟）
-    READING_SPEED_ENGLISH: 200,     // 英文阅读速度（词/分钟）
     TOC_OFFSET: 125,                // TOC 激活偏移量
     SCROLL_THROTTLE: 100            // 滚动事件节流时间（毫秒）
   };
@@ -262,15 +260,7 @@
   /* ----------------------------------------------------------------------
    * Reading time + table of contents per article
    * -------------------------------------------------------------------- */
-  function readingMinutes(text) {
-    const chinese = (text.match(/[一-龥]/g) || []).length;
-    const rest = text.replace(/[一-龥]/g, " ").trim();
-    const words = rest ? rest.split(/\s+/).length : 0;
-    return Math.max(1, Math.round(
-      chinese / SCROLL_CONSTANTS.READING_SPEED_CHINESE +
-      words / SCROLL_CONSTANTS.READING_SPEED_ENGLISH
-    ));
-  }
+  const readingMinutes = window.CWLUtils.readingMinutes;
 
   function activeArticleContent(article) {
     return article.querySelector(".article-content:not([hidden])") ||

@@ -48,12 +48,12 @@
 
 ---
 
-## 📌 MR-EDITOR-04: `readingMinutes` 第 3 次重复定义
+## 📌 MR-EDITOR-04 [已修复]: `readingMinutes` 第 3 次重复定义
 
-- **📍 位置**：`js/editor.js:146-154`
-- **📝 当前状况**：`updateStats()` 中内联了阅读时间计算逻辑，与 `coder.js:221-229` 和 `build.mjs:274-282` 重复。
-- **⚠️ 影响程度**：低
-- **💡 建议方案**：提取到 `CWLUtils.readingMinutes(text)`。
+- **📍 原位置**：`js/editor.js`
+- **✅ 修复状态**：`updateStats()` 已改用 `CWLUtils.readingMinutes(text)`，阅读时长算法与文章页客户端保持一致。
+- **🧪 回归测试**：`tests/editor.test.mjs` 新增统计测试，确认 700 个中文字符显示为 2 分钟。
+- **📊 实际收益**：编辑器预估阅读时间不再维护第三份算法。
 
 ---
 
@@ -67,4 +67,4 @@
 
 ---
 
-## 模块健康度评分：4.0 / 5 — 优秀
+## 模块健康度评分：4.1 / 5 — 优秀

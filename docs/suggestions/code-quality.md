@@ -168,7 +168,7 @@
 | 命名规范 | ⭐⭐⭐⭐ | 一致的 camelCase，语义清晰 |
 | 注释质量 | ⭐⭐⭐⭐⭐ | 每个文件/函数都有清晰的中文注释 |
 | 错误处理 | ⭐⭐⭐⭐ | try-catch 覆盖 localStorage、网络请求等 |
-| 代码重复 | ⭐⭐⭐⭐ | 剩余 1 处明显重复（readingMinutes 相关仍需继续治理；assistant 文案治理另见 CQ-05） |
+| 代码重复 | ⭐⭐⭐⭐ | editing、copyText、escapeHtml、t() 和 readingMinutes 已统一；assistant 文案治理另见 CQ-05 |
 | 文件粒度 | ⭐⭐⭐ | coder.js 过大（560 行），其他文件合理 |
 | 现代化程度 | ⭐⭐⭐⭐ | 主要旧式 DOM 集合转换已替换为 ES2015+ 写法 |
 | XSS 防护 | ⭐⭐⭐⭐⭐ | 全面的转义处理 |

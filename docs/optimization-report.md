@@ -5809,3 +5809,48 @@
 
 - 提交第三十五轮性能优化。
 - 继续评估 CSS 关键路径、JS 请求合并或其它不冲突的低风险性能项。
+
+## 第 173 轮：统一阅读时间计算
+
+时间：2026-06-18
+
+### 已完成内容
+
+- 新增 `src/lib/reading.mjs`，为构建端提供单一 `readingMinutes()` 实现。
+- `scripts/build.mjs` 改为复用并重新导出共享阅读时间 helper，保持既有测试导入兼容。
+- `js/utils.js` 新增 `CWLUtils.readingMinutes()`，供浏览器端业务模块统一调用。
+- `js/coder.js` 删除本地阅读时间算法，文章页运行时改用公共 helper。
+- `js/editor.js` 的统计面板改用 `CWLUtils.readingMinutes()`，不再维护第三份算法。
+- 新增/扩展构建端、工具函数和编辑器测试，锁定 SSR、文章页与编辑器统计的一致性。
+- 更新 B-05、MR-EDITOR-04、建议索引、健康评分、工作报告和本轮工作报告。
+
+### 发现的问题
+
+- 阅读时间算法此前散落在 `scripts/build.mjs`、`js/coder.js` 和 `js/editor.js`。
+- 构建期 SSR 占位、文章页运行时刷新和编辑器统计使用相同常量，但缺少共享入口。
+- 后续如果只改其中一处，会导致阅读时间闪烁或编辑器预估与发布后页面不一致。
+
+### 修复方案
+
+- 构建端用 `src/lib/reading.mjs` 作为单一数据源。
+- 浏览器端沿用项目既有 `CWLUtils` 共享工具模式，避免引入前端模块加载改造。
+- 保持 `scripts/build.mjs` 的 `readingMinutes` re-export，减少测试和外部调用迁移成本。
+
+### 性能、安全与质量指标
+
+- `node --test tests/build-extended.test.mjs tests/build-deep.test.mjs tests/build-extra.test.mjs`：112 个构建相关测试全部通过。
+- `node --test tests/utils.test.mjs tests/editor.test.mjs`：40 个工具/编辑器测试全部通过。
+- `node --test tests/coder.test.mjs tests/coder-deep.test.mjs`：35 个文章页运行时测试全部通过。
+- `npm run lint:check`：通过。
+- `npm test`：566 个测试全部通过。
+- `npm run build`：通过，成功生成 6 篇文章页面。
+- `node --test tests/performance.test.mjs`：13 个性能测试全部通过。
+- `npm run validate:production`：33 项检查通过，0 失败，0 警告。
+- `npm run test:coverage`：566 个测试全部通过；行覆盖率 93.27%，分支覆盖率 75.21%，函数覆盖率 90.80%，均高于覆盖率阈值。
+- `npm audit --audit-level=moderate --registry=https://registry.npmjs.org`：0 个中高危漏洞。
+- 代码质量收益：阅读时间算法由 3 处收敛为构建端 1 处 + 浏览器公共工具 1 处，业务模块不再各自维护常量。
+
+### 下一步计划
+
+- 运行全量质量门禁并提交第三十六轮代码质量优化。
+- 继续从不触碰 `assistant.js` 外部改动的性能、工程化或可维护性项目中筛选下一轮。
