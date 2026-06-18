@@ -174,28 +174,11 @@
   /* ----------------------------------------------------------------------
    * Copy-to-clipboard buttons on code blocks
    * -------------------------------------------------------------------- */
-  // 使用公共工具的 copyText 或降级实现
+  // 复制逻辑统一由 utils.js 维护；layout 保证其先于 coder.js 加载。
   const copyText = window.CWLUtils && window.CWLUtils.copyText
     ? window.CWLUtils.copyText
-    : function (text) {
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-          return navigator.clipboard.writeText(text);
-        }
-        return new Promise(function (resolve, reject) {
-          try {
-            const area = document.createElement("textarea");
-            area.value = text;
-            area.style.position = "fixed";
-            area.style.opacity = "0";
-            document.body.appendChild(area);
-            area.select();
-            document.execCommand("copy");
-            area.remove();
-            resolve();
-          } catch (error) {
-            reject(error);
-          }
-        });
+    : function (_text) {
+        return Promise.reject(new Error("CWLUtils.copyText is unavailable"));
       };
 
   document.querySelectorAll(".article-content pre").forEach(function (pre) {

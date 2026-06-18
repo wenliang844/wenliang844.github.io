@@ -11,9 +11,9 @@
 
   | 废弃 API | 位置 | 现代替代 |
   |----------|------|----------|
-  | `document.execCommand("copy")` | utils.js:59, coder.js:189, share.js:68 | `navigator.clipboard.writeText()` |
+  | `document.execCommand("copy")` | utils.js（集中 fallback） | `navigator.clipboard.writeText()` |
 
-  注意：`execCommand("copy")` 作为 fallback 保留是正确的（兼容性考虑），但主路径应始终优先 Clipboard API。应用源码中的旧式 `Array.prototype.slice.call()` 集合转换已替换为 `Array.from()`。
+  注意：`execCommand("copy")` 作为集中 fallback 保留在 `utils.js` 是正确的（兼容性考虑），业务模块已统一委托 `CWLUtils.copyText`，主路径始终优先 Clipboard API。应用源码中的旧式 `Array.prototype.slice.call()` 集合转换已替换为 `Array.from()`。
 - **⚠️ 影响程度**：低（当前功能不受影响，未来浏览器可能移除）
 - **💡 建议方案**：继续保留 Clipboard API 主路径，并仅把 `execCommand("copy")` 作为旧浏览器降级路径。
 - **📊 实际收益**：已消除应用源码中的旧式 DOM 集合转换，剩余技术债主要是剪贴板兼容 fallback。

@@ -51,35 +51,11 @@
 
   Array.prototype.forEach.call(bars, updateXLink);
 
-  // ---- 剪贴板：优先使用公共工具，否则降级实现 --------------
+  // ---- 剪贴板：复制逻辑统一由 utils.js 维护 --------------
   const copyText = window.CWLUtils && window.CWLUtils.copyText
     ? window.CWLUtils.copyText
-    : function (text) {
-        // execCommand 兜底：用于 clipboard API 不存在、或其写入被拒（如页面失焦）时。
-        function legacyCopy(text) {
-          return new Promise(function (resolve, reject) {
-            try {
-              const area = document.createElement("textarea");
-              area.value = text;
-              area.style.position = "fixed";
-              area.style.opacity = "0";
-              document.body.appendChild(area);
-              area.select();
-              const ok = document.execCommand("copy");
-              area.remove();
-              ok ? resolve() : reject(new Error("execCommand copy failed"));
-            } catch (error) {
-              reject(error);
-            }
-          });
-        }
-
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-          return navigator.clipboard.writeText(text).catch(function () {
-            return legacyCopy(text);
-          });
-        }
-        return legacyCopy(text);
+    : function (_text) {
+        return Promise.reject(new Error("CWLUtils.copyText is unavailable"));
       };
 
   // 复制成功反馈用的对勾 SVG（与模板图标同为 24×24 / currentColor）。

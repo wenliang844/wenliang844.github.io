@@ -4928,3 +4928,40 @@
 
 - 提交第十三轮安全修复。
 - 继续评估剩余 `innerHTML` 使用点或代码重复问题。
+
+## 第 151 轮：复制逻辑重复收敛
+
+时间：2026-06-18
+
+### 已完成内容
+
+- 删除 `js/coder.js` 与 `js/share.js` 中重复的 Clipboard API / `execCommand` fallback。
+- 复制调用方统一委托 `window.CWLUtils.copyText`，兼容 fallback 只保留在 `js/utils.js`。
+- 扩展 `tests/js-behavior.test.mjs`，锁定业务模块不再复制 `execCommand` 或 textarea fallback。
+- 更新 CQ-02、TD-01、索引和健康评分文档。
+
+### 发现的问题
+
+- `coder.js` 和 `share.js` 虽然优先使用 `CWLUtils.copyText`，但仍保留完整内联 fallback，导致剪贴板兼容逻辑有 3 个维护点。
+
+### 修复方案
+
+- 保留 `utils.js` 作为唯一剪贴板兼容实现。
+- 业务模块在极端独立加载且缺少 `CWLUtils.copyText` 时返回明确的 rejected Promise，避免静默复制失败。
+
+### 性能、安全与质量指标
+
+- `node --test tests/js-behavior.test.mjs tests/coder.test.mjs tests/share.test.mjs tests/utils-deep.test.mjs`：76 个测试全部通过。
+- `npx eslint js/*.js`：通过。
+- `npm test`：532 个测试全部通过，耗时约 7.43 秒。
+- `npm run build`：通过，成功生成 6 篇文章页面。
+- `npm run validate:production`：33 项检查通过，0 失败，0 警告。
+- `node --test tests/performance.test.mjs`：13 个性能测试全部通过。
+- `npm run test:coverage`：532 个测试全部通过；行覆盖率 92.68%，分支覆盖率 74.95%，函数覆盖率 89.33%。
+- `npm audit --audit-level=moderate --registry=https://registry.npmjs.org`：0 个中高危漏洞。
+- 质量收益：减少重复代码，降低剪贴板 fallback 未来行为漂移概率。
+
+### 下一步计划
+
+- 提交第十四轮代码质量修复。
+- 继续评估剩余重复逻辑或工程化配置改进。

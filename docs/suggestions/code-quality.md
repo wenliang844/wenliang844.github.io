@@ -14,22 +14,12 @@
 
 ---
 
-## 📌 CQ-02: `copyText` 函数在 3 个文件中重复实现
+## 📌 CQ-02 [已修复]: `copyText` 函数在 3 个文件中重复实现
 
-- **📍 位置**：
-  - `js/utils.js:29-39`（规范实现，带 fallback）
-  - `js/coder.js:173-194`（内联 fallback）
-  - `js/share.js:55-83`（内联 fallback）
-- **📝 当前状况**：三处都实现了剪贴板复制逻辑（Clipboard API → execCommand fallback）。`coder.js` 和 `share.js` 都尝试使用 `CWLUtils.copyText`，但各自保留了完整的 fallback 实现。
-- **⚠️ 影响程度**：低（功能正确，但冗余代码约 60 行）
-- **💡 建议方案**：移除 `coder.js` 和 `share.js` 中的 fallback 实现，直接使用：
-  ```javascript
-  const copyText = window.CWLUtils ? window.CWLUtils.copyText : function(text) {
-    return navigator.clipboard.writeText(text);
-  };
-  ```
-  `utils.js` 保证在所有页面先加载（layout.mjs:117），所以 `CWLUtils` 一定可用。
-- **📊 预期收益**：减少约 40 行重复代码
+- **📍 原位置**：`js/utils.js`、`js/coder.js`、`js/share.js`
+- **✅ 修复状态**：`coder.js` 与 `share.js` 已删除内联 Clipboard API / `execCommand` fallback，统一委托 `window.CWLUtils.copyText`。
+- **🧪 回归测试**：`tests/js-behavior.test.mjs` 新增源码测试，确认复制调用方不再复制 `execCommand` 或 textarea fallback。
+- **📊 实际收益**：剪贴板兼容逻辑回到 `utils.js` 单一维护点，减少重复 fallback 代码。
 - **🔗 相关建议**：[CQ-01](#cq-01)
 
 ---
@@ -204,7 +194,7 @@
 | 命名规范 | ⭐⭐⭐⭐ | 一致的 camelCase，语义清晰 |
 | 注释质量 | ⭐⭐⭐⭐⭐ | 每个文件/函数都有清晰的中文注释 |
 | 错误处理 | ⭐⭐⭐⭐ | try-catch 覆盖 localStorage、网络请求等 |
-| 代码重复 | ⭐⭐⭐⭐ | 剩余 4 处明显重复（copyText, escapeHtml, t(), readingMinutes 相关仍需继续治理） |
+| 代码重复 | ⭐⭐⭐⭐ | 剩余 3 处明显重复（escapeHtml, t(), readingMinutes 相关仍需继续治理） |
 | 文件粒度 | ⭐⭐⭐ | coder.js 过大（560 行），其他文件合理 |
 | 现代化程度 | ⭐⭐⭐⭐ | 主要旧式 DOM 集合转换已替换为 ES2015+ 写法 |
 | XSS 防护 | ⭐⭐⭐⭐⭐ | 全面的转义处理 |

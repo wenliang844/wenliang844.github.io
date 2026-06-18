@@ -147,6 +147,16 @@ test("application modules use Array.from for DOM collection conversion", async (
   }
 });
 
+test("copy consumers delegate fallback logic to CWLUtils.copyText", async () => {
+  const files = ["coder.js", "share.js"];
+  for (const file of files) {
+    const code = await readFile(join(ROOT, "js", file), "utf8");
+    assert.match(code, /CWLUtils\.copyText/, `${file} should use the shared copy helper`);
+    assert.doesNotMatch(code, /document\.execCommand\("copy"\)/, `${file} should not duplicate legacy copy fallback`);
+    assert.doesNotMatch(code, /document\.createElement\("textarea"\)/, `${file} should not duplicate textarea fallback`);
+  }
+});
+
 // ─── error-handler.js 测试 ────────────────────────────────────────────────────
 
 test("error-handler.js registers global error handlers", async () => {
