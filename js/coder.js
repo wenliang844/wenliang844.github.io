@@ -38,8 +38,8 @@
   /* ----------------------------------------------------------------------
    * Blog list: switch between inline article panels
    * -------------------------------------------------------------------- */
-  const postLinks = Array.prototype.slice.call(document.querySelectorAll(".post-tree-link[data-post-target]"));
-  const postPanels = Array.prototype.slice.call(document.querySelectorAll(".blog-article[id]"));
+  const postLinks = Array.from(document.querySelectorAll(".post-tree-link[data-post-target]"));
+  const postPanels = Array.from(document.querySelectorAll(".blog-article[id]"));
 
   function showPost(targetId, updateHash) {
     const target = document.getElementById(targetId);
@@ -281,7 +281,7 @@
   function buildToc(article, contentBlock) {
     clearToc(contentBlock);
 
-    const headings = Array.prototype.slice.call(contentBlock.querySelectorAll("h2, h3"))
+    const headings = Array.from(contentBlock.querySelectorAll("h2, h3"))
       .filter(function (heading) {
         return (heading.textContent || "").trim();
       });
@@ -340,7 +340,7 @@
     const toc = article.querySelector('.article-toc[data-toc-lang="' + lang + '"]');
     if (!toc) {return;}
 
-    const headings = Array.prototype.slice.call(content.querySelectorAll("h2, h3[id]"));
+    const headings = Array.from(content.querySelectorAll("h2, h3[id]"));
     if (!headings.length) {return;}
 
     let active = headings[0];
@@ -413,7 +413,7 @@
     }
 
     // Build a TOC only for longer articles (>= 3 section headings).
-    Array.prototype.slice.call(article.querySelectorAll(".article-content")).forEach(function (contentBlock) {
+    Array.from(article.querySelectorAll(".article-content")).forEach(function (contentBlock) {
       buildToc(article, contentBlock);
     });
   });
@@ -431,7 +431,7 @@
   const prefersReduced = window.matchMedia
     ? window.matchMedia("(prefers-reduced-motion: reduce)").matches
     : false;
-  const revealTargets = Array.prototype.slice.call(
+  const revealTargets = Array.from(
     document.querySelectorAll(".card, .ai-card, .insight-list li, .timeline-stats div, .feedback-item, .post-item")
   );
 
@@ -453,7 +453,7 @@
   }
 
   // Animate skill bars (.skill-fill[data-level]) to their target width.
-  const skillFills = Array.prototype.slice.call(document.querySelectorAll(".skill-fill[data-level]"));
+  const skillFills = Array.from(document.querySelectorAll(".skill-fill[data-level]"));
   if (skillFills.length) {
     skillFills.forEach(function (fill) {
       fill.style.setProperty("--level", fill.getAttribute("data-level"));

@@ -506,15 +506,15 @@
     const skillsText = root.querySelector(".resume-skills .resume-skill-text, .resume-skills p");
     const skills = skillsText
       ? text(skillsText.textContent)
-      : Array.prototype.slice.call(root.querySelectorAll(".resume-skills li, .resume-skills span"))
+      : Array.from(root.querySelectorAll(".resume-skills li, .resume-skills span"))
         .map(function (el) { return text(el.textContent); })
         .filter(Boolean)
         .join(", ");
-    const sections = Array.prototype.slice.call(root.querySelectorAll("section.resume-section")).map(function (section) {
+    const sections = Array.from(root.querySelectorAll("section.resume-section")).map(function (section) {
       const title = text((section.querySelector("h2") || {}).textContent);
       return {
         title: isLegacySkillsTitle(title) ? "专业技能" : title,
-        entries: Array.prototype.slice.call(section.querySelectorAll(".resume-entry")).map(function (entry) {
+        entries: Array.from(section.querySelectorAll(".resume-entry")).map(function (entry) {
           return {
             title: text((entry.querySelector("h3") || {}).textContent),
             subtitle: text((entry.querySelector(".resume-entry-subtitle") || {}).textContent),

@@ -4,7 +4,7 @@
     return;
   }
 
-  const links = Array.prototype.slice.call(
+  const links = Array.from(
     document.querySelectorAll(".post-tree-link[data-post-target]")
   );
   if (!links.length) {
@@ -67,7 +67,7 @@
     items = links.map(function (link) {
       const li = link.closest("li");
       const panel = document.getElementById(link.getAttribute("data-post-target"));
-      const tagEls = panel ? Array.prototype.slice.call(panel.querySelectorAll(".post-tags span")) : [];
+      const tagEls = panel ? Array.from(panel.querySelectorAll(".post-tags span")) : [];
       const tags = tagEls.map(function (s) {
         return s.dataset.tag || (s.textContent || "").trim();
       });
@@ -150,7 +150,7 @@
   function setActiveTag(tag) {
     activeTag = activeTag === tag ? null : tag;
     if (tagFilter) {
-      Array.prototype.slice.call(tagFilter.children).forEach(function (chip) {
+      Array.from(tagFilter.children).forEach(function (chip) {
         chip.classList.toggle("active", chip.dataset.tag === activeTag);
       });
     }

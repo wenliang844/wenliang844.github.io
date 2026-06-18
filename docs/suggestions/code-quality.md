@@ -132,22 +132,12 @@
 
 ---
 
-## 📌 CQ-07: 大量使用 `Array.prototype.slice.call()` 转换 NodeList
+## 📌 CQ-07 [已修复]: 大量使用 `Array.prototype.slice.call()` 转换 NodeList
 
-- **📍 位置**：`js/coder.js:41-42,279,338,427,449`、`js/blog.js:8,38,121`
-- **📝 当前状况**：多处使用 `Array.prototype.slice.call(document.querySelectorAll(...))` 将 NodeList 转为数组。这是 ES5 时代的写法。
-- **⚠️ 影响程度**：低
-- **💡 建议方案**：使用现代 API：
-  ```javascript
-  // ES5
-  const items = Array.prototype.slice.call(document.querySelectorAll(".foo"));
-  // ES2015+
-  const items = Array.from(document.querySelectorAll(".foo"));
-  // ES2022+
-  const items = [...document.querySelectorAll(".foo")];
-  ```
-  ESLint 已配置 `ecmaVersion: 2020`，可以安全使用 `Array.from()`。
-- **📊 预期收益**：代码更简洁，符合现代 JS 规范
+- **📍 原位置**：`js/coder.js`、`js/blog.js`、`js/tools.js`、`js/overleaf.js`
+- **✅ 修复状态**：应用源码中的 `Array.prototype.slice.call(...)` 集合转换已统一替换为 `Array.from(...)`。
+- **🧪 回归测试**：`tests/js-behavior.test.mjs` 新增源码测试，确认相关应用模块不再使用旧式集合转换。
+- **📊 实际收益**：代码更简洁，DOM 集合转换写法与项目 `ecmaVersion: 2020` 配置一致。
 - **🔗 相关建议**：[TD-01](tech-debt.md#td-01)
 
 ---
@@ -216,7 +206,7 @@
 | 错误处理 | ⭐⭐⭐⭐ | try-catch 覆盖 localStorage、网络请求等 |
 | 代码重复 | ⭐⭐⭐⭐ | 剩余 4 处明显重复（copyText, escapeHtml, t(), readingMinutes 相关仍需继续治理） |
 | 文件粒度 | ⭐⭐⭐ | coder.js 过大（560 行），其他文件合理 |
-| 现代化程度 | ⭐⭐⭐ | 混合使用 ES5 和 ES2015+ 写法 |
+| 现代化程度 | ⭐⭐⭐⭐ | 主要旧式 DOM 集合转换已替换为 ES2015+ 写法 |
 | XSS 防护 | ⭐⭐⭐⭐⭐ | 全面的转义处理 |
 
 > 综合评分：**4.0 / 5** — 良好，主要改进点在剩余重复逻辑消除和现代化。

@@ -4779,3 +4779,40 @@
 
 - 提交第九轮技术债务修复。
 - 继续处理 CQ-07 或 B-07 等低风险技术债务。
+
+## 第 147 轮：DOM 集合转换现代化
+
+时间：2026-06-18
+
+### 已完成内容
+
+- 将 `js/coder.js`、`js/blog.js`、`js/tools.js`、`js/overleaf.js` 中应用源码的 `Array.prototype.slice.call(...)` 统一替换为 `Array.from(...)`。
+- 扩展 `tests/js-behavior.test.mjs`，锁定相关应用模块不再使用旧式 DOM 集合转换。
+- 更新 CQ-07、TD-01、安全审计、索引和健康评分文档。
+
+### 发现的问题
+
+- 多个前端模块仍沿用 ES5 时代的 NodeList/HTMLCollection 转数组写法，和项目当前 ESLint `ecmaVersion: 2020` 能力不一致。
+- 技术债与安全审计文档仍把旧式集合转换列为待处理项。
+
+### 修复方案
+
+- 对 `querySelectorAll()` 与 `children` 返回的集合使用 `Array.from()`，保留后续 `map()`、`filter()`、`forEach()` 行为不变。
+- 用源码回归测试防止 `Array.prototype.slice.call()` 在这些应用模块中回流。
+
+### 性能、安全与质量指标
+
+- `node --test tests/js-behavior.test.mjs`：28 个测试全部通过。
+- `npx eslint js/*.js`：通过。
+- `npm test`：529 个测试全部通过，耗时约 7.76 秒。
+- `npm run build`：通过，成功生成 6 篇文章页面。
+- `npm run validate:production`：33 项检查通过，0 失败，0 警告。
+- `node --test tests/performance.test.mjs`：13 个性能测试全部通过。
+- `npm run test:coverage`：529 个测试全部通过；行覆盖率 92.68%，分支覆盖率 74.95%，函数覆盖率 89.33%。
+- `npm audit --audit-level=moderate --registry=https://registry.npmjs.org`：0 个中高危漏洞。
+- 质量收益：减少旧式写法和样板代码，DOM 集合转换风格与现代浏览器 API 保持一致。
+
+### 下一步计划
+
+- 提交第十轮技术债修复。
+- 继续评估 B-03/B-04 的 `innerHTML` 维护风险或 CQ-02 的复制逻辑重复。

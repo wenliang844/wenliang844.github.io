@@ -44,7 +44,7 @@
   }
 
   function toolPanels() {
-    return Array.prototype.slice.call(document.querySelectorAll("[data-tool-panel]"));
+    return Array.from(document.querySelectorAll("[data-tool-panel]"));
   }
 
   function panelFor(id, panels) {
@@ -55,7 +55,7 @@
 
   function toolTabs(panels) {
     const seen = Object.create(null);
-    return Array.prototype.slice.call(document.querySelectorAll(".tools-tabs [data-tool-tab]")).filter(function (tab) {
+    return Array.from(document.querySelectorAll(".tools-tabs [data-tool-tab]")).filter(function (tab) {
       const id = tab.getAttribute("data-tool-tab");
       if (!panelFor(id, panels) || seen[id]) {
         return false;
@@ -106,7 +106,7 @@
   }
 
   function rerenderStatusKeys() {
-    Array.prototype.slice.call(document.querySelectorAll(".tool-status[data-status-key]")).forEach(function (el) {
+    Array.from(document.querySelectorAll(".tool-status[data-status-key]")).forEach(function (el) {
       const key = el.getAttribute("data-status-key");
       const fallback = el.getAttribute("data-status-fallback") || el.textContent;
       const suffix = el.getAttribute("data-status-suffix") || "";

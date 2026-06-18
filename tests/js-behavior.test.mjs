@@ -139,6 +139,14 @@ test("keyboard shortcut modules reuse CWLUtils.isEditing", async () => {
   }
 });
 
+test("application modules use Array.from for DOM collection conversion", async () => {
+  const files = ["blog.js", "coder.js", "overleaf.js", "tools.js"];
+  for (const file of files) {
+    const code = await readFile(join(ROOT, "js", file), "utf8");
+    assert.doesNotMatch(code, /Array\.prototype\.slice\.call/, `${file} should avoid legacy collection conversion`);
+  }
+});
+
 // ─── error-handler.js 测试 ────────────────────────────────────────────────────
 
 test("error-handler.js registers global error handlers", async () => {

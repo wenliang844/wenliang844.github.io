@@ -12,16 +12,11 @@
   | 废弃 API | 位置 | 现代替代 |
   |----------|------|----------|
   | `document.execCommand("copy")` | utils.js:59, coder.js:189, share.js:68 | `navigator.clipboard.writeText()` |
-  | `Array.prototype.slice.call()` | coder.js:41, blog.js:8 等 | `Array.from()` 或展开运算符 |
 
-  注意：`execCommand("copy")` 作为 fallback 保留是正确的（兼容性考虑），但主路径应始终优先 Clipboard API。
+  注意：`execCommand("copy")` 作为 fallback 保留是正确的（兼容性考虑），但主路径应始终优先 Clipboard API。应用源码中的旧式 `Array.prototype.slice.call()` 集合转换已替换为 `Array.from()`。
 - **⚠️ 影响程度**：低（当前功能不受影响，未来浏览器可能移除）
-- **💡 建议方案**：逐步替换：
-  ```javascript
-  // Array.prototype.slice.call → Array.from
-  const items = Array.from(document.querySelectorAll(".foo"));
-  ```
-- **📊 预期收益**：跟上 Web 标准演进，消除控制台 deprecation 警告
+- **💡 建议方案**：继续保留 Clipboard API 主路径，并仅把 `execCommand("copy")` 作为旧浏览器降级路径。
+- **📊 实际收益**：已消除应用源码中的旧式 DOM 集合转换，剩余技术债主要是剪贴板兼容 fallback。
 - **🔗 相关建议**：[CQ-07](code-quality.md#cq-07)
 
 ---
@@ -226,7 +221,7 @@
 
 | 类别 | 数量 | 严重程度 |
 |------|------|----------|
-| 废弃 API | 2 处 | 低 |
+| 废弃 API | 1 类兼容 fallback | 低 |
 | 过时依赖 | 2 个 | 低 |
 | 死代码 | 3 个文件 | 低 |
 | 缺少类型 | 全局 | 低 |
