@@ -84,12 +84,12 @@ ${toolHeader(TOOLS[1])}
         </section>`;
 }
 
-function renderCodecTool(tool, inputId, outputId, encodeAction, decodeAction, placeholder) {
+function renderCodecTool(tool, inputId, outputId, encodeAction, decodeAction, placeholder, placeholderEn = placeholder) {
   return `        <section ${panelAttrs(tool)}>
 ${toolHeader(tool)}
           <div class="tool-grid">
             <label class="tool-field"><span data-i18n="tools.label.input">输入</span>
-              <textarea id="${inputId}" spellcheck="false" placeholder="${attr(placeholder)}"></textarea>
+              <textarea id="${inputId}" spellcheck="false" placeholder="${attr(placeholder)}" data-i18n-ph="tools.${tool.id}.placeholder" data-i18n-en-ph="${attr(placeholderEn)}"></textarea>
             </label>
             <label class="tool-field"><span data-i18n="tools.label.output">输出结果</span>
               <textarea id="${outputId}" spellcheck="false" readonly></textarea>
@@ -154,8 +154,8 @@ ${TOOLS.map(toolNav).join("\n")}
           <div class="tools-panels">
 ${renderJsonTool()}
 ${renderTimeTool()}
-${renderCodecTool(TOOLS[2], "base64-input", "base64-output", "base64-encode", "base64-decode", "输入要编码或解码的文本")}
-${renderCodecTool(TOOLS[3], "url-input", "url-output", "url-encode", "url-decode", "https://example.com/?q=中文")}
+${renderCodecTool(TOOLS[2], "base64-input", "base64-output", "base64-encode", "base64-decode", "输入要编码或解码的文本", "Text to encode or decode")}
+${renderCodecTool(TOOLS[3], "url-input", "url-output", "url-encode", "url-decode", "https://example.com/?q=中文", "https://example.com/?q=search")}
 ${renderUuidTool()}
 ${renderJwtTool()}
           </div>

@@ -120,6 +120,9 @@ test("tools tabs expose selected state and support keyboard navigation", async (
     assert.equal(tabList.getAttribute("role"), "tablist");
     assert.equal(tabList.getAttribute("data-i18n-aria"), "tools.tabs");
     assert.equal(tabList.getAttribute("data-i18n-en-aria"), "Tool list");
+    assert.equal(document.querySelector("#base64-input").getAttribute("data-i18n-ph"), "tools.base64.placeholder");
+    assert.equal(document.querySelector("#base64-input").getAttribute("data-i18n-en-ph"), "Text to encode or decode");
+    assert.equal(document.querySelector("#url-input").getAttribute("data-i18n-en-ph"), "https://example.com/?q=search");
     assert.equal(jsonTab.getAttribute("role"), "tab");
     assert.equal(document.querySelector("#tool-json").getAttribute("role"), "tabpanel");
     assert.equal(jsonTab.getAttribute("aria-selected"), "true");

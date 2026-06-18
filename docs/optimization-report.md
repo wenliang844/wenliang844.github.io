@@ -837,3 +837,37 @@
 - 继续跟踪并行助手默认模式改动，等其稳定后恢复完整 `npm run test:toolbox` 作为提交门禁。
 - 继续检查工具箱英文模式下其它 aria-label、placeholder 和按钮宽度。
 - 继续关注 CSS 体积超限问题，但避免混入当前并行 CSS 大改。
+
+## 第 26 轮：工具箱输入占位文案国际化
+
+时间：2026-06-18
+
+### 已完成内容
+
+- 继续检查工具箱英文模式下的输入提示文案。
+- 为 Base64 和 URL 编解码输入框增加 placeholder 的 i18n 绑定。
+- 补充工具箱测试，覆盖 codec 输入框的 `data-i18n-ph` 与英文占位文案。
+- 通过浏览器验证中文/英文 placeholder 切换、页面溢出和控制台状态。
+
+### 发现的问题
+
+- Base64 输入框 placeholder 固定为“输入要编码或解码的文本”，英文模式下仍显示中文。
+- URL 输入框示例固定为 `https://example.com/?q=中文`，英文模式下示例语言不一致。
+
+### 修复方案
+
+- 扩展 `renderCodecTool()`，允许传入英文 placeholder。
+- 为 Base64 输入框输出 `data-i18n-ph="tools.base64.placeholder"` 和 `data-i18n-en-ph="Text to encode or decode"`。
+- 为 URL 输入框输出英文示例 `https://example.com/?q=search`。
+
+### 性能、覆盖率与质量指标
+
+- `node --test tests/tools.test.mjs`：7 个测试全部通过。
+- `npm run build`：通过。
+- 浏览器回归：英文模式 Base64 placeholder 为 `Text to encode or decode`，URL placeholder 为 `https://example.com/?q=search`；页面无横向溢出，控制台 warning/error 为 0。
+
+### 下一步计划
+
+- 继续检查工具箱英文模式下状态文案、错误提示和复制提示的一致性。
+- 继续等待并行助手默认模式改动稳定后恢复组合测试。
+- 继续避免把未提交的大模型/relay/CSS 大改混入工具箱小修提交。
