@@ -5159,6 +5159,8 @@ body.assistant-fullscreen .site-shell {
 
   body[data-i18n-page="home"] .assistant-widget:not(.fullscreen) .assistant-panel {
     top: 3.75rem;
+    right: 0;
+    width: min(42rem, calc(100vw - 2rem));
     height: min(44rem, calc(100vh - var(--assistant-nav-height, 4.6rem) - 5.5rem));
   }
 

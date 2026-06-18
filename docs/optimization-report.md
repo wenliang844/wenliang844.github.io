@@ -4671,3 +4671,37 @@
 ### 下一步计划
 
 - 提交第六轮代码质量修复。
+
+## 第 144 轮：首页助手移动端宽度约束
+
+时间：2026-06-18
+
+### 已完成内容
+
+- 为首页非全屏 AI 助手的移动端面板增加 `right: 0` 和 `width: min(42rem, calc(100vw - 2rem))`。
+- 扩展 `tests/css.test.mjs`，锁定首页助手移动端面板的右侧定位和宽度约束。
+
+### 发现的问题
+
+- 第 142 轮已让首页助手在导航下方停靠，但移动端面板仍缺少明确宽度上限和右侧定位，窄屏下存在贴边或横向溢出的风险。
+
+### 修复方案
+
+- 在移动端媒体查询内补齐首页助手面板的 `right` 与 `width` 规则。
+- 用 CSS 源码测试防止后续改动删掉该约束。
+
+### 性能、安全与质量指标
+
+- `node --test tests/css.test.mjs`：27 个测试全部通过。
+- `node --test tests/performance.test.mjs`：13 个测试全部通过。
+- `npx eslint js/*.js`：通过。
+- `npm test`：526 个测试全部通过，耗时约 7.76 秒。
+- `npm run build`：通过，6 篇文章输出成功。
+- `npm run validate:production`：33 项通过、0 失败、0 警告。
+- `npm run test:coverage`：526 个测试全部通过；当前覆盖率 line 92.68%、branch 74.95%、funcs 89.33%。
+- `npm audit --audit-level=moderate --registry=https://registry.npmjs.org`：0 vulnerabilities。
+- 用户体验收益：移动端首页助手展开时更稳定，不易横向溢出或贴边。
+
+### 下一步计划
+
+- 提交第七轮移动端 UX 修复。
