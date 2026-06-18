@@ -6013,3 +6013,42 @@
 
 - 运行全量质量门禁并提交第四十轮 UX 优化。
 - 继续处理不触碰 `assistant.js` 外部改动的 UX 或工程化项目。
+
+## 第 178 轮：RSS channel renderer 去重
+
+时间：2026-06-18
+
+### 已完成内容
+
+- 在 `scripts/build.mjs` 提取 `buildRssFeed(posts, { title, link, description, selfHref })`。
+- 保留 `buildRss()`、`buildPostRss()`、`buildCategoriesRss()` 三个语义化入口，仅传入各自的 channel 元数据。
+- 扩展 `tests/build-extra.test.mjs`，新增 RSS 变体共用 renderer 的源码级回归测试。
+- 更新 MR-BUILD-02、建议索引、健康评分、工作报告和本轮工作报告。
+
+### 发现的问题
+
+- 三个 RSS 函数重复维护 XML channel 外壳、generator、language、lastBuildDate 和 atom self link 结构。
+- 一旦未来调整 RSS channel 公共字段，容易只改其中一处造成 feed 输出不一致。
+- 既有测试验证 RSS 结构存在，但没有守卫“公共外壳只维护一份”的代码质量约束。
+
+### 修复方案
+
+- 将 RSS channel 公共模板收敛到 `buildRssFeed()`。
+- 三个 feed wrapper 只声明差异化的 title、link、description、selfHref。
+- 增加源码守卫，断言三种 RSS 入口都委托共享 renderer，且 `<generator>` 模板只出现一次。
+
+### 性能、安全与质量指标
+
+- `node --test tests/build-extra.test.mjs tests/integration.test.mjs tests/performance.test.mjs`：51 个构建、RSS 与性能测试全部通过。
+- `npm run lint:check`：通过。
+- `npm test`：571 个测试全部通过。
+- `npm run build`：通过，成功生成 6 篇文章页面。
+- `npm run validate:production`：33 项检查通过，0 失败，0 警告。
+- `npm run test:coverage`：571 个测试全部通过；行覆盖率 93.27%，分支覆盖率 75.33%，函数覆盖率 90.84%，均高于覆盖率阈值。
+- `npm audit --audit-level=moderate --registry=https://registry.npmjs.org`：0 个中高危漏洞。
+- 代码质量收益：RSS channel 公共结构维护点从 3 处减少到 1 处，降低 feed 漂移风险。
+
+### 下一步计划
+
+- 运行全量质量门禁并提交第四十一轮构建系统代码质量优化。
+- 继续处理不触碰 `assistant.js` 外部改动的低风险技术债或 UX 项。

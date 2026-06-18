@@ -169,6 +169,14 @@ test("categories RSS feed exists and has items", async () => {
   }
 });
 
+test("RSS variants share one channel renderer", async () => {
+  const source = await readFile(join(ROOT, "scripts", "build.mjs"), "utf8");
+
+  assert.match(source, /function buildRssFeed\(posts, \{ title, link, description, selfHref \}\)/);
+  assert.equal((source.match(/return buildRssFeed\(posts,/g) || []).length, 3);
+  assert.equal((source.match(/<generator>Cwl static build<\/generator>/g) || []).length, 1);
+});
+
 // ─── robots.txt 内容验证 ────────────────────────────────────────────────────
 
 test("robots.txt allows key paths and references sitemap", async () => {

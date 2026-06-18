@@ -66,18 +66,12 @@ if (errors.length > 0) { throw new Error(...); }
 
 ---
 
-## 📌 MR-BUILD-02: RSS 生成逻辑重复 3 次
+## 📌 MR-BUILD-02 [已修复]: RSS 生成逻辑重复 3 次
 
-- **📍 位置**：`scripts/build.mjs:401-487`
-- **📝 当前状况**：`buildRss()`、`buildPostRss()`、`buildCategoriesRss()` 三个函数结构几乎完全相同，只有 `<title>`、`<link>`、`<description>` 和 `<atom:link>` 不同。
-- **⚠️ 影响程度**：低
-- **💡 建议方案**：提取为参数化函数：
-  ```javascript
-  function buildRssFeed(posts, { title, link, description, selfHref }) {
-    // 共用逻辑
-  }
-  ```
-- **📊 预期收益**：减少约 40 行重复代码
+- **📍 原位置**：`scripts/build.mjs`
+- **✅ 修复状态**：已提取 `buildRssFeed(posts, { title, link, description, selfHref })`，`buildRss()`、`buildPostRss()`、`buildCategoriesRss()` 只保留各自的 channel 元数据。
+- **🧪 回归测试**：`tests/build-extra.test.mjs` 验证三种 RSS 入口共用同一个 channel renderer，并锁定 `<generator>` 模板只维护一份。
+- **📊 实际收益**：RSS 结构、语言、generator、lastBuildDate、atom self link 的维护点从 3 处收敛为 1 处。
 - **🔗 相关建议**：[CQ-02](../code-quality.md#cq-02)
 
 ---

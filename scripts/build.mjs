@@ -483,63 +483,52 @@ function buildStats(posts) {
   };
 }
 
-function buildRss(posts) {
+function buildRssFeed(posts, { title, link, description, selfHref }) {
   const lastBuild = rfc822(posts[0].date);
   const items = buildRssItems(posts);
 
   return `<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>${escapeXml(SITE.title)}</title>
-    <link>${escapeXml(`${SITE.baseURL}/`)}</link>
-    <description>${escapeXml(`Recent content on ${SITE.title}`)}</description>
+    <title>${escapeXml(title)}</title>
+    <link>${escapeXml(link)}</link>
+    <description>${escapeXml(description)}</description>
     <generator>Cwl static build</generator>
     <language>zh-CN</language>
     <lastBuildDate>${lastBuild}</lastBuildDate>
-    <atom:link href="${escapeXml(`${SITE.baseURL}/index.xml`)}" rel="self" type="application/rss+xml" />
+    <atom:link href="${escapeXml(selfHref)}" rel="self" type="application/rss+xml" />
 ${items}
   </channel>
 </rss>`;
+}
+
+function buildRss(posts) {
+  return buildRssFeed(posts, {
+    title: SITE.title,
+    link: `${SITE.baseURL}/`,
+    description: `Recent content on ${SITE.title}`,
+    selfHref: `${SITE.baseURL}/index.xml`,
+  });
 }
 
 // post/index.xml：博客目录 RSS，保持 /post/ 下的订阅入口同步。
 function buildPostRss(posts) {
-  const lastBuild = rfc822(posts[0].date);
-  const items = buildRssItems(posts);
-
-  return `<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
-  <channel>
-    <title>${escapeXml(`Posts on ${SITE.title}`)}</title>
-    <link>${escapeXml(`${SITE.baseURL}/post/`)}</link>
-    <description>${escapeXml(`Recent content in Posts on ${SITE.title}`)}</description>
-    <generator>Cwl static build</generator>
-    <language>zh-CN</language>
-    <lastBuildDate>${lastBuild}</lastBuildDate>
-    <atom:link href="${escapeXml(`${SITE.baseURL}/post/index.xml`)}" rel="self" type="application/rss+xml" />
-${items}
-  </channel>
-</rss>`;
+  return buildRssFeed(posts, {
+    title: `Posts on ${SITE.title}`,
+    link: `${SITE.baseURL}/post/`,
+    description: `Recent content in Posts on ${SITE.title}`,
+    selfHref: `${SITE.baseURL}/post/index.xml`,
+  });
 }
 
 // categories/index.xml：时间归档页 RSS，避免分类页订阅入口停留在旧占位内容。
 function buildCategoriesRss(posts) {
-  const lastBuild = rfc822(posts[0].date);
-  const items = buildRssItems(posts);
-
-  return `<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
-  <channel>
-    <title>${escapeXml(`Time Archive on ${SITE.title}`)}</title>
-    <link>${escapeXml(`${SITE.baseURL}/categories/`)}</link>
-    <description>${escapeXml(`Project retrospectives by year on ${SITE.title}`)}</description>
-    <generator>Cwl static build</generator>
-    <language>zh-CN</language>
-    <lastBuildDate>${lastBuild}</lastBuildDate>
-    <atom:link href="${escapeXml(`${SITE.baseURL}/categories/index.xml`)}" rel="self" type="application/rss+xml" />
-${items}
-  </channel>
-</rss>`;
+  return buildRssFeed(posts, {
+    title: `Time Archive on ${SITE.title}`,
+    link: `${SITE.baseURL}/categories/`,
+    description: `Project retrospectives by year on ${SITE.title}`,
+    selfHref: `${SITE.baseURL}/categories/index.xml`,
+  });
 }
 
 async function main() {
