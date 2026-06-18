@@ -43,7 +43,7 @@
   | `coder.js` | 299 | TOC 切换按钮 | ✅ 硬编码 |
   | `giscus.js` | 33-62 | `createPlaceholder()` | ✅ 已改用 DOM API 和 `textContent` |
   | `share.js` | 94-99 | 复制成功反馈 | ✅ 使用预定义 SVG |
-  | `share.js` | 136-142 | 二维码弹窗 | ⚠️ 含 i18n 文本拼接 |
+  | `share.js` | 136-178 | 二维码弹窗 | ✅ 已改用 DOM API，i18n 文本走 `textContent` / `setAttribute` |
   | `blog.js` | 276 | FAB 按钮图标 | ✅ 硬编码 Font Awesome |
   | `error-handler.js` | 69-88 | toast 消息 | ✅ 完全使用 DOM API |
   | `subscribe.js` | 96-110 | 订阅弹窗 | ✅ 硬编码模板 |
@@ -61,22 +61,12 @@
 
 ---
 
-## 📌 S-02: `share.js` 二维码弹窗中 `t()` 返回值直接拼接 HTML 字符串
+## 📌 S-02 [已修复]: `share.js` 二维码弹窗中 `t()` 返回值直接拼接 HTML 字符串
 
-- **📍 位置**：`js/share.js:136-142`
-- **📝 当前状况**：
-  ```javascript
-  '<button class="share-qr-close" type="button" aria-label="' + t("post.qr.close", "关闭") + '">' +
-  ```
-  `t()` 的返回值被直接拼接进 HTML 属性和文本节点。如果 i18n 翻译文案中包含 `"` 或 HTML 标签，可能破坏 DOM 结构。
-- **⚠️ 影响程度**：低（当前翻译文案均为硬编码安全文本）
-- **💡 建议方案**：使用 `escapeAttr()` 对 `t()` 返回值进行转义后再拼接：
-  ```javascript
-  function escapeAttr(s) { return String(s).replace(/"/g, '&quot;').replace(/</g, '&lt;'); }
-  'aria-label="' + escapeAttr(t("post.qr.close", "关闭")) + '"'
-  ```
-  或改用 DOM API 构建弹窗。
-- **📊 预期收益**：消除属性注入风险
+- **📍 原位置**：`js/share.js`
+- **✅ 修复状态**：微信二维码弹窗已改用 DOM API 构建，`t()` 返回值分别通过 `setAttribute()` 或 `textContent` 写入，不再拼接到 HTML 字符串。
+- **🧪 回归测试**：`tests/share.test.mjs` 新增恶意翻译文案用例，确认 `<img>` / `<script>` 只作为文本显示，不创建 HTML 节点。
+- **📊 实际收益**：消除二维码弹窗 i18n 文案的属性注入和 HTML 注入维护风险。
 - **🔗 相关建议**：[S-01](#s-01)
 
 ---
@@ -219,7 +209,7 @@
 | 类别 | 状态 | 说明 |
 |------|------|------|
 | XSS 防护 | ✅ 良好 | 所有用户输入都经过转义处理 |
-| innerHTML 使用 | ✅ 安全 | 均用于硬编码或转义后的内容 |
+| innerHTML 使用 | ✅ 安全 | 用户输入和 i18n 文案均避免直接 HTML 注入 |
 | 第三方依赖 | ✅ 最小化 | 仅 Fuse.js、Giscus、Buttondown、QRCode |
 | API Key 暴露 | ✅ 已修复 | 前端不再内置 demo key（S-00） |
 | CSP 策略 | ⚠️ 缺失 | 建议添加 |

@@ -75,7 +75,8 @@ test("share.js uses safe DOM for QR code title", async () => {
   // 确保使用 textContent 而非 innerHTML 写入标题
   assert.ok(code.includes(".textContent"), "should use textContent for safe rendering");
   // 确保 QR overlay 标题使用 textContent
-  assert.match(code, /querySelector\("\.share-qr-name"\)\.textContent/, "should use textContent for QR name");
+  assert.match(code, /name\.textContent\s*=\s*title/, "should use textContent for QR name");
+  assert.doesNotMatch(code, /overlay\.innerHTML\s*=/, "should not build QR overlay from an HTML string");
 });
 
 // ─── 无 .post-share 时静默退出 ─────────────────────────────────────────────
@@ -203,6 +204,32 @@ test("share.js share bar with XSS in title is safe", async () => {
   const href = xLink.getAttribute("href");
   // URL 编码后不应包含原始 <script> 标签
   assert.ok(!href.includes("<script>"), "X share URL should not contain unescaped script tag");
+  dom.window.close();
+});
+
+test("share.js QR overlay escapes translated labels", async () => {
+  const dom = new JSDOM(buildShareHtml(), {
+    runScripts: "outside-only",
+    url: "https://wenliang844.github.io/post/test-post/",
+  });
+  dom.window.cwlT = function (key, fallback) {
+    if (key === "post.qr.title") {
+      return '<img src=x onerror="alert(1)">';
+    }
+    if (key === "post.qr.fail") {
+      return '<script>alert("xss")</script>';
+    }
+    return fallback;
+  };
+  await loadShare(dom);
+  const { document } = dom.window;
+
+  document.querySelector('[data-share="wechat"]').click();
+  const overlay = document.querySelector(".share-qr-overlay");
+  assert.ok(overlay, "should create overlay");
+  assert.equal(overlay.querySelectorAll("img, script").length, 0, "translated labels should not create HTML nodes");
+  assert.ok(overlay.textContent.includes("<img"), "translated title should render as text");
+  assert.ok(overlay.textContent.includes("<script>"), "translated fallback should render as text");
   dom.window.close();
 });
 

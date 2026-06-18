@@ -67,6 +67,7 @@
 已完成：B-09 性能监控改用 Navigation Timing Level 2。
 已完成：CQ-07 应用源码 DOM 集合转换统一改用 `Array.from()`。
 已完成：B-04 giscus 未配置占位提示改用 DOM API 渲染。
+已完成：S-02 微信二维码弹窗改用 DOM API 渲染 i18n 文案。
 
 ### 🥈 高价值中成本（建议近期规划）
 

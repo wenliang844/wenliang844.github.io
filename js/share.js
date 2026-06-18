@@ -116,6 +116,36 @@
     }
   }
 
+  function createIcon(pathData) {
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    svg.setAttribute("viewBox", "0 0 24 24");
+    svg.setAttribute("width", "1em");
+    svg.setAttribute("height", "1em");
+    svg.setAttribute("fill", "currentColor");
+    svg.setAttribute("aria-hidden", "true");
+    path.setAttribute("d", pathData);
+    svg.appendChild(path);
+    return svg;
+  }
+
+  function appendQrSvg(container, svg) {
+    if (!svg || !window.DOMParser) {
+      return false;
+    }
+    try {
+      const parsed = new window.DOMParser().parseFromString(svg, "image/svg+xml");
+      const svgEl = parsed.documentElement;
+      if (!svgEl || svgEl.nodeName.toLowerCase() !== "svg") {
+        return false;
+      }
+      container.appendChild(document.importNode(svgEl, true));
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }
+
   function showQr(url, title) {
     closeOverlay();
 
@@ -133,16 +163,40 @@
 
     overlay = document.createElement("div");
     overlay.className = "share-qr-overlay";
-    overlay.innerHTML =
-      '<div class="share-qr-card" role="dialog" aria-modal="true" aria-label="' + t("post.qr.aria", "微信扫码分享") + '">' +
-      '<button class="share-qr-close" type="button" aria-label="' + t("post.qr.close", "关闭") + '"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button>' +
-      '<p class="share-qr-title">' + t("post.qr.title", "微信扫一扫，分享文章") + '</p>' +
-      '<div class="share-qr-code">' + (svg || '<p class="share-qr-fail">' + t("post.qr.fail", "二维码生成失败，可改用“复制链接”。") + '</p>') + "</div>" +
-      '<p class="share-qr-name"></p>' +
-      "</div>";
+    const card = document.createElement("div");
+    card.className = "share-qr-card";
+    card.setAttribute("role", "dialog");
+    card.setAttribute("aria-modal", "true");
+    card.setAttribute("aria-label", t("post.qr.aria", "微信扫码分享"));
 
-    // 用 textContent 写标题，避免把标题当 HTML 注入。
-    overlay.querySelector(".share-qr-name").textContent = title || "";
+    const close = document.createElement("button");
+    close.type = "button";
+    close.className = "share-qr-close";
+    close.setAttribute("aria-label", t("post.qr.close", "关闭"));
+    close.appendChild(createIcon("M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"));
+
+    const qrTitle = document.createElement("p");
+    qrTitle.className = "share-qr-title";
+    qrTitle.textContent = t("post.qr.title", "微信扫一扫，分享文章");
+
+    const qrCode = document.createElement("div");
+    qrCode.className = "share-qr-code";
+    if (!appendQrSvg(qrCode, svg)) {
+      const fail = document.createElement("p");
+      fail.className = "share-qr-fail";
+      fail.textContent = t("post.qr.fail", "二维码生成失败，可改用“复制链接”。");
+      qrCode.appendChild(fail);
+    }
+
+    const name = document.createElement("p");
+    name.className = "share-qr-name";
+    name.textContent = title || "";
+
+    card.appendChild(close);
+    card.appendChild(qrTitle);
+    card.appendChild(qrCode);
+    card.appendChild(name);
+    overlay.appendChild(card);
 
     overlay.addEventListener("click", function (event) {
       if (event.target === overlay || event.target.closest(".share-qr-close")) {

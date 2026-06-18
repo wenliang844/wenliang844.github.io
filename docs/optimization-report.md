@@ -4854,3 +4854,40 @@
 
 - 提交第十一轮安全修复。
 - 继续处理 B-03/S-02 等剩余 `innerHTML` 维护风险。
+
+## 第 149 轮：微信二维码弹窗安全渲染
+
+时间：2026-06-18
+
+### 已完成内容
+
+- 将 `js/share.js` 的微信二维码弹窗从 `overlay.innerHTML = ...` 模板字符串改为 DOM API 构建。
+- 将二维码库返回的 SVG 字符串通过 `DOMParser` 解析后导入节点，解析失败时使用纯文本 fallback。
+- 扩展 `tests/share.test.mjs`，验证恶意 i18n 文案不会创建 `<img>` 或 `<script>` 节点。
+- 更新 S-02、安全审计、索引和健康评分文档。
+
+### 发现的问题
+
+- 二维码弹窗把 `t()` 返回值直接拼进 HTML 属性和文本位置，当前硬编码文案安全，但未来翻译来源变化时存在维护风险。
+
+### 修复方案
+
+- 使用 `document.createElement()` / `createElementNS()` 构建弹窗、关闭按钮图标、标题、二维码区域和文章名。
+- 所有 i18n 文案通过 `setAttribute()` 或 `textContent` 写入。
+
+### 性能、安全与质量指标
+
+- `node --test tests/share.test.mjs tests/security-extended.test.mjs`：24 个测试全部通过。
+- `npx eslint js/*.js`：通过。
+- `npm test`：531 个测试全部通过，耗时约 7.19 秒。
+- `npm run build`：通过，成功生成 6 篇文章页面。
+- `npm run validate:production`：33 项检查通过，0 失败，0 警告。
+- `node --test tests/performance.test.mjs`：13 个性能测试全部通过。
+- `npm run test:coverage`：531 个测试全部通过；行覆盖率 92.68%，分支覆盖率 74.95%，函数覆盖率 89.33%。
+- `npm audit --audit-level=moderate --registry=https://registry.npmjs.org`：0 个中高危漏洞。
+- 安全收益：消除微信二维码弹窗的 i18n HTML/属性注入面。
+
+### 下一步计划
+
+- 提交第十二轮安全修复。
+- 继续评估 B-03 搜索高亮 `innerHTML` 维护风险。
