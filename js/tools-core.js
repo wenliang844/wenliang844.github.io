@@ -11,6 +11,14 @@
     return String(value == null ? "" : value);
   }
 
+  function getGlobal(name) {
+    try {
+      return root[name];
+    } catch (error) {
+      return undefined;
+    }
+  }
+
   function bytesToBinary(bytes) {
     const chunkSize = 0x8000;
     let binary = "";
@@ -42,13 +50,16 @@
     try {
       const raw = text(input);
       let binary = "";
-      if (root.TextEncoder) {
-        const bytes = new root.TextEncoder().encode(raw);
+      const TextEncoder = getGlobal("TextEncoder");
+      if (typeof TextEncoder === "function") {
+        const bytes = new TextEncoder().encode(raw);
         binary = bytesToBinary(bytes);
       } else {
-        binary = root.unescape(encodeURIComponent(raw));
+        const unescape = getGlobal("unescape");
+        binary = unescape(encodeURIComponent(raw));
       }
-      return ok(root.btoa(binary));
+      const btoa = getGlobal("btoa");
+      return ok(btoa(binary));
     } catch (error) {
       return fail("Base64 编码失败：" + error.message, "base64Encode");
     }
@@ -57,15 +68,18 @@
   function decodeBase64(input) {
     try {
       const clean = text(input).trim();
-      const binary = root.atob(clean);
+      const atob = getGlobal("atob");
+      const binary = atob(clean);
       const bytes = new Uint8Array(binary.length);
       for (let i = 0; i < binary.length; i += 1) {
         bytes[i] = binary.charCodeAt(i);
       }
-      if (root.TextDecoder) {
-        return ok(new root.TextDecoder("utf-8", { fatal: true }).decode(bytes));
+      const TextDecoder = getGlobal("TextDecoder");
+      if (typeof TextDecoder === "function") {
+        return ok(new TextDecoder("utf-8", { fatal: true }).decode(bytes));
       }
-      return ok(decodeURIComponent(root.escape(binary)));
+      const escape = getGlobal("escape");
+      return ok(decodeURIComponent(escape(binary)));
     } catch (error) {
       return fail("Base64 解码失败：请输入合法的 Base64 文本", "base64Decode");
     }
@@ -88,11 +102,7 @@
   }
 
   function getCrypto() {
-    try {
-      return root.crypto;
-    } catch (error) {
-      return null;
-    }
+    return getGlobal("crypto") || null;
   }
 
   function generateUuid() {

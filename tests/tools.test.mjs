@@ -17,6 +17,20 @@ async function loadToolsCore(options = {}) {
     dom.window.TextEncoder = undefined;
     dom.window.TextDecoder = undefined;
   }
+  if (options.textCodecThrows) {
+    Object.defineProperty(dom.window, "TextEncoder", {
+      configurable: true,
+      get() {
+        throw new Error("TextEncoder blocked");
+      },
+    });
+    Object.defineProperty(dom.window, "TextDecoder", {
+      configurable: true,
+      get() {
+        throw new Error("TextDecoder blocked");
+      },
+    });
+  }
   if (options.cryptoThrows) {
     Object.defineProperty(dom.window, "crypto", {
       configurable: true,
@@ -99,6 +113,14 @@ test("tools core Base64 fallback works without TextEncoder and TextDecoder", asy
 
   assert.equal(encoded.ok, true);
   assert.equal(tools.decodeBase64(encoded.value).value, "你好 fallback");
+});
+
+test("tools core Base64 fallback works when text codec access is blocked", async () => {
+  const tools = await loadToolsCore({ textCodecThrows: true });
+  const encoded = tools.encodeBase64("你好 blocked codec");
+
+  assert.equal(encoded.ok, true);
+  assert.equal(tools.decodeBase64(encoded.value).value, "你好 blocked codec");
 });
 
 test("tools core UUID generation falls back when crypto methods fail", async () => {

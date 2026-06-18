@@ -2049,3 +2049,36 @@
 - 继续审计工具核心其它浏览器全局 getter 的异常边界。
 - 继续保持 UUID 生成的格式与版本位测试覆盖。
 - 继续组合回归确认助手不受影响。
+
+## 第 63 轮：Base64 文本编解码全局访问防护
+
+时间：2026-06-18
+
+### 已完成内容
+
+- 将工具核心里的浏览器全局能力读取抽为 `getGlobal()`。
+- 让 `TextEncoder` / `TextDecoder` getter 异常时继续使用既有 UTF-8 fallback。
+- 新增 Base64 测试模拟文本编解码 API 访问被阻断的环境。
+
+### 发现的问题
+
+- `encodeBase64()` 和 `decodeBase64()` 虽然已有无 TextEncoder/TextDecoder 的 fallback。
+- 但旧逻辑直接读取 `root.TextEncoder` / `root.TextDecoder`，如果 getter 自身抛错，会提前进入失败分支。
+- 受限测试环境、浏览器扩展或隔离 iframe 可能暴露这类异常。
+
+### 修复方案
+
+- 新增 `getGlobal(name)`，统一捕获全局属性读取异常。
+- Base64 编码和解码先安全读取文本编解码构造器，读取失败时继续走 `unescape` / `escape` fallback。
+- `getCrypto()` 改为复用 `getGlobal("crypto")`，减少重复防护代码。
+
+### 性能、覆盖率与质量指标
+
+- `npm run test:tools`：18 个测试全部通过，耗时约 2.0 秒。
+- `npm run build`：通过。
+
+### 下一步计划
+
+- 继续审计 Base64 其它全局函数不可用时的错误提示一致性。
+- 继续运行工具箱与助手组合回归。
+- 继续排查页面交互状态在异常输入后的恢复路径。
