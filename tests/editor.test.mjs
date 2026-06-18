@@ -412,6 +412,27 @@ test("editor.js generates proper front matter", async () => {
   dom.window.close();
 });
 
+test("editor.js delegates HTML copy fallback to CWLUtils.copyText", async () => {
+  const dom = new JSDOM(EDITOR_HTML, {
+    runScripts: "outside-only",
+    url: "https://wenliang844.github.io/editor/",
+  });
+  await loadEditor(dom);
+  const { document } = dom.window;
+  const copied = [];
+  dom.window.CWLUtils.copyText = async function (text) {
+    copied.push(text);
+    return true;
+  };
+  document.getElementById("markdown-preview").innerHTML = "<p>Rendered</p>";
+
+  document.querySelector('[data-action="copy-html"]').click();
+  await Promise.resolve();
+
+  assert.deepEqual(copied, ["<p>Rendered</p>"]);
+  dom.window.close();
+});
+
 // ─── Missing elements graceful exit ───────────────────────────────────────
 
 test("editor.js exits gracefully when required elements are missing", async () => {

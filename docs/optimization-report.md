@@ -5281,3 +5281,42 @@
 
 - 提交第二十二轮编辑器功能修复。
 - 继续评估其他静态页结构化数据、CI 配置或文章图片资源项。
+
+## 第 160 轮：收敛编辑器 HTML 复制 fallback
+
+时间：2026-06-18
+
+### 已完成内容
+
+- 将 `js/editor.js` 的 `copyHtml()` 从内联 Clipboard API / textarea / `execCommand` fallback 改为调用 `CWLUtils.copyText()`。
+- 扩展 `tests/editor.test.mjs`，验证 HTML 复制会把预览 HTML 传给公共 copy helper。
+- 扩展 `tests/js-behavior.test.mjs`，将 `editor.js` 纳入复制 fallback 源码守卫。
+- 更新编辑器模块文档，标记 MR-EDITOR-01/02 已修复，并说明 `escapeHtml` 文档项已过期。
+
+### 发现的问题
+
+- `editor.js` 仍保留独立复制 fallback，与 `coder.js`、`share.js` 已收敛到 `CWLUtils.copyText()` 的状态不一致。
+- 编辑器模块文档仍记录本地 `escapeHtml` 重复定义，但源码已不再存在该函数，文档状态滞后。
+
+### 修复方案
+
+- `copyHtml()` 直接调用 `window.CWLUtils.copyText(preview.innerHTML)`，统一复用公共 Clipboard API 和 legacy fallback。
+- 保留按钮成功/失败反馈逻辑，只替换底层复制实现。
+- 用源码测试防止 `document.execCommand("copy")` 和 textarea fallback 再次回流到编辑器模块。
+
+### 性能、安全与质量指标
+
+- `node --test tests/editor.test.mjs tests/js-behavior.test.mjs`：51 个测试全部通过。
+- `npx eslint js/*.js`：通过。
+- `npm test`：542 个测试全部通过，耗时约 7.30 秒。
+- `node --test tests/performance.test.mjs`：13 个性能测试全部通过。
+- `npm run build`：通过，成功生成 6 篇文章页面。
+- `npm run validate:production`：33 项检查通过，0 失败，0 警告。
+- `npm run test:coverage`：542 个测试全部通过；行覆盖率 92.72%，分支覆盖率 74.91%，函数覆盖率 89.33%。
+- `npm audit --audit-level=moderate --registry=https://registry.npmjs.org`：0 个中高危漏洞。
+- 代码质量收益：编辑器复制兼容逻辑复用公共 helper，减少重复 fallback 和浏览器兼容维护点。
+
+### 下一步计划
+
+- 提交第二十三轮代码质量优化。
+- 继续评估其他静态页结构化数据、CI 配置或文章图片资源项。

@@ -21,22 +21,20 @@
 
 ---
 
-## 📌 MR-EDITOR-01: `escapeHtml` 重复定义（第 4 次）
+## 📌 MR-EDITOR-01 [已修复]: `escapeHtml` 重复定义（第 4 次）
 
-- **📍 位置**：`js/editor.js:115-121`（与 utils.js、search.js、overleaf.js 重复）
-- **📝 当前状况**：editor.js 定义了自己的 `escapeHtml`，与 `CWLUtils.escapeHtml` 功能完全相同。
-- **⚠️ 影响程度**：低
-- **💡 建议方案**：移除内联定义，使用 `CWLUtils.escapeHtml`。
-- **📊 预期收益**：消除第 4 处重复
+- **📍 位置**：`js/editor.js`
+- **✅ 修复状态**：`editor.js` 当前不再保留本地 `escapeHtml` 函数，纯文本 fallback 使用局部 HTML entity 替换，业务转义 helper 统一保留在 `CWLUtils`。
+- **📊 实际收益**：避免编辑器模块继续维护重复的命名 helper。
 
 ---
 
-## 📌 MR-EDITOR-02: `copyHtml` 使用内联 clipboard fallback
+## 📌 MR-EDITOR-02 [已修复]: `copyHtml` 使用内联 clipboard fallback
 
-- **📍 位置**：`js/editor.js:339-365`
-- **📝 当前状况**：第 4 次出现内联的 clipboard fallback 实现。
-- **⚠️ 影响程度**：低
-- **💡 建议方案**：使用 `CWLUtils.copyText`。
+- **📍 位置**：`js/editor.js`
+- **✅ 修复状态**：`copyHtml()` 已委托 `CWLUtils.copyText()`，不再重复维护 Clipboard API / textarea / `execCommand` fallback。
+- **🧪 回归测试**：`tests/editor.test.mjs` 覆盖复制调用；`tests/js-behavior.test.mjs` 扩展源码守卫，确认 editor/coder/share 复制调用方都委托公共 helper。
+- **📊 实际收益**：复制 fallback 维护点继续收敛，降低浏览器兼容分支分裂风险。
 
 ---
 

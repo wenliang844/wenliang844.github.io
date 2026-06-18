@@ -149,7 +149,7 @@ test("application modules use Array.from for DOM collection conversion", async (
 });
 
 test("copy consumers delegate fallback logic to CWLUtils.copyText", async () => {
-  const files = ["coder.js", "share.js"];
+  const files = ["coder.js", "editor.js", "share.js"];
   for (const file of files) {
     const code = await readFile(join(ROOT, "js", file), "utf8");
     assert.match(code, /CWLUtils\.copyText/, `${file} should use the shared copy helper`);

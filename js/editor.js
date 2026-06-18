@@ -330,23 +330,7 @@
         : t("editor.btn.copyfail", '<i class="fas fa-copy"></i> 复制失败');
       window.setTimeout(function () { button.innerHTML = original; }, 1600);
     };
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(html).then(function () { done(true); }, function () { done(false); });
-    } else {
-      try {
-        const area = document.createElement("textarea");
-        area.value = html;
-        area.style.position = "fixed";
-        area.style.opacity = "0";
-        document.body.appendChild(area);
-        area.select();
-        document.execCommand("copy");
-        area.remove();
-        done(true);
-      } catch (error) {
-        done(false);
-      }
-    }
+    Promise.resolve(window.CWLUtils.copyText(html)).then(done, function () { done(false); });
   }
 
   document.querySelectorAll("[data-action]").forEach(function (button) {

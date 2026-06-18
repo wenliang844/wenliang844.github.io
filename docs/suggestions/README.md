@@ -74,6 +74,7 @@
 已完成：SEO-03 修复 sitemap priority，首页/文章/静态页输出合理优先级。
 已完成：SEO-01 首页补充 WebSite JSON-LD，并新增结构化数据解析测试。
 已完成：MR-EDITOR-03 移除 marked 废弃 highlight 选项，改为渲染后调用 `hljs.highlightElement()`。
+已完成：MR-EDITOR-01/02 清理编辑器重复 escape/copy 记录，并将 HTML 复制委托 `CWLUtils.copyText`。
 
 ### 🥈 高价值中成本（建议近期规划）
 
