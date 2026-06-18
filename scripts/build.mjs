@@ -59,6 +59,18 @@ export function normalizeDate(d) {
   return dateStr;
 }
 
+export function normalizeModifiedDate(modified, date, filename = "post") {
+  const published = normalizeDate(date);
+  if (!modified) {
+    return published;
+  }
+  const normalized = normalizeDate(modified);
+  if (normalized < published) {
+    throw new Error(`Invalid modified date in ${filename}: "${normalized}" is before published date "${published}".`);
+  }
+  return normalized;
+}
+
 // 验证 slug 是否合法（仅包含字母、数字、连字符、下划线）
 export function validateSlug(slug, filename) {
   if (!slug || typeof slug !== "string") {
@@ -230,13 +242,17 @@ async function loadPosts() {
       const contentResult = renderContent(content);
       const contentEnResult = data.contentEn ? renderContent(data.contentEn) : null;
 
+      const date = normalizeDate(data.date);
+      const modified = normalizeModifiedDate(data.modified, date, file);
+
       posts.push({
         title: data.title,
         titleEn: data.titleEn,
         shortTitle: data.shortTitle,
         shortTitleEn: data.shortTitleEn,
         slug,
-        date: normalizeDate(data.date),
+        date,
+        modified,
         eyebrow: data.eyebrow || "项目",
         summary: data.summary,
         summaryEn: data.summaryEn,

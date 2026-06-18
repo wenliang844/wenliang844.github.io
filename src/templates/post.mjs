@@ -166,7 +166,7 @@ function buildArticleJsonLd(post) {
     name: post.title,
     description: post.description,
     datePublished: isoDate(post.date),
-    dateModified: isoDate(post.date),
+    dateModified: isoDate(post.modified || post.date),
     inLanguage: "zh-CN",
     keywords: post.tags.join(", "),
     mainEntityOfPage: { "@type": "WebPage", "@id": url },

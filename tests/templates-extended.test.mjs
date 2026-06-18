@@ -261,7 +261,7 @@ test("renderPostPage includes all required SEO elements", () => {
   const post = {
     title: "Test Post", titleEn: "Test Post EN",
     shortTitle: "Test", shortTitleEn: "Test EN",
-    slug: "test-post", date: "2024-06-15",
+    slug: "test-post", date: "2024-06-15", modified: "2024-06-20",
     eyebrow: "项目", summary: "Summary", summaryEn: "Summary EN",
     description: "Description", descriptionEn: "Description EN",
     tags: ["Java"], tagsEn: ["Java"],
@@ -280,6 +280,7 @@ test("renderPostPage includes all required SEO elements", () => {
 
   // JSON-LD
   assert.match(html, /"@type":"Article"/);
+  assert.match(html, /"dateModified":"2024-06-20"/);
   assert.match(html, /"@type":"Person"/);
   assert.match(html, /"@type":"Organization"/);
 

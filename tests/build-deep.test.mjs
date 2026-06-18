@@ -1,7 +1,7 @@
 // Deep test: build.mjs — uncovered code paths (empty file, empty content, error aggregation, absoluteUrl)
 import test from "node:test";
 import assert from "node:assert/strict";
-import { normalizeDate, validateSlug, validatePost, renderContent, readingMinutes, relatedPosts } from "../scripts/build.mjs";
+import { normalizeDate, normalizeModifiedDate, validateSlug, validatePost, renderContent, readingMinutes, relatedPosts } from "../scripts/build.mjs";
 
 // ─── normalizeDate edge cases ─────────────────────────────────────────────
 
@@ -46,6 +46,21 @@ test("normalizeDate accepts boundary dates", () => {
   assert.equal(normalizeDate("2024-01-01"), "2024-01-01");
   assert.equal(normalizeDate("2024-12-31"), "2024-12-31");
   assert.equal(normalizeDate("2024-01-31"), "2024-01-31");
+});
+
+test("normalizeModifiedDate defaults to published date", () => {
+  assert.equal(normalizeModifiedDate(undefined, "2024-06-18", "test.md"), "2024-06-18");
+});
+
+test("normalizeModifiedDate accepts a later valid date", () => {
+  assert.equal(normalizeModifiedDate("2024-06-20", "2024-06-18", "test.md"), "2024-06-20");
+});
+
+test("normalizeModifiedDate rejects dates before publish date", () => {
+  assert.throws(
+    () => normalizeModifiedDate("2024-06-17", "2024-06-18", "test.md"),
+    /before published date/,
+  );
 });
 
 // ─── validateSlug boundary cases ──────────────────────────────────────────

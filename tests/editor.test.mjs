@@ -439,6 +439,7 @@ test("editor.js generates proper front matter", async () => {
 
   assert.match(markdown, /title: "My \\"Great\\" Post"/);
   assert.match(markdown, /shortTitle: "Great Post"/);
+  assert.match(markdown, /modified: \d{4}-\d{2}-\d{2}/);
   assert.match(markdown, /summary: "Short summary"/);
   assert.match(markdown, /description: "Search description"/);
   assert.match(markdown, /draft: false/);

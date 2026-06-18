@@ -116,6 +116,7 @@
       "title: " + yamlString(title),
       "shortTitle: " + yamlString(shortTitle),
       "date: " + dateInput.value,
+      "modified: " + dateInput.value,
       "summary: " + yamlString(summary),
       "description: " + yamlString(description),
       "draft: false",

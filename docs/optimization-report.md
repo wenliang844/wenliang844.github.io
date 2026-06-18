@@ -5450,3 +5450,45 @@
 
 - 提交第二十六轮 SEO 优化。
 - 继续评估文章图片资源项、覆盖率阈值或 remaining 低风险 SEO 项。
+
+## 第 164 轮：支持文章修改日期结构化数据
+
+时间：2026-06-18
+
+### 已完成内容
+
+- 在 `scripts/build.mjs` 新增 `normalizeModifiedDate()`，支持可选 `modified` front matter。
+- 构建文章对象时透传 `modified`，未填写时回退发布日期。
+- `src/templates/post.mjs` 的 Article JSON-LD 改为使用 `post.modified || post.date` 输出 `dateModified`。
+- 编辑器导出的 Markdown front matter 新增 `modified` 字段，默认等于发布日期。
+- 扩展构建深测、模板测试和编辑器导出测试，覆盖 modified 默认值、合法后续日期、非法早于发布日期、Article JSON-LD 和导出 front matter。
+- 更新 SEO-05、建议索引、健康评分和本轮工作报告。
+
+### 发现的问题
+
+- 文章 JSON-LD 的 `dateModified` 固定等于 `datePublished`，后续修订文章时无法表达真实更新时间。
+- 构建脚本没有读取 `modified` 字段，也没有日期先后顺序校验。
+- 编辑器导出的 Markdown 即使补齐了必填 front matter，也没有为后续修改日期预留字段。
+
+### 修复方案
+
+- `normalizeModifiedDate()` 复用 `normalizeDate()` 的格式和真实日期校验。
+- 当 `modified` 缺失时保持完全向后兼容；当 `modified` 早于 `date` 时构建失败并报告具体文件。
+- 编辑器 front matter 输出 `modified`，让新文章从源头具备可维护的更新时间字段。
+
+### 性能、安全与质量指标
+
+- `node --test tests/build-deep.test.mjs tests/templates-extended.test.mjs tests/editor.test.mjs`：99 个测试全部通过。
+- `npm run lint:check`：通过。
+- `npm test`：549 个测试全部通过。
+- `npm run build`：通过，成功生成 6 篇文章页面。
+- `node --test tests/performance.test.mjs`：13 个性能测试全部通过。
+- `npm run validate:production`：33 项检查通过，0 失败，0 警告。
+- `npm run test:coverage`：549 个测试全部通过；行覆盖率 93.04%，分支覆盖率 75.39%，函数覆盖率 89.96%。
+- `npm audit --audit-level=moderate --registry=https://registry.npmjs.org`：0 个中高危漏洞。
+- SEO 收益：文章修订时可输出准确 `dateModified`，搜索引擎更新时间信号更可靠。
+
+### 下一步计划
+
+- 提交第二十七轮 SEO 优化。
+- 继续评估文章图片资源项、覆盖率阈值或低风险工程化项。

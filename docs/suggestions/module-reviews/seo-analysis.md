@@ -62,26 +62,12 @@
 
 ---
 
-## 📌 SEO-05: 文章页的 `datePublished` 和 `dateModified` 相同
+## 📌 SEO-05 [已修复]: 文章页的 `datePublished` 和 `dateModified` 相同
 
-- **📍 位置**：`src/templates/post.mjs:165-166`
-- **📝 当前状况**：
-  ```javascript
-  datePublished: isoDate(post.date),
-  dateModified: isoDate(post.date),
-  ```
-  `dateModified` 使用与 `datePublished` 相同的日期。front-matter 中没有 `modified` 字段。
-- **⚠️ 影响程度**：低
-- **💡 建议方案**：在 front-matter 中支持 `modified` 字段：
-  ```yaml
-  date: 2026-06-18
-  modified: 2026-06-20
-  ```
-  构建脚本中：
-  ```javascript
-  dateModified: isoDate(data.modified || data.date),
-  ```
-- **📊 预期收益**：搜索引擎正确识别文章更新时间
+- **📍 位置**：`scripts/build.mjs`、`src/templates/post.mjs`、`js/editor.js`
+- **✅ 修复状态**：构建脚本支持可选 `modified` front matter；未填写时回退发布日期，填写时校验日期格式且不得早于 `date`；文章 JSON-LD 使用 `post.modified || post.date` 输出 `dateModified`。
+- **🧪 回归测试**：`tests/build-deep.test.mjs` 覆盖 modified 默认值、合法后续日期和早于发布日期的拒绝；`tests/templates-extended.test.mjs` 验证 Article JSON-LD 输出独立 `dateModified`；编辑器导出 Markdown 追加 `modified` 字段。
+- **📊 实际收益**：文章后续修订时可向搜索引擎提供准确更新时间信号，同时保持旧文章 front matter 向后兼容。
 
 ---
 
