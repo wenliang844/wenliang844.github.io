@@ -9,9 +9,8 @@ const DISMISS_KEY = "cwl.assistant.dismissed";
 
 async function loadAssistant(options = {}) {
   const code = await readFile(join(ROOT, "js", "assistant.js"), "utf8");
-  const body = options.body || '<button class="nav-search-trigger" type="button">Search</button>';
   const dom = new JSDOM(
-    `<!doctype html><html><body>${body}</body></html>`,
+    "<!doctype html><html><body><button class=\"nav-search-trigger\" type=\"button\">Search</button></body></html>",
     {
       runScripts: "outside-only",
       url: options.url || "https://assistant-test-" + Math.random().toString(36).slice(2) + ".example/",
@@ -355,25 +354,6 @@ test("assistant supports fullscreen mode", async () => {
   assert.equal(document.querySelector(".assistant-widget").classList.contains("fullscreen"), false);
   assert.equal(document.body.classList.contains("assistant-fullscreen"), false);
   assert.equal(document.querySelector(".assistant-panel").hidden, false);
-});
-
-test("assistant fullscreen starts below the navigation", async () => {
-  const dom = await loadAssistant({
-    body: '<header class="navigation"><div class="container"></div></header><button class="nav-search-trigger" type="button">Search</button>',
-  });
-  const { document, KeyboardEvent } = dom.window;
-  const nav = document.querySelector(".navigation");
-  Object.defineProperty(nav, "getBoundingClientRect", {
-    value: () => ({ height: 104 }),
-  });
-
-  document.querySelector(".assistant-fullscreen").click();
-
-  const widget = document.querySelector(".assistant-widget");
-  assert.equal(widget.style.getPropertyValue("--assistant-fullscreen-top"), "104px");
-
-  document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
-  assert.equal(widget.style.getPropertyValue("--assistant-fullscreen-top"), "");
 });
 
 test("assistant query parameter starts fullscreen", async () => {

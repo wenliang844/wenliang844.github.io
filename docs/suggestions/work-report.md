@@ -60,12 +60,12 @@
 6. **构建脚本健壮**：完善的输入验证和错误处理
 
 ### ⚠️ 需要关注的问题
-1. **🔴 API Key 泄露**：assistant.js 硬编码 demo key（S-00，高危）
-2. **代码重复**：5 处明显重复（editing, copyText, escapeHtml, t(), readingMinutes）
-3. **SEO 改进空间**：首页缺少 JSON-LD，sitemap priority 设置错误
-4. **文章无图片**：影响社交分享效果
-5. **assistant.js 未接入 i18n**：英文用户看到中文
-6. **CSS backdrop-filter 过度使用**：移动端性能隐患（18 个元素）
+1. **代码重复**：5 处明显重复（editing, copyText, escapeHtml, t(), readingMinutes）
+2. **SEO 改进空间**：首页缺少 JSON-LD，sitemap priority 设置错误
+3. **文章无图片**：影响社交分享效果
+4. **assistant.js 未接入 i18n**：英文用户看到中文
+5. **CSS backdrop-filter 过度使用**：移动端性能隐患（18 个元素）
+6. **CSP 缺失**：建议继续补充静态站可落地的 CSP 策略
 
 ---
 

@@ -222,9 +222,9 @@
 | XSS 防护 | ✅ 良好 | 所有用户输入都经过转义处理 |
 | innerHTML 使用 | ✅ 安全 | 均用于硬编码或转义后的内容 |
 | 第三方依赖 | ✅ 最小化 | 仅 Fuse.js、Giscus、Buttondown、QRCode |
-| API Key 暴露 | 🔴 高危 | assistant.js 硬编码 demo key（S-00） |
+| API Key 暴露 | ✅ 已修复 | 前端不再内置 demo key（S-00） |
 | CSP 策略 | ⚠️ 缺失 | 建议添加 |
 | SRI 校验 | ⚠️ 缺失 | Giscus 脚本无 SRI |
 | 废弃 API | ⚠️ 存在 | `performance.timing`、`pageYOffset` |
 
-> 整体评估：安全状况良好，无高危漏洞。主要改进方向是防御性措施（CSP、SRI）和代码规范（innerHTML 使用标准）。
+> 整体评估：安全状况良好，当前无已知高危漏洞。主要改进方向是防御性措施（CSP、SRI）和代码规范（innerHTML 使用标准）。

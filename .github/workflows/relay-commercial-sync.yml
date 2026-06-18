@@ -22,25 +22,35 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
+      - name: Check commercial relay source
+        if: ${{ env.RELAY_COMMERCIAL_SOURCE_URL == '' }}
+        run: echo "::notice::RELAY_COMMERCIAL_SOURCE_URL is not configured; skipping commercial relay sync."
+
       - name: Setup Node.js
+        if: ${{ env.RELAY_COMMERCIAL_SOURCE_URL != '' }}
         uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm
 
       - name: Install dependencies
+        if: ${{ env.RELAY_COMMERCIAL_SOURCE_URL != '' }}
         run: npm ci
 
       - name: Sync commercial relay data
+        if: ${{ env.RELAY_COMMERCIAL_SOURCE_URL != '' }}
         run: node scripts/update-commercial-relay.mjs
 
       - name: Validate relay data
+        if: ${{ env.RELAY_COMMERCIAL_SOURCE_URL != '' }}
         run: node --test tests/relay.test.mjs
 
       - name: Build site
+        if: ${{ env.RELAY_COMMERCIAL_SOURCE_URL != '' }}
         run: npm run build
 
       - name: Commit changes
+        if: ${{ env.RELAY_COMMERCIAL_SOURCE_URL != '' }}
         run: |
           if git diff --quiet; then
             echo "No commercial relay data changes."

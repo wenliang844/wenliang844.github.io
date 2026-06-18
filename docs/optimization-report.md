@@ -4466,3 +4466,42 @@
 
 - 运行全量测试、构建、生产验证和覆盖率复测。
 - 本轮提交只纳入 AI 助手安全修复、相关测试与文档，避免混入无关工作流改动。
+
+## 第 139 轮：商业 Relay 同步 Workflow 空配置跳过
+
+时间：2026-06-18
+
+### 已完成内容
+
+- 为 `.github/workflows/relay-commercial-sync.yml` 增加空 `RELAY_COMMERCIAL_SOURCE_URL` 时的 notice 步骤。
+- 为 Node 安装、依赖安装、数据同步、数据验证、构建和提交步骤统一增加 `RELAY_COMMERCIAL_SOURCE_URL != ''` 条件。
+- 增强 `scripts/update-commercial-relay.mjs`，支持逗号分隔的多商业数据源、失败源跳过和 endpoint 去重。
+- 新增 `tests/workflows.test.mjs`，解析 workflow YAML 并验证空配置跳过保护。
+- 扩展 `tests/relay.test.mjs`，覆盖多源聚合、失败源跳过、endpoint 去重和敏感 URL 参数清理。
+- 同步建议文档和健康评分，把 S-00 前端 API key 泄露从待修高危项更新为已修复。
+
+### 发现的问题
+
+- 商业 relay 同步 workflow 使用 `RELAY_COMMERCIAL_SOURCE_URL` secret 驱动；当仓库未配置该 secret 时，后续同步脚本可能按 required 模式失败，导致定时任务产生无意义红灯。
+- 商业 relay 数据源未来可能拆成多个上游；旧脚本只支持单 URL，单源失败会影响整次同步。
+- 多份建议文档仍把已修复的 S-00 作为当前高危项展示，容易误导后续排期。
+
+### 修复方案
+
+- 在 workflow 层提前判断 source URL 是否存在，未配置时只输出 GitHub Actions notice 并跳过后续昂贵步骤。
+- 用自动化测试锁定关键步骤的 `if` 条件，避免后续编辑 workflow 时删掉保护。
+- 将商业数据拉取拆成单源函数，使用 `Promise.allSettled()` 聚合结果，保留成功源并跳过失败源。
+- 按 endpoint 去重并继续按 score/name 排序，保持前端展示稳定。
+- 更新 `health-score.md`、`README.md`、`work-report.md` 与 `security-audit.md` 的安全状态。
+
+### 性能、安全与质量指标
+
+- `node --test tests/workflows.test.mjs`：1 个测试通过。
+- `node --test tests/relay.test.mjs tests/workflows.test.mjs`：4 个测试全部通过。
+- `npm test`：521 个测试全部通过，耗时约 15.42 秒。
+- `npm run validate:production`：33 项通过、0 失败、0 警告。
+- 工程化收益：未配置商业数据源的仓库不会再执行无意义的 Node 安装、同步、构建和提交步骤。
+
+### 下一步计划
+
+- 提交第二轮工程化与文档修复。

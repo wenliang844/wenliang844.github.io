@@ -129,9 +129,19 @@ function authHeaders() {
   return headers;
 }
 
-async function fetchCommercialProviders() {
-  const sourceUrl = process.env.RELAY_COMMERCIAL_SOURCE_URL;
-  if (!sourceUrl) {
+async function fetchOneSource(url) {
+  const response = await fetch(url, { headers: authHeaders() });
+  if (!response.ok) {
+    console.warn(`⚠ 拉取失败 [${url}]: HTTP ${response.status}，跳过该源。`);
+    return [];
+  }
+  const payload = await response.json();
+  return pickProviders(payload).map(sanitizeProvider).filter(Boolean);
+}
+
+export async function fetchCommercialProviders() {
+  const rawSource = process.env.RELAY_COMMERCIAL_SOURCE_URL;
+  if (!rawSource) {
     if (cleanBoolean(process.env.RELAY_COMMERCIAL_REQUIRED)) {
       throw new Error("未配置 RELAY_COMMERCIAL_SOURCE_URL，无法同步商业站数据。请在仓库 Actions secrets 中添加该 secret。");
     }
@@ -139,13 +149,31 @@ async function fetchCommercialProviders() {
     return null;
   }
 
-  const response = await fetch(sourceUrl, { headers: authHeaders() });
-  if (!response.ok) {
-    throw new Error(`商业站数据拉取失败: HTTP ${response.status}`);
+  const urls = rawSource.split(",").map((u) => u.trim()).filter(Boolean);
+  const results = await Promise.allSettled(urls.map(fetchOneSource));
+
+  const providers = [];
+  for (let i = 0; i < results.length; i++) {
+    const r = results[i];
+    if (r.status === "fulfilled") {
+      providers.push(...r.value);
+      console.log(`✓ 源 ${urls[i]}: ${r.value.length} 条`);
+    } else {
+      console.warn(`✗ 源 ${urls[i]}: ${r.reason?.message || "请求失败"}`);
+    }
   }
-  const payload = await response.json();
-  return pickProviders(payload).map(sanitizeProvider).filter(Boolean)
-    .sort((a, b) => b.score - a.score || a.name.localeCompare(b.name, "zh-Hans-CN"));
+
+  const seen = new Set();
+  const deduped = providers.filter((p) => {
+    const key = p.endpoint;
+    if (seen.has(key)) {
+      return false;
+    }
+    seen.add(key);
+    return true;
+  });
+
+  return deduped.sort((a, b) => b.score - a.score || a.name.localeCompare(b.name, "zh-Hans-CN"));
 }
 
 async function main() {

@@ -4,6 +4,7 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 
 import { buildRelayDataFromSql } from "../scripts/parse-relay.mjs";
+import { fetchCommercialProviders } from "../scripts/update-commercial-relay.mjs";
 
 const ROOT = join(import.meta.dirname, "..");
 
@@ -61,4 +62,76 @@ test("generated relay data does not contain known secret markers", async () => {
   assert.equal(data.meta.sections.commercial.label, "商业站");
   assert.ok(data.providers.length > 0);
   assert.ok(data.providers.every((provider) => provider.name && provider.format && provider.endpoint));
+});
+
+test("commercial relay sync merges multiple sources and skips failed sources", async () => {
+  const originalFetch = globalThis.fetch;
+  const originalSource = process.env.RELAY_COMMERCIAL_SOURCE_URL;
+  const originalRequired = process.env.RELAY_COMMERCIAL_REQUIRED;
+  const originalLog = console.log;
+  const originalWarn = console.warn;
+  const calls = [];
+
+  process.env.RELAY_COMMERCIAL_SOURCE_URL = "https://one.example/data, https://two.example/data, https://down.example/data";
+  delete process.env.RELAY_COMMERCIAL_REQUIRED;
+  console.log = () => {};
+  console.warn = () => {};
+  globalThis.fetch = async (url) => {
+    calls.push(String(url));
+    if (String(url).includes("down.example")) {
+      return { ok: false, status: 503, json: async () => ({}) };
+    }
+    if (String(url).includes("one.example")) {
+      return {
+        ok: true,
+        json: async () => ({
+          commercialProviders: [
+            { name: "Fast Relay", endpoint: "https://relay.example/v1?token=secret", score: 95, format: "openai" },
+            { name: "Duplicate Relay", endpoint: "https://dupe.example/v1", score: 50 },
+          ],
+        }),
+      };
+    }
+    return {
+      ok: true,
+      json: async () => ({
+        providers: [
+          { name: "Claude Relay", endpoint: "https://claude.example/v1", score: 90, apiFormat: "anthropic" },
+          { name: "Duplicate Relay Newer", endpoint: "https://dupe.example/v1", score: 99 },
+        ],
+      }),
+    };
+  };
+
+  try {
+    const providers = await fetchCommercialProviders();
+
+    assert.deepEqual(calls, [
+      "https://one.example/data",
+      "https://two.example/data",
+      "https://down.example/data",
+    ]);
+    assert.deepEqual(providers.map((provider) => provider.endpoint), [
+      "https://relay.example/v1",
+      "https://claude.example/v1",
+      "https://dupe.example/v1",
+    ]);
+    assert.equal(providers[0].name, "Fast Relay");
+    assert.equal(providers[1].format, "claude");
+    assert.equal(providers[2].name, "Duplicate Relay");
+  } finally {
+    console.log = originalLog;
+    console.warn = originalWarn;
+    globalThis.fetch = originalFetch;
+    if (originalSource === undefined) {
+      delete process.env.RELAY_COMMERCIAL_SOURCE_URL;
+    } else {
+      process.env.RELAY_COMMERCIAL_SOURCE_URL = originalSource;
+    }
+    if (originalRequired === undefined) {
+      delete process.env.RELAY_COMMERCIAL_REQUIRED;
+    } else {
+      process.env.RELAY_COMMERCIAL_REQUIRED = originalRequired;
+    }
+  }
 });

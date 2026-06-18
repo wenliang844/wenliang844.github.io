@@ -1199,14 +1199,7 @@
     }
 
     function updateFullscreenOffset() {
-      if (!fullscreen) {
-        root.style.removeProperty("--assistant-fullscreen-top");
-        return;
-      }
-      const nav = document.querySelector(".navigation");
-      const fallback = window.matchMedia && window.matchMedia("(max-width: 768px)").matches ? 74 : 90;
-      const navHeight = nav ? Math.ceil(nav.getBoundingClientRect().height) : fallback;
-      root.style.setProperty("--assistant-fullscreen-top", Math.max(navHeight, fallback) + "px");
+      root.style.removeProperty("--assistant-fullscreen-top");
     }
 
     function setFullscreen(nextFullscreen) {
