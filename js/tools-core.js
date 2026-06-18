@@ -215,8 +215,8 @@
   function decodeJwt(input) {
     const token = text(input).trim();
     const parts = token.split(".");
-    if (parts.length < 2) {
-      return fail("JWT 至少需要包含 header 和 payload 两段", "jwtParts");
+    if (parts.length < 2 || parts.length > 3 || !parts[0] || !parts[1]) {
+      return fail("JWT 需要包含 header 和 payload，可选 signature", "jwtParts");
     }
     const header = base64UrlDecode(parts[0]);
     const payload = base64UrlDecode(parts[1]);

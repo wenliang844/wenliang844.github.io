@@ -1193,3 +1193,36 @@
 - 继续审计 JWT compact segment 数量和空片段处理。
 - 继续检查工具箱页面错误提示在中英文模式下的一致性。
 - 在并行助手改动稳定后，再处理 LLM 超时与取消文案区分问题。
+
+## 第 37 轮：JWT compact 片段数量校验
+
+时间：2026-06-18
+
+### 已完成内容
+
+- 审计 JWT compact serialization 的段数处理。
+- 收紧 `decodeJwt()` 对 token 结构的校验。
+- 新增四段 token 与空 header 的回归测试。
+
+### 发现的问题
+
+- 旧逻辑只要求 token 至少包含 header 和 payload。
+- `header.payload.signature.extra` 会被忽略尾部 `extra` 后成功解码，容易让用户误判 malformed token。
+- 空 header 或空 payload 会进入 Base64/JSON 解析路径，错误分类不够直接。
+
+### 修复方案
+
+- `decodeJwt()` 仅接受 2 段或 3 段 token。
+- 明确拒绝空 header 和空 payload。
+- 结构错误统一返回 `jwtParts`，让 UI 清空输出并展示结构类错误。
+
+### 性能、覆盖率与质量指标
+
+- `npm run test:tools`：11 个测试全部通过，耗时约 1.6 秒。
+- `npm run build`：通过。
+
+### 下一步计划
+
+- 继续检查工具箱错误提示在真实浏览器中的表现。
+- 继续审计 Base64、URL 和时间戳工具中可以自动化覆盖的边界。
+- 保持助手 LLM 相关修复等待并行改动稳定后再提交。

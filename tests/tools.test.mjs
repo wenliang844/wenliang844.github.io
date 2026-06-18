@@ -158,6 +158,17 @@ test("tools core handles Base64, URL, timestamps, UUID and JWT", async () => {
   const primitiveDecoded = tools.decodeJwt(primitiveJwt);
   assert.equal(primitiveDecoded.ok, false);
   assert.equal(primitiveDecoded.code, "jwtJson");
+
+  const extraSegmentJwt = [
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9",
+    "eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkNXTCJ9",
+    "signature",
+    "extra",
+  ].join(".");
+  const extraSegmentDecoded = tools.decodeJwt(extraSegmentJwt);
+  assert.equal(extraSegmentDecoded.ok, false);
+  assert.equal(extraSegmentDecoded.code, "jwtParts");
+  assert.equal(tools.decodeJwt(".eyJzdWIiOiIxMjM0NTY3ODkwIn0.signature").code, "jwtParts");
   assert.equal(tools.decodeJwt("bad").ok, false);
 });
 
