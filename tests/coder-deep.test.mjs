@@ -366,3 +366,48 @@ test("coder.js showPost only activates one panel at a time", async () => {
   assert.equal(activePanels[0].id, "p2");
   dom.window.close();
 });
+
+// ─── 粒子动画空闲停止 ───────────────────────────────────────────────────────
+
+test("coder.js cursor particles only animate while particles are active", async () => {
+  const dom = buildDom(`<!doctype html><html lang="zh-CN"><body class="colorscheme-dark">
+    <canvas class="cursor-canvas"></canvas>
+  </body></html>`);
+  const rafQueue = [];
+  const context = {
+    setTransform: () => {},
+    clearRect: () => {},
+    beginPath: () => {},
+    arc: () => {},
+    fill: () => {},
+    set fillStyle(_value) {},
+    set shadowColor(_value) {},
+    set shadowBlur(_value) {},
+  };
+  dom.window.HTMLCanvasElement.prototype.getContext = () => context;
+  dom.window.requestAnimationFrame = (callback) => {
+    rafQueue.push(callback);
+    return rafQueue.length;
+  };
+  dom.window.cancelAnimationFrame = () => {};
+
+  await loadCoder(dom);
+
+  assert.equal(rafQueue.length, 0, "idle cursor canvas should not start an animation loop");
+
+  dom.window.dispatchEvent(new dom.window.MouseEvent("pointermove", {
+    clientX: 24,
+    clientY: 36,
+    bubbles: true,
+  }));
+
+  assert.equal(rafQueue.length, 1, "pointer movement should start the particle loop");
+
+  for (let i = 0; i < 80 && rafQueue.length; i += 1) {
+    const callback = rafQueue.shift();
+    callback();
+  }
+
+  assert.equal(rafQueue.length, 0, "particle loop should stop after particles decay");
+  dom.window.close();
+});

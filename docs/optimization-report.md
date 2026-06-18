@@ -4505,3 +4505,42 @@
 ### 下一步计划
 
 - 提交第二轮工程化与文档修复。
+
+## 第 140 轮：粒子动画空闲停止性能优化
+
+时间：2026-06-18
+
+### 已完成内容
+
+- 优化 `js/coder.js` 的 cursor particle 动画循环，页面加载时不再立即启动 `requestAnimationFrame`。
+- 首次 pointermove 生成粒子后按需启动动画；粒子衰减完毕后自动停止。
+- 页面进入隐藏状态时取消待执行动画帧，恢复可见后仅在仍有粒子时继续。
+- 粒子删除从 `splice()` 改为 swap-pop，减少高频动画循环中的数组搬移和 GC 压力。
+- 新增 fake canvas 回归测试，覆盖 idle 不启动、pointermove 启动、粒子耗尽停止。
+- 更新 P-01/B-01 相关建议文档和健康评分。
+
+### 发现的问题
+
+- 旧 `draw()` 每帧无条件调用 `requestAnimationFrame(draw)`，即使无粒子、鼠标静止也持续排帧。
+- 页面隐藏时没有显式取消待执行帧，低性能设备和移动端可能产生不必要电量消耗。
+
+### 修复方案
+
+- 增加 `animationFrame` 状态，统一通过 `scheduleDraw()` / `stopDraw()` 管理动画生命周期。
+- `draw()` 开头清除当前帧 id，并在 `document.hidden` 或粒子为空时直接返回。
+- pointermove 负责添加粒子并启动动画；visibilitychange 负责后台取消和前台按需恢复。
+
+### 性能、安全与质量指标
+
+- `node --test tests/coder.test.mjs tests/coder-deep.test.mjs`：32 个测试全部通过。
+- `npx eslint js/*.js`：通过。
+- `npm test`：522 个测试全部通过，耗时约 16.26 秒。
+- `npm run build`：通过，6 篇文章输出成功。
+- `npm run validate:production`：33 项通过、0 失败、0 警告。
+- `node --test tests/performance.test.mjs`：13 个测试全部通过。
+- `npm audit --audit-level=moderate --registry=https://registry.npmjs.org`：0 vulnerabilities。
+- 性能收益：idle cursor canvas 不再排队 rAF；粒子耗尽后动画循环归零。
+
+### 下一步计划
+
+- 提交第三轮性能优化。

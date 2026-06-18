@@ -495,6 +495,7 @@
   const particles = [];
   const pointer = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
   let hue = 190;
+  let animationFrame = 0;
 
   function resizeCanvas() {
     const ratio = window.devicePixelRatio || 1;
@@ -521,7 +522,31 @@
     }
   }
 
+  function removeParticle(index) {
+    particles[index] = particles[particles.length - 1];
+    particles.pop();
+  }
+
+  function scheduleDraw() {
+    if (animationFrame || document.hidden || !particles.length) {
+      return;
+    }
+    animationFrame = window.requestAnimationFrame(draw);
+  }
+
+  function stopDraw() {
+    if (animationFrame && window.cancelAnimationFrame) {
+      window.cancelAnimationFrame(animationFrame);
+    }
+    animationFrame = 0;
+  }
+
   function draw() {
+    animationFrame = 0;
+    if (document.hidden || !particles.length) {
+      return;
+    }
+
     context.clearRect(0, 0, window.innerWidth, window.innerHeight);
 
     for (let index = particles.length - 1; index >= 0; index -= 1) {
@@ -532,7 +557,7 @@
       particle.life -= 0.018;
 
       if (particle.life <= 0) {
-        particles.splice(index, 1);
+        removeParticle(index);
         continue;
       }
 
@@ -545,7 +570,7 @@
       context.shadowBlur = 0;
     }
 
-    window.requestAnimationFrame(draw);
+    scheduleDraw();
   }
 
   window.addEventListener("resize", resizeCanvas);
@@ -557,11 +582,18 @@
     body.style.setProperty("--cursor-x", pointer.x + "px");
     body.style.setProperty("--cursor-y", pointer.y + "px");
     addParticle(pointer.x, pointer.y);
+    scheduleDraw();
   });
   window.addEventListener("pointerleave", function () {
     body.classList.remove("cursor-active");
   });
+  document.addEventListener("visibilitychange", function () {
+    if (document.hidden) {
+      stopDraw();
+    } else {
+      scheduleDraw();
+    }
+  });
 
   resizeCanvas();
-  draw();
 })();

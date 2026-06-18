@@ -4,23 +4,12 @@
 
 ---
 
-## 📌 B-01: `coder.js` 中 `draw()` 递归动画无法停止，离开页面持续消耗资源
+## 📌 B-01 [已修复]: `coder.js` 中 `draw()` 递归动画无法停止，离开页面持续消耗资源
 
-- **📍 位置**：`js/coder.js:517-542`
-- **📝 当前状况**：`draw()` 函数通过 `requestAnimationFrame` 递归调用自身绘制粒子效果，但没有提供停止机制。即使页面不可见（用户切换到其他标签页），动画仍在持续运行。虽然浏览器在后台标签页会降低 rAF 频率，但不会完全停止。
-- **⚠️ 影响程度**：中
-- **💡 建议方案**：
-  ```javascript
-  // 添加可见性检测
-  document.addEventListener("visibilitychange", function () {
-    if (document.hidden) {
-      cancelAnimationFrame(rafId);
-    } else {
-      rafId = requestAnimationFrame(draw);
-    }
-  });
-  ```
-- **📊 预期收益**：后台标签页 CPU 使用率降低约 5-10%，移动端节省电量
+- **📍 位置**：`js/coder.js`
+- **✅ 修复状态**：`draw()` 不再无条件递归调度；粒子队列为空时停止，页面隐藏时取消待执行帧，重新移动指针时再按需启动。
+- **🧪 回归测试**：新增 jsdom fake canvas 测试，验证 idle 不启动、pointermove 启动、粒子耗尽停止。
+- **📊 实际收益**：后台标签页和鼠标静止场景不再持续消耗动画帧预算。
 - **🔗 相关建议**：[P-01 性能瓶颈](performance-bottlenecks.md#p-01)
 
 ---

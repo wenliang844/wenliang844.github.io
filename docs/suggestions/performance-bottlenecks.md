@@ -4,33 +4,12 @@
 
 ---
 
-## 📌 P-01: 粒子动画 `requestAnimationFrame` 持续运行，无空闲停止机制
+## 📌 P-01 [已修复]: 粒子动画 `requestAnimationFrame` 持续运行，无空闲停止机制
 
-- **📍 位置**：`js/coder.js:517-559`
-- **📝 当前状况**：`draw()` 函数每帧重绘所有粒子（最多 90 个），即使鼠标停止移动后粒子逐渐消亡，动画循环仍在继续。在移动端或低性能设备上，这会持续消耗 GPU/CPU。
-- **⚠️ 影响程度**：中
-- **💡 建议方案**：
-  ```javascript
-  // 当所有粒子消亡且鼠标静止时停止动画循环
-  function draw() {
-    // ... 现有绘制逻辑 ...
-    if (particles.length > 0) {
-      rafId = requestAnimationFrame(draw);
-    } else {
-      animating = false; // 空闲时停止
-    }
-  }
-
-  window.addEventListener("pointermove", function (event) {
-    // ... 现有逻辑 ...
-    if (!animating) {
-      animating = true;
-      rafId = requestAnimationFrame(draw);
-    }
-    addParticle(pointer.x, pointer.y);
-  });
-  ```
-- **📊 预期收益**：鼠标静止后 CPU/GPU 使用率降至 ~0%，移动端电量节省显著
+- **📍 位置**：`js/coder.js`
+- **✅ 修复状态**：粒子动画已改为按需启动；页面加载时不排队 rAF，首次 pointermove 后才启动，粒子耗尽后自动停止，页面隐藏时取消待执行帧。
+- **🧪 回归测试**：`tests/coder-deep.test.mjs` 覆盖 idle 不启动、pointermove 启动、粒子衰减后停止。
+- **📊 实际收益**：鼠标静止且无粒子时不再持续调度 rAF；页面隐藏时停止待执行帧，降低后台 CPU/GPU 消耗。
 - **🔗 相关建议**：[B-01](bugs-and-risks.md#b-01), [UX-01](ux-improvements.md#ux-01)
 
 ---
