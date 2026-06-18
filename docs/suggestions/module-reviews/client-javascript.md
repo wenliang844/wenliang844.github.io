@@ -15,7 +15,7 @@
 | search-loader.js | 62 | 搜索脚本懒加载 | 无 |
 | search.js | 463 | 全局模糊搜索（Fuse.js） | utils, i18n, Fuse |
 | subscribe.js | 213 | 邮件订阅（Buttondown） | i18n |
-| assistant.js | 240 | AI 助手（本地规则） | 无 |
+| assistant.js | 1568 | AI 助手（本地规则 + LLM API 集成 + 多会话管理） | 无 |
 | blog.js | 320 | 博客列表交互（搜索、标签、键盘） | utils, i18n, coder |
 | share.js | 205 | 文章分享（X、微博、微信、复制） | utils, i18n, QRCode |
 | giscus.js | 144 | GitHub Discussions 评论 | i18n |
@@ -29,7 +29,7 @@
 | performance-monitor.js | 243 | 性能监控（未启用） | 无 |
 | logger.js | ~50 | 日志工具（未使用） | 无 |
 | highlight-loader.js | ~30 | 代码高亮懒加载 | hljs |
-| **总计** | **~4200** | | |
+| **总计** | **~5500** | | |
 
 ---
 
@@ -151,3 +151,45 @@ if (!form || !messageInput || !listEl) { return; }
 | 测试覆盖 | ⭐⭐ | 客户端 JS 无自动化测试 |
 
 > 综合评分：**3.7 / 5** — 良好
+
+---
+
+## 📌 MR-JS-06 [新增]: `assistant.js` 深度分析 — 全站最复杂的隐藏模块
+
+- **📍 位置**：`js/assistant.js`（1568 行，134 个函数）
+- **📝 当前状况**：assistant.js 是全站最大的 JS 文件，包含一个完整的 AI 助手系统：
+
+  **功能清单**：
+  - 本地关键词匹配导航（PAGES/POSTS/QUICK_ACTIONS 数据）
+  - LLM API 集成（OpenAI Chat Completions + Responses API、Anthropic Messages API）
+  - 流式 SSE 响应处理（支持 `text/event-stream`）
+  - 多会话管理（最多 20 个会话，localStorage 持久化）
+  - 全 UI 框架（悬浮球、侧边栏、全屏模式、透明度调节、可拖拽定位）
+  - 历史记录面板（会话列表、切换、删除）
+  - 设置面板（API 配置、模型选择、中转站预设、连接测试）
+  - OpenAI/Anthropic 格式自动检测和 fallback
+
+  **代码质量亮点**：
+  - ✅ 使用 DOM API 构建 UI（无 innerHTML 安全风险）
+  - ✅ AbortController 支持取消请求
+  - ✅ 多格式 API 支持（chat completions、responses API）
+  - ✅ 流式和非流式双模式
+  - ✅ 错误消息归一化和用户友好提示
+
+  **问题**：
+  - ❌ 硬编码 demo API key（S-00）
+  - ❌ 未接入 i18n（CQ-05）
+  - ❌ 1568 行单文件（AR-07）
+  - ❌ placeholder 文案"留空使用内置体验 key"暗示 key 泄露是预期行为
+  - ❌ `LLM_PRESETS` 中的中转站 endpoint 硬编码，无法动态更新
+
+- **⚠️ 影响程度**：中（功能完整但安全和维护性需改进）
+- **💡 建议方案**：
+  1. **安全**：清空 `LLM_DEMO_KEYS`，移除"留空使用内置体验 key"提示
+  2. **拆分**：按职责拆分为 4-5 个模块（见 AR-07）
+  3. **i18n**：将所有硬编码中文移入 i18n.js 的 EN 字典
+  4. **配置化**：将 `LLM_PRESETS` 移到 `data/relay-providers.json` 中
+  5. **按需加载**：LLM 相关代码（~500 行）改为懒加载
+
+- **📊 预期收益**：安全性提升、代码可维护性提升、首屏 JS 体积减少 ~15KB
+- **🔗 相关建议**：[S-00](../security-audit.md#s-00), [AR-07](../architecture-review.md#ar-07), [CQ-05](../code-quality.md#cq-05)
