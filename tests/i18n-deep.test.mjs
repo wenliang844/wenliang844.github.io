@@ -50,7 +50,7 @@ test("i18n.js switches textContent elements from Chinese to English and back", a
 
 test("i18n.js switches aria-label attributes", async () => {
   const dom = new JSDOM(`<!doctype html><html lang="zh-CN"><head></head><body>
-    <button data-i18n-aria="nav.theme" aria-label="切换暗色主题">Theme</button>
+    <button data-i18n-aria="nav.theme" aria-label="切换主题">Theme</button>
   </body></html>`, {
     runScripts: "outside-only",
     url: "https://wenliang844.github.io/",
@@ -60,10 +60,10 @@ test("i18n.js switches aria-label attributes", async () => {
 
   dom.window.cwlSetLang("en");
   const btn = document.querySelector("[data-i18n-aria]");
-  assert.equal(btn.getAttribute("aria-label"), "Toggle dark mode");
+  assert.equal(btn.getAttribute("aria-label"), "Toggle theme");
 
   dom.window.cwlSetLang("zh");
-  assert.equal(btn.getAttribute("aria-label"), "切换暗色主题");
+  assert.equal(btn.getAttribute("aria-label"), "切换主题");
   dom.window.close();
 });
 

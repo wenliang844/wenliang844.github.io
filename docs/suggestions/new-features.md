@@ -95,32 +95,12 @@
 
 ---
 
-## 📌 F-04: 暗色/亮色主题跟随系统 + 定时切换
+## 📌 F-04 [已修复]: 暗色/亮色主题跟随系统
 
 - **📍 位置**：`js/coder.js:6-36`
-- **📝 当前状况**：主题切换只支持手动切换，存储在 localStorage 中。默认暗色，用户手动切到亮色后记住。
-- **⚠️ 影响程度**：低
-- **💡 建议方案**：添加"跟随系统"选项：
-  ```javascript
-  // 三种模式：light / dark / auto
-  function applyTheme(mode) {
-    if (mode === "auto") {
-      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-      body.classList.toggle("colorscheme-dark", prefersDark);
-      body.classList.toggle("colorscheme-light", !prefersDark);
-    }
-    // ...
-  }
-
-  // 监听系统主题变化
-  window.matchMedia("(prefers-color-scheme: dark)")
-    .addEventListener("change", () => {
-      if (getMode() === "auto") applyTheme("auto");
-    });
-  ```
-  UI 上改为三态切换：🌙 → ☀️ → 🖥️（跟随系统）
-
-- **📊 预期收益**：更好的系统集成体验
+- **✅ 修复状态**：主题模式升级为 `auto / light / dark`。无本地偏好时默认 `auto` 跟随 `prefers-color-scheme`，系统主题变化会实时同步；用户点击选择亮/暗后写入 localStorage，并优先于系统偏好。
+- **🧪 回归测试**：`tests/coder-deep.test.mjs` 覆盖 auto 跟随系统、系统变化监听、显式偏好不被系统变化覆盖；`tests/i18n-deep.test.mjs` 覆盖主题按钮无障碍文案。
+- **📊 实际收益**：默认体验更贴近用户系统设置，同时保留手动主题选择。
 - **🔗 相关建议**：[UX-01](ux-improvements.md#ux-01)
 
 ---

@@ -51,7 +51,7 @@
 
 | 编号 | 建议 | 来源 | 难度 |
 |------|------|------|------|
-| F-04 | 主题跟随系统 | 功能 | ⭐ |
+| ~~F-04~~ | ~~主题跟随系统~~ ✅ 已优化 | 功能 | ~~⭐~~ |
 
 已完成：S-00 移除前端硬编码 API key，并新增无 key 阻断和源码密钥扫描回归测试。
 已完成：P-01 粒子动画空闲停止，并新增 fake canvas 回归测试。
@@ -81,6 +81,7 @@
 已完成：SEO-05 支持文章 `modified` front matter，并用于 Article JSON-LD 的 `dateModified`。
 已完成：DE-09 声明 Node.js engines，并通过 workflow 测试与 CI Node 版本对齐。
 已完成：DE-02 为 `test:coverage` 增加 Node 原生覆盖率阈值，CI 可阻断明显覆盖率回退。
+已完成：F-04 主题模式支持 auto/light/dark，无本地偏好时跟随系统主题。
 
 ### 🥈 高价值中成本（建议近期规划）
 

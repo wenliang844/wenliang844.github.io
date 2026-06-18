@@ -75,7 +75,7 @@
     "nav.feedback": '<i class="fas fa-comment-dots" aria-hidden="true"></i> Feedback',
     "nav.subscribe": '<i class="fas fa-envelope" aria-hidden="true"></i> Subscribe',
     "nav.sponsor": '<i class="fas fa-heart" aria-hidden="true"></i> Sponsor',
-    "nav.theme": "Toggle dark mode",
+    "nav.theme": "Toggle theme",
     "nav.search": "Global search",
     "footer.text": "© 2021 - 2026 CWL · Powered by Cwl · Theme inspired by Coder",
     "subscribe.title": "Subscribe · new posts by email",

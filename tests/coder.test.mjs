@@ -41,7 +41,7 @@ test("coder.js readingMinutes returns 1 for empty text", async () => {
 
 test("coder.js theme toggle switches between dark and light", async () => {
   const dom = buildDom(`<!doctype html><html lang="zh-CN"><body class="colorscheme-dark">
-    <button class="theme-toggle" type="button" aria-label="Toggle dark mode"></button>
+    <button class="theme-toggle" type="button" aria-label="Toggle theme"></button>
   </body></html>`);
   const utilsCode = await readFile(join(ROOT, "js", "utils.js"), "utf8");
   const coderCode = await readFile(join(ROOT, "js", "coder.js"), "utf8");

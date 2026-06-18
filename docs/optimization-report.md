@@ -5563,3 +5563,43 @@
 
 - 提交第二十九轮工程化优化。
 - 继续评估文章图片资源项、低风险 UX 项或更高价值的内容/性能改进。
+
+## 第 167 轮：主题默认跟随系统偏好
+
+时间：2026-06-18
+
+### 已完成内容
+
+- 将主题模式从手动 light/dark 扩展为 `auto / light / dark`。
+- 无本地偏好时默认 `auto`，根据 `prefers-color-scheme` 应用系统亮/暗主题。
+- 监听系统主题变化，仅在 `auto` 模式下实时同步；用户显式选择 light/dark 后不被系统变化覆盖。
+- 主题按钮图标随模式更新为 desktop/sun/moon，并补正无障碍文案为“切换主题 / Toggle theme”。
+- 更新 F-04、建议索引、健康评分和本轮工作报告。
+
+### 发现的问题
+
+- 主题此前默认暗色，未尊重用户操作系统的亮/暗偏好。
+- 导航按钮无障碍文案仍描述为“Toggle dark mode”，与三态主题能力不匹配。
+
+### 修复方案
+
+- 使用 `matchMedia("(prefers-color-scheme: dark)")` 获取系统偏好，并兼容无 `matchMedia` 时继续默认暗色。
+- 使用 `auto/light/dark` 三态存储值；点击按钮按三态循环，localStorage 中的显式值优先于系统偏好。
+- 为 MediaQueryList 同时兼容 `addEventListener` 和旧式 `addListener`。
+
+### 性能、安全与质量指标
+
+- `node --test tests/coder-deep.test.mjs tests/coder.test.mjs`：35 个 coder 测试全部通过。
+- `node --test tests/i18n-deep.test.mjs tests/i18n-a11y.test.mjs`：26 个 i18n/a11y 测试全部通过。
+- `npm test`：550 个测试全部通过。
+- `npm run build`：通过，成功生成 6 篇文章页面。
+- `node --test tests/performance.test.mjs`：13 个性能测试全部通过。
+- `npm run validate:production`：33 项检查通过，0 失败，0 警告。
+- `npm run test:coverage`：550 个测试全部通过；行覆盖率 93.04%，分支覆盖率 75.39%，函数覆盖率 89.96%，均高于覆盖率阈值。
+- `npm audit --audit-level=moderate --registry=https://registry.npmjs.org`：0 个中高危漏洞。
+- UX 收益：首次访问时主题与用户系统偏好一致，减少亮/暗模式切换成本。
+
+### 下一步计划
+
+- 提交第三十轮 UX 优化。
+- 继续评估文章图片资源项、性能优化项或更高价值的内容型 SEO 改进。

@@ -25,6 +25,37 @@ async function loadCoder(dom) {
   return dom;
 }
 
+function mockColorScheme(dom, initialMatches) {
+  const listeners = new Set();
+  const query = {
+    matches: initialMatches,
+    media: "(prefers-color-scheme: dark)",
+    addEventListener(type, listener) {
+      if (type === "change") {
+        listeners.add(listener);
+      }
+    },
+    removeEventListener(type, listener) {
+      if (type === "change") {
+        listeners.delete(listener);
+      }
+    },
+    dispatch(matches) {
+      this.matches = matches;
+      listeners.forEach((listener) => listener({ matches }));
+    },
+  };
+
+  dom.window.matchMedia = (media) => {
+    if (media === query.media) {
+      return query;
+    }
+    return { matches: false, addEventListener() {}, removeEventListener() {} };
+  };
+
+  return query;
+}
+
 // ─── 阅读进度条创建 ─────────────────────────────────────────────────────────
 
 test("coder.js creates reading progress bar", async () => {
@@ -273,6 +304,31 @@ test("coder.js defaults to dark theme when no preference stored", async () => {
   dom.window.eval(utilsCode);
   dom.window.eval(coderCode);
   assert.ok(dom.window.document.body.classList.contains("colorscheme-dark"), "should default to dark");
+  dom.window.close();
+});
+
+test("coder.js auto theme follows system preference until user chooses a theme", async () => {
+  const dom = buildDom(`<!doctype html><html lang="zh-CN"><body class="colorscheme-dark">
+    <button class="theme-toggle" type="button"><i class="fas fa-adjust"></i></button>
+  </body></html>`);
+  const colorScheme = mockColorScheme(dom, false);
+  await loadCoder(dom);
+  const { document, localStorage } = dom.window;
+  const button = document.querySelector(".theme-toggle");
+
+  assert.ok(document.body.classList.contains("colorscheme-light"), "auto should follow system light");
+  assert.equal(button.dataset.themeMode, "auto");
+  assert.equal(button.querySelector("i").className, "fas fa-desktop");
+
+  colorScheme.dispatch(true);
+  assert.ok(document.body.classList.contains("colorscheme-dark"), "auto should react to system dark");
+
+  button.click();
+  assert.equal(localStorage.getItem("coder-color-scheme"), "light");
+  assert.ok(document.body.classList.contains("colorscheme-light"), "click should choose explicit light");
+
+  colorScheme.dispatch(true);
+  assert.ok(document.body.classList.contains("colorscheme-light"), "explicit light should ignore system changes");
   dom.window.close();
 });
 

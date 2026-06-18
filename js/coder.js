@@ -5,6 +5,7 @@
    * Color scheme toggle
    * -------------------------------------------------------------------- */
   const STORAGE_KEY_THEME = "coder-color-scheme";
+  const THEME_MODES = ["auto", "light", "dark"];
   let stored = null;
 
   try {
@@ -13,27 +14,84 @@
     console.warn("Failed to read theme from localStorage:", error);
   }
 
-  // 默认暗色：页面 body 初始即 colorscheme-dark，仅当用户显式存过 "light" 才切回亮色。
-  if (stored === "light") {
-    body.classList.remove("colorscheme-dark");
-    body.classList.add("colorscheme-light");
+  const systemThemeQuery = window.matchMedia
+    ? window.matchMedia("(prefers-color-scheme: dark)")
+    : null;
+  let themeMode = THEME_MODES.includes(stored) ? stored : "auto";
+
+  function systemTheme() {
+    if (!systemThemeQuery) {
+      return "dark";
+    }
+    return systemThemeQuery.matches ? "dark" : "light";
   }
+
+  function updateThemeButtons(actualTheme) {
+    const iconByMode = {
+      auto: "fa-desktop",
+      light: "fa-sun",
+      dark: "fa-moon"
+    };
+
+    document.querySelectorAll(".theme-toggle").forEach(function (button) {
+      button.dataset.themeMode = themeMode;
+      button.dataset.themeActual = actualTheme;
+      button.title = themeMode === "auto" ? "Auto theme" : actualTheme + " theme";
+
+      const icon = button.querySelector("i");
+      if (icon) {
+        icon.className = "fas " + iconByMode[themeMode];
+      }
+    });
+  }
+
+  function applyTheme(mode) {
+    const actualTheme = mode === "auto" ? systemTheme() : mode;
+    body.classList.toggle("colorscheme-dark", actualTheme === "dark");
+    body.classList.toggle("colorscheme-light", actualTheme === "light");
+    updateThemeButtons(actualTheme);
+  }
+
+  function saveThemeMode(mode) {
+    try {
+      if (window.CWLUtils) {
+        window.CWLUtils.storageSet(STORAGE_KEY_THEME, mode);
+      } else {
+        window.localStorage.setItem(STORAGE_KEY_THEME, mode);
+      }
+    } catch (error) {
+      console.warn("Failed to save theme to localStorage:", error);
+    }
+  }
+
+  function nextThemeMode(mode) {
+    const index = THEME_MODES.indexOf(mode);
+    return THEME_MODES[(index + 1) % THEME_MODES.length];
+  }
+
+  applyTheme(themeMode);
 
   document.querySelectorAll(".theme-toggle").forEach(function (button) {
     button.addEventListener("click", function () {
-      const dark = body.classList.toggle("colorscheme-dark");
-      body.classList.toggle("colorscheme-light", !dark);
-      try {
-        if (window.CWLUtils) {
-          window.CWLUtils.storageSet(STORAGE_KEY_THEME, dark ? "dark" : "light");
-        } else {
-          window.localStorage.setItem(STORAGE_KEY_THEME, dark ? "dark" : "light");
-        }
-      } catch (error) {
-        console.warn("Failed to save theme to localStorage:", error);
-      }
+      themeMode = nextThemeMode(themeMode);
+      applyTheme(themeMode);
+      saveThemeMode(themeMode);
     });
   });
+
+  if (systemThemeQuery) {
+    const handleSystemThemeChange = function () {
+      if (themeMode === "auto") {
+        applyTheme(themeMode);
+      }
+    };
+
+    if (systemThemeQuery.addEventListener) {
+      systemThemeQuery.addEventListener("change", handleSystemThemeChange);
+    } else if (systemThemeQuery.addListener) {
+      systemThemeQuery.addListener(handleSystemThemeChange);
+    }
+  }
 
   /* ----------------------------------------------------------------------
    * Blog list: switch between inline article panels
