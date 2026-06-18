@@ -1424,3 +1424,37 @@
 - 后续模板改动后继续检查是否存在跟踪的静态产物需要同步。
 - 继续保持生成文件提交范围与源码变更一致。
 - 继续下一轮工具箱交互审计。
+
+## 第 44 轮：Clipboard 访问异常安全降级
+
+时间：2026-06-18
+
+### 已完成内容
+
+- 审计公共复制入口 `CWLUtils.copyText()` 对 `navigator.clipboard` 的访问方式。
+- 为 clipboard getter 抛错、`writeText` 非函数等异常环境增加安全降级。
+- 补充 jsdom 测试，模拟 clipboard 访问抛错后仍可走 `execCommand` fallback。
+
+### 发现的问题
+
+- 旧逻辑直接读取裸 `navigator.clipboard`，如果受限环境或浏览器策略导致 getter 抛错，会同步中断。
+- `writeText` 只做 truthy 判断，没有确认它是函数。
+- 工具箱复制按钮通过公共复制工具触发该路径，异常时可能直接显示失败而不是尝试 legacy fallback。
+
+### 修复方案
+
+- 使用 `window.navigator` 并将 clipboard 访问包在 `try/catch` 中。
+- 仅当 `clipboard.writeText` 是函数时使用现代 Clipboard API。
+- clipboard 访问失败时直接调用 `Utils.legacyCopy(text)`。
+
+### 性能、覆盖率与质量指标
+
+- `npm run test:tools`：14 个测试全部通过，耗时约 1.6 秒。
+- `node --test tests/js-behavior.test.mjs`：25 个测试全部通过，耗时约 1.3 秒。
+- `npm run build`：通过。
+
+### 下一步计划
+
+- 继续真实浏览器验证复制成功路径没有回归。
+- 继续审计公共工具函数中可能被工具箱间接使用的异常路径。
+- 继续保持本轮提交只包含 `utils.js`、工具测试和报告。
