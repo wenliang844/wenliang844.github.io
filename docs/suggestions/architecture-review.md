@@ -203,6 +203,34 @@
 
 ---
 
+## 📌 AR-07 [新增]: `assistant.js` 是全站最大的"God Module"（1568 行）
+
+- **📍 位置**：`js/assistant.js`（1568 行，134 个函数）
+- **📝 当前状况**：assistant.js 是全站最大的 JS 文件，远超 coder.js（567 行）。它在一个 IIFE 中集成了：
+  - **本地导航匹配系统**（PAGES/POSTS/QUICK_ACTIONS 数据 + score/matches 函数）
+  - **LLM API 集成**（OpenAI/Anthropic 双格式，支持流式 SSE 响应）
+  - **多会话管理**（最多 20 个会话，localStorage 持久化，CRUD 操作）
+  - **UI 框架**（全屏/悬浮/最小化三种模式，透明度调节，可拖拽定位）
+  - **历史记录面板**（会话列表、切换、删除）
+  - **设置面板**（API 配置、模型选择、中转站预设）
+  - **i18n 部分支持**（PAGES/POSTS 有 titleEn，但回复文本硬编码中文）
+
+  这是一个典型的"God Module"反模式——所有功能耦合在一个文件中。
+- **⚠️ 影响程度**：中（可维护性差，测试困难，加载非按需）
+- **💡 建议方案**：拆分为独立模块：
+  ```
+  js/assistant-data.js    — PAGES/POSTS/QUICK_ACTIONS 数据（~50 行）
+  js/assistant-llm.js     — LLM API 调用 + 流式响应处理（~200 行）
+  js/assistant-storage.js — 会话管理 + localStorage 持久化（~150 行）
+  js/assistant-ui.js      — UI 渲染 + 事件处理（~400 行）
+  js/assistant.js         — 入口 + 协调（~100 行）
+  ```
+  或至少将 LLM 相关代码提取为独立模块，按需加载（用户切换到 LLM 模式时才加载）。
+- **📊 预期收益**：代码可测试性提升，LLM 模块按需加载减少首屏 JS 体积
+- **🔗 相关建议**：[CQ-06](code-quality.md#cq-06), [S-00](security-audit.md#s-00)
+
+---
+
 ## 模块依赖图
 
 ```
