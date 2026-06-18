@@ -308,6 +308,20 @@
         window.location.href = "/contact/#feedback-title";
       }
     });
+    function submitAssistantForm() {
+      if (typeof form.requestSubmit === "function") {
+        form.requestSubmit();
+        return;
+      }
+      form.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+    }
+    input.addEventListener("keydown", function (event) {
+      if (event.key !== "Enter" || event.shiftKey || event.isComposing) {
+        return;
+      }
+      event.preventDefault();
+      submitAssistantForm();
+    });
     form.addEventListener("submit", function (event) {
       event.preventDefault();
       ask(input.value);
