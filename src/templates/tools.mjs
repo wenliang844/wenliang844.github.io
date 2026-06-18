@@ -125,7 +125,7 @@ ${toolHeader(TOOLS[5])}
             <textarea id="jwt-input" spellcheck="false" placeholder="eyJhbGciOi..."></textarea>
           </label>
           <div class="tool-actions">
-            <button class="tool-btn primary" type="button" data-jwt-decode data-i18n="tools.btn.decodeJwt" data-i18n-html><i class="fas fa-unlock-alt" aria-hidden="true"></i> 解码</button>
+            <button class="tool-btn primary" type="button" data-jwt-decode data-i18n="tools.btn.decodeJwt" data-i18n-html data-i18n-en-html='<i class="fas fa-unlock-alt" aria-hidden="true"></i> Decode JWT'><i class="fas fa-unlock-alt" aria-hidden="true"></i> 解码</button>
           </div>
           <div class="jwt-grid">
             <label class="tool-field"><span data-i18n="tools.label.header">Header</span>

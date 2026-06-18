@@ -241,6 +241,8 @@ test("tools page localizes English placeholders and dynamic statuses", async () 
     assert.equal(document.querySelector(".tools-tabs").getAttribute("aria-label"), "Tool list");
     assert.equal(document.querySelector("#base64-input").getAttribute("placeholder"), "Text to encode or decode");
     assert.equal(document.querySelector("#url-input").getAttribute("placeholder"), "https://example.com/?q=search");
+    document.querySelector('[data-tool-tab="jwt"]').click();
+    assert.match(document.querySelector("[data-jwt-decode]").textContent, /Decode JWT/);
 
     document.querySelector('[data-tool-tab="uuid"]').click();
     document.querySelector('[data-copy-target="uuid-output"]').click();
