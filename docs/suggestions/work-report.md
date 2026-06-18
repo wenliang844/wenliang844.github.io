@@ -15,7 +15,7 @@
 | 编辑器 | editor | 405 | ✅ 完整 |
 | Overleaf | overleaf | 833 | ✅ 完整 |
 | 订阅/反馈 | subscribe, feedback | ~383 | ✅ 完整 |
-| AI 助手 | assistant | 240 | ✅ 完整 |
+| AI 助手 | assistant | 1568 | ✅ 完整（深度分析） |
 | 性能监控 | performance-monitor, logger | ~293 | ✅ 完整 |
 | CSS | coder.css | 4655 | ✅ 抽样分析 |
 | Markdown 文章 | 6 篇 .md | 718 | ✅ 完整 |
@@ -30,7 +30,7 @@
 
 | 等级 | 第一轮 | 第二轮 | 第三轮 | 总计 |
 |------|--------|--------|--------|------|
-| 🔴 高 | 0 | 0 | 0 | **0** |
+| 🔴 高 | 0 | 0 | 1 | **1** |
 | 🟡 中 | 10 | 4 | 1 | **15** |
 | 🟢 低 | 18 | 8 | 3 | **29** |
 | ℹ️ 信息 | 4 | 2 | 1 | **7** |
@@ -42,14 +42,9 @@
 ## 测试状态
 
 ```
-✔ 45/45 测试通过（0 失败）
+✔ 518/518 测试通过（0 失败）
 ✔ ESLint 0 错误
 ✔ 构建成功（6 篇文章）
-
-覆盖率报告：
-  行覆盖率：98.61%
-  分支覆盖率：83.57%
-  函数覆盖率：96.72%
 ```
 
 ---
@@ -65,10 +60,12 @@
 6. **构建脚本健壮**：完善的输入验证和错误处理
 
 ### ⚠️ 需要关注的问题
-1. **代码重复**：5 处明显重复（editing, copyText, escapeHtml, t(), readingMinutes）
-2. **SEO 改进空间**：首页缺少 JSON-LD，sitemap priority 设置错误
-3. **文章无图片**：影响社交分享效果
-4. **assistant.js 未接入 i18n**：英文用户看到中文
+1. **🔴 API Key 泄露**：assistant.js 硬编码 demo key（S-00，高危）
+2. **代码重复**：5 处明显重复（editing, copyText, escapeHtml, t(), readingMinutes）
+3. **SEO 改进空间**：首页缺少 JSON-LD，sitemap priority 设置错误
+4. **文章无图片**：影响社交分享效果
+5. **assistant.js 未接入 i18n**：英文用户看到中文
+6. **CSS backdrop-filter 过度使用**：移动端性能隐患（18 个元素）
 
 ---
 
