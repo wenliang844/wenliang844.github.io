@@ -20,18 +20,18 @@ export const SITE = {
 // sitemap 中需要列出的静态页（文章 URL 由构建脚本动态插入到 /post/ 之后）。
 // withDate=false 的页面不输出 lastmod，对齐现有 sitemap。
 export const STATIC_PAGES = [
-  { path: "/", withDate: true, priority: 0 },
-  { path: "/about/", withDate: true },
-  { path: "/post/", withDate: true, insertPostsAfter: true },
-  { path: "/tools/", withDate: true },
-  { path: "/editor/", withDate: true },
-  { path: "/overleaf/", withDate: true },
-  { path: "/contact/", withDate: true },
-  { path: "/ai/", withDate: true },
-  { path: "/appreciation/", withDate: true },
-  { path: "/sponsor/", withDate: true },
-  { path: "/categories/", withDate: false },
-  { path: "/tags/", withDate: true },
+  { path: "/", withDate: true, priority: "1.0" },
+  { path: "/about/", withDate: true, priority: "0.6" },
+  { path: "/post/", withDate: true, insertPostsAfter: true, priority: "0.6" },
+  { path: "/tools/", withDate: true, priority: "0.6" },
+  { path: "/editor/", withDate: true, priority: "0.6" },
+  { path: "/overleaf/", withDate: true, priority: "0.6" },
+  { path: "/contact/", withDate: true, priority: "0.6" },
+  { path: "/ai/", withDate: true, priority: "0.6" },
+  { path: "/appreciation/", withDate: true, priority: "0.6" },
+  { path: "/sponsor/", withDate: true, priority: "0.6" },
+  { path: "/categories/", withDate: false, priority: "0.6" },
+  { path: "/tags/", withDate: true, priority: "0.6" },
 ];
 
 // 全局搜索索引中额外包含的静态页（文章页由构建脚本动态生成）。

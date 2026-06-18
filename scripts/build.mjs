@@ -26,6 +26,7 @@ import { escapeXml, rfc822, sitemapDate } from "../src/lib/format.mjs";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, "..");
 const POSTS_DIR = join(ROOT, "src", "posts");
+const POST_SITEMAP_PRIORITY = "0.8";
 
 // 输出目录：--out <dir>，默认项目根。
 const outIdx = process.argv.indexOf("--out");
@@ -377,7 +378,7 @@ function buildSitemap(posts) {
           .map((src) => `<image:image><image:loc>${escapeXml(absoluteUrl(src, post.slug))}</image:loc></image:image>`)
           .join("");
         rows.push(
-          `  <url><loc>${loc}</loc><lastmod>${sitemapDate(post.date)}</lastmod>${images}</url>`,
+          `  <url><loc>${loc}</loc><lastmod>${sitemapDate(post.date)}</lastmod><priority>${POST_SITEMAP_PRIORITY}</priority>${images}</url>`,
         );
       }
     }

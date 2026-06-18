@@ -65,17 +65,12 @@
 
 ---
 
-## 📌 SEO-03: `sitemap.xml` 中 `priority` 值设置
+## 📌 SEO-03 [已修复]: `sitemap.xml` 中 `priority` 值设置
 
-- **📍 位置**：`src/config.mjs:23`
-- **📝 当前状况**：
-  ```javascript
-  { path: "/", withDate: true, priority: 0 }
-  ```
-  首页的 `priority` 设为 `0`，但 sitemap 规范中 priority 范围是 0.0-1.0，`0` 表示最低优先级。首页应该是最高优先级（1.0 或 0.9）。
-- **⚠️ 影响程度**：中
-- **💡 建议方案**：将首页 priority 改为 `1.0`，文章页设为 `0.8`，其他页面设为 `0.6`。
-- **📊 预期收益**：搜索引擎正确理解页面重要性
+- **📍 位置**：`src/config.mjs`、`scripts/build.mjs`
+- **✅ 修复状态**：首页 sitemap priority 改为 `1.0`，文章页输出 `0.8`，其他静态页输出 `0.6`，不再生成 `<priority>0</priority>`。
+- **🧪 回归测试**：`tests/build.test.mjs` 覆盖首页、静态页、文章页 priority 输出和低优先级回退检查。
+- **📊 实际收益**：搜索引擎能获得更合理的站点页面重要性信号。
 
 ---
 
@@ -143,4 +138,4 @@
 | 焦点陷阱 | ✅ | 模态框有焦点管理 |
 | 语义化 HTML | ✅ | 正确使用语义标签 |
 
-> SEO 综合评估：**3.8 / 5** — 良好，主要改进点在结构化数据和 sitemap priority。
+> SEO 综合评估：**3.9 / 5** — 良好，主要改进点在结构化数据。

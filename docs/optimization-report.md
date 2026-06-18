@@ -5162,3 +5162,45 @@
 
 - 提交第十九轮用户体验优化。
 - 继续评估剩余高收益 SEO、性能或工程化配置项。
+
+## 第 157 轮：修复 sitemap priority 信号
+
+时间：2026-06-18
+
+### 已完成内容
+
+- 将首页 sitemap priority 从 `0` 修正为 `1.0`。
+- 为文章页 sitemap 条目增加 `0.8` priority。
+- 为其他静态页 sitemap 条目增加 `0.6` priority。
+- 扩展 `tests/build.test.mjs`，覆盖首页、文章页、静态页 priority 输出，并防止 `<priority>0</priority>` 回归。
+- 更新 SEO-03、索引和健康评分文档，将 sitemap priority 项标记为已修复。
+
+### 发现的问题
+
+- `src/config.mjs` 中首页配置为 `{ path: "/", withDate: true, priority: 0 }`，导致生成的 `sitemap.xml` 把首页标记为最低优先级。
+- 文章页此前没有输出 priority，搜索引擎只能依赖默认值推断页面重要性。
+- 文档仍将 SEO-03 列为近期规划项，和当前修复进度不一致。
+
+### 修复方案
+
+- 在 `STATIC_PAGES` 中使用字符串 priority：`1.0`、`0.6`，避免 JS 数字序列化把 `1.0` 变成 `1`。
+- 在构建脚本中增加 `POST_SITEMAP_PRIORITY = "0.8"`，写入所有文章页 sitemap URL。
+- 重新构建站点，更新根目录 `sitemap.xml`。
+- 同步建议文档与健康评分，移除 SEO-03 待办项。
+
+### 性能、安全与质量指标
+
+- `npm run build`：通过，成功生成 6 篇文章页面。
+- `node --test tests/build.test.mjs tests/integration.test.mjs tests/build-extra.test.mjs tests/performance.test.mjs`：49 个测试全部通过。
+- `node --check scripts/build.mjs`：通过。
+- `npx eslint js/*.js`：通过。
+- `npm test`：539 个测试全部通过，耗时约 13.01 秒。
+- `npm run validate:production`：33 项检查通过，0 失败，0 警告。
+- `npm run test:coverage`：539 个测试全部通过；行覆盖率 92.72%，分支覆盖率 74.91%，函数覆盖率 89.33%。
+- `npm audit --audit-level=moderate --registry=https://registry.npmjs.org`：0 个中高危漏洞。
+- SEO 收益：sitemap 页面重要性信号更合理，首页不再被标记为最低优先级。
+
+### 下一步计划
+
+- 提交第二十轮 SEO 优化。
+- 继续评估首页 JSON-LD、编辑器代码高亮或工程化 CI 配置。

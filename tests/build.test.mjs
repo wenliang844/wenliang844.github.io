@@ -73,9 +73,13 @@ test("build writes the expected static artifacts", async () => {
     }
     assert.match(sitemap, /<urlset /);
     assert.match(sitemap, /xmlns:image="http:\/\/www\.google\.com\/schemas\/sitemap-image\/1\.1"/);
+    assert.match(sitemap, /<loc>https:\/\/wenliang844.github.io\/<\/loc><lastmod>[^<]+<\/lastmod><priority>1\.0<\/priority>/);
     assert.match(sitemap, /<loc>https:\/\/wenliang844.github.io\/about\/<\/loc>/);
+    assert.match(sitemap, /<loc>https:\/\/wenliang844.github.io\/about\/<\/loc><lastmod>[^<]+<\/lastmod><priority>0\.6<\/priority>/);
     assert.match(sitemap, /<loc>https:\/\/wenliang844.github.io\/contact\/<\/loc>/);
     assert.match(sitemap, /<loc>https:\/\/wenliang844.github.io\/tools\/<\/loc>/);
+    assert.match(sitemap, /<loc>https:\/\/wenliang844.github.io\/post\/manage-system\/<\/loc><lastmod>[^<]+<\/lastmod><priority>0\.8<\/priority>/);
+    assert.doesNotMatch(sitemap, /<priority>0<\/priority>/);
     assert.doesNotMatch(sitemap, /<loc>https:\/\/wenliang844.github.io\/ai\/relay\/<\/loc>/);
     assert.match(robots, /Sitemap: https:\/\/wenliang844.github.io\/sitemap.xml/);
     assert.match(robots, /Allow: \/post\//);

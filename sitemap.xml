@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
-  <url><loc>https://wenliang844.github.io/</loc><lastmod>2026-06-16T09:30:00+08:00</lastmod><priority>0</priority></url>
-  <url><loc>https://wenliang844.github.io/about/</loc><lastmod>2026-06-16T09:30:00+08:00</lastmod></url>
-  <url><loc>https://wenliang844.github.io/post/</loc><lastmod>2026-06-16T09:30:00+08:00</lastmod></url>
-  <url><loc>https://wenliang844.github.io/post/rule-engine-alerts/</loc><lastmod>2026-06-16T09:30:00+08:00</lastmod></url>
-  <url><loc>https://wenliang844.github.io/post/codex-claude-vibe-coding/</loc><lastmod>2026-02-01T09:30:00+08:00</lastmod></url>
-  <url><loc>https://wenliang844.github.io/post/manage-system/</loc><lastmod>2025-09-16T09:30:00+08:00</lastmod></url>
-  <url><loc>https://wenliang844.github.io/post/finance-saas-backend/</loc><lastmod>2023-08-18T09:30:00+08:00</lastmod></url>
-  <url><loc>https://wenliang844.github.io/post/activiti-workflow-engine/</loc><lastmod>2022-02-09T09:30:00+08:00</lastmod></url>
-  <url><loc>https://wenliang844.github.io/post/lowcode-schema-codegen/</loc><lastmod>2022-02-01T09:30:00+08:00</lastmod></url>
-  <url><loc>https://wenliang844.github.io/tools/</loc><lastmod>2026-06-16T09:30:00+08:00</lastmod></url>
-  <url><loc>https://wenliang844.github.io/editor/</loc><lastmod>2026-06-16T09:30:00+08:00</lastmod></url>
-  <url><loc>https://wenliang844.github.io/overleaf/</loc><lastmod>2026-06-16T09:30:00+08:00</lastmod></url>
-  <url><loc>https://wenliang844.github.io/contact/</loc><lastmod>2026-06-16T09:30:00+08:00</lastmod></url>
-  <url><loc>https://wenliang844.github.io/ai/</loc><lastmod>2026-06-16T09:30:00+08:00</lastmod></url>
-  <url><loc>https://wenliang844.github.io/appreciation/</loc><lastmod>2026-06-16T09:30:00+08:00</lastmod></url>
-  <url><loc>https://wenliang844.github.io/sponsor/</loc><lastmod>2026-06-16T09:30:00+08:00</lastmod></url>
-  <url><loc>https://wenliang844.github.io/categories/</loc></url>
-  <url><loc>https://wenliang844.github.io/tags/</loc><lastmod>2026-06-16T09:30:00+08:00</lastmod></url>
+  <url><loc>https://wenliang844.github.io/</loc><lastmod>2026-06-16T09:30:00+08:00</lastmod><priority>1.0</priority></url>
+  <url><loc>https://wenliang844.github.io/about/</loc><lastmod>2026-06-16T09:30:00+08:00</lastmod><priority>0.6</priority></url>
+  <url><loc>https://wenliang844.github.io/post/</loc><lastmod>2026-06-16T09:30:00+08:00</lastmod><priority>0.6</priority></url>
+  <url><loc>https://wenliang844.github.io/post/rule-engine-alerts/</loc><lastmod>2026-06-16T09:30:00+08:00</lastmod><priority>0.8</priority></url>
+  <url><loc>https://wenliang844.github.io/post/codex-claude-vibe-coding/</loc><lastmod>2026-02-01T09:30:00+08:00</lastmod><priority>0.8</priority></url>
+  <url><loc>https://wenliang844.github.io/post/manage-system/</loc><lastmod>2025-09-16T09:30:00+08:00</lastmod><priority>0.8</priority></url>
+  <url><loc>https://wenliang844.github.io/post/finance-saas-backend/</loc><lastmod>2023-08-18T09:30:00+08:00</lastmod><priority>0.8</priority></url>
+  <url><loc>https://wenliang844.github.io/post/activiti-workflow-engine/</loc><lastmod>2022-02-09T09:30:00+08:00</lastmod><priority>0.8</priority></url>
+  <url><loc>https://wenliang844.github.io/post/lowcode-schema-codegen/</loc><lastmod>2022-02-01T09:30:00+08:00</lastmod><priority>0.8</priority></url>
+  <url><loc>https://wenliang844.github.io/tools/</loc><lastmod>2026-06-16T09:30:00+08:00</lastmod><priority>0.6</priority></url>
+  <url><loc>https://wenliang844.github.io/editor/</loc><lastmod>2026-06-16T09:30:00+08:00</lastmod><priority>0.6</priority></url>
+  <url><loc>https://wenliang844.github.io/overleaf/</loc><lastmod>2026-06-16T09:30:00+08:00</lastmod><priority>0.6</priority></url>
+  <url><loc>https://wenliang844.github.io/contact/</loc><lastmod>2026-06-16T09:30:00+08:00</lastmod><priority>0.6</priority></url>
+  <url><loc>https://wenliang844.github.io/ai/</loc><lastmod>2026-06-16T09:30:00+08:00</lastmod><priority>0.6</priority></url>
+  <url><loc>https://wenliang844.github.io/appreciation/</loc><lastmod>2026-06-16T09:30:00+08:00</lastmod><priority>0.6</priority></url>
+  <url><loc>https://wenliang844.github.io/sponsor/</loc><lastmod>2026-06-16T09:30:00+08:00</lastmod><priority>0.6</priority></url>
+  <url><loc>https://wenliang844.github.io/categories/</loc><priority>0.6</priority></url>
+  <url><loc>https://wenliang844.github.io/tags/</loc><lastmod>2026-06-16T09:30:00+08:00</lastmod><priority>0.6</priority></url>
 </urlset>
