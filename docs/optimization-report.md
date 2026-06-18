@@ -6094,3 +6094,43 @@
 
 - 运行全量质量门禁并提交第四十二轮 UX 优化。
 - 继续筛选不触碰 `assistant.js` 外部改动的低风险用户体验或工程化项目。
+
+## 第 180 轮：导航搜索快捷键提示
+
+时间：2026-06-18
+
+### 已完成内容
+
+- 在 `src/templates/layout.mjs` 为导航搜索按钮增加 `title` 与更具体的 `aria-label`，提示 `Ctrl+K` 和 `/`。
+- 在 `js/i18n.js` 增加 `nav.searchHint` 英文文案。
+- 在 `js/search.js` 的 `applyI18n()` 中同步搜索按钮 title/aria，兼容手写页面中的旧按钮。
+- 扩展 `tests/templates.test.mjs` 与 `tests/js-behavior.test.mjs`，覆盖模板输出和运行时中英文提示同步。
+- 更新 UX-02、建议索引、健康评分、工作报告和本轮工作报告。
+
+### 发现的问题
+
+- 导航搜索按钮只有泛化的“全局搜索”可访问名称，没有暴露 `/` 与 `Ctrl+K` 快捷入口。
+- 手写页面可能不会立刻跟随模板变化，需要运行时同步兜底。
+- 直接在搜索空状态添加可见快捷键说明会增加界面噪音，因此选择非可见 tooltip/aria 提示。
+
+### 修复方案
+
+- 模板层提供无 JS 可用的中文 `title`/`aria-label`。
+- i18n 层提供英文 `nav.searchHint`。
+- search 运行时每次初始化和语言切换时重写 trigger 的 `title` 与 `aria-label`。
+
+### 性能、安全与质量指标
+
+- `node --test tests/templates.test.mjs tests/js-behavior.test.mjs tests/i18n-deep.test.mjs`：52 个模板、JS 行为与 i18n 测试全部通过。
+- `npm run lint:check`：通过。
+- `npm test`：573 个测试全部通过。
+- `npm run build`：通过，成功生成 6 篇文章页面并刷新生成页搜索按钮属性。
+- `npm run validate:production`：33 项检查通过，0 失败，0 警告。
+- `npm run test:coverage`：573 个测试全部通过；行覆盖率 93.27%，分支覆盖率 75.33%，函数覆盖率 90.84%，均高于覆盖率阈值。
+- `npm audit --audit-level=moderate --registry=https://registry.npmjs.org`：0 个中高危漏洞。
+- UX 收益：搜索快捷键从隐藏知识变成 tooltip 与辅助技术可读提示，不增加可见界面负担。
+
+### 下一步计划
+
+- 运行全量质量门禁并提交第四十三轮 UX 优化。
+- 继续处理不触碰 `assistant.js` 外部改动的低风险 UX 或工程化项目。

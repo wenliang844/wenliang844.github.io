@@ -54,7 +54,9 @@
     input.setAttribute("placeholder", t("dyn.search.ph", "搜索文章标题、标签、内容…"));
     clearBtn.setAttribute("aria-label", t("dyn.search.clear", "清空搜索"));
     if (trigger) {
-      trigger.setAttribute("aria-label", t("nav.search", "全局搜索"));
+      const triggerHint = t("nav.searchHint", "全局搜索（Ctrl+K 或 /）");
+      trigger.setAttribute("aria-label", triggerHint);
+      trigger.setAttribute("title", triggerHint);
     }
     const foot = overlay.querySelector(".search-modal-foot");
     if (foot) {

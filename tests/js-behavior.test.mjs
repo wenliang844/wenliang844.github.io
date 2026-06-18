@@ -164,6 +164,33 @@ test("search.js no longer duplicates escapeHtml", async () => {
   assert.doesNotMatch(code, /&lt;|&gt;|&quot;|&#39;/, "search.js should not manually encode HTML entities");
 });
 
+test("search.js gives the nav trigger a shortcut hint", async () => {
+  const i18n = await readFile(join(ROOT, "js", "i18n.js"), "utf8");
+  const utils = await readFile(join(ROOT, "js", "utils.js"), "utf8");
+  const search = await readFile(join(ROOT, "js", "search.js"), "utf8");
+  const dom = new JSDOM(`<!doctype html><html><body>
+    <nav class="navigation">
+      <button class="nav-search-trigger" type="button" aria-label="全局搜索"></button>
+    </nav>
+  </body></html>`, {
+    runScripts: "outside-only",
+    url: "https://wenliang844.github.io/",
+  });
+
+  dom.window.eval(i18n);
+  dom.window.eval(utils);
+  dom.window.eval(search);
+
+  const trigger = dom.window.document.querySelector(".nav-search-trigger");
+  assert.equal(trigger.getAttribute("aria-label"), "全局搜索（Ctrl+K 或 /）");
+  assert.equal(trigger.getAttribute("title"), "全局搜索（Ctrl+K 或 /）");
+
+  dom.window.cwlSetLang("en");
+  assert.equal(trigger.getAttribute("aria-label"), "Global search (Ctrl+K or /)");
+  assert.equal(trigger.getAttribute("title"), "Global search (Ctrl+K or /)");
+  dom.window.close();
+});
+
 test("i18n consumers use CWLUtils.t instead of local wrappers", async () => {
   const files = [
     "blog.js",

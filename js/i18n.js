@@ -77,6 +77,7 @@
     "nav.sponsor": '<i class="fas fa-heart" aria-hidden="true"></i> Sponsor',
     "nav.theme": "Toggle theme",
     "nav.search": "Global search",
+    "nav.searchHint": "Global search (Ctrl+K or /)",
     "footer.text": "© 2021 - 2026 CWL · Powered by Cwl · Theme inspired by Coder",
     "subscribe.title": "Subscribe · new posts by email",
     "subscribe.ph": "Enter your email",
