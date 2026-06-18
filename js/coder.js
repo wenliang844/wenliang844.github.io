@@ -224,6 +224,7 @@
   window.addEventListener("scroll", throttledScroll, { passive: true });
   window.addEventListener("resize", throttledScroll);
   onScroll();
+  body.classList.add("to-top-ready");
 
   /* ----------------------------------------------------------------------
    * Copy-to-clipboard buttons on code blocks

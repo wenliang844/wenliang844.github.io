@@ -5973,3 +5973,43 @@
 
 - 运行全量质量门禁并提交第三十九轮性能测试守卫优化。
 - 继续筛选不触碰 `assistant.js` 外部改动的技术债或 UX 项。
+
+## 第 177 轮：返回顶部按钮初始化防闪烁
+
+时间：2026-06-18
+
+### 已完成内容
+
+- 在 `css/coder.css` 增加 `body:not(.to-top-ready) .to-top { display: none; }`，隐藏未初始化的返回顶部按钮。
+- 在 `js/coder.js` 首次执行 `onScroll()` 后添加 `body.to-top-ready`，确保按钮状态先计算再进入可显示阶段。
+- 扩展 `tests/css.test.mjs` 与 `tests/coder-deep.test.mjs`，分别锁定 CSS ready 门闩和 JS 初始化标记。
+- 更新 UX-10、建议索引、健康评分、工作报告和本轮工作报告。
+
+### 发现的问题
+
+- `.to-top` 由 JS 动态创建，初始依赖 `visible` class 控制透明度。
+- 浏览器恢复滚动位置或提前触发滚动状态时，按钮可能在初始化阶段出现短暂闪烁。
+- 既有测试未覆盖“按钮完成首轮状态计算后再允许显示”的时序。
+
+### 修复方案
+
+- 用 body 级 ready class 作为初始化门闩。
+- 首次 `onScroll()` 计算宽度/可见状态后再添加 `.to-top-ready`。
+- 保持原有 `.to-top.visible` 显隐动画与滚动阈值逻辑不变。
+
+### 性能、安全与质量指标
+
+- `node --test tests/css.test.mjs tests/coder-deep.test.mjs tests/coder.test.mjs`：67 个 CSS 与运行时初始化测试全部通过。
+- `npm run lint:check`：通过。
+- `node --test tests/performance.test.mjs`：13 个性能测试全部通过。
+- `npm test`：570 个测试全部通过。
+- `npm run build`：通过，成功生成 6 篇文章页面。
+- `npm run validate:production`：33 项检查通过，0 失败，0 警告。
+- `npm run test:coverage`：570 个测试全部通过；行覆盖率 93.29%，分支覆盖率 75.29%，函数覆盖率 90.80%，均高于覆盖率阈值。
+- `npm audit --audit-level=moderate --registry=https://registry.npmjs.org`：0 个中高危漏洞。
+- UX 收益：返回顶部按钮不再进入未初始化可显示状态，减少页面加载视觉抖动。
+
+### 下一步计划
+
+- 运行全量质量门禁并提交第四十轮 UX 优化。
+- 继续处理不触碰 `assistant.js` 外部改动的 UX 或工程化项目。

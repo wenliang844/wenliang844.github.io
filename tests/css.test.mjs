@@ -219,6 +219,13 @@ test("coder.css contains cursor effects selectors", async () => {
   assert.ok(css.includes(".cursor-canvas"), "should have cursor-canvas");
 });
 
+test("coder.css hides to-top button until scroll state is initialized", async () => {
+  const css = await readFile(join(ROOT, "css", "coder.css"), "utf8");
+
+  assert.match(css, /body:not\(\.to-top-ready\)\s+\.to-top\s*{\s*display:\s*none;\s*}/);
+  assert.match(css, /\.to-top\.visible\s*{[^}]*opacity:\s*1;[^}]*pointer-events:\s*auto;/s);
+});
+
 // ─── 暗色模式支持 ─────────────────────────────────────────────────────────────
 
 test("coder.css contains dark mode color scheme", async () => {

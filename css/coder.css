@@ -3153,6 +3153,10 @@ a.card:hover {
   transition: opacity 220ms ease, transform 220ms ease, color 180ms ease, border-color 180ms ease;
 }
 
+body:not(.to-top-ready) .to-top {
+  display: none;
+}
+
 .to-top.visible {
   opacity: 1;
   transform: translateY(0) scale(1);

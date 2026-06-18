@@ -30,7 +30,7 @@
 | 🟡 第二 | 架构评审 | [architecture-review.md](architecture-review.md) | 7（中 3 / 低 4） |
 | 🟡 第二 | 技术债务 | [tech-debt.md](tech-debt.md) | 10（中 2 / 低 8） |
 | 🟢 第三 | 新功能建议 | [new-features.md](new-features.md) | 10 |
-| 🟢 第三 | UX 优化 | [ux-improvements.md](ux-improvements.md) | 10（中 2 / 低 6 / 已修复 2） |
+| 🟢 第三 | UX 优化 | [ux-improvements.md](ux-improvements.md) | 10（中 2 / 低 5 / 已修复 3） |
 | 🟢 第三 | 开发体验 | [devex-improvements.md](devex-improvements.md) | 10（低 5 / 部分 1 / 已修复 4） |
 | 🔵 第四 | 模块分析-构建系统 | [module-reviews/build-system.md](module-reviews/build-system.md) | 5 |
 | 🔵 第四 | 模块分析-客户端JS | [module-reviews/client-javascript.md](module-reviews/client-javascript.md) | 5 |
@@ -91,6 +91,7 @@
 已完成：MR-BUILD-05 页面脚本合并去重，避免模板误传造成重复加载。
 已完成：B-07 单篇页已有 SSR 目录时跳过动态 TOC 构建，避免重复目录。
 已完成：B-02 粒子热路径使用 swap-and-pop 删除，并新增源码守卫防止回退到 `splice()`。
+已完成：UX-10 返回顶部按钮初始化后再显示，避免页面加载时短暂闪烁。
 
 ### 🥈 高价值中成本（建议近期规划）
 

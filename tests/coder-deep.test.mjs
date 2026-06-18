@@ -91,6 +91,7 @@ test("coder.js creates back-to-top button", async () => {
   assert.ok(btn, "should create to-top button");
   assert.equal(btn.tagName, "BUTTON");
   assert.equal(btn.type, "button");
+  assert.ok(dom.window.document.body.classList.contains("to-top-ready"), "should mark to-top as initialized after first scroll state calculation");
   dom.window.close();
 });
 
