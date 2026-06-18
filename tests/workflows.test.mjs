@@ -64,3 +64,19 @@ test("commercial relay sync workflow skips safely when source secret is absent",
     );
   });
 });
+
+test("Dependabot keeps npm and GitHub Actions dependencies current", async () => {
+  const config = parse(await readFile(join(ROOT, ".github", "dependabot.yml"), "utf8"));
+  const updatesByEcosystem = new Map(config.updates.map((entry) => [entry["package-ecosystem"], entry]));
+  const npmUpdates = updatesByEcosystem.get("npm");
+  const actionsUpdates = updatesByEcosystem.get("github-actions");
+
+  assert.equal(config.version, 2);
+  assert.equal(npmUpdates.directory, "/");
+  assert.equal(npmUpdates.schedule.interval, "weekly");
+  assert.equal(npmUpdates["open-pull-requests-limit"], 5);
+  assert.equal(npmUpdates.groups["dev-dependencies"]["dependency-type"], "development");
+  assert.equal(actionsUpdates.directory, "/");
+  assert.equal(actionsUpdates.schedule.interval, "weekly");
+  assert.equal(actionsUpdates["open-pull-requests-limit"], 5);
+});

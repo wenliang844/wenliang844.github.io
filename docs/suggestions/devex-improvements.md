@@ -40,31 +40,12 @@
 
 ---
 
-## 📌 DE-03: 无依赖安全审计和更新检查
+## 📌 DE-03 [已修复]: 无依赖安全审计和更新检查
 
-- **📍 位置**：`package.json`
-- **📝 当前状况**：devDependencies 有 4 个包（eslint、jsdom、marked、yaml），没有定期运行 `npm audit` 和 `npm outdated` 的机制。
-- **⚠️ 影响程度**：低
-- **💡 建议方案**：
-  1. 在 CI 中添加安全审计步骤：
-     ```yaml
-     - run: npm audit --omit=dev
-     ```
-  2. 添加 Dependabot 配置：
-     ```yaml
-     # .github/dependabot.yml
-     version: 2
-     updates:
-       - package-ecosystem: npm
-         directory: "/"
-         schedule: { interval: monthly }
-     ```
-  3. 本地定期运行：
-     ```bash
-     npm outdated && npm audit
-     ```
-
-- **📊 预期收益**：及时发现依赖漏洞，保持依赖更新
+- **📍 位置**：`package.json`、`.github/workflows/ci.yml`、`.github/dependabot.yml`
+- **✅ 修复状态**：CI 已运行 `npm audit --audit-level=moderate --registry=https://registry.npmjs.org`，Dependabot 每周检查 npm devDependencies 和 GitHub Actions 更新，并限制最多 5 个打开 PR。
+- **🧪 回归测试**：`tests/workflows.test.mjs` 解析 CI 和 Dependabot YAML，验证依赖审计命令、npm 更新配置、GitHub Actions 更新配置和 devDependencies 分组。
+- **📊 实际收益**：漏洞审计与依赖更新提醒均自动化，减少依赖过期或 workflow action 滞后带来的维护风险。
 - **🔗 相关建议**：[TD-03](tech-debt.md#td-03)
 
 ---
@@ -234,7 +215,7 @@
 | 测试 | 41 个测试 ✅ | + E2E 测试 | 中 |
 | CI/CD | precommit + GitHub Actions + 覆盖率阈值 ✅ | 部署自动化 | 小 |
 | 文档 | readme.md | + 完整开发文档 | 中 |
-| 依赖管理 | npm ✅ | + Dependabot | 小 |
+| 依赖管理 | npm + Dependabot ✅ | 定期人工评估大版本 | 小 |
 | 开发体验 | http-server | + 热重载 | 小 |
 | 类型安全 | 无 | + JSDoc / TS | 大 |
 
