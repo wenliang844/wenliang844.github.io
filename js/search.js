@@ -75,15 +75,6 @@
     return Boolean(window.CWLUtils && window.CWLUtils.isEditing && window.CWLUtils.isEditing());
   }
 
-  function escapeHtml(value) {
-    return String(value === null || value === undefined ? "" : value)
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#39;");
-  }
-
   function escapeRegExp(value) {
     return String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   }
@@ -142,7 +133,7 @@
       input.focus();
       return;
     }
-    list.innerHTML = "";
+    list.replaceChildren();
     emptyMsg.textContent = t("dyn.search.start", "输入关键词开始搜索");
     emptyMsg.style.display = "";
     input.value = "";
@@ -237,22 +228,39 @@
   }
 
   /* ---- render results --------------------------------------------------- */
-  function highlightText(text, query) {
+  function appendHighlightedText(target, text, query) {
     const raw = String(text || "");
-    const html = escapeHtml(raw);
-    if (!query) { return html; }
-    return html.replace(new RegExp("(" + escapeRegExp(query) + ")", "gi"), "<mark>$1</mark>");
+    if (!query) {
+      target.textContent = raw;
+      return;
+    }
+
+    const pattern = new RegExp(escapeRegExp(query), "gi");
+    let lastIndex = 0;
+    raw.replace(pattern, function (match, offset) {
+      if (offset > lastIndex) {
+        target.appendChild(document.createTextNode(raw.slice(lastIndex, offset)));
+      }
+      const mark = document.createElement("mark");
+      mark.textContent = match;
+      target.appendChild(mark);
+      lastIndex = offset + match.length;
+      return match;
+    });
+
+    if (lastIndex < raw.length) {
+      target.appendChild(document.createTextNode(raw.slice(lastIndex)));
+    }
   }
 
-  function snippet(text, query) {
+  function snippetText(text, query) {
     if (!text) { return ""; }
     const lower = text.toLowerCase();
     const idx   = lower.indexOf(query.toLowerCase());
-    if (idx === -1) { return escapeHtml(text.slice(0, 150)); }
+    if (idx === -1) { return text.slice(0, 150); }
     const start = Math.max(0, idx - 40);
     const end   = Math.min(text.length, idx + query.length + 100);
-    const s = (start > 0 ? "…" : "") + text.slice(start, end) + (end < text.length ? "…" : "");
-    return highlightText(s, query);
+    return (start > 0 ? "…" : "") + text.slice(start, end) + (end < text.length ? "…" : "");
   }
 
   function bestText(item) {
@@ -266,7 +274,7 @@
   }
 
   function setEmpty(message) {
-    list.innerHTML = "";
+    list.replaceChildren();
     results = [];
     selected = -1;
     input.removeAttribute("aria-activedescendant");
@@ -299,7 +307,7 @@
 
     emptyMsg.style.display = "none";
     // Use DOM API to safely build result list
-    list.innerHTML = "";
+    list.replaceChildren();
     results.forEach(function (r, i) {
       const item = r.item;
       const li = document.createElement("li");
@@ -325,7 +333,7 @@
 
       const titleDiv = document.createElement("div");
       titleDiv.className = "search-result-title";
-      titleDiv.innerHTML = highlightText(item.title || item.shortTitle || item.path, query);
+      appendHighlightedText(titleDiv, item.title || item.shortTitle || item.path, query);
 
       const meta = document.createElement("div");
       meta.className = "search-result-meta";
@@ -335,7 +343,7 @@
         tagsSpan.className = "search-result-tags";
         item.tags.forEach(function (tag) {
           const tagEl = document.createElement("span");
-          tagEl.innerHTML = highlightText(tag, query);
+          appendHighlightedText(tagEl, tag, query);
           tagsSpan.appendChild(tagEl);
         });
         meta.appendChild(document.createTextNode(" "));
@@ -344,7 +352,7 @@
 
       const snippetDiv = document.createElement("div");
       snippetDiv.className = "search-result-snippet";
-      snippetDiv.innerHTML = snippet(bestText(item), query);
+      appendHighlightedText(snippetDiv, snippetText(bestText(item), query), query);
 
       li.appendChild(top);
       li.appendChild(titleDiv);

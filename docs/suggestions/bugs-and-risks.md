@@ -32,14 +32,13 @@
 
 ---
 
-## 📌 B-03: `search.js` 中 `list.innerHTML = ""` 后紧跟 `innerHTML =` 赋值，混合使用 DOM API
+## 📌 B-03 [已修复]: `search.js` 中 `list.innerHTML = ""` 后紧跟 `innerHTML =` 赋值，混合使用 DOM API
 
-- **📍 位置**：`js/search.js:279-357`
-- **📝 当前状况**：`render()` 函数先用 `list.innerHTML = ""` 清空结果，然后用 `document.createElement` 安全构建每个结果项，但 `titleDiv.innerHTML = highlightText(...)` 和 `snippetDiv.innerHTML = snippet(...)` 仍使用 innerHTML。虽然 `highlightText` 和 `snippet` 都经过 `escapeHtml` 处理，但这种混合模式增加了未来维护时引入 XSS 的风险。
-- **⚠️ 影响程度**：低（当前实现安全，但维护风险高）
-- **💡 建议方案**：统一使用 DOM API 构建，或在 `highlightText` 中使用 `Range` API 做高亮而非字符串拼接
-- **📊 预期收益**：消除潜在 XSS 向量，代码一致性提升
-- **🔗 相关建议**：[S-02 安全审计](security-audit.md#s-02)
+- **📍 原位置**：`js/search.js`
+- **✅ 修复状态**：搜索结果标题、标签和摘要高亮已改用 `appendHighlightedText()` 构建 text node 与 `<mark>` 节点，列表清空改用 `replaceChildren()`。
+- **🧪 回归测试**：`tests/security.test.mjs` 新增源码测试，确认搜索结果不再使用 `titleDiv.innerHTML`、`tagEl.innerHTML`、`snippetDiv.innerHTML`。
+- **📊 实际收益**：保留搜索高亮体验，同时消除结果渲染中的维护型 XSS 注入面。
+- **🔗 相关建议**：[S-01 安全审计](security-audit.md#s-01)
 
 ---
 
@@ -142,7 +141,7 @@
 |------|------|------|
 | 🔴 高 | 0 | — |
 | 🟡 中 | 2 | B-05, B-08 |
-| ✅ 已修复 | 7 | B-01, B-04, B-06, B-09, B-10, B-11, B-12 |
-| 🟢 低 | 3 | B-02, B-03, B-07 |
+| ✅ 已修复 | 8 | B-01, B-03, B-04, B-06, B-09, B-10, B-11, B-12 |
+| 🟢 低 | 2 | B-02, B-07 |
 
 > 整体评估：无高危 Bug，代码质量良好。主要风险集中在维护一致性（重复逻辑）和废弃 API 使用上。

@@ -23,7 +23,7 @@
 
 | 优先级 | 类别 | 文档 | 发现数量 |
 |--------|------|------|----------|
-| 🔴 第一 | Bug 与风险 | [bugs-and-risks.md](bugs-and-risks.md) | 12（中 2 / 低 3 / 已修复 7） |
+| 🔴 第一 | Bug 与风险 | [bugs-and-risks.md](bugs-and-risks.md) | 12（中 2 / 低 2 / 已修复 8） |
 | 🔴 第一 | 安全审计 | [security-audit.md](security-audit.md) | 11（高 1 / 中 2 / 低 5 / 无 3） |
 | 🔴 第一 | 性能瓶颈 | [performance-bottlenecks.md](performance-bottlenecks.md) | 12（中 5 / 低 7） |
 | 🟡 第二 | 代码质量 | [code-quality.md](code-quality.md) | 10（中 2 / 低 5 / 已修复 3） |
@@ -68,6 +68,7 @@
 已完成：CQ-07 应用源码 DOM 集合转换统一改用 `Array.from()`。
 已完成：B-04 giscus 未配置占位提示改用 DOM API 渲染。
 已完成：S-02 微信二维码弹窗改用 DOM API 渲染 i18n 文案。
+已完成：B-03 搜索结果高亮改用 DOM API 渲染。
 
 ### 🥈 高价值中成本（建议近期规划）
 

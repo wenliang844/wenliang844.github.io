@@ -4891,3 +4891,40 @@
 
 - 提交第十二轮安全修复。
 - 继续评估 B-03 搜索高亮 `innerHTML` 维护风险。
+
+## 第 150 轮：搜索结果高亮安全渲染
+
+时间：2026-06-18
+
+### 已完成内容
+
+- 将 `js/search.js` 的结果标题、标签和摘要高亮从 `innerHTML` 字符串注入改为 `appendHighlightedText()`。
+- `appendHighlightedText()` 使用 text node 写入普通文本，并用真实 `<mark>` 节点包裹命中片段。
+- 将搜索结果列表清空从 `innerHTML = ""` 改为 `replaceChildren()`。
+- 更新 B-03、安全审计、索引和健康评分文档。
+
+### 发现的问题
+
+- 搜索结果渲染虽然先经过 `escapeHtml()`，但仍依赖“生成安全 HTML 字符串后再 innerHTML 注入”的模式，后续维护时容易被误改出 XSS 风险。
+
+### 修复方案
+
+- 删除搜索结果高亮路径上的 HTML 字符串拼接，改用 DOM API 创建文本节点和 `<mark>` 节点。
+- 用源码安全测试锁定标题、标签、摘要不再通过 `innerHTML` 渲染。
+
+### 性能、安全与质量指标
+
+- `node --test tests/security.test.mjs tests/js-behavior.test.mjs`：35 个测试全部通过。
+- `npx eslint js/*.js`：通过。
+- `npm test`：531 个测试全部通过，耗时约 7.16 秒。
+- `npm run build`：通过，成功生成 6 篇文章页面。
+- `npm run validate:production`：33 项检查通过，0 失败，0 警告。
+- `node --test tests/performance.test.mjs`：13 个性能测试全部通过。
+- `npm run test:coverage`：531 个测试全部通过；行覆盖率 92.68%，分支覆盖率 74.95%，函数覆盖率 89.33%。
+- `npm audit --audit-level=moderate --registry=https://registry.npmjs.org`：0 个中高危漏洞。
+- 安全收益：消除搜索结果高亮中的维护型 XSS 注入面。
+
+### 下一步计划
+
+- 提交第十三轮安全修复。
+- 继续评估剩余 `innerHTML` 使用点或代码重复问题。

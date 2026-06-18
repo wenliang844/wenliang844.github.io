@@ -36,9 +36,7 @@
 
   | 文件 | 行号 | 用途 | 安全性 |
   |------|------|------|--------|
-  | `search.js` | 330 | `highlightText()` 输出 | ✅ 经 `escapeHtml` 处理 |
-  | `search.js` | 349 | `snippet()` 输出 | ✅ 经 `escapeHtml` 处理 |
-  | `search.js` | 340 | `highlightText(tag)` | ✅ 经 `escapeHtml` 处理 |
+  | `search.js` | 240-265 | 搜索结果高亮 | ✅ 已改用 text node + `<mark>` 节点 |
   | `coder.js` | 203 | 复制按钮 i18n 文本 | ✅ 硬编码 + Font Awesome 图标 |
   | `coder.js` | 299 | TOC 切换按钮 | ✅ 硬编码 |
   | `giscus.js` | 33-62 | `createPlaceholder()` | ✅ 已改用 DOM API 和 `textContent` |
@@ -57,7 +55,7 @@
   长期方案：考虑引入 DOMPurify（已在 `eslintrc.json` 的 globals 中声明）作为统一的 HTML 净化层。
 
 - **📊 预期收益**：建立安全编码规范，降低未来引入 XSS 的风险
-- **🔗 相关建议**：[B-03](bugs-and-risks.md#b-03), [B-04 已修复](bugs-and-risks.md#b-04)
+- **🔗 相关建议**：[B-03 已修复](bugs-and-risks.md#b-03), [B-04 已修复](bugs-and-risks.md#b-04)
 
 ---
 

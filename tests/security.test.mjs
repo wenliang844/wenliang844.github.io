@@ -37,35 +37,14 @@ test("utils.js escapeHtml prevents XSS", async () => {
   assert.equal(escapeHtml(""), "");
 });
 
-test("search.js highlightText sanitizes input", async () => {
-  // Simulate escapeHtml and escapeRegExp functions
-  const escapeHtml = function (value) {
-    return String(value == null ? "" : value)
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#39;");
-  };
+test("search.js renders highlighted result text with DOM nodes", async () => {
+  const code = await readFile(join(ROOT, "js", "search.js"), "utf8");
 
-  const escapeRegExp = function (value) {
-    return String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  };
-
-  const highlightText = function (text, query) {
-    var raw = String(text || "");
-    var html = escapeHtml(raw);
-    if (!query) { return html; }
-    return html.replace(new RegExp("(" + escapeRegExp(query) + ")", "gi"), "<mark>$1</mark>");
-  };
-
-  const maliciousText = '<img src=x onerror=alert(1)>';
-  const result = highlightText(maliciousText, "img");
-
-  // The escapeHtml converts < to &lt;, so "onerror=" becomes part of escaped text
-  assert.ok(!result.includes("<img"), "Should not contain unescaped img tag");
-  assert.ok(result.includes("&lt;"), "Should contain escaped angle brackets");
-  assert.ok(result.includes("<mark>img</mark>"), "Should highlight the search term");
+  assert.match(code, /document\.createElement\("mark"\)/, "Should create mark nodes for highlights");
+  assert.match(code, /mark\.textContent\s*=\s*match/, "Should write highlighted text safely");
+  assert.doesNotMatch(code, /titleDiv\.innerHTML\s*=/, "Should not render titles with innerHTML");
+  assert.doesNotMatch(code, /tagEl\.innerHTML\s*=/, "Should not render tags with innerHTML");
+  assert.doesNotMatch(code, /snippetDiv\.innerHTML\s*=/, "Should not render snippets with innerHTML");
 });
 
 test("localStorage operations handle quota errors gracefully", async () => {
