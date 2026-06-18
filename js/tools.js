@@ -65,7 +65,10 @@
     return rows.filter(function (row) {
       return Object.prototype.hasOwnProperty.call(data, row[0]);
     }).map(function (row) {
-      return row[1] + ": " + data[row[0]];
+      const value = row[0] === "local" && Object.prototype.hasOwnProperty.call(data, "milliseconds")
+        ? new Date(data.milliseconds).toLocaleString(locale())
+        : data[row[0]];
+      return row[1] + ": " + value;
     }).join("\n");
   }
 

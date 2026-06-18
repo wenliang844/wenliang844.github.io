@@ -261,6 +261,17 @@ test("tools page localizes English placeholders and dynamic statuses", async () 
     document.querySelector('[data-tool-tab="jwt"]').click();
     assert.match(document.querySelector("[data-jwt-decode]").textContent, /Decode JWT/);
 
+    const localeCalls = [];
+    dom.window.Date.prototype.toLocaleString = function (localeArg) {
+      localeCalls.push(localeArg);
+      return localeArg === "en-US" ? "EN_LOCAL_TIME" : "DEFAULT_LOCAL_TIME";
+    };
+    document.querySelector('[data-tool-tab="time"]').click();
+    document.querySelector("#timestamp-input").value = "1718697600";
+    document.querySelector('[data-time-action="from-timestamp"]').click();
+    assert.match(document.querySelector("#timestamp-output").textContent, /Local time: EN_LOCAL_TIME/);
+    assert.ok(localeCalls.includes("en-US"));
+
     document.querySelector('[data-tool-tab="uuid"]').click();
     document.querySelector('[data-copy-target="uuid-output"]').click();
     await new Promise((resolve) => {
