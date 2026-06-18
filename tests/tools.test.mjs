@@ -329,3 +329,27 @@ test("copy failures are reported when clipboard APIs are unavailable", async () 
     dom.window.close();
   }
 });
+
+test("copy utility cleans up legacy textarea when copy fails", async () => {
+  const code = await readFile(join(ROOT, "js", "utils.js"), "utf8");
+  const dom = new JSDOM("<!doctype html><html><body></body></html>", {
+    runScripts: "outside-only",
+    url: "https://wenliang844.github.io/tools/",
+  });
+  const { document } = dom.window;
+  try {
+    Object.defineProperty(dom.window.navigator, "clipboard", {
+      configurable: true,
+      value: undefined,
+    });
+    document.execCommand = function () {
+      throw new Error("copy denied");
+    };
+    dom.window.eval(code);
+
+    await assert.rejects(dom.window.CWLUtils.copyText("copy me"), /copy denied/);
+    assert.equal(document.querySelectorAll("textarea").length, 0);
+  } finally {
+    dom.window.close();
+  }
+});

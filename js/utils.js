@@ -45,8 +45,9 @@
    */
   Utils.legacyCopy = function (text) {
     return new Promise(function (resolve, reject) {
+      let area = null;
       try {
-        const area = document.createElement("textarea");
+        area = document.createElement("textarea");
         area.value = text;
         area.style.position = "fixed";
         area.style.left = "-9999px";
@@ -57,7 +58,6 @@
         area.select();
         area.setSelectionRange(0, text.length);
         const success = document.execCommand("copy");
-        document.body.removeChild(area);
         if (success) {
           resolve();
         } else {
@@ -65,6 +65,10 @@
         }
       } catch (error) {
         reject(error);
+      } finally {
+        if (area && area.parentNode) {
+          area.parentNode.removeChild(area);
+        }
       }
     });
   };

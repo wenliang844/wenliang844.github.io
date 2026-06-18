@@ -1226,3 +1226,36 @@
 - 继续检查工具箱错误提示在真实浏览器中的表现。
 - 继续审计 Base64、URL 和时间戳工具中可以自动化覆盖的边界。
 - 保持助手 LLM 相关修复等待并行改动稳定后再提交。
+
+## 第 38 轮：复制 fallback 临时节点清理
+
+时间：2026-06-18
+
+### 已完成内容
+
+- 审计工具箱复制按钮依赖的公共 `CWLUtils.copyText()` 降级路径。
+- 修复 `legacyCopy()` 在 `execCommand()` 或选择文本失败时可能遗留临时 textarea 的问题。
+- 增加 jsdom 回归测试，模拟复制失败并断言 DOM 无残留临时节点。
+
+### 发现的问题
+
+- `legacyCopy()` 只在 `execCommand("copy")` 返回后移除 textarea。
+- 如果 `select()`、`setSelectionRange()` 或 `execCommand()` 抛错，隐藏 textarea 会留在页面中。
+- 工具箱、代码块复制和分享复制都可能经过公共复制工具，失败路径需要保证无 DOM 泄漏。
+
+### 修复方案
+
+- 将临时 textarea 引用提升到 `try` 外。
+- 使用 `finally` 在成功、返回失败或抛错后统一移除临时节点。
+- 新增 `copy utility cleans up legacy textarea when copy fails` 测试。
+
+### 性能、覆盖率与质量指标
+
+- `npm run test:tools`：12 个测试全部通过，耗时约 1.6 秒。
+- `npm run build`：通过。
+
+### 下一步计划
+
+- 继续审计工具箱与公共工具函数的失败路径资源清理。
+- 继续检查复制状态在真实浏览器中的表现。
+- 继续保持提交范围小，避免混入并行页面改动。
