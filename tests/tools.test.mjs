@@ -61,6 +61,16 @@ test("tools core formats and minifies JSON with clear errors", async () => {
   assert.match(tools.formatJson("{bad").error, /JSON 解析失败/);
 });
 
+test("tools core preserves falsey non-empty direct inputs", async () => {
+  const tools = await loadToolsCore();
+
+  assert.equal(tools.formatJson(0).value, "0");
+  assert.equal(tools.minifyJson(false).value, "false");
+  assert.equal(tools.encodeBase64(0).value, "MA==");
+  assert.equal(tools.encodeUrl(0).value, "0");
+  assert.equal(tools.normalizeTimestamp(0).value.milliseconds, 0);
+});
+
 test("tools core handles Base64, URL, timestamps, UUID and JWT", async () => {
   const tools = await loadToolsCore();
   const encoded = tools.encodeBase64("你好 Codex");

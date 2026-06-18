@@ -7,6 +7,10 @@
     return { ok: false, error: message, code: code || "unknown" };
   }
 
+  function text(value) {
+    return String(value == null ? "" : value);
+  }
+
   function bytesToBinary(bytes) {
     const chunkSize = 0x8000;
     let binary = "";
@@ -18,7 +22,7 @@
 
   function parseJson(input) {
     try {
-      return ok(JSON.parse(String(input || "")));
+      return ok(JSON.parse(text(input)));
     } catch (error) {
       return fail("JSON 解析失败：" + error.message, "json");
     }
@@ -36,7 +40,7 @@
 
   function encodeBase64(input) {
     try {
-      const raw = String(input || "");
+      const raw = text(input);
       let binary = "";
       if (root.TextEncoder) {
         const bytes = new root.TextEncoder().encode(raw);
@@ -52,7 +56,7 @@
 
   function decodeBase64(input) {
     try {
-      const clean = String(input || "").trim();
+      const clean = text(input).trim();
       const binary = atob(clean);
       const bytes = new Uint8Array(binary.length);
       for (let i = 0; i < binary.length; i += 1) {
@@ -69,7 +73,7 @@
 
   function encodeUrl(input) {
     try {
-      return ok(encodeURIComponent(String(input || "")));
+      return ok(encodeURIComponent(text(input)));
     } catch (error) {
       return fail("URL 编码失败：请输入可编码的文本", "urlEncode");
     }
@@ -77,7 +81,7 @@
 
   function decodeUrl(input) {
     try {
-      return ok(decodeURIComponent(String(input || "")));
+      return ok(decodeURIComponent(text(input)));
     } catch (error) {
       return fail("URL 解码失败：请输入合法的 URL 编码文本", "urlDecode");
     }
@@ -110,7 +114,7 @@
   }
 
   function normalizeTimestamp(value) {
-    const raw = String(value || "").trim();
+    const raw = text(value).trim();
     if (!/^-?\d+$/.test(raw)) {
       return fail("请输入秒或毫秒时间戳", "timestampInput");
     }
@@ -167,7 +171,7 @@
   }
 
   function dateToTimestamp(value) {
-    const raw = String(value || "").trim();
+    const raw = text(value).trim();
     if (!raw) {
       return fail("请选择或输入日期时间", "dateRequired");
     }
@@ -184,13 +188,14 @@
   }
 
   function base64UrlDecode(part) {
-    const padded = String(part || "").replace(/-/g, "+").replace(/_/g, "/")
-      .padEnd(Math.ceil(String(part || "").length / 4) * 4, "=");
+    const raw = text(part);
+    const padded = raw.replace(/-/g, "+").replace(/_/g, "/")
+      .padEnd(Math.ceil(raw.length / 4) * 4, "=");
     return decodeBase64(padded);
   }
 
   function decodeJwt(input) {
-    const token = String(input || "").trim();
+    const token = text(input).trim();
     const parts = token.split(".");
     if (parts.length < 2) {
       return fail("JWT 至少需要包含 header 和 payload 两段", "jwtParts");

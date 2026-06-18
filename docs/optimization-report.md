@@ -906,3 +906,35 @@
 - 继续检查其它直接返回 fallback 错误文案的工具核心函数。
 - 继续跟踪并行助手默认模式测试不一致问题。
 - 继续保持小范围提交，避免引入外部功能改动。
+
+## 第 28 轮：工具核心 falsey 输入保真
+
+时间：2026-06-18
+
+### 已完成内容
+
+- 审计 `tools-core` 中对输入值的字符串归一化方式。
+- 将多处 `String(value || "")` 改为统一 helper，保留 `0`、`false` 等非空 falsey 值。
+- 补充直接调用核心 API 的回归测试。
+
+### 发现的问题
+
+- `formatJson(0)`、`encodeBase64(0)`、`encodeUrl(0)`、`normalizeTimestamp(0)` 这类直接 API 调用会把 `0` 当成空字符串。
+- UI textarea/input 主要传字符串，因此普通页面交互不易触发，但导出的核心函数行为不严谨。
+
+### 修复方案
+
+- 新增 `text(value)`，仅把 `null` 和 `undefined` 归一化为空字符串。
+- JSON、Base64、URL、时间戳、JWT 路径统一使用该 helper。
+- `base64UrlDecode()` 也复用同一输入文本，避免重复转换。
+
+### 性能、覆盖率与质量指标
+
+- `node --test tests/tools.test.mjs`：9 个测试全部通过。
+- `npm run build`：通过。
+
+### 下一步计划
+
+- 继续检查工具核心中其它直接 API 与 UI 输入之间的边界差异。
+- 继续等待并行助手默认模式改动稳定后恢复组合测试。
+- 继续优先处理可独立验证的小范围修复。
