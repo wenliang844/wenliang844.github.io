@@ -409,6 +409,41 @@ test("time conversion output rerenders after language changes", async () => {
   }
 });
 
+test("tool success and copy statuses rerender after language changes", async () => {
+  const { dom } = await loadToolsPage({ i18n: true });
+  const { document } = dom.window;
+  try {
+    document.querySelector("#json-input").value = '{"ok":true}';
+    document.querySelector('[data-json-action="format"]').click();
+    assert.equal(document.querySelector("#json-status").textContent, "处理完成");
+
+    document.querySelector('[data-tool-tab="uuid"]').click();
+    document.querySelector("[data-uuid-generate]").click();
+    document.querySelector('[data-copy-target="uuid-output"]').click();
+    await new Promise((resolve) => {
+      dom.window.setTimeout(resolve, 0);
+    });
+    assert.equal(document.querySelector("#uuid-status").textContent, "已复制");
+
+    document.querySelector('[data-tool-tab="jwt"]').click();
+    document.querySelector("#jwt-input").value = [
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9",
+      "eyJzdWIiOiIxMjM0NTY3ODkwIn0",
+      "signature",
+    ].join(".");
+    document.querySelector("[data-jwt-decode]").click();
+    assert.match(document.querySelector("#jwt-status").textContent, /JWT 已解码/);
+
+    document.querySelector(".lang-toggle").click();
+
+    assert.equal(document.querySelector("#json-status").textContent, "Done");
+    assert.equal(document.querySelector("#uuid-status").textContent, "Copied");
+    assert.equal(document.querySelector("#jwt-status").textContent, "JWT decoded. This tool does not verify the signature.");
+  } finally {
+    dom.window.close();
+  }
+});
+
 test("navigation can wrap translated toolbox labels", async () => {
   const css = await readFile(join(ROOT, "css", "coder.css"), "utf8");
 

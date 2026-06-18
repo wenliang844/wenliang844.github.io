@@ -53,23 +53,56 @@
     });
   }
 
-  function setStatusElement(el, message, type) {
+  function statusType(el) {
+    if (el && el.classList.contains("is-error")) {
+      return "error";
+    }
+    if (el && el.classList.contains("is-ok")) {
+      return "ok";
+    }
+    return "";
+  }
+
+  function setStatusElement(el, message, type, key, fallback) {
     if (!el) {
       return;
     }
     el.textContent = message || "";
     el.classList.toggle("is-error", type === "error");
     el.classList.toggle("is-ok", type === "ok");
+    if (key) {
+      el.setAttribute("data-status-key", key);
+      el.setAttribute("data-status-fallback", fallback || message || "");
+    } else {
+      el.removeAttribute("data-status-key");
+      el.removeAttribute("data-status-fallback");
+    }
   }
 
   function setStatus(id, message, type) {
     setStatusElement(document.getElementById(id), message, type);
   }
 
+  function setStatusKey(id, key, fallback, type) {
+    setStatusElement(document.getElementById(id), t(key, fallback), type, key, fallback);
+  }
+
+  function setStatusElementKey(el, key, fallback, type) {
+    setStatusElement(el, t(key, fallback), type, key, fallback);
+  }
+
+  function rerenderStatusKeys() {
+    Array.prototype.slice.call(document.querySelectorAll(".tool-status[data-status-key]")).forEach(function (el) {
+      const key = el.getAttribute("data-status-key");
+      const fallback = el.getAttribute("data-status-fallback") || el.textContent;
+      setStatusElement(el, t(key, fallback), statusType(el), key, fallback);
+    });
+  }
+
   function applyResult(result, outputId, statusId) {
     if (result.ok) {
       value(outputId, result.value);
-      setStatus(statusId, t("tools.status.done", "处理完成"), "ok");
+      setStatusKey(statusId, "tools.status.done", "处理完成", "ok");
     } else {
       value(outputId, "");
       setStatus(statusId, errorMessage(result), "error");
@@ -110,7 +143,7 @@
     const isPlaceholder = target && target.getAttribute("data-empty") === "true";
     const data = !isPlaceholder && target && ("value" in target ? target.value : target.textContent);
     if (!data) {
-      setStatusElement(status, t("tools.status.copyEmpty", "没有可复制的内容"), "error");
+      setStatusElementKey(status, "tools.status.copyEmpty", "没有可复制的内容", "error");
       return;
     }
     const copier = window.CWLUtils && window.CWLUtils.copyText
@@ -119,9 +152,9 @@
     Promise.resolve().then(function () {
       return copier(data);
     }).then(function () {
-      setStatusElement(status, t("tools.status.copied", "已复制"), "ok");
+      setStatusElementKey(status, "tools.status.copied", "已复制", "ok");
     }).catch(function () {
-      setStatusElement(status, t("tools.status.copyFail", "复制失败，请手动选择复制"), "error");
+      setStatusElementKey(status, "tools.status.copyFail", "复制失败，请手动选择复制", "error");
     });
   }
 
@@ -254,7 +287,7 @@
       if (result.ok) {
         timeResults[outputId] = result.value;
         text(outputId, formatTimeResult(result.value));
-        setStatus("time-status", t("tools.status.converted", "转换完成"), "ok");
+        setStatusKey("time-status", "tools.status.converted", "转换完成", "ok");
       } else {
         delete timeResults[outputId];
         text(outputId, "");
@@ -265,7 +298,7 @@
 
     if (closest(event.target, "[data-uuid-generate]")) {
       setGeneratedUuid(core.generateUuid());
-      setStatus("uuid-status", t("tools.status.uuid", "UUID 已生成"), "ok");
+      setStatusKey("uuid-status", "tools.status.uuid", "UUID 已生成", "ok");
       return;
     }
 
@@ -274,7 +307,7 @@
       if (result.ok) {
         value("jwt-header-output", result.value.header);
         value("jwt-payload-output", result.value.payload);
-        setStatus("jwt-status", t("tools.status.jwt", "JWT 已解码。本工具不校验签名。"), "ok");
+        setStatusKey("jwt-status", "tools.status.jwt", "JWT 已解码。本工具不校验签名。", "ok");
       } else {
         value("jwt-header-output", "");
         value("jwt-payload-output", "");
@@ -306,9 +339,10 @@
     Object.keys(timeResults).forEach(function (id) {
       text(id, formatTimeResult(timeResults[id]));
     });
+    rerenderStatusKeys();
     const timeStatus = document.getElementById("time-status");
     if (timeStatus && timeStatus.classList.contains("is-ok") && Object.keys(timeResults).length) {
-      setStatus("time-status", t("tools.status.converted", "转换完成"), "ok");
+      setStatusKey("time-status", "tools.status.converted", "转换完成", "ok");
     }
   });
   window.setInterval(updateNow, 1000);
