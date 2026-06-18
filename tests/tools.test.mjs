@@ -491,6 +491,25 @@ test("uuid placeholder is not copied and generated UUID survives i18n updates", 
   }
 });
 
+test("copy actions report missing targets in the source panel", async () => {
+  const { copiedText, dom } = await loadToolsPage();
+  const { document } = dom.window;
+  try {
+    document.querySelector('[data-tool-tab="uuid"]').click();
+    const invalidCopy = document.createElement("button");
+    invalidCopy.type = "button";
+    invalidCopy.setAttribute("data-copy-target", "missing-output");
+    document.querySelector("#tool-uuid .tool-actions").appendChild(invalidCopy);
+    invalidCopy.click();
+
+    assert.equal(copiedText(), null);
+    assert.equal(document.querySelector("#uuid-status").classList.contains("is-error"), true);
+    assert.match(document.querySelector("#uuid-status").textContent, /没有可复制的内容/);
+  } finally {
+    dom.window.close();
+  }
+});
+
 test("copy failures are reported when clipboard APIs are unavailable", async () => {
   const { dom } = await loadToolsPage({ copyText: false });
   const { document } = dom.window;

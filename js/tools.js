@@ -103,9 +103,10 @@
     return t("tools.error." + result.code, result.error);
   }
 
-  function copyFrom(targetId) {
+  function copyFrom(targetId, source) {
     const target = document.getElementById(targetId);
-    const status = target && target.closest(".tool-panel") && target.closest(".tool-panel").querySelector(".tool-status");
+    const panel = (target && closest(target, ".tool-panel")) || closest(source, ".tool-panel");
+    const status = panel && panel.querySelector(".tool-status");
     const isPlaceholder = target && target.getAttribute("data-empty") === "true";
     const data = !isPlaceholder && target && ("value" in target ? target.value : target.textContent);
     if (!data) {
@@ -284,7 +285,7 @@
 
     const copy = closest(event.target, "[data-copy-target]");
     if (copy) {
-      copyFrom(copy.getAttribute("data-copy-target"));
+      copyFrom(copy.getAttribute("data-copy-target"), copy);
     }
   });
 
