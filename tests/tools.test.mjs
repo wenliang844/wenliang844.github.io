@@ -61,6 +61,8 @@ async function loadToolsPage(options = {}) {
   const toolsCode = await readFile(join(ROOT, "js", "tools.js"), "utf8");
   const i18nCode = options.i18n ? await readFile(join(ROOT, "js", "i18n.js"), "utf8") : "";
   let copiedText = null;
+  const timerCalls = [];
+  const clearedTimers = [];
   const dom = new JSDOM(renderToolsPage(), {
     pretendToBeVisual: true,
     runScripts: "outside-only",
@@ -84,12 +86,40 @@ async function loadToolsPage(options = {}) {
       value: undefined,
     });
   }
+  if (options.timerSpy) {
+    let nextTimerId = 1;
+    Object.defineProperty(dom.window.document, "hidden", {
+      configurable: true,
+      value: false,
+    });
+    dom.window.setInterval = function (callback, delay) {
+      const id = nextTimerId;
+      nextTimerId += 1;
+      timerCalls.push({ callback, delay, id });
+      return id;
+    };
+    dom.window.clearInterval = function (id) {
+      clearedTimers.push(id);
+    };
+  }
   dom.window.eval(toolsCode);
   return {
+    clearedTimers() {
+      return clearedTimers.slice();
+    },
     copiedText() {
       return copiedText;
     },
     dom,
+    setHidden(hidden) {
+      Object.defineProperty(dom.window.document, "hidden", {
+        configurable: true,
+        value: hidden,
+      });
+    },
+    timerCalls() {
+      return timerCalls.slice();
+    },
   };
 }
 
@@ -413,6 +443,32 @@ test("time conversion output rerenders after language changes", async () => {
     assert.match(document.querySelector("#timestamp-output").textContent, /Milliseconds: 1718697600000/);
     assert.match(document.querySelector("#timestamp-output").textContent, /Local time: EN_LOCAL_TIME/);
     assert.equal(document.querySelector("#time-status").textContent, "Converted");
+  } finally {
+    dom.window.close();
+  }
+});
+
+test("current time timer pauses while the tools page is hidden", async () => {
+  const { clearedTimers, dom, setHidden, timerCalls } = await loadToolsPage({ timerSpy: true });
+  const { document, Event } = dom.window;
+  try {
+    assert.equal(timerCalls().length, 1);
+    assert.equal(timerCalls()[0].delay, 1000);
+    assert.deepEqual(clearedTimers(), []);
+
+    setHidden(true);
+    document.dispatchEvent(new Event("visibilitychange"));
+
+    assert.deepEqual(clearedTimers(), [1]);
+
+    setHidden(false);
+    document.dispatchEvent(new Event("visibilitychange"));
+
+    assert.equal(timerCalls().length, 2);
+    assert.equal(timerCalls()[1].delay, 1000);
+
+    document.dispatchEvent(new Event("visibilitychange"));
+    assert.equal(timerCalls().length, 2);
   } finally {
     dom.window.close();
   }

@@ -5,6 +5,7 @@
   }
 
   const timeResults = {};
+  let nowTimer = null;
 
   function t(key, fallback) {
     return window.cwlT ? window.cwlT(key, fallback) : fallback;
@@ -266,6 +267,28 @@
     text("time-now-local", now.toLocaleString(locale()));
   }
 
+  function startNowTimer() {
+    if (nowTimer === null) {
+      nowTimer = window.setInterval(updateNow, 1000);
+    }
+  }
+
+  function stopNowTimer() {
+    if (nowTimer !== null) {
+      window.clearInterval(nowTimer);
+      nowTimer = null;
+    }
+  }
+
+  function syncNowTimer() {
+    updateNow();
+    if (document.hidden) {
+      stopNowTimer();
+    } else {
+      startNowTimer();
+    }
+  }
+
   function initTimeInput() {
     const el = document.getElementById("datetime-input");
     if (!el) {
@@ -365,8 +388,9 @@
     }
   });
 
-  updateNow();
+  syncNowTimer();
   initTimeInput();
+  document.addEventListener("visibilitychange", syncNowTimer);
   document.addEventListener("cwl:langchange", function () {
     updateNow();
     Object.keys(timeResults).forEach(function (id) {
@@ -378,5 +402,4 @@
       setStatusKey("time-status", "tools.status.converted", "转换完成", "ok");
     }
   });
-  window.setInterval(updateNow, 1000);
 })();
