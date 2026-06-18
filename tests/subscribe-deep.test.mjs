@@ -182,6 +182,42 @@ test("subscribe footer form rejects invalid email", async () => {
   form.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
 
   assert.ok(status.textContent.length > 0, "should show error for invalid email");
+  assert.ok(input.classList.contains("is-invalid"), "should mark invalid footer input");
+  assert.equal(input.getAttribute("aria-invalid"), "true");
+
+  input.value = "reader@example.com";
+  input.dispatchEvent(new Event("input", { bubbles: true }));
+  assert.ok(!input.classList.contains("is-invalid"), "should clear invalid state while editing");
+  assert.equal(input.getAttribute("aria-invalid"), "false");
+  dom.window.close();
+});
+
+test("subscribe modal marks invalid email visually", async () => {
+  const dom = new JSDOM(SUBSCRIBE_HTML, {
+    runScripts: "outside-only",
+    url: "https://wenliang844.github.io/",
+  });
+  await loadSubscribe(dom);
+  const { document, Event } = dom.window;
+
+  document.querySelector("[data-subscribe-open]").click();
+  await new Promise((resolve) => dom.window.setTimeout(resolve, 220));
+
+  const form = document.querySelector(".subscribe-modal-form");
+  const input = document.querySelector(".subscribe-modal-input");
+  const status = document.querySelector(".subscribe-modal-status");
+
+  input.value = "not-an-email";
+  form.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+
+  assert.ok(status.textContent.length > 0, "should show modal error for invalid email");
+  assert.ok(input.classList.contains("is-invalid"), "should mark invalid modal input");
+  assert.equal(input.getAttribute("aria-invalid"), "true");
+
+  input.value = "reader@example.com";
+  input.dispatchEvent(new Event("input", { bubbles: true }));
+  assert.ok(!input.classList.contains("is-invalid"), "should clear modal invalid state while editing");
+  assert.equal(input.getAttribute("aria-invalid"), "false");
   dom.window.close();
 });
 

@@ -15,13 +15,22 @@
 
   const t = window.CWLUtils.t;
 
-  function submitEmail(emailValue, setStatus, btn, onSuccess) {
+  function setInputInvalid(input, invalid) {
+    if (!input) {return;}
+    input.classList.toggle("is-invalid", invalid);
+    input.setAttribute("aria-invalid", invalid ? "true" : "false");
+  }
+
+  function submitEmail(emailValue, setStatus, btn, onSuccess, input) {
     const email = (emailValue || "").trim();
     if (!EMAIL_RE.test(email)) {
       setStatus(t("subscribe.invalid", "请输入有效的邮箱地址。"));
+      setInputInvalid(input, true);
+      if (input && input.focus) {input.focus();}
       return;
     }
 
+    setInputInvalid(input, false);
     if (btn) {btn.disabled = true;}
     setStatus(t("subscribe.sending", "提交中…"));
 
@@ -65,11 +74,14 @@
       showFooterDisabled();
       document.addEventListener("cwl:langchange", showFooterDisabled);
     } else if (footerForm && footerInput) {
+      footerInput.addEventListener("input", function () {
+        setInputInvalid(footerInput, false);
+      });
       footerForm.addEventListener("submit", function (e) {
         e.preventDefault();
         submitEmail(footerInput.value, setFooterStatus, footerBtn, function () {
           footerForm.reset();
-        });
+        }, footerInput);
       });
     }
 
@@ -135,6 +147,7 @@
       menu.checked = false;
     }
     setModalStatus("");
+    setInputInvalid(modalInput, false);
     applyI18n();
     // 等可见性切换生效后再聚焦，否则 visibility:hidden→visible 过渡中 focus 无效。
     raf(function () {
@@ -150,6 +163,7 @@
     }
     modalForm.reset();
     setModalStatus("");
+    setInputInvalid(modalInput, false);
   }
 
   function applyI18n() {
@@ -185,7 +199,11 @@
       setTimeout(function () {
         closeModal();
       }, 1200);
-    });
+    }, modalInput);
+  });
+
+  modalInput.addEventListener("input", function () {
+    setInputInvalid(modalInput, false);
   });
 
   // 关闭按钮 / 遮罩点击 / ESC

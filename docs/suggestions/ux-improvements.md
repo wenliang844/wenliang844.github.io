@@ -80,29 +80,12 @@
 
 ---
 
-## 📌 UX-05: 订阅表单无输入验证视觉反馈
+## 📌 UX-05 [已修复]: 订阅表单无输入验证视觉反馈
 
-- **📍 位置**：`js/subscribe.js:22-24`
-- **📝 当前状况**：邮箱验证使用正则 `/^[^\s@]+@[^\s@]+\.[^\s@]+$/`，验证失败时显示文字提示，但输入框没有视觉变化（如红色边框）。
-- **⚠️ 影响程度**：低
-- **💡 建议方案**：
-  ```javascript
-  if (!EMAIL_RE.test(email)) {
-    setStatus(t("subscribe.invalid", "请输入有效的邮箱地址。"));
-    input.classList.add("is-invalid");
-    input.focus();
-    return;
-  }
-  // 输入时移除错误状态
-  input.addEventListener("input", function() {
-    input.classList.remove("is-invalid");
-  });
-  ```
-  CSS：
-  ```css
-  .subscribe-input.is-invalid { border-color: #f44336; }
-  ```
-- **📊 预期收益**：表单交互更直观
+- **📍 原位置**：`js/subscribe.js`、`css/coder.css`
+- **✅ 修复状态**：页脚订阅表单和订阅弹窗在邮箱无效时都会添加 `.is-invalid` 与 `aria-invalid="true"`，聚焦输入框；用户继续输入时自动清除错误状态。
+- **🧪 回归测试**：`tests/subscribe-deep.test.mjs` 覆盖页脚和弹窗错误态，`tests/css.test.mjs` 锁定 `.subscribe-input.is-invalid` 与 `.subscribe-modal-input.is-invalid` 样式。
+- **📊 实际收益**：订阅失败原因从仅文字提示升级为文字、边框和可访问性状态同步反馈。
 - **🔗 相关建议**：[B-08](bugs-and-risks.md#b-08)
 
 ---
@@ -227,7 +210,7 @@
 |--------|------|-------------|----------|
 | 🥇 | UX-03 | 文章读者 | 低 |
 | 🥇 | UX-09 | 无障碍用户 | 中 |
-| 🥈 | UX-05 | 订阅用户 | 低 |
+| ✅ | UX-05 | 订阅用户 | 已完成 |
 | 🥉 | UX-02 | 搜索用户 | 低 |
 | 🥉 | UX-06 | 反馈用户 | 低 |
 | 🥉 | UX-07 | 工具箱用户 | 低 |

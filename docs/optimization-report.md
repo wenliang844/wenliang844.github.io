@@ -6052,3 +6052,45 @@
 
 - 运行全量质量门禁并提交第四十一轮构建系统代码质量优化。
 - 继续处理不触碰 `assistant.js` 外部改动的低风险技术债或 UX 项。
+
+## 第 179 轮：订阅邮箱错误态反馈
+
+时间：2026-06-18
+
+### 已完成内容
+
+- 在 `js/subscribe.js` 增加 `setInputInvalid()`，统一页脚表单和订阅弹窗的邮箱错误态。
+- 无效邮箱提交时添加 `.is-invalid`、`aria-invalid="true"` 并聚焦输入框；用户继续输入时自动清除错误态。
+- 在 `css/coder.css` 增加页脚和弹窗订阅输入的错误边框。
+- 合并订阅输入的 placeholder/focus 重复 CSS，守住 `coder.css < 118KB` 体积预算。
+- 扩展 `tests/subscribe-deep.test.mjs` 与 `tests/css.test.mjs`，覆盖行为和样式守卫。
+- 更新 UX-05、建议索引、健康评分、工作报告和本轮工作报告。
+
+### 发现的问题
+
+- 订阅邮箱验证失败时只有状态文本，没有输入框视觉反馈。
+- 对屏幕阅读器而言，输入框本身缺少 `aria-invalid` 状态，错误与字段的关联不够明确。
+- 页脚表单和弹窗表单共用提交逻辑，但此前没有共用错误态逻辑。
+
+### 修复方案
+
+- 将错误态收敛到 `setInputInvalid(input, invalid)`。
+- 页脚和弹窗提交时把对应 input 传入 `submitEmail()`。
+- 在输入、弹窗打开和弹窗关闭时清理错误态，避免过期错误状态残留。
+
+### 性能、安全与质量指标
+
+- `node --test tests/subscribe-deep.test.mjs tests/subscribe.test.mjs tests/css.test.mjs`：42 个订阅与 CSS 测试全部通过。
+- `node --test tests/performance.test.mjs`：13 个性能测试全部通过，`coder.css` 仍低于 118KB 预算。
+- `npm run lint:check`：通过。
+- `npm test`：572 个测试全部通过。
+- `npm run build`：通过，成功生成 6 篇文章页面。
+- `npm run validate:production`：33 项检查通过，0 失败，0 警告。
+- `npm run test:coverage`：572 个测试全部通过；行覆盖率 93.27%，分支覆盖率 75.33%，函数覆盖率 90.84%，均高于覆盖率阈值。
+- `npm audit --audit-level=moderate --registry=https://registry.npmjs.org`：0 个中高危漏洞。
+- UX 收益：订阅邮箱错误从纯文字提示升级为视觉状态、焦点和可访问性状态同步反馈。
+
+### 下一步计划
+
+- 运行全量质量门禁并提交第四十二轮 UX 优化。
+- 继续筛选不触碰 `assistant.js` 外部改动的低风险用户体验或工程化项目。

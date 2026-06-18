@@ -2856,15 +2856,6 @@ a.card:hover {
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.subscribe-input::placeholder {
-  color: var(--muted);
-}
-
-.subscribe-input:focus {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px var(--accent-soft);
-}
-
 .subscribe-btn {
   flex: 0 0 auto;
   min-height: 2.7rem;
@@ -3069,14 +3060,18 @@ a.card:hover {
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
+.subscribe-input::placeholder,
 .subscribe-modal-input::placeholder {
   color: var(--muted);
 }
 
+.subscribe-input:focus,
 .subscribe-modal-input:focus {
   border-color: var(--accent);
   box-shadow: 0 0 0 3px var(--accent-soft);
 }
+
+.subscribe-input.is-invalid,.subscribe-modal-input.is-invalid{border-color:#ef4444}
 
 .subscribe-modal-btn {
   width: 100%;
