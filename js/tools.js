@@ -163,10 +163,6 @@
     }).join("\n");
   }
 
-  function errorMessage(result) {
-    return statusError(result).message;
-  }
-
   function copyFrom(targetId, source) {
     const target = document.getElementById(targetId);
     const panel = (target && closest(target, ".tool-panel")) || closest(source, ".tool-panel");
