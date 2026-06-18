@@ -187,10 +187,24 @@
     });
   }
 
+  function isBase64UrlText(raw) {
+    const match = /^([A-Za-z0-9_-]*)(={0,2})$/.exec(raw);
+    if (!match) {
+      return false;
+    }
+    const body = match[1];
+    const padding = match[2];
+    return body.length % 4 !== 1 && (!padding || (body.length + padding.length) % 4 === 0);
+  }
+
   function base64UrlDecode(part) {
     const raw = text(part);
-    const padded = raw.replace(/-/g, "+").replace(/_/g, "/")
-      .padEnd(Math.ceil(raw.length / 4) * 4, "=");
+    if (!isBase64UrlText(raw)) {
+      return fail("Base64URL 片段无效", "base64Url");
+    }
+    const unpadded = raw.replace(/=+$/, "");
+    const padded = unpadded.replace(/-/g, "+").replace(/_/g, "/")
+      .padEnd(Math.ceil(unpadded.length / 4) * 4, "=");
     return decodeBase64(padded);
   }
 
