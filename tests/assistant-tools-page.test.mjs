@@ -37,6 +37,20 @@ test("toolbox minimizes the assistant panel after page init", async () => {
   }
 });
 
+test("toolbox minimized assistant can be reopened from the floating button", async () => {
+  const dom = await loadToolsWithAssistant("https://example.test/tools/");
+  const { document } = dom.window;
+  try {
+    document.querySelector(".assistant-fab").click();
+
+    assert.equal(document.querySelector(".assistant-panel").hidden, false);
+    assert.equal(document.body.classList.contains("assistant-open"), true);
+    assert.equal(document.querySelector(".assistant-fab").getAttribute("aria-expanded"), "true");
+  } finally {
+    dom.window.close();
+  }
+});
+
 test("toolbox preserves explicit assistant fullscreen startup", async () => {
   const dom = await loadToolsWithAssistant("https://example.test/tools/?assistant=fullscreen");
   const { document } = dom.window;
