@@ -62,3 +62,22 @@ test("toolbox preserves explicit assistant fullscreen startup", async () => {
     dom.window.close();
   }
 });
+
+test("toolbox preserves alternate assistant fullscreen startup URLs", async () => {
+  const urls = [
+    "https://example.test/tools/?ai=fullscreen",
+    "https://example.test/tools/#assistant-fullscreen",
+  ];
+
+  for (const url of urls) {
+    const dom = await loadToolsWithAssistant(url);
+    const { document } = dom.window;
+    try {
+      assert.equal(document.querySelector(".assistant-panel").hidden, false);
+      assert.equal(document.body.classList.contains("assistant-open"), true);
+      assert.equal(document.body.classList.contains("assistant-fullscreen"), true);
+    } finally {
+      dom.window.close();
+    }
+  }
+});

@@ -3433,3 +3433,33 @@
 - 检查最新提交摘要和本轮相关文件状态。
 - 运行最后一次目标计时检查。
 - 汇总最终报告。
+
+## 第 107 轮：工具页助手 fullscreen 入口覆盖补强
+
+时间：2026-06-18
+
+### 已完成内容
+
+- 扩展工具页助手集成测试，覆盖 `ai=fullscreen` 和 `#assistant-fullscreen` 两种备用入口。
+- 与已有 `assistant=fullscreen` 测试一起覆盖 `shouldKeepAssistantOpen()` 的全部显式打开路径。
+- 验证工具页默认收起逻辑不会误伤任一 fullscreen 入口。
+
+### 发现的问题
+
+- 本轮未发现新的测试失败。
+- 备用 fullscreen URL 此前没有独立测试覆盖。
+
+### 修复方案
+
+- 在 `assistant-tools-page.test.mjs` 中新增备用 fullscreen URL 循环测试。
+- 本轮没有新增生产代码修复。
+
+### 性能、覆盖率与质量指标
+
+- `npm run test:assistant`：24 个测试全部通过，耗时约 2.25 秒。
+
+### 下一步计划
+
+- 运行最终工具箱组合回归。
+- 运行最终构建抽样。
+- 收口最终报告。
