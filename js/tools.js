@@ -331,7 +331,7 @@
     if (document.readyState === "complete") {
       minimizeAssistantPanel();
     } else {
-      document.addEventListener("DOMContentLoaded", minimizeAssistantPanel);
+      document.addEventListener("DOMContentLoaded", minimizeAssistantPanel, { once: true });
     }
   }
 
