@@ -257,6 +257,12 @@ test("performance-monitor.js exists and has content", async () => {
   assert.ok(code.length > 0, "performance-monitor.js should not be empty");
 });
 
+test("performance-monitor.js uses Navigation Timing Level 2", async () => {
+  const code = await readFile(join(ROOT, "js", "performance-monitor.js"), "utf8");
+  assert.match(code, /getEntriesByType\("navigation"\)/, "should read navigation entries");
+  assert.doesNotMatch(code, /performance\.timing/, "should not use deprecated performance.timing");
+});
+
 // ─── logger.js 测试 ───────────────────────────────────────────────────────────
 
 test("logger.js exists and has content", async () => {

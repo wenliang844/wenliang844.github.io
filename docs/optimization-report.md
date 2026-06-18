@@ -4740,3 +4740,42 @@
 ### 下一步计划
 
 - 提交第八轮代码质量修复。
+
+## 第 146 轮：性能监控导航时序 API 现代化
+
+时间：2026-06-18
+
+### 已完成内容
+
+- 将 `js/performance-monitor.js` 的导航时序采集从废弃的 `performance.timing` 迁移到 `performance.getEntriesByType("navigation")[0]`。
+- 增加 `duration()` 归一化函数，避免指标出现负数或小数噪声。
+- 扩展 `tests/js-behavior.test.mjs`，锁定性能监控使用 Navigation Timing Level 2，并禁止回退到 `performance.timing`。
+- 更新 B-09、TD-01、安全审计、索引和健康评分文档。
+
+### 发现的问题
+
+- `performance-monitor.js` 默认禁用，但未来一旦开启，会读取已废弃的 `window.performance.timing`。
+- 技术债务与安全审计文档仍把该废弃 API 作为待修项。
+
+### 修复方案
+
+- 使用 `performance.getEntriesByType("navigation")` 获取 `PerformanceNavigationTiming`。
+- 用 `nav.duration` 或 `nav.loadEventEnd` 计算总耗时，其他阶段用相对时间差计算。
+- 用源码测试防止废弃 API 再次进入性能监控模块。
+
+### 性能、安全与质量指标
+
+- `node --test tests/js-behavior.test.mjs tests/performance.test.mjs`：40 个测试全部通过。
+- `npx eslint js/*.js`：通过。
+- `npm test`：528 个测试全部通过，耗时约 7.62 秒。
+- `npm run build`：通过，成功生成 6 篇文章页面。
+- `npm run validate:production`：33 项检查通过，0 失败，0 警告。
+- `node --test tests/performance.test.mjs`：13 个性能测试全部通过。
+- `npm run test:coverage`：528 个测试全部通过；行覆盖率 92.68%，分支覆盖率 74.95%，函数覆盖率 89.33%。
+- `npm audit --audit-level=moderate --registry=https://registry.npmjs.org`：0 个中高危漏洞。
+- 兼容性收益：消除性能监控模块中的废弃导航时序 API。
+
+### 下一步计划
+
+- 提交第九轮技术债务修复。
+- 继续处理 CQ-07 或 B-07 等低风险技术债务。

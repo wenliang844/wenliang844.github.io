@@ -45,24 +45,32 @@
      * 收集导航时序指标
      */
     collectNavigationTiming: function () {
-      if (!window.performance || !window.performance.timing) {
+      if (!window.performance || !window.performance.getEntriesByType) {
         return;
       }
 
-      const timing = window.performance.timing;
+      const nav = window.performance.getEntriesByType("navigation")[0];
+      if (!nav) {
+        return;
+      }
+
+      const duration = function (end, start) {
+        return Math.max(0, Math.round(end - start));
+      };
+
       const navigation = {
         // DNS 查询时间
-        dns: timing.domainLookupEnd - timing.domainLookupStart,
+        dns: duration(nav.domainLookupEnd, nav.domainLookupStart),
         // TCP 连接时间
-        tcp: timing.connectEnd - timing.connectStart,
+        tcp: duration(nav.connectEnd, nav.connectStart),
         // 请求响应时间
-        request: timing.responseEnd - timing.requestStart,
+        request: duration(nav.responseEnd, nav.requestStart),
         // DOM 解析时间
-        domParse: timing.domInteractive - timing.domLoading,
+        domParse: duration(nav.domInteractive, nav.responseEnd),
         // 资源加载时间
-        resourceLoad: timing.loadEventStart - timing.domContentLoadedEventEnd,
+        resourceLoad: duration(nav.loadEventStart, nav.domContentLoadedEventEnd),
         // 总时间
-        total: timing.loadEventEnd - timing.navigationStart
+        total: Math.max(0, Math.round(nav.duration || nav.loadEventEnd || 0))
       };
 
       this.metrics.navigation = navigation;

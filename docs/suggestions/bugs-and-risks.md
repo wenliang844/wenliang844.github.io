@@ -107,21 +107,12 @@
 
 ---
 
-## 📌 B-09: `performance-monitor.js` 使用已废弃的 `performance.timing` API
+## 📌 B-09 [已修复]: `performance-monitor.js` 使用已废弃的 `performance.timing` API
 
-- **📍 位置**：`js/performance-monitor.js:47-66`
-- **📝 当前状况**：`window.performance.timing` 已被标记为废弃（deprecated），现代浏览器推荐使用 `PerformanceNavigationTiming`。虽然当前 `enabled: false`，但代码仍在 `init()` 中检查并可能在未来被启用。
-- **⚠️ 影响程度**：低
-- **💡 建议方案**：
-  ```javascript
-  // 使用 PerformanceNavigationTiming 替代
-  const entries = performance.getEntriesByType("navigation");
-  if (entries.length) {
-    const nav = entries[0];
-    // nav.domainLookupEnd - nav.domainLookupStart 等
-  }
-  ```
-- **📊 预期收益**：消除废弃 API 警告，兼容未来浏览器版本
+- **📍 位置**：`js/performance-monitor.js`
+- **✅ 修复状态**：导航时序采集已改用 `performance.getEntriesByType("navigation")[0]`，不再引用废弃的 `performance.timing`。
+- **🧪 回归测试**：`tests/js-behavior.test.mjs` 新增源码测试，确认使用 Navigation Timing Level 2 且不包含 `performance.timing`。
+- **📊 实际收益**：消除废弃 API 使用点，兼容未来浏览器性能 API 演进。
 - **🔗 相关建议**：[TD-01 技术债务](tech-debt.md#td-01)
 
 ---
@@ -162,7 +153,7 @@
 |------|------|------|
 | 🔴 高 | 0 | — |
 | 🟡 中 | 2 | B-05, B-08 |
-| ✅ 已修复 | 5 | B-01, B-06, B-10, B-11, B-12 |
-| 🟢 低 | 5 | B-02, B-03, B-04, B-07, B-09 |
+| ✅ 已修复 | 6 | B-01, B-06, B-09, B-10, B-11, B-12 |
+| 🟢 低 | 4 | B-02, B-03, B-04, B-07 |
 
 > 整体评估：无高危 Bug，代码质量良好。主要风险集中在维护一致性（重复逻辑）和废弃 API 使用上。

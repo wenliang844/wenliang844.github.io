@@ -225,6 +225,6 @@
 | API Key 暴露 | ✅ 已修复 | 前端不再内置 demo key（S-00） |
 | CSP 策略 | ⚠️ 缺失 | 建议添加 |
 | SRI 校验 | ⚠️ 缺失 | Giscus 脚本无 SRI |
-| 废弃 API | ⚠️ 存在 | `performance.timing`；`pageYOffset` 已替换 |
+| 废弃 API | 🟢 低 | `pageYOffset` 与 `performance.timing` 已替换，剩余为兼容 fallback 与旧式集合转换 |
 
 > 整体评估：安全状况良好，当前无已知高危漏洞。主要改进方向是防御性措施（CSP、SRI）和代码规范（innerHTML 使用标准）。
