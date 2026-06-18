@@ -344,6 +344,15 @@ test("tools page ignores unknown tab targets without clearing selection", async 
     jsonTab.dispatchEvent(new KeyboardEvent("keydown", { key: "End", bubbles: true, cancelable: true }));
     assert.equal(jwtTab.classList.contains("active"), true);
     assert.equal(jwtTab.getAttribute("aria-selected"), "true");
+
+    const duplicateJsonTab = document.createElement("button");
+    duplicateJsonTab.setAttribute("data-tool-tab", "json");
+    document.querySelector(".tools-tabs").appendChild(duplicateJsonTab);
+    jsonTab.click();
+
+    assert.equal(jsonTab.classList.contains("active"), true);
+    assert.equal(duplicateJsonTab.classList.contains("active"), false);
+    assert.equal(document.querySelectorAll('.tools-tabs [data-tool-tab="json"].active').length, 1);
   } finally {
     dom.window.close();
   }

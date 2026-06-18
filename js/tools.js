@@ -48,8 +48,14 @@
   }
 
   function toolTabs(panels) {
+    const seen = {};
     return Array.prototype.slice.call(document.querySelectorAll(".tools-tabs [data-tool-tab]")).filter(function (tab) {
-      return Boolean(panelFor(tab.getAttribute("data-tool-tab"), panels));
+      const id = tab.getAttribute("data-tool-tab");
+      if (!panelFor(id, panels) || seen[id]) {
+        return false;
+      }
+      seen[id] = true;
+      return true;
     });
   }
 
