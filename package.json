@@ -19,8 +19,9 @@
     "lint:check": "eslint js/*.js",
     "serve": "npx --yes http-server . -p 8137 -c-1",
     "dev": "npm run build && npm run serve",
-    "validate": "npm run lint && npm test && npm run build",
+    "validate": "npm run lint && npm test && npm run validate:posts && npm run build",
     "validate:production": "node scripts/validate-production.mjs",
+    "validate:posts": "node scripts/validate-posts.mjs",
     "precommit": "npm run validate"
   },
   "devDependencies": {

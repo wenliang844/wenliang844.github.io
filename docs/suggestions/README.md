@@ -12,7 +12,7 @@
 | 安全性 | 3.5 / 5 | 🟡 中等 |
 | 性能 | 4.1 / 5 | 🟢 良好 |
 | 架构设计 | 4.3 / 5 | 🟢 优秀 |
-| 工程化 | 4.1 / 5 | 🟢 良好 |
+| 工程化 | 4.2 / 5 | 🟢 良好 |
 | 用户体验 | 4.0 / 5 | 🟢 良好 |
 | 可维护性 | 3.7 / 5 | 🟢 良好 |
 | **综合** | **3.9 / 5** | **🟢 良好** |
@@ -31,7 +31,7 @@
 | 🟡 第二 | 技术债务 | [tech-debt.md](tech-debt.md) | 10（中 2 / 低 8） |
 | 🟢 第三 | 新功能建议 | [new-features.md](new-features.md) | 10 |
 | 🟢 第三 | UX 优化 | [ux-improvements.md](ux-improvements.md) | 10（中 2 / 低 6 / 已修复 2） |
-| 🟢 第三 | 开发体验 | [devex-improvements.md](devex-improvements.md) | 10（低 6 / 部分 1 / 已修复 3） |
+| 🟢 第三 | 开发体验 | [devex-improvements.md](devex-improvements.md) | 10（低 5 / 部分 1 / 已修复 4） |
 | 🔵 第四 | 模块分析-构建系统 | [module-reviews/build-system.md](module-reviews/build-system.md) | 5 |
 | 🔵 第四 | 模块分析-客户端JS | [module-reviews/client-javascript.md](module-reviews/client-javascript.md) | 5 |
 | 🔵 第四 | 模块分析-编辑器 | [module-reviews/editor.md](module-reviews/editor.md) | 5 |
@@ -85,6 +85,7 @@
 已完成：RES-02 为 6 篇文章补充 cover 和 1200×630 社交封面，并接入 OG、JSON-LD 与 image sitemap。
 已完成：DE-03 新增 Dependabot 周期更新检查，覆盖 npm devDependencies 与 GitHub Actions。
 已完成：P-12 移动端关闭高成本 `backdrop-filter`，降低小屏 GPU 合成压力。
+已完成：DE-08 新增独立文章 front matter 校验命令，并接入本地 validate 与 CI。
 
 ### 🥈 高价值中成本（建议近期规划）
 

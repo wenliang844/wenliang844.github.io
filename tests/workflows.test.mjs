@@ -30,6 +30,7 @@ test("CI workflow runs quality gates without write permissions", async () => {
     "npm ci",
     "npm run lint:check",
     "npm test",
+    "npm run validate:posts",
     "npm run build",
     "npm run validate:production",
     "npm run test:coverage",
@@ -39,6 +40,8 @@ test("CI workflow runs quality gates without write permissions", async () => {
   });
 
   assert.equal(packageJson.scripts["lint:check"], "eslint js/*.js");
+  assert.equal(packageJson.scripts["validate:posts"], "node scripts/validate-posts.mjs");
+  assert.match(packageJson.scripts.validate, /npm run validate:posts/);
 });
 
 test("commercial relay sync workflow skips safely when source secret is absent", async () => {

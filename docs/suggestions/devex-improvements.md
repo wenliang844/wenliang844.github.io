@@ -150,25 +150,12 @@
 
 ---
 
-## 📌 DE-08: Markdown 文章缺少 front-matter 校验工具
+## 📌 DE-08 [已修复]: Markdown 文章缺少 front-matter 校验工具
 
-- **📍 位置**：`scripts/build.mjs:84-102`
-- **📝 当前状况**：构建脚本对 front-matter 有基本校验（必填字段、长度限制），但：
-  - 没有独立的校验命令（只能通过 `npm run build` 触发）
-  - 错误信息直接输出到 stderr，没有格式化
-  - 没有提供 `--validate` 只校验不构建的模式
-- **⚠️ 影响程度**：低
-- **💡 建议方案**：添加独立校验脚本：
-  ```json
-  "validate:posts": "node scripts/validate-posts.mjs"
-  ```
-  校验脚本可以：
-  - 检查所有 `.md` 文件的 front-matter
-  - 验证 slug 唯一性
-  - 检查标签一致性
-  - 输出友好的错误报告
-
-- **📊 预期收益**：写文章时即时反馈错误，不需要等完整构建
+- **📍 位置**：`scripts/validate-posts.mjs`、`package.json`、`.github/workflows/ci.yml`
+- **✅ 修复状态**：新增 `npm run validate:posts`，独立校验所有 Markdown 文章 front matter，不生成站点产物；本地 `validate` 和 CI 均在 build 前运行该命令。
+- **🧪 回归测试**：`tests/validate-posts.test.mjs` 覆盖真实文章通过、重复 slug 失败和 `tags` / `tagsEn` 数量不一致失败；`tests/workflows.test.mjs` 锁定 CI 与 package scripts 集成。
+- **📊 实际收益**：写文章时可更快发现必填字段、日期、slug、cover 和标签翻译问题，减少等完整构建后才定位 front matter 错误的成本。
 - **🔗 相关建议**：[B-06](bugs-and-risks.md#b-06)
 
 ---

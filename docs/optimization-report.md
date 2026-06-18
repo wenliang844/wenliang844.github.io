@@ -5725,3 +5725,46 @@
 
 - 提交第三十三轮性能优化。
 - 继续评估 CSS 关键路径、JS 请求合并或 assistant.js i18n。
+
+## 第 171 轮：独立文章 front matter 校验
+
+时间：2026-06-18
+
+### 已完成内容
+
+- 新增 `scripts/validate-posts.mjs`，独立校验 `src/posts/*.md` 的 front matter，不生成站点产物。
+- 新增 `npm run validate:posts`，并接入本地 `validate` 和 GitHub Actions CI，在 build 前更早发现文章元数据错误。
+- 校验范围包括必填字段、日期、修改日期、封面路径、slug、重复 slug、`tags` / `tagsEn` 数组类型和数量一致性。
+- 新增 `tests/validate-posts.test.mjs`，覆盖真实文章通过、重复 slug、标签翻译数量不一致、非法标签类型、缺参、越界目录、空目录和空正文 warning。
+- 更新 DE-08、建议索引、健康评分、工作报告和本轮工作报告。
+
+### 发现的问题
+
+- 文章 front matter 校验此前只能借由完整构建触发，写作时反馈链路偏重。
+- CI 虽然会构建站点，但没有独立表达“文章元数据校验”这个质量门禁。
+- 新增脚本初版覆盖率偏低，补充失败和 warning 路径测试后脚本覆盖率提升到 96.85% 行覆盖。
+
+### 修复方案
+
+- 复用 `scripts/build.mjs` 中已有的 `validatePost`、`validateSlug`、`validateUniqueSlug`、`normalizeDate`、`normalizeModifiedDate` 和 `normalizeCover`。
+- 新脚本只读取 Markdown 和 YAML front matter，输出格式化错误列表；校验失败时返回非零退出码。
+- 在 CI 中将 `npm run validate:posts` 放在 build 前，减少文章错误进入完整构建阶段的成本。
+
+### 性能、安全与质量指标
+
+- `npm run validate:posts`：6 篇文章全部通过。
+- `node --test tests/validate-posts.test.mjs`：8 个文章校验测试全部通过。
+- `node --test tests/workflows.test.mjs`：3 个 workflow 配置测试全部通过。
+- `npm run lint:check`：通过。
+- `npm test`：562 个测试全部通过。
+- `npm run build`：通过，成功生成 6 篇文章页面。
+- `node --test tests/performance.test.mjs`：13 个性能测试全部通过。
+- `npm run validate:production`：33 项检查通过，0 失败，0 警告。
+- `npm run test:coverage`：562 个测试全部通过；行覆盖率 93.27%，分支覆盖率 75.29%，函数覆盖率 90.80%，均高于覆盖率阈值。
+- `npm audit --audit-level=moderate --registry=https://registry.npmjs.org`：0 个中高危漏洞。
+- 工程化收益：文章元数据错误可以通过独立命令和 CI 质量门禁更早暴露。
+
+### 下一步计划
+
+- 提交第三十四轮工程化优化。
+- 继续评估 CSS 关键路径、JS 请求合并或不触碰外部改动的代码质量项。
