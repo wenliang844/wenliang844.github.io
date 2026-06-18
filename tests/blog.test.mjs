@@ -54,6 +54,28 @@ async function loadBlog(dom) {
   return dom;
 }
 
+test("blog.js builds post item cache once during startup", async () => {
+  const dom = new JSDOM(BLOG_HTML, {
+    runScripts: "outside-only",
+    url: "https://wenliang844.github.io/post/",
+  });
+  const calls = new Map();
+  const originalGetElementById = dom.window.document.getElementById.bind(dom.window.document);
+  dom.window.document.getElementById = function (id) {
+    if (id.startsWith("post-")) {
+      calls.set(id, (calls.get(id) || 0) + 1);
+    }
+    return originalGetElementById(id);
+  };
+
+  await loadBlog(dom);
+
+  assert.equal(calls.get("post-a"), 1, "post-a panel should be read once");
+  assert.equal(calls.get("post-b"), 1, "post-b panel should be read once");
+  assert.equal(calls.get("post-c"), 1, "post-c panel should be read once");
+  dom.window.close();
+});
+
 // ─── Search filtering ─────────────────────────────────────────────────────
 
 test("blog.js search input filters posts by keyword", async () => {

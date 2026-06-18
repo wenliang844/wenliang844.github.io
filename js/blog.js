@@ -16,6 +16,7 @@
   const countBadge = document.querySelector(".tree-group .tree-count");
 
   let items = [];
+  let itemsReady = false;
 
   let query = "";
   let activeTag = null;
@@ -78,6 +79,13 @@
       const haystack = (title + " " + summary + " " + tags.join(" ") + " " + tagLabels.join(" ")).toLowerCase();
       return { link: link, li: li, panel: panel, tags: tags, tagLabels: tagLabels, haystack: haystack };
     });
+    itemsReady = true;
+  }
+
+  function ensureItems() {
+    if (!itemsReady) {
+      buildItems();
+    }
   }
 
   function matches(item) {
@@ -200,7 +208,7 @@
   }
 
   if (tagFilter) {
-    buildItems();
+    ensureItems();
     const tags = rebuildTagFilter();
 
     // 支持通过 /post/?tag=<标签> 直达并自动激活筛选。
@@ -387,7 +395,7 @@
     }
   }
 
-  buildItems();
+  ensureItems();
   document.addEventListener("cwl:langchange", refreshI18n);
   apply();
 })();

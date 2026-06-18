@@ -6335,3 +6335,42 @@
 
 - 运行全量质量门禁并提交第四十八轮安全/工程化优化。
 - 继续处理不触碰 `assistant.js` 外部改动的低风险安全、工程化或 UX 项。
+
+## 第 186 轮：博客启动缓存去重
+
+时间：2026-06-19
+
+### 已完成内容
+
+- 在 `js/blog.js` 中增加 `ensureItems()` 缓存门闩，避免有标签筛选时启动阶段重复执行 `buildItems()`。
+- 保留 `cwl:langchange` 时强制重建文章项缓存，确保中英文标签文案切换后搜索和标签显示仍准确。
+- 扩展 `tests/blog.test.mjs`，新增启动期每篇文章面板只读取一次的回归测试。
+- 更新 MR-JS-04、建议索引、健康评分、工作报告和本轮工作报告。
+
+### 发现的问题
+
+- `blog.js` 在标签筛选初始化时会构建一次文章项缓存，文件末尾又无条件构建一次。
+- 第二次构建会重复查询每个文章面板、摘要和标签，结果内容相同但覆盖前一次缓存。
+- 当前 6 篇文章影响较小，但文章列表扩容后会放大启动期 DOM 查询成本。
+
+### 修复方案
+
+- 用 `itemsReady` 标记缓存是否已经构建，启动阶段通过 `ensureItems()` 复用已有结果。
+- 语言切换路径继续调用 `buildItems()`，避免翻译后的标签文本、搜索 haystack 和标签按钮文案过期。
+- 用测试包裹 `document.getElementById()`，统计 `post-a/post-b/post-c` 面板读取次数，防止重复构建回归。
+
+### 性能、安全与质量指标
+
+- `node --test tests/blog.test.mjs tests/js-behavior.test.mjs tests/performance.test.mjs`：62 个博客、JS 行为与性能测试全部通过。
+- `npm run lint:check`：通过。
+- `npm test`：580 个测试全部通过。
+- `npm run build`：通过，成功生成 6 篇文章页面。
+- `npm run validate:production`：33 项检查通过，0 失败，0 警告。
+- `npm run test:coverage`：580 个测试全部通过；行覆盖率 93.29%，分支覆盖率 75.45%，函数覆盖率 90.87%，均高于覆盖率阈值。
+- `npm audit --audit-level=moderate --registry=https://registry.npmjs.org`：0 个中高危漏洞。
+- 性能收益：博客列表启动时每篇文章面板只读取一次，避免文章项缓存重复扫描。
+
+### 下一步计划
+
+- 运行全量质量门禁并提交第四十九轮性能/代码质量优化。
+- 继续处理不触碰 `assistant.js` 外部改动的低风险安全、工程化或 UX 项。
