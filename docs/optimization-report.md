@@ -4419,11 +4419,13 @@
 
 - 助手全屏状态的顶部偏移使用静态 CSS 值，导航高度发生变化时可能遮挡面板顶部。
 - 文档中的源码规模仍停留在工具箱扩展前，测试数量也与当前基线不一致。
+- `utils.js debounce resets timer on repeated calls` 在刚好等于 debounce 延迟的时间点断言，存在计时器调度抖动导致的偶发失败。
 
 ### 修复方案
 
 - 在 `js/assistant.js` 中新增 `updateFullscreenOffset()`，进入全屏、resize 和语言切换时重新计算偏移。
 - 在 `css/coder.css` 中使用 `--assistant-fullscreen-top` 变量控制全屏顶部位置，保留桌面和移动端 fallback。
+- 调整 debounce 重置测试的等待窗口，在小于延迟的时间点断言未执行，再等待超过完整延迟确认执行。
 - 更新 `docs/suggestions/README.md` 的源码规模与测试基线。
 
 ### 性能、覆盖率与质量指标

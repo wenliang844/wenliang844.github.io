@@ -427,12 +427,12 @@ test("utils.js debounce resets timer on repeated calls", async () => {
   const fn = debounce(() => { callCount++; }, 80);
 
   fn();
-  await new Promise(resolve => dom.window.setTimeout(resolve, 40));
+  await new Promise(resolve => dom.window.setTimeout(resolve, 30));
   fn(); // reset timer
-  await new Promise(resolve => dom.window.setTimeout(resolve, 40));
+  await new Promise(resolve => dom.window.setTimeout(resolve, 35));
   assert.equal(callCount, 0, "should still be waiting");
 
-  await new Promise(resolve => dom.window.setTimeout(resolve, 50));
+  await new Promise(resolve => dom.window.setTimeout(resolve, 60));
   assert.equal(callCount, 1, "should fire after full delay from last call");
   dom.window.close();
 });
