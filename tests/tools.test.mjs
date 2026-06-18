@@ -444,6 +444,28 @@ test("tool success and copy statuses rerender after language changes", async () 
   }
 });
 
+test("tool error statuses rerender after language changes", async () => {
+  const { dom } = await loadToolsPage({ i18n: true });
+  const { document } = dom.window;
+  try {
+    document.querySelector("#json-input").value = "{bad";
+    document.querySelector('[data-json-action="format"]').click();
+    assert.match(document.querySelector("#json-status").textContent, /^JSON 解析失败：/);
+
+    document.querySelector('[data-tool-tab="url"]').click();
+    document.querySelector("#url-input").value = "%E0%A4%A";
+    document.querySelector('[data-codec-action="url-decode"]').click();
+    assert.equal(document.querySelector("#url-status").textContent, "URL 解码失败：请输入合法的 URL 编码文本");
+
+    document.querySelector(".lang-toggle").click();
+
+    assert.match(document.querySelector("#json-status").textContent, /^JSON parse failed: /);
+    assert.equal(document.querySelector("#url-status").textContent, "URL decoding failed. Please enter valid URL-encoded text.");
+  } finally {
+    dom.window.close();
+  }
+});
+
 test("navigation can wrap translated toolbox labels", async () => {
   const css = await readFile(join(ROOT, "css", "coder.css"), "utf8");
 

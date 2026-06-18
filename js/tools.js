@@ -63,7 +63,7 @@
     return "";
   }
 
-  function setStatusElement(el, message, type, key, fallback) {
+  function setStatusElement(el, message, type, key, fallback, suffix) {
     if (!el) {
       return;
     }
@@ -73,9 +73,15 @@
     if (key) {
       el.setAttribute("data-status-key", key);
       el.setAttribute("data-status-fallback", fallback || message || "");
+      if (suffix) {
+        el.setAttribute("data-status-suffix", suffix);
+      } else {
+        el.removeAttribute("data-status-suffix");
+      }
     } else {
       el.removeAttribute("data-status-key");
       el.removeAttribute("data-status-fallback");
+      el.removeAttribute("data-status-suffix");
     }
   }
 
@@ -95,8 +101,39 @@
     Array.prototype.slice.call(document.querySelectorAll(".tool-status[data-status-key]")).forEach(function (el) {
       const key = el.getAttribute("data-status-key");
       const fallback = el.getAttribute("data-status-fallback") || el.textContent;
-      setStatusElement(el, t(key, fallback), statusType(el), key, fallback);
+      const suffix = el.getAttribute("data-status-suffix") || "";
+      setStatusElement(el, t(key, fallback) + suffix, statusType(el), key, fallback, suffix);
     });
+  }
+
+  function statusError(result) {
+    if (!result || !result.code) {
+      return {
+        message: result && result.error ? result.error : t("tools.error.unknown", "处理失败"),
+      };
+    }
+    if (result.code === "json") {
+      const fallback = "JSON 解析失败：";
+      const suffix = String(result.error || "").replace(/^JSON 解析失败：/, "");
+      return {
+        fallback: fallback,
+        key: "tools.error.json",
+        message: t("tools.error.json", fallback) + suffix,
+        suffix: suffix,
+      };
+    }
+    const key = "tools.error." + result.code;
+    const fallback = result.error || t("tools.error.unknown", "处理失败");
+    return {
+      fallback: fallback,
+      key: key,
+      message: t(key, fallback),
+    };
+  }
+
+  function setStatusError(id, result) {
+    const data = statusError(result);
+    setStatusElement(document.getElementById(id), data.message, "error", data.key, data.fallback, data.suffix);
   }
 
   function applyResult(result, outputId, statusId) {
@@ -105,7 +142,7 @@
       setStatusKey(statusId, "tools.status.done", "处理完成", "ok");
     } else {
       value(outputId, "");
-      setStatus(statusId, errorMessage(result), "error");
+      setStatusError(statusId, result);
     }
   }
 
@@ -127,13 +164,7 @@
   }
 
   function errorMessage(result) {
-    if (!result || !result.code) {
-      return result && result.error ? result.error : t("tools.error.unknown", "处理失败");
-    }
-    if (result.code === "json") {
-      return t("tools.error.json", "JSON 解析失败：") + String(result.error || "").replace(/^JSON 解析失败：/, "");
-    }
-    return t("tools.error." + result.code, result.error);
+    return statusError(result).message;
   }
 
   function copyFrom(targetId, source) {
@@ -291,7 +322,7 @@
       } else {
         delete timeResults[outputId];
         text(outputId, "");
-        setStatus("time-status", errorMessage(result), "error");
+        setStatusError("time-status", result);
       }
       return;
     }
@@ -311,7 +342,7 @@
       } else {
         value("jwt-header-output", "");
         value("jwt-payload-output", "");
-        setStatus("jwt-status", errorMessage(result), "error");
+        setStatusError("jwt-status", result);
       }
       return;
     }
