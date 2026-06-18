@@ -584,3 +584,38 @@
 - 继续评估 AI 助手匹配规则与 `search-index.json` 的重复维护问题。
 - 继续检查工具箱复制、剪贴板失败和英文模式下的错误状态一致性。
 - 考虑将本轮浏览器回归沉淀成 Playwright/Node 可重复脚本。
+
+## 第 19 轮：剪贴板失败路径加固
+
+时间：2026-06-18
+
+### 已完成内容
+
+- 审计工具箱复制逻辑在无 `navigator.clipboard` 或剪贴板 API 同步抛错时的行为。
+- 将复制调用包进 Promise 链，统一捕获同步异常和异步 reject。
+- 为无剪贴板 API 环境补充 jsdom 回归测试。
+
+### 发现的问题
+
+- 旧复制逻辑直接执行 `copier(data).then(...)`。
+- 当 `navigator.clipboard` 不存在时，fallback 会在返回 Promise 前同步抛出 TypeError。
+- 该异常会跳出点击处理器，用户看不到“复制失败，请手动选择复制”的状态提示。
+
+### 修复方案
+
+- 在 `js/tools.js` 中使用 `Promise.resolve().then(() => copier(data))` 包裹复制动作。
+- 保留成功、失败状态的原有 UI 文案和 class 切换。
+- 在 `tests/tools.test.mjs` 中显式移除 JSDOM 的 `navigator.clipboard`，确认失败状态可见。
+
+### 性能、覆盖率与质量指标
+
+- `npm test`：222 个测试全部通过。
+- `npm run test:coverage`：行覆盖 98.71%，分支覆盖 88.14%，函数覆盖 96.75%。
+- `npm run build`：通过。
+- 新增测试：`copy failures are reported when clipboard APIs are unavailable`。
+
+### 下一步计划
+
+- 继续检查英文模式下工具状态文案和助手响应的混合语言边界。
+- 继续评估 AI 助手是否应复用搜索索引，减少页面/文章关键词重复维护。
+- 把关键浏览器回归流程整理成可重复脚本，减少人工操作成本。

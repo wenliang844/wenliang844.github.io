@@ -17,7 +17,7 @@ async function loadToolsCore() {
   return dom.window.CWLToolsCore;
 }
 
-async function loadToolsPage() {
+async function loadToolsPage(options = {}) {
   const coreCode = await readFile(join(ROOT, "js", "tools-core.js"), "utf8");
   const toolsCode = await readFile(join(ROOT, "js", "tools.js"), "utf8");
   let copiedText = null;
@@ -27,12 +27,19 @@ async function loadToolsPage() {
     url: "https://wenliang844.github.io/tools/",
   });
   dom.window.eval(coreCode);
-  dom.window.CWLUtils = {
-    copyText(value) {
-      copiedText = value;
-      return Promise.resolve();
-    },
-  };
+  if (options.copyText !== false) {
+    dom.window.CWLUtils = {
+      copyText(value) {
+        copiedText = value;
+        return Promise.resolve();
+      },
+    };
+  } else {
+    Object.defineProperty(dom.window.navigator, "clipboard", {
+      configurable: true,
+      value: undefined,
+    });
+  }
   dom.window.eval(toolsCode);
   return {
     copiedText() {
@@ -144,6 +151,24 @@ test("uuid placeholder is not copied and generated UUID survives i18n updates", 
     document.querySelector('[data-copy-target="uuid-output"]').click();
     await Promise.resolve();
     assert.equal(copiedText(), generated);
+  } finally {
+    dom.window.close();
+  }
+});
+
+test("copy failures are reported when clipboard APIs are unavailable", async () => {
+  const { dom } = await loadToolsPage({ copyText: false });
+  const { document } = dom.window;
+  try {
+    document.querySelector('[data-tool-tab="uuid"]').click();
+    document.querySelector("[data-uuid-generate]").click();
+    document.querySelector('[data-copy-target="uuid-output"]').click();
+    await new Promise((resolve) => {
+      dom.window.setTimeout(resolve, 0);
+    });
+
+    assert.match(document.querySelector("#uuid-status").textContent, /复制失败/);
+    assert.equal(document.querySelector("#uuid-status").classList.contains("is-error"), true);
   } finally {
     dom.window.close();
   }

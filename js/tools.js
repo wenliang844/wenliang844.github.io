@@ -90,7 +90,9 @@
     const copier = window.CWLUtils && window.CWLUtils.copyText
       ? window.CWLUtils.copyText
       : function (textValue) { return navigator.clipboard.writeText(textValue); };
-    copier(data).then(function () {
+    Promise.resolve().then(function () {
+      return copier(data);
+    }).then(function () {
       if (status) {
         status.textContent = t("tools.status.copied", "已复制");
         status.classList.remove("is-error");
