@@ -72,6 +72,7 @@ async function checkDocumentation() {
 
   const docs = [
     'readme.md',
+    'CHANGELOG.md',
     'docs/SECURITY.md',
     'docs/PERFORMANCE.md',
     'docs/DEPLOYMENT.md',
