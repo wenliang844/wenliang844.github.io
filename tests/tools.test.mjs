@@ -17,6 +17,12 @@ async function loadToolsCore(options = {}) {
     dom.window.TextEncoder = undefined;
     dom.window.TextDecoder = undefined;
   }
+  if (options.crypto) {
+    Object.defineProperty(dom.window, "crypto", {
+      configurable: true,
+      value: options.crypto,
+    });
+  }
   dom.window.eval(code);
   return dom.window.CWLToolsCore;
 }
@@ -86,6 +92,24 @@ test("tools core Base64 fallback works without TextEncoder and TextDecoder", asy
 
   assert.equal(encoded.ok, true);
   assert.equal(tools.decodeBase64(encoded.value).value, "你好 fallback");
+});
+
+test("tools core UUID generation falls back when crypto methods fail", async () => {
+  const tools = await loadToolsCore({
+    crypto: {
+      randomUUID() {
+        throw new Error("randomUUID blocked");
+      },
+      getRandomValues(bytes) {
+        for (let i = 0; i < bytes.length; i += 1) {
+          bytes[i] = i;
+        }
+        return bytes;
+      },
+    },
+  });
+
+  assert.equal(tools.generateUuid(), "00010203-0405-4607-8809-0a0b0c0d0e0f");
 });
 
 test("tools core handles Base64, URL, timestamps, UUID and JWT", async () => {

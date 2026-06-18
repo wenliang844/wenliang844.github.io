@@ -88,13 +88,25 @@
   }
 
   function generateUuid() {
-    if (root.crypto && root.crypto.randomUUID) {
-      return root.crypto.randomUUID();
+    const crypto = root.crypto;
+    if (crypto && typeof crypto.randomUUID === "function") {
+      try {
+        return crypto.randomUUID();
+      } catch (error) {
+        // Fall back to getRandomValues or Math.random below.
+      }
     }
     const bytes = new Uint8Array(16);
-    if (root.crypto && root.crypto.getRandomValues) {
-      root.crypto.getRandomValues(bytes);
-    } else {
+    let filled = false;
+    if (crypto && typeof crypto.getRandomValues === "function") {
+      try {
+        crypto.getRandomValues(bytes);
+        filled = true;
+      } catch (error) {
+        filled = false;
+      }
+    }
+    if (!filled) {
       for (let i = 0; i < bytes.length; i += 1) {
         bytes[i] = Math.floor(Math.random() * 256);
       }
