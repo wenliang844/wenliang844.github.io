@@ -41,8 +41,7 @@
   | `search.js` | 340 | `highlightText(tag)` | ✅ 经 `escapeHtml` 处理 |
   | `coder.js` | 203 | 复制按钮 i18n 文本 | ✅ 硬编码 + Font Awesome 图标 |
   | `coder.js` | 299 | TOC 切换按钮 | ✅ 硬编码 |
-  | `giscus.js` | 33 | `placeholder()` | ⚠️ 含 i18n 返回值，当前安全 |
-  | `giscus.js` | 44 | 语言切换重渲染 | ⚠️ 同上 |
+  | `giscus.js` | 33-62 | `createPlaceholder()` | ✅ 已改用 DOM API 和 `textContent` |
   | `share.js` | 94-99 | 复制成功反馈 | ✅ 使用预定义 SVG |
   | `share.js` | 136-142 | 二维码弹窗 | ⚠️ 含 i18n 文本拼接 |
   | `blog.js` | 276 | FAB 按钮图标 | ✅ 硬编码 Font Awesome |
@@ -58,7 +57,7 @@
   长期方案：考虑引入 DOMPurify（已在 `eslintrc.json` 的 globals 中声明）作为统一的 HTML 净化层。
 
 - **📊 预期收益**：建立安全编码规范，降低未来引入 XSS 的风险
-- **🔗 相关建议**：[B-03](bugs-and-risks.md#b-03), [B-04](bugs-and-risks.md#b-04)
+- **🔗 相关建议**：[B-03](bugs-and-risks.md#b-03), [B-04 已修复](bugs-and-risks.md#b-04)
 
 ---
 

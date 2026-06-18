@@ -4816,3 +4816,41 @@
 
 - 提交第十轮技术债修复。
 - 继续评估 B-03/B-04 的 `innerHTML` 维护风险或 CQ-02 的复制逻辑重复。
+
+## 第 148 轮：giscus 占位提示安全渲染
+
+时间：2026-06-18
+
+### 已完成内容
+
+- 将 `js/giscus.js` 的未配置占位提示从 `thread.innerHTML = placeholder()` 改为 `createPlaceholder()` + `thread.replaceChildren(...)`。
+- 对翻译文案中的 `<code>...</code>` 标记做受控拆分，`code` 内容通过 `textContent` 写入，其他文本也作为文本节点插入。
+- 扩展 `tests/js-behavior.test.mjs`，锁定 `giscus.js` 不再对 `thread.innerHTML` 赋值。
+- 更新 B-04、安全审计、索引和健康评分文档。
+
+### 发现的问题
+
+- giscus 未配置分支会把 i18n 文案拼成 HTML 字符串再赋值给 `innerHTML`。
+- 当前默认配置已启用 giscus，风险路径不常触发，但一旦配置缺失或未来文案来源变化，维护风险仍存在。
+
+### 修复方案
+
+- 使用 DOM API 构建 `<p class="comments-hint">` 和内部 `<code>` 元素。
+- 用 `replaceChildren()` 重渲染占位提示，避免残留旧节点，也避免 HTML 字符串注入。
+
+### 性能、安全与质量指标
+
+- `node --test tests/js-behavior.test.mjs`：29 个测试全部通过。
+- `npx eslint js/*.js`：通过。
+- `npm test`：530 个测试全部通过，耗时约 7.19 秒。
+- `npm run build`：通过，成功生成 6 篇文章页面。
+- `npm run validate:production`：33 项检查通过，0 失败，0 警告。
+- `node --test tests/performance.test.mjs`：13 个性能测试全部通过。
+- `npm run test:coverage`：530 个测试全部通过；行覆盖率 92.68%，分支覆盖率 74.95%，函数覆盖率 89.33%。
+- `npm audit --audit-level=moderate --registry=https://registry.npmjs.org`：0 个中高危漏洞。
+- 安全收益：消除 giscus 占位提示的潜在 `innerHTML` 注入面。
+
+### 下一步计划
+
+- 提交第十一轮安全修复。
+- 继续处理 B-03/S-02 等剩余 `innerHTML` 维护风险。

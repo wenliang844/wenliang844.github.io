@@ -244,6 +244,12 @@ test("giscus.js loads Giscus comments widget", async () => {
   assert.ok(code.includes("giscus-thread") || code.includes("giscus.app"), "should reference Giscus container or API");
 });
 
+test("giscus.js renders placeholder without innerHTML", async () => {
+  const code = await readFile(join(ROOT, "js", "giscus.js"), "utf8");
+  assert.doesNotMatch(code, /thread\.innerHTML\s*=/, "should not assign placeholder HTML directly");
+  assert.match(code, /replaceChildren\(createPlaceholder\(\)\)/, "should replace placeholder with DOM nodes");
+});
+
 // ─── feedback.js 测试 ─────────────────────────────────────────────────────────
 
 test("feedback.js does not hardcode API keys", async () => {

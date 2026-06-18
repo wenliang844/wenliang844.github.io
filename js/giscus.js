@@ -29,8 +29,30 @@
     return window.cwlT ? window.cwlT(key, fallback) : fallback;
   }
 
-  function placeholder() {
-    return '<p class="comments-hint">' + t("dyn.comments.placeholder", "评论区尚未配置。站长在 <code>js/giscus.js</code> 填入 GitHub 仓库的 giscus 配置（repo / repoId / categoryId）后，即可启用基于 GitHub Discussions 的评论。") + '</p>';
+  function createPlaceholder() {
+    const message = t("dyn.comments.placeholder", "评论区尚未配置。站长在 <code>js/giscus.js</code> 填入 GitHub 仓库的 giscus 配置（repo / repoId / categoryId）后，即可启用基于 GitHub Discussions 的评论。");
+    const p = document.createElement("p");
+    p.className = "comments-hint";
+
+    const codeMatch = message.match(/<code>(.*?)<\/code>/);
+    if (!codeMatch) {
+      p.textContent = message;
+      return p;
+    }
+
+    const before = message.slice(0, codeMatch.index);
+    const after = message.slice(codeMatch.index + codeMatch[0].length);
+    const code = document.createElement("code");
+    code.textContent = codeMatch[1];
+
+    p.appendChild(document.createTextNode(before));
+    p.appendChild(code);
+    p.appendChild(document.createTextNode(after));
+    return p;
+  }
+
+  function renderPlaceholder() {
+    thread.replaceChildren(createPlaceholder());
   }
 
   const thread = document.getElementById("giscus-thread");
@@ -39,9 +61,9 @@
   }
 
   if (!configured) {
-    thread.innerHTML = placeholder();
+    renderPlaceholder();
     document.addEventListener("cwl:langchange", function () {
-      thread.innerHTML = placeholder();
+      renderPlaceholder();
     });
     return;
   }

@@ -43,23 +43,12 @@
 
 ---
 
-## 📌 B-04: `giscus.js` 中 `thread.innerHTML = placeholder()` 使用 innerHTML 注入含 `<code>` 标签的文本
+## 📌 B-04 [已修复]: `giscus.js` 中 `thread.innerHTML = placeholder()` 使用 innerHTML 注入含 `<code>` 标签的文本
 
-- **📍 位置**：`js/giscus.js:33-46`
-- **📝 当前状况**：当 giscus 未配置时，`placeholder()` 返回含 `<code>` 标签的 HTML 字符串并直接赋值给 `innerHTML`。虽然当前内容是硬编码的 i18n 文案（不含用户输入），但 `t()` 函数返回值如果被篡改（如通过恶意翻译插件），可能引入 XSS。
-- **⚠️ 影响程度**：低
-- **💡 建议方案**：
-  ```javascript
-  function placeholder() {
-    const p = document.createElement("p");
-    p.className = "comments-hint";
-    // 分段构建，code 标签用 DOM API
-    const prefix = document.createTextNode(t("dyn.comments.prefix", "评论区尚未配置。"));
-    p.appendChild(prefix);
-    // ...
-  }
-  ```
-- **📊 预期收益**：消除潜在 innerHTML XSS 向量
+- **📍 原位置**：`js/giscus.js`
+- **✅ 修复状态**：未配置 giscus 时的占位提示已改为 `createPlaceholder()` + `thread.replaceChildren(...)`，不再把 i18n 文案直接赋值给 `innerHTML`。
+- **🧪 回归测试**：`tests/js-behavior.test.mjs` 新增源码测试，确认 `giscus.js` 不再对 `thread.innerHTML` 赋值。
+- **📊 实际收益**：保留 `<code>` 视觉语义，同时消除翻译文案被篡改时的潜在 HTML 注入面。
 - **🔗 相关建议**：[B-03](#b-03), [S-01](security-audit.md#s-01)
 
 ---
@@ -153,7 +142,7 @@
 |------|------|------|
 | 🔴 高 | 0 | — |
 | 🟡 中 | 2 | B-05, B-08 |
-| ✅ 已修复 | 6 | B-01, B-06, B-09, B-10, B-11, B-12 |
-| 🟢 低 | 4 | B-02, B-03, B-04, B-07 |
+| ✅ 已修复 | 7 | B-01, B-04, B-06, B-09, B-10, B-11, B-12 |
+| 🟢 低 | 3 | B-02, B-03, B-07 |
 
 > 整体评估：无高危 Bug，代码质量良好。主要风险集中在维护一致性（重复逻辑）和废弃 API 使用上。
