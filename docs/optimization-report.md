@@ -1060,3 +1060,35 @@
 - 继续审计工具核心对浏览器全局对象的直接依赖。
 - 继续检查助手大模型模式中可独立验证的取消/错误处理。
 - 继续保持提交范围小而可回滚。
+
+## 第 33 轮：Base64 兼容路径回归覆盖
+
+时间：2026-06-18
+
+### 已完成内容
+
+- 继续审查工具核心 Base64 编解码兼容路径。
+- 将无 `TextEncoder` / `TextDecoder` 时的 legacy fallback 从隐式全局调用收敛到 `root` 对象。
+- 增加 jsdom 回归测试，模拟缺少 `TextEncoder` 与 `TextDecoder` 的运行环境。
+
+### 发现的问题
+
+- Base64 fallback 路径仍直接调用 `escape()` / `unescape()`，与前一轮 `root.atob()` 收敛方向不一致。
+- 缺少覆盖 legacy fallback 的自动化测试，后续调整可能只验证现代浏览器路径。
+
+### 修复方案
+
+- `encodeBase64()` fallback 改为 `root.unescape(encodeURIComponent(raw))`。
+- `decodeBase64()` fallback 改为 `decodeURIComponent(root.escape(binary))`。
+- 新增 `tools core Base64 fallback works without TextEncoder and TextDecoder` 测试，验证中文文本在兼容路径下可往返。
+
+### 性能、覆盖率与质量指标
+
+- `npm run test:tools`：11 个测试全部通过，耗时约 1.2 秒。
+- `npm run build`：通过。
+
+### 下一步计划
+
+- 继续审计工具核心对浏览器全局对象的直接依赖与异常路径。
+- 继续把浏览器手工验证中发现的高价值边界沉淀为自动化测试。
+- 继续隔离并行未提交改动，保持每轮提交范围清晰。

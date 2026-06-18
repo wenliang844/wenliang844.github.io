@@ -7,12 +7,16 @@ import { renderToolsPage } from "../src/templates/tools.mjs";
 
 const ROOT = join(import.meta.dirname, "..");
 
-async function loadToolsCore() {
+async function loadToolsCore(options = {}) {
   const code = await readFile(join(ROOT, "js", "tools-core.js"), "utf8");
   const dom = new JSDOM("<!doctype html><html><body></body></html>", {
     runScripts: "outside-only",
     url: "https://wenliang844.github.io/tools/",
   });
+  if (options.noTextCodec) {
+    dom.window.TextEncoder = undefined;
+    dom.window.TextDecoder = undefined;
+  }
   dom.window.eval(code);
   return dom.window.CWLToolsCore;
 }
@@ -74,6 +78,14 @@ test("tools core preserves falsey non-empty direct inputs", async () => {
   assert.equal(tools.encodeBase64(0).value, "MA==");
   assert.equal(tools.encodeUrl(0).value, "0");
   assert.equal(tools.normalizeTimestamp(0).value.milliseconds, 0);
+});
+
+test("tools core Base64 fallback works without TextEncoder and TextDecoder", async () => {
+  const tools = await loadToolsCore({ noTextCodec: true });
+  const encoded = tools.encodeBase64("你好 fallback");
+
+  assert.equal(encoded.ok, true);
+  assert.equal(tools.decodeBase64(encoded.value).value, "你好 fallback");
 });
 
 test("tools core handles Base64, URL, timestamps, UUID and JWT", async () => {

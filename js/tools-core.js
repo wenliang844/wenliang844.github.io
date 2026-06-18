@@ -46,7 +46,7 @@
         const bytes = new root.TextEncoder().encode(raw);
         binary = bytesToBinary(bytes);
       } else {
-        binary = unescape(encodeURIComponent(raw));
+        binary = root.unescape(encodeURIComponent(raw));
       }
       return ok(root.btoa(binary));
     } catch (error) {
@@ -65,7 +65,7 @@
       if (root.TextDecoder) {
         return ok(new root.TextDecoder("utf-8", { fatal: true }).decode(bytes));
       }
-      return ok(decodeURIComponent(escape(binary)));
+      return ok(decodeURIComponent(root.escape(binary)));
     } catch (error) {
       return fail("Base64 解码失败：请输入合法的 Base64 文本", "base64Decode");
     }
