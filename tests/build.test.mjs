@@ -74,6 +74,7 @@ test("build writes the expected static artifacts", async () => {
     assert.match(sitemap, /<urlset /);
     assert.match(sitemap, /xmlns:image="http:\/\/www\.google\.com\/schemas\/sitemap-image\/1\.1"/);
     assert.match(sitemap, /<loc>https:\/\/wenliang844.github.io\/about\/<\/loc>/);
+    assert.match(sitemap, /<loc>https:\/\/wenliang844.github.io\/contact\/<\/loc>/);
     assert.match(sitemap, /<loc>https:\/\/wenliang844.github.io\/tools\/<\/loc>/);
     assert.doesNotMatch(sitemap, /<loc>https:\/\/wenliang844.github.io\/ai\/relay\/<\/loc>/);
     assert.match(robots, /Sitemap: https:\/\/wenliang844.github.io\/sitemap.xml/);
@@ -81,10 +82,17 @@ test("build writes the expected static artifacts", async () => {
     assert.match(toolsHtml, /在线工具箱/);
     assert.match(toolsHtml, /JSON 格式化/);
     assert.match(toolsHtml, /JWT 解码/);
+    assert.match(toolsHtml, /哈希摘要/);
+    assert.match(toolsHtml, /密码生成器/);
+    assert.match(toolsHtml, /二维码生成/);
+    assert.match(toolsHtml, /\/js\/vendor\/qrcode\.min\.js/);
     assert.match(toolsHtml, /\/js\/tools-core\.js/);
     assert.match(toolsHtml, /\/js\/tools\.js/);
     assert.match(toolsHtml, /\/js\/assistant\.js/);
     assert.match(aiHtml, /中转站排行榜/);
+    assert.match(aiHtml, /<title>中转站排名 :: CWLBlog<\/title>/);
+    assert.match(aiHtml, /<a class="active" href="\/ai\/" data-i18n="nav\.ai">中转站排名<\/a>/);
+    assert.match(aiHtml, /<button class="ai-tab active" id="ai-tab-relay"[^>]+aria-selected="true"/);
     assert.match(aiHtml, /\/js\/relay\.js/);
     assert.match(aiHtml, /id="relay"/);
     assert.match(aiHtml, /data-relay-filter="healthy"/);
@@ -100,8 +108,10 @@ test("build writes the expected static artifacts", async () => {
     assert.doesNotMatch(rss, /Hugo/);
     assert.equal(searchIndex.filter((item) => item.type === "post").length, 6);
     assert.ok(searchIndex.some((item) => item.path === "/about/" && item.summary.includes("CWL")));
+    assert.ok(searchIndex.some((item) => item.path === "/contact/" && item.summary.includes("CWL")));
     assert.ok(searchIndex.some((item) => item.path === "/tools/" && item.summary.includes("JSON")));
-    assert.ok(searchIndex.some((item) => item.path === "/ai/#relay" && item.summary.includes("中转站")));
+    assert.ok(searchIndex.some((item) => item.path === "/ai/" && item.title === "中转站排名" && item.summary.includes("中转站")));
+    assert.ok(searchIndex.some((item) => item.path === "/ai/#nav" && item.title === "AI导航网站"));
     assert.ok(searchIndex.every((item) => item.path !== "/ai/relay/"));
     assert.ok(searchIndex.some((item) => item.path === "/appreciation/" && item.summary.includes("娱乐项目")));
     assert.ok(searchIndex.every((item) => item.path && !item.path.includes("\\")));

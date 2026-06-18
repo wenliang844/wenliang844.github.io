@@ -34,6 +34,11 @@
     return el ? el.value : "";
   }
 
+  function checked(id) {
+    const el = document.getElementById(id);
+    return !!(el && el.checked);
+  }
+
   function closest(target, selector) {
     return target && typeof target.closest === "function" ? target.closest(selector) : null;
   }
@@ -90,10 +95,6 @@
       el.removeAttribute("data-status-fallback");
       el.removeAttribute("data-status-suffix");
     }
-  }
-
-  function setStatus(id, message, type) {
-    setStatusElement(document.getElementById(id), message, type);
   }
 
   function setStatusKey(id, key, fallback, type) {
@@ -261,6 +262,95 @@
     output.removeAttribute("data-i18n");
   }
 
+  function setPasswordResult(result) {
+    if (result.ok) {
+      value("password-output", result.value.password);
+      setStatusElement(
+        document.getElementById("password-status"),
+        t("tools.status.password", "密码已生成") + " · " + result.value.entropy + " bits",
+        "ok",
+        "tools.status.password",
+        "密码已生成",
+        " · " + result.value.entropy + " bits",
+      );
+    } else {
+      value("password-output", "");
+      setStatusError("password-status", result);
+    }
+  }
+
+  function setColorResult(result) {
+    const swatch = document.getElementById("color-swatch");
+    const preview = document.getElementById("color-preview-text");
+    if (result.ok) {
+      value("color-output", result.value.lines);
+      if (swatch) {
+        swatch.style.backgroundColor = result.value.hex;
+      }
+      if (preview) {
+        preview.textContent = result.value.hex + " / " + result.value.foreground;
+      }
+      setStatusKey("color-status", "tools.status.converted", "转换完成", "ok");
+    } else {
+      value("color-output", "");
+      if (swatch) {
+        swatch.style.backgroundColor = "";
+      }
+      if (preview) {
+        preview.textContent = t("tools.color.empty", "等待转换颜色");
+      }
+      setStatusError("color-status", result);
+    }
+  }
+
+  function setMarkdownResult(result) {
+    const preview = document.getElementById("markdown-preview");
+    if (result.ok) {
+      if (preview) {
+        preview.innerHTML = result.value.html;
+      }
+      value("markdown-output", result.value.html);
+      setStatusKey(
+        "markdown-status",
+        result.value.fallback ? "tools.status.markdownFallback" : "tools.status.previewed",
+        result.value.fallback ? "已使用纯文本预览兜底" : "预览完成",
+        result.value.fallback ? "error" : "ok",
+      );
+    } else {
+      if (preview) {
+        preview.textContent = "";
+      }
+      value("markdown-output", "");
+      setStatusError("markdown-status", result);
+    }
+  }
+
+  function setQrResult(result) {
+    const image = document.getElementById("qr-image");
+    const empty = document.getElementById("qr-empty");
+    if (result.ok) {
+      if (image) {
+        image.src = result.value;
+        image.hidden = false;
+      }
+      if (empty) {
+        empty.hidden = true;
+      }
+      value("qr-output", result.value);
+      setStatusKey("qr-status", "tools.status.qr", "二维码已生成", "ok");
+    } else {
+      if (image) {
+        image.removeAttribute("src");
+        image.hidden = true;
+      }
+      if (empty) {
+        empty.hidden = false;
+      }
+      value("qr-output", "");
+      setStatusError("qr-status", result);
+    }
+  }
+
   function updateNow() {
     const now = new Date();
     text("time-now-ms", String(now.getTime()));
@@ -361,6 +451,8 @@
         "base64-decode": ["base64-input", "base64-output", "base64-status", core.decodeBase64],
         "url-encode": ["url-input", "url-output", "url-status", core.encodeUrl],
         "url-decode": ["url-input", "url-output", "url-status", core.decodeUrl],
+        "html-encode": ["html-input", "html-output", "html-status", core.encodeHtmlEntities],
+        "html-decode": ["html-input", "html-output", "html-status", core.decodeHtmlEntities],
       };
       const entry = map[action];
       if (entry) {
@@ -405,6 +497,66 @@
         value("jwt-payload-output", "");
         setStatusError("jwt-status", result);
       }
+      return;
+    }
+
+    if (closest(event.target, "[data-hash-generate]")) {
+      setStatusKey("hash-status", "tools.status.processing", "处理中", "");
+      core.hashText(inputValue("hash-input"), inputValue("hash-algorithm")).then(function (result) {
+        applyResult(result, "hash-output", "hash-status");
+      }).catch(function (error) {
+        setStatusError("hash-status", { ok: false, error: error.message, code: "unknown" });
+      });
+      return;
+    }
+
+    if (closest(event.target, "[data-password-generate]")) {
+      setPasswordResult(core.generatePassword({
+        length: inputValue("password-length"),
+        lower: checked("password-lower"),
+        upper: checked("password-upper"),
+        number: checked("password-number"),
+        symbol: checked("password-symbol"),
+      }));
+      return;
+    }
+
+    if (closest(event.target, "[data-color-convert]")) {
+      setColorResult(core.convertColor(inputValue("color-input")));
+      return;
+    }
+
+    if (closest(event.target, "[data-regex-test]")) {
+      applyResult(
+        core.testRegex(inputValue("regex-pattern"), inputValue("regex-flags"), inputValue("regex-input")),
+        "regex-output",
+        "regex-status",
+      );
+      return;
+    }
+
+    if (closest(event.target, "[data-markdown-render]")) {
+      setMarkdownResult(core.renderMarkdown(inputValue("markdown-input")));
+      return;
+    }
+
+    if (closest(event.target, "[data-diff-run]")) {
+      applyResult(core.diffLines(inputValue("diff-left"), inputValue("diff-right")), "diff-output", "diff-status");
+      return;
+    }
+
+    if (closest(event.target, "[data-case-convert]")) {
+      applyResult(core.convertCase(inputValue("case-input")), "case-output", "case-status");
+      return;
+    }
+
+    if (closest(event.target, "[data-cron-parse]")) {
+      applyResult(core.parseCronExpression(inputValue("cron-input")), "cron-output", "cron-status");
+      return;
+    }
+
+    if (closest(event.target, "[data-qr-generate]")) {
+      setQrResult(core.createQrCode(inputValue("qr-input")));
       return;
     }
 

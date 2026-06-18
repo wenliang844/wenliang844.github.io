@@ -4382,3 +4382,25 @@
 - 最新核心基线：`npm run test:toolbox` 51/51 通过；`npm run test:tools` 27/27 通过；`npm run test:assistant` 24/24 通过；`npm run build` 通过。
 - 最新广覆盖基线：排除 `tests/performance.test.mjs` 后 tracked 测试 253/253 通过。
 - 最新未解决项不变：`tests/performance.test.mjs` 仍因 `js/assistant.js` 和 `css/coder.css` 体积超过阈值失败。
+
+## 第 136 轮：在线工具箱扩展与全量验证
+
+时间：2026-06-18
+
+### 已完成内容
+
+- 在线工具箱从 6 个工具扩展到 16 个工具，新增哈希摘要、密码生成器、颜色转换、正则测试、Markdown 预览、文本 Diff、命名转换、HTML 实体、Cron 解析和二维码生成。
+- 同步工具页模板、前端交互、核心算法、样式、i18n、搜索索引和助手推荐。
+- 补充工具核心与页面交互测试，新增工具箱页面测试覆盖 10 个新增工具的点击路径。
+- 修复 `/about/` 缺失 sitemap / search-index 配置、lint 规则问题和过期测试断言。
+- 详细报告见 `docs/toolbox-optimization-2026-06-18.md`。
+
+### 性能、覆盖率与质量指标
+
+- `npm run lint`：通过。
+- `npm test`：518 个测试全部通过。
+- `npm run build`：通过。
+- `npm run test:coverage`：line 94.55%，branch 76.21%，functions 90.50%。
+- `npm run validate:production`：33 项通过、0 失败、0 警告。
+- `npm audit --audit-level=moderate --registry=https://registry.npmjs.org`：0 vulnerabilities。
+- `tests/performance.test.mjs`：13/13 通过，`coder.css` 保持在 115KB 阈值内。

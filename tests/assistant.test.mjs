@@ -146,7 +146,7 @@ test("assistant ranks partial page title matches ahead of generic keywords", asy
   assert.equal(firstLink.getAttribute("href"), "/tools/");
 });
 
-test("assistant keeps AI navigation discoverable for AI queries", async () => {
+test("assistant keeps AI websites discoverable for AI queries", async () => {
   const dom = await loadAssistant();
   const { document, Event } = dom.window;
 
@@ -156,8 +156,8 @@ test("assistant keeps AI navigation discoverable for AI queries", async () => {
   document.querySelector(".assistant-form").dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
 
   const firstLink = document.querySelector(".assistant-links a");
-  assert.equal(firstLink.textContent, "AI导航");
-  assert.equal(firstLink.getAttribute("href"), "/ai/");
+  assert.match(firstLink.textContent, /^AI导航/);
+  assert.equal(firstLink.getAttribute("href"), "/ai/#nav");
 });
 
 test("assistant caps message history to avoid unbounded DOM growth", async () => {

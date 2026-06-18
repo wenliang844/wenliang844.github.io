@@ -9,6 +9,8 @@ const ROOT = join(import.meta.dirname, "..");
 
 async function loadToolsCore(options = {}) {
   const code = await readFile(join(ROOT, "js", "tools-core.js"), "utf8");
+  const markedCode = options.vendors ? await readFile(join(ROOT, "js", "vendor", "marked.min.js"), "utf8") : "";
+  const purifyCode = options.vendors ? await readFile(join(ROOT, "js", "vendor", "purify.min.js"), "utf8") : "";
   const dom = new JSDOM("<!doctype html><html><body></body></html>", {
     runScripts: "outside-only",
     url: "https://wenliang844.github.io/tools/",
@@ -62,11 +64,20 @@ async function loadToolsCore(options = {}) {
       });
     });
   }
+  if (markedCode) {
+    dom.window.eval(markedCode);
+  }
+  if (purifyCode) {
+    dom.window.eval(purifyCode);
+  }
   dom.window.eval(code);
   return dom.window.CWLToolsCore;
 }
 
 async function loadToolsPage(options = {}) {
+  const markedCode = await readFile(join(ROOT, "js", "vendor", "marked.min.js"), "utf8");
+  const purifyCode = await readFile(join(ROOT, "js", "vendor", "purify.min.js"), "utf8");
+  const qrCode = await readFile(join(ROOT, "js", "vendor", "qrcode.min.js"), "utf8");
   const coreCode = await readFile(join(ROOT, "js", "tools-core.js"), "utf8");
   const toolsCode = await readFile(join(ROOT, "js", "tools.js"), "utf8");
   const i18nCode = options.i18n ? await readFile(join(ROOT, "js", "i18n.js"), "utf8") : "";
@@ -79,6 +90,9 @@ async function loadToolsPage(options = {}) {
     url: "https://wenliang844.github.io/tools/",
   });
   dom.window.localStorage.clear();
+  dom.window.eval(markedCode);
+  dom.window.eval(purifyCode);
+  dom.window.eval(qrCode);
   dom.window.eval(coreCode);
   if (i18nCode) {
     dom.window.eval(i18nCode);
@@ -319,21 +333,115 @@ test("tools core handles Base64, URL, timestamps, UUID and JWT", async () => {
   assert.equal(tools.decodeJwt("bad").ok, false);
 });
 
+test("tools core handles the expanded toolbox utilities", async () => {
+  let randomByte = 0;
+  const tools = await loadToolsCore({
+    vendors: true,
+    globals: { TextEncoder: globalThis.TextEncoder },
+    crypto: {
+      getRandomValues(bytes) {
+        for (let i = 0; i < bytes.length; i += 1) {
+          bytes[i] = randomByte % 251;
+          randomByte += 1;
+        }
+        return bytes;
+      },
+      subtle: {
+        digest(algorithm, bytes) {
+          assert.equal(algorithm, "SHA-256");
+          assert.ok(bytes.byteLength > 0);
+          return Promise.resolve(Uint8Array.from([0xde, 0xad, 0xbe, 0xef]).buffer);
+        },
+      },
+    },
+  });
+
+  assert.equal((await tools.hashText("hello", "SHA-256")).value, "deadbeef");
+  assert.equal((await tools.hashText("hello", "MD5")).code, "hashAlgorithm");
+
+  const password = tools.generatePassword({ length: 16, lower: true, upper: true, number: true, symbol: true });
+  assert.equal(password.ok, true);
+  assert.equal(password.value.password.length, 16);
+  assert.match(password.value.password, /[a-z]/);
+  assert.match(password.value.password, /[A-Z]/);
+  assert.match(password.value.password, /\d/);
+  assert.match(password.value.password, /[!@#$%^&*()\-_=+\[\]{};:,.?/|~]/);
+  assert.equal(tools.generatePassword({ length: 6, lower: true }).code, "passwordLength");
+  assert.equal(tools.generatePassword({ length: 12, lower: false, upper: false, number: false, symbol: false }).code, "passwordCharset");
+
+  const color = tools.convertColor("#2563eb");
+  assert.equal(color.ok, true);
+  assert.match(color.value.lines, /RGB: rgb\(37, 99, 235\)/);
+  assert.equal(tools.convertColor("not-a-color").code, "colorInput");
+
+  const regex = tools.testRegex("(\\w+)@(example\\.com)", "gi", "a@example.com b@test.dev");
+  assert.equal(regex.ok, true);
+  assert.match(regex.value, /Matches: 1/);
+  assert.match(regex.value, /\$1: "a"/);
+  assert.equal(tools.testRegex("[", "g", "x").code, "regexPattern");
+  assert.equal(tools.testRegex("x", "gg", "x").code, "regexFlags");
+
+  const markdown = tools.renderMarkdown("# Title\n\n<script>alert(1)</script>");
+  assert.equal(markdown.ok, true);
+  assert.match(markdown.value.html, /<h1>Title<\/h1>/);
+  assert.doesNotMatch(markdown.value.html, /<script>/);
+
+  const diff = tools.diffLines("a\nb", "a\nc");
+  assert.equal(diff.ok, true);
+  assert.match(diff.value, /\+ c/);
+  assert.match(diff.value, /- b/);
+
+  const cases = tools.convertCase("user profile ID");
+  assert.equal(cases.ok, true);
+  assert.match(cases.value, /camelCase: userProfileId/);
+  assert.match(cases.value, /snake_case: user_profile_id/);
+
+  assert.equal(tools.encodeHtmlEntities("<b>CWL & Codex</b>").value, "&lt;b&gt;CWL &amp; Codex&lt;/b&gt;");
+  assert.equal(tools.decodeHtmlEntities("&lt;b&gt;CWL&lt;/b&gt;").value, "<b>CWL</b>");
+
+  const cron = tools.parseCronExpression("*/30 9-10 * * mon-fri", "2026-06-18T08:58:00");
+  assert.equal(cron.ok, true);
+  assert.match(cron.value, /2026-06-18 09:00/);
+  assert.equal(tools.parseCronExpression("* * *").code, "cronParts");
+});
+
+test("tools core QR generator uses local vendor runtime", async () => {
+  const qrCode = await readFile(join(ROOT, "js", "vendor", "qrcode.min.js"), "utf8");
+  const toolsCode = await readFile(join(ROOT, "js", "tools-core.js"), "utf8");
+  const dom = new JSDOM("<!doctype html><html><body></body></html>", {
+    runScripts: "outside-only",
+    url: "https://wenliang844.github.io/tools/",
+  });
+  try {
+    dom.window.eval(qrCode);
+    dom.window.eval(toolsCode);
+
+    const result = dom.window.CWLToolsCore.createQrCode("https://wenliang844.github.io/tools/");
+    assert.equal(result.ok, true);
+    assert.match(result.value, /^data:image\/gif;base64,/);
+    assert.equal(dom.window.CWLToolsCore.createQrCode("").code, "qrInput");
+  } finally {
+    dom.window.close();
+  }
+});
+
 test("tools tabs expose selected state and support keyboard navigation", async () => {
   const { dom } = await loadToolsPage();
   const { document, KeyboardEvent } = dom.window;
   try {
     const jsonTab = document.querySelector('[data-tool-tab="json"]');
     const timeTab = document.querySelector('[data-tool-tab="time"]');
-    const jwtTab = document.querySelector('[data-tool-tab="jwt"]');
+    const qrTab = document.querySelector('[data-tool-tab="qr"]');
 
     const tabList = document.querySelector(".tools-tabs");
     assert.equal(tabList.getAttribute("role"), "tablist");
     assert.equal(tabList.getAttribute("data-i18n-aria"), "tools.tabs");
     assert.equal(tabList.getAttribute("data-i18n-en-aria"), "Tool list");
+    assert.equal(document.querySelectorAll("[data-tool-tab]").length, 16);
     assert.equal(document.querySelector("#base64-input").getAttribute("data-i18n-ph"), "tools.base64.placeholder");
     assert.equal(document.querySelector("#base64-input").getAttribute("data-i18n-en-ph"), "Text to encode or decode");
     assert.equal(document.querySelector("#url-input").getAttribute("data-i18n-en-ph"), "https://example.com/?q=search");
+    assert.equal(document.querySelector("#html-input").getAttribute("data-i18n-ph"), "tools.html.placeholder");
     assert.equal(jsonTab.getAttribute("role"), "tab");
     assert.equal(document.querySelector("#tool-json").getAttribute("role"), "tabpanel");
     assert.equal(jsonTab.getAttribute("aria-selected"), "true");
@@ -345,8 +453,8 @@ test("tools tabs expose selected state and support keyboard navigation", async (
     assert.equal(document.querySelector("#tool-json").hidden, true);
 
     timeTab.dispatchEvent(new KeyboardEvent("keydown", { key: "End", bubbles: true, cancelable: true }));
-    assert.equal(jwtTab.getAttribute("aria-selected"), "true");
-    assert.equal(document.querySelector("#tool-jwt").hidden, false);
+    assert.equal(qrTab.getAttribute("aria-selected"), "true");
+    assert.equal(document.querySelector("#tool-qr").hidden, false);
   } finally {
     dom.window.close();
   }
@@ -374,7 +482,7 @@ test("tools page ignores unknown tab targets without clearing selection", async 
   const { document, KeyboardEvent } = dom.window;
   try {
     const jsonTab = document.querySelector('[data-tool-tab="json"]');
-    const jwtTab = document.querySelector('[data-tool-tab="jwt"]');
+    const qrTab = document.querySelector('[data-tool-tab="qr"]');
     const jsonPanel = document.querySelector('[data-tool-panel="json"]');
 
     const outsideTab = document.createElement("button");
@@ -396,8 +504,8 @@ test("tools page ignores unknown tab targets without clearing selection", async 
     assert.equal(jsonPanel.hidden, false);
 
     jsonTab.dispatchEvent(new KeyboardEvent("keydown", { key: "End", bubbles: true, cancelable: true }));
-    assert.equal(jwtTab.classList.contains("active"), true);
-    assert.equal(jwtTab.getAttribute("aria-selected"), "true");
+    assert.equal(qrTab.classList.contains("active"), true);
+    assert.equal(qrTab.getAttribute("aria-selected"), "true");
 
     const duplicateJsonTab = document.createElement("button");
     duplicateJsonTab.setAttribute("data-tool-tab", "json");
@@ -445,6 +553,86 @@ test("tools page localizes English placeholders and dynamic statuses", async () 
     });
     assert.equal(document.querySelector("#uuid-status").textContent, "Nothing to copy");
     assert.equal(document.querySelector("#uuid-status").classList.contains("is-error"), true);
+  } finally {
+    dom.window.close();
+  }
+});
+
+test("expanded tools page runs all new tool actions locally", async () => {
+  const { dom } = await loadToolsPage();
+  const { document } = dom.window;
+  let randomByte = 0;
+  try {
+    Object.defineProperty(dom.window, "crypto", {
+      configurable: true,
+      value: {
+        getRandomValues(bytes) {
+          for (let i = 0; i < bytes.length; i += 1) {
+            bytes[i] = randomByte % 251;
+            randomByte += 1;
+          }
+          return bytes;
+        },
+        subtle: {
+          digest() {
+            return Promise.resolve(Uint8Array.from([0xca, 0xfe]).buffer);
+          },
+        },
+      },
+    });
+    dom.window.TextEncoder = globalThis.TextEncoder;
+
+    document.querySelector("#hash-input").value = "hello";
+    document.querySelector("[data-hash-generate]").click();
+    await new Promise((resolve) => {
+      dom.window.setTimeout(resolve, 0);
+    });
+    assert.equal(document.querySelector("#hash-output").value, "cafe");
+    assert.equal(document.querySelector("#hash-status").classList.contains("is-ok"), true);
+
+    document.querySelector("#password-length").value = "16";
+    document.querySelector("[data-password-generate]").click();
+    assert.equal(document.querySelector("#password-output").value.length, 16);
+    assert.equal(document.querySelector("#password-status").classList.contains("is-ok"), true);
+
+    document.querySelector("#color-input").value = "#2563eb";
+    document.querySelector("[data-color-convert]").click();
+    assert.match(document.querySelector("#color-output").value, /HEX: #2563EB/);
+    assert.equal(document.querySelector("#color-swatch").style.backgroundColor, "rgb(37, 99, 235)");
+
+    document.querySelector("#regex-pattern").value = "(\\w+)@(example\\.com)";
+    document.querySelector("#regex-flags").value = "gi";
+    document.querySelector("#regex-input").value = "a@example.com";
+    document.querySelector("[data-regex-test]").click();
+    assert.match(document.querySelector("#regex-output").value, /Matches: 1/);
+
+    document.querySelector("#markdown-input").value = "# Title\n\n<script>alert(1)</script>";
+    document.querySelector("[data-markdown-render]").click();
+    assert.match(document.querySelector("#markdown-output").value, /<h1>Title<\/h1>/);
+    assert.equal(document.querySelector("#markdown-preview script"), null);
+
+    document.querySelector("#diff-left").value = "a\nb";
+    document.querySelector("#diff-right").value = "a\nc";
+    document.querySelector("[data-diff-run]").click();
+    assert.match(document.querySelector("#diff-output").value, /\+ c/);
+
+    document.querySelector("#case-input").value = "user profile id";
+    document.querySelector("[data-case-convert]").click();
+    assert.match(document.querySelector("#case-output").value, /camelCase: userProfileId/);
+
+    document.querySelector("#html-input").value = "<b>CWL & Codex</b>";
+    document.querySelector('[data-codec-action="html-encode"]').click();
+    assert.equal(document.querySelector("#html-output").value, "&lt;b&gt;CWL &amp; Codex&lt;/b&gt;");
+
+    document.querySelector("#cron-input").value = "*/30 9-10 * * mon-fri";
+    document.querySelector("[data-cron-parse]").click();
+    assert.match(document.querySelector("#cron-output").value, /Next 5 runs:/);
+
+    document.querySelector("#qr-input").value = "https://wenliang844.github.io/tools/";
+    document.querySelector("[data-qr-generate]").click();
+    assert.match(document.querySelector("#qr-output").value, /^data:image\/gif;base64,/);
+    assert.equal(document.querySelector("#qr-image").hidden, false);
+    assert.equal(document.querySelector("#qr-empty").hidden, true);
   } finally {
     dom.window.close();
   }

@@ -249,10 +249,10 @@ test("i18n.js lang toggle button click switches language", async () => {
 
 test("i18n.js reads page-specific head translations from body data attributes", async () => {
   const dom = new JSDOM(`<!doctype html><html lang="zh-CN"><head>
-    <title>AI导航 :: CWLBlog</title>
+    <title>中转站排名 :: CWLBlog</title>
     <meta name="description" content="常用 AI 网站和 AI 工具导航。">
   </head><body data-i18n-page="ai"
-    data-i18n-title-en="AI Navigation :: CWLBlog"
+    data-i18n-title-en="Relay Ranking :: CWLBlog"
     data-i18n-desc-en="A categorized directory of frequently used AI websites and tools.">
   </body></html>`, {
     runScripts: "outside-only",
@@ -262,7 +262,7 @@ test("i18n.js reads page-specific head translations from body data attributes", 
   const { document } = dom.window;
 
   dom.window.cwlSetLang("en");
-  assert.equal(document.title, "AI Navigation :: CWLBlog", "should use inline title-en");
+  assert.equal(document.title, "Relay Ranking :: CWLBlog", "should use inline title-en");
   const desc = document.querySelector('meta[name="description"]').getAttribute("content");
   assert.ok(desc.includes("categorized directory"), "should use inline desc-en");
   dom.window.close();

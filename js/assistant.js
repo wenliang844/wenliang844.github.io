@@ -1,14 +1,13 @@
 (function () {
   const PAGES = [
     { id: "blog", title: "博客", titleEn: "Blog", url: "/post/", keywords: ["博客", "文章", "post", "项目", "复盘", "blog"], descKey: "assistant.page.blog.desc", desc: "项目复盘和技术文章都在博客列表。" },
-    { id: "ai", title: "AI导航", titleEn: "AI Navigation", url: "/ai/", keywords: ["ai", "AI", "导航", "工具", "模型"], descKey: "assistant.page.ai.desc", desc: "常用 AI 网站和工具分类整理在 AI 导航。" },
-    { id: "relay", title: "中转站排行榜", titleEn: "Relay Ranking", url: "/ai/#relay", keywords: ["中转站", "relay", "api", "key", "claude", "chatgpt", "openai", "anthropic", "排行榜"], descKey: "assistant.page.relay.desc", desc: "AI 中转站排行榜在这里，可以筛选 ChatGPT/OpenAI 与 Claude/Anthropic 格式。" },
-    { id: "tools", title: "工具箱", titleEn: "Toolbox", url: "/tools/", keywords: ["工具箱", "json", "timestamp", "时间戳", "base64", "url", "uuid", "jwt", "toolbox"], descKey: "assistant.page.tools.desc", desc: "JSON、时间戳、Base64、URL、UUID、JWT 工具在在线工具箱。" },
+    { id: "relay", title: "中转站排名", titleEn: "Relay Ranking", url: "/ai/", keywords: ["中转站", "relay", "api", "key", "claude", "chatgpt", "openai", "anthropic", "排行榜", "排名"], descKey: "assistant.page.relay.desc", desc: "AI 中转站排行榜在这里，可以筛选 ChatGPT/OpenAI 与 Claude/Anthropic 格式。" },
+    { id: "ai", title: "AI导航网站", titleEn: "AI Websites", url: "/ai/#nav", keywords: ["ai", "AI", "导航", "工具", "模型"], descKey: "assistant.page.ai.desc", desc: "常用 AI 网站和工具分类整理在 AI 导航网站。" },
+    { id: "tools", title: "工具箱", titleEn: "Toolbox", url: "/tools/", keywords: ["工具箱", "json", "timestamp", "时间戳", "base64", "url", "uuid", "jwt", "hash", "哈希", "password", "密码", "color", "颜色", "regex", "正则", "markdown", "diff", "cron", "qr", "二维码", "toolbox"], descKey: "assistant.page.tools.desc", desc: "JSON、时间戳、编码、哈希、密码、颜色、正则、Markdown、Diff、Cron 和二维码工具在在线工具箱。" },
     { id: "overleaf", title: "简历模版", titleEn: "Resume Template", url: "/overleaf/", keywords: ["简历", "模板", "模版", "overleaf", "latex", "pdf", "resume"], descKey: "assistant.page.overleaf.desc", desc: "多格式简历模板在简历模版页面。" },
     { id: "editor", title: "编辑器", titleEn: "Editor", url: "/editor/", keywords: ["编辑器", "markdown", "md", "写作", "editor"], descKey: "assistant.page.editor.desc", desc: "Markdown 在线编辑器支持实时预览和导出。" },
     { id: "sponsor", title: "赞助", titleEn: "Sponsor", url: "/sponsor/", keywords: ["赞助", "支持", "paypal", "爱发电", "sponsor"], descKey: "assistant.page.sponsor.desc", desc: "赞助和支持方式在赞助页面。" },
-    { id: "contact", title: "联系我", titleEn: "Contact", url: "/contact/#feedback-title", keywords: ["联系", "反馈", "留言", "邮箱", "contact"], descKey: "assistant.page.contact.desc", desc: "联系方式和留言反馈在联系页面。" },
-    { id: "about", title: "关于", titleEn: "About", url: "/about/", keywords: ["关于", "作者", "cwl", "经历", "技能", "about"], descKey: "assistant.page.about.desc", desc: "作者介绍、技能和项目经历在关于页面。" },
+    { id: "contact", title: "留言反馈", titleEn: "Contact & Feedback", url: "/contact/", keywords: ["联系", "反馈", "留言", "邮箱", "contact", "关于", "作者", "cwl", "经历", "技能", "about"], descKey: "assistant.page.contact.desc", desc: "作者介绍、联系方式和留言反馈在联系页面。" },
   ];
 
   const POSTS = [
@@ -22,7 +21,7 @@
 
   const QUICK_ACTIONS = [
     { action: "search", icon: "fa-search", key: "assistant.quick.search", fallback: "搜索文章" },
-    { action: "ai", icon: "fa-magic", key: "assistant.quick.ai", fallback: "查看 AI 导航" },
+    { action: "ai", icon: "fa-magic", key: "assistant.quick.ai", fallback: "查看 AI 导航网站" },
     { action: "tools", icon: "fa-wrench", key: "assistant.quick.tools", fallback: "打开工具箱" },
     { action: "contact", icon: "fa-comments", key: "assistant.quick.contact", fallback: "联系我" },
   ];
@@ -403,6 +402,12 @@
     };
   }
 
+  function pageById(id) {
+    return PAGES.find(function (page) {
+      return page.id === id;
+    });
+  }
+
   function answer(query) {
     const text = String(query || "").trim();
     const pageMatches = matches(PAGES, text);
@@ -410,7 +415,7 @@
     if (!text) {
       return {
         text: t("assistant.empty", "你可以问我：工具箱在哪里、怎么联系作者、有哪些 AI 工具，或者输入关键词让我推荐文章。"),
-        links: [PAGES[3], PAGES[0], PAGES[1], PAGES[2]].map(linkFor),
+        links: ["tools", "blog", "relay", "ai"].map(pageById).filter(Boolean).map(linkFor),
       };
     }
     if (pageMatches.length) {
@@ -429,8 +434,8 @@
       text: t("assistant.noMatch", "AI助手本地搜索暂时没匹配到明确答案,你可以试试大模型。"),
       links: [
         { title: t("assistant.searchLink", "打开搜索"), url: "#search" },
-        linkFor(PAGES[3]),
-        linkFor(PAGES[0]),
+        linkFor(pageById("tools")),
+        linkFor(pageById("blog")),
       ],
     };
   }
@@ -604,7 +609,7 @@
     let buffer = "";
     let result = "";
 
-    while (true) {
+    for (;;) {
       const chunk = await reader.read();
       if (chunk.done) {
         break;
@@ -1494,15 +1499,15 @@
         return;
       }
       if (action === "ai") {
-        window.location.href = "/ai/";
+        window.location.href = "/ai/#nav";
         return;
       }
       if (action === "relay") {
-        window.location.href = "/ai/#relay";
+        window.location.href = "/ai/";
         return;
       }
       if (action === "contact") {
-        window.location.href = "/contact/#feedback-title";
+        window.location.href = "/contact/";
       }
     });
     function submitAssistantForm() {

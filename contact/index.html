@@ -3,17 +3,17 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="联系方式。">
+  <meta name="description" content="关于 CWL、联系方式与留言反馈。">
   <link rel="canonical" href="https://wenliang844.github.io/contact/">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="CWLBlog">
   <meta property="og:title" content="联系 :: CWLBlog">
-  <meta property="og:description" content="联系方式与留言反馈。">
+  <meta property="og:description" content="关于 CWL、联系方式与留言反馈。">
   <meta property="og:url" content="https://wenliang844.github.io/contact/">
   <meta property="og:image" content="https://wenliang844.github.io/images/favicon.png">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="联系 :: CWLBlog">
-  <meta name="twitter:description" content="联系方式与留言反馈。">
+  <meta name="twitter:description" content="关于 CWL、联系方式与留言反馈。">
   <meta name="twitter:image" content="https://wenliang844.github.io/images/favicon.png">
   <link rel="icon" href="/images/favicon.png" type="image/png">
   <link rel="stylesheet" href="/css/fontawesome-all.min.css">
@@ -41,13 +41,19 @@
           <ul>
           <li><a class="nav-blog-main" href="/post/" data-i18n="nav.blog" data-i18n-html data-i18n-en-html="&lt;i class=&quot;fas fa-book-open&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt; Blog"><i class="fas fa-book-open" aria-hidden="true"></i> 博客</a></li>
           <li><a class="nav-ai-experience" href="/?assistant=fullscreen" target="_blank" rel="noopener noreferrer" data-i18n="nav.tryAi" data-i18n-html data-i18n-en-html="&lt;i class=&quot;fas fa-robot&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt; Try AI"><i class="fas fa-robot" aria-hidden="true"></i> 体验AI</a></li>
-          <li><a href="/ai/" data-i18n="nav.ai">AI导航</a></li>
-          <li><a href="/tools/" data-i18n="nav.tools">工具箱</a></li>
+          <li><a href="/ai/" data-i18n="nav.ai">中转站排名</a></li>
           <li><a href="/appreciation/" data-i18n="nav.appreciation">鉴赏</a></li>
-          <li><a href="/overleaf/" data-i18n="nav.overleaf">简历模版</a></li>
-          <li><a href="/editor/" data-i18n="nav.editor">编辑器</a></li>
-          <li><a href="/about/" data-i18n="nav.about">关于</a></li>
-            <li><a class="nav-feedback" href="/contact/#feedback-title" data-i18n="nav.feedback" data-i18n-html><i class="fas fa-comment-dots" aria-hidden="true"></i> 留言反馈</a></li>
+            <li class="nav-more">
+              <details>
+                <summary class="nav-more-toggle" data-i18n="nav.more" data-i18n-html data-i18n-en-html="&lt;i class=&quot;fas fa-ellipsis-h&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt; More"><i class="fas fa-ellipsis-h" aria-hidden="true"></i> 更多</summary>
+                <ul class="nav-more-menu">
+              <li><a href="/tools/" data-i18n="nav.tools">工具箱</a></li>
+              <li><a href="/overleaf/" data-i18n="nav.overleaf">简历模版</a></li>
+              <li><a href="/editor/" data-i18n="nav.editor">编辑器</a></li>
+                </ul>
+              </details>
+            </li>
+            <li><a class="nav-feedback active" href="/contact/" data-i18n="nav.feedback" data-i18n-html><i class="fas fa-comment-dots" aria-hidden="true"></i> 留言反馈</a></li>
             <li><button class="nav-subscribe" type="button" data-subscribe-open data-i18n="nav.subscribe" data-i18n-html><i class="fas fa-envelope" aria-hidden="true"></i> 订阅</button></li>
             <li><a class="nav-sponsor" href="/sponsor/" data-i18n="nav.sponsor" data-i18n-html><i class="fas fa-heart" aria-hidden="true"></i> 赞助</a></li>
             <li><button class="theme-toggle" type="button" aria-label="Toggle dark mode" data-i18n-aria="nav.theme"><i class="fas fa-adjust"></i></button></li>
@@ -59,8 +65,25 @@
     </header>
     <main class="content">
       <section class="page container">
-        <h1 data-i18n="contact.h1">联系</h1>
-        <p class="lead" data-i18n="contact.lead">欢迎通过下面的链接联系我或查看其他主页。</p>
+        <span class="eyebrow" data-i18n="about.eyebrow" data-i18n-html><i class="fas fa-laptop-code" aria-hidden="true"></i> About Me</span>
+        <h1 data-i18n="about.h1">关于CWL</h1>
+        <p class="lead" data-i18n="about.lead">Java 后端开发工程师，专注服务端架构、工作流引擎与低代码平台。喜欢把复杂系统拆清楚，也喜欢把实践经验整理成可复用的文章。</p>
+        <p data-i18n="about.intro">从视频智能侦测系统的链路重构，到财税 SaaS 的报表与搜索组件，再到低代码平台的出码引擎和审批流引擎封装——我关注的始终是边界清晰、命名稳定、配置统一、失败可排查。本站记录这些项目的复盘，以及 Java、Spring、数据库和工程化方面的学习总结。</p>
+
+        <div class="card-grid">
+          <div class="card"><h2><i class="fas fa-laptop-code" aria-hidden="true"></i> Backend</h2><p data-i18n="about.card.backend">Java、Spring Boot、MyBatis/JPA、Maven 多模块、微服务</p></div>
+          <div class="card"><h2><i class="fas fa-database" aria-hidden="true"></i> Data &amp; MQ</h2><p data-i18n="about.card.data">MySQL、Kingbase、Redis/Redisson、ElasticSearch、RocketMQ/RabbitMQ</p></div>
+          <div class="card"><h2><i class="fas fa-cogs" aria-hidden="true"></i> Platform</h2><p data-i18n="about.card.platform">Activiti 工作流、低代码 Schema/出码、Docker、Jenkins</p></div>
+        </div>
+      </section>
+      <section class="section container" aria-labelledby="contact-title">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow"><i class="fas fa-address-card" aria-hidden="true"></i> Contact</span>
+            <h2 id="contact-title" data-i18n="contact.h1">联系</h2>
+            <p class="section-sub" data-i18n="contact.lead">欢迎通过下面的链接联系我或查看其他主页。</p>
+          </div>
+        </div>
         <div class="card-grid">
           <a class="card" href="mailto:2252694075@qq.com"><h2>Email</h2><p>2252694075@qq.com</p></a>
           <a class="card" href="https://github.com/wenliang844"><h2>GitHub</h2><p>github.com/wenliang844</p></a>

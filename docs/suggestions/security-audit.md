@@ -4,6 +4,37 @@
 
 ---
 
+## 📌 S-00 [新增·高危]: `assistant.js` 硬编码 Demo API Key 泄露
+
+- **📍 位置**：`js/assistant.js:54-57`
+- **📝 当前状况**：
+  ```javascript
+  const LLM_DEMO_KEYS = {
+    openai: "sk-MdXmOYyoCUSDwDaC4zxNOYUKyp45ZSIXJJOapbloAawi3LRW",
+    anthropic: "tp-cm4es5h6ehs1m9p2i2su9894nuyiwh2nomdswvjfaix86pxr",
+  };
+  ```
+  这两个 API key 以明文硬编码在前端 JS 中，且在 `withEffectiveApiKey()`（第 317 行）中作为用户未配置 key 时的默认值使用。任何用户打开浏览器开发者工具 Network 面板即可看到请求中的 key。
+- **⚠️ 影响程度**：🔴 **高**
+  - API key 可被提取滥用，产生费用
+  - 违反 API 提供商服务条款，可能导致账号封禁
+  - 中转站 endpoint 同时暴露（`free.lyclaude.site`、`token-plan-cn.xiaomimimo.com`）
+- **💡 建议方案**：
+  1. **立即**：清空 `LLM_DEMO_KEYS`，改为引导用户在 AI 助手设置中输入自己的 key
+  2. **短期**：部署 Cloudflare Workers 代理，key 存服务端环境变量
+  3. **长期**：实现用量配额和请求频率限制
+  ```javascript
+  // 替换方案
+  const LLM_DEMO_KEYS = {
+    openai: "",    // 不再提供默认 key
+    anthropic: "",
+  };
+  ```
+- **📊 预期收益**：消除 API 费用风险，符合安全最佳实践
+- **🔗 相关建议**：[[architecture-review]] AI 助手架构重构
+
+---
+
 ## 📌 S-01: `innerHTML` 使用点审计 — 整体安全但存在维护风险
 
 - **📍 位置**：多个文件
@@ -197,7 +228,7 @@
 | XSS 防护 | ✅ 良好 | 所有用户输入都经过转义处理 |
 | innerHTML 使用 | ✅ 安全 | 均用于硬编码或转义后的内容 |
 | 第三方依赖 | ✅ 最小化 | 仅 Fuse.js、Giscus、Buttondown、QRCode |
-| API Key 暴露 | ✅ 安全 | 无可泄露的密钥 |
+| API Key 暴露 | 🔴 高危 | assistant.js 硬编码 demo key（S-00） |
 | CSP 策略 | ⚠️ 缺失 | 建议添加 |
 | SRI 校验 | ⚠️ 缺失 | Giscus 脚本无 SRI |
 | 废弃 API | ⚠️ 存在 | `performance.timing`、`pageYOffset` |

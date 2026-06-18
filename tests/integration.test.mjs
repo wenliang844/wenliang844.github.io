@@ -90,9 +90,9 @@ test("sitemap contains all static pages", async () => {
     // 必须包含的静态页
     const requiredPaths = [
       "https://wenliang844.github.io/",
-      "https://wenliang844.github.io/about/",
       "https://wenliang844.github.io/post/",
       "https://wenliang844.github.io/tools/",
+      "https://wenliang844.github.io/contact/",
       "https://wenliang844.github.io/ai/",
       "https://wenliang844.github.io/tags/",
     ];

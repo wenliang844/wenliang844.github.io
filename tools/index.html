@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="CWLBlog 在线工具箱：JSON 格式化、时间戳转换、Base64、URL 编解码、UUID 生成器和 JWT 解码。">
+  <meta name="description" content="CWLBlog 在线工具箱：JSON、时间戳、Base64、URL、UUID、JWT、哈希、密码、颜色、正则、Markdown、Diff、Cron 和二维码等本地工具。">
   <link rel="icon" href="/images/favicon.png" type="image/png">
   <link rel="preconnect" href="https://giscus.app">
   <link rel="dns-prefetch" href="https://giscus.app">
@@ -16,22 +16,25 @@
   <script src="/js/search-loader.js" defer></script>
   <script src="/js/subscribe.js" defer></script>
   <script src="/js/assistant.js" defer></script>
+  <script src="/js/vendor/marked.min.js" defer></script>
+  <script src="/js/vendor/purify.min.js" defer></script>
+  <script src="/js/vendor/qrcode.min.js" defer></script>
   <script src="/js/tools-core.js" defer></script>
   <script src="/js/tools.js" defer></script>
   <link rel="canonical" href="https://wenliang844.github.io/tools/">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="CWLBlog">
   <meta property="og:title" content="在线工具箱 :: CWLBlog">
-  <meta property="og:description" content="JSON、时间戳、Base64、URL、UUID 与 JWT 等常用开发工具。">
+  <meta property="og:description" content="JSON、时间戳、编码、哈希、密码、颜色、正则、Markdown、Diff、Cron 与二维码等常用开发工具。">
   <meta property="og:url" content="https://wenliang844.github.io/tools/">
   <meta property="og:image" content="https://wenliang844.github.io/images/favicon.png">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:image" content="https://wenliang844.github.io/images/favicon.png">
   <meta name="twitter:title" content="在线工具箱 :: CWLBlog">
-  <meta name="twitter:description" content="JSON、时间戳、Base64、URL、UUID 与 JWT 等常用开发工具。">
+  <meta name="twitter:description" content="JSON、时间戳、编码、哈希、密码、颜色、正则、Markdown、Diff、Cron 与二维码等常用开发工具。">
   <title>在线工具箱 :: CWLBlog</title>
 </head>
-<body class="colorscheme-dark" data-i18n-page="tools" data-i18n-title-en="Toolbox :: CWLBlog" data-i18n-desc-en="CWLBlog online toolbox: JSON formatting, timestamp conversion, Base64, URL codec, UUID generator and JWT decoder.">
+<body class="colorscheme-dark" data-i18n-page="tools" data-i18n-title-en="Toolbox :: CWLBlog" data-i18n-desc-en="CWLBlog online toolbox: JSON, timestamps, Base64, URL, UUID, JWT, hashes, passwords, colors, regex, Markdown, diff, cron and QR tools.">
   <div class="cursor-glow" aria-hidden="true"></div>
   <canvas class="cursor-canvas" aria-hidden="true"></canvas>
   <div class="site-shell">
@@ -44,13 +47,19 @@
           <ul>
           <li><a class="nav-blog-main" href="/post/" data-i18n="nav.blog" data-i18n-html data-i18n-en-html="&lt;i class=&quot;fas fa-book-open&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt; Blog"><i class="fas fa-book-open" aria-hidden="true"></i> 博客</a></li>
           <li><a class="nav-ai-experience" href="/?assistant=fullscreen" target="_blank" rel="noopener noreferrer" data-i18n="nav.tryAi" data-i18n-html data-i18n-en-html="&lt;i class=&quot;fas fa-robot&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt; Try AI"><i class="fas fa-robot" aria-hidden="true"></i> 体验AI</a></li>
-          <li><a href="/ai/" data-i18n="nav.ai">AI导航</a></li>
-          <li><a class="active" href="/tools/" data-i18n="nav.tools">工具箱</a></li>
+          <li><a href="/ai/" data-i18n="nav.ai">中转站排名</a></li>
           <li><a href="/appreciation/" data-i18n="nav.appreciation">鉴赏</a></li>
-          <li><a href="/overleaf/" data-i18n="nav.overleaf">简历模版</a></li>
-          <li><a href="/editor/" data-i18n="nav.editor">编辑器</a></li>
-          <li><a href="/about/" data-i18n="nav.about">关于</a></li>
-            <li><a class="nav-feedback" href="/contact/#feedback-title" data-i18n="nav.feedback" data-i18n-html><i class="fas fa-comment-dots" aria-hidden="true"></i> 留言反馈</a></li>
+            <li class="nav-more">
+              <details>
+                <summary class="nav-more-toggle active" data-i18n="nav.more" data-i18n-html data-i18n-en-html="&lt;i class=&quot;fas fa-ellipsis-h&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt; More"><i class="fas fa-ellipsis-h" aria-hidden="true"></i> 更多</summary>
+                <ul class="nav-more-menu">
+              <li><a class="active" href="/tools/" data-i18n="nav.tools">工具箱</a></li>
+              <li><a href="/overleaf/" data-i18n="nav.overleaf">简历模版</a></li>
+              <li><a href="/editor/" data-i18n="nav.editor">编辑器</a></li>
+                </ul>
+              </details>
+            </li>
+            <li><a class="nav-feedback" href="/contact/" data-i18n="nav.feedback" data-i18n-html><i class="fas fa-comment-dots" aria-hidden="true"></i> 留言反馈</a></li>
             <li><button class="nav-subscribe" type="button" data-subscribe-open data-i18n="nav.subscribe" data-i18n-html><i class="fas fa-envelope" aria-hidden="true"></i> 订阅</button></li>
             <li><a class="nav-sponsor" href="/sponsor/" data-i18n="nav.sponsor" data-i18n-html><i class="fas fa-heart" aria-hidden="true"></i> 赞助</a></li>
             <li><button class="theme-toggle" type="button" aria-label="Toggle dark mode" data-i18n-aria="nav.theme"><i class="fas fa-adjust"></i></button></li>
@@ -65,7 +74,7 @@
         <header class="tools-header">
           <span class="eyebrow" data-i18n="tools.eyebrow" data-i18n-en-html='<i class="fas fa-toolbox" aria-hidden="true"></i> Online Toolbox' data-i18n-html><i class="fas fa-toolbox" aria-hidden="true"></i> Online Toolbox</span>
           <h1 data-i18n="tools.h1" data-i18n-en="Toolbox">在线工具箱</h1>
-          <p class="lead" data-i18n="tools.lead" data-i18n-en="Useful browser-only tools for JSON, timestamps, Base64, URLs, UUID and JWT decoding.">常用开发小工具，全部在浏览器本地运行，不依赖后端。</p>
+          <p class="lead" data-i18n="tools.lead" data-i18n-en="Useful browser-only tools for JSON, timestamps, encoders, hashes, passwords, colors, regex, Markdown, diff, cron and QR codes.">常用开发小工具，全部在浏览器本地运行，不依赖后端。</p>
         </header>
         <div class="tools-shell">
           <nav class="tools-tabs" role="tablist" aria-label="工具列表" data-i18n-aria="tools.tabs" data-i18n-en-aria="Tool list">
@@ -92,6 +101,46 @@
             <button class="tool-tab" id="tool-tab-jwt" type="button" role="tab" data-tool-tab="jwt" aria-controls="tool-jwt" aria-label="JWT 解码" aria-selected="false" tabindex="-1" data-i18n-aria="tools.nav.jwt" data-i18n-en-aria="JWT Decoder">
               <i class="fas fa-key" aria-hidden="true"></i>
               <span data-i18n="tools.nav.jwt" data-i18n-en="JWT Decoder">JWT 解码</span>
+            </button>
+            <button class="tool-tab" id="tool-tab-hash" type="button" role="tab" data-tool-tab="hash" aria-controls="tool-hash" aria-label="哈希摘要" aria-selected="false" tabindex="-1" data-i18n-aria="tools.nav.hash" data-i18n-en-aria="Hash Digest">
+              <i class="fas fa-shield-alt" aria-hidden="true"></i>
+              <span data-i18n="tools.nav.hash" data-i18n-en="Hash Digest">哈希摘要</span>
+            </button>
+            <button class="tool-tab" id="tool-tab-password" type="button" role="tab" data-tool-tab="password" aria-controls="tool-password" aria-label="密码生成器" aria-selected="false" tabindex="-1" data-i18n-aria="tools.nav.password" data-i18n-en-aria="Password Generator">
+              <i class="fas fa-user-lock" aria-hidden="true"></i>
+              <span data-i18n="tools.nav.password" data-i18n-en="Password Generator">密码生成器</span>
+            </button>
+            <button class="tool-tab" id="tool-tab-color" type="button" role="tab" data-tool-tab="color" aria-controls="tool-color" aria-label="颜色转换" aria-selected="false" tabindex="-1" data-i18n-aria="tools.nav.color" data-i18n-en-aria="Color Converter">
+              <i class="fas fa-palette" aria-hidden="true"></i>
+              <span data-i18n="tools.nav.color" data-i18n-en="Color Converter">颜色转换</span>
+            </button>
+            <button class="tool-tab" id="tool-tab-regex" type="button" role="tab" data-tool-tab="regex" aria-controls="tool-regex" aria-label="正则测试" aria-selected="false" tabindex="-1" data-i18n-aria="tools.nav.regex" data-i18n-en-aria="Regex Tester">
+              <i class="fas fa-search" aria-hidden="true"></i>
+              <span data-i18n="tools.nav.regex" data-i18n-en="Regex Tester">正则测试</span>
+            </button>
+            <button class="tool-tab" id="tool-tab-markdown" type="button" role="tab" data-tool-tab="markdown" aria-controls="tool-markdown" aria-label="Markdown 预览" aria-selected="false" tabindex="-1" data-i18n-aria="tools.nav.markdown" data-i18n-en-aria="Markdown Preview">
+              <i class="fas fa-heading" aria-hidden="true"></i>
+              <span data-i18n="tools.nav.markdown" data-i18n-en="Markdown Preview">Markdown 预览</span>
+            </button>
+            <button class="tool-tab" id="tool-tab-diff" type="button" role="tab" data-tool-tab="diff" aria-controls="tool-diff" aria-label="文本 Diff" aria-selected="false" tabindex="-1" data-i18n-aria="tools.nav.diff" data-i18n-en-aria="Text Diff">
+              <i class="fas fa-not-equal" aria-hidden="true"></i>
+              <span data-i18n="tools.nav.diff" data-i18n-en="Text Diff">文本 Diff</span>
+            </button>
+            <button class="tool-tab" id="tool-tab-case" type="button" role="tab" data-tool-tab="case" aria-controls="tool-case" aria-label="命名转换" aria-selected="false" tabindex="-1" data-i18n-aria="tools.nav.case" data-i18n-en-aria="Case Converter">
+              <i class="fas fa-font" aria-hidden="true"></i>
+              <span data-i18n="tools.nav.case" data-i18n-en="Case Converter">命名转换</span>
+            </button>
+            <button class="tool-tab" id="tool-tab-html" type="button" role="tab" data-tool-tab="html" aria-controls="tool-html" aria-label="HTML 实体" aria-selected="false" tabindex="-1" data-i18n-aria="tools.nav.html" data-i18n-en-aria="HTML Entities">
+              <i class="fas fa-tags" aria-hidden="true"></i>
+              <span data-i18n="tools.nav.html" data-i18n-en="HTML Entities">HTML 实体</span>
+            </button>
+            <button class="tool-tab" id="tool-tab-cron" type="button" role="tab" data-tool-tab="cron" aria-controls="tool-cron" aria-label="Cron 解析" aria-selected="false" tabindex="-1" data-i18n-aria="tools.nav.cron" data-i18n-en-aria="Cron Parser">
+              <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+              <span data-i18n="tools.nav.cron" data-i18n-en="Cron Parser">Cron 解析</span>
+            </button>
+            <button class="tool-tab" id="tool-tab-qr" type="button" role="tab" data-tool-tab="qr" aria-controls="tool-qr" aria-label="二维码生成" aria-selected="false" tabindex="-1" data-i18n-aria="tools.nav.qr" data-i18n-en-aria="QR Generator">
+              <i class="fas fa-qrcode" aria-hidden="true"></i>
+              <span data-i18n="tools.nav.qr" data-i18n-en="QR Generator">二维码生成</span>
             </button>
           </nav>
           <div class="tools-panels">
@@ -233,6 +282,263 @@
             </label>
           </div>
           <p class="tool-status" id="jwt-status" role="status" aria-live="polite"></p>
+        </section>
+        <section class="tool-panel" id="tool-hash" data-tool-panel="hash" role="tabpanel" aria-labelledby="tool-tab-hash" tabindex="0" hidden>
+          <header class="tool-panel-head">
+            <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-shield-alt"></i></span>
+            <div>
+              <h2 data-i18n="tools.hash.title" data-i18n-en="Hash Digest">哈希摘要</h2>
+              <p data-i18n="tools.hash.desc" data-i18n-en="Generate SHA text digests with Web Crypto.">使用 Web Crypto 生成 SHA 系列文本摘要。</p>
+            </div>
+          </header>
+          <div class="tool-grid">
+            <label class="tool-field"><span data-i18n="tools.label.inputText">输入文本</span>
+              <textarea id="hash-input" spellcheck="false" placeholder="hello CWLBlog"></textarea>
+            </label>
+            <label class="tool-field"><span data-i18n="tools.label.output">输出结果</span>
+              <textarea id="hash-output" spellcheck="false" readonly></textarea>
+            </label>
+          </div>
+          <div class="tool-actions">
+            <label class="tool-inline"><span data-i18n="tools.label.algorithm">算法</span>
+              <select id="hash-algorithm">
+                <option value="SHA-256">SHA-256</option>
+                <option value="SHA-384">SHA-384</option>
+                <option value="SHA-512">SHA-512</option>
+                <option value="SHA-1">SHA-1</option>
+              </select>
+            </label>
+            <button class="tool-btn primary" type="button" data-hash-generate data-i18n="tools.btn.generateHash" data-i18n-html><i class="fas fa-fingerprint" aria-hidden="true"></i> 生成摘要</button>
+            <button class="tool-btn" type="button" data-copy-target="hash-output" data-i18n="tools.btn.copyResult" data-i18n-html><i class="fas fa-copy" aria-hidden="true"></i> 复制结果</button>
+          </div>
+          <p class="tool-status" id="hash-status" role="status" aria-live="polite"></p>
+        </section>
+        <section class="tool-panel" id="tool-password" data-tool-panel="password" role="tabpanel" aria-labelledby="tool-tab-password" tabindex="0" hidden>
+          <header class="tool-panel-head">
+            <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-user-lock"></i></span>
+            <div>
+              <h2 data-i18n="tools.password.title" data-i18n-en="Password Generator">密码生成器</h2>
+              <p data-i18n="tools.password.desc" data-i18n-en="Generate strong passwords with secure browser randomness.">基于浏览器安全随机数生成强密码。</p>
+            </div>
+          </header>
+          <div class="tool-grid">
+            <div class="tool-field">
+              <label for="password-length" data-i18n="tools.label.passwordLength">长度</label>
+              <input id="password-length" type="number" min="8" max="128" step="1" value="20" inputmode="numeric">
+              <div class="tool-check-grid" aria-label="密码字符集" data-i18n-aria="tools.label.passwordSets">
+                <label class="tool-check"><input id="password-lower" type="checkbox" checked> <span data-i18n="tools.label.lowercase">小写字母</span></label>
+                <label class="tool-check"><input id="password-upper" type="checkbox" checked> <span data-i18n="tools.label.uppercase">大写字母</span></label>
+                <label class="tool-check"><input id="password-number" type="checkbox" checked> <span data-i18n="tools.label.numbers">数字</span></label>
+                <label class="tool-check"><input id="password-symbol" type="checkbox" checked> <span data-i18n="tools.label.symbols">符号</span></label>
+              </div>
+            </div>
+            <label class="tool-field"><span data-i18n="tools.label.output">输出结果</span>
+              <textarea id="password-output" spellcheck="false" readonly></textarea>
+            </label>
+          </div>
+          <div class="tool-actions">
+            <button class="tool-btn primary" type="button" data-password-generate data-i18n="tools.btn.generatePassword" data-i18n-html><i class="fas fa-sync-alt" aria-hidden="true"></i> 生成密码</button>
+            <button class="tool-btn" type="button" data-copy-target="password-output" data-i18n="tools.btn.copy" data-i18n-html><i class="fas fa-copy" aria-hidden="true"></i> 复制</button>
+          </div>
+          <p class="tool-status" id="password-status" role="status" aria-live="polite"></p>
+        </section>
+        <section class="tool-panel" id="tool-color" data-tool-panel="color" role="tabpanel" aria-labelledby="tool-tab-color" tabindex="0" hidden>
+          <header class="tool-panel-head">
+            <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-palette"></i></span>
+            <div>
+              <h2 data-i18n="tools.color.title" data-i18n-en="Color Converter">颜色转换</h2>
+              <p data-i18n="tools.color.desc" data-i18n-en="Convert HEX, RGB and HSL, with readable foreground suggestions.">HEX、RGB、HSL 互转并给出可读前景色建议。</p>
+            </div>
+          </header>
+          <div class="tool-grid">
+            <label class="tool-field"><span data-i18n="tools.label.colorInput">颜色值</span>
+              <input id="color-input" type="text" placeholder="#2563eb / rgb(37, 99, 235) / hsl(221, 83%, 53%)">
+            </label>
+            <label class="tool-field"><span data-i18n="tools.label.output">输出结果</span>
+              <textarea id="color-output" spellcheck="false" readonly></textarea>
+            </label>
+          </div>
+          <div class="tool-color-preview">
+            <span id="color-swatch" class="tool-color-swatch" aria-hidden="true"></span>
+            <span id="color-preview-text" data-i18n="tools.color.empty">等待转换颜色</span>
+          </div>
+          <div class="tool-actions">
+            <button class="tool-btn primary" type="button" data-color-convert data-i18n="tools.btn.convert" data-i18n-html><i class="fas fa-exchange-alt" aria-hidden="true"></i> 转换</button>
+            <button class="tool-btn" type="button" data-copy-target="color-output" data-i18n="tools.btn.copyResult" data-i18n-html><i class="fas fa-copy" aria-hidden="true"></i> 复制结果</button>
+          </div>
+          <p class="tool-status" id="color-status" role="status" aria-live="polite"></p>
+        </section>
+        <section class="tool-panel" id="tool-regex" data-tool-panel="regex" role="tabpanel" aria-labelledby="tool-tab-regex" tabindex="0" hidden>
+          <header class="tool-panel-head">
+            <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-search"></i></span>
+            <div>
+              <h2 data-i18n="tools.regex.title" data-i18n-en="Regex Tester">正则测试</h2>
+              <p data-i18n="tools.regex.desc" data-i18n-en="Test JavaScript regular expressions and matches locally.">本地测试 JavaScript 正则表达式和匹配结果。</p>
+            </div>
+          </header>
+          <div class="tool-grid">
+            <div class="tool-field">
+              <label for="regex-pattern" data-i18n="tools.label.regexPattern">表达式</label>
+              <input id="regex-pattern" type="text" placeholder="\b\w+@\w+\.com\b">
+              <label for="regex-flags" data-i18n="tools.label.regexFlags">Flags</label>
+              <input id="regex-flags" type="text" value="gi" spellcheck="false" placeholder="gim">
+              <label for="regex-input" data-i18n="tools.label.testText">测试文本</label>
+              <textarea id="regex-input" spellcheck="false" placeholder="email@example.com"></textarea>
+            </div>
+            <label class="tool-field"><span data-i18n="tools.label.matches">匹配结果</span>
+              <textarea id="regex-output" spellcheck="false" readonly></textarea>
+            </label>
+          </div>
+          <div class="tool-actions">
+            <button class="tool-btn primary" type="button" data-regex-test data-i18n="tools.btn.testRegex" data-i18n-html><i class="fas fa-play" aria-hidden="true"></i> 测试</button>
+            <button class="tool-btn" type="button" data-copy-target="regex-output" data-i18n="tools.btn.copyResult" data-i18n-html><i class="fas fa-copy" aria-hidden="true"></i> 复制结果</button>
+          </div>
+          <p class="tool-status" id="regex-status" role="status" aria-live="polite"></p>
+        </section>
+        <section class="tool-panel" id="tool-markdown" data-tool-panel="markdown" role="tabpanel" aria-labelledby="tool-tab-markdown" tabindex="0" hidden>
+          <header class="tool-panel-head">
+            <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-heading"></i></span>
+            <div>
+              <h2 data-i18n="tools.markdown.title" data-i18n-en="Markdown Preview">Markdown 预览</h2>
+              <p data-i18n="tools.markdown.desc" data-i18n-en="Render Markdown to sanitized HTML preview.">将 Markdown 渲染为经过清理的 HTML 预览。</p>
+            </div>
+          </header>
+          <div class="tool-grid">
+            <label class="tool-field"><span data-i18n="tools.label.markdownInput">Markdown</span>
+              <textarea id="markdown-input" spellcheck="false" placeholder="# Hello&#10;&#10;- item"></textarea>
+            </label>
+            <div class="tool-field">
+              <span data-i18n="tools.label.preview">预览</span>
+              <div id="markdown-preview" class="tool-preview" aria-live="polite"></div>
+            </div>
+          </div>
+          <label class="tool-field tool-output-field"><span data-i18n="tools.label.htmlOutput">HTML 输出</span>
+            <textarea id="markdown-output" spellcheck="false" readonly></textarea>
+          </label>
+          <div class="tool-actions">
+            <button class="tool-btn primary" type="button" data-markdown-render data-i18n="tools.btn.preview" data-i18n-html><i class="fas fa-eye" aria-hidden="true"></i> 预览</button>
+            <button class="tool-btn" type="button" data-copy-target="markdown-output" data-i18n="tools.btn.copyHtml" data-i18n-html><i class="fas fa-copy" aria-hidden="true"></i> 复制 HTML</button>
+          </div>
+          <p class="tool-status" id="markdown-status" role="status" aria-live="polite"></p>
+        </section>
+        <section class="tool-panel" id="tool-diff" data-tool-panel="diff" role="tabpanel" aria-labelledby="tool-tab-diff" tabindex="0" hidden>
+          <header class="tool-panel-head">
+            <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-not-equal"></i></span>
+            <div>
+              <h2 data-i18n="tools.diff.title" data-i18n-en="Text Diff">文本 Diff</h2>
+              <p data-i18n="tools.diff.desc" data-i18n-en="Compare two texts with a lightweight line diff.">对比两段文本，输出轻量行级差异。</p>
+            </div>
+          </header>
+          <div class="tool-grid">
+            <label class="tool-field"><span data-i18n="tools.label.leftText">左侧文本</span>
+              <textarea id="diff-left" spellcheck="false" placeholder="line 1&#10;line 2"></textarea>
+            </label>
+            <label class="tool-field"><span data-i18n="tools.label.rightText">右侧文本</span>
+              <textarea id="diff-right" spellcheck="false" placeholder="line 1&#10;line 3"></textarea>
+            </label>
+          </div>
+          <label class="tool-field tool-output-field"><span data-i18n="tools.label.diffOutput">差异结果</span>
+            <textarea id="diff-output" spellcheck="false" readonly></textarea>
+          </label>
+          <div class="tool-actions">
+            <button class="tool-btn primary" type="button" data-diff-run data-i18n="tools.btn.compare" data-i18n-html><i class="fas fa-not-equal" aria-hidden="true"></i> 对比</button>
+            <button class="tool-btn" type="button" data-copy-target="diff-output" data-i18n="tools.btn.copyResult" data-i18n-html><i class="fas fa-copy" aria-hidden="true"></i> 复制结果</button>
+          </div>
+          <p class="tool-status" id="diff-status" role="status" aria-live="polite"></p>
+        </section>
+        <section class="tool-panel" id="tool-case" data-tool-panel="case" role="tabpanel" aria-labelledby="tool-tab-case" tabindex="0" hidden>
+          <header class="tool-panel-head">
+            <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-font"></i></span>
+            <div>
+              <h2 data-i18n="tools.case.title" data-i18n-en="Case Converter">命名转换</h2>
+              <p data-i18n="tools.case.desc" data-i18n-en="Generate camel, snake, kebab, Pascal and other case styles.">一键生成 camel、snake、kebab、Pascal 等命名形式。</p>
+            </div>
+          </header>
+          <div class="tool-grid">
+            <label class="tool-field"><span data-i18n="tools.label.inputText">输入文本</span>
+              <textarea id="case-input" spellcheck="false" placeholder="user profile id"></textarea>
+            </label>
+            <label class="tool-field"><span data-i18n="tools.label.output">输出结果</span>
+              <textarea id="case-output" spellcheck="false" readonly></textarea>
+            </label>
+          </div>
+          <div class="tool-actions">
+            <button class="tool-btn primary" type="button" data-case-convert data-i18n="tools.btn.convert" data-i18n-html><i class="fas fa-exchange-alt" aria-hidden="true"></i> 转换</button>
+            <button class="tool-btn" type="button" data-copy-target="case-output" data-i18n="tools.btn.copyResult" data-i18n-html><i class="fas fa-copy" aria-hidden="true"></i> 复制结果</button>
+          </div>
+          <p class="tool-status" id="case-status" role="status" aria-live="polite"></p>
+        </section>
+        <section class="tool-panel" id="tool-html" data-tool-panel="html" role="tabpanel" aria-labelledby="tool-tab-html" tabindex="0" hidden>
+          <header class="tool-panel-head">
+            <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-tags"></i></span>
+            <div>
+              <h2 data-i18n="tools.html.title" data-i18n-en="HTML Entities">HTML 实体</h2>
+              <p data-i18n="tools.html.desc" data-i18n-en="Encode and decode HTML entities.">HTML 特殊字符实体编码与解码。</p>
+            </div>
+          </header>
+          <div class="tool-grid">
+            <label class="tool-field"><span data-i18n="tools.label.input">输入</span>
+              <textarea id="html-input" spellcheck="false" placeholder="&lt;div class=&quot;card&quot;&gt;CWL &amp; Codex&lt;/div&gt;" data-i18n-ph="tools.html.placeholder" data-i18n-en-ph="&lt;div class=&quot;card&quot;&gt;CWL &amp; Codex&lt;/div&gt;"></textarea>
+            </label>
+            <label class="tool-field"><span data-i18n="tools.label.output">输出结果</span>
+              <textarea id="html-output" spellcheck="false" readonly></textarea>
+            </label>
+          </div>
+          <div class="tool-actions">
+            <button class="tool-btn primary" type="button" data-codec-action="html-encode" data-i18n="tools.btn.encode" data-i18n-html><i class="fas fa-arrow-down" aria-hidden="true"></i> 编码</button>
+            <button class="tool-btn" type="button" data-codec-action="html-decode" data-i18n="tools.btn.decode" data-i18n-html><i class="fas fa-arrow-up" aria-hidden="true"></i> 解码</button>
+            <button class="tool-btn" type="button" data-copy-target="html-output" data-i18n="tools.btn.copyResult" data-i18n-html><i class="fas fa-copy" aria-hidden="true"></i> 复制结果</button>
+          </div>
+          <p class="tool-status" id="html-status" role="status" aria-live="polite"></p>
+        </section>
+        <section class="tool-panel" id="tool-cron" data-tool-panel="cron" role="tabpanel" aria-labelledby="tool-tab-cron" tabindex="0" hidden>
+          <header class="tool-panel-head">
+            <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-calendar-alt"></i></span>
+            <div>
+              <h2 data-i18n="tools.cron.title" data-i18n-en="Cron Parser">Cron 解析</h2>
+              <p data-i18n="tools.cron.desc" data-i18n-en="Parse 5-field cron expressions and preview next run times.">解析 5 段 Cron 表达式并预测后续执行时间。</p>
+            </div>
+          </header>
+          <label class="tool-field"><span data-i18n="tools.label.cronExpression">Cron 表达式</span>
+            <input id="cron-input" type="text" spellcheck="false" value="*/15 9-18 * * 1-5" placeholder="*/15 9-18 * * 1-5">
+          </label>
+          <label class="tool-field tool-output-field"><span data-i18n="tools.label.output">输出结果</span>
+            <textarea id="cron-output" spellcheck="false" readonly></textarea>
+          </label>
+          <div class="tool-actions">
+            <button class="tool-btn primary" type="button" data-cron-parse data-i18n="tools.btn.parseCron" data-i18n-html><i class="fas fa-calendar-check" aria-hidden="true"></i> 解析</button>
+            <button class="tool-btn" type="button" data-copy-target="cron-output" data-i18n="tools.btn.copyResult" data-i18n-html><i class="fas fa-copy" aria-hidden="true"></i> 复制结果</button>
+          </div>
+          <p class="tool-status" id="cron-status" role="status" aria-live="polite"></p>
+        </section>
+        <section class="tool-panel" id="tool-qr" data-tool-panel="qr" role="tabpanel" aria-labelledby="tool-tab-qr" tabindex="0" hidden>
+          <header class="tool-panel-head">
+            <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-qrcode"></i></span>
+            <div>
+              <h2 data-i18n="tools.qr.title" data-i18n-en="QR Generator">二维码生成</h2>
+              <p data-i18n="tools.qr.desc" data-i18n-en="Generate local QR codes for text or links.">把文本或链接生成可复制的本地二维码。</p>
+            </div>
+          </header>
+          <div class="tool-grid">
+            <label class="tool-field"><span data-i18n="tools.label.qrInput">文本或链接</span>
+              <textarea id="qr-input" spellcheck="false" placeholder="https://wenliang844.github.io/tools/"></textarea>
+            </label>
+            <div class="tool-field">
+              <span data-i18n="tools.label.preview">预览</span>
+              <div class="qr-box">
+                <img id="qr-image" alt="QR code" hidden>
+                <span id="qr-empty" data-i18n="tools.qr.empty">等待生成二维码</span>
+              </div>
+            </div>
+          </div>
+          <label class="tool-field tool-output-field"><span data-i18n="tools.label.dataUrl">Data URL</span>
+            <textarea id="qr-output" spellcheck="false" readonly></textarea>
+          </label>
+          <div class="tool-actions">
+            <button class="tool-btn primary" type="button" data-qr-generate data-i18n="tools.btn.generateQr" data-i18n-html><i class="fas fa-qrcode" aria-hidden="true"></i> 生成二维码</button>
+            <button class="tool-btn" type="button" data-copy-target="qr-output" data-i18n="tools.btn.copyDataUrl" data-i18n-html><i class="fas fa-copy" aria-hidden="true"></i> 复制 Data URL</button>
+          </div>
+          <p class="tool-status" id="qr-status" role="status" aria-live="polite"></p>
         </section>
           </div>
         </div>

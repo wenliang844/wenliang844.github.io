@@ -23,12 +23,14 @@ const NAV_ITEMS = [
     htmlEn: '<i class="fas fa-robot" aria-hidden="true"></i> Try AI',
     target: "_blank",
   },
-  { href: "/ai/", label: "AI导航", key: "ai", i18n: "nav.ai" },
-  { href: "/tools/", label: "工具箱", key: "tools", i18n: "nav.tools" },
+  { href: "/ai/", label: "中转站排名", key: "ai", i18n: "nav.ai" },
   { href: "/appreciation/", label: "鉴赏", key: "appreciation", i18n: "nav.appreciation" },
+];
+
+const MORE_ITEMS = [
+  { href: "/tools/", label: "工具箱", key: "tools", i18n: "nav.tools" },
   { href: "/overleaf/", label: "简历模版", key: "overleaf", i18n: "nav.overleaf" },
   { href: "/editor/", label: "编辑器", key: "editor", i18n: "nav.editor" },
-  { href: "/about/", label: "关于", key: "about", i18n: "nav.about" },
 ];
 
 export const SPONSOR_LINKS = {
@@ -37,20 +39,32 @@ export const SPONSOR_LINKS = {
 };
 
 // 渲染主导航；active 标记当前栏目。
+function renderNavItem(item, active, indent = "          ") {
+  const classes = [item.key === active ? "active" : "", item.className || ""].filter(Boolean).join(" ");
+  const cls = classes ? ` class="${classes}"` : "";
+  const target = item.target ? ` target="${item.target}" rel="noopener noreferrer"` : "";
+  const i18nHtml = item.html ? " data-i18n-html" : "";
+  const i18nEn = item.htmlEn ? ` data-i18n-en-html="${escapeAttr(item.htmlEn)}"` : "";
+  return `${indent}<li><a${cls} href="${item.href}"${target} data-i18n="${item.i18n}"${i18nHtml}${i18nEn}>${item.html || item.label}</a></li>`;
+}
+
 function renderNav(active) {
-  const items = NAV_ITEMS.map((item) => {
-    const classes = [item.key === active ? "active" : "", item.className || ""].filter(Boolean).join(" ");
-    const cls = classes ? ` class="${classes}"` : "";
-    const target = item.target ? ` target="${item.target}" rel="noopener noreferrer"` : "";
-    const i18nHtml = item.html ? " data-i18n-html" : "";
-    const i18nEn = item.htmlEn ? ` data-i18n-en-html="${escapeAttr(item.htmlEn)}"` : "";
-    return `          <li><a${cls} href="${item.href}"${target} data-i18n="${item.i18n}"${i18nHtml}${i18nEn}>${item.html || item.label}</a></li>`;
-  }).join("\n");
+  const items = NAV_ITEMS.map((item) => renderNavItem(item, active)).join("\n");
+  const moreActive = MORE_ITEMS.some((item) => item.key === active);
+  const moreItems = MORE_ITEMS.map((item) => renderNavItem(item, active, "              ")).join("\n");
 
   return `        <nav class="navigation-list" aria-label="Main navigation" data-i18n-aria="nav.main">
           <ul>
 ${items}
-            <li><a class="nav-feedback" href="/contact/#feedback-title" data-i18n="nav.feedback" data-i18n-html><i class="fas fa-comment-dots" aria-hidden="true"></i> 留言反馈</a></li>
+            <li class="nav-more">
+              <details>
+                <summary class="nav-more-toggle${moreActive ? " active" : ""}" data-i18n="nav.more" data-i18n-html data-i18n-en-html="&lt;i class=&quot;fas fa-ellipsis-h&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt; More"><i class="fas fa-ellipsis-h" aria-hidden="true"></i> 更多</summary>
+                <ul class="nav-more-menu">
+${moreItems}
+                </ul>
+              </details>
+            </li>
+            <li><a class="nav-feedback${active === "contact" ? " active" : ""}" href="/contact/" data-i18n="nav.feedback" data-i18n-html><i class="fas fa-comment-dots" aria-hidden="true"></i> 留言反馈</a></li>
             <li><button class="nav-subscribe" type="button" data-subscribe-open data-i18n="nav.subscribe" data-i18n-html><i class="fas fa-envelope" aria-hidden="true"></i> 订阅</button></li>
             <li><a class="nav-sponsor${active === "sponsor" ? " active" : ""}" href="/sponsor/" data-i18n="nav.sponsor" data-i18n-html><i class="fas fa-heart" aria-hidden="true"></i> 赞助</a></li>
             <li><button class="theme-toggle" type="button" aria-label="Toggle dark mode" data-i18n-aria="nav.theme"><i class="fas fa-adjust"></i></button></li>

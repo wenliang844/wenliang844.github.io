@@ -312,7 +312,7 @@
     collapseBtn.className = "post-tree-collapse";
     collapseBtn.setAttribute("aria-controls", sidebar.id);
 
-    function updateFab(open) {
+    const updateFab = function (open) {
       const label = t("dyn.blog.expandTree", "展开文章目录");
       while (fab.firstChild) {
         fab.removeChild(fab.firstChild);
@@ -322,9 +322,9 @@
       fab.setAttribute("aria-expanded", String(open));
       fab.setAttribute("aria-label", label);
       fab.setAttribute("title", label);
-    }
+    };
 
-    function updateCollapseButton() {
+    const updateCollapseButton = function () {
       const label = t("dyn.blog.collapseTree", "收起文章目录");
       while (collapseBtn.firstChild) {
         collapseBtn.removeChild(collapseBtn.firstChild);
@@ -333,7 +333,7 @@
       collapseBtn.setAttribute("aria-expanded", "true");
       collapseBtn.setAttribute("aria-label", label);
       collapseBtn.setAttribute("title", label);
-    }
+    };
 
     const setOpen = function (open) {
       sidebar.classList.toggle("is-floating-open", open);

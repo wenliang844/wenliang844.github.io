@@ -12,14 +12,30 @@ import { renderTagsPage } from "../src/templates/tags.mjs";
 
 // ─── Tools 页面测试 ────────────────────────────────────────────────────────────
 
-test("renderToolsPage includes all 6 tool panels", () => {
+test("renderToolsPage includes all 16 tool panels", () => {
   const html = renderToolsPage();
-  assert.match(html, /id="tool-json"/);
-  assert.match(html, /id="tool-time"/);
-  assert.match(html, /id="tool-base64"/);
-  assert.match(html, /id="tool-url"/);
-  assert.match(html, /id="tool-uuid"/);
-  assert.match(html, /id="tool-jwt"/);
+  const panelIds = [
+    "json",
+    "time",
+    "base64",
+    "url",
+    "uuid",
+    "jwt",
+    "hash",
+    "password",
+    "color",
+    "regex",
+    "markdown",
+    "diff",
+    "case",
+    "html",
+    "cron",
+    "qr",
+  ];
+
+  for (const id of panelIds) {
+    assert.match(html, new RegExp(`id="tool-${id}"`));
+  }
 });
 
 test("renderToolsPage has correct script references", () => {
@@ -27,6 +43,9 @@ test("renderToolsPage has correct script references", () => {
   assert.match(html, /src="\/js\/tools-core\.js"/);
   assert.match(html, /src="\/js\/tools\.js"/);
   assert.match(html, /src="\/js\/assistant\.js"/);
+  assert.match(html, /src="\/js\/vendor\/marked\.min\.js"/);
+  assert.match(html, /src="\/js\/vendor\/purify\.min\.js"/);
+  assert.match(html, /src="\/js\/vendor\/qrcode\.min\.js"/);
 });
 
 test("renderToolsPage has OG meta tags", () => {
@@ -78,14 +97,17 @@ test("renderAiPage external links have noopener noreferrer", () => {
 
 test("renderAiPage has proper OG and page metadata", () => {
   const html = renderAiPage();
-  assert.match(html, /<title>AI导航 :: CWLBlog<\/title>/);
+  assert.match(html, /<title>中转站排名 :: CWLBlog<\/title>/);
   assert.match(html, /property="og:title"/);
   assert.match(html, /href="https:\/\/wenliang844\.github\.io\/ai\/"/);
 });
 
 test("renderAiPage includes the relay ranking tab content", () => {
   const html = renderAiPage();
-  assert.match(html, /data-ai-tab="relay"/);
+  assert.match(html, /<button class="ai-tab active" id="ai-tab-relay"[^>]+aria-selected="true"/);
+  assert.match(html, /<button class="ai-tab" id="ai-tab-nav"[^>]+aria-selected="false"[^>]+tabindex="-1"/);
+  assert.match(html, /<section class="ai-tab-panel relay-page ai-relay-panel active" id="ai-panel-relay"/);
+  assert.match(html, /<section class="ai-tab-panel" id="ai-panel-nav"[^>]+hidden/);
   assert.match(html, /id="relay"/);
   assert.match(html, /data-relay-filter="chatgpt"/);
   assert.match(html, /data-relay-filter="claude"/);

@@ -45,9 +45,7 @@
 
     function activateFromHash() {
       const id = tabIdFromHash();
-      if (id) {
-        activate(id, false);
-      }
+      activate(id || "relay", false);
     }
 
     tabs.forEach(function (tab, index) {
