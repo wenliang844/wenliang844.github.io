@@ -37,6 +37,22 @@
     return target && typeof target.closest === "function" ? target.closest(selector) : null;
   }
 
+  function toolPanels() {
+    return Array.prototype.slice.call(document.querySelectorAll("[data-tool-panel]"));
+  }
+
+  function panelFor(id, panels) {
+    return panels.find(function (panel) {
+      return panel.getAttribute("data-tool-panel") === id;
+    });
+  }
+
+  function toolTabs(panels) {
+    return Array.prototype.slice.call(document.querySelectorAll(".tools-tabs [data-tool-tab]")).filter(function (tab) {
+      return Boolean(panelFor(tab.getAttribute("data-tool-tab"), panels));
+    });
+  }
+
   function setStatusElement(el, message, type) {
     if (!el) {
       return;
@@ -109,14 +125,12 @@
   }
 
   function switchTool(id, options) {
-    const tabs = Array.prototype.slice.call(document.querySelectorAll(".tools-tabs [data-tool-tab]"));
-    const panels = Array.prototype.slice.call(document.querySelectorAll("[data-tool-panel]"));
+    const panels = toolPanels();
+    const tabs = toolTabs(panels);
     const selectedTab = tabs.find(function (tab) {
       return tab.getAttribute("data-tool-tab") === id;
     });
-    const selectedPanel = panels.find(function (panel) {
-      return panel.getAttribute("data-tool-panel") === id;
-    });
+    const selectedPanel = panelFor(id, panels);
 
     if (!selectedTab || !selectedPanel) {
       return false;
@@ -147,7 +161,7 @@
   }
 
   function switchToolByKey(tab, key) {
-    const tabs = Array.prototype.slice.call(document.querySelectorAll("[data-tool-tab]"));
+    const tabs = toolTabs(toolPanels());
     const currentIndex = tabs.indexOf(tab);
     if (currentIndex === -1) {
       return false;

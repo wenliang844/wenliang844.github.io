@@ -317,9 +317,10 @@ test("tools page ignores delegated events from non-element targets", async () =>
 
 test("tools page ignores unknown tab targets without clearing selection", async () => {
   const { dom } = await loadToolsPage();
-  const { document } = dom.window;
+  const { document, KeyboardEvent } = dom.window;
   try {
     const jsonTab = document.querySelector('[data-tool-tab="json"]');
+    const jwtTab = document.querySelector('[data-tool-tab="jwt"]');
     const jsonPanel = document.querySelector('[data-tool-panel="json"]');
 
     const outsideTab = document.createElement("button");
@@ -339,6 +340,10 @@ test("tools page ignores unknown tab targets without clearing selection", async 
     assert.equal(jsonTab.classList.contains("active"), true);
     assert.equal(jsonTab.getAttribute("aria-selected"), "true");
     assert.equal(jsonPanel.hidden, false);
+
+    jsonTab.dispatchEvent(new KeyboardEvent("keydown", { key: "End", bubbles: true, cancelable: true }));
+    assert.equal(jwtTab.classList.contains("active"), true);
+    assert.equal(jwtTab.getAttribute("aria-selected"), "true");
   } finally {
     dom.window.close();
   }
