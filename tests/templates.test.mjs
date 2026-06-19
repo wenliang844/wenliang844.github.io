@@ -33,6 +33,8 @@ test("layout escapes title and metadata", () => {
   assert.match(html, /property="og:title" content="OG &lt;title&gt;"/);
   assert.match(html, /href="\/tools\/" data-i18n="nav.tools">工具箱<\/a>/);
   assert.match(html, /class="nav-search-trigger" type="button" aria-label="全局搜索（Ctrl\+K 或 \/）" title="全局搜索（Ctrl\+K 或 \/）" data-i18n-aria="nav.searchHint" data-i18n-title="nav.searchHint"/);
+  assert.match(html, /class="nav-ai-experience assistant-nav-trigger" type="button" aria-label="打开 AI 助手" title="打开 AI 助手" data-assistant-toggle data-i18n-aria="assistant.open" data-i18n-title="assistant.open"/);
+  assert.doesNotMatch(html, /href="\/\?assistant=fullscreen"/);
   assert.match(html, /src="\/js\/assistant\.js"/);
   assert.match(html, /http-equiv="Content-Security-Policy"/);
   assert.match(html, /object-src 'none'/);

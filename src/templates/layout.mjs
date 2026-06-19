@@ -13,16 +13,6 @@ const NAV_ITEMS = [
     html: '<i class="fas fa-book-open" aria-hidden="true"></i> 博客',
     htmlEn: '<i class="fas fa-book-open" aria-hidden="true"></i> Blog',
   },
-  {
-    href: "/?assistant=fullscreen",
-    label: "体验AI",
-    key: "try-ai",
-    i18n: "nav.tryAi",
-    className: "nav-ai-experience",
-    html: '<i class="fas fa-robot" aria-hidden="true"></i> 体验AI',
-    htmlEn: '<i class="fas fa-robot" aria-hidden="true"></i> Try AI',
-    target: "_blank",
-  },
   { href: "/ai/", label: "中转站排名", key: "ai", i18n: "nav.ai" },
   { href: "/appreciation/", label: "鉴赏", key: "appreciation", i18n: "nav.appreciation" },
 ];
@@ -102,6 +92,7 @@ ${moreItems}
             <li><button class="theme-toggle" type="button" aria-label="切换主题" data-i18n-aria="nav.theme"><i class="fas fa-adjust"></i></button></li>
             <li><button class="lang-toggle" type="button" aria-label="Switch language">EN</button></li>
             <li><button class="nav-search-trigger" type="button" aria-label="全局搜索（Ctrl+K 或 /）" title="全局搜索（Ctrl+K 或 /）" data-i18n-aria="nav.searchHint" data-i18n-title="nav.searchHint"><i class="fas fa-search"></i></button></li>
+            <li><button class="nav-ai-experience assistant-nav-trigger" type="button" aria-label="打开 AI 助手" title="打开 AI 助手" data-assistant-toggle data-i18n-aria="assistant.open" data-i18n-title="assistant.open"><span aria-hidden="true">AI</span></button></li>
           </ul>
         </nav>`;
 }

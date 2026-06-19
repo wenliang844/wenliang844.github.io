@@ -339,7 +339,7 @@
     "assistant.config.toggle": "Settings",
     "assistant.opacity": "Opacity",
     "assistant.privacy": "Local rules only. Your input is not sent anywhere.",
-    "assistant.llmPrivacy": "Large-model mode requests your configured relay. The API key stays in this browser.",
+    "assistant.llmPrivacy": "Large-model mode requests your configured relay. The API key field stays empty by default; blank presets use an experience key.",
     "assistant.placeholder": "Ask about site navigation or article keywords",
     "assistant.llmPlaceholder": "Type a question for the large model",
     "assistant.input": "Type a question",

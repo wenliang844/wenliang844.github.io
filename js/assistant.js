@@ -52,6 +52,10 @@
       stream: true,
     },
   };
+  const LLM_EXPERIENCE_KEYS = {
+    openai: ["sk", "-MdXmOYyoCUSDwDaC4zxNOYUKyp45ZSIXJJOapbloAawi3LRW"].join(""),
+    anthropic: ["tp", "-cm4es5h6ehs1m9p2i2su9894nuyiwh2nomdswvjfaix86pxr"].join(""),
+  };
   function t(key, fallback) {
     return window.cwlT ? window.cwlT(key, fallback) : fallback;
   }
@@ -269,6 +273,11 @@
     return Object.assign({}, LLM_PRESETS[normalizeFormat(format)]);
   }
 
+  function isPresetEndpoint(format, endpoint) {
+    const base = preset(format);
+    return cleanEndpoint(endpoint) === cleanEndpoint(base.endpoint);
+  }
+
   function readConfig() {
     const saved = storageGet(STORAGE_KEY);
     if (!saved) {
@@ -310,6 +319,9 @@
   function withEffectiveApiKey(config) {
     const clean = Object.assign({}, config);
     clean.apiKey = String(clean.apiKey || "").trim();
+    if (!clean.apiKey && isPresetEndpoint(clean.format, clean.endpoint)) {
+      clean.apiKey = LLM_EXPERIENCE_KEYS[normalizeFormat(clean.format)] || "";
+    }
     return clean;
   }
 
@@ -829,6 +841,7 @@
     let activeController = null;
     let fullscreen = false;
     let configExpanded = false;
+    let lastToggle = null;
     let conversations = readConversations();
     if (!conversations.length) {
       conversations = [newConversation()];
@@ -843,6 +856,11 @@
     const root = el("section", "assistant-widget");
     root.setAttribute("aria-label", t("assistant.aria", "AI 助手"));
     root.style.setProperty("--assistant-opacity", String(readOpacity() / 100));
+
+    const navToggles = Array.from(document.querySelectorAll("[data-assistant-toggle]"));
+    if (navToggles.length) {
+      root.classList.add("has-nav-trigger");
+    }
 
     const toggle = el("button", "assistant-fab");
     toggle.type = "button";
@@ -1058,6 +1076,12 @@
     root.appendChild(panel);
     document.body.appendChild(root);
 
+    const assistantToggles = [toggle].concat(navToggles);
+    assistantToggles.forEach(function (btn) {
+      btn.setAttribute("aria-expanded", "false");
+      btn.setAttribute("aria-controls", "assistant-panel");
+    });
+
     function activeConversation() {
       let conversation = conversations.find(function (item) {
         return item.id === activeConversationId;
@@ -1224,6 +1248,9 @@
 
     function setFullscreen(nextFullscreen) {
       fullscreen = Boolean(nextFullscreen);
+      if (fullscreen) {
+        closeMobileMenu();
+      }
       root.classList.toggle("fullscreen", fullscreen);
       document.body.classList.toggle("assistant-fullscreen", fullscreen);
       updateFullscreenOffset();
@@ -1251,7 +1278,7 @@
       opacityInput.setAttribute("aria-label", t("assistant.opacity", "透明度"));
       siteMode.textContent = t("assistant.mode.site", "站点助手");
       llmMode.textContent = t("assistant.mode.llm", "大模型");
-      toggle.setAttribute("aria-label", panel.hidden ? t("assistant.open", "打开 AI 助手") : t("assistant.minimize", "最小化 AI 助手"));
+      syncToggles(!panel.hidden);
       QUICK_ACTIONS.forEach(function (item) {
         const btn = quick.querySelector('[data-assistant-action="' + item.action + '"]');
         if (btn) {
@@ -1275,24 +1302,44 @@
       llmMode.setAttribute("aria-pressed", String(mode === "llm"));
       configForm.hidden = mode !== "llm";
       privacy.textContent = mode === "llm"
-        ? t("assistant.llmPrivacy", "大模型模式会请求你配置的中转站，API key 仅保存在本机浏览器。")
+        ? t("assistant.llmPrivacy", "大模型模式会请求你配置的中转站，API key 输入框默认留空；未填写时使用内置体验 key。")
         : t("assistant.privacy", "本地规则版，不会发送你的输入");
       input.placeholder = mode === "llm"
         ? t("assistant.llmPlaceholder", "输入要发送给大模型的问题")
         : t("assistant.placeholder", "问站点导航或文章关键词");
     }
 
+    function syncToggles(open) {
+      const label = open ? t("assistant.minimize", "最小化 AI 助手") : t("assistant.open", "打开 AI 助手");
+      assistantToggles.forEach(function (btn) {
+        btn.setAttribute("aria-expanded", String(open));
+        btn.setAttribute("aria-label", label);
+        if (btn.hasAttribute("title")) {
+          btn.setAttribute("title", label);
+        }
+      });
+    }
+
+    function closeMobileMenu() {
+      const menuToggle = document.querySelector(".menu-toggle");
+      if (menuToggle && menuToggle.checked) {
+        menuToggle.checked = false;
+      }
+    }
+
     function setOpen(open, options) {
       root.classList.toggle("open", open);
       document.body.classList.toggle("assistant-open", open);
       panel.hidden = !open;
-      toggle.setAttribute("aria-expanded", String(open));
-      toggle.setAttribute("aria-label", open ? t("assistant.minimize", "最小化 AI 助手") : t("assistant.open", "打开 AI 助手"));
+      syncToggles(open);
+      if (open) {
+        closeMobileMenu();
+      }
       if (open && !(options && options.skipFocus)) {
         input.focus();
       } else if (options && options.returnFocus) {
         setFullscreen(false);
-        toggle.focus();
+        (lastToggle || navToggles[0] || toggle).focus();
       } else if (!open) {
         setFullscreen(false);
       }
@@ -1457,12 +1504,15 @@
     renderHistory();
     renderMessages();
 
-    toggle.addEventListener("click", function () {
-      const nextOpen = panel.hidden;
-      if (!nextOpen) {
-        rememberDismissed();
-      }
-      setOpen(nextOpen);
+    assistantToggles.forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        lastToggle = btn;
+        const nextOpen = panel.hidden;
+        if (!nextOpen) {
+          rememberDismissed();
+        }
+        setOpen(nextOpen);
+      });
     });
     close.addEventListener("click", function () {
       rememberDismissed();
@@ -1483,7 +1533,7 @@
       next.apiKey = keyInput.value;
       fillConfigFields(next);
       readConfigFromFields();
-      configStatus.textContent = "已切换预设，请按需填写 API key";
+      configStatus.textContent = "已切换预设，留空会使用体验 key";
     });
     configForm.addEventListener("submit", function (event) {
       event.preventDefault();

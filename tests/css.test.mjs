@@ -151,12 +151,14 @@ test("coder.css contains assistant selectors", async () => {
   const css = await readFile(join(ROOT, "css", "coder.css"), "utf8");
 
   assert.ok(css.includes(".assistant-fab"), "should have assistant-fab");
+  assert.ok(css.includes(".assistant-nav-trigger"), "should have assistant nav trigger");
   assert.ok(css.includes(".assistant-panel"), "should have assistant-panel");
   assert.ok(css.includes(".assistant-panel[hidden]"), "should have assistant-panel[hidden]");
   assert.ok(css.includes(".assistant-widget.fullscreen"), "should have assistant fullscreen state");
-  assert.match(css, /body\[data-i18n-page="home"\]\s+\.assistant-widget:not\(\.fullscreen\)\s*{[^}]*top:\s*calc\(var\(--assistant-nav-height,\s*5\.6rem\)\s*\+\s*0\.9rem\);[^}]*bottom:\s*auto;[^}]*z-index:\s*45;/s);
-  assert.match(css, /body\[data-i18n-page="home"\]\s+\.assistant-widget:not\(\.fullscreen\)\s+\.assistant-panel\s*{[^}]*top:\s*4rem;[^}]*bottom:\s*auto;/s);
-  assert.match(css, /body\[data-i18n-page="home"\]\s+\.assistant-widget:not\(\.fullscreen\)\s+\.assistant-panel\s*{[^}]*right:\s*0;[^}]*width:\s*min\(42rem,\s*calc\(100vw\s*-\s*2rem\)\);/s);
+  assert.match(css, /\.assistant-widget\s*{[^}]*top:\s*calc\(var\(--assistant-nav-height,\s*5\.6rem\)\s*\+\s*0\.9rem\);[^}]*bottom:\s*auto;[^}]*z-index:\s*45;/s);
+  assert.match(css, /\.assistant-widget\.has-nav-trigger\s*>\s*\.assistant-fab\s*{[^}]*display:\s*none;/s);
+  assert.match(css, /\.assistant-panel\s*{[^}]*top:\s*0;[^}]*width:\s*min\(42rem,\s*calc\(100vw\s*-\s*3\.2rem\)\);[^}]*height:\s*min\(48rem,\s*calc\(100vh\s*-\s*var\(--assistant-nav-height,\s*5\.6rem\)\s*-\s*1\.8rem\)\);/s);
+  assert.match(css, /\.assistant-widget\.fullscreen\s*{[^}]*top:\s*0;[^}]*z-index:\s*120;/s);
   assert.ok(css.includes(".assistant-relay-cta"), "should have assistant relay CTA");
   assert.ok(css.includes(".assistant-message"), "should have assistant-message");
   assert.ok(css.includes(".assistant-input"), "should have assistant-input");

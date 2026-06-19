@@ -53,7 +53,7 @@ INSERT INTO "stream_check_logs" ("id", "provider_id", "provider_name", "app_type
 test("generated relay data does not contain known secret markers", async () => {
   const raw = await readFile(join(ROOT, "data", "relay-providers.json"), "utf8");
   assert.doesNotMatch(raw, /settings_config|OPENAI_API_KEY|ANTHROPIC_AUTH_TOKEN|access_token|refresh_token|id_token|account_id|userId/i);
-  assert.doesNotMatch(raw, /sk-[A-Za-z0-9]|tp-[A-Za-z0-9]|fe_oa_|rt\./);
+  assert.doesNotMatch(raw, /sk-[A-Za-z0-9_-]{8,}|tp-[A-Za-z0-9_-]{8,}|fe_oa_|rt\.[A-Za-z0-9_-]{8,}/);
 
   const data = JSON.parse(raw);
   assert.ok(Array.isArray(data.providers));

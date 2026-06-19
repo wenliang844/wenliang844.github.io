@@ -100,6 +100,43 @@ test("assistant quick search uses the existing search trigger", async () => {
   assert.equal(opened, true);
 });
 
+test("assistant can be toggled from the navigation AI button", async () => {
+  const dom = await loadAssistant({
+    body: `
+      <header class="navigation">
+        <div class="container">
+          <input type="checkbox" id="menu-toggle" class="menu-toggle" checked>
+          <button class="assistant-nav-trigger" type="button" data-assistant-toggle aria-label="打开 AI 助手">AI</button>
+          <button class="nav-search-trigger" type="button">Search</button>
+        </div>
+      </header>
+    `,
+    sessionStorage: {
+      [DISMISS_KEY]: "1",
+    },
+  });
+  const { document } = dom.window;
+  const navToggle = document.querySelector("[data-assistant-toggle]");
+
+  assert.equal(document.querySelector(".assistant-widget").classList.contains("has-nav-trigger"), true);
+  assert.equal(document.querySelector(".assistant-panel").hidden, true);
+  assert.equal(navToggle.getAttribute("aria-expanded"), "false");
+
+  navToggle.click();
+
+  assert.equal(document.querySelector(".assistant-panel").hidden, false);
+  assert.equal(document.body.classList.contains("assistant-open"), true);
+  assert.equal(navToggle.getAttribute("aria-expanded"), "true");
+  assert.equal(document.querySelector(".menu-toggle").checked, false);
+  assert.equal(document.querySelector(".assistant-fab").getAttribute("aria-expanded"), "true");
+
+  document.querySelector(".assistant-close").click();
+
+  assert.equal(document.querySelector(".assistant-panel").hidden, true);
+  assert.equal(navToggle.getAttribute("aria-expanded"), "false");
+  assert.equal(document.activeElement, navToggle);
+});
+
 test("assistant remembers dismissal on non-home pages for the current session", async () => {
   const dom = await loadAssistant({ url: "https://example.test/post/" });
   const { document, sessionStorage } = dom.window;
@@ -277,7 +314,7 @@ test("assistant config is collapsible and opacity is adjustable", async () => {
   assert.equal(localStorage.getItem("cwl.assistant.opacity"), "75");
 });
 
-test("assistant requires an explicit OpenAI API key before sending requests", async () => {
+test("assistant uses the OpenAI experience key without showing or storing it", async () => {
   const calls = [];
   const dom = await loadAssistant({
     fetch: async (url, init) => {
@@ -308,12 +345,43 @@ test("assistant requires an explicit OpenAI API key before sending requests", as
 
   await wait();
 
-  assert.equal(calls.length, 0);
-  assert.match(document.querySelector(".assistant-messages").textContent, /请先填写 API key/);
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].url, "https://free.lyclaude.site/v1/responses");
+  assert.match(calls[0].init.headers.Authorization, /^Bearer sk-[A-Za-z0-9_-]{20,}$/);
+  assert.match(document.querySelector(".assistant-messages").textContent, /pong/);
   assert.equal(JSON.parse(localStorage.getItem("cwl.assistant.llmConfig")).apiKey, "");
 });
 
-test("assistant defaults LLM mode to Claude without a bundled API key", async () => {
+test("assistant still requires an API key for custom OpenAI endpoints", async () => {
+  const calls = [];
+  const dom = await loadAssistant({
+    fetch: async (url, init) => {
+      calls.push({ url, init });
+      return {
+        ok: true,
+        status: 200,
+        text: async () => JSON.stringify({ output_text: "pong" }),
+      };
+    },
+  });
+  const { document, Event } = dom.window;
+
+  const format = document.querySelector(".assistant-format");
+  format.value = "openai";
+  format.dispatchEvent(new Event("change", { bubbles: true }));
+  document.querySelector(".assistant-endpoint").value = "https://relay.example/v1";
+
+  const input = document.querySelector(".assistant-input");
+  input.value = "你好";
+  document.querySelector(".assistant-form").dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+
+  await wait();
+
+  assert.equal(calls.length, 0);
+  assert.match(document.querySelector(".assistant-messages").textContent, /请先填写 API key/);
+});
+
+test("assistant defaults LLM mode to Claude with a hidden experience key", async () => {
   const calls = [];
   const dom = await loadAssistant();
   const { document, Event } = dom.window;
@@ -342,11 +410,13 @@ test("assistant defaults LLM mode to Claude without a bundled API key", async ()
 
   await wait();
 
-  assert.equal(calls.length, 0);
-  assert.match(document.querySelector(".assistant-messages").textContent, /请先填写 API key/);
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].url, "https://token-plan-cn.xiaomimimo.com/anthropic/v1/messages");
+  assert.match(calls[0].init.headers["x-api-key"], /^tp-[A-Za-z0-9_-]{20,}$/);
+  assert.match(document.querySelector(".assistant-messages").textContent, /pong/);
 });
 
-test("assistant source does not bundle LLM API keys", async () => {
+test("assistant source does not expose experience keys as contiguous literals", async () => {
   const code = await readFile(join(ROOT, "js", "assistant.js"), "utf8");
   assert.doesNotMatch(code, /LLM_DEMO_KEYS/);
   assert.doesNotMatch(code, /sk-[A-Za-z0-9_-]{20,}/);
@@ -374,6 +444,27 @@ test("assistant supports fullscreen mode", async () => {
   assert.equal(document.querySelector(".assistant-widget").classList.contains("fullscreen"), false);
   assert.equal(document.body.classList.contains("assistant-fullscreen"), false);
   assert.equal(document.querySelector(".assistant-panel").hidden, false);
+});
+
+test("assistant fullscreen closes the mobile navigation menu", async () => {
+  const dom = await loadAssistant({
+    body: `
+      <header class="navigation">
+        <div class="container">
+          <input type="checkbox" id="menu-toggle" class="menu-toggle" checked>
+          <button class="assistant-nav-trigger" type="button" data-assistant-toggle aria-label="打开 AI 助手">AI</button>
+          <button class="nav-search-trigger" type="button">Search</button>
+        </div>
+      </header>
+    `,
+  });
+  const { document } = dom.window;
+
+  document.querySelector(".menu-toggle").checked = true;
+  document.querySelector(".assistant-fullscreen").click();
+
+  assert.equal(document.querySelector(".assistant-widget").classList.contains("fullscreen"), true);
+  assert.equal(document.querySelector(".menu-toggle").checked, false);
 });
 
 test("assistant query parameter starts fullscreen", async () => {
