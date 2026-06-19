@@ -137,6 +137,36 @@ test("assistant can be toggled from the navigation AI button", async () => {
   assert.equal(document.activeElement, navToggle);
 });
 
+test("assistant sidebar brand close button closes the mobile header popup", async () => {
+  const dom = await loadAssistant({
+    body: `
+      <header class="navigation">
+        <button class="assistant-nav-trigger" type="button" data-assistant-toggle aria-label="打开 AI 助手">AI</button>
+        <button class="nav-search-trigger" type="button">Search</button>
+      </header>
+    `,
+    sessionStorage: {
+      [DISMISS_KEY]: "1",
+    },
+  });
+  const { document } = dom.window;
+  const navToggle = document.querySelector("[data-assistant-toggle]");
+  const sidebarClose = document.querySelector(".assistant-sidebar-brand .assistant-sidebar-close");
+
+  assert.ok(sidebarClose, "sidebar brand should expose a close button for mobile");
+  assert.equal(sidebarClose.getAttribute("aria-label"), "关闭 AI 助手");
+
+  navToggle.click();
+  assert.equal(document.querySelector(".assistant-panel").hidden, false);
+
+  sidebarClose.click();
+
+  assert.equal(document.querySelector(".assistant-panel").hidden, true);
+  assert.equal(document.body.classList.contains("assistant-open"), false);
+  assert.equal(navToggle.getAttribute("aria-expanded"), "false");
+  assert.equal(document.activeElement, navToggle);
+});
+
 test("assistant remembers dismissal on non-home pages for the current session", async () => {
   const dom = await loadAssistant({ url: "https://example.test/post/" });
   const { document, sessionStorage } = dom.window;

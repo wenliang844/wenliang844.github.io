@@ -918,6 +918,13 @@
     const sidebarBrand = el("div", "assistant-sidebar-brand");
     sidebarBrand.appendChild(icon("fa-magic"));
     sidebarBrand.appendChild(el("span", "", "CWL AI"));
+    const sidebarClose = el("button", "assistant-sidebar-close");
+    sidebarClose.type = "button";
+    sidebarClose.setAttribute("aria-label", t("assistant.close", "关闭 AI 助手"));
+    const sidebarCloseMark = el("span", "assistant-close-mark", "×");
+    sidebarCloseMark.setAttribute("aria-hidden", "true");
+    sidebarClose.appendChild(sidebarCloseMark);
+    sidebarBrand.appendChild(sidebarClose);
     const sidebarActions = el("div", "assistant-sidebar-actions");
     const historyTitle = el("strong", "", t("assistant.history.title", "历史对话"));
     const newChatBtn = el("button", "assistant-new-chat");
@@ -1264,6 +1271,7 @@
       root.setAttribute("aria-label", t("assistant.aria", "AI 助手"));
       title.textContent = t("assistant.title", "AI 助手");
       close.setAttribute("aria-label", t("assistant.close", "关闭 AI 助手"));
+      sidebarClose.setAttribute("aria-label", t("assistant.close", "关闭 AI 助手"));
       sidebar.setAttribute("aria-label", t("assistant.history.aria", "历史对话"));
       historyTitle.textContent = t("assistant.history.title", "历史对话");
       newChatBtn.setAttribute("aria-label", t("assistant.newChat", "新建对话"));
@@ -1515,6 +1523,10 @@
       });
     });
     close.addEventListener("click", function () {
+      rememberDismissed();
+      setOpen(false, { returnFocus: true });
+    });
+    sidebarClose.addEventListener("click", function () {
       rememberDismissed();
       setOpen(false, { returnFocus: true });
     });

@@ -3989,6 +3989,7 @@ body.search-open .search-modal .search-modal-card,
 .assistant-fab,
 .assistant-fullscreen,
 .assistant-close,
+.assistant-sidebar-close,
 .assistant-send,
 .assistant-new-chat,
 .assistant-history-item,
@@ -4601,6 +4602,7 @@ body.assistant-fullscreen .site-shell {
 
 .assistant-fullscreen,
 .assistant-close,
+.assistant-sidebar-close,
 .assistant-send {
   display: grid;
   place-items: center;
@@ -4615,10 +4617,15 @@ body.assistant-fullscreen .site-shell {
 
 .assistant-fullscreen:hover,
 .assistant-close:hover,
+.assistant-sidebar-close:hover,
 .assistant-send:hover {
   border-color: transparent;
   background: var(--assistant-hover);
   box-shadow: none;
+}
+
+.assistant-sidebar-close {
+  display: none;
 }
 
 .assistant-fullscreen-icon {
@@ -5241,6 +5248,11 @@ body.assistant-fullscreen .site-shell {
   .assistant-sidebar-brand {
     min-height: 1.8rem;
     padding: 0 0.25rem;
+  }
+
+  .assistant-sidebar-close {
+    display: grid;
+    margin-left: auto;
   }
 
   .assistant-sidebar-actions {
