@@ -27,12 +27,6 @@
   }
 
   function updateThemeButtons(actualTheme) {
-    const iconByMode = {
-      auto: "fa-desktop",
-      light: "fa-sun",
-      dark: "fa-moon"
-    };
-
     document.querySelectorAll(".theme-toggle").forEach(function (button) {
       button.dataset.themeMode = themeMode;
       button.dataset.themeActual = actualTheme;
@@ -40,7 +34,7 @@
 
       const icon = button.querySelector("i");
       if (icon) {
-        icon.className = "fas " + iconByMode[themeMode];
+        icon.className = "fas fa-adjust";
       }
     });
   }

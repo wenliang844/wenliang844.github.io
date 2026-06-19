@@ -339,7 +339,7 @@ test("coder.js auto theme follows system preference until user chooses a theme",
 
   assert.ok(document.body.classList.contains("colorscheme-light"), "auto should follow system light");
   assert.equal(button.dataset.themeMode, "auto");
-  assert.equal(button.querySelector("i").className, "fas fa-desktop");
+  assert.equal(button.querySelector("i").className, "fas fa-adjust");
 
   colorScheme.dispatch(true);
   assert.ok(document.body.classList.contains("colorscheme-dark"), "auto should react to system dark");
@@ -351,6 +351,13 @@ test("coder.js auto theme follows system preference until user chooses a theme",
   colorScheme.dispatch(true);
   assert.ok(document.body.classList.contains("colorscheme-light"), "explicit light should ignore system changes");
   dom.window.close();
+});
+
+test("coder.js keeps theme icon inside the bundled Font Awesome subset", async () => {
+  const code = await readFile(join(ROOT, "js", "coder.js"), "utf8");
+
+  assert.doesNotMatch(code, /fa-(desktop|sun|moon)/, "theme toggle must not switch to icons missing from the bundled subset font");
+  assert.match(code, /fa-adjust/, "theme toggle should use the bundled visible icon");
 });
 
 // ─── localStorage 存 light 时初始为亮色 ──────────────────────────────────────
