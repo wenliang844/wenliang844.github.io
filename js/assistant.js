@@ -354,7 +354,7 @@
       return true;
     }
     if (isHomePage()) {
-      return false;
+      return true;
     }
     return sessionGet(DISMISS_KEY) !== "1";
   }

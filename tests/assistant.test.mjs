@@ -120,7 +120,7 @@ test("assistant remembers dismissal on non-home pages for the current session", 
   assert.equal(dismissedDom.window.document.body.classList.contains("assistant-open"), false);
 });
 
-test("assistant keeps the homepage minimized until the floating button is clicked", async () => {
+test("assistant opens the homepage popup by default", async () => {
   const dom = await loadAssistant({
     url: "https://example.test/",
     body: '<header class="navigation"><div class="container"></div></header><button class="nav-search-trigger" type="button">Search</button>',
@@ -131,12 +131,6 @@ test("assistant keeps the homepage minimized until the floating button is clicke
   const { document } = dom.window;
 
   const toggle = document.querySelector(".assistant-fab");
-  assert.equal(document.querySelector(".assistant-panel").hidden, true);
-  assert.equal(document.body.classList.contains("assistant-open"), false);
-  assert.equal(toggle.getAttribute("aria-expanded"), "false");
-
-  toggle.click();
-
   assert.equal(document.querySelector(".assistant-panel").hidden, false);
   assert.equal(document.body.classList.contains("assistant-open"), true);
   assert.equal(toggle.getAttribute("aria-expanded"), "true");
