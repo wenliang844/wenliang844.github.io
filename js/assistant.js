@@ -918,12 +918,18 @@
     const sidebarBrand = el("div", "assistant-sidebar-brand");
     sidebarBrand.appendChild(icon("fa-magic"));
     sidebarBrand.appendChild(el("span", "", "CWL AI"));
+    const sidebarFullscreen = el("button", "assistant-sidebar-fullscreen");
+    sidebarFullscreen.type = "button";
+    sidebarFullscreen.setAttribute("aria-label", t("assistant.fullscreen.open", "全屏显示 AI 助手"));
+    sidebarFullscreen.setAttribute("aria-pressed", "false");
+    sidebarFullscreen.appendChild(fullscreenIcon(false));
     const sidebarClose = el("button", "assistant-sidebar-close");
     sidebarClose.type = "button";
     sidebarClose.setAttribute("aria-label", t("assistant.close", "关闭 AI 助手"));
     const sidebarCloseMark = el("span", "assistant-close-mark", "×");
     sidebarCloseMark.setAttribute("aria-hidden", "true");
     sidebarClose.appendChild(sidebarCloseMark);
+    sidebarBrand.appendChild(sidebarFullscreen);
     sidebarBrand.appendChild(sidebarClose);
     const sidebarActions = el("div", "assistant-sidebar-actions");
     const historyTitle = el("strong", "", t("assistant.history.title", "历史对话"));
@@ -1227,12 +1233,14 @@
     }
 
     function updateFullscreenButton() {
-      fullscreenBtn.setAttribute("aria-pressed", String(fullscreen));
-      fullscreenBtn.setAttribute("aria-label", fullscreen
-        ? t("assistant.fullscreen.close", "退出全屏")
-        : t("assistant.fullscreen.open", "全屏显示 AI 助手"));
-      fullscreenBtn.textContent = "";
-      fullscreenBtn.appendChild(fullscreenIcon(fullscreen));
+      [fullscreenBtn, sidebarFullscreen].forEach(function (btn) {
+        btn.setAttribute("aria-pressed", String(fullscreen));
+        btn.setAttribute("aria-label", fullscreen
+          ? t("assistant.fullscreen.close", "退出全屏")
+          : t("assistant.fullscreen.open", "全屏显示 AI 助手"));
+        btn.textContent = "";
+        btn.appendChild(fullscreenIcon(fullscreen));
+      });
     }
 
     function updateFullscreenOffset() {
@@ -1531,6 +1539,10 @@
       setOpen(false, { returnFocus: true });
     });
     fullscreenBtn.addEventListener("click", function () {
+      setFullscreen(!fullscreen);
+      input.focus();
+    });
+    sidebarFullscreen.addEventListener("click", function () {
       setFullscreen(!fullscreen);
       input.focus();
     });

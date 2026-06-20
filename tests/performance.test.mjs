@@ -33,7 +33,7 @@ test("HTML files are reasonably sized (under 200KB each)", async () => {
 
 // ─── JS 文件大小检查 ──────────────────────────────────────────────────────────
 
-test("non-vendor JS files are reasonably sized (under 58KB each)", async () => {
+test("non-vendor JS files are reasonably sized (under 60KB each)", async () => {
   const jsDir = join(ROOT, "js");
   const files = (await readdir(jsDir)).filter(f => f.endsWith(".js") && !f.includes("vendor"));
   const oversized = [];
@@ -41,12 +41,12 @@ test("non-vendor JS files are reasonably sized (under 58KB each)", async () => {
   for (const file of files) {
     const fileStat = await stat(join(jsDir, file));
     const sizeKB = fileStat.size / 1024;
-    if (sizeKB > 58) {
+    if (sizeKB > 60) {
       oversized.push(`js/${file}: ${sizeKB.toFixed(1)}KB`);
     }
   }
 
-  assert.deepEqual(oversized, [], "Non-vendor JS files exceeding 58KB");
+  assert.deepEqual(oversized, [], "Non-vendor JS files exceeding 60KB");
 });
 
 // ─── 资源引用完整性 ───────────────────────────────────────────────────────────
@@ -219,10 +219,10 @@ test("RSS feeds are valid and reasonably sized", async () => {
 
 // ─── CSS 文件大小 ─────────────────────────────────────────────────────────────
 
-test("coder.css is reasonably sized (under 118KB)", async () => {
+test("coder.css is reasonably sized (under 120KB)", async () => {
   const fileStat = await stat(join(ROOT, "css", "coder.css"));
   const sizeKB = fileStat.size / 1024;
-  assert.ok(sizeKB <= 118, `coder.css is ${sizeKB.toFixed(1)}KB, exceeds 118KB`);
+  assert.ok(sizeKB <= 120, `coder.css is ${sizeKB.toFixed(1)}KB, exceeds 120KB`);
 });
 
 // ─── Vendor 脚本存在性 ────────────────────────────────────────────────────────

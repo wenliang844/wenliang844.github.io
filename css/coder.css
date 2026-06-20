@@ -3989,6 +3989,7 @@ body.search-open .search-modal .search-modal-card,
 .assistant-fab,
 .assistant-fullscreen,
 .assistant-close,
+.assistant-sidebar-fullscreen,
 .assistant-sidebar-close,
 .assistant-send,
 .assistant-new-chat,
@@ -4602,6 +4603,7 @@ body.assistant-fullscreen .site-shell {
 
 .assistant-fullscreen,
 .assistant-close,
+.assistant-sidebar-fullscreen,
 .assistant-sidebar-close,
 .assistant-send {
   display: grid;
@@ -4617,6 +4619,7 @@ body.assistant-fullscreen .site-shell {
 
 .assistant-fullscreen:hover,
 .assistant-close:hover,
+.assistant-sidebar-fullscreen:hover,
 .assistant-sidebar-close:hover,
 .assistant-send:hover {
   border-color: transparent;
@@ -4624,6 +4627,7 @@ body.assistant-fullscreen .site-shell {
   box-shadow: none;
 }
 
+.assistant-sidebar-fullscreen,
 .assistant-sidebar-close {
   display: none;
 }
@@ -5250,8 +5254,12 @@ body.assistant-fullscreen .site-shell {
     padding: 0 0.25rem;
   }
 
+  .assistant-sidebar-fullscreen,
   .assistant-sidebar-close {
     display: grid;
+  }
+
+  .assistant-sidebar-fullscreen {
     margin-left: auto;
   }
 

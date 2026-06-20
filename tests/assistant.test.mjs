@@ -167,6 +167,45 @@ test("assistant sidebar brand close button closes the mobile header popup", asyn
   assert.equal(document.activeElement, navToggle);
 });
 
+test("assistant sidebar brand fullscreen button toggles the mobile popup", async () => {
+  const dom = await loadAssistant({
+    body: `
+      <header class="navigation">
+        <button class="assistant-nav-trigger" type="button" data-assistant-toggle aria-label="打开 AI 助手">AI</button>
+        <button class="nav-search-trigger" type="button">Search</button>
+      </header>
+    `,
+    sessionStorage: {
+      [DISMISS_KEY]: "1",
+    },
+  });
+  const { document } = dom.window;
+  const navToggle = document.querySelector("[data-assistant-toggle]");
+  const sidebarFullscreen = document.querySelector(".assistant-sidebar-brand .assistant-sidebar-fullscreen");
+  const headFullscreen = document.querySelector(".assistant-fullscreen");
+
+  assert.ok(sidebarFullscreen, "sidebar brand should expose a fullscreen button for mobile");
+  const initialIcon = sidebarFullscreen.innerHTML;
+  assert.equal(sidebarFullscreen.getAttribute("aria-label"), "全屏显示 AI 助手");
+  assert.equal(sidebarFullscreen.getAttribute("aria-pressed"), "false");
+
+  navToggle.click();
+  sidebarFullscreen.click();
+
+  assert.equal(document.querySelector(".assistant-widget").classList.contains("fullscreen"), true);
+  assert.equal(document.body.classList.contains("assistant-fullscreen"), true);
+  assert.equal(sidebarFullscreen.getAttribute("aria-pressed"), "true");
+  assert.equal(headFullscreen.getAttribute("aria-pressed"), "true");
+  assert.notEqual(sidebarFullscreen.innerHTML, initialIcon);
+
+  sidebarFullscreen.click();
+
+  assert.equal(document.querySelector(".assistant-widget").classList.contains("fullscreen"), false);
+  assert.equal(document.body.classList.contains("assistant-fullscreen"), false);
+  assert.equal(sidebarFullscreen.getAttribute("aria-pressed"), "false");
+  assert.equal(headFullscreen.getAttribute("aria-pressed"), "false");
+});
+
 test("assistant remembers dismissal on non-home pages for the current session", async () => {
   const dom = await loadAssistant({ url: "https://example.test/post/" });
   const { document, sessionStorage } = dom.window;
