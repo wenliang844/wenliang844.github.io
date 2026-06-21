@@ -1,4 +1,4 @@
-// 鉴赏页：科技研究 / 影视作品 / 娱乐项目三张「排行榜」，并列展示。
+// 鉴赏页：科技研究 / 影视作品 / 娱乐项目 / 食物 / 座右铭「排行榜」，并列展示。
 // 与 ai.mjs 同构——数据驱动 + 双语 data-i18n-en 内联，复用 layout 外壳。
 import { buildPageJsonLd, renderPage } from "./layout.mjs";
 import { escapeAttr, escapeHtml } from "../lib/format.mjs";
@@ -35,6 +35,9 @@ const BOARDS = [
       { name: "绝命毒师", nameEn: "Breaking Bad", note: "化学老师的黑化史诗", noteEn: "A chemistry teacher's dark epic" },
       { name: "恶搞之家", nameEn: "Family Guy", note: "百无禁忌的动画吐槽", noteEn: "Animated comedy with no taboos" },
       { name: "IT狂人", nameEn: "The IT Crowd", note: "地下机房的极客喜剧", noteEn: "Geek comedy from the basement" },
+      { name: "黑道家族", nameEn: "The Sopranos" },
+      { name: "黄石", nameEn: "Yellowstone" },
+      { name: "毒枭", nameEn: "Narcos" },
     ],
   },
   {
@@ -58,6 +61,37 @@ const BOARDS = [
       { name: "时间得到充实", nameEn: "A day that felt full" },
       { name: "大脑得到充分的休息", nameEn: "A well-rested mind" },
       { name: "没有负面消息的一天", nameEn: "A day with no bad news" },
+    ],
+  },
+  {
+    title: "食物排行榜",
+    titleEn: "Food",
+    sub: "日常高频、营养密度和满足感都在线的食物清单。",
+    subEn: "Everyday foods with solid nutrition, frequency and satisfaction.",
+    icon: "fa-utensils",
+    items: [
+      { name: "鸡蛋", nameEn: "Eggs" },
+      { name: "牛肉", nameEn: "Beef" },
+      { name: "坚果", nameEn: "Nuts" },
+      { name: "三文鱼", nameEn: "Salmon" },
+      { name: "虾", nameEn: "Shrimp" },
+      { name: "土豆", nameEn: "Potatoes" },
+      { name: "酸奶", nameEn: "Yogurt" },
+    ],
+  },
+  {
+    title: "座右铭排行榜",
+    titleEn: "Mottos",
+    sub: "提醒自己看清世界、放慢判断、借助工具的几句话。",
+    subEn: "Lines that remind me to read the world clearly, slow down and use tools well.",
+    icon: "fa-quote-left",
+    items: [
+      { name: "所有的问题都是经济问题", nameEn: "All problems are economic problems" },
+      { name: "批判性思维", nameEn: "Critical thinking" },
+      { name: "所有人都支持的一件事必然错误(乌合之众)", nameEn: "Anything everyone supports is likely wrong (The Crowd)" },
+      { name: "心理暗示可以操纵摇摆州", nameEn: "Suggestion can manipulate swing states" },
+      { name: "事缓则圆,用AI分析得到建议", nameEn: "Slow things down and use AI analysis for advice" },
+      { name: "每个人都有漏洞,可以通过观察得到", nameEn: "Everyone has weaknesses; observation can reveal them" },
     ],
   },
 ];
@@ -95,13 +129,13 @@ ${board.items.map((item, itemIndex) => renderItem(item, boardIndex, itemIndex)).
 }
 
 export function renderAppreciationPage() {
-  const description = "个人鉴赏榜单：科技研究、影视作品与娱乐项目三张并列排行榜。";
+  const description = "个人鉴赏榜单：科技研究、影视作品、娱乐项目、食物与座右铭排行榜。";
   const main = `    <main id="main-content" class="content">
       <section class="rank-page container">
         <header class="rank-hero">
           <span class="eyebrow" data-i18n="appr.eyebrow" data-i18n-en-html='<i class="fas fa-star" aria-hidden="true"></i> Appreciation' data-i18n-html><i class="fas fa-star" aria-hidden="true"></i> Appreciation</span>
           <h1 data-i18n="appr.h1" data-i18n-en="Appreciation">鉴赏</h1>
-          <p class="lead" data-i18n="appr.lead" data-i18n-en="${escapeHtml("A personal list of what I love in tech, film, TV, and everyday fun, each set ranked by where it sits in my heart.")}">一份私人的「偏爱」清单：科技、影视与娱乐项目里那些值得反复回味的东西，各自排个心中的位次。</p>
+          <p class="lead" data-i18n="appr.lead" data-i18n-en="${escapeHtml("A personal list of what I love in tech, film, TV, food and mottos, each set ranked by where it sits in my heart.")}">一份私人的「偏爱」清单：科技、影视、娱乐项目、食物与座右铭里那些值得反复回味的东西，各自排个心中的位次。</p>
         </header>
         <div class="rank-grid">
 ${BOARDS.map(renderBoard).join("\n")}
@@ -133,7 +167,7 @@ ${BOARDS.map(renderBoard).join("\n")}
     main,
     og: {
       title: "鉴赏 :: CWLBlog",
-      description: "个人鉴赏榜单：科技、影视与娱乐项目三张并列排行榜。",
+      description: "个人鉴赏榜单：科技、影视、娱乐项目、食物与座右铭排行榜。",
       path: "/appreciation/",
     },
   });

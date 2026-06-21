@@ -37,6 +37,8 @@ test("build writes the expected static artifacts", async () => {
       "科技研究排行榜",
       "影视作品排行榜",
       "娱乐项目排行榜",
+      "食物排行榜",
+      "座右铭排行榜",
       "Codex",
       "Claude",
       "AI",
@@ -49,6 +51,9 @@ test("build writes the expected static artifacts", async () => {
       "绝命毒师",
       "恶搞之家",
       "IT狂人",
+      "黑道家族",
+      "黄石",
+      "毒枭",
       "和有意思的人交流",
       "做成一件挑战性事件得到超出预期的回报",
       "得到提高身体健康的方法",
@@ -63,6 +68,19 @@ test("build writes the expected static artifacts", async () => {
       "时间得到充实",
       "大脑得到充分的休息",
       "没有负面消息的一天",
+      "鸡蛋",
+      "牛肉",
+      "坚果",
+      "三文鱼",
+      "虾",
+      "土豆",
+      "酸奶",
+      "所有的问题都是经济问题",
+      "批判性思维",
+      "所有人都支持的一件事必然错误(乌合之众)",
+      "心理暗示可以操纵摇摆州",
+      "事缓则圆,用AI分析得到建议",
+      "每个人都有漏洞,可以通过观察得到",
     ];
 
     assert.match(postsHtml, /class="post-tree"/);
@@ -117,7 +135,7 @@ test("build writes the expected static artifacts", async () => {
     assert.ok(searchIndex.some((item) => item.path === "/ai/" && item.title === "中转站排名" && item.summary.includes("中转站")));
     assert.ok(searchIndex.some((item) => item.path === "/ai/#nav" && item.title === "AI导航网站"));
     assert.ok(searchIndex.every((item) => item.path !== "/ai/relay/"));
-    assert.ok(searchIndex.some((item) => item.path === "/appreciation/" && item.summary.includes("娱乐项目")));
+    assert.ok(searchIndex.some((item) => item.path === "/appreciation/" && item.summary.includes("座右铭")));
     assert.ok(searchIndex.every((item) => item.path && !item.path.includes("\\")));
   } finally {
     await rm(outDir, { recursive: true, force: true });

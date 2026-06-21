@@ -236,6 +236,8 @@ test("coder.css contains comments selectors", async () => {
   const css = await readFile(join(ROOT, "css", "coder.css"), "utf8");
 
   assert.ok(css.includes(".comments"), "should have comments");
+  assert.ok(css.includes("#giscus-thread"), "should style giscus container");
+  assert.ok(css.includes(".giscus-frame"), "should style giscus iframe");
 });
 
 test("coder.css contains cursor effects selectors", async () => {

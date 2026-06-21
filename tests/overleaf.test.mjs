@@ -61,7 +61,7 @@ test("overleaf.js LaTeX source contains document class and sections", async () =
   assert.ok(source.includes("\\end{document}"), "should have end document");
   assert.ok(source.includes("\\section{"), "should have sections");
   assert.ok(source.includes("\\entry{"), "should have entries");
-  assert.ok(source.includes("陈文亮"), "should contain name");
+  assert.ok(source.includes("CWL"), "should contain name");
   dom.window.close();
 });
 
@@ -82,7 +82,7 @@ test("overleaf.js preview renders resume sections with editable fields", async (
   // Check name is rendered
   const nameSpan = preview.querySelector("[data-resume-field='name']");
   assert.ok(nameSpan, "should have editable name field");
-  assert.ok(nameSpan.textContent.includes("陈文亮"), "name should contain author name");
+  assert.ok(nameSpan.textContent.includes("CWL"), "name should contain author name");
   dom.window.close();
 });
 
@@ -138,12 +138,12 @@ test("overleaf.js Markdown format round-trips correctly", async () => {
   select.dispatchEvent(new dom.window.Event("change"));
 
   const source = document.getElementById("latex-source").value;
-  assert.ok(source.includes("# 陈文亮"), "markdown should have name as h1");
+  assert.ok(source.includes("# CWL"), "markdown should have name as h1");
   assert.ok(source.includes("## "), "markdown should have section headings");
   assert.ok(source.includes("### "), "markdown should have entry headings");
 
   // Edit source and re-compile
-  document.getElementById("latex-source").value = source.replace("陈文亮", "测试用户");
+  document.getElementById("latex-source").value = source.replace("CWL", "测试用户");
   document.querySelector("[data-overleaf-action='compile']").click();
 
   const nameSpan = document.getElementById("resume-preview").querySelector("[data-resume-field='name']");
@@ -185,7 +185,7 @@ test("overleaf.js reset restores default template", async () => {
 
   const source = document.getElementById("latex-source").value;
   assert.ok(source.length > 100, "source should be restored");
-  assert.ok(source.includes("陈文亮"), "source should contain default name");
+  assert.ok(source.includes("CWL"), "source should contain default name");
 
   const status = document.getElementById("overleaf-status").textContent;
   assert.ok(status.includes("Template") || status.includes("模板"), "status should indicate reset");
@@ -255,7 +255,7 @@ test("overleaf.js escapes HTML in resume entries", async () => {
   select.dispatchEvent(new dom.window.Event("change"));
 
   const source = document.getElementById("latex-source").value;
-  document.getElementById("latex-source").value = source.replace("陈文亮", '<script>alert("xss")</script>');
+  document.getElementById("latex-source").value = source.replace("CWL", '<script>alert("xss")</script>');
   document.querySelector("[data-overleaf-action='compile']").click();
 
   const preview = document.getElementById("resume-preview");

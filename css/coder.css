@@ -2800,6 +2800,21 @@ a.card:hover {
   margin: 0 0 1.2rem;
 }
 
+#giscus-thread {
+  width: 100%;
+  min-width: 0;
+}
+
+#giscus-thread .giscus,
+#giscus-thread .giscus-frame {
+  width: 100%;
+}
+
+#giscus-thread .giscus-frame {
+  display: block;
+  border: 0;
+}
+
 .comments-hint {
   padding: 1rem 1.2rem;
   border: 1px dashed var(--border);

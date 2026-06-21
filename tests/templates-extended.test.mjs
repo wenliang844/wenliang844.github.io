@@ -105,7 +105,7 @@ test("generated static templates include page-specific JSON-LD", () => {
 
   const appreciationLd = extractJsonLd(renderAppreciationPage());
   assert.equal(appreciationLd["@type"], "CollectionPage");
-  assert.equal(appreciationLd.mainEntity.numberOfItems, 26);
+  assert.equal(appreciationLd.mainEntity.numberOfItems, 42);
 
   const sponsorLd = extractJsonLd(renderSponsorPage());
   assert.equal(sponsorLd["@type"], "WebPage");
@@ -197,10 +197,10 @@ test("renderCategoriesPage has i18n attributes", () => {
 
 // ─── Appreciation 页面测试 ─────────────────────────────────────────────────────
 
-test("renderAppreciationPage includes all 3 boards", () => {
+test("renderAppreciationPage includes all 5 boards", () => {
   const html = renderAppreciationPage();
   const boards = html.match(/class="rank-board"/g);
-  assert.ok(boards && boards.length === 3, `Expected 3 boards, got ${boards ? boards.length : 0}`);
+  assert.ok(boards && boards.length === 5, `Expected 5 boards, got ${boards ? boards.length : 0}`);
 });
 
 test("renderAppreciationPage contains expected content", () => {
@@ -209,17 +209,22 @@ test("renderAppreciationPage contains expected content", () => {
   assert.match(html, /科技研究排行榜/);
   assert.match(html, /影视作品排行榜/);
   assert.match(html, /娱乐项目排行榜/);
+  assert.match(html, /食物排行榜/);
+  assert.match(html, /座右铭排行榜/);
   assert.match(html, /Codex/);
   assert.match(html, /Claude/);
   assert.match(html, /无耻之徒/);
   assert.match(html, /绝命毒师/);
+  assert.match(html, /黑道家族/);
+  assert.match(html, /鸡蛋/);
+  assert.match(html, /所有的问题都是经济问题/);
 });
 
 test("renderAppreciationPage has correct item count per board", () => {
   const html = renderAppreciationPage();
   const rankItems = html.match(/class="rank-item"/g);
-  // 5 + 7 + 14 = 26 items
-  assert.ok(rankItems && rankItems.length === 26, `Expected 26 rank items, got ${rankItems ? rankItems.length : 0}`);
+  // 5 + 10 + 14 + 7 + 6 = 42 items
+  assert.ok(rankItems && rankItems.length === 42, `Expected 42 rank items, got ${rankItems ? rankItems.length : 0}`);
 });
 
 // ─── Sponsor 页面测试 ──────────────────────────────────────────────────────────
