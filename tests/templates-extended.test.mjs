@@ -115,7 +115,7 @@ test("generated static templates include page-specific JSON-LD", () => {
 
   const appreciationLd = extractJsonLd(renderAppreciationPage());
   assert.equal(appreciationLd["@type"], "CollectionPage");
-  assert.equal(appreciationLd.mainEntity.numberOfItems, 42);
+  assert.equal(appreciationLd.mainEntity.numberOfItems, 43);
 
   const sponsorLd = extractJsonLd(renderSponsorPage());
   assert.equal(sponsorLd["@type"], "WebPage");
@@ -233,8 +233,8 @@ test("renderAppreciationPage contains expected content", () => {
 test("renderAppreciationPage has correct item count per board", () => {
   const html = renderAppreciationPage();
   const rankItems = html.match(/class="rank-item"/g);
-  // 5 + 10 + 14 + 7 + 6 = 42 items
-  assert.ok(rankItems && rankItems.length === 42, `Expected 42 rank items, got ${rankItems ? rankItems.length : 0}`);
+  // 5 + 10 + 14 + 7 + 7 = 43 items
+  assert.ok(rankItems && rankItems.length === 43, `Expected 43 rank items, got ${rankItems ? rankItems.length : 0}`);
 });
 
 // ─── Sponsor 页面测试 ──────────────────────────────────────────────────────────

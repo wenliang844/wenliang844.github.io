@@ -92,6 +92,7 @@ const BOARDS = [
       { name: "心理暗示可以操纵摇摆州", nameEn: "Suggestion can manipulate swing states" },
       { name: "事缓则圆,用AI分析得到建议", nameEn: "Slow things down and use AI analysis for advice" },
       { name: "每个人都有漏洞,可以通过观察得到", nameEn: "Everyone has weaknesses; observation can reveal them" },
+      { name: "有些东西装着可以成真,有些装不了", nameEn: "Some things can become true if you pretend; some cannot" },
     ],
   },
 ];

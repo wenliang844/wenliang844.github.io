@@ -21,7 +21,7 @@
   const defaultModel = {
     name: "CWL",
     role: "临床心理学诊断专家",
-    contact: "杭州 · 2252694075@qq.com · github.com/wenliang844",
+    contact: "杭州 · 2252694075@qq.com · https://wenliang844.github.io",
     summary: "临床心理学博士，长期专注复杂心理障碍评估、鉴别诊断、危机风险评估与多学科会诊。累计完成 3000+ 例心理与精神健康相关评估，服务 2000+ 人次来访者，擅长将结构化访谈、心理测量、病史资料和功能损害证据整合为清晰的诊断假设与干预建议。",
     skills: "DSM-5 / ICD-11, SCID-5, MINI, MMPI-2, WAIS-IV, PHQ-9, GAD-7, PCL-5, 心理测量, 鉴别诊断, 危机干预, 个案概念化, MDT 会诊, 临床研究",
     sections: [
