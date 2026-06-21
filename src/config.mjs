@@ -66,10 +66,10 @@ export const SEARCH_PAGES = [
   },
   {
     title: "在线工具箱",
-    summary: "浏览器本地运行的开发工具箱：JSON、时间戳、编码、哈希、密码、颜色、正则、Markdown、Diff、Cron 和二维码等工具。",
+    summary: "浏览器本地运行的开发工具箱：JSON、时间戳、编码、哈希、密码、颜色、正则、Markdown、Diff、Cron、二维码、YAML、URL 解析、JSONPath、文本处理等工具。",
     path: "/tools/",
-    tags: ["工具", "JSON", "时间戳", "Base64", "URL", "UUID", "JWT", "哈希", "密码", "颜色", "正则", "Markdown", "Diff", "Cron", "二维码"],
-    i18n: { en: { title: "Toolbox", summary: "Browser-only developer toolbox for JSON, timestamps, encoders, hashes, passwords, colors, regex, Markdown, diff, cron and QR codes.", tags: ["Tool", "JSON", "Timestamp", "Base64", "URL", "UUID", "JWT", "Hash", "Password", "Color", "Regex", "Markdown", "Diff", "Cron", "QR"] } },
+    tags: ["工具", "JSON", "时间戳", "Base64", "URL", "UUID", "JWT", "哈希", "密码", "颜色", "正则", "Markdown", "Diff", "Cron", "二维码", "YAML", "JSONPath", "文本处理", "随机数"],
+    i18n: { en: { title: "Toolbox", summary: "Browser-only developer toolbox for JSON, timestamps, encoders, hashes, passwords, colors, regex, Markdown, diff, cron, QR, YAML, URL parsing, JSONPath and text tools.", tags: ["Tool", "JSON", "Timestamp", "Base64", "URL", "UUID", "JWT", "Hash", "Password", "Color", "Regex", "Markdown", "Diff", "Cron", "QR", "YAML", "JSONPath", "Text", "Random"] } },
   },
   {
     title: "Editor",

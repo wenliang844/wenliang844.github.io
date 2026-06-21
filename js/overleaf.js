@@ -22,8 +22,8 @@
     name: "CWL",
     role: "临床心理学诊断专家",
     contact: "杭州 · 2252694075@qq.com · github.com/wenliang844",
-    summary: "专注复杂心理障碍评估、鉴别诊断、危机风险评估与多学科会诊。具备心理学博士训练、教学医院临床诊断经验和临床研究能力，重视循证评估、个案概念化与诊断质量改进。",
-    skills: "DSM-5 / ICD-11, SCID-5, MMPI-2, WAIS-IV, PHQ-9, GAD-7, 心理测量, 鉴别诊断, 危机干预, 个案概念化, MDT 会诊, 临床研究",
+    summary: "临床心理学博士，长期专注复杂心理障碍评估、鉴别诊断、危机风险评估与多学科会诊。累计完成 3000+ 例心理与精神健康相关评估，服务 2000+ 人次来访者，擅长将结构化访谈、心理测量、病史资料和功能损害证据整合为清晰的诊断假设与干预建议。",
+    skills: "DSM-5 / ICD-11, SCID-5, MINI, MMPI-2, WAIS-IV, PHQ-9, GAD-7, PCL-5, 心理测量, 鉴别诊断, 危机干预, 个案概念化, MDT 会诊, 临床研究",
     sections: [
       {
         title: "教育与荣誉",
@@ -32,7 +32,7 @@
             title: "耶鲁大学",
             subtitle: "心理学 · 博士",
             meta: "2018.06 -- 2022.07",
-            desc: "简·奥莱贾奇克奖、詹姆斯·格罗斯曼博士论文奖、威廉·凯森教学奖。"
+            desc: "研究方向聚焦临床心理评估、情绪障碍鉴别诊断与创伤相关心理问题。获简·奥莱贾奇克奖、詹姆斯·格罗斯曼博士论文奖、威廉·凯森教学奖。"
           }
         ]
       },
@@ -41,21 +41,18 @@
         entries: [
           {
             title: "普兰斯堡教学医院",
-            subtitle: "诊断专家",
+            subtitle: "临床心理学诊断专家",
             meta: "2023.09 -- 至今",
-            desc: "负责复杂疑难疾病的综合诊断与鉴别诊断。运用实验室检测、医学影像（CT、MRI、超声）及临床数据进行诊断分析。\n" +
-                "参与多学科会诊（MDT），制定个性化诊疗方案。指导住院医师、实习医生开展临床诊断工作。参与医院教学科研项目及病例研究。\n" +
-                "建立和优化诊断流程，提高诊断准确率和患者满意度。" +
-                "工作成果：累计完成疑难病例诊断3000+例。\n" +
-                "参与重大疾病早筛项目，提高早期发现率。\n" +
-                "主导诊断质量改进项目，缩短平均诊断时间20%。\n" +
-                "发表医学研究论文X篇，参与科研课题X项。"
+            desc: "负责门诊及住院复杂心理障碍个案的评估、鉴别诊断与风险分层，覆盖情绪障碍、焦虑障碍、创伤相关障碍、双相障碍、人格障碍及躯体化相关问题。\n" +
+                "主导结构化访谈、心理测量、病史整合和 MDT 会诊，形成诊断报告、干预建议与转介方案；累计完成 3000+ 例复杂个案评估。\n" +
+                "优化诊断流程与复核机制，缩短平均评估周期 20%，并为住院医师、实习医生提供临床带教与案例督导。"
           },
           {
             title: "麻省总医院",
             subtitle: "临床心理学专家",
             meta: "2022.09 -- 2023.08",
-            desc: "累计服务来访者2000+人次。参与心理健康干预项目。发表临床心理学研究成果。"
+            desc: "参与成人心理健康门诊评估与短程干预，累计服务来访者 2000+ 人次，重点处理抑郁、焦虑、创伤反应、睡眠问题和高压力适应困难。\n" +
+                "参与心理健康干预项目和临床研究，协助建立来访者评估、风险识别、疗效追踪和复诊随访流程。"
           }
         ]
       },
@@ -66,22 +63,22 @@
             title: "复杂心理障碍鉴别诊断流程优化",
             subtitle: "项目负责人",
             meta: "普兰斯堡教学医院 · 2023.09 -- 至今",
-            desc: "面向抑郁、焦虑、创伤相关障碍、双相障碍及人格障碍等高混淆场景，梳理初筛、结构化访谈、量表评估、病史整合与 MDT 会诊流程。\n" +
-                "建立诊断要点清单与复核机制，推动疑难病例形成可追踪的评估记录、诊断假设和干预建议，支持住院医师规范化诊断训练。"
+            desc: "面向抑郁、焦虑、创伤相关障碍、双相障碍、人格障碍等高混淆场景，设计“初筛 - 结构化访谈 - 量表评估 - 病史整合 - MDT 复核”的诊断路径。\n" +
+                "沉淀诊断要点清单、风险分层表和报告模板，使疑难病例能够形成可追踪的评估记录、诊断假设、排除依据和后续干预建议。"
           },
           {
             title: "心理健康早筛与危机风险评估项目",
             subtitle: "核心成员",
             meta: "普兰斯堡教学医院 / 麻省总医院 · 2022.09 -- 至今",
-            desc: "参与门诊与住院场景下的心理健康早筛工作，结合 PHQ-9、GAD-7、PCL-5、自杀风险访谈及临床观察识别高风险个案。\n" +
-                "协同精神科、神经科、社工与护理团队制定分级处置方案，完善转介、随访和危机干预闭环，提高风险识别与早期干预效率。"
+            desc: "参与门诊、住院及重点人群场景下的心理健康早筛，结合 PHQ-9、GAD-7、PCL-5、自杀风险访谈和临床观察识别高风险个案。\n" +
+                "协同精神科、神经科、社工与护理团队制定分级处置、安全计划、转介随访和危机干预闭环，提升高风险个案识别与早期介入效率。"
           },
           {
             title: "临床心理个案研究与教学督导",
             subtitle: "研究与教学",
             meta: "耶鲁大学 / 麻省总医院 · 2018.06 -- 2023.08",
-            desc: "围绕复杂个案评估、治疗反应与功能恢复开展病例整理和研究写作，参与临床心理学研究成果发表。\n" +
-                "承担教学与督导支持，帮助实习医生和住院医师掌握结构化访谈、心理测量解释、个案概念化及诊断报告撰写。"
+            desc: "围绕复杂个案评估、治疗反应、功能恢复与诊断一致性开展病例整理、文献回顾和研究写作，参与临床心理学研究成果发表。\n" +
+                "承担教学与督导支持，帮助实习医生和住院医师掌握结构化访谈、心理测量解释、个案概念化、诊断报告撰写和伦理风险识别。"
           }
         ]
       },
@@ -90,15 +87,15 @@
         entries: [
           {
             title: "临床心理诊断",
-            subtitle: "DSM-5 / ICD-11 / SCID-5",
+            subtitle: "DSM-5 / ICD-11 / SCID-5 / MINI",
             meta: "核心",
-            desc: "熟悉抑郁障碍、焦虑障碍、创伤相关障碍、双相障碍、人格障碍及躯体化相关问题的评估与鉴别诊断，能够形成清晰的诊断假设、风险判断和干预建议。"
+            desc: "熟悉抑郁障碍、焦虑障碍、创伤相关障碍、双相障碍、人格障碍、强迫相关问题及躯体化相关问题的评估与鉴别诊断，能够形成清晰的诊断假设、排除依据和干预建议。"
           },
           {
             title: "心理测量与评估",
             subtitle: "MMPI-2 / WAIS-IV / PHQ-9 / GAD-7 / PCL-5",
             meta: "熟练",
-            desc: "能够根据临床问题选择并解释常用心理量表与认知评估工具，整合访谈、量表、病史、功能损害和社会支持信息，撰写规范评估报告。"
+            desc: "能够根据临床问题选择并解释常用人格、情绪、焦虑、创伤和认知评估工具，整合访谈、量表、病史、功能损害和社会支持信息，撰写规范评估报告。"
           },
           {
             title: "危机干预与 MDT 协作",
@@ -294,12 +291,15 @@
       "\\newcommand{\\name}[1]{\\begin{center}{\\LARGE\\bfseries #1}\\end{center}}",
       "\\newcommand{\\role}[1]{\\begin{center}\\textbf{#1}\\end{center}}",
       "\\newcommand{\\contact}[1]{\\begin{center}#1\\end{center}}",
+      "\\newcommand{\\summary}[1]{\\noindent #1\\par\\vspace{0.6em}}",
       "\\newcommand{\\entry}[4]{\\noindent\\textbf{#1}\\hfill #3\\\\\\textit{#2}\\\\#4\\par\\vspace{0.6em}}",
       "",
       "\\begin{document}",
       "\\name{" + latexEscape(model.name) + "}",
       "\\role{" + latexEscape(model.role) + "}",
       "\\contact{" + latexEscape(model.contact) + "}",
+      "\\section{个人简介}",
+      "\\summary{" + latexEscape(model.summary) + "}",
       ""
     ];
     model.sections.forEach(function (section) {
@@ -400,6 +400,9 @@
       "",
       "**" + markdownEscape(model.role) + "**",
       markdownEscape(model.contact),
+      "",
+      "## 个人简介",
+      markdownEscape(model.summary),
       ""
     ];
     model.sections.forEach(function (section) {
@@ -496,6 +499,7 @@
       "",
       "\\begin{document}",
       "\\makecvtitle",
+      "\\quote{" + latexEscape(model.summary) + "}",
       ""
     ].filter(function (line) { return line !== ""; });
     model.sections.forEach(function (section) {
@@ -586,6 +590,10 @@
       '      <p class="resume-role">' + escapeHtml(model.role) + "</p>",
       '      <p class="resume-contact">' + escapeHtml(model.contact) + "</p>",
       "    </header>",
+      '    <section class="resume-profile">',
+      "      <h2>个人简介</h2>",
+      '      <p class="resume-summary">' + escapeHtml(model.summary) + "</p>",
+      "    </section>",
       sectionHtml,
       "  </article>",
       "</body>",
@@ -673,7 +681,8 @@
           "</div>"
         ].join("");
       }).join("");
-      return '<section class="latex-section" data-section-index="' + sectionIndex + '">' +
+      const sectionClass = "latex-section" + (isProfessionalSkillsTitle(section.title) ? " latex-skills-section" : "");
+      return '<section class="' + sectionClass + '" data-section-index="' + sectionIndex + '">' +
         '<h2 contenteditable="true" data-section-title>' + escapeHtml(section.title) + "</h2>" +
         entries +
         "</section>";
@@ -685,6 +694,10 @@
       '<p class="latex-role">' + editable("role", model.role) + "</p>" +
       '<p class="latex-contact">' + editable("contact", model.contact) + "</p>" +
       "</header>" +
+      '<section class="latex-section latex-profile-section">' +
+      '<h2>个人简介</h2>' +
+      '<p class="latex-summary" contenteditable="true" data-resume-field="summary">' + escapeHtml(model.summary) + "</p>" +
+      "</section>" +
       sections;
   }
 

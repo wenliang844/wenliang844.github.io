@@ -3671,9 +3671,12 @@ body.search-open .search-modal .search-modal-card,
   --overleaf-green-dark: #0f6b4d;
   --overleaf-editor: #18212b;
   --overleaf-editor-line: #263544;
-  --overleaf-paper: #fffdf8;
+  --overleaf-paper: #ffffff;
   --overleaf-ink: #17202a;
   --overleaf-muted: #5f6b7a;
+  --resume-accent: #0f766e;
+  --resume-soft: #f6f8fb;
+  --resume-line: #d8dee8;
 }
 
 .overleaf-workspace {
@@ -3844,13 +3847,12 @@ body.search-open .search-modal .search-modal-card,
   width: min(100%, 52rem);
   min-height: 73rem;
   margin: 0 auto;
-  padding: 3.5rem 4rem;
+  padding: 3.2rem 3.7rem;
   background: var(--overleaf-paper);
   color: var(--overleaf-ink);
   border-radius: 0.3rem;
   box-shadow: 0 2rem 5rem rgba(0, 0, 0, 0.28);
-  font-family: "Times New Roman", "Noto Serif SC", SimSun, serif;
-  line-height: 1.6;
+  line-height: 1.58;
 }
 
 .latex-preview-paper [contenteditable="true"] {
@@ -3866,49 +3868,63 @@ body.search-open .search-modal .search-modal-card,
 }
 
 .latex-resume-head {
-  padding-bottom: 1.1rem;
-  border-bottom: 2.5px solid var(--overleaf-ink);
+  padding-bottom: 1.2rem;
+  border-bottom: 3px solid var(--resume-accent);
   text-align: center;
 }
 
 .latex-resume-head h1 {
   margin: 0 0 0.4rem;
   color: var(--overleaf-ink);
-  font-size: 2.5rem;
+  font-size: 2.35rem;
   font-weight: 700;
-  letter-spacing: 0.02em;
 }
 
 .latex-role,
 .latex-contact {
   margin: 0.4rem 0 0;
   color: var(--overleaf-muted);
-  font-size: 0.96rem;
+  font-size: 0.95rem;
 }
 
 .latex-role {
-  font-size: 1.1rem;
+  color: var(--resume-accent);
+  font-size: 1.08rem;
   font-weight: 600;
 }
 
 .latex-section {
-  margin-top: 1.35rem;
+  margin-top: 1.25rem;
 }
 
 .latex-section h2 {
-  margin: 0 0 0.6rem;
-  padding-bottom: 0.35rem;
-  border-bottom: 1.5px solid #c5cdd8;
-  color: var(--overleaf-ink);
-  font-size: 1.08rem;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin: 0 0 0.65rem;
+  color: var(--resume-accent);
+  font-size: 1.02rem;
+  font-weight: 800;
+}
+
+.latex-section h2::after {
+  content: "";
+  height: 1px;
+  flex: 1 1 auto;
+  background: linear-gradient(90deg, var(--resume-line), transparent);
+}
+
+.latex-profile-section {
+  padding: 0.95rem 1rem;
+  border-left: 3px solid var(--resume-accent);
+  background: var(--resume-soft);
 }
 
 .latex-section p {
   margin: 0.2rem 0 0;
   color: #445060;
   line-height: 1.65;
+  white-space: pre-line;
 }
 
 .latex-skill-text {
@@ -3916,7 +3932,10 @@ body.search-open .search-modal .search-modal-card,
 }
 
 .latex-entry {
-  margin-top: 0.85rem;
+  position: relative;
+  margin-top: 0.8rem;
+  padding-left: 0.8rem;
+  border-left: 2px solid rgba(15, 118, 110, 0.22);
 }
 
 .latex-entry-head {
@@ -3935,12 +3954,12 @@ body.search-open .search-modal .search-modal-card,
 
 .latex-entry-title-wrap strong {
   color: var(--overleaf-ink);
-  font-size: 1rem;
+  font-size: 0.98rem;
   flex-shrink: 0;
 }
 
 .latex-entry-title-wrap .latex-entry-sub {
-  color: var(--overleaf-muted);
+  color: #a16207;
   font-size: 0.9rem;
   font-style: normal;
   font-weight: 600;
@@ -3962,6 +3981,13 @@ body.search-open .search-modal .search-modal-card,
   margin-top: 0.15rem;
   color: var(--overleaf-muted);
   font-weight: 600;
+}
+
+.latex-skills-section .latex-entry {
+  padding: 0.7rem 0.85rem;
+  border: 1px solid var(--resume-line);
+  border-left: 3px solid var(--resume-accent);
+  border-radius: 0.35rem;
 }
 
 .tools-page {

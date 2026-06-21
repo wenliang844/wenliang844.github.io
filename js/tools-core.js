@@ -886,6 +886,281 @@
     })).join("\n"));
   }
 
+  function jsonToYaml(input) {
+    const parsed = parseJson(input);
+    if (!parsed.ok) {
+      return parsed;
+    }
+    function dump(value, level) {
+      const indent = "  ".repeat(level);
+      if (Array.isArray(value)) {
+        return value.map(function (item) {
+          if (item && typeof item === "object") {
+            return indent + "-\n" + dump(item, level + 1);
+          }
+          return indent + "- " + yamlScalar(item);
+        }).join("\n");
+      }
+      if (value && typeof value === "object") {
+        return Object.keys(value).map(function (key) {
+          const item = value[key];
+          if (item && typeof item === "object") {
+            return indent + key + ":\n" + dump(item, level + 1);
+          }
+          return indent + key + ": " + yamlScalar(item);
+        }).join("\n");
+      }
+      return indent + yamlScalar(value);
+    }
+    return ok(dump(parsed.value, 0));
+  }
+
+  function yamlScalar(value) {
+    if (value === null) {return "null";}
+    if (typeof value === "number" || typeof value === "boolean") {return String(value);}
+    const raw = text(value);
+    return /^[\w.-]+$/.test(raw) ? raw : JSON.stringify(raw);
+  }
+
+  function parseYamlScalar(raw) {
+    const value = text(raw).trim();
+    if (value === "null" || value === "~") {return null;}
+    if (value === "true") {return true;}
+    if (value === "false") {return false;}
+    if (/^-?\d+(?:\.\d+)?$/.test(value)) {return Number(value);}
+    if ((value.startsWith("\"") && value.endsWith("\"")) || (value.startsWith("'") && value.endsWith("'"))) {
+      try { return JSON.parse(value.replace(/^'/, "\"").replace(/'$/, "\"")); } catch (error) { return value.slice(1, -1); }
+    }
+    return value;
+  }
+
+  function yamlToJson(input) {
+    const lines = splitLines(input).map(function (line) {
+      return line.replace(/\s+#.*$/, "");
+    }).filter(function (line) {
+      return line.trim();
+    });
+    if (!lines.length) {
+      return fail("请输入 YAML 文本", "yamlInput");
+    }
+    const rootIsArray = lines[0].trim().startsWith("- ");
+    const rootValue = rootIsArray ? [] : {};
+    lines.forEach(function (line) {
+      const raw = line.trim();
+      if (rootIsArray) {
+        if (!raw.startsWith("- ")) {throw new Error("mixed root");}
+        rootValue.push(parseYamlScalar(raw.slice(2)));
+      } else {
+        const index = raw.indexOf(":");
+        if (index === -1) {throw new Error("missing colon");}
+        const key = raw.slice(0, index).trim();
+        if (!key) {throw new Error("missing key");}
+        rootValue[key] = parseYamlScalar(raw.slice(index + 1));
+      }
+    });
+    return ok(JSON.stringify(rootValue, null, 2));
+  }
+
+  function safeYamlToJson(input) {
+    try {
+      return yamlToJson(input);
+    } catch (error) {
+      return fail("YAML 解析失败：仅支持常见的 key: value 或 - value 片段", "yamlInput");
+    }
+  }
+
+  function parseUrl(input) {
+    try {
+      const url = new URL(text(input).trim());
+      const params = Array.from(url.searchParams.entries()).map(function (pair) {
+        return pair[0] + " = " + pair[1];
+      });
+      return ok([
+        "href: " + url.href,
+        "protocol: " + url.protocol,
+        "username: " + url.username,
+        "password: " + (url.password ? "***" : ""),
+        "host: " + url.host,
+        "hostname: " + url.hostname,
+        "port: " + url.port,
+        "pathname: " + url.pathname,
+        "search: " + url.search,
+        "hash: " + url.hash,
+        "query params:",
+        params.length ? params.map(function (line) { return "  " + line; }).join("\n") : "  (none)",
+      ].join("\n"));
+    } catch (error) {
+      return fail("请输入完整有效的 URL", "urlParse");
+    }
+  }
+
+  function convertQuery(input) {
+    const raw = text(input).trim();
+    if (!raw) {
+      return fail("请输入查询参数", "queryInput");
+    }
+    if (raw.indexOf("\n") !== -1) {
+      const params = new URLSearchParams();
+      splitLines(raw).map(text).filter(Boolean).forEach(function (line) {
+        const index = line.indexOf("=");
+        params.append(index === -1 ? line : line.slice(0, index), index === -1 ? "" : line.slice(index + 1));
+      });
+      return ok(params.toString());
+    }
+    const query = raw.replace(/^\?/, "");
+    const params = new URLSearchParams(query);
+    return ok(Array.from(params.entries()).map(function (pair) {
+      return pair[0] + "=" + pair[1];
+    }).join("\n"));
+  }
+
+  function queryJsonPath(input, path) {
+    const parsed = parseJson(input);
+    if (!parsed.ok) {return parsed;}
+    const rawPath = text(path).trim();
+    if (!/^\$/.test(rawPath)) {
+      return fail("JSONPath 需要以 $ 开头", "jsonPath");
+    }
+    const tokens = rawPath.match(/(?:\.[A-Za-z_$][\w$-]*)|(?:\[['"][^'"]+['"]\])|(?:\[\d+\])/g) || [];
+    let cursor = parsed.value;
+    for (const token of tokens) {
+      const key = token.charAt(0) === "."
+        ? token.slice(1)
+        : token.replace(/^\[['"]?/, "").replace(/['"]?\]$/, "");
+      cursor = cursor && cursor[key];
+      if (cursor === undefined) {
+        return fail("路径没有匹配到值", "jsonPath");
+      }
+    }
+    return ok(JSON.stringify(cursor, null, 2));
+  }
+
+  function textStats(input) {
+    const raw = text(input);
+    const lines = raw ? splitLines(raw).length : 0;
+    const words = (raw.match(/[A-Za-z0-9]+|[\u4e00-\u9fff]/g) || []).length;
+    const noSpace = raw.replace(/\s/g, "").length;
+    const encoder = getGlobal("TextEncoder");
+    const bytes = typeof encoder === "function" ? new encoder().encode(raw).length : unescape(encodeURIComponent(raw)).length;
+    return ok([
+      "Characters: " + raw.length,
+      "Characters without spaces: " + noSpace,
+      "Words / CJK chars: " + words,
+      "Lines: " + lines,
+      "Bytes (UTF-8): " + bytes,
+      "Reading time: " + Math.max(1, Math.ceil(words / 350)) + " min",
+    ].join("\n"));
+  }
+
+  function cleanText(input, options) {
+    const opts = options || {};
+    let lines = splitLines(input);
+    if (opts.trim) {lines = lines.map(function (line) { return line.trim(); });}
+    if (opts.removeEmpty) {lines = lines.filter(Boolean);}
+    if (opts.removeDupes) {
+      const seen = Object.create(null);
+      lines = lines.filter(function (line) {
+        if (seen[line]) {return false;}
+        seen[line] = true;
+        return true;
+      });
+    }
+    if (opts.sort) {lines = lines.slice().sort();}
+    return ok(lines.join("\n"));
+  }
+
+  const UNIT_GROUPS = {
+    length: { base: "m", units: { mm: 0.001, cm: 0.01, m: 1, km: 1000, in: 0.0254, ft: 0.3048, yd: 0.9144, mi: 1609.344 } },
+    weight: { base: "kg", units: { mg: 0.000001, g: 0.001, kg: 1, t: 1000, oz: 0.028349523125, lb: 0.45359237 } },
+    data: { base: "B", units: { b: 1, kb: 1024, mb: 1048576, gb: 1073741824, tb: 1099511627776 } },
+  };
+
+  function convertUnit(value, type, fromUnit) {
+    const amount = Number(value);
+    const kind = text(type).trim();
+    const from = text(fromUnit).trim().toLowerCase();
+    if (!Number.isFinite(amount)) {
+      return fail("请输入有效数值", "unitValue");
+    }
+    if (kind === "temperature") {
+      const c = from === "f" ? (amount - 32) * 5 / 9 : from === "k" ? amount - 273.15 : amount;
+      if (["c", "f", "k", "℃", "℉"].indexOf(from) === -1) {return fail("温度单位支持 c/f/k", "unitType");}
+      return ok(["C: " + c.toFixed(4), "F: " + (c * 9 / 5 + 32).toFixed(4), "K: " + (c + 273.15).toFixed(4)].join("\n"));
+    }
+    const group = UNIT_GROUPS[kind];
+    if (!group || !group.units[from]) {
+      return fail("单位类型或来源单位无效", "unitType");
+    }
+    const base = amount * group.units[from];
+    return ok(Object.keys(group.units).map(function (unit) {
+      return unit + ": " + (base / group.units[unit]).toFixed(6).replace(/\.?0+$/, "");
+    }).join("\n"));
+  }
+
+  function generateRandom(options) {
+    const opts = options || {};
+    const min = Number(opts.min);
+    const max = Number(opts.max);
+    const count = Number(opts.count);
+    if (!Number.isFinite(min) || !Number.isFinite(max) || min > max || !Number.isInteger(count) || count < 1 || count > 1000) {
+      return fail("随机数范围或数量无效", "randomInput");
+    }
+    if (opts.integer && opts.unique && (Math.floor(max) - Math.ceil(min) + 1) < count) {
+      return fail("整数不重复数量超过可用范围", "randomInput");
+    }
+    const values = [];
+    while (values.length < count) {
+      const next = opts.integer
+        ? Math.floor(Math.random() * (Math.floor(max) - Math.ceil(min) + 1)) + Math.ceil(min)
+        : min + Math.random() * (max - min);
+      const value = opts.integer ? next : Number(next.toFixed(8));
+      if (!opts.unique || values.indexOf(value) === -1) {
+        values.push(value);
+      }
+    }
+    return ok(values.join("\n"));
+  }
+
+  function dateDiff(startValue, endValue) {
+    const start = new Date(text(startValue));
+    const end = new Date(text(endValue));
+    if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
+      return fail("请选择有效的开始和结束日期", "dateDiff");
+    }
+    const ms = end.getTime() - start.getTime();
+    const abs = Math.abs(ms);
+    const days = Math.floor(abs / 86400000);
+    const hours = Math.floor(abs % 86400000 / 3600000);
+    const minutes = Math.floor(abs % 3600000 / 60000);
+    return ok([
+      "Milliseconds: " + ms,
+      "Seconds: " + Math.floor(ms / 1000),
+      "Days: " + (ms / 86400000).toFixed(4),
+      "Absolute duration: " + days + "d " + hours + "h " + minutes + "m",
+    ].join("\n"));
+  }
+
+  function parseUserAgent(input) {
+    const ua = text(input).trim();
+    if (!ua) {
+      return fail("请输入 User-Agent", "uaInput");
+    }
+    const browser = /Edg\/([\d.]+)/.exec(ua) ? "Edge " + /Edg\/([\d.]+)/.exec(ua)[1]
+      : /Chrome\/([\d.]+)/.exec(ua) ? "Chrome " + /Chrome\/([\d.]+)/.exec(ua)[1]
+        : /Firefox\/([\d.]+)/.exec(ua) ? "Firefox " + /Firefox\/([\d.]+)/.exec(ua)[1]
+          : /Version\/([\d.]+).*Safari/.exec(ua) ? "Safari " + /Version\/([\d.]+).*Safari/.exec(ua)[1]
+            : "Unknown";
+    const os = /Windows NT ([\d.]+)/.test(ua) ? "Windows NT " + /Windows NT ([\d.]+)/.exec(ua)[1]
+      : /Android ([\d.]+)/.test(ua) ? "Android " + /Android ([\d.]+)/.exec(ua)[1]
+        : /iPhone|iPad/.test(ua) ? "iOS"
+          : /Mac OS X ([\d_]+)/.test(ua) ? "macOS " + /Mac OS X ([\d_]+)/.exec(ua)[1].replace(/_/g, ".")
+            : /Linux/.test(ua) ? "Linux" : "Unknown";
+    const device = /Mobile|Android|iPhone/.test(ua) ? "Mobile" : /iPad|Tablet/.test(ua) ? "Tablet" : "Desktop";
+    const engine = /AppleWebKit\/([\d.]+)/.exec(ua) ? "WebKit " + /AppleWebKit\/([\d.]+)/.exec(ua)[1]
+      : /Gecko\/([\d.]+)/.exec(ua) ? "Gecko " + /Gecko\/([\d.]+)/.exec(ua)[1] : "Unknown";
+    return ok(["Browser: " + browser, "OS: " + os, "Device: " + device, "Engine: " + engine, "UA: " + ua].join("\n"));
+  }
+
   function createQrCode(input) {
     const raw = text(input);
     if (!raw.trim()) {
@@ -933,5 +1208,16 @@
     decodeHtmlEntities: decodeHtmlEntities,
     parseCronExpression: parseCronExpression,
     createQrCode: createQrCode,
+    jsonToYaml: jsonToYaml,
+    yamlToJson: safeYamlToJson,
+    parseUrl: parseUrl,
+    convertQuery: convertQuery,
+    queryJsonPath: queryJsonPath,
+    textStats: textStats,
+    cleanText: cleanText,
+    convertUnit: convertUnit,
+    generateRandom: generateRandom,
+    dateDiff: dateDiff,
+    parseUserAgent: parseUserAgent,
   };
 })(typeof window !== "undefined" ? window : this);

@@ -387,6 +387,21 @@
     el.value = now.toISOString().slice(0, 16);
   }
 
+  function initDateDiffInputs() {
+    const start = document.getElementById("datediff-start");
+    const end = document.getElementById("datediff-end");
+    if (!start || !end) {
+      return;
+    }
+    const now = new Date();
+    const later = new Date(now.getTime() + 7 * 86400000);
+    [now, later].forEach(function (date) {
+      date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
+    });
+    start.value = now.toISOString().slice(0, 16);
+    end.value = later.toISOString().slice(0, 16);
+  }
+
   function shouldKeepAssistantOpen() {
     try {
       const params = new URLSearchParams(window.location.search);
@@ -558,6 +573,55 @@
       return;
     }
 
+    const toolRun = closest(event.target, "[data-tool-run]");
+    if (toolRun) {
+      const action = toolRun.getAttribute("data-tool-run");
+      const simpleMap = {
+        "json-to-yaml": ["yaml-input", "yaml-output", "yaml-status", core.jsonToYaml],
+        "yaml-to-json": ["yaml-input", "yaml-output", "yaml-status", core.yamlToJson],
+        "parse-url": ["urlparse-input", "urlparse-output", "urlparse-status", core.parseUrl],
+        "query-toggle": ["query-input", "query-output", "query-status", core.convertQuery],
+        "text-stats": ["textstats-input", "textstats-output", "textstats-status", core.textStats],
+        "parse-ua": ["ua-input", "ua-output", "ua-status", core.parseUserAgent],
+      };
+      if (simpleMap[action]) {
+        const entry = simpleMap[action];
+        applyResult(entry[3](inputValue(entry[0])), entry[1], entry[2]);
+        return;
+      }
+      if (action === "jsonpath") {
+        applyResult(core.queryJsonPath(inputValue("jsonpath-input"), inputValue("jsonpath-path")), "jsonpath-output", "jsonpath-status");
+        return;
+      }
+      if (action === "clean-text") {
+        applyResult(core.cleanText(inputValue("cleantext-input"), {
+          trim: checked("cleantext-trim"),
+          removeEmpty: checked("cleantext-empty"),
+          removeDupes: checked("cleantext-dupes"),
+          sort: checked("cleantext-sort"),
+        }), "cleantext-output", "cleantext-status");
+        return;
+      }
+      if (action === "unit-convert") {
+        applyResult(core.convertUnit(inputValue("unit-value"), inputValue("unit-type"), inputValue("unit-from")), "unit-output", "unit-status");
+        return;
+      }
+      if (action === "random-generate") {
+        applyResult(core.generateRandom({
+          min: inputValue("random-min"),
+          max: inputValue("random-max"),
+          count: inputValue("random-count"),
+          integer: checked("random-integer"),
+          unique: checked("random-unique"),
+        }), "random-output", "random-status");
+        return;
+      }
+      if (action === "date-diff") {
+        applyResult(core.dateDiff(inputValue("datediff-start"), inputValue("datediff-end")), "datediff-output", "datediff-status");
+        return;
+      }
+    }
+
     const copy = closest(event.target, "[data-copy-target]");
     if (copy) {
       copyFrom(copy.getAttribute("data-copy-target"), copy);
@@ -576,6 +640,7 @@
 
   syncNowTimer();
   initTimeInput();
+  initDateDiffInputs();
   minimizeAssistantAfterInit();
   document.addEventListener("visibilitychange", syncNowTimer);
   document.addEventListener("cwl:langchange", function () {

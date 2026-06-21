@@ -406,6 +406,26 @@ test("tools core handles the expanded toolbox utilities", async () => {
   assert.equal(cron.ok, true);
   assert.match(cron.value, /2026-06-18 09:00/);
   assert.equal(tools.parseCronExpression("* * *").code, "cronParts");
+
+  const yaml = tools.jsonToYaml('{"name":"CWL","enabled":true}');
+  assert.equal(yaml.ok, true);
+  assert.match(yaml.value, /name: CWL/);
+  assert.equal(tools.yamlToJson("name: CWL\nenabled: true").value, '{\n  "name": "CWL",\n  "enabled": true\n}');
+
+  assert.match(tools.parseUrl("https://example.com/docs?q=CWL#top").value, /hostname: example\.com/);
+  assert.equal(tools.convertQuery("name=CWL\nq=工具箱").value, "name=CWL&q=%E5%B7%A5%E5%85%B7%E7%AE%B1");
+  assert.match(tools.convertQuery("name=CWL&q=toolbox").value, /q=toolbox/);
+
+  const jsonPath = tools.queryJsonPath('{"users":[{"name":"CWL"}]}', "$.users[0].name");
+  assert.equal(jsonPath.value, '"CWL"');
+  assert.equal(tools.queryJsonPath("{}", "users").code, "jsonPath");
+
+  assert.match(tools.textStats("Hello 世界\nCodex").value, /Lines: 2/);
+  assert.equal(tools.cleanText(" b \n\na\n b ", { trim: true, removeEmpty: true, removeDupes: true, sort: true }).value, "a\nb");
+  assert.match(tools.convertUnit(1, "length", "km").value, /m: 1000/);
+  assert.match(tools.generateRandom({ min: 1, max: 3, count: 3, integer: true, unique: true }).value, /^[1-3]\n[1-3]\n[1-3]$/);
+  assert.match(tools.dateDiff("2026-06-01T00:00", "2026-06-08T00:00").value, /Absolute duration: 7d/);
+  assert.match(tools.parseUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/126 Safari/537.36").value, /Browser: Chrome 126/);
 });
 
 test("tools core QR generator uses local vendor runtime", async () => {
@@ -434,13 +454,13 @@ test("tools tabs expose selected state and support keyboard navigation", async (
   try {
     const jsonTab = document.querySelector('[data-tool-tab="json"]');
     const timeTab = document.querySelector('[data-tool-tab="time"]');
-    const qrTab = document.querySelector('[data-tool-tab="qr"]');
+    const uaTab = document.querySelector('[data-tool-tab="ua"]');
 
     const tabList = document.querySelector(".tools-tabs");
     assert.equal(tabList.getAttribute("role"), "tablist");
     assert.equal(tabList.getAttribute("data-i18n-aria"), "tools.tabs");
     assert.equal(tabList.getAttribute("data-i18n-en-aria"), "Tool list");
-    assert.equal(document.querySelectorAll("[data-tool-tab]").length, 16);
+    assert.equal(document.querySelectorAll("[data-tool-tab]").length, 26);
     assert.equal(document.querySelector("#base64-input").getAttribute("data-i18n-ph"), "tools.base64.placeholder");
     assert.equal(document.querySelector("#base64-input").getAttribute("data-i18n-en-ph"), "Text to encode or decode");
     assert.equal(document.querySelector("#url-input").getAttribute("data-i18n-en-ph"), "https://example.com/?q=search");
@@ -458,8 +478,8 @@ test("tools tabs expose selected state and support keyboard navigation", async (
     assert.equal(document.querySelector("#tool-json").hidden, true);
 
     timeTab.dispatchEvent(new KeyboardEvent("keydown", { key: "End", bubbles: true, cancelable: true }));
-    assert.equal(qrTab.getAttribute("aria-selected"), "true");
-    assert.equal(document.querySelector("#tool-qr").hidden, false);
+    assert.equal(uaTab.getAttribute("aria-selected"), "true");
+    assert.equal(document.querySelector("#tool-ua").hidden, false);
   } finally {
     dom.window.close();
   }
@@ -487,7 +507,7 @@ test("tools page ignores unknown tab targets without clearing selection", async 
   const { document, KeyboardEvent } = dom.window;
   try {
     const jsonTab = document.querySelector('[data-tool-tab="json"]');
-    const qrTab = document.querySelector('[data-tool-tab="qr"]');
+    const uaTab = document.querySelector('[data-tool-tab="ua"]');
     const jsonPanel = document.querySelector('[data-tool-panel="json"]');
 
     const outsideTab = document.createElement("button");
@@ -509,8 +529,8 @@ test("tools page ignores unknown tab targets without clearing selection", async 
     assert.equal(jsonPanel.hidden, false);
 
     jsonTab.dispatchEvent(new KeyboardEvent("keydown", { key: "End", bubbles: true, cancelable: true }));
-    assert.equal(qrTab.classList.contains("active"), true);
-    assert.equal(qrTab.getAttribute("aria-selected"), "true");
+    assert.equal(uaTab.classList.contains("active"), true);
+    assert.equal(uaTab.getAttribute("aria-selected"), "true");
 
     const duplicateJsonTab = document.createElement("button");
     duplicateJsonTab.setAttribute("data-tool-tab", "json");

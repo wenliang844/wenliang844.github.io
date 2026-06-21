@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' 'unsafe-inline' https://giscus.app; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https:; frame-src https://giscus.app; form-action 'self' https://buttondown.com https://api.web3forms.com">
-  <meta name="description" content="CWLBlog 在线工具箱：JSON、时间戳、Base64、URL、UUID、JWT、哈希、密码、颜色、正则、Markdown、Diff、Cron 和二维码等本地工具。">
+  <meta name="description" content="CWLBlog 在线工具箱：JSON、时间戳、Base64、URL、UUID、JWT、哈希、密码、颜色、正则、Markdown、Diff、Cron、二维码、YAML、URL 解析和文本处理等本地工具。">
   <link rel="icon" href="/images/favicon.png" type="image/png">
   <link rel="preconnect" href="https://giscus.app">
   <link rel="dns-prefetch" href="https://giscus.app">
@@ -30,17 +30,17 @@
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="CWLBlog">
   <meta property="og:title" content="在线工具箱 :: CWLBlog">
-  <meta property="og:description" content="JSON、时间戳、编码、哈希、密码、颜色、正则、Markdown、Diff、Cron 与二维码等常用开发工具。">
+  <meta property="og:description" content="JSON、时间戳、编码、哈希、密码、颜色、正则、Markdown、Diff、Cron、二维码、YAML、URL 解析与文本处理等常用开发工具。">
   <meta property="og:url" content="https://wenliang844.github.io/tools/">
   <meta property="og:image" content="https://wenliang844.github.io/images/favicon.png">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:image" content="https://wenliang844.github.io/images/favicon.png">
   <meta name="twitter:title" content="在线工具箱 :: CWLBlog">
-  <meta name="twitter:description" content="JSON、时间戳、编码、哈希、密码、颜色、正则、Markdown、Diff、Cron 与二维码等常用开发工具。">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"CWLBlog 在线工具箱","description":"CWLBlog 在线工具箱：JSON、时间戳、Base64、URL、UUID、JWT、哈希、密码、颜色、正则、Markdown、Diff、Cron 和二维码等本地工具。","url":"https://wenliang844.github.io/tools/","inLanguage":"zh-CN","isPartOf":{"@type":"WebSite","name":"CWLBlog","url":"https://wenliang844.github.io/"},"applicationCategory":"DeveloperApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":["JSON Formatter","Timestamp Converter","Base64 Codec","URL Codec","UUID Generator","JWT Decoder","Hash Digest","Password Generator","Color Converter","Regex Tester","Markdown Preview","Text Diff","Case Converter","HTML Entities","Cron Parser","QR Generator"]}</script>
+  <meta name="twitter:description" content="JSON、时间戳、编码、哈希、密码、颜色、正则、Markdown、Diff、Cron、二维码、YAML、URL 解析与文本处理等常用开发工具。">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"CWLBlog 在线工具箱","description":"CWLBlog 在线工具箱：JSON、时间戳、Base64、URL、UUID、JWT、哈希、密码、颜色、正则、Markdown、Diff、Cron、二维码、YAML、URL 解析和文本处理等本地工具。","url":"https://wenliang844.github.io/tools/","inLanguage":"zh-CN","isPartOf":{"@type":"WebSite","name":"CWLBlog","url":"https://wenliang844.github.io/"},"applicationCategory":"DeveloperApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":["JSON Formatter","Timestamp Converter","Base64 Codec","URL Codec","UUID Generator","JWT Decoder","Hash Digest","Password Generator","Color Converter","Regex Tester","Markdown Preview","Text Diff","Case Converter","HTML Entities","Cron Parser","QR Generator","YAML / JSON","URL Parser","Query Builder","JSONPath Query","Text Stats","Text Cleaner","Unit Converter","Random Generator","Date Diff","User-Agent Parser"]}</script>
   <title>在线工具箱 :: CWLBlog</title>
 </head>
-<body class="colorscheme-dark" data-i18n-page="tools" data-i18n-title-en="Toolbox :: CWLBlog" data-i18n-desc-en="CWLBlog online toolbox: JSON, timestamps, Base64, URL, UUID, JWT, hashes, passwords, colors, regex, Markdown, diff, cron and QR tools.">
+<body class="colorscheme-dark" data-i18n-page="tools" data-i18n-title-en="Toolbox :: CWLBlog" data-i18n-desc-en="CWLBlog online toolbox: JSON, timestamps, Base64, URL, UUID, JWT, hashes, passwords, colors, regex, Markdown, diff, cron, QR, YAML, URL parsing and text tools.">
   <a class="skip-link" href="#main-content" data-i18n="nav.skip">跳到主要内容</a>
   <div class="cursor-glow" aria-hidden="true"></div>
   <canvas class="cursor-canvas" aria-hidden="true"></canvas>
@@ -82,7 +82,7 @@
         <header class="tools-header">
           <span class="eyebrow" data-i18n="tools.eyebrow" data-i18n-en-html='<i class="fas fa-toolbox" aria-hidden="true"></i> Online Toolbox' data-i18n-html><i class="fas fa-toolbox" aria-hidden="true"></i> Online Toolbox</span>
           <h1 data-i18n="tools.h1" data-i18n-en="Toolbox">在线工具箱</h1>
-          <p class="lead" data-i18n="tools.lead" data-i18n-en="Useful browser-only tools for JSON, timestamps, encoders, hashes, passwords, colors, regex, Markdown, diff, cron and QR codes.">常用开发小工具，全部在浏览器本地运行，不依赖后端。</p>
+          <p class="lead" data-i18n="tools.lead" data-i18n-en="Useful browser-only tools for JSON, timestamps, encoders, hashes, passwords, colors, regex, Markdown, diff, cron, QR codes, YAML, URL parsing and text processing.">常用开发小工具，全部在浏览器本地运行，不依赖后端。</p>
         </header>
         <div class="tools-shell">
           <nav class="tools-tabs" role="tablist" aria-label="工具列表" data-i18n-aria="tools.tabs" data-i18n-en-aria="Tool list">
@@ -149,6 +149,46 @@
             <button class="tool-tab" id="tool-tab-qr" type="button" role="tab" data-tool-tab="qr" aria-controls="tool-qr" aria-label="二维码生成" aria-selected="false" tabindex="-1" data-i18n-aria="tools.nav.qr" data-i18n-en-aria="QR Generator">
               <i class="fas fa-qrcode" aria-hidden="true"></i>
               <span data-i18n="tools.nav.qr" data-i18n-en="QR Generator">二维码生成</span>
+            </button>
+            <button class="tool-tab" id="tool-tab-yaml" type="button" role="tab" data-tool-tab="yaml" aria-controls="tool-yaml" aria-label="YAML / JSON" aria-selected="false" tabindex="-1" data-i18n-aria="tools.nav.yaml" data-i18n-en-aria="YAML / JSON">
+              <i class="fas fa-project-diagram" aria-hidden="true"></i>
+              <span data-i18n="tools.nav.yaml" data-i18n-en="YAML / JSON">YAML / JSON</span>
+            </button>
+            <button class="tool-tab" id="tool-tab-urlparse" type="button" role="tab" data-tool-tab="urlparse" aria-controls="tool-urlparse" aria-label="URL 解析" aria-selected="false" tabindex="-1" data-i18n-aria="tools.nav.urlparse" data-i18n-en-aria="URL Parser">
+              <i class="fas fa-sitemap" aria-hidden="true"></i>
+              <span data-i18n="tools.nav.urlparse" data-i18n-en="URL Parser">URL 解析</span>
+            </button>
+            <button class="tool-tab" id="tool-tab-query" type="button" role="tab" data-tool-tab="query" aria-controls="tool-query" aria-label="查询参数" aria-selected="false" tabindex="-1" data-i18n-aria="tools.nav.query" data-i18n-en-aria="Query Builder">
+              <i class="fas fa-list-ul" aria-hidden="true"></i>
+              <span data-i18n="tools.nav.query" data-i18n-en="Query Builder">查询参数</span>
+            </button>
+            <button class="tool-tab" id="tool-tab-jsonpath" type="button" role="tab" data-tool-tab="jsonpath" aria-controls="tool-jsonpath" aria-label="JSONPath 查询" aria-selected="false" tabindex="-1" data-i18n-aria="tools.nav.jsonpath" data-i18n-en-aria="JSONPath Query">
+              <i class="fas fa-filter" aria-hidden="true"></i>
+              <span data-i18n="tools.nav.jsonpath" data-i18n-en="JSONPath Query">JSONPath 查询</span>
+            </button>
+            <button class="tool-tab" id="tool-tab-textstats" type="button" role="tab" data-tool-tab="textstats" aria-controls="tool-textstats" aria-label="文本统计" aria-selected="false" tabindex="-1" data-i18n-aria="tools.nav.textstats" data-i18n-en-aria="Text Stats">
+              <i class="fas fa-chart-bar" aria-hidden="true"></i>
+              <span data-i18n="tools.nav.textstats" data-i18n-en="Text Stats">文本统计</span>
+            </button>
+            <button class="tool-tab" id="tool-tab-cleantext" type="button" role="tab" data-tool-tab="cleantext" aria-controls="tool-cleantext" aria-label="文本清理" aria-selected="false" tabindex="-1" data-i18n-aria="tools.nav.cleantext" data-i18n-en-aria="Text Cleaner">
+              <i class="fas fa-broom" aria-hidden="true"></i>
+              <span data-i18n="tools.nav.cleantext" data-i18n-en="Text Cleaner">文本清理</span>
+            </button>
+            <button class="tool-tab" id="tool-tab-unit" type="button" role="tab" data-tool-tab="unit" aria-controls="tool-unit" aria-label="单位换算" aria-selected="false" tabindex="-1" data-i18n-aria="tools.nav.unit" data-i18n-en-aria="Unit Converter">
+              <i class="fas fa-ruler-combined" aria-hidden="true"></i>
+              <span data-i18n="tools.nav.unit" data-i18n-en="Unit Converter">单位换算</span>
+            </button>
+            <button class="tool-tab" id="tool-tab-random" type="button" role="tab" data-tool-tab="random" aria-controls="tool-random" aria-label="随机数生成" aria-selected="false" tabindex="-1" data-i18n-aria="tools.nav.random" data-i18n-en-aria="Random Generator">
+              <i class="fas fa-dice" aria-hidden="true"></i>
+              <span data-i18n="tools.nav.random" data-i18n-en="Random Generator">随机数生成</span>
+            </button>
+            <button class="tool-tab" id="tool-tab-datediff" type="button" role="tab" data-tool-tab="datediff" aria-controls="tool-datediff" aria-label="日期差计算" aria-selected="false" tabindex="-1" data-i18n-aria="tools.nav.datediff" data-i18n-en-aria="Date Diff">
+              <i class="fas fa-hourglass-half" aria-hidden="true"></i>
+              <span data-i18n="tools.nav.datediff" data-i18n-en="Date Diff">日期差计算</span>
+            </button>
+            <button class="tool-tab" id="tool-tab-ua" type="button" role="tab" data-tool-tab="ua" aria-controls="tool-ua" aria-label="UA 解析" aria-selected="false" tabindex="-1" data-i18n-aria="tools.nav.ua" data-i18n-en-aria="User-Agent Parser">
+              <i class="fas fa-desktop" aria-hidden="true"></i>
+              <span data-i18n="tools.nav.ua" data-i18n-en="User-Agent Parser">UA 解析</span>
             </button>
           </nav>
           <div class="tools-panels">
@@ -548,6 +588,256 @@
             <button class="tool-btn" type="button" data-copy-target="qr-output" data-i18n="tools.btn.copyDataUrl" data-i18n-html><i class="fas fa-copy" aria-hidden="true"></i> 复制 Data URL</button>
           </div>
           <p class="tool-status" id="qr-status" role="status" aria-live="polite"></p>
+        </section>
+        <section class="tool-panel" id="tool-yaml" data-tool-panel="yaml" role="tabpanel" aria-labelledby="tool-tab-yaml" tabindex="0" hidden>
+          <header class="tool-panel-head">
+            <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-project-diagram"></i></span>
+            <div>
+              <h2 data-i18n="tools.yaml.title" data-i18n-en="YAML / JSON">YAML / JSON</h2>
+              <p data-i18n="tools.yaml.desc" data-i18n-en="Convert JSON and common YAML configuration snippets.">JSON 与常见 YAML 配置片段互转。</p>
+            </div>
+          </header>
+          <div class="tool-grid">
+            <label class="tool-field"><span data-i18n="tools.label.configInput">配置文本</span>
+              <textarea id="yaml-input" spellcheck="false" placeholder='{"name":"CWLBlog","tags":["tool","json"]}' data-i18n-ph="tools.yaml.placeholder" data-i18n-en-ph='{"name":"CWLBlog","tags":["tool","json"]}'></textarea>
+            </label>
+            <label class="tool-field"><span data-i18n="tools.label.output">输出结果</span>
+              <textarea id="yaml-output" spellcheck="false" readonly></textarea>
+            </label>
+          </div>
+          <div class="tool-actions">
+            <button class="tool-btn primary" type="button" data-tool-run="json-to-yaml" data-i18n="tools.btn.toYaml" data-i18n-html><i class="fas fa-arrow-down" aria-hidden="true"></i> 转 YAML</button>
+            <button class="tool-btn" type="button" data-tool-run="yaml-to-json" data-i18n="tools.btn.toJson" data-i18n-html><i class="fas fa-arrow-up" aria-hidden="true"></i> 转 JSON</button>
+            <button class="tool-btn" type="button" data-copy-target="yaml-output" data-i18n="tools.btn.copyResult" data-i18n-html><i class="fas fa-copy" aria-hidden="true"></i> 复制结果</button>
+          </div>
+          <p class="tool-status" id="yaml-status" role="status" aria-live="polite"></p>
+        </section>
+        <section class="tool-panel" id="tool-urlparse" data-tool-panel="urlparse" role="tabpanel" aria-labelledby="tool-tab-urlparse" tabindex="0" hidden>
+          <header class="tool-panel-head">
+            <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-sitemap"></i></span>
+            <div>
+              <h2 data-i18n="tools.urlparse.title" data-i18n-en="URL Parser">URL 解析</h2>
+              <p data-i18n="tools.urlparse.desc" data-i18n-en="Break down protocol, host, path, query and hash.">拆解 URL 的协议、主机、路径、参数和锚点。</p>
+            </div>
+          </header>
+          <div class="tool-grid">
+            <label class="tool-field"><span data-i18n="tools.label.urlInput">urlInput</span>
+              <textarea id="urlparse-input" spellcheck="false" placeholder="https://example.com:443/docs?a=1&amp;b=中文#top" data-i18n-ph="tools.urlparse.placeholder" data-i18n-en-ph="https://example.com/docs?a=1#top"></textarea>
+            </label>
+            <label class="tool-field"><span data-i18n="tools.label.output">输出结果</span>
+              <textarea id="urlparse-output" spellcheck="false" readonly></textarea>
+            </label>
+          </div>
+          <div class="tool-actions">
+            <button class="tool-btn primary" type="button" data-tool-run="parse-url" data-i18n="tools.btn.parse" data-i18n-html><i class="fas fa-sitemap" aria-hidden="true"></i> 解析</button>
+            <button class="tool-btn" type="button" data-copy-target="urlparse-output" data-i18n="tools.btn.copyResult" data-i18n-html><i class="fas fa-copy" aria-hidden="true"></i> 复制结果</button>
+          </div>
+          <p class="tool-status" id="urlparse-status" role="status" aria-live="polite"></p>
+        </section>
+        <section class="tool-panel" id="tool-query" data-tool-panel="query" role="tabpanel" aria-labelledby="tool-tab-query" tabindex="0" hidden>
+          <header class="tool-panel-head">
+            <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-list-ul"></i></span>
+            <div>
+              <h2 data-i18n="tools.query.title" data-i18n-en="Query Builder">查询参数</h2>
+              <p data-i18n="tools.query.desc" data-i18n-en="Convert form-style text and URL query strings.">在表单文本与 URL 查询字符串之间互转。</p>
+            </div>
+          </header>
+          <div class="tool-grid">
+            <label class="tool-field"><span data-i18n="tools.label.queryInput">queryInput</span>
+              <textarea id="query-input" spellcheck="false" placeholder="name=CWLBlog
+q=在线工具箱" data-i18n-ph="tools.query.placeholder" data-i18n-en-ph="name=CWLBlog
+q=toolbox"></textarea>
+            </label>
+            <label class="tool-field"><span data-i18n="tools.label.output">输出结果</span>
+              <textarea id="query-output" spellcheck="false" readonly></textarea>
+            </label>
+          </div>
+          <div class="tool-actions">
+            <button class="tool-btn primary" type="button" data-tool-run="query-toggle" data-i18n="tools.btn.convert" data-i18n-html><i class="fas fa-exchange-alt" aria-hidden="true"></i> 转换</button>
+            <button class="tool-btn" type="button" data-copy-target="query-output" data-i18n="tools.btn.copyResult" data-i18n-html><i class="fas fa-copy" aria-hidden="true"></i> 复制结果</button>
+          </div>
+          <p class="tool-status" id="query-status" role="status" aria-live="polite"></p>
+        </section>
+        <section class="tool-panel" id="tool-jsonpath" data-tool-panel="jsonpath" role="tabpanel" aria-labelledby="tool-tab-jsonpath" tabindex="0" hidden>
+          <header class="tool-panel-head">
+            <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-filter"></i></span>
+            <div>
+              <h2 data-i18n="tools.jsonpath.title" data-i18n-en="JSONPath Query">JSONPath 查询</h2>
+              <p data-i18n="tools.jsonpath.desc" data-i18n-en="Query JSON data with lightweight path expressions.">用轻量路径表达式查询 JSON 数据。</p>
+            </div>
+          </header>
+          <div class="tool-grid">
+            <label class="tool-field"><span data-i18n="tools.label.jsonInput">输入 JSON</span>
+              <textarea id="jsonpath-input" spellcheck="false" placeholder='{"users":[{"name":"CWL"}]}'></textarea>
+            </label>
+            <div class="tool-field">
+              <label for="jsonpath-path" data-i18n="tools.label.pathExpression">路径表达式</label>
+              <input id="jsonpath-path" type="text" spellcheck="false" value="$.users[0].name" placeholder="$.users[0].name">
+              <label for="jsonpath-output" data-i18n="tools.label.output">输出结果</label>
+              <textarea id="jsonpath-output" spellcheck="false" readonly></textarea>
+            </div>
+          </div>
+          <div class="tool-actions">
+            <button class="tool-btn primary" type="button" data-tool-run="jsonpath" data-i18n="tools.btn.query" data-i18n-html><i class="fas fa-filter" aria-hidden="true"></i> 查询</button>
+            <button class="tool-btn" type="button" data-copy-target="jsonpath-output" data-i18n="tools.btn.copyResult" data-i18n-html><i class="fas fa-copy" aria-hidden="true"></i> 复制结果</button>
+          </div>
+          <p class="tool-status" id="jsonpath-status" role="status" aria-live="polite"></p>
+        </section>
+        <section class="tool-panel" id="tool-textstats" data-tool-panel="textstats" role="tabpanel" aria-labelledby="tool-tab-textstats" tabindex="0" hidden>
+          <header class="tool-panel-head">
+            <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-chart-bar"></i></span>
+            <div>
+              <h2 data-i18n="tools.textstats.title" data-i18n-en="Text Stats">文本统计</h2>
+              <p data-i18n="tools.textstats.desc" data-i18n-en="Count characters, words, lines, reading time and bytes.">统计字符、词数、行数、阅读时间和字节数。</p>
+            </div>
+          </header>
+          <div class="tool-grid">
+            <label class="tool-field"><span data-i18n="tools.label.inputText">inputText</span>
+              <textarea id="textstats-input" spellcheck="false" placeholder="输入一段需要统计的文本" data-i18n-ph="tools.textstats.placeholder" data-i18n-en-ph="Paste text to analyze"></textarea>
+            </label>
+            <label class="tool-field"><span data-i18n="tools.label.output">输出结果</span>
+              <textarea id="textstats-output" spellcheck="false" readonly></textarea>
+            </label>
+          </div>
+          <div class="tool-actions">
+            <button class="tool-btn primary" type="button" data-tool-run="text-stats" data-i18n="tools.btn.analyze" data-i18n-html><i class="fas fa-chart-bar" aria-hidden="true"></i> 分析</button>
+            <button class="tool-btn" type="button" data-copy-target="textstats-output" data-i18n="tools.btn.copyResult" data-i18n-html><i class="fas fa-copy" aria-hidden="true"></i> 复制结果</button>
+          </div>
+          <p class="tool-status" id="textstats-status" role="status" aria-live="polite"></p>
+        </section>
+        <section class="tool-panel" id="tool-cleantext" data-tool-panel="cleantext" role="tabpanel" aria-labelledby="tool-tab-cleantext" tabindex="0" hidden>
+          <header class="tool-panel-head">
+            <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-broom"></i></span>
+            <div>
+              <h2 data-i18n="tools.cleantext.title" data-i18n-en="Text Cleaner">文本清理</h2>
+              <p data-i18n="tools.cleantext.desc" data-i18n-en="Trim whitespace, empty lines, duplicate lines and sort.">去除多余空白、空行、重复行并排序。</p>
+            </div>
+          </header>
+          <div class="tool-grid">
+            <label class="tool-field"><span data-i18n="tools.label.inputText">输入文本</span>
+              <textarea id="cleantext-input" spellcheck="false" placeholder="  alpha  &#10;&#10;beta&#10;alpha"></textarea>
+            </label>
+            <label class="tool-field"><span data-i18n="tools.label.output">输出结果</span>
+              <textarea id="cleantext-output" spellcheck="false" readonly></textarea>
+            </label>
+          </div>
+          <div class="tool-actions">
+            <label class="tool-check"><input id="cleantext-trim" type="checkbox" checked> <span data-i18n="tools.label.trimLines">修剪行首尾</span></label>
+            <label class="tool-check"><input id="cleantext-empty" type="checkbox" checked> <span data-i18n="tools.label.removeEmpty">移除空行</span></label>
+            <label class="tool-check"><input id="cleantext-dupes" type="checkbox"> <span data-i18n="tools.label.removeDupes">移除重复行</span></label>
+            <label class="tool-check"><input id="cleantext-sort" type="checkbox"> <span data-i18n="tools.label.sortLines">排序</span></label>
+            <button class="tool-btn primary" type="button" data-tool-run="clean-text" data-i18n="tools.btn.clean" data-i18n-html><i class="fas fa-broom" aria-hidden="true"></i> 清理</button>
+            <button class="tool-btn" type="button" data-copy-target="cleantext-output" data-i18n="tools.btn.copyResult" data-i18n-html><i class="fas fa-copy" aria-hidden="true"></i> 复制结果</button>
+          </div>
+          <p class="tool-status" id="cleantext-status" role="status" aria-live="polite"></p>
+        </section>
+        <section class="tool-panel" id="tool-unit" data-tool-panel="unit" role="tabpanel" aria-labelledby="tool-tab-unit" tabindex="0" hidden>
+          <header class="tool-panel-head">
+            <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-ruler-combined"></i></span>
+            <div>
+              <h2 data-i18n="tools.unit.title" data-i18n-en="Unit Converter">单位换算</h2>
+              <p data-i18n="tools.unit.desc" data-i18n-en="Convert length, weight, temperature and data size.">长度、重量、温度和数据大小快速换算。</p>
+            </div>
+          </header>
+          <div class="tool-grid">
+            <div class="tool-field">
+              <label for="unit-value" data-i18n="tools.label.value">数值</label>
+              <input id="unit-value" type="number" step="any" value="1">
+              <label for="unit-type" data-i18n="tools.label.unitType">类型</label>
+              <select id="unit-type">
+                <option value="length">长度</option>
+                <option value="weight">重量</option>
+                <option value="temperature">温度</option>
+                <option value="data">数据大小</option>
+              </select>
+              <label for="unit-from" data-i18n="tools.label.fromUnit">来源单位</label>
+              <input id="unit-from" type="text" value="m" placeholder="m / kg / c / mb">
+            </div>
+            <label class="tool-field"><span data-i18n="tools.label.output">输出结果</span>
+              <textarea id="unit-output" spellcheck="false" readonly></textarea>
+            </label>
+          </div>
+          <div class="tool-actions">
+            <button class="tool-btn primary" type="button" data-tool-run="unit-convert" data-i18n="tools.btn.convert" data-i18n-html><i class="fas fa-exchange-alt" aria-hidden="true"></i> 转换</button>
+            <button class="tool-btn" type="button" data-copy-target="unit-output" data-i18n="tools.btn.copyResult" data-i18n-html><i class="fas fa-copy" aria-hidden="true"></i> 复制结果</button>
+          </div>
+          <p class="tool-status" id="unit-status" role="status" aria-live="polite"></p>
+        </section>
+        <section class="tool-panel" id="tool-random" data-tool-panel="random" role="tabpanel" aria-labelledby="tool-tab-random" tabindex="0" hidden>
+          <header class="tool-panel-head">
+            <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-dice"></i></span>
+            <div>
+              <h2 data-i18n="tools.random.title" data-i18n-en="Random Generator">随机数生成</h2>
+              <p data-i18n="tools.random.desc" data-i18n-en="Generate integers, decimals or random lists.">生成整数、浮点数或随机列表。</p>
+            </div>
+          </header>
+          <div class="tool-grid">
+            <div class="tool-field">
+              <label for="random-min" data-i18n="tools.label.min">最小值</label>
+              <input id="random-min" type="number" step="any" value="1">
+              <label for="random-max" data-i18n="tools.label.max">最大值</label>
+              <input id="random-max" type="number" step="any" value="100">
+              <label for="random-count" data-i18n="tools.label.count">数量</label>
+              <input id="random-count" type="number" min="1" max="1000" step="1" value="10">
+              <label class="tool-check"><input id="random-integer" type="checkbox" checked> <span data-i18n="tools.label.integer">整数</span></label>
+              <label class="tool-check"><input id="random-unique" type="checkbox"> <span data-i18n="tools.label.unique">不重复</span></label>
+            </div>
+            <label class="tool-field"><span data-i18n="tools.label.output">输出结果</span>
+              <textarea id="random-output" spellcheck="false" readonly></textarea>
+            </label>
+          </div>
+          <div class="tool-actions">
+            <button class="tool-btn primary" type="button" data-tool-run="random-generate" data-i18n="tools.btn.generate" data-i18n-html><i class="fas fa-dice" aria-hidden="true"></i> 生成</button>
+            <button class="tool-btn" type="button" data-copy-target="random-output" data-i18n="tools.btn.copyResult" data-i18n-html><i class="fas fa-copy" aria-hidden="true"></i> 复制结果</button>
+          </div>
+          <p class="tool-status" id="random-status" role="status" aria-live="polite"></p>
+        </section>
+        <section class="tool-panel" id="tool-datediff" data-tool-panel="datediff" role="tabpanel" aria-labelledby="tool-tab-datediff" tabindex="0" hidden>
+          <header class="tool-panel-head">
+            <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-hourglass-half"></i></span>
+            <div>
+              <h2 data-i18n="tools.datediff.title" data-i18n-en="Date Diff">日期差计算</h2>
+              <p data-i18n="tools.datediff.desc" data-i18n-en="Calculate days and duration between two dates.">计算两个日期之间的天数和时间跨度。</p>
+            </div>
+          </header>
+          <div class="tool-grid">
+            <div class="tool-field">
+              <label for="datediff-start" data-i18n="tools.label.startDate">开始日期</label>
+              <input id="datediff-start" type="datetime-local">
+              <label for="datediff-end" data-i18n="tools.label.endDate">结束日期</label>
+              <input id="datediff-end" type="datetime-local">
+            </div>
+            <label class="tool-field"><span data-i18n="tools.label.output">输出结果</span>
+              <textarea id="datediff-output" spellcheck="false" readonly></textarea>
+            </label>
+          </div>
+          <div class="tool-actions">
+            <button class="tool-btn primary" type="button" data-tool-run="date-diff" data-i18n="tools.btn.calculate" data-i18n-html><i class="fas fa-calculator" aria-hidden="true"></i> 计算</button>
+            <button class="tool-btn" type="button" data-copy-target="datediff-output" data-i18n="tools.btn.copyResult" data-i18n-html><i class="fas fa-copy" aria-hidden="true"></i> 复制结果</button>
+          </div>
+          <p class="tool-status" id="datediff-status" role="status" aria-live="polite"></p>
+        </section>
+        <section class="tool-panel" id="tool-ua" data-tool-panel="ua" role="tabpanel" aria-labelledby="tool-tab-ua" tabindex="0" hidden>
+          <header class="tool-panel-head">
+            <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-desktop"></i></span>
+            <div>
+              <h2 data-i18n="tools.ua.title" data-i18n-en="User-Agent Parser">UA 解析</h2>
+              <p data-i18n="tools.ua.desc" data-i18n-en="Parse browser, OS, device type and rendering engine.">解析浏览器、系统、设备类型和渲染引擎。</p>
+            </div>
+          </header>
+          <div class="tool-grid">
+            <label class="tool-field"><span data-i18n="tools.label.uaInput">uaInput</span>
+              <textarea id="ua-input" spellcheck="false" placeholder="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/126 Safari/537.36" data-i18n-ph="tools.ua.placeholder" data-i18n-en-ph="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/126 Safari/537.36"></textarea>
+            </label>
+            <label class="tool-field"><span data-i18n="tools.label.output">输出结果</span>
+              <textarea id="ua-output" spellcheck="false" readonly></textarea>
+            </label>
+          </div>
+          <div class="tool-actions">
+            <button class="tool-btn primary" type="button" data-tool-run="parse-ua" data-i18n="tools.btn.parse" data-i18n-html><i class="fas fa-desktop" aria-hidden="true"></i> 解析</button>
+            <button class="tool-btn" type="button" data-copy-target="ua-output" data-i18n="tools.btn.copyResult" data-i18n-html><i class="fas fa-copy" aria-hidden="true"></i> 复制结果</button>
+          </div>
+          <p class="tool-status" id="ua-status" role="status" aria-live="polite"></p>
         </section>
           </div>
         </div>

@@ -18,7 +18,7 @@ function extractJsonLd(html) {
 
 // ─── Tools 页面测试 ────────────────────────────────────────────────────────────
 
-test("renderToolsPage includes all 16 tool panels", () => {
+test("renderToolsPage includes all 26 tool panels", () => {
   const html = renderToolsPage();
   const panelIds = [
     "json",
@@ -37,6 +37,16 @@ test("renderToolsPage includes all 16 tool panels", () => {
     "html",
     "cron",
     "qr",
+    "yaml",
+    "urlparse",
+    "query",
+    "jsonpath",
+    "textstats",
+    "cleantext",
+    "unit",
+    "random",
+    "datediff",
+    "ua",
   ];
 
   for (const id of panelIds) {

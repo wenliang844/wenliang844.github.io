@@ -17,6 +17,16 @@ const TOOLS = [
   { id: "html", icon: "fa-tags", title: "HTML 实体", titleEn: "HTML Entities", desc: "HTML 特殊字符实体编码与解码。", descEn: "Encode and decode HTML entities." },
   { id: "cron", icon: "fa-calendar-alt", title: "Cron 解析", titleEn: "Cron Parser", desc: "解析 5 段 Cron 表达式并预测后续执行时间。", descEn: "Parse 5-field cron expressions and preview next run times." },
   { id: "qr", icon: "fa-qrcode", title: "二维码生成", titleEn: "QR Generator", desc: "把文本或链接生成可复制的本地二维码。", descEn: "Generate local QR codes for text or links." },
+  { id: "yaml", icon: "fa-project-diagram", title: "YAML / JSON", titleEn: "YAML / JSON", desc: "JSON 与常见 YAML 配置片段互转。", descEn: "Convert JSON and common YAML configuration snippets." },
+  { id: "urlparse", icon: "fa-sitemap", title: "URL 解析", titleEn: "URL Parser", desc: "拆解 URL 的协议、主机、路径、参数和锚点。", descEn: "Break down protocol, host, path, query and hash." },
+  { id: "query", icon: "fa-list-ul", title: "查询参数", titleEn: "Query Builder", desc: "在表单文本与 URL 查询字符串之间互转。", descEn: "Convert form-style text and URL query strings." },
+  { id: "jsonpath", icon: "fa-filter", title: "JSONPath 查询", titleEn: "JSONPath Query", desc: "用轻量路径表达式查询 JSON 数据。", descEn: "Query JSON data with lightweight path expressions." },
+  { id: "textstats", icon: "fa-chart-bar", title: "文本统计", titleEn: "Text Stats", desc: "统计字符、词数、行数、阅读时间和字节数。", descEn: "Count characters, words, lines, reading time and bytes." },
+  { id: "cleantext", icon: "fa-broom", title: "文本清理", titleEn: "Text Cleaner", desc: "去除多余空白、空行、重复行并排序。", descEn: "Trim whitespace, empty lines, duplicate lines and sort." },
+  { id: "unit", icon: "fa-ruler-combined", title: "单位换算", titleEn: "Unit Converter", desc: "长度、重量、温度和数据大小快速换算。", descEn: "Convert length, weight, temperature and data size." },
+  { id: "random", icon: "fa-dice", title: "随机数生成", titleEn: "Random Generator", desc: "生成整数、浮点数或随机列表。", descEn: "Generate integers, decimals or random lists." },
+  { id: "datediff", icon: "fa-hourglass-half", title: "日期差计算", titleEn: "Date Diff", desc: "计算两个日期之间的天数和时间跨度。", descEn: "Calculate days and duration between two dates." },
+  { id: "ua", icon: "fa-desktop", title: "UA 解析", titleEn: "User-Agent Parser", desc: "解析浏览器、系统、设备类型和渲染引擎。", descEn: "Parse browser, OS, device type and rendering engine." },
 ];
 
 function attr(value) {
@@ -390,14 +400,198 @@ ${toolHeader(tool)}
         </section>`;
 }
 
+function renderTextActionTool(id, inputLabel, inputId, outputId, action, buttonKey, buttonText, icon, placeholder, placeholderEn = placeholder) {
+  const tool = toolById(id);
+  return `        <section ${panelAttrs(tool)}>
+${toolHeader(tool)}
+          <div class="tool-grid">
+            <label class="tool-field"><span data-i18n="tools.label.${inputLabel}">${inputLabel}</span>
+              <textarea id="${inputId}" spellcheck="false" placeholder="${attr(placeholder)}" data-i18n-ph="tools.${id}.placeholder" data-i18n-en-ph="${attr(placeholderEn)}"></textarea>
+            </label>
+            <label class="tool-field"><span data-i18n="tools.label.output">输出结果</span>
+              <textarea id="${outputId}" spellcheck="false" readonly></textarea>
+            </label>
+          </div>
+          <div class="tool-actions">
+            <button class="tool-btn primary" type="button" data-tool-run="${action}" data-i18n="${buttonKey}" data-i18n-html><i class="fas ${icon}" aria-hidden="true"></i> ${buttonText}</button>
+            <button class="tool-btn" type="button" data-copy-target="${outputId}" data-i18n="tools.btn.copyResult" data-i18n-html><i class="fas fa-copy" aria-hidden="true"></i> 复制结果</button>
+          </div>
+          <p class="tool-status" id="${id}-status" role="status" aria-live="polite"></p>
+        </section>`;
+}
+
+function renderYamlTool() {
+  const tool = toolById("yaml");
+  return `        <section ${panelAttrs(tool)}>
+${toolHeader(tool)}
+          <div class="tool-grid">
+            <label class="tool-field"><span data-i18n="tools.label.configInput">配置文本</span>
+              <textarea id="yaml-input" spellcheck="false" placeholder='{"name":"CWLBlog","tags":["tool","json"]}' data-i18n-ph="tools.yaml.placeholder" data-i18n-en-ph='{"name":"CWLBlog","tags":["tool","json"]}'></textarea>
+            </label>
+            <label class="tool-field"><span data-i18n="tools.label.output">输出结果</span>
+              <textarea id="yaml-output" spellcheck="false" readonly></textarea>
+            </label>
+          </div>
+          <div class="tool-actions">
+            <button class="tool-btn primary" type="button" data-tool-run="json-to-yaml" data-i18n="tools.btn.toYaml" data-i18n-html><i class="fas fa-arrow-down" aria-hidden="true"></i> 转 YAML</button>
+            <button class="tool-btn" type="button" data-tool-run="yaml-to-json" data-i18n="tools.btn.toJson" data-i18n-html><i class="fas fa-arrow-up" aria-hidden="true"></i> 转 JSON</button>
+            <button class="tool-btn" type="button" data-copy-target="yaml-output" data-i18n="tools.btn.copyResult" data-i18n-html><i class="fas fa-copy" aria-hidden="true"></i> 复制结果</button>
+          </div>
+          <p class="tool-status" id="yaml-status" role="status" aria-live="polite"></p>
+        </section>`;
+}
+
+function renderUrlParseTool() {
+  return renderTextActionTool("urlparse", "urlInput", "urlparse-input", "urlparse-output", "parse-url", "tools.btn.parse", "解析", "fa-sitemap", "https://example.com:443/docs?a=1&b=中文#top", "https://example.com/docs?a=1#top");
+}
+
+function renderQueryTool() {
+  return renderTextActionTool("query", "queryInput", "query-input", "query-output", "query-toggle", "tools.btn.convert", "转换", "fa-exchange-alt", "name=CWLBlog\nq=在线工具箱", "name=CWLBlog\nq=toolbox");
+}
+
+function renderJsonPathTool() {
+  const tool = toolById("jsonpath");
+  return `        <section ${panelAttrs(tool)}>
+${toolHeader(tool)}
+          <div class="tool-grid">
+            <label class="tool-field"><span data-i18n="tools.label.jsonInput">输入 JSON</span>
+              <textarea id="jsonpath-input" spellcheck="false" placeholder='{"users":[{"name":"CWL"}]}'></textarea>
+            </label>
+            <div class="tool-field">
+              <label for="jsonpath-path" data-i18n="tools.label.pathExpression">路径表达式</label>
+              <input id="jsonpath-path" type="text" spellcheck="false" value="$.users[0].name" placeholder="$.users[0].name">
+              <label for="jsonpath-output" data-i18n="tools.label.output">输出结果</label>
+              <textarea id="jsonpath-output" spellcheck="false" readonly></textarea>
+            </div>
+          </div>
+          <div class="tool-actions">
+            <button class="tool-btn primary" type="button" data-tool-run="jsonpath" data-i18n="tools.btn.query" data-i18n-html><i class="fas fa-filter" aria-hidden="true"></i> 查询</button>
+            <button class="tool-btn" type="button" data-copy-target="jsonpath-output" data-i18n="tools.btn.copyResult" data-i18n-html><i class="fas fa-copy" aria-hidden="true"></i> 复制结果</button>
+          </div>
+          <p class="tool-status" id="jsonpath-status" role="status" aria-live="polite"></p>
+        </section>`;
+}
+
+function renderTextStatsTool() {
+  return renderTextActionTool("textstats", "inputText", "textstats-input", "textstats-output", "text-stats", "tools.btn.analyze", "分析", "fa-chart-bar", "输入一段需要统计的文本", "Paste text to analyze");
+}
+
+function renderCleanTextTool() {
+  const tool = toolById("cleantext");
+  return `        <section ${panelAttrs(tool)}>
+${toolHeader(tool)}
+          <div class="tool-grid">
+            <label class="tool-field"><span data-i18n="tools.label.inputText">输入文本</span>
+              <textarea id="cleantext-input" spellcheck="false" placeholder="  alpha  &#10;&#10;beta&#10;alpha"></textarea>
+            </label>
+            <label class="tool-field"><span data-i18n="tools.label.output">输出结果</span>
+              <textarea id="cleantext-output" spellcheck="false" readonly></textarea>
+            </label>
+          </div>
+          <div class="tool-actions">
+            <label class="tool-check"><input id="cleantext-trim" type="checkbox" checked> <span data-i18n="tools.label.trimLines">修剪行首尾</span></label>
+            <label class="tool-check"><input id="cleantext-empty" type="checkbox" checked> <span data-i18n="tools.label.removeEmpty">移除空行</span></label>
+            <label class="tool-check"><input id="cleantext-dupes" type="checkbox"> <span data-i18n="tools.label.removeDupes">移除重复行</span></label>
+            <label class="tool-check"><input id="cleantext-sort" type="checkbox"> <span data-i18n="tools.label.sortLines">排序</span></label>
+            <button class="tool-btn primary" type="button" data-tool-run="clean-text" data-i18n="tools.btn.clean" data-i18n-html><i class="fas fa-broom" aria-hidden="true"></i> 清理</button>
+            <button class="tool-btn" type="button" data-copy-target="cleantext-output" data-i18n="tools.btn.copyResult" data-i18n-html><i class="fas fa-copy" aria-hidden="true"></i> 复制结果</button>
+          </div>
+          <p class="tool-status" id="cleantext-status" role="status" aria-live="polite"></p>
+        </section>`;
+}
+
+function renderUnitTool() {
+  const tool = toolById("unit");
+  return `        <section ${panelAttrs(tool)}>
+${toolHeader(tool)}
+          <div class="tool-grid">
+            <div class="tool-field">
+              <label for="unit-value" data-i18n="tools.label.value">数值</label>
+              <input id="unit-value" type="number" step="any" value="1">
+              <label for="unit-type" data-i18n="tools.label.unitType">类型</label>
+              <select id="unit-type">
+                <option value="length">长度</option>
+                <option value="weight">重量</option>
+                <option value="temperature">温度</option>
+                <option value="data">数据大小</option>
+              </select>
+              <label for="unit-from" data-i18n="tools.label.fromUnit">来源单位</label>
+              <input id="unit-from" type="text" value="m" placeholder="m / kg / c / mb">
+            </div>
+            <label class="tool-field"><span data-i18n="tools.label.output">输出结果</span>
+              <textarea id="unit-output" spellcheck="false" readonly></textarea>
+            </label>
+          </div>
+          <div class="tool-actions">
+            <button class="tool-btn primary" type="button" data-tool-run="unit-convert" data-i18n="tools.btn.convert" data-i18n-html><i class="fas fa-exchange-alt" aria-hidden="true"></i> 转换</button>
+            <button class="tool-btn" type="button" data-copy-target="unit-output" data-i18n="tools.btn.copyResult" data-i18n-html><i class="fas fa-copy" aria-hidden="true"></i> 复制结果</button>
+          </div>
+          <p class="tool-status" id="unit-status" role="status" aria-live="polite"></p>
+        </section>`;
+}
+
+function renderRandomTool() {
+  const tool = toolById("random");
+  return `        <section ${panelAttrs(tool)}>
+${toolHeader(tool)}
+          <div class="tool-grid">
+            <div class="tool-field">
+              <label for="random-min" data-i18n="tools.label.min">最小值</label>
+              <input id="random-min" type="number" step="any" value="1">
+              <label for="random-max" data-i18n="tools.label.max">最大值</label>
+              <input id="random-max" type="number" step="any" value="100">
+              <label for="random-count" data-i18n="tools.label.count">数量</label>
+              <input id="random-count" type="number" min="1" max="1000" step="1" value="10">
+              <label class="tool-check"><input id="random-integer" type="checkbox" checked> <span data-i18n="tools.label.integer">整数</span></label>
+              <label class="tool-check"><input id="random-unique" type="checkbox"> <span data-i18n="tools.label.unique">不重复</span></label>
+            </div>
+            <label class="tool-field"><span data-i18n="tools.label.output">输出结果</span>
+              <textarea id="random-output" spellcheck="false" readonly></textarea>
+            </label>
+          </div>
+          <div class="tool-actions">
+            <button class="tool-btn primary" type="button" data-tool-run="random-generate" data-i18n="tools.btn.generate" data-i18n-html><i class="fas fa-dice" aria-hidden="true"></i> 生成</button>
+            <button class="tool-btn" type="button" data-copy-target="random-output" data-i18n="tools.btn.copyResult" data-i18n-html><i class="fas fa-copy" aria-hidden="true"></i> 复制结果</button>
+          </div>
+          <p class="tool-status" id="random-status" role="status" aria-live="polite"></p>
+        </section>`;
+}
+
+function renderDateDiffTool() {
+  const tool = toolById("datediff");
+  return `        <section ${panelAttrs(tool)}>
+${toolHeader(tool)}
+          <div class="tool-grid">
+            <div class="tool-field">
+              <label for="datediff-start" data-i18n="tools.label.startDate">开始日期</label>
+              <input id="datediff-start" type="datetime-local">
+              <label for="datediff-end" data-i18n="tools.label.endDate">结束日期</label>
+              <input id="datediff-end" type="datetime-local">
+            </div>
+            <label class="tool-field"><span data-i18n="tools.label.output">输出结果</span>
+              <textarea id="datediff-output" spellcheck="false" readonly></textarea>
+            </label>
+          </div>
+          <div class="tool-actions">
+            <button class="tool-btn primary" type="button" data-tool-run="date-diff" data-i18n="tools.btn.calculate" data-i18n-html><i class="fas fa-calculator" aria-hidden="true"></i> 计算</button>
+            <button class="tool-btn" type="button" data-copy-target="datediff-output" data-i18n="tools.btn.copyResult" data-i18n-html><i class="fas fa-copy" aria-hidden="true"></i> 复制结果</button>
+          </div>
+          <p class="tool-status" id="datediff-status" role="status" aria-live="polite"></p>
+        </section>`;
+}
+
+function renderUaTool() {
+  return renderTextActionTool("ua", "uaInput", "ua-input", "ua-output", "parse-ua", "tools.btn.parse", "解析", "fa-desktop", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/126 Safari/537.36");
+}
+
 export function renderToolsPage() {
-  const description = "CWLBlog 在线工具箱：JSON、时间戳、Base64、URL、UUID、JWT、哈希、密码、颜色、正则、Markdown、Diff、Cron 和二维码等本地工具。";
+  const description = "CWLBlog 在线工具箱：JSON、时间戳、Base64、URL、UUID、JWT、哈希、密码、颜色、正则、Markdown、Diff、Cron、二维码、YAML、URL 解析和文本处理等本地工具。";
   const main = `    <main id="main-content" class="content">
       <section class="tools-page container">
         <header class="tools-header">
           <span class="eyebrow" data-i18n="tools.eyebrow" data-i18n-en-html='<i class="fas fa-toolbox" aria-hidden="true"></i> Online Toolbox' data-i18n-html><i class="fas fa-toolbox" aria-hidden="true"></i> Online Toolbox</span>
           <h1 data-i18n="tools.h1" data-i18n-en="Toolbox">在线工具箱</h1>
-          <p class="lead" data-i18n="tools.lead" data-i18n-en="Useful browser-only tools for JSON, timestamps, encoders, hashes, passwords, colors, regex, Markdown, diff, cron and QR codes.">常用开发小工具，全部在浏览器本地运行，不依赖后端。</p>
+          <p class="lead" data-i18n="tools.lead" data-i18n-en="Useful browser-only tools for JSON, timestamps, encoders, hashes, passwords, colors, regex, Markdown, diff, cron, QR codes, YAML, URL parsing and text processing.">常用开发小工具，全部在浏览器本地运行，不依赖后端。</p>
         </header>
         <div class="tools-shell">
           <nav class="tools-tabs" role="tablist" aria-label="工具列表" data-i18n-aria="tools.tabs" data-i18n-en-aria="Tool list">
@@ -420,6 +614,16 @@ ${renderCaseTool()}
 ${renderHtmlTool()}
 ${renderCronTool()}
 ${renderQrTool()}
+${renderYamlTool()}
+${renderUrlParseTool()}
+${renderQueryTool()}
+${renderJsonPathTool()}
+${renderTextStatsTool()}
+${renderCleanTextTool()}
+${renderUnitTool()}
+${renderRandomTool()}
+${renderDateDiffTool()}
+${renderUaTool()}
           </div>
         </div>
       </section>
@@ -429,7 +633,7 @@ ${renderQrTool()}
     title: "在线工具箱 :: CWLBlog",
     description,
     titleEn: "Toolbox :: CWLBlog",
-    descriptionEn: "CWLBlog online toolbox: JSON, timestamps, Base64, URL, UUID, JWT, hashes, passwords, colors, regex, Markdown, diff, cron and QR tools.",
+    descriptionEn: "CWLBlog online toolbox: JSON, timestamps, Base64, URL, UUID, JWT, hashes, passwords, colors, regex, Markdown, diff, cron, QR, YAML, URL parsing and text tools.",
     active: "tools",
     page: "tools",
     scripts: ["/js/vendor/marked.min.js", "/js/vendor/purify.min.js", "/js/vendor/qrcode.min.js", "/js/tools-core.js", "/js/tools.js"],
@@ -446,7 +650,7 @@ ${renderQrTool()}
     main,
     og: {
       title: "在线工具箱 :: CWLBlog",
-      description: "JSON、时间戳、编码、哈希、密码、颜色、正则、Markdown、Diff、Cron 与二维码等常用开发工具。",
+      description: "JSON、时间戳、编码、哈希、密码、颜色、正则、Markdown、Diff、Cron、二维码、YAML、URL 解析与文本处理等常用开发工具。",
       path: "/tools/",
     },
   });
