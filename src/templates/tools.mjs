@@ -32,6 +32,15 @@ const TOOLS = [
   { id: "ua", icon: "fa-desktop", title: "UA 解析", titleEn: "User-Agent Parser", desc: "解析浏览器、系统、设备类型和渲染引擎。", descEn: "Parse browser, OS, device type and rendering engine." },
 ];
 
+const TOOL_CATEGORIES = [
+  { id: "data", title: "数据格式", titleEn: "Data", ids: ["json", "yaml", "jsonpath", "jsondiff", "urlparse", "query"] },
+  { id: "api", title: "接口调试", titleEn: "API", ids: ["api"] },
+  { id: "security", title: "编码与安全", titleEn: "Encoding & Security", ids: ["base64", "url", "jwt", "hash", "password", "uuid"] },
+  { id: "text", title: "文本处理", titleEn: "Text", ids: ["regex", "markdown", "diff", "case", "html", "textstats", "cleantext"] },
+  { id: "time", title: "时间与生成", titleEn: "Time & Generate", ids: ["time", "cron", "random", "datediff"] },
+  { id: "frontend", title: "前端与媒体", titleEn: "Frontend & Media", ids: ["color", "qr", "unit", "cssunit", "ua"] },
+];
+
 function attr(value) {
   return String(value == null ? "" : value)
     .replace(/&/g, "&amp;")
@@ -53,6 +62,20 @@ function toolNav(tool, index) {
               <i class="fas ${tool.icon}" aria-hidden="true"></i>
               <span data-i18n="tools.nav.${tool.id}" data-i18n-en="${attr(tool.titleEn)}">${tool.title}</span>
             </button>`;
+}
+
+function renderToolCategory(category) {
+  const tabs = category.ids.map((id) => toolNav(toolById(id), TOOLS.findIndex((tool) => tool.id === id))).join("\n");
+  return `            <details class="tool-category" data-tool-category="${category.id}" open>
+              <summary class="tool-category-summary">
+                <span class="tool-category-chevron" aria-hidden="true"><i class="fas fa-chevron-right"></i></span>
+                <span class="tool-category-title" data-i18n="tools.category.${category.id}" data-i18n-en="${attr(category.titleEn)}">${category.title}</span>
+                <span class="tool-category-count" aria-label="${category.ids.length} 个工具">${category.ids.length}</span>
+              </summary>
+              <div class="tool-category-list">
+${tabs}
+              </div>
+            </details>`;
 }
 
 function panelAttrs(tool, active = false) {
@@ -774,8 +797,8 @@ export function renderToolsPage() {
           <p class="lead" data-i18n="tools.lead" data-i18n-en="Useful developer tools for API testing, JSON, timestamps, encoders, hashes, passwords, colors, regex, Markdown, diff, cron, QR codes, YAML, URL parsing and text processing.">常用开发小工具，API 测试器可直连中转站配置，其余工具全部在浏览器本地运行。</p>
         </header>
         <div class="tools-shell">
-          <nav class="tools-tabs" role="tablist" aria-label="工具列表" data-i18n-aria="tools.tabs" data-i18n-en-aria="Tool list">
-${TOOLS.map(toolNav).join("\n")}
+          <nav class="tools-tabs" role="tablist" aria-label="工具分类列表" data-i18n-aria="tools.tabs" data-i18n-en-aria="Categorized tool list">
+${TOOL_CATEGORIES.map(renderToolCategory).join("\n")}
           </nav>
           <div class="tools-panels">
 ${renderJsonTool()}

@@ -18,10 +18,11 @@ function extractJsonLd(html) {
 
 // ─── Tools 页面测试 ────────────────────────────────────────────────────────────
 
-test("renderToolsPage includes all 26 tool panels", () => {
+test("renderToolsPage includes all 29 tool panels", () => {
   const html = renderToolsPage();
   const panelIds = [
     "json",
+    "api",
     "time",
     "base64",
     "url",
@@ -33,6 +34,7 @@ test("renderToolsPage includes all 26 tool panels", () => {
     "regex",
     "markdown",
     "diff",
+    "jsondiff",
     "case",
     "html",
     "cron",
@@ -44,6 +46,7 @@ test("renderToolsPage includes all 26 tool panels", () => {
     "textstats",
     "cleantext",
     "unit",
+    "cssunit",
     "random",
     "datediff",
     "ua",
@@ -52,6 +55,7 @@ test("renderToolsPage includes all 26 tool panels", () => {
   for (const id of panelIds) {
     assert.match(html, new RegExp(`id="tool-${id}"`));
   }
+  assert.equal(panelIds.length, 29);
 });
 
 test("renderToolsPage has correct script references", () => {
@@ -78,6 +82,13 @@ test("renderToolsPage has tool navigation tabs with aria attributes", () => {
   assert.match(html, /data-tool-tab="json"/);
   assert.match(html, /aria-controls="tool-json"/);
   assert.match(html, /data-tool-tab="jwt"/);
+  assert.match(html, /data-tool-category="data"/);
+  assert.match(html, /<details class="tool-category" data-tool-category="data" open>/);
+  assert.match(html, /<summary class="tool-category-summary">/);
+  assert.match(html, /数据格式/);
+  assert.match(html, /data-tool-category="security"/);
+  assert.match(html, /<details class="tool-category" data-tool-category="security" open>/);
+  assert.match(html, /编码与安全/);
 });
 
 test("renderToolsPage has i18n data attributes", () => {

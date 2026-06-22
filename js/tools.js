@@ -205,6 +205,11 @@
       return false;
     }
 
+    const selectedCategory = closest(selectedTab, ".tool-category");
+    if (selectedCategory && "open" in selectedCategory) {
+      selectedCategory.open = true;
+    }
+
     tabs.forEach(function (tab) {
       const active = tab.getAttribute("data-tool-tab") === id;
       tab.classList.toggle("active", active);

@@ -466,14 +466,20 @@ test("tools tabs expose selected state and support keyboard navigation", async (
   const { document, KeyboardEvent } = dom.window;
   try {
     const jsonTab = document.querySelector('[data-tool-tab="json"]');
-    const apiTab = document.querySelector('[data-tool-tab="api"]');
+    const yamlTab = document.querySelector('[data-tool-tab="yaml"]');
     const timeTab = document.querySelector('[data-tool-tab="time"]');
     const uaTab = document.querySelector('[data-tool-tab="ua"]');
 
     const tabList = document.querySelector(".tools-tabs");
     assert.equal(tabList.getAttribute("role"), "tablist");
     assert.equal(tabList.getAttribute("data-i18n-aria"), "tools.tabs");
-    assert.equal(tabList.getAttribute("data-i18n-en-aria"), "Tool list");
+    assert.equal(tabList.getAttribute("data-i18n-en-aria"), "Categorized tool list");
+    assert.equal(document.querySelectorAll(".tool-category").length, 6);
+    assert.match(document.querySelector('[data-tool-category="data"]').textContent, /数据格式/);
+    assert.match(document.querySelector('[data-tool-category="security"]').textContent, /编码与安全/);
+    assert.equal(document.querySelector('[data-tool-category="data"]').tagName, "DETAILS");
+    assert.equal(document.querySelector('[data-tool-category="data"]').open, true);
+    assert.equal(document.querySelector('[data-tool-category="frontend"]').open, true);
     assert.equal(document.querySelectorAll("[data-tool-tab]").length, 29);
     assert.ok(document.querySelector('[data-tool-tab="api"]'));
     assert.ok(document.querySelector('[data-tool-tab="jsondiff"]'));
@@ -490,13 +496,14 @@ test("tools tabs expose selected state and support keyboard navigation", async (
     assert.equal(timeTab.getAttribute("aria-selected"), "false");
 
     jsonTab.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true, cancelable: true }));
-    assert.equal(apiTab.getAttribute("aria-selected"), "true");
-    assert.equal(document.querySelector("#tool-api").hidden, false);
+    assert.equal(yamlTab.getAttribute("aria-selected"), "true");
+    assert.equal(document.querySelector("#tool-yaml").hidden, false);
     assert.equal(document.querySelector("#tool-json").hidden, true);
 
-    apiTab.dispatchEvent(new KeyboardEvent("keydown", { key: "End", bubbles: true, cancelable: true }));
+    yamlTab.dispatchEvent(new KeyboardEvent("keydown", { key: "End", bubbles: true, cancelable: true }));
     assert.equal(uaTab.getAttribute("aria-selected"), "true");
     assert.equal(document.querySelector("#tool-ua").hidden, false);
+    assert.equal(document.querySelector('[data-tool-category="frontend"]').open, true);
   } finally {
     dom.window.close();
   }
@@ -571,7 +578,7 @@ test("tools page localizes English placeholders and dynamic statuses", async () 
     document.querySelector(".lang-toggle").click();
     assert.equal(document.documentElement.getAttribute("lang"), "en");
     assert.equal(document.querySelector(".tools-header h1").textContent, "Toolbox");
-    assert.equal(document.querySelector(".tools-tabs").getAttribute("aria-label"), "Tool list");
+    assert.equal(document.querySelector(".tools-tabs").getAttribute("aria-label"), "Categorized tool list");
     assert.equal(document.querySelector("#base64-input").getAttribute("placeholder"), "Text to encode or decode");
     assert.equal(document.querySelector("#url-input").getAttribute("placeholder"), "https://example.com/?q=search");
     document.querySelector('[data-tool-tab="jwt"]').click();

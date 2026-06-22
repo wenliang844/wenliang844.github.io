@@ -170,7 +170,7 @@
     "tools.eyebrow": '<i class="fas fa-toolbox" aria-hidden="true"></i> Online Toolbox',
     "tools.h1": "Toolbox",
     "tools.lead": "Useful developer tools for API testing, JSON, timestamps, encoders, hashes, passwords, colors, regex, Markdown, diff, cron, QR codes, YAML, URL parsing and text processing.",
-    "tools.tabs": "Tool list",
+    "tools.tabs": "Categorized tool list",
     "tools.nav.json": "JSON Formatter",
     "tools.nav.api": "Mini API Tester",
     "tools.nav.time": "Timestamp Converter",

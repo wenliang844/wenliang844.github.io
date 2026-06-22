@@ -3789,7 +3789,7 @@ body.search-open .search-modal .search-modal-card,
   position: sticky;
   top: 6.8rem;
   display: grid;
-  gap: 0.55rem;
+  gap: 0.9rem;
   max-height: calc(100vh - 8.2rem);
   overflow-y: auto;
   padding: 0.7rem;
@@ -3797,6 +3797,77 @@ body.search-open .search-modal .search-modal-card,
   border-radius: 0.9rem;
   background: var(--surface);
   box-shadow: var(--shadow);
+}
+
+.tool-category {
+  display: grid;
+  gap: 0.45rem;
+  min-width: 0;
+}
+
+.tool-category-summary {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 0.45rem;
+  align-items: center;
+  min-height: 2.2rem;
+  padding: 0.35rem 0.45rem;
+  border-radius: 0.5rem;
+  color: var(--muted);
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+
+.tool-category-summary:hover {
+  background: var(--surface-solid);
+  color: var(--text);
+}
+
+.tool-category-summary::-webkit-details-marker {
+  display: none;
+}
+
+.tool-category-chevron {
+  display: inline-grid;
+  place-items: center;
+  width: 1rem;
+  color: var(--accent);
+  font-size: 0.72rem;
+  transition: transform 0.18s ease;
+}
+
+.tool-category[open] .tool-category-chevron {
+  transform: rotate(90deg);
+}
+
+.tool-category-title {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tool-category-count {
+  min-width: 1.5rem;
+  padding: 0.1rem 0.35rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 800;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.tool-category-list {
+  display: grid;
+  gap: 0.45rem;
+  padding-left: 1.45rem;
 }
 
 .tool-tab,
@@ -3987,6 +4058,18 @@ body.search-open .search-modal .search-modal-card,
   padding: 0.65rem 0.9rem;
   border-radius: 0.55rem;
   font-weight: 800;
+}
+
+.tools-page .tool-btn {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  min-width: 5.8rem;
+  line-height: 1.15;
+  white-space: nowrap;
+  word-break: keep-all;
 }
 
 .tool-btn.primary {
@@ -5055,8 +5138,21 @@ body.assistant-fullscreen .site-shell {
   .tools-tabs {
     position: static;
     display: flex;
+    gap: 0.75rem;
     overflow-x: auto;
     padding: 0.55rem;
+  }
+
+  .tool-category {
+    flex: 0 0 min(22rem, 82vw);
+    padding: 0 0.1rem;
+  }
+
+  .tool-category-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    padding-left: 0.25rem;
   }
 
   .tool-tab {

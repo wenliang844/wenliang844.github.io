@@ -64,7 +64,6 @@
                 <ul class="nav-more-menu">
               <li><a class="active" href="/tools/" data-i18n="nav.tools">工具箱</a></li>
               <li><a href="/overleaf/" data-i18n="nav.overleaf">简历模版</a></li>
-              <li><a href="/editor/" data-i18n="nav.editor">编辑器</a></li>
                 </ul>
               </details>
             </li>
@@ -87,19 +86,60 @@
           <p class="lead" data-i18n="tools.lead" data-i18n-en="Useful developer tools for API testing, JSON, timestamps, encoders, hashes, passwords, colors, regex, Markdown, diff, cron, QR codes, YAML, URL parsing and text processing.">常用开发小工具，API 测试器可直连中转站配置，其余工具全部在浏览器本地运行。</p>
         </header>
         <div class="tools-shell">
-          <nav class="tools-tabs" role="tablist" aria-label="工具列表" data-i18n-aria="tools.tabs" data-i18n-en-aria="Tool list">
+          <nav class="tools-tabs" role="tablist" aria-label="工具分类列表" data-i18n-aria="tools.tabs" data-i18n-en-aria="Categorized tool list">
+            <details class="tool-category" data-tool-category="data" open>
+              <summary class="tool-category-summary">
+                <span class="tool-category-chevron" aria-hidden="true"><i class="fas fa-chevron-right"></i></span>
+                <span class="tool-category-title" data-i18n="tools.category.data" data-i18n-en="Data">数据格式</span>
+                <span class="tool-category-count" aria-label="6 个工具">6</span>
+              </summary>
+              <div class="tool-category-list">
             <button class="tool-tab active" id="tool-tab-json" type="button" role="tab" data-tool-tab="json" aria-controls="tool-json" aria-label="JSON 格式化" aria-selected="true" tabindex="0" data-i18n-aria="tools.nav.json" data-i18n-en-aria="JSON Formatter" aria-current="true">
               <i class="fas fa-code" aria-hidden="true"></i>
               <span data-i18n="tools.nav.json" data-i18n-en="JSON Formatter">JSON 格式化</span>
             </button>
+            <button class="tool-tab" id="tool-tab-yaml" type="button" role="tab" data-tool-tab="yaml" aria-controls="tool-yaml" aria-label="YAML / JSON" aria-selected="false" tabindex="-1" data-i18n-aria="tools.nav.yaml" data-i18n-en-aria="YAML / JSON">
+              <i class="fas fa-project-diagram" aria-hidden="true"></i>
+              <span data-i18n="tools.nav.yaml" data-i18n-en="YAML / JSON">YAML / JSON</span>
+            </button>
+            <button class="tool-tab" id="tool-tab-jsonpath" type="button" role="tab" data-tool-tab="jsonpath" aria-controls="tool-jsonpath" aria-label="JSONPath 查询" aria-selected="false" tabindex="-1" data-i18n-aria="tools.nav.jsonpath" data-i18n-en-aria="JSONPath Query">
+              <i class="fas fa-filter" aria-hidden="true"></i>
+              <span data-i18n="tools.nav.jsonpath" data-i18n-en="JSONPath Query">JSONPath 查询</span>
+            </button>
+            <button class="tool-tab" id="tool-tab-jsondiff" type="button" role="tab" data-tool-tab="jsondiff" aria-controls="tool-jsondiff" aria-label="JSON Diff" aria-selected="false" tabindex="-1" data-i18n-aria="tools.nav.jsondiff" data-i18n-en-aria="JSON Diff">
+              <i class="fas fa-code-branch" aria-hidden="true"></i>
+              <span data-i18n="tools.nav.jsondiff" data-i18n-en="JSON Diff">JSON Diff</span>
+            </button>
+            <button class="tool-tab" id="tool-tab-urlparse" type="button" role="tab" data-tool-tab="urlparse" aria-controls="tool-urlparse" aria-label="URL 解析" aria-selected="false" tabindex="-1" data-i18n-aria="tools.nav.urlparse" data-i18n-en-aria="URL Parser">
+              <i class="fas fa-sitemap" aria-hidden="true"></i>
+              <span data-i18n="tools.nav.urlparse" data-i18n-en="URL Parser">URL 解析</span>
+            </button>
+            <button class="tool-tab" id="tool-tab-query" type="button" role="tab" data-tool-tab="query" aria-controls="tool-query" aria-label="查询参数" aria-selected="false" tabindex="-1" data-i18n-aria="tools.nav.query" data-i18n-en-aria="Query Builder">
+              <i class="fas fa-list-ul" aria-hidden="true"></i>
+              <span data-i18n="tools.nav.query" data-i18n-en="Query Builder">查询参数</span>
+            </button>
+              </div>
+            </details>
+            <details class="tool-category" data-tool-category="api" open>
+              <summary class="tool-category-summary">
+                <span class="tool-category-chevron" aria-hidden="true"><i class="fas fa-chevron-right"></i></span>
+                <span class="tool-category-title" data-i18n="tools.category.api" data-i18n-en="API">接口调试</span>
+                <span class="tool-category-count" aria-label="1 个工具">1</span>
+              </summary>
+              <div class="tool-category-list">
             <button class="tool-tab" id="tool-tab-api" type="button" role="tab" data-tool-tab="api" aria-controls="tool-api" aria-label="在线 API 测试器" aria-selected="false" tabindex="-1" data-i18n-aria="tools.nav.api" data-i18n-en-aria="Mini API Tester">
               <i class="fas fa-paper-plane" aria-hidden="true"></i>
               <span data-i18n="tools.nav.api" data-i18n-en="Mini API Tester">在线 API 测试器</span>
             </button>
-            <button class="tool-tab" id="tool-tab-time" type="button" role="tab" data-tool-tab="time" aria-controls="tool-time" aria-label="时间戳转换" aria-selected="false" tabindex="-1" data-i18n-aria="tools.nav.time" data-i18n-en-aria="Timestamp Converter">
-              <i class="fas fa-clock" aria-hidden="true"></i>
-              <span data-i18n="tools.nav.time" data-i18n-en="Timestamp Converter">时间戳转换</span>
-            </button>
+              </div>
+            </details>
+            <details class="tool-category" data-tool-category="security" open>
+              <summary class="tool-category-summary">
+                <span class="tool-category-chevron" aria-hidden="true"><i class="fas fa-chevron-right"></i></span>
+                <span class="tool-category-title" data-i18n="tools.category.security" data-i18n-en="Encoding &amp; Security">编码与安全</span>
+                <span class="tool-category-count" aria-label="6 个工具">6</span>
+              </summary>
+              <div class="tool-category-list">
             <button class="tool-tab" id="tool-tab-base64" type="button" role="tab" data-tool-tab="base64" aria-controls="tool-base64" aria-label="Base64 编解码" aria-selected="false" tabindex="-1" data-i18n-aria="tools.nav.base64" data-i18n-en-aria="Base64 Codec">
               <i class="fas fa-lock" aria-hidden="true"></i>
               <span data-i18n="tools.nav.base64" data-i18n-en="Base64 Codec">Base64 编解码</span>
@@ -107,10 +147,6 @@
             <button class="tool-tab" id="tool-tab-url" type="button" role="tab" data-tool-tab="url" aria-controls="tool-url" aria-label="URL 编解码" aria-selected="false" tabindex="-1" data-i18n-aria="tools.nav.url" data-i18n-en-aria="URL Codec">
               <i class="fas fa-link" aria-hidden="true"></i>
               <span data-i18n="tools.nav.url" data-i18n-en="URL Codec">URL 编解码</span>
-            </button>
-            <button class="tool-tab" id="tool-tab-uuid" type="button" role="tab" data-tool-tab="uuid" aria-controls="tool-uuid" aria-label="UUID 生成器" aria-selected="false" tabindex="-1" data-i18n-aria="tools.nav.uuid" data-i18n-en-aria="UUID Generator">
-              <i class="fas fa-fingerprint" aria-hidden="true"></i>
-              <span data-i18n="tools.nav.uuid" data-i18n-en="UUID Generator">UUID 生成器</span>
             </button>
             <button class="tool-tab" id="tool-tab-jwt" type="button" role="tab" data-tool-tab="jwt" aria-controls="tool-jwt" aria-label="JWT 解码" aria-selected="false" tabindex="-1" data-i18n-aria="tools.nav.jwt" data-i18n-en-aria="JWT Decoder">
               <i class="fas fa-key" aria-hidden="true"></i>
@@ -124,10 +160,19 @@
               <i class="fas fa-user-lock" aria-hidden="true"></i>
               <span data-i18n="tools.nav.password" data-i18n-en="Password Generator">密码生成器</span>
             </button>
-            <button class="tool-tab" id="tool-tab-color" type="button" role="tab" data-tool-tab="color" aria-controls="tool-color" aria-label="颜色转换" aria-selected="false" tabindex="-1" data-i18n-aria="tools.nav.color" data-i18n-en-aria="Color Converter">
-              <i class="fas fa-palette" aria-hidden="true"></i>
-              <span data-i18n="tools.nav.color" data-i18n-en="Color Converter">颜色转换</span>
+            <button class="tool-tab" id="tool-tab-uuid" type="button" role="tab" data-tool-tab="uuid" aria-controls="tool-uuid" aria-label="UUID 生成器" aria-selected="false" tabindex="-1" data-i18n-aria="tools.nav.uuid" data-i18n-en-aria="UUID Generator">
+              <i class="fas fa-fingerprint" aria-hidden="true"></i>
+              <span data-i18n="tools.nav.uuid" data-i18n-en="UUID Generator">UUID 生成器</span>
             </button>
+              </div>
+            </details>
+            <details class="tool-category" data-tool-category="text" open>
+              <summary class="tool-category-summary">
+                <span class="tool-category-chevron" aria-hidden="true"><i class="fas fa-chevron-right"></i></span>
+                <span class="tool-category-title" data-i18n="tools.category.text" data-i18n-en="Text">文本处理</span>
+                <span class="tool-category-count" aria-label="7 个工具">7</span>
+              </summary>
+              <div class="tool-category-list">
             <button class="tool-tab" id="tool-tab-regex" type="button" role="tab" data-tool-tab="regex" aria-controls="tool-regex" aria-label="正则测试" aria-selected="false" tabindex="-1" data-i18n-aria="tools.nav.regex" data-i18n-en-aria="Regex Tester">
               <i class="fas fa-search" aria-hidden="true"></i>
               <span data-i18n="tools.nav.regex" data-i18n-en="Regex Tester">正则测试</span>
@@ -140,10 +185,6 @@
               <i class="fas fa-not-equal" aria-hidden="true"></i>
               <span data-i18n="tools.nav.diff" data-i18n-en="Text Diff">文本 Diff</span>
             </button>
-            <button class="tool-tab" id="tool-tab-jsondiff" type="button" role="tab" data-tool-tab="jsondiff" aria-controls="tool-jsondiff" aria-label="JSON Diff" aria-selected="false" tabindex="-1" data-i18n-aria="tools.nav.jsondiff" data-i18n-en-aria="JSON Diff">
-              <i class="fas fa-code-branch" aria-hidden="true"></i>
-              <span data-i18n="tools.nav.jsondiff" data-i18n-en="JSON Diff">JSON Diff</span>
-            </button>
             <button class="tool-tab" id="tool-tab-case" type="button" role="tab" data-tool-tab="case" aria-controls="tool-case" aria-label="命名转换" aria-selected="false" tabindex="-1" data-i18n-aria="tools.nav.case" data-i18n-en-aria="Case Converter">
               <i class="fas fa-font" aria-hidden="true"></i>
               <span data-i18n="tools.nav.case" data-i18n-en="Case Converter">命名转换</span>
@@ -151,30 +192,6 @@
             <button class="tool-tab" id="tool-tab-html" type="button" role="tab" data-tool-tab="html" aria-controls="tool-html" aria-label="HTML 实体" aria-selected="false" tabindex="-1" data-i18n-aria="tools.nav.html" data-i18n-en-aria="HTML Entities">
               <i class="fas fa-tags" aria-hidden="true"></i>
               <span data-i18n="tools.nav.html" data-i18n-en="HTML Entities">HTML 实体</span>
-            </button>
-            <button class="tool-tab" id="tool-tab-cron" type="button" role="tab" data-tool-tab="cron" aria-controls="tool-cron" aria-label="Cron 解析" aria-selected="false" tabindex="-1" data-i18n-aria="tools.nav.cron" data-i18n-en-aria="Cron Parser">
-              <i class="fas fa-calendar-alt" aria-hidden="true"></i>
-              <span data-i18n="tools.nav.cron" data-i18n-en="Cron Parser">Cron 解析</span>
-            </button>
-            <button class="tool-tab" id="tool-tab-qr" type="button" role="tab" data-tool-tab="qr" aria-controls="tool-qr" aria-label="二维码生成" aria-selected="false" tabindex="-1" data-i18n-aria="tools.nav.qr" data-i18n-en-aria="QR Generator">
-              <i class="fas fa-qrcode" aria-hidden="true"></i>
-              <span data-i18n="tools.nav.qr" data-i18n-en="QR Generator">二维码生成</span>
-            </button>
-            <button class="tool-tab" id="tool-tab-yaml" type="button" role="tab" data-tool-tab="yaml" aria-controls="tool-yaml" aria-label="YAML / JSON" aria-selected="false" tabindex="-1" data-i18n-aria="tools.nav.yaml" data-i18n-en-aria="YAML / JSON">
-              <i class="fas fa-project-diagram" aria-hidden="true"></i>
-              <span data-i18n="tools.nav.yaml" data-i18n-en="YAML / JSON">YAML / JSON</span>
-            </button>
-            <button class="tool-tab" id="tool-tab-urlparse" type="button" role="tab" data-tool-tab="urlparse" aria-controls="tool-urlparse" aria-label="URL 解析" aria-selected="false" tabindex="-1" data-i18n-aria="tools.nav.urlparse" data-i18n-en-aria="URL Parser">
-              <i class="fas fa-sitemap" aria-hidden="true"></i>
-              <span data-i18n="tools.nav.urlparse" data-i18n-en="URL Parser">URL 解析</span>
-            </button>
-            <button class="tool-tab" id="tool-tab-query" type="button" role="tab" data-tool-tab="query" aria-controls="tool-query" aria-label="查询参数" aria-selected="false" tabindex="-1" data-i18n-aria="tools.nav.query" data-i18n-en-aria="Query Builder">
-              <i class="fas fa-list-ul" aria-hidden="true"></i>
-              <span data-i18n="tools.nav.query" data-i18n-en="Query Builder">查询参数</span>
-            </button>
-            <button class="tool-tab" id="tool-tab-jsonpath" type="button" role="tab" data-tool-tab="jsonpath" aria-controls="tool-jsonpath" aria-label="JSONPath 查询" aria-selected="false" tabindex="-1" data-i18n-aria="tools.nav.jsonpath" data-i18n-en-aria="JSONPath Query">
-              <i class="fas fa-filter" aria-hidden="true"></i>
-              <span data-i18n="tools.nav.jsonpath" data-i18n-en="JSONPath Query">JSONPath 查询</span>
             </button>
             <button class="tool-tab" id="tool-tab-textstats" type="button" role="tab" data-tool-tab="textstats" aria-controls="tool-textstats" aria-label="文本统计" aria-selected="false" tabindex="-1" data-i18n-aria="tools.nav.textstats" data-i18n-en-aria="Text Stats">
               <i class="fas fa-chart-bar" aria-hidden="true"></i>
@@ -184,13 +201,22 @@
               <i class="fas fa-broom" aria-hidden="true"></i>
               <span data-i18n="tools.nav.cleantext" data-i18n-en="Text Cleaner">文本清理</span>
             </button>
-            <button class="tool-tab" id="tool-tab-unit" type="button" role="tab" data-tool-tab="unit" aria-controls="tool-unit" aria-label="单位换算" aria-selected="false" tabindex="-1" data-i18n-aria="tools.nav.unit" data-i18n-en-aria="Unit Converter">
-              <i class="fas fa-ruler-combined" aria-hidden="true"></i>
-              <span data-i18n="tools.nav.unit" data-i18n-en="Unit Converter">单位换算</span>
+              </div>
+            </details>
+            <details class="tool-category" data-tool-category="time" open>
+              <summary class="tool-category-summary">
+                <span class="tool-category-chevron" aria-hidden="true"><i class="fas fa-chevron-right"></i></span>
+                <span class="tool-category-title" data-i18n="tools.category.time" data-i18n-en="Time &amp; Generate">时间与生成</span>
+                <span class="tool-category-count" aria-label="4 个工具">4</span>
+              </summary>
+              <div class="tool-category-list">
+            <button class="tool-tab" id="tool-tab-time" type="button" role="tab" data-tool-tab="time" aria-controls="tool-time" aria-label="时间戳转换" aria-selected="false" tabindex="-1" data-i18n-aria="tools.nav.time" data-i18n-en-aria="Timestamp Converter">
+              <i class="fas fa-clock" aria-hidden="true"></i>
+              <span data-i18n="tools.nav.time" data-i18n-en="Timestamp Converter">时间戳转换</span>
             </button>
-            <button class="tool-tab" id="tool-tab-cssunit" type="button" role="tab" data-tool-tab="cssunit" aria-controls="tool-cssunit" aria-label="CSS 单位转换" aria-selected="false" tabindex="-1" data-i18n-aria="tools.nav.cssunit" data-i18n-en-aria="CSS Unit Converter">
-              <i class="fas fa-vector-square" aria-hidden="true"></i>
-              <span data-i18n="tools.nav.cssunit" data-i18n-en="CSS Unit Converter">CSS 单位转换</span>
+            <button class="tool-tab" id="tool-tab-cron" type="button" role="tab" data-tool-tab="cron" aria-controls="tool-cron" aria-label="Cron 解析" aria-selected="false" tabindex="-1" data-i18n-aria="tools.nav.cron" data-i18n-en-aria="Cron Parser">
+              <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+              <span data-i18n="tools.nav.cron" data-i18n-en="Cron Parser">Cron 解析</span>
             </button>
             <button class="tool-tab" id="tool-tab-random" type="button" role="tab" data-tool-tab="random" aria-controls="tool-random" aria-label="随机数生成" aria-selected="false" tabindex="-1" data-i18n-aria="tools.nav.random" data-i18n-en-aria="Random Generator">
               <i class="fas fa-dice" aria-hidden="true"></i>
@@ -200,10 +226,37 @@
               <i class="fas fa-hourglass-half" aria-hidden="true"></i>
               <span data-i18n="tools.nav.datediff" data-i18n-en="Date Diff">日期差计算</span>
             </button>
+              </div>
+            </details>
+            <details class="tool-category" data-tool-category="frontend" open>
+              <summary class="tool-category-summary">
+                <span class="tool-category-chevron" aria-hidden="true"><i class="fas fa-chevron-right"></i></span>
+                <span class="tool-category-title" data-i18n="tools.category.frontend" data-i18n-en="Frontend &amp; Media">前端与媒体</span>
+                <span class="tool-category-count" aria-label="5 个工具">5</span>
+              </summary>
+              <div class="tool-category-list">
+            <button class="tool-tab" id="tool-tab-color" type="button" role="tab" data-tool-tab="color" aria-controls="tool-color" aria-label="颜色转换" aria-selected="false" tabindex="-1" data-i18n-aria="tools.nav.color" data-i18n-en-aria="Color Converter">
+              <i class="fas fa-palette" aria-hidden="true"></i>
+              <span data-i18n="tools.nav.color" data-i18n-en="Color Converter">颜色转换</span>
+            </button>
+            <button class="tool-tab" id="tool-tab-qr" type="button" role="tab" data-tool-tab="qr" aria-controls="tool-qr" aria-label="二维码生成" aria-selected="false" tabindex="-1" data-i18n-aria="tools.nav.qr" data-i18n-en-aria="QR Generator">
+              <i class="fas fa-qrcode" aria-hidden="true"></i>
+              <span data-i18n="tools.nav.qr" data-i18n-en="QR Generator">二维码生成</span>
+            </button>
+            <button class="tool-tab" id="tool-tab-unit" type="button" role="tab" data-tool-tab="unit" aria-controls="tool-unit" aria-label="单位换算" aria-selected="false" tabindex="-1" data-i18n-aria="tools.nav.unit" data-i18n-en-aria="Unit Converter">
+              <i class="fas fa-ruler-combined" aria-hidden="true"></i>
+              <span data-i18n="tools.nav.unit" data-i18n-en="Unit Converter">单位换算</span>
+            </button>
+            <button class="tool-tab" id="tool-tab-cssunit" type="button" role="tab" data-tool-tab="cssunit" aria-controls="tool-cssunit" aria-label="CSS 单位转换" aria-selected="false" tabindex="-1" data-i18n-aria="tools.nav.cssunit" data-i18n-en-aria="CSS Unit Converter">
+              <i class="fas fa-vector-square" aria-hidden="true"></i>
+              <span data-i18n="tools.nav.cssunit" data-i18n-en="CSS Unit Converter">CSS 单位转换</span>
+            </button>
             <button class="tool-tab" id="tool-tab-ua" type="button" role="tab" data-tool-tab="ua" aria-controls="tool-ua" aria-label="UA 解析" aria-selected="false" tabindex="-1" data-i18n-aria="tools.nav.ua" data-i18n-en-aria="User-Agent Parser">
               <i class="fas fa-desktop" aria-hidden="true"></i>
               <span data-i18n="tools.nav.ua" data-i18n-en="User-Agent Parser">UA 解析</span>
             </button>
+              </div>
+            </details>
           </nav>
           <div class="tools-panels">
         <section class="tool-panel active" id="tool-json" data-tool-panel="json" role="tabpanel" aria-labelledby="tool-tab-json" tabindex="0">
