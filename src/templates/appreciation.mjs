@@ -1,4 +1,4 @@
-// 鉴赏页：科技研究 / 影视作品 / 娱乐项目 / 食物 / 座右铭「排行榜」，并列展示。
+// 鉴赏页：科技研究 / 影视作品 / 娱乐项目 / 食物 / 顿悟 / 座右铭「排行榜」，并列展示。
 // 与 ai.mjs 同构——数据驱动 + 双语 data-i18n-en 内联，复用 layout 外壳。
 import { buildPageJsonLd, renderPage } from "./layout.mjs";
 import { escapeAttr, escapeHtml } from "../lib/format.mjs";
@@ -81,6 +81,33 @@ const BOARDS = [
     ],
   },
   {
+    title: "顿悟排行榜",
+    titleEn: "Moments of Clarity",
+    sub: "人生路上几次把方向看清的时刻，按时间沉淀记录下来。",
+    subEn: "The moments when life direction became clear, recorded as they settled over time.",
+    icon: "fa-lightbulb",
+    items: [
+      {
+        name: "第一次顿悟",
+        nameEn: "First realization",
+        note: "xx 年高三：努力学英语 xxxx。",
+        noteEn: "Senior year in xx: study English hard, xxxx.",
+      },
+      {
+        name: "第二次顿悟",
+        nameEn: "Second realization",
+        note: "xxxx 年底 xx：清晰地知道了保持快乐才是最重要的、与人相处的绝招、识破人。",
+        noteEn: "Late xxxx in xx: realizing that staying happy matters most, plus the key to getting along with people and reading them clearly.",
+      },
+      {
+        name: "第三次顿悟",
+        nameEn: "Third realization",
+        note: "20xx 年 xx 月 xx 日：清晰地知道了自己想要的是什么，规划人生之路。",
+        noteEn: "xx xx, 20xx: knowing clearly what I want and planning the path of life.",
+      },
+    ],
+  },
+  {
     title: "座右铭排行榜",
     titleEn: "Mottos",
     sub: "提醒自己看清世界、放慢判断、借助工具的几句话。",
@@ -141,13 +168,13 @@ ${board.items.map((item, itemIndex) => renderItem(item, boardIndex, itemIndex)).
 }
 
 export function renderAppreciationPage() {
-  const description = "个人鉴赏榜单：科技研究、影视作品、娱乐项目、食物与座右铭排行榜。";
+  const description = "个人鉴赏榜单：科技研究、影视作品、娱乐项目、食物、顿悟与座右铭排行榜。";
   const main = `    <main id="main-content" class="content">
       <section class="rank-page container">
         <header class="rank-hero">
           <span class="eyebrow" data-i18n="appr.eyebrow" data-i18n-en-html='<i class="fas fa-star" aria-hidden="true"></i> Appreciation' data-i18n-html><i class="fas fa-star" aria-hidden="true"></i> Appreciation</span>
           <h1 data-i18n="appr.h1" data-i18n-en="Appreciation">鉴赏</h1>
-          <p class="lead" data-i18n="appr.lead" data-i18n-en="${escapeHtml("A personal list of what I love in tech, film, TV, food and mottos, each set ranked by where it sits in my heart.")}">一份私人的「偏爱」清单：科技、影视、娱乐项目、食物与座右铭里那些值得反复回味的东西，各自排个心中的位次。</p>
+          <p class="lead" data-i18n="appr.lead" data-i18n-en="${escapeHtml("A personal list of what I love in tech, film, TV, food, realizations and mottos, each set ranked by where it sits in my heart.")}">一份私人的「偏爱」清单：科技、影视、娱乐项目、食物、顿悟与座右铭里那些值得反复回味的东西，各自排个心中的位次。</p>
         </header>
         <div class="rank-grid">
 ${BOARDS.map(renderBoard).join("\n")}
@@ -179,7 +206,7 @@ ${BOARDS.map(renderBoard).join("\n")}
     main,
     og: {
       title: "鉴赏 :: CWLBlog",
-      description: "个人鉴赏榜单：科技、影视、娱乐项目、食物与座右铭排行榜。",
+      description: "个人鉴赏榜单：科技、影视、娱乐项目、食物、顿悟与座右铭排行榜。",
       path: "/appreciation/",
     },
   });

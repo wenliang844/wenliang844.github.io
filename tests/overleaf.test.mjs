@@ -86,6 +86,41 @@ test("overleaf.js preview renders resume sections with editable fields", async (
   dom.window.close();
 });
 
+test("overleaf.js renders homepage as a hyperlink in resume templates", async () => {
+  const dom = buildOverleafDom(BASE_HTML);
+  await loadOverleaf(dom);
+  const { document } = dom.window;
+  const select = document.getElementById("resume-format");
+  const homepage = "https://wenliang844.github.io";
+
+  const previewLink = document.querySelector(".latex-contact a");
+  assert.ok(previewLink, "preview contact should render a homepage link");
+  assert.equal(previewLink.getAttribute("href"), homepage);
+  assert.equal(previewLink.textContent, homepage);
+
+  select.value = "markdown";
+  select.dispatchEvent(new dom.window.Event("change"));
+  assert.ok(
+    document.getElementById("latex-source").value.includes(`[${homepage}](${homepage})`),
+    "markdown source should render homepage as a markdown link",
+  );
+
+  select.value = "html";
+  select.dispatchEvent(new dom.window.Event("change"));
+  assert.ok(
+    document.getElementById("latex-source").value.includes(`<a href="${homepage}"`),
+    "html source should render homepage as an anchor",
+  );
+
+  select.value = "latex";
+  select.dispatchEvent(new dom.window.Event("change"));
+  assert.ok(
+    document.getElementById("latex-source").value.includes(`\\href{${homepage}}{${homepage}}`),
+    "latex source should render homepage with href",
+  );
+  dom.window.close();
+});
+
 // ─── Format switching ─────────────────────────────────────────────────────
 
 test("overleaf.js can switch between formats", async () => {

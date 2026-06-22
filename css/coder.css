@@ -3661,6 +3661,12 @@ body.search-open .search-modal .search-modal-card,
   font-size: 0.95rem;
 }
 
+.latex-contact a {
+  color: var(--resume-accent);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
 .latex-role {
   color: var(--resume-accent);
   font-size: 1.08rem;

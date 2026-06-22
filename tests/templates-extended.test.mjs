@@ -140,7 +140,7 @@ test("generated static templates include page-specific JSON-LD", () => {
 
   const appreciationLd = extractJsonLd(renderAppreciationPage());
   assert.equal(appreciationLd["@type"], "CollectionPage");
-  assert.equal(appreciationLd.mainEntity.numberOfItems, 54);
+  assert.equal(appreciationLd.mainEntity.numberOfItems, 57);
 
   const sponsorLd = extractJsonLd(renderSponsorPage());
   assert.equal(sponsorLd["@type"], "WebPage");
@@ -232,10 +232,10 @@ test("renderCategoriesPage has i18n attributes", () => {
 
 // ─── Appreciation 页面测试 ─────────────────────────────────────────────────────
 
-test("renderAppreciationPage includes all 5 boards", () => {
+test("renderAppreciationPage includes all 6 boards", () => {
   const html = renderAppreciationPage();
   const boards = html.match(/class="rank-board"/g);
-  assert.ok(boards && boards.length === 5, `Expected 5 boards, got ${boards ? boards.length : 0}`);
+  assert.ok(boards && boards.length === 6, `Expected 6 boards, got ${boards ? boards.length : 0}`);
 });
 
 test("renderAppreciationPage contains expected content", () => {
@@ -245,6 +245,7 @@ test("renderAppreciationPage contains expected content", () => {
   assert.match(html, /影视作品排行榜/);
   assert.match(html, /娱乐项目排行榜/);
   assert.match(html, /食物排行榜/);
+  assert.match(html, /顿悟排行榜/);
   assert.match(html, /座右铭排行榜/);
   assert.match(html, /Codex/);
   assert.match(html, /Claude/);
@@ -252,6 +253,9 @@ test("renderAppreciationPage contains expected content", () => {
   assert.match(html, /绝命毒师/);
   assert.match(html, /黑道家族/);
   assert.match(html, /鸡蛋/);
+  assert.match(html, /第一次顿悟/);
+  assert.match(html, /xxxx 年底 xx/);
+  assert.match(html, /第三次顿悟/);
   assert.match(html, /所有的问题都是经济问题/);
   assert.match(html, /长期主义/);
   assert.match(html, /身体系统 \+ 关系系统 \+ 生产力系统/);
@@ -261,8 +265,8 @@ test("renderAppreciationPage contains expected content", () => {
 test("renderAppreciationPage has correct item count per board", () => {
   const html = renderAppreciationPage();
   const rankItems = html.match(/class="rank-item"/g);
-  // 5 + 10 + 15 + 7 + 17 = 54 items
-  assert.ok(rankItems && rankItems.length === 54, `Expected 54 rank items, got ${rankItems ? rankItems.length : 0}`);
+  // 5 + 10 + 15 + 7 + 3 + 17 = 57 items
+  assert.ok(rankItems && rankItems.length === 57, `Expected 57 rank items, got ${rankItems ? rankItems.length : 0}`);
 });
 
 // ─── Sponsor 页面测试 ──────────────────────────────────────────────────────────

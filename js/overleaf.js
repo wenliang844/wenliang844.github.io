@@ -130,8 +130,62 @@
       .replace(/"/g, "&quot;");
   }
 
+  const urlRe = /https?:\/\/[^\s<>"')]+/gi;
+
   function text(value) {
     return String(value === null || value === undefined ? "" : value).trim();
+  }
+
+  function plainContactText(value) {
+    return text(value).replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/gi, function (_, label, url) {
+      return /^https?:\/\//i.test(text(label)) ? text(label) : url;
+    });
+  }
+
+  function renderWithLinkedUrls(value, renderText, renderUrl) {
+    const sourceValue = plainContactText(value);
+    let result = "";
+    let cursor = 0;
+    sourceValue.replace(urlRe, function (url, index) {
+      result += renderText(sourceValue.slice(cursor, index));
+      result += renderUrl(url);
+      cursor = index + url.length;
+      return url;
+    });
+    result += renderText(sourceValue.slice(cursor));
+    return result;
+  }
+
+  function renderHtmlLinks(value, options) {
+    return renderWithLinkedUrls(
+      value,
+      escapeHtml,
+      function (url) {
+        const escapedUrl = escapeHtml(url);
+        const editableAttr = options && options.lockAnchors ? ' contenteditable="false"' : "";
+        return '<a href="' + escapedUrl + '" target="_blank" rel="noopener noreferrer"' + editableAttr + ">" + escapedUrl + "</a>";
+      }
+    );
+  }
+
+  function renderMarkdownLinks(value) {
+    return renderWithLinkedUrls(
+      value,
+      markdownEscape,
+      function (url) {
+        return "[" + markdownEscape(url) + "](" + url.replace(/\)/g, "%29") + ")";
+      }
+    );
+  }
+
+  function renderLatexLinks(value) {
+    return renderWithLinkedUrls(
+      value,
+      latexEscape,
+      function (url) {
+        return "\\href{" + latexEscape(url) + "}{" + latexEscape(url) + "}";
+      }
+    );
   }
 
   function compactInline(value) {
@@ -191,7 +245,7 @@
     const next = cloneModel(model);
     next.name = text(next.name) || defaultModel.name;
     next.role = text(next.role) || defaultModel.role;
-    next.contact = text(next.contact) || defaultModel.contact;
+    next.contact = plainContactText(next.contact) || defaultModel.contact;
     next.summary = compactInline(next.summary);
     next.skills = compactInline(Array.isArray(next.skills) ? next.skills.join(", ") : next.skills);
     next.sections = Array.isArray(next.sections) ? next.sections : [];
@@ -224,14 +278,36 @@
 
   function latexUnescape(value) {
     return String(value === null || value === undefined ? "" : value)
+      .replace(/\\href\{([^{}]+)\}\{([^{}]+)\}/g, "$2")
       .replace(/\\textbackslash\{\}/g, "\\")
       .replace(/\\([{}%$#&_])/g, "$1");
   }
 
   function readCommand(sourceText, name, fallback) {
-    const re = new RegExp("\\\\" + name + "\\{([\\s\\S]*?)\\}");
-    const match = sourceText.match(re);
-    return match ? latexUnescape(match[1].trim()) : fallback;
+    const marker = "\\" + name + "{";
+    const start = sourceText.indexOf(marker);
+    if (start < 0) {
+      return fallback;
+    }
+    const bodyStart = start + marker.length;
+    let depth = 1;
+    for (let index = bodyStart; index < sourceText.length; index += 1) {
+      const current = sourceText[index];
+      const next = sourceText[index + 1];
+      if (current === "\\" && (next === "{" || next === "}")) {
+        index += 1;
+        continue;
+      }
+      if (current === "{") {
+        depth += 1;
+      } else if (current === "}") {
+        depth -= 1;
+        if (depth === 0) {
+          return latexUnescape(sourceText.slice(bodyStart, index).trim());
+        }
+      }
+    }
+    return fallback;
   }
 
   function readLatexSections(sourceText) {
@@ -285,6 +361,7 @@
       "\\documentclass[11pt,a4paper]{article}",
       "\\usepackage[UTF8]{ctex}",
       "\\usepackage{geometry}",
+      "\\usepackage[hidelinks]{hyperref}",
       "\\geometry{margin=1.4cm}",
       "\\pagestyle{empty}",
       "",
@@ -297,7 +374,7 @@
       "\\begin{document}",
       "\\name{" + latexEscape(model.name) + "}",
       "\\role{" + latexEscape(model.role) + "}",
-      "\\contact{" + latexEscape(model.contact) + "}",
+      "\\contact{" + renderLatexLinks(model.contact) + "}",
       "\\section{个人简介}",
       "\\summary{" + latexEscape(model.summary) + "}",
       ""
@@ -399,7 +476,7 @@
       "# " + markdownEscape(model.name),
       "",
       "**" + markdownEscape(model.role) + "**",
-      markdownEscape(model.contact),
+      renderMarkdownLinks(model.contact),
       "",
       "## 个人简介",
       markdownEscape(model.summary),
@@ -418,20 +495,30 @@
     return lines.join("\n").replace(/\n{3,}/g, "\n\n").trim() + "\n";
   }
 
+  function ensureAbsoluteUrl(value) {
+    const cleanValue = text(value);
+    if (!cleanValue) {
+      return "";
+    }
+    return /^https?:\/\//i.test(cleanValue) ? cleanValue : "https://" + cleanValue;
+  }
+
   function splitContact(contact) {
-    const parts = String(contact || "").split(/[·|]/).map(text).filter(Boolean);
+    const parts = plainContactText(contact).split(/[·|]/).map(text).filter(Boolean);
     const email = parts.find(function (part) { return /@/.test(part); }) || "";
-    const github = parts.find(function (part) { return /github/i.test(part); }) || "";
-    const location = parts.find(function (part) { return part !== email && part !== github; }) || "";
+    const website = parts.find(function (part) { return /^https?:\/\//i.test(part); }) || "";
+    const github = parts.find(function (part) { return /github\.com\//i.test(part); }) || "";
+    const location = parts.find(function (part) { return part !== email && part !== website && part !== github; }) || "";
     return {
       location: location,
       email: email,
-      github: github.replace(/^https?:\/\//, "").replace(/^github\.com\//i, "")
+      website: ensureAbsoluteUrl(website || github),
+      github: github.replace(/^https?:\/\/github\.com\//i, "").replace(/^github\.com\//i, "")
     };
   }
 
   function composeContact(parts) {
-    return [parts.location, parts.email, parts.github ? "github.com/" + parts.github : ""].filter(Boolean).join(" · ");
+    return [parts.location, parts.email, parts.website || (parts.github ? "https://github.com/" + parts.github : "")].filter(Boolean).join(" · ");
   }
 
   function parseModerncv(sourceText) {
@@ -439,10 +526,15 @@
     const nameMatch = sourceText.match(/\\name\{([\s\S]*?)\}\{([\s\S]*?)\}/);
     const addressMatch = sourceText.match(/\\address\{([\s\S]*?)\}/);
     const emailMatch = sourceText.match(/\\email\{([\s\S]*?)\}/);
-    const githubMatch = sourceText.match(/\\social\[github\]\{([\s\S]*?)\}/) || sourceText.match(/\\homepage\{(?:https?:\/\/)?(?:github\.com\/)?([\s\S]*?)\}/);
+    const githubMatch = sourceText.match(/\\social\[github\]\{([\s\S]*?)\}/);
+    const homepageMatch = sourceText.match(/\\homepage\{([\s\S]*?)\}/);
     if (addressMatch) {contact.location = latexUnescape(addressMatch[1].trim());}
     if (emailMatch) {contact.email = latexUnescape(emailMatch[1].trim());}
-    if (githubMatch) {contact.github = latexUnescape(githubMatch[1].trim()).replace(/^github\.com\//i, "");}
+    if (githubMatch) {
+      contact.github = latexUnescape(githubMatch[1].trim()).replace(/^github\.com\//i, "");
+      contact.website = "";
+    }
+    if (homepageMatch) {contact.website = ensureAbsoluteUrl(latexUnescape(homepageMatch[1].trim()));}
 
     const sections = [];
     const sectionRe = /\\section\{([^}]+)\}([\s\S]*?)(?=\\section\{|\\end\{document\}|$)/g;
@@ -496,6 +588,7 @@
       "\\address{" + latexEscape(contact.location) + "}{}{}",
       contact.email ? "\\email{" + latexEscape(contact.email) + "}" : "",
       contact.github ? "\\social[github]{" + latexEscape(contact.github) + "}" : "",
+      contact.website ? "\\homepage{" + latexEscape(contact.website) + "}" : "",
       "",
       "\\begin{document}",
       "\\makecvtitle",
@@ -588,7 +681,7 @@
       "    <header>",
       "      <h1>" + escapeHtml(model.name) + "</h1>",
       '      <p class="resume-role">' + escapeHtml(model.role) + "</p>",
-      '      <p class="resume-contact">' + escapeHtml(model.contact) + "</p>",
+      '      <p class="resume-contact">' + renderHtmlLinks(model.contact) + "</p>",
       "    </header>",
       '    <section class="resume-profile">',
       "      <h2>个人简介</h2>",
@@ -665,6 +758,10 @@
     return '<span contenteditable="true" data-resume-field="' + field + '">' + escapeHtml(value) + "</span>";
   }
 
+  function editableContact(value) {
+    return '<span contenteditable="true" data-resume-field="contact">' + renderHtmlLinks(value, { lockAnchors: true }) + "</span>";
+  }
+
   function renderPreview(model) {
     model = normalizeModel(model);
     const sections = model.sections.map(function (section, sectionIndex) {
@@ -692,7 +789,7 @@
       '<header class="latex-resume-head">' +
       '<h1>' + editable("name", model.name) + "</h1>" +
       '<p class="latex-role">' + editable("role", model.role) + "</p>" +
-      '<p class="latex-contact">' + editable("contact", model.contact) + "</p>" +
+      '<p class="latex-contact">' + editableContact(model.contact) + "</p>" +
       "</header>" +
       '<section class="latex-section latex-profile-section">' +
       '<h2>个人简介</h2>' +
