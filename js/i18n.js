@@ -71,7 +71,7 @@
     "nav.overleaf": "Overleaf",
     "nav.more": '<i class="fas fa-ellipsis-h" aria-hidden="true"></i> More',
     "nav.contact": "Contact",
-    "nav.ai": "Relay Ranking",
+    "nav.ai": "AI Relay Ranking",
     "nav.appreciation": "Appreciation",
     "nav.feedback": '<i class="fas fa-comment-dots" aria-hidden="true"></i> Feedback',
     "nav.subscribe": '<i class="fas fa-envelope" aria-hidden="true"></i> Subscribe',

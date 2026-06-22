@@ -113,7 +113,7 @@ test("build writes the expected static artifacts", async () => {
     assert.match(toolsHtml, /\/js\/assistant\.js/);
     assert.match(aiHtml, /中转站排行榜/);
     assert.match(aiHtml, /<title>中转站排名 :: CWLBlog<\/title>/);
-    assert.match(aiHtml, /<a class="active" href="\/ai\/" data-i18n="nav\.ai">中转站排名<\/a>/);
+    assert.match(aiHtml, /<a class="active" href="\/ai\/" data-i18n="nav\.ai">AI中转站排名<\/a>/);
     assert.match(aiHtml, /<button class="ai-tab active" id="ai-tab-relay"[^>]+aria-selected="true"/);
     assert.match(aiHtml, /\/js\/relay\.js/);
     assert.match(aiHtml, /id="relay"/);
