@@ -61,11 +61,11 @@ export function renderSponsorPage() {
               <p data-i18n="sponsor.domestic.desc">可直接扫码支持：微信支付或支付宝。</p>
               <div class="sponsor-qr-grid" aria-label="Domestic WeChat Pay and Alipay QR codes" data-i18n-aria="sponsor.domestic.aria">
                 <figure class="sponsor-qr-card sponsor-qr-card-wechat" aria-label="微信支付收款二维码" data-i18n-aria="sponsor.domestic.wechatAria">
-                  <img src="/images/sponsor/wechat-pay.jpg" width="1080" height="1316" alt="微信支付收款二维码" loading="lazy" decoding="async">
+                  <span class="sponsor-qr-media"><img src="/images/sponsor/wechat-pay-qr.png" width="280" height="281" alt="微信支付收款二维码" loading="lazy" decoding="async"></span>
                   <figcaption><i class="fab fa-weixin" aria-hidden="true"></i><span data-i18n="sponsor.domestic.wechat">微信支付扫码</span></figcaption>
                 </figure>
                 <figure class="sponsor-qr-card sponsor-qr-card-alipay" aria-label="支付宝收款二维码" data-i18n-aria="sponsor.domestic.alipayAria">
-                  <img src="/images/sponsor/alipay-pay.jpg" width="1080" height="1620" alt="支付宝收款二维码" loading="lazy" decoding="async">
+                  <span class="sponsor-qr-media"><img src="/images/sponsor/alipay-pay-qr.png" width="271" height="273" alt="支付宝收款二维码" loading="lazy" decoding="async"></span>
                   <figcaption><i class="fas fa-qrcode" aria-hidden="true"></i><span data-i18n="sponsor.domestic.alipay">支付宝扫码</span></figcaption>
                 </figure>
               </div>

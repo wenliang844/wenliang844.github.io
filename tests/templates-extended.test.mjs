@@ -115,7 +115,7 @@ test("generated static templates include page-specific JSON-LD", () => {
 
   const appreciationLd = extractJsonLd(renderAppreciationPage());
   assert.equal(appreciationLd["@type"], "CollectionPage");
-  assert.equal(appreciationLd.mainEntity.numberOfItems, 44);
+  assert.equal(appreciationLd.mainEntity.numberOfItems, 48);
 
   const sponsorLd = extractJsonLd(renderSponsorPage());
   assert.equal(sponsorLd["@type"], "WebPage");
@@ -233,8 +233,8 @@ test("renderAppreciationPage contains expected content", () => {
 test("renderAppreciationPage has correct item count per board", () => {
   const html = renderAppreciationPage();
   const rankItems = html.match(/class="rank-item"/g);
-  // 5 + 10 + 14 + 7 + 8 = 44 items
-  assert.ok(rankItems && rankItems.length === 44, `Expected 44 rank items, got ${rankItems ? rankItems.length : 0}`);
+  // 5 + 10 + 15 + 7 + 11 = 48 items
+  assert.ok(rankItems && rankItems.length === 48, `Expected 48 rank items, got ${rankItems ? rankItems.length : 0}`);
 });
 
 // ─── Sponsor 页面测试 ──────────────────────────────────────────────────────────
@@ -257,8 +257,8 @@ test("renderSponsorPage has sponsor goal progress", () => {
 test("renderSponsorPage has domestic payment QR codes", () => {
   const html = renderSponsorPage();
   assert.match(html, /sponsor-qr-card/);
-  assert.match(html, /\/images\/sponsor\/wechat-pay\.jpg/);
-  assert.match(html, /\/images\/sponsor\/alipay-pay\.jpg/);
+  assert.match(html, /\/images\/sponsor\/wechat-pay-qr\.png/);
+  assert.match(html, /\/images\/sponsor\/alipay-pay-qr\.png/);
   assert.match(html, /微信支付扫码/);
   assert.match(html, /支付宝扫码/);
 });

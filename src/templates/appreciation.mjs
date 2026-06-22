@@ -61,6 +61,7 @@ const BOARDS = [
       { name: "时间得到充实", nameEn: "A day that felt full" },
       { name: "大脑得到充分的休息", nameEn: "A well-rested mind" },
       { name: "没有负面消息的一天", nameEn: "A day with no bad news" },
+      { name: "做出对自己最有利的事", nameEn: "Doing what serves my own best interests" },
     ],
   },
   {
@@ -94,6 +95,9 @@ const BOARDS = [
       { name: "每个人都有漏洞,可以通过观察得到", nameEn: "Everyone has weaknesses; observation can reveal them" },
       { name: "有些东西装着可以成真,有些装不了", nameEn: "Some things can become true if you pretend; some cannot" },
       { name: "三岁小孩能说出平板是用来学习的", nameEn: "Even a three-year-old can say a tablet is for studying" },
+      { name: "人不会改变，只会装作改变", nameEn: "People do not change; they only pretend to change" },
+      { name: "吃苦不利于思考", nameEn: "Suffering is not good for thinking" },
+      { name: "世界就是一个巨大的草台班子", nameEn: "The world is one giant makeshift troupe" },
     ],
   },
 ];
