@@ -129,6 +129,9 @@ async function loadToolsPage(options = {}) {
       clearedTimers.push(id);
     };
   }
+  if (options.fetch) {
+    dom.window.fetch = options.fetch;
+  }
   dom.window.eval(toolsCode);
   return {
     clearedTimers() {
@@ -394,6 +397,11 @@ test("tools core handles the expanded toolbox utilities", async () => {
   assert.match(diff.value, /\+ c/);
   assert.match(diff.value, /- b/);
 
+  const jsonDiff = tools.diffJson('{"data":[{"score":97}]}', '{"data":[{"score":100,"name":"CWL"}]}');
+  assert.equal(jsonDiff.ok, true);
+  assert.match(jsonDiff.value, /\~ \$\.data\[0\]\.score: 97 -> 100/);
+  assert.match(jsonDiff.value, /\+ \$\.data\[0\]\.name: "CWL"/);
+
   const cases = tools.convertCase("user profile ID");
   assert.equal(cases.ok, true);
   assert.match(cases.value, /camelCase: userProfileId/);
@@ -406,6 +414,7 @@ test("tools core handles the expanded toolbox utilities", async () => {
   assert.equal(cron.ok, true);
   assert.match(cron.value, /2026-06-18 09:00/);
   assert.equal(tools.parseCronExpression("* * *").code, "cronParts");
+  assert.equal(tools.generateCronExpression({ minuteStep: 15, hourStart: 9, hourEnd: 18, dayOfMonth: "*", month: "*", weekdays: ["1", "2", "3", "4", "5"] }).value, "*/15 9-18 * * 1,2,3,4,5");
 
   const yaml = tools.jsonToYaml('{"name":"CWL","enabled":true}');
   assert.equal(yaml.ok, true);
@@ -423,6 +432,8 @@ test("tools core handles the expanded toolbox utilities", async () => {
   assert.match(tools.textStats("Hello 世界\nCodex").value, /Lines: 2/);
   assert.equal(tools.cleanText(" b \n\na\n b ", { trim: true, removeEmpty: true, removeDupes: true, sort: true }).value, "a\nb");
   assert.match(tools.convertUnit(1, "length", "km").value, /m: 1000/);
+  assert.match(tools.convertCssUnit(16, "px", 16, 16, 1440, 900).value, /rem: 1rem/);
+  assert.match(tools.convertCssUnit(10, "vw", 16, 20, 1000, 800).value, /px: 100px/);
   assert.match(tools.generateRandom({ min: 1, max: 3, count: 3, integer: true, unique: true }).value, /^[1-3]\n[1-3]\n[1-3]$/);
   assert.match(tools.dateDiff("2026-06-01T00:00", "2026-06-08T00:00").value, /Absolute duration: 7d/);
   assert.match(tools.parseUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/126 Safari/537.36").value, /Browser: Chrome 126/);
@@ -453,6 +464,7 @@ test("tools tabs expose selected state and support keyboard navigation", async (
   const { document, KeyboardEvent } = dom.window;
   try {
     const jsonTab = document.querySelector('[data-tool-tab="json"]');
+    const apiTab = document.querySelector('[data-tool-tab="api"]');
     const timeTab = document.querySelector('[data-tool-tab="time"]');
     const uaTab = document.querySelector('[data-tool-tab="ua"]');
 
@@ -460,7 +472,10 @@ test("tools tabs expose selected state and support keyboard navigation", async (
     assert.equal(tabList.getAttribute("role"), "tablist");
     assert.equal(tabList.getAttribute("data-i18n-aria"), "tools.tabs");
     assert.equal(tabList.getAttribute("data-i18n-en-aria"), "Tool list");
-    assert.equal(document.querySelectorAll("[data-tool-tab]").length, 26);
+    assert.equal(document.querySelectorAll("[data-tool-tab]").length, 29);
+    assert.ok(document.querySelector('[data-tool-tab="api"]'));
+    assert.ok(document.querySelector('[data-tool-tab="jsondiff"]'));
+    assert.ok(document.querySelector('[data-tool-tab="cssunit"]'));
     assert.equal(document.querySelector("#base64-input").getAttribute("data-i18n-ph"), "tools.base64.placeholder");
     assert.equal(document.querySelector("#base64-input").getAttribute("data-i18n-en-ph"), "Text to encode or decode");
     assert.equal(document.querySelector("#url-input").getAttribute("data-i18n-en-ph"), "https://example.com/?q=search");
@@ -473,11 +488,11 @@ test("tools tabs expose selected state and support keyboard navigation", async (
     assert.equal(timeTab.getAttribute("aria-selected"), "false");
 
     jsonTab.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true, cancelable: true }));
-    assert.equal(timeTab.getAttribute("aria-selected"), "true");
-    assert.equal(document.querySelector("#tool-time").hidden, false);
+    assert.equal(apiTab.getAttribute("aria-selected"), "true");
+    assert.equal(document.querySelector("#tool-api").hidden, false);
     assert.equal(document.querySelector("#tool-json").hidden, true);
 
-    timeTab.dispatchEvent(new KeyboardEvent("keydown", { key: "End", bubbles: true, cancelable: true }));
+    apiTab.dispatchEvent(new KeyboardEvent("keydown", { key: "End", bubbles: true, cancelable: true }));
     assert.equal(uaTab.getAttribute("aria-selected"), "true");
     assert.equal(document.querySelector("#tool-ua").hidden, false);
   } finally {
@@ -625,6 +640,7 @@ test("expanded tools page runs all new tool actions locally", async () => {
     document.querySelector("[data-color-convert]").click();
     assert.match(document.querySelector("#color-output").value, /HEX: #2563EB/);
     assert.equal(document.querySelector("#color-swatch").style.backgroundColor, "rgb(37, 99, 235)");
+    assert.equal(document.querySelectorAll("#color-palette [data-color-value]").length, 7);
 
     document.querySelector("#regex-pattern").value = "(\\w+)@(example\\.com)";
     document.querySelector("#regex-flags").value = "gi";
@@ -642,6 +658,11 @@ test("expanded tools page runs all new tool actions locally", async () => {
     document.querySelector("[data-diff-run]").click();
     assert.match(document.querySelector("#diff-output").value, /\+ c/);
 
+    document.querySelector("#jsondiff-left").value = '{"score":97}';
+    document.querySelector("#jsondiff-right").value = '{"score":100,"name":"CWL"}';
+    document.querySelector('[data-tool-run="json-diff"]').click();
+    assert.match(document.querySelector("#jsondiff-output").value, /\$\.score: 97 -> 100/);
+
     document.querySelector("#case-input").value = "user profile id";
     document.querySelector("[data-case-convert]").click();
     assert.match(document.querySelector("#case-output").value, /camelCase: userProfileId/);
@@ -654,11 +675,90 @@ test("expanded tools page runs all new tool actions locally", async () => {
     document.querySelector("[data-cron-parse]").click();
     assert.match(document.querySelector("#cron-output").value, /Next 5 runs:/);
 
+    document.querySelector("#cron-minute-step").value = "15";
+    document.querySelector("#cron-hour-start").value = "9";
+    document.querySelector("#cron-hour-end").value = "18";
+    document.querySelector("[data-cron-generate]").click();
+    assert.equal(document.querySelector("#cron-input").value, "*/15 9-18 * * 1,2,3,4,5");
+    assert.match(document.querySelector("#cron-output").value, /Next 5 runs:/);
+
     document.querySelector("#qr-input").value = "https://wenliang844.github.io/tools/";
     document.querySelector("[data-qr-generate]").click();
     assert.match(document.querySelector("#qr-output").value, /^data:image\/gif;base64,/);
     assert.equal(document.querySelector("#qr-image").hidden, false);
     assert.equal(document.querySelector("#qr-empty").hidden, true);
+
+    document.querySelector("#cssunit-value").value = "16";
+    document.querySelector("#cssunit-from").value = "px";
+    document.querySelector('[data-tool-run="css-unit-convert"]').click();
+    assert.match(document.querySelector("#cssunit-output").value, /rem: 1rem/);
+  } finally {
+    dom.window.close();
+  }
+});
+
+test("mini API tester fills relay presets, sends requests and stores history", async () => {
+  const fetchCalls = [];
+  const { dom } = await loadToolsPage({
+    fetch(url, init) {
+      fetchCalls.push({ url: String(url), init });
+      if (String(url).includes("/data/relay-providers.json")) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({
+            providers: [{
+              name: "Relay One",
+              format: "chatgpt",
+              formatLabel: "ChatGPT/OpenAI",
+              endpoint: "https://relay.example/v1",
+              models: ["gpt-test"],
+              score: 99,
+            }],
+            commercialProviders: [],
+          }),
+        });
+      }
+      return Promise.resolve({
+        ok: true,
+        status: 200,
+        statusText: "OK",
+        url: String(url),
+        headers: {
+          forEach(callback) {
+            callback("application/json", "content-type");
+          },
+        },
+        text: () => Promise.resolve('{"ok":true}'),
+      });
+    },
+  });
+  const { document } = dom.window;
+  try {
+    await new Promise((resolve) => {
+      dom.window.setTimeout(resolve, 0);
+    });
+    document.querySelector('[data-tool-tab="api"]').click();
+    assert.match(document.querySelector("#api-relay-select").textContent, /Relay One/);
+
+    document.querySelector("[data-api-relay-fill]").click();
+    assert.equal(document.querySelector("#api-method").value, "POST");
+    assert.equal(document.querySelector("#api-url").value, "https://relay.example/v1/chat/completions");
+    assert.match(document.querySelector("#api-headers").value, /Authorization: Bearer/);
+    assert.match(document.querySelector("#api-body").value, /gpt-test/);
+
+    document.querySelector("[data-api-send]").click();
+    await new Promise((resolve) => {
+      dom.window.setTimeout(resolve, 0);
+    });
+    await new Promise((resolve) => {
+      dom.window.setTimeout(resolve, 0);
+    });
+
+    assert.equal(fetchCalls[1].url, "https://relay.example/v1/chat/completions");
+    assert.equal(fetchCalls[1].init.method, "POST");
+    assert.match(document.querySelector("#api-response").value, /Status: 200 OK/);
+    assert.match(document.querySelector("#api-response").value, /"ok": true/);
+    assert.match(document.querySelector("#api-history").textContent, /POST https:\/\/relay\.example/);
   } finally {
     dom.window.close();
   }

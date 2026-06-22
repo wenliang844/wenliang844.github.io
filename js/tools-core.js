@@ -46,6 +46,80 @@
     return parsed.ok ? ok(JSON.stringify(parsed.value)) : parsed;
   }
 
+  function jsonType(value) {
+    if (value === null) {
+      return "null";
+    }
+    if (Array.isArray(value)) {
+      return "array";
+    }
+    return typeof value;
+  }
+
+  function jsonPreview(value) {
+    const raw = JSON.stringify(value);
+    return raw && raw.length > 120 ? raw.slice(0, 117) + "..." : raw;
+  }
+
+  function jsonPathJoin(path, key) {
+    if (typeof key === "number") {
+      return path + "[" + key + "]";
+    }
+    return /^[A-Za-z_$][\w$-]*$/.test(key) ? path + "." + key : path + "[" + JSON.stringify(key) + "]";
+  }
+
+  function collectJsonDiff(left, right, path, lines) {
+    const leftType = jsonType(left);
+    const rightType = jsonType(right);
+    if (leftType !== rightType) {
+      lines.push("~ " + path + " type: " + leftType + " -> " + rightType);
+      lines.push("  - " + jsonPreview(left));
+      lines.push("  + " + jsonPreview(right));
+      return;
+    }
+    if (leftType === "array") {
+      const max = Math.max(left.length, right.length);
+      for (let index = 0; index < max; index += 1) {
+        const nextPath = jsonPathJoin(path, index);
+        if (index >= left.length) {
+          lines.push("+ " + nextPath + ": " + jsonPreview(right[index]));
+        } else if (index >= right.length) {
+          lines.push("- " + nextPath + ": " + jsonPreview(left[index]));
+        } else {
+          collectJsonDiff(left[index], right[index], nextPath, lines);
+        }
+      }
+      return;
+    }
+    if (leftType === "object") {
+      const keys = Array.from(new Set(Object.keys(left).concat(Object.keys(right)))).sort();
+      keys.forEach(function (key) {
+        const nextPath = jsonPathJoin(path, key);
+        if (!Object.prototype.hasOwnProperty.call(left, key)) {
+          lines.push("+ " + nextPath + ": " + jsonPreview(right[key]));
+        } else if (!Object.prototype.hasOwnProperty.call(right, key)) {
+          lines.push("- " + nextPath + ": " + jsonPreview(left[key]));
+        } else {
+          collectJsonDiff(left[key], right[key], nextPath, lines);
+        }
+      });
+      return;
+    }
+    if (!Object.is(left, right)) {
+      lines.push("~ " + path + ": " + jsonPreview(left) + " -> " + jsonPreview(right));
+    }
+  }
+
+  function diffJson(leftInput, rightInput) {
+    const left = parseJson(leftInput);
+    if (!left.ok) {return left;}
+    const right = parseJson(rightInput);
+    if (!right.ok) {return right;}
+    const lines = [];
+    collectJsonDiff(left.value, right.value, "$", lines);
+    return ok(lines.length ? lines.join("\n") : "No JSON differences");
+  }
+
   function encodeBase64(input) {
     try {
       const raw = text(input);
@@ -521,17 +595,36 @@
     const hex = "#" + toHexPart(rgb.r) + toHexPart(rgb.g) + toHexPart(rgb.b);
     const luminance = relativeLuminance(rgb.r, rgb.g, rgb.b);
     const foreground = luminance > 0.45 ? "#111827" : "#FFFFFF";
+    const palette = colorPalette(hsl.h, hsl.s, hsl.l);
     return ok({
       hex: hex,
       foreground: foreground,
+      palette: palette,
       lines: [
         "HEX: " + hex,
         "RGB: rgb(" + rgb.r + ", " + rgb.g + ", " + rgb.b + ")",
         "HSL: hsl(" + hsl.h + ", " + hsl.s + "%, " + hsl.l + "%)",
         "Luminance: " + luminance.toFixed(3),
         "Readable foreground: " + foreground,
+        "Palette: " + palette.join(" "),
       ].join("\n"),
     });
+  }
+
+  function rgbToHex(rgb) {
+    return "#" + toHexPart(rgb.r) + toHexPart(rgb.g) + toHexPart(rgb.b);
+  }
+
+  function colorPalette(h, s, l) {
+    return [
+      hslToRgb(h, s, clamp(l - 24, 8, 92)),
+      hslToRgb(h, s, clamp(l - 12, 8, 92)),
+      hslToRgb(h, s, l),
+      hslToRgb(h, s, clamp(l + 12, 8, 92)),
+      hslToRgb(h, s, clamp(l + 24, 8, 92)),
+      hslToRgb(h + 30, s, l),
+      hslToRgb(h + 180, s, l),
+    ].map(rgbToHex);
   }
 
   function uniqueFlags(flags) {
@@ -886,6 +979,33 @@
     })).join("\n"));
   }
 
+  function cronFieldText(value, fallback) {
+    const raw = text(value).trim();
+    return raw || fallback;
+  }
+
+  function generateCronExpression(options) {
+    const opts = options || {};
+    const step = Number(opts.minuteStep);
+    const start = Number(opts.hourStart);
+    const end = Number(opts.hourEnd);
+    if (!Number.isInteger(step) || step < 1 || step > 59) {
+      return fail("分钟间隔需要在 1 到 59 之间", "cronField");
+    }
+    if (!Number.isInteger(start) || !Number.isInteger(end) || start < 0 || start > 23 || end < 0 || end > 23 || start > end) {
+      return fail("小时范围需要在 0 到 23 之间，且开始不能大于结束", "cronField");
+    }
+    const weekdays = Array.isArray(opts.weekdays) ? opts.weekdays.filter(function (value) {
+      return /^[0-7]$/.test(String(value));
+    }) : [];
+    const minute = step === 1 ? "*" : "*/" + step;
+    const hour = start === end ? String(start) : start + "-" + end;
+    const day = cronFieldText(opts.dayOfMonth, "*");
+    const month = cronFieldText(opts.month, "*");
+    const week = weekdays.length ? weekdays.join(",") : "*";
+    return ok([minute, hour, day, month, week].join(" "));
+  }
+
   function jsonToYaml(input) {
     const parsed = parseJson(input);
     if (!parsed.ok) {
@@ -1097,6 +1217,44 @@
     }).join("\n"));
   }
 
+  function formatCssNumber(value) {
+    return Number(value.toFixed(6)).toString();
+  }
+
+  function convertCssUnit(value, fromUnit, rootFont, contextFont, viewportWidth, viewportHeight) {
+    const amount = Number(value);
+    const unit = text(fromUnit).trim().toLowerCase();
+    const rootSize = Number(rootFont);
+    const contextSize = Number(contextFont);
+    const vw = Number(viewportWidth);
+    const vh = Number(viewportHeight);
+    if (![amount, rootSize, contextSize, vw, vh].every(Number.isFinite) || rootSize <= 0 || contextSize <= 0 || vw <= 0 || vh <= 0) {
+      return fail("请输入有效数值", "unitValue");
+    }
+    let px;
+    if (unit === "px") {
+      px = amount;
+    } else if (unit === "rem") {
+      px = amount * rootSize;
+    } else if (unit === "em") {
+      px = amount * contextSize;
+    } else if (unit === "vw") {
+      px = amount * vw / 100;
+    } else if (unit === "vh") {
+      px = amount * vh / 100;
+    } else {
+      return fail("CSS 单位支持 px/rem/em/vw/vh", "unitType");
+    }
+    return ok([
+      "px: " + formatCssNumber(px) + "px",
+      "rem: " + formatCssNumber(px / rootSize) + "rem",
+      "em: " + formatCssNumber(px / contextSize) + "em",
+      "vw: " + formatCssNumber(px / vw * 100) + "vw",
+      "vh: " + formatCssNumber(px / vh * 100) + "vh",
+      "Context: root " + rootSize + "px, current " + contextSize + "px, viewport " + vw + "x" + vh,
+    ].join("\n"));
+  }
+
   function generateRandom(options) {
     const opts = options || {};
     const min = Number(opts.min);
@@ -1189,6 +1347,7 @@
   root.CWLToolsCore = {
     formatJson: formatJson,
     minifyJson: minifyJson,
+    diffJson: diffJson,
     encodeBase64: encodeBase64,
     decodeBase64: decodeBase64,
     encodeUrl: encodeUrl,
@@ -1207,6 +1366,7 @@
     encodeHtmlEntities: encodeHtmlEntities,
     decodeHtmlEntities: decodeHtmlEntities,
     parseCronExpression: parseCronExpression,
+    generateCronExpression: generateCronExpression,
     createQrCode: createQrCode,
     jsonToYaml: jsonToYaml,
     yamlToJson: safeYamlToJson,
@@ -1216,6 +1376,7 @@
     textStats: textStats,
     cleanText: cleanText,
     convertUnit: convertUnit,
+    convertCssUnit: convertCssUnit,
     generateRandom: generateRandom,
     dateDiff: dateDiff,
     parseUserAgent: parseUserAgent,

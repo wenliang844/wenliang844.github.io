@@ -6,6 +6,8 @@
 
   const timeResults = {};
   let nowTimer = null;
+  const API_HISTORY_KEY = "cwl.tools.apiHistory";
+  let relayProviders = [];
 
   const t = window.CWLUtils.t;
 
@@ -288,6 +290,7 @@
       if (preview) {
         preview.textContent = result.value.hex + " / " + result.value.foreground;
       }
+      renderColorPalette(result.value.palette);
       setStatusKey("color-status", "tools.status.converted", "转换完成", "ok");
     } else {
       value("color-output", "");
@@ -297,6 +300,7 @@
       if (preview) {
         preview.textContent = t("tools.color.empty", "等待转换颜色");
       }
+      renderColorPalette([]);
       setStatusError("color-status", result);
     }
   }
@@ -347,6 +351,294 @@
       value("qr-output", "");
       setStatusError("qr-status", result);
     }
+  }
+
+  function renderColorPalette(colors) {
+    const palette = document.getElementById("color-palette");
+    if (!palette) {
+      return;
+    }
+    palette.textContent = "";
+    (colors || []).forEach(function (color) {
+      const item = document.createElement("button");
+      item.type = "button";
+      item.className = "tool-palette-swatch";
+      item.style.backgroundColor = color;
+      item.setAttribute("title", color);
+      item.setAttribute("aria-label", color);
+      item.setAttribute("data-color-value", color);
+      item.textContent = color;
+      palette.appendChild(item);
+    });
+  }
+
+  function apiHistory() {
+    try {
+      const data = JSON.parse(window.localStorage.getItem(API_HISTORY_KEY) || "[]");
+      return Array.isArray(data) ? data : [];
+    } catch (_error) {
+      return [];
+    }
+  }
+
+  function setApiHistory(items) {
+    try {
+      window.localStorage.setItem(API_HISTORY_KEY, JSON.stringify(items.slice(0, 20)));
+    } catch (_error) {
+      // Ignore storage quota or privacy-mode failures.
+    }
+  }
+
+  function currentApiRequest() {
+    return {
+      method: inputValue("api-method") || "GET",
+      url: inputValue("api-url").trim(),
+      headers: inputValue("api-headers"),
+      body: inputValue("api-body"),
+      savedAt: new Date().toISOString(),
+    };
+  }
+
+  function apiHistoryLabel(item) {
+    const url = item.url || "";
+    return (item.method || "GET") + " " + (url.length > 70 ? url.slice(0, 67) + "..." : url);
+  }
+
+  function renderApiHistory() {
+    const select = document.getElementById("api-history");
+    if (!select) {
+      return;
+    }
+    const history = apiHistory();
+    select.textContent = "";
+    if (!history.length) {
+      const option = document.createElement("option");
+      option.value = "";
+      option.textContent = t("tools.api.noHistory", "暂无历史");
+      option.setAttribute("data-i18n", "tools.api.noHistory");
+      select.appendChild(option);
+      return;
+    }
+    history.forEach(function (item, index) {
+      const option = document.createElement("option");
+      option.value = String(index);
+      option.textContent = apiHistoryLabel(item);
+      select.appendChild(option);
+    });
+  }
+
+  function saveApiRequest() {
+    const request = currentApiRequest();
+    if (!request.url) {
+      setStatusError("api-status", { ok: false, error: "请输入请求 URL", code: "apiUrl" });
+      return false;
+    }
+    const history = apiHistory().filter(function (item) {
+      return !(item.method === request.method && item.url === request.url && item.headers === request.headers && item.body === request.body);
+    });
+    history.unshift(request);
+    setApiHistory(history);
+    renderApiHistory();
+    setStatusKey("api-status", "tools.status.saved", "请求已保存", "ok");
+    return true;
+  }
+
+  function loadApiHistoryItem() {
+    const select = document.getElementById("api-history");
+    const history = apiHistory();
+    if (!select || select.value === "" || !history[Number(select.value)]) {
+      setStatusElementKey(document.getElementById("api-status"), "tools.status.copyEmpty", "没有可复制的内容", "error");
+      return;
+    }
+    const item = history[Number(select.value)];
+    value("api-method", item.method || "GET");
+    value("api-url", item.url || "");
+    value("api-headers", item.headers || "");
+    value("api-body", item.body || "");
+    setStatusKey("api-status", "tools.status.loaded", "已载入历史请求", "ok");
+  }
+
+  function parseApiHeaders(raw) {
+    const source = raw.trim();
+    const headers = {};
+    if (!source) {
+      return headers;
+    }
+    if (source.charAt(0) === "{") {
+      const parsed = JSON.parse(source);
+      Object.keys(parsed).forEach(function (key) {
+        if (parsed[key] !== undefined && parsed[key] !== null && parsed[key] !== "") {
+          headers[key] = String(parsed[key]);
+        }
+      });
+      return headers;
+    }
+    source.split(/\r?\n/).forEach(function (line) {
+      const index = line.indexOf(":");
+      if (index > 0) {
+        const key = line.slice(0, index).trim();
+        const nextValue = line.slice(index + 1).trim();
+        if (key && nextValue) {
+          headers[key] = nextValue;
+        }
+      }
+    });
+    return headers;
+  }
+
+  function formatApiBody(body) {
+    try {
+      return JSON.stringify(JSON.parse(body), null, 2);
+    } catch (_error) {
+      return body;
+    }
+  }
+
+  function sendApiRequest() {
+    const request = currentApiRequest();
+    if (!request.url) {
+      setStatusError("api-status", { ok: false, error: "请输入请求 URL", code: "apiUrl" });
+      return;
+    }
+    if (typeof window.fetch !== "function") {
+      setStatusError("api-status", { ok: false, error: "当前浏览器不支持 fetch", code: "apiRuntime" });
+      return;
+    }
+    let headers;
+    try {
+      headers = parseApiHeaders(request.headers);
+    } catch (error) {
+      setStatusError("api-status", { ok: false, error: "Header 解析失败：" + error.message, code: "apiHeaders" });
+      return;
+    }
+    const method = request.method.toUpperCase();
+    const startedAt = Date.now();
+    const init = { method: method, headers: headers };
+    if (method !== "GET" && method !== "HEAD" && request.body) {
+      init.body = request.body;
+    }
+    value("api-response", "");
+    setStatusKey("api-status", "tools.status.processing", "处理中", "");
+    window.fetch(request.url, init).then(function (response) {
+      return response.text().then(function (body) {
+        const headerLines = [];
+        if (response.headers && typeof response.headers.forEach === "function") {
+          response.headers.forEach(function (headerValue, key) {
+            headerLines.push(key + ": " + headerValue);
+          });
+        }
+        value("api-response", [
+          "Status: " + response.status + " " + response.statusText,
+          "Time: " + (Date.now() - startedAt) + " ms",
+          "URL: " + response.url,
+          "",
+          "Headers:",
+          headerLines.length ? headerLines.join("\n") : "(none)",
+          "",
+          "Body:",
+          formatApiBody(body),
+        ].join("\n"));
+        saveApiRequest();
+        setStatusKey("api-status", "tools.status.sent", "请求完成并已保存历史", response.ok ? "ok" : "error");
+      });
+    }).catch(function (error) {
+      value("api-response", "Request failed: " + error.message);
+      setStatusError("api-status", { ok: false, error: "请求失败：" + error.message, code: "apiRequest" });
+    });
+  }
+
+  function relayUrl(provider) {
+    const endpoint = String(provider.endpoint || "").replace(/\/+$/, "");
+    if (!endpoint) {
+      return "";
+    }
+    if (provider.format === "claude") {
+      return /\/v1\/messages$/.test(endpoint) ? endpoint : endpoint + "/v1/messages";
+    }
+    return /\/chat\/completions$/.test(endpoint) ? endpoint : endpoint + "/chat/completions";
+  }
+
+  function relayBody(provider) {
+    const model = provider.models && provider.models.length ? provider.models[0] : provider.format === "claude" ? "claude-sonnet-4-6" : "gpt-5.5";
+    if (provider.format === "claude") {
+      return JSON.stringify({
+        model: model,
+        max_tokens: 256,
+        messages: [{ role: "user", content: "ping" }],
+      }, null, 2);
+    }
+    return JSON.stringify({
+      model: model,
+      messages: [{ role: "user", content: "ping" }],
+      stream: false,
+    }, null, 2);
+  }
+
+  function fillRelayProvider() {
+    const select = document.getElementById("api-relay-select");
+    const provider = select && relayProviders[Number(select.value)];
+    if (!provider) {
+      setStatusError("api-status", { ok: false, error: "请选择中转站配置", code: "apiRelay" });
+      return;
+    }
+    value("api-method", "POST");
+    value("api-url", relayUrl(provider));
+    value("api-headers", provider.format === "claude"
+      ? "Content-Type: application/json\nx-api-key: YOUR_API_KEY\nanthropic-version: 2023-06-01"
+      : "Content-Type: application/json\nAuthorization: Bearer YOUR_API_KEY");
+    value("api-body", relayBody(provider));
+    setStatusKey("api-status", "tools.status.relayFilled", "已填入中转站配置", "ok");
+  }
+
+  function normalizeRelaySections(data) {
+    return (Array.isArray(data.providers) ? data.providers : []).concat(Array.isArray(data.commercialProviders) ? data.commercialProviders : [])
+      .filter(function (provider) {
+        return provider && provider.endpoint;
+      })
+      .sort(function (a, b) {
+        return (Number(b.score) || 0) - (Number(a.score) || 0);
+      });
+  }
+
+  function renderRelayOptions() {
+    const select = document.getElementById("api-relay-select");
+    if (!select) {
+      return;
+    }
+    select.textContent = "";
+    if (!relayProviders.length) {
+      const option = document.createElement("option");
+      option.value = "";
+      option.textContent = t("tools.api.relayEmpty", "没有可用中转站配置");
+      select.appendChild(option);
+      return;
+    }
+    relayProviders.forEach(function (provider, index) {
+      const option = document.createElement("option");
+      option.value = String(index);
+      option.textContent = provider.name + " · " + provider.formatLabel + " · " + provider.endpoint;
+      select.appendChild(option);
+    });
+  }
+
+  function initRelayProviders() {
+    const select = document.getElementById("api-relay-select");
+    if (!select || typeof window.fetch !== "function") {
+      renderRelayOptions();
+      return;
+    }
+    window.fetch("/data/relay-providers.json", { cache: "no-store" }).then(function (response) {
+      if (!response.ok) {
+        throw new Error("HTTP " + response.status);
+      }
+      return response.json();
+    }).then(function (data) {
+      relayProviders = normalizeRelaySections(data || {});
+      renderRelayOptions();
+    }).catch(function () {
+      relayProviders = [];
+      renderRelayOptions();
+    });
   }
 
   function updateNow() {
@@ -442,6 +734,40 @@
     const tab = closest(event.target, "[data-tool-tab]");
     if (tab && tab.closest(".tools-tabs")) {
       switchTool(tab.getAttribute("data-tool-tab"));
+      return;
+    }
+
+    if (closest(event.target, "[data-api-relay-fill]")) {
+      fillRelayProvider();
+      return;
+    }
+
+    if (closest(event.target, "[data-api-send]")) {
+      sendApiRequest();
+      return;
+    }
+
+    if (closest(event.target, "[data-api-save]")) {
+      saveApiRequest();
+      return;
+    }
+
+    if (closest(event.target, "[data-api-load-history]")) {
+      loadApiHistoryItem();
+      return;
+    }
+
+    if (closest(event.target, "[data-api-clear-history]")) {
+      setApiHistory([]);
+      renderApiHistory();
+      setStatusKey("api-status", "tools.status.cleared", "历史已清空", "ok");
+      return;
+    }
+
+    const paletteSwatch = closest(event.target, "[data-color-value]");
+    if (paletteSwatch) {
+      value("color-input", paletteSwatch.getAttribute("data-color-value"));
+      setColorResult(core.convertColor(inputValue("color-input")));
       return;
     }
 
@@ -563,6 +889,28 @@
       return;
     }
 
+    if (closest(event.target, "[data-cron-generate]")) {
+      const result = core.generateCronExpression({
+        minuteStep: inputValue("cron-minute-step"),
+        hourStart: inputValue("cron-hour-start"),
+        hourEnd: inputValue("cron-hour-end"),
+        dayOfMonth: inputValue("cron-day-month"),
+        month: inputValue("cron-month"),
+        weekdays: Array.from(document.querySelectorAll("[data-cron-weekday]")).filter(function (el) {
+          return el.checked;
+        }).map(function (el) {
+          return el.getAttribute("data-cron-weekday");
+        }),
+      });
+      if (result.ok) {
+        value("cron-input", result.value);
+        applyResult(core.parseCronExpression(result.value), "cron-output", "cron-status");
+      } else {
+        setStatusError("cron-status", result);
+      }
+      return;
+    }
+
     if (closest(event.target, "[data-cron-parse]")) {
       applyResult(core.parseCronExpression(inputValue("cron-input")), "cron-output", "cron-status");
       return;
@@ -593,6 +941,10 @@
         applyResult(core.queryJsonPath(inputValue("jsonpath-input"), inputValue("jsonpath-path")), "jsonpath-output", "jsonpath-status");
         return;
       }
+      if (action === "json-diff") {
+        applyResult(core.diffJson(inputValue("jsondiff-left"), inputValue("jsondiff-right")), "jsondiff-output", "jsondiff-status");
+        return;
+      }
       if (action === "clean-text") {
         applyResult(core.cleanText(inputValue("cleantext-input"), {
           trim: checked("cleantext-trim"),
@@ -604,6 +956,17 @@
       }
       if (action === "unit-convert") {
         applyResult(core.convertUnit(inputValue("unit-value"), inputValue("unit-type"), inputValue("unit-from")), "unit-output", "unit-status");
+        return;
+      }
+      if (action === "css-unit-convert") {
+        applyResult(core.convertCssUnit(
+          inputValue("cssunit-value"),
+          inputValue("cssunit-from"),
+          inputValue("cssunit-root"),
+          inputValue("cssunit-context"),
+          inputValue("cssunit-viewport-width"),
+          inputValue("cssunit-viewport-height"),
+        ), "cssunit-output", "cssunit-status");
         return;
       }
       if (action === "random-generate") {
@@ -638,9 +1001,17 @@
     }
   });
 
+  document.addEventListener("input", function (event) {
+    if (event.target && event.target.id === "color-picker") {
+      value("color-input", event.target.value);
+    }
+  });
+
   syncNowTimer();
   initTimeInput();
   initDateDiffInputs();
+  renderApiHistory();
+  initRelayProviders();
   minimizeAssistantAfterInit();
   document.addEventListener("visibilitychange", syncNowTimer);
   document.addEventListener("cwl:langchange", function () {
@@ -648,6 +1019,10 @@
     Object.keys(timeResults).forEach(function (id) {
       text(id, formatTimeResult(timeResults[id]));
     });
+    renderApiHistory();
+    if (!relayProviders.length) {
+      renderRelayOptions();
+    }
     rerenderStatusKeys();
     const timeStatus = document.getElementById("time-status");
     if (timeStatus && timeStatus.classList.contains("is-ok") && Object.keys(timeResults).length) {

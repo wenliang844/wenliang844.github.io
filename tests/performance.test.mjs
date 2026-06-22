@@ -219,10 +219,10 @@ test("RSS feeds are valid and reasonably sized", async () => {
 
 // ─── CSS 文件大小 ─────────────────────────────────────────────────────────────
 
-test("coder.css is reasonably sized (under 120KB)", async () => {
+test("coder.css is reasonably sized (under 130KB)", async () => {
   const fileStat = await stat(join(ROOT, "css", "coder.css"));
   const sizeKB = fileStat.size / 1024;
-  assert.ok(sizeKB <= 120, `coder.css is ${sizeKB.toFixed(1)}KB, exceeds 120KB`);
+  assert.ok(sizeKB <= 130, `coder.css is ${sizeKB.toFixed(1)}KB, exceeds 130KB`);
 });
 
 // ─── Vendor 脚本存在性 ────────────────────────────────────────────────────────

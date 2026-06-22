@@ -254,10 +254,12 @@ test("renderSponsorPage has sponsor goal progress", () => {
   assert.match(html, /¥2000/);
 });
 
-test("renderSponsorPage has QR code placeholders", () => {
+test("renderSponsorPage has domestic payment QR codes", () => {
   const html = renderSponsorPage();
-  assert.match(html, /sponsor-qr-placeholder/);
-  assert.match(html, /微信扫码/);
+  assert.match(html, /sponsor-qr-card/);
+  assert.match(html, /\/images\/sponsor\/wechat-pay\.jpg/);
+  assert.match(html, /\/images\/sponsor\/alipay-pay\.jpg/);
+  assert.match(html, /微信支付扫码/);
   assert.match(html, /支付宝扫码/);
 });
 
