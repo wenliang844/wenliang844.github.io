@@ -58,9 +58,11 @@ test("renderToolsPage has correct script references", () => {
   const html = renderToolsPage();
   assert.match(html, /src="\/js\/tools-core\.js"/);
   assert.match(html, /src="\/js\/tools\.js"/);
+  assert.match(html, /src="\/js\/editor\.js"/);
   assert.match(html, /src="\/js\/assistant\.js"/);
   assert.match(html, /src="\/js\/vendor\/marked\.min\.js"/);
   assert.match(html, /src="\/js\/vendor\/purify\.min\.js"/);
+  assert.match(html, /src="\/js\/vendor\/highlight\.min\.js"/);
   assert.match(html, /src="\/js\/vendor\/qrcode\.min\.js"/);
 });
 
@@ -85,6 +87,17 @@ test("renderToolsPage has i18n data attributes", () => {
   assert.match(html, /data-i18n="tools\.eyebrow"/);
 });
 
+test("renderToolsPage embeds the Markdown editor panel", () => {
+  const html = renderToolsPage();
+  assert.match(html, /Markdown 编辑器/);
+  assert.match(html, /id="post-title"/);
+  assert.match(html, /id="markdown-input"/);
+  assert.match(html, /id="markdown-preview"/);
+  assert.match(html, /data-action="download-md"/);
+  assert.match(html, /data-md="bold"/);
+  assert.doesNotMatch(html, /data-markdown-render/);
+});
+
 test("generated static templates include page-specific JSON-LD", () => {
   const posts = [
     { slug: "a", shortTitle: "A", shortTitleEn: "A", title: "A", titleEn: "A", date: "2024-06-01", eyebrow: "项目", summary: "S", summaryEn: "S", tags: ["Java"], tagsEn: ["Java"], contentHtml: "<p>A</p>", contentHtmlEn: "", readMinutes: 1, images: [] },
@@ -96,6 +109,7 @@ test("generated static templates include page-specific JSON-LD", () => {
   assert.equal(toolsLd["@type"], "WebApplication");
   assert.equal(toolsLd.applicationCategory, "DeveloperApplication");
   assert.ok(toolsLd.featureList.includes("JSON Formatter"));
+  assert.ok(toolsLd.featureList.includes("Markdown Editor"));
 
   const aiLd = extractJsonLd(renderAiPage());
   assert.equal(aiLd["@type"], "CollectionPage");
@@ -115,7 +129,7 @@ test("generated static templates include page-specific JSON-LD", () => {
 
   const appreciationLd = extractJsonLd(renderAppreciationPage());
   assert.equal(appreciationLd["@type"], "CollectionPage");
-  assert.equal(appreciationLd.mainEntity.numberOfItems, 48);
+  assert.equal(appreciationLd.mainEntity.numberOfItems, 54);
 
   const sponsorLd = extractJsonLd(renderSponsorPage());
   assert.equal(sponsorLd["@type"], "WebPage");
@@ -228,13 +242,16 @@ test("renderAppreciationPage contains expected content", () => {
   assert.match(html, /黑道家族/);
   assert.match(html, /鸡蛋/);
   assert.match(html, /所有的问题都是经济问题/);
+  assert.match(html, /长期主义/);
+  assert.match(html, /身体系统 \+ 关系系统 \+ 生产力系统/);
+  assert.match(html, /聊天中有趣的是场景加故事/);
 });
 
 test("renderAppreciationPage has correct item count per board", () => {
   const html = renderAppreciationPage();
   const rankItems = html.match(/class="rank-item"/g);
-  // 5 + 10 + 15 + 7 + 11 = 48 items
-  assert.ok(rankItems && rankItems.length === 48, `Expected 48 rank items, got ${rankItems ? rankItems.length : 0}`);
+  // 5 + 10 + 15 + 7 + 17 = 54 items
+  assert.ok(rankItems && rankItems.length === 54, `Expected 54 rank items, got ${rankItems ? rankItems.length : 0}`);
 });
 
 // ─── Sponsor 页面测试 ──────────────────────────────────────────────────────────

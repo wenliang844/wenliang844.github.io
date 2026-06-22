@@ -20,7 +20,6 @@ const NAV_ITEMS = [
 const MORE_ITEMS = [
   { href: "/tools/", label: "工具箱", key: "tools", i18n: "nav.tools" },
   { href: "/overleaf/", label: "简历模版", key: "overleaf", i18n: "nav.overleaf" },
-  { href: "/editor/", label: "编辑器", key: "editor", i18n: "nav.editor" },
 ];
 
 export const SPONSOR_LINKS = {

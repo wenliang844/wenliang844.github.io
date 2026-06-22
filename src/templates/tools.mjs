@@ -12,7 +12,7 @@ const TOOLS = [
   { id: "password", icon: "fa-user-lock", title: "密码生成器", titleEn: "Password Generator", desc: "基于浏览器安全随机数生成强密码。", descEn: "Generate strong passwords with secure browser randomness." },
   { id: "color", icon: "fa-palette", title: "颜色转换", titleEn: "Color Converter", desc: "HEX、RGB、HSL 互转并给出可读前景色建议。", descEn: "Convert HEX, RGB and HSL, with readable foreground suggestions." },
   { id: "regex", icon: "fa-search", title: "正则测试", titleEn: "Regex Tester", desc: "本地测试 JavaScript 正则表达式和匹配结果。", descEn: "Test JavaScript regular expressions and matches locally." },
-  { id: "markdown", icon: "fa-heading", title: "Markdown 预览", titleEn: "Markdown Preview", desc: "将 Markdown 渲染为经过清理的 HTML 预览。", descEn: "Render Markdown to sanitized HTML preview." },
+  { id: "markdown", icon: "fa-heading", title: "Markdown 编辑器", titleEn: "Markdown Editor", desc: "在线编辑 Markdown，实时预览、自动保存，并可导出为 Markdown 或 HTML。", descEn: "Edit Markdown with live preview, auto-save and export to Markdown or HTML." },
   { id: "diff", icon: "fa-not-equal", title: "文本 Diff", titleEn: "Text Diff", desc: "对比两段文本，输出轻量行级差异。", descEn: "Compare two texts with a lightweight line diff." },
   { id: "jsondiff", icon: "fa-code-branch", title: "JSON Diff", titleEn: "JSON Diff", desc: "对比两个 JSON 的字段、数组和类型差异。", descEn: "Compare two JSON values across fields, arrays and types." },
   { id: "case", icon: "fa-font", title: "命名转换", titleEn: "Case Converter", desc: "一键生成 camel、snake、kebab、Pascal 等命名形式。", descEn: "Generate camel, snake, kebab, Pascal and other case styles." },
@@ -341,23 +341,49 @@ function renderMarkdownTool() {
   const tool = toolById("markdown");
   return `        <section ${panelAttrs(tool)}>
 ${toolHeader(tool)}
-          <div class="tool-grid">
-            <label class="tool-field"><span data-i18n="tools.label.markdownInput">Markdown</span>
-              <textarea id="markdown-input" spellcheck="false" placeholder="# Hello&#10;&#10;- item"></textarea>
-            </label>
-            <div class="tool-field">
-              <span data-i18n="tools.label.preview">预览</span>
-              <div id="markdown-preview" class="tool-preview" aria-live="polite"></div>
+          <div class="editor-tool">
+            <div class="editor-actions">
+              <button class="editor-button" type="button" data-action="new" data-i18n="editor.btn.new" data-i18n-html><i class="fas fa-file"></i> 新建</button>
+              <button class="editor-button" type="button" data-action="sample" data-i18n="editor.btn.sample" data-i18n-html><i class="fas fa-magic"></i> 示例</button>
+              <button class="editor-button" type="button" data-action="copy-html" data-i18n="editor.btn.copyhtml" data-i18n-html><i class="fas fa-copy"></i> 复制 HTML</button>
+              <button class="editor-button" type="button" data-action="download-md" data-i18n="editor.btn.md" data-i18n-html><i class="fas fa-download"></i> 导出 MD</button>
+              <button class="editor-button" type="button" data-action="download-html" data-i18n="editor.btn.html" data-i18n-html><i class="fas fa-code"></i> 导出 HTML</button>
             </div>
+            <div class="editor-meta">
+              <label><span data-i18n="editor.title.label">标题</span> <input id="post-title" type="text" placeholder="文章标题" data-i18n-ph="editor.title.ph"></label>
+              <label><span data-i18n="editor.shortTitle.label">短标题</span> <input id="post-short-title" type="text" placeholder="列表短标题" data-i18n-ph="editor.shortTitle.ph"></label>
+              <label><span data-i18n="editor.slug.label">别名</span> <input id="post-slug" type="text" placeholder="my-new-post" data-i18n-ph="editor.slug.ph"></label>
+              <label><span data-i18n="editor.date.label">日期</span> <input id="post-date" type="date"></label>
+              <label><span data-i18n="editor.summary.label">摘要</span> <input id="post-summary" type="text" placeholder="一句话摘要" data-i18n-ph="editor.summary.ph"></label>
+              <label><span data-i18n="editor.description.label">描述</span> <input id="post-description" type="text" placeholder="搜索与分享描述" data-i18n-ph="editor.description.ph"></label>
+            </div>
+            <div class="editor-toolbar" role="toolbar" aria-label="Markdown 格式工具" data-i18n-aria="editor.toolbar.aria">
+              <button type="button" class="tool-btn" data-md="bold" title="加粗 (Ctrl+B)" aria-label="加粗" data-i18n-title="editor.tool.bold" data-i18n-aria="editor.tool.bold"><i class="fas fa-bold"></i></button>
+              <button type="button" class="tool-btn" data-md="italic" title="斜体 (Ctrl+I)" aria-label="斜体" data-i18n-title="editor.tool.italic" data-i18n-aria="editor.tool.italic"><i class="fas fa-italic"></i></button>
+              <button type="button" class="tool-btn" data-md="heading" title="标题" aria-label="标题" data-i18n-title="editor.tool.heading" data-i18n-aria="editor.tool.heading"><i class="fas fa-heading"></i></button>
+              <span class="tool-sep" aria-hidden="true"></span>
+              <button type="button" class="tool-btn" data-md="link" title="链接 (Ctrl+K)" aria-label="链接" data-i18n-title="editor.tool.link" data-i18n-aria="editor.tool.link"><i class="fas fa-link"></i></button>
+              <button type="button" class="tool-btn" data-md="image" title="图片" aria-label="图片" data-i18n-title="editor.tool.image" data-i18n-aria="editor.tool.image"><i class="fas fa-image"></i></button>
+              <button type="button" class="tool-btn" data-md="code" title="行内代码" aria-label="行内代码" data-i18n-title="editor.tool.code" data-i18n-aria="editor.tool.code"><i class="fas fa-code"></i></button>
+              <button type="button" class="tool-btn" data-md="codeblock" title="代码块" aria-label="代码块" data-i18n-title="editor.tool.codeblock" data-i18n-aria="editor.tool.codeblock"><i class="fas fa-laptop-code"></i></button>
+              <span class="tool-sep" aria-hidden="true"></span>
+              <button type="button" class="tool-btn" data-md="quote" title="引用" aria-label="引用" data-i18n-title="editor.tool.quote" data-i18n-aria="editor.tool.quote"><i class="fas fa-quote-left"></i></button>
+              <button type="button" class="tool-btn" data-md="ul" title="无序列表" aria-label="无序列表" data-i18n-title="editor.tool.ul" data-i18n-aria="editor.tool.ul"><i class="fas fa-list-ul"></i></button>
+              <button type="button" class="tool-btn" data-md="ol" title="有序列表" aria-label="有序列表" data-i18n-title="editor.tool.ol" data-i18n-aria="editor.tool.ol"><i class="fas fa-list-ol"></i></button>
+              <button type="button" class="tool-btn" data-md="table" title="表格" aria-label="表格" data-i18n-title="editor.tool.table" data-i18n-aria="editor.tool.table"><i class="fas fa-table"></i></button>
+            </div>
+            <div class="editor-layout">
+              <section class="editor-pane">
+                <div class="pane-title"><span data-i18n="editor.pane.markdown">Markdown</span> <span class="editor-stats" id="editor-stats"></span></div>
+                <textarea id="markdown-input" spellcheck="false"></textarea>
+              </section>
+              <section class="preview-pane">
+                <div class="pane-title" data-i18n="editor.pane.preview">Preview</div>
+                <article id="markdown-preview" class="markdown-preview article-content"></article>
+              </section>
+            </div>
+            <p class="editor-note" data-i18n="editor.note" data-i18n-html>静态 GitHub Pages 不能直接写入仓库；导出的文件可放入当前静态站点生成流程的 <code>src/posts/</code>。提示：选中文字后点工具按钮可包裹格式，支持 Ctrl+B / Ctrl+I / Ctrl+K。</p>
           </div>
-          <label class="tool-field tool-output-field"><span data-i18n="tools.label.htmlOutput">HTML 输出</span>
-            <textarea id="markdown-output" spellcheck="false" readonly></textarea>
-          </label>
-          <div class="tool-actions">
-            <button class="tool-btn primary" type="button" data-markdown-render data-i18n="tools.btn.preview" data-i18n-html><i class="fas fa-eye" aria-hidden="true"></i> 预览</button>
-            <button class="tool-btn" type="button" data-copy-target="markdown-output" data-i18n="tools.btn.copyHtml" data-i18n-html><i class="fas fa-copy" aria-hidden="true"></i> 复制 HTML</button>
-          </div>
-          <p class="tool-status" id="markdown-status" role="status" aria-live="polite"></p>
         </section>`;
 }
 
@@ -739,7 +765,7 @@ function renderUaTool() {
 }
 
 export function renderToolsPage() {
-  const description = "CWLBlog 在线工具箱：Mini Postman、JSON、时间戳、Base64、URL、UUID、JWT、哈希、密码、颜色、正则、Markdown、Diff、Cron、二维码、YAML、URL 解析和文本处理等开发工具。";
+  const description = "CWLBlog 在线工具箱：Mini Postman、JSON、时间戳、Base64、URL、UUID、JWT、哈希、密码、颜色、正则、Markdown 编辑器、Diff、Cron、二维码、YAML、URL 解析和文本处理等开发工具。";
   const main = `    <main id="main-content" class="content">
       <section class="tools-page container">
         <header class="tools-header">
@@ -790,10 +816,10 @@ ${renderUaTool()}
     title: "在线工具箱 :: CWLBlog",
     description,
     titleEn: "Toolbox :: CWLBlog",
-    descriptionEn: "CWLBlog online toolbox: Mini Postman, JSON, timestamps, Base64, URL, UUID, JWT, hashes, passwords, colors, regex, Markdown, diff, cron, QR, YAML, URL parsing and text tools.",
+    descriptionEn: "CWLBlog online toolbox: Mini Postman, JSON, timestamps, Base64, URL, UUID, JWT, hashes, passwords, colors, regex, Markdown editor, diff, cron, QR, YAML, URL parsing and text tools.",
     active: "tools",
     page: "tools",
-    scripts: ["/js/vendor/marked.min.js", "/js/vendor/purify.min.js", "/js/vendor/qrcode.min.js", "/js/tools-core.js", "/js/tools.js"],
+    scripts: ["/js/vendor/marked.min.js", "/js/vendor/purify.min.js", "/js/vendor/qrcode.min.js", "/js/vendor/highlight.min.js", "/js/tools-core.js", "/js/tools.js", "/js/editor.js"],
     jsonLd: buildPageJsonLd({
       type: "WebApplication",
       name: "CWLBlog 在线工具箱",
@@ -807,7 +833,7 @@ ${renderUaTool()}
     main,
     og: {
       title: "在线工具箱 :: CWLBlog",
-      description: "Mini Postman、JSON、时间戳、编码、哈希、密码、颜色、正则、Markdown、Diff、Cron、二维码、YAML、URL 解析与文本处理等常用开发工具。",
+      description: "Mini Postman、JSON、时间戳、编码、哈希、密码、颜色、正则、Markdown 编辑器、Diff、Cron、二维码、YAML、URL 解析与文本处理等常用开发工具。",
       path: "/tools/",
     },
   });

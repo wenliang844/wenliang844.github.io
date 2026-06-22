@@ -3258,6 +3258,11 @@ body.search-open .search-modal .search-modal-card,
   gap: 0.75rem;
 }
 
+.editor-tool .editor-actions {
+  justify-content: flex-start;
+  margin-bottom: 1rem;
+}
+
 .editor-button {
   min-height: 2.6rem;
   padding: 0 0.9rem;

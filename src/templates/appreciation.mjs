@@ -98,6 +98,12 @@ const BOARDS = [
       { name: "人不会改变，只会装作改变", nameEn: "People do not change; they only pretend to change" },
       { name: "吃苦不利于思考", nameEn: "Suffering is not good for thinking" },
       { name: "世界就是一个巨大的草台班子", nameEn: "The world is one giant makeshift troupe" },
+      { name: "长期主义", nameEn: "Long-termism" },
+      { name: "延迟满足", nameEn: "Delayed gratification" },
+      { name: "持续学习", nameEn: "Continuous learning" },
+      { name: "反思能力", nameEn: "Capacity for reflection" },
+      { name: "身体系统 + 关系系统 + 生产力系统", nameEn: "Body system + relationship system + productivity system" },
+      { name: "聊天中有趣的是场景加故事", nameEn: "What makes a chat interesting is scene plus story" },
     ],
   },
 ];

@@ -81,6 +81,7 @@ async function loadToolsPage(options = {}) {
   const utilsCode = await readFile(join(ROOT, "js", "utils.js"), "utf8");
   const coreCode = await readFile(join(ROOT, "js", "tools-core.js"), "utf8");
   const toolsCode = await readFile(join(ROOT, "js", "tools.js"), "utf8");
+  const editorCode = await readFile(join(ROOT, "js", "editor.js"), "utf8");
   const i18nCode = options.i18n ? await readFile(join(ROOT, "js", "i18n.js"), "utf8") : "";
   let copiedText = null;
   const timerCalls = [];
@@ -101,7 +102,7 @@ async function loadToolsPage(options = {}) {
   }
   if (options.copyText !== false) {
     dom.window.CWLUtils = {
-      t: dom.window.CWLUtils.t,
+      ...dom.window.CWLUtils,
       copyText(value) {
         copiedText = value;
         return Promise.resolve();
@@ -133,6 +134,7 @@ async function loadToolsPage(options = {}) {
     dom.window.fetch = options.fetch;
   }
   dom.window.eval(toolsCode);
+  dom.window.eval(editorCode);
   return {
     clearedTimers() {
       return clearedTimers.slice();
@@ -649,8 +651,11 @@ test("expanded tools page runs all new tool actions locally", async () => {
     assert.match(document.querySelector("#regex-output").value, /Matches: 1/);
 
     document.querySelector("#markdown-input").value = "# Title\n\n<script>alert(1)</script>";
-    document.querySelector("[data-markdown-render]").click();
-    assert.match(document.querySelector("#markdown-output").value, /<h1>Title<\/h1>/);
+    document.querySelector("#markdown-input").dispatchEvent(new dom.window.Event("input", { bubbles: true }));
+    await new Promise((resolve) => {
+      dom.window.setTimeout(resolve, 180);
+    });
+    assert.match(document.querySelector("#markdown-preview").innerHTML, /<h1>Title<\/h1>/);
     assert.equal(document.querySelector("#markdown-preview script"), null);
 
     document.querySelector("#diff-left").value = "a\nb";
