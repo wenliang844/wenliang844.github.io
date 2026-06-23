@@ -131,6 +131,7 @@ const BOARDS = [
       { name: "反思能力", nameEn: "Capacity for reflection" },
       { name: "身体系统 + 关系系统 + 生产力系统", nameEn: "Body system + relationship system + productivity system" },
       { name: "聊天中有趣的是场景加故事", nameEn: "What makes a chat interesting is scene plus story" },
+      { name: "自由平等", nameEn: "Freedom and equality" },
     ],
   },
 ];
