@@ -14,7 +14,7 @@ const NAV_ITEMS = [
     htmlEn: '<i class="fas fa-book-open" aria-hidden="true"></i> Blog',
   },
   { href: "/ai/", label: "AI中转站排名", key: "ai", i18n: "nav.ai" },
-  { href: "/appreciation/", label: "鉴赏", key: "appreciation", i18n: "nav.appreciation" },
+  { href: "/appreciation/", label: "观察家", key: "appreciation", i18n: "nav.appreciation" },
 ];
 
 const MORE_ITEMS = [
