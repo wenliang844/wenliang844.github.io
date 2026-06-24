@@ -132,6 +132,12 @@ const BOARDS = [
       { name: "身体系统 + 关系系统 + 生产力系统", nameEn: "Body system + relationship system + productivity system" },
       { name: "聊天中有趣的是场景加故事", nameEn: "What makes a chat interesting is scene plus story" },
       { name: "自由平等", nameEn: "Freedom and equality" },
+      { name: "健康的身体", nameEn: "A healthy body" },
+      { name: "稳定而亲密的关系", nameEn: "Stable and intimate relationships" },
+      { name: "有意义的事情", nameEn: "Meaningful pursuits" },
+      { name: "经济自由", nameEn: "Financial freedom" },
+      { name: "思想自由", nameEn: "Freedom of thought" },
+      { name: "个人选择自由", nameEn: "Freedom of personal choice" },
     ],
   },
 ];
