@@ -30,6 +30,7 @@ const TOOLS = [
   { id: "random", icon: "fa-dice", title: "随机数生成", titleEn: "Random Generator", desc: "生成整数、浮点数或随机列表。", descEn: "Generate integers, decimals or random lists." },
   { id: "datediff", icon: "fa-hourglass-half", title: "日期差计算", titleEn: "Date Diff", desc: "计算两个日期之间的天数和时间跨度。", descEn: "Calculate days and duration between two dates." },
   { id: "ua", icon: "fa-desktop", title: "UA 解析", titleEn: "User-Agent Parser", desc: "解析浏览器、系统、设备类型和渲染引擎。", descEn: "Parse browser, OS, device type and rendering engine." },
+  { id: "gesture", icon: "fa-hand-sparkles", title: "手势交互动画", titleEn: "Gesture Animation", desc: "通过摄像头识别手势，触发炫酷的粒子动画和绘画效果。", descEn: "Detect gestures via webcam and trigger particle animations and drawing effects." },
 ];
 
 const TOOL_CATEGORIES = [
@@ -39,6 +40,7 @@ const TOOL_CATEGORIES = [
   { id: "text", title: "文本处理", titleEn: "Text", ids: ["regex", "markdown", "diff", "case", "html", "textstats", "cleantext"] },
   { id: "time", title: "时间与生成", titleEn: "Time & Generate", ids: ["time", "cron", "random", "datediff"] },
   { id: "frontend", title: "前端与媒体", titleEn: "Frontend & Media", ids: ["color", "qr", "unit", "cssunit", "ua"] },
+  { id: "visual", title: "视觉与交互", titleEn: "Visual & Interaction", ids: ["gesture"] },
 ];
 
 function attr(value) {
@@ -787,8 +789,54 @@ function renderUaTool() {
   return renderTextActionTool("ua", "uaInput", "ua-input", "ua-output", "parse-ua", "tools.btn.parse", "解析", "fa-desktop", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/126 Safari/537.36");
 }
 
+function renderGestureTool() {
+  const tool = toolById("gesture");
+  return `        <section ${panelAttrs(tool)}>
+${toolHeader(tool)}
+          <div class="gesture-controls">
+            <button class="tool-btn primary" id="gesture-start" type="button">
+              <i class="fas fa-video" aria-hidden="true"></i> <span data-i18n="tools.gesture.start" data-i18n-en="Start Camera">开启摄像头</span>
+            </button>
+            <button class="tool-btn" id="gesture-stop" type="button" disabled>
+              <i class="fas fa-video-slash" aria-hidden="true"></i> <span data-i18n="tools.gesture.stop" data-i18n-en="Stop Camera">关闭摄像头</span>
+            </button>
+            <button class="tool-btn" id="gesture-clear" type="button">
+              <i class="fas fa-eraser" aria-hidden="true"></i> <span data-i18n="tools.gesture.clear" data-i18n-en="Clear Canvas">清除画布</span>
+            </button>
+          </div>
+          <div class="gesture-modes" role="radiogroup" data-i18n-aria="tools.gesture.modeGroup" data-i18n-en-aria="Animation mode">
+            <button class="gesture-mode-btn active" data-mode="particle" type="button">
+              <i class="fas fa-spa" aria-hidden="true"></i> <span data-i18n="tools.gesture.modeParticle" data-i18n-en="Particles">粒子追踪</span>
+            </button>
+            <button class="gesture-mode-btn" data-mode="gesture" type="button">
+              <i class="fas fa-hand-peace" aria-hidden="true"></i> <span data-i18n="tools.gesture.modeGesture" data-i18n-en="Gestures">手势识别</span>
+            </button>
+            <button class="gesture-mode-btn" data-mode="draw" type="button">
+              <i class="fas fa-paint-brush" aria-hidden="true"></i> <span data-i18n="tools.gesture.modeDraw" data-i18n-en="Drawing">指尖绘画</span>
+            </button>
+          </div>
+          <div class="gesture-viewport">
+            <video id="gesture-video" class="gesture-video" autoplay playsinline muted></video>
+            <canvas id="gesture-canvas" class="gesture-canvas"></canvas>
+            <div id="gesture-overlay" class="gesture-overlay">
+              <i class="fas fa-hand-sparkles" aria-hidden="true"></i>
+              <p data-i18n="tools.gesture.placeholder" data-i18n-en='Click "Start Camera" to begin'>点击"开启摄像头"开始</p>
+            </div>
+          </div>
+          <div class="gesture-info">
+            <span id="gesture-status" class="gesture-badge">就绪</span>
+            <span id="gesture-label" class="gesture-badge"></span>
+            <span id="gesture-fps" class="gesture-badge"></span>
+          </div>
+          <p class="gesture-privacy">
+            <i class="fas fa-shield-alt" aria-hidden="true"></i>
+            <span data-i18n="tools.gesture.privacy" data-i18n-en="All data is processed locally in your browser and is never uploaded to any server.">所有数据均在浏览器本地处理，不会上传到任何服务器。</span>
+          </p>
+        </section>`;
+}
+
 export function renderToolsPage() {
-  const description = "CWLBlog 在线工具箱：Mini Postman、JSON、时间戳、Base64、URL、UUID、JWT、哈希、密码、颜色、正则、Markdown 编辑器、Diff、Cron、二维码、YAML、URL 解析和文本处理等开发工具。";
+  const description = "CWLBlog 在线工具箱：Mini Postman、JSON、时间戳、Base64、URL、UUID、JWT、哈希、密码、颜色、正则、Markdown 编辑器、Diff、Cron、二维码、YAML、URL 解析、文本处理和手势交互动画等开发工具。";
   const main = `    <main id="main-content" class="content">
       <section class="tools-page container">
         <header class="tools-header">
@@ -830,6 +878,7 @@ ${renderCssUnitTool()}
 ${renderRandomTool()}
 ${renderDateDiffTool()}
 ${renderUaTool()}
+${renderGestureTool()}
           </div>
         </div>
       </section>
@@ -839,10 +888,10 @@ ${renderUaTool()}
     title: "在线工具箱 :: CWLBlog",
     description,
     titleEn: "Toolbox :: CWLBlog",
-    descriptionEn: "CWLBlog online toolbox: Mini Postman, JSON, timestamps, Base64, URL, UUID, JWT, hashes, passwords, colors, regex, Markdown editor, diff, cron, QR, YAML, URL parsing and text tools.",
+    descriptionEn: "CWLBlog online toolbox: Mini Postman, JSON, timestamps, Base64, URL, UUID, JWT, hashes, passwords, colors, regex, Markdown editor, diff, cron, QR, YAML, URL parsing, text tools and gesture animation.",
     active: "tools",
     page: "tools",
-    scripts: ["/js/vendor/marked.min.js", "/js/vendor/purify.min.js", "/js/vendor/qrcode.min.js", "/js/vendor/highlight.min.js", "/js/tools-core.js", "/js/tools.js", "/js/editor.js"],
+    scripts: ["/js/vendor/marked.min.js", "/js/vendor/purify.min.js", "/js/vendor/qrcode.min.js", "/js/vendor/highlight.min.js", "/js/tools-core.js", "/js/tools.js", "/js/editor.js", "/js/gesture.js"],
     jsonLd: buildPageJsonLd({
       type: "WebApplication",
       name: "CWLBlog 在线工具箱",

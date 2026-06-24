@@ -169,7 +169,7 @@
     // 工具箱 tools
     "tools.eyebrow": '<i class="fas fa-toolbox" aria-hidden="true"></i> Online Toolbox',
     "tools.h1": "Toolbox",
-    "tools.lead": "Useful developer tools for API testing, JSON, timestamps, encoders, hashes, passwords, colors, regex, Markdown, diff, cron, QR codes, YAML, URL parsing and text processing.",
+    "tools.lead": "Useful developer tools for API testing, JSON, timestamps, encoders, hashes, passwords, colors, regex, Markdown, diff, cron, QR codes, YAML, URL parsing, text processing and gesture animation.",
     "tools.tabs": "Categorized tool list",
     "tools.nav.json": "JSON Formatter",
     "tools.nav.api": "Mini API Tester",
@@ -200,6 +200,8 @@
     "tools.nav.random": "Random Generator",
     "tools.nav.datediff": "Date Diff",
     "tools.nav.ua": "User-Agent Parser",
+    "tools.nav.gesture": "Gesture Animation",
+    "tools.category.visual": "Visual & Interaction",
     "tools.json.title": "JSON Formatter",
     "tools.json.desc": "Format, minify and validate JSON text.",
     "tools.api.title": "Mini API Tester",

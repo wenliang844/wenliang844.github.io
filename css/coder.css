@@ -4139,6 +4139,166 @@ body.search-open .search-modal .search-modal-card,
   color: var(--accent);
 }
 
+/* ---- Gesture Animation Tool ---- */
+
+.gesture-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.gesture-controls .tool-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.gesture-modes {
+  display: flex;
+  gap: 0.35rem;
+  margin-bottom: 0.75rem;
+}
+
+.gesture-mode-btn {
+  flex: 1;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 0.6rem;
+  background: var(--surface);
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 180ms ease, color 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+}
+
+.gesture-mode-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.gesture-mode-btn.active {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-soft);
+}
+
+.gesture-viewport {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 0.75rem;
+  border: 1px solid var(--border);
+  background: #0a0a0a;
+  overflow: hidden;
+  margin-bottom: 0.75rem;
+}
+
+.gesture-video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scaleX(-1);
+}
+
+.gesture-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  transform: scaleX(-1);
+}
+
+.gesture-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  color: var(--text-muted);
+  font-size: 1rem;
+  pointer-events: none;
+  background: rgba(0, 0, 0, 0.3);
+  transition: opacity 300ms ease;
+}
+
+.gesture-overlay.is-hidden {
+  opacity: 0;
+}
+
+.gesture-overlay i {
+  font-size: 3rem;
+  opacity: 0.4;
+}
+
+.gesture-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 0.5rem;
+  min-height: 1.6rem;
+}
+
+.gesture-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 2rem;
+  background: var(--grad-soft);
+  border: 1px solid var(--border);
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  transition: color 180ms ease, border-color 180ms ease;
+}
+
+.gesture-badge.is-active {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.gesture-privacy {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  opacity: 0.7;
+}
+
+.gesture-privacy i {
+  color: var(--accent);
+}
+
+@media (max-width: 768px) {
+  .gesture-mode-btn {
+    font-size: 0.78rem;
+    padding: 0.45rem 0.5rem;
+  }
+
+  .gesture-mode-btn span {
+    display: none;
+  }
+
+  .gesture-mode-btn i {
+    font-size: 1rem;
+  }
+}
+
+/* ---- End Gesture Tool ---- */
+
 .time-now,
 .uuid-box {
   display: grid;
