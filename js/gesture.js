@@ -24,7 +24,7 @@
   let handLandmarker  = null;                 // MediaPipe instance
   let cameraStream    = null;                 // MediaStream
   let running         = false;                // detection loop active?
-  let mode            = "particle";           // particle | gesture | draw | fruit | dance
+  let mode            = "particle";           // particle | gesture | draw | fruit | detect | face | dance | 3d
   let lastGesture     = "none";               // recognised gesture name
   let lastGestureTime = 0;
   let swipeHistory    = [];                   // palm centre history for swipe
@@ -245,6 +245,234 @@
   }
 
   /* ====================================================================
+   * 1b. Three.js CDN Loader & 3D Reconstruction
+   * ==================================================================== */
+  var THREE_CDN = "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js";
+
+  async function loadThree() {
+    if (threeLoaded) return true;
+    setStatus("loading", "加载 3D 引擎…");
+    try {
+      THREE_M = await import(/* webpackIgnore: true */ THREE_CDN);
+      threeLoaded = true;
+      return true;
+    } catch (e) {
+      setStatus("error", "3D 引擎加载失败");
+      console.error("[three.js]", e);
+      return false;
+    }
+  }
+
+  function initThreeScene() {
+    if (!THREE_M) return;
+    var viewport = $canvas.parentElement;
+    var rect = viewport.getBoundingClientRect();
+    var w = Math.floor(rect.width), h = Math.floor(rect.height);
+    threeScene = new THREE_M.Scene();
+    threeScene.background = new THREE_M.Color(0x080808);
+    threeCamera = new THREE_M.PerspectiveCamera(60, w / h, 0.1, 1000);
+    threeCamera.position.set(0, 0, 3);
+    threeRenderer = new THREE_M.WebGLRenderer({ antialias: true, alpha: true });
+    threeRenderer.setSize(w, h);
+    threeRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    var ctr = document.getElementById("gesture-three-container");
+    if (ctr) { ctr.innerHTML = ""; ctr.appendChild(threeRenderer.domElement); }
+    var count = GRID_W * GRID_H;
+    var positions = new Float32Array(count * 3);
+    var colors = new Float32Array(count * 3);
+    for (var r = 0; r < GRID_H; r++) {
+      for (var c = 0; c < GRID_W; c++) {
+        var i = r * GRID_W + c;
+        positions[i * 3] = (c / GRID_W - 0.5) * 4;
+        positions[i * 3 + 1] = -(r / GRID_H - 0.5) * 3;
+        positions[i * 3 + 2] = 0;
+        colors[i * 3] = colors[i * 3 + 1] = colors[i * 3 + 2] = 0.5;
+      }
+    }
+    threeGeometry = new THREE_M.BufferGeometry();
+    threeGeometry.setAttribute("position", new THREE_M.BufferAttribute(positions, 3));
+    threeGeometry.setAttribute("color", new THREE_M.BufferAttribute(colors, 3));
+    threePoints = new THREE_M.Points(threeGeometry, new THREE_M.PointsMaterial({
+      size: 0.025, vertexColors: true, sizeAttenuation: true,
+    }));
+    threeScene.add(threePoints);
+    threeMesh = null;
+    threeLights = [new THREE_M.AmbientLight(0x404040, 2), new THREE_M.DirectionalLight(0xffffff, 2)];
+    threeLights[1].position.set(2, 3, 4);
+    depth3D = new Float32Array(count);
+    depthRaw = new Float32Array(count);
+    subMode = "pointcloud";
+    revealProgress = 0;
+    prev3D = null;
+    threeTargetRot = { x: 0, y: 0 };
+    threeTargetPos = { x: 0, y: 0, z: 3 };
+    viewport.classList.add("is-3d-mode");
+    var subPanel = document.getElementById("gesture-3d-submodes");
+    if (subPanel) subPanel.hidden = false;
+    var depthEl = document.getElementById("gesture-depth-preview");
+    if (depthEl) { depthEl.width = GRID_W; depthEl.height = GRID_H; }
+  }
+
+  function cleanupThreeScene() {
+    var viewport = $canvas.parentElement;
+    viewport.classList.remove("is-3d-mode");
+    var subPanel = document.getElementById("gesture-3d-submodes");
+    if (subPanel) subPanel.hidden = true;
+    if (threeGeometry) { threeGeometry.dispose(); threeGeometry = null; }
+    if (threePoints) { if (threePoints.parent) threeScene.remove(threePoints); threePoints.material.dispose(); threePoints = null; }
+    if (threeMesh) { if (threeMesh.parent) threeScene.remove(threeMesh); threeMesh.material.dispose(); threeMesh = null; }
+    if (threeRenderer) {
+      threeRenderer.dispose();
+      var ctr = document.getElementById("gesture-three-container");
+      if (ctr) ctr.innerHTML = "";
+      threeRenderer = null;
+    }
+    threeScene = null; threeCamera = null; threeLights = [];
+    depth3D = null; depthRaw = null;
+  }
+
+  function estimateDepth(imgData) {
+    var data = imgData.data, len = GRID_W * GRID_H;
+    for (var i = 0; i < len; i++) {
+      var off = i * 4;
+      depthRaw[i] = (0.299 * data[off] + 0.587 * data[off + 1] + 0.114 * data[off + 2]) / 255;
+    }
+    for (var y = 1; y < GRID_H - 1; y++) {
+      for (var x = 1; x < GRID_W - 1; x++) {
+        var idx = y * GRID_W + x;
+        var tl = depthRaw[(y-1)*GRID_W+(x-1)], tc = depthRaw[(y-1)*GRID_W+x], tr = depthRaw[(y-1)*GRID_W+(x+1)];
+        var ml = depthRaw[y*GRID_W+(x-1)], mr = depthRaw[y*GRID_W+(x+1)];
+        var bl = depthRaw[(y+1)*GRID_W+(x-1)], bc = depthRaw[(y+1)*GRID_W+x], br = depthRaw[(y+1)*GRID_W+(x+1)];
+        var gx = -tl + tr - 2*ml + 2*mr - bl + br;
+        var gy = -tl - 2*tc - tr + bl + 2*bc + br;
+        depthRaw[idx] = Math.min(1, depthRaw[idx] + Math.sqrt(gx * gx + gy * gy) * 0.25);
+      }
+    }
+    for (var j = 0; j < len; j++) { depth3D[j] = depth3D[j] * 0.7 + depthRaw[j] * 0.3; }
+  }
+
+  function updatePointCloud(imgData) {
+    estimateDepth(imgData);
+    var posAttr = threeGeometry.getAttribute("position");
+    var colAttr = threeGeometry.getAttribute("color");
+    var pos = posAttr.array, col = colAttr.array, pixels = imgData.data;
+    var revealCol = revealProgress < 1 ? Math.floor(revealProgress * GRID_W) : GRID_W;
+    for (var r = 0; r < GRID_H; r++) {
+      for (var c = 0; c < GRID_W; c++) {
+        var i = r * GRID_W + c, i3 = i * 3;
+        if (c < revealCol) {
+          pos[i3] = (c / GRID_W - 0.5) * 4;
+          pos[i3 + 1] = -(r / GRID_H - 0.5) * 3;
+          pos[i3 + 2] = -(depth3D[i] - 0.5) * 3;
+          col[i3] = pixels[i * 4] / 255;
+          col[i3 + 1] = pixels[i * 4 + 1] / 255;
+          col[i3 + 2] = pixels[i * 4 + 2] / 255;
+        }
+      }
+    }
+    if (revealProgress < 1) revealProgress += 0.015;
+    posAttr.needsUpdate = true;
+    colAttr.needsUpdate = true;
+  }
+
+  function buildMeshIndices() {
+    var indices = [];
+    for (var r = 0; r < GRID_H - 1; r++) {
+      for (var c = 0; c < GRID_W - 1; c++) {
+        var i = r * GRID_W + c;
+        indices.push(i, i + 1, i + GRID_W);
+        indices.push(i + 1, i + GRID_W + 1, i + GRID_W);
+      }
+    }
+    threeGeometry.setIndex(indices);
+  }
+
+  function switchToMesh() {
+    if (!threeScene || threeMesh) return;
+    threeScene.remove(threePoints);
+    buildMeshIndices();
+    threeMesh = new THREE_M.Mesh(threeGeometry, new THREE_M.MeshBasicMaterial({
+      vertexColors: true, wireframe: true, transparent: true, opacity: 0.85,
+    }));
+    threeScene.add(threeMesh);
+    threeLights.forEach(function (l) { threeScene.add(l); });
+    subMode = "mesh";
+  }
+
+  function switchToPointCloud() {
+    if (!threeScene || (threePoints && threePoints.parent)) return;
+    if (threeMesh) { threeScene.remove(threeMesh); threeMesh.material.dispose(); threeMesh = null; }
+    threeLights.forEach(function (l) { threeScene.remove(l); });
+    threeGeometry.setIndex(null);
+    threeScene.add(threePoints);
+    subMode = "pointcloud";
+  }
+
+  function handleGesture3D(lm, gesture) {
+    var palmX = (lm[0].x + lm[5].x + lm[9].x + lm[13].x + lm[17].x) / 5;
+    var palmY = (lm[0].y + lm[5].y + lm[9].y + lm[13].y + lm[17].y) / 5;
+    if (prev3D) {
+      var dx = palmX - prev3D.palmX, dy = palmY - prev3D.palmY;
+      switch (gesture) {
+        case "open": threeTargetRot.y += dx * 4; threeTargetRot.x += dy * 4; break;
+        case "ok": case "pinch":
+          var pn = dist(lm[4], lm[8]), pp = prev3D.pinchDist || pn;
+          threeTargetPos.z = Math.max(1.5, Math.min(6, threeTargetPos.z + (pp - pn) * 0.008));
+          prev3D.pinchDist = pn; break;
+        case "point": threeTargetPos.x -= dx * 3; threeTargetPos.y += dy * 3; break;
+        case "peace":
+          if (cooled("3d-toggle", 600)) {
+            if (subMode === "pointcloud") switchToMesh(); else switchToPointCloud();
+            updateSubModeButtons();
+          } break;
+        case "fist": threeTargetRot = { x: 0, y: 0 }; threeTargetPos = { x: 0, y: 0, z: 3 }; break;
+        case "wave": revealProgress = 0; break;
+        case "swipe-left":  threeTargetRot.y -= 0.4; break;
+        case "swipe-right": threeTargetRot.y += 0.4; break;
+        case "swipe-up":    threeTargetRot.x -= 0.3; break;
+        case "swipe-down":  threeTargetRot.x += 0.3; break;
+      }
+    }
+    prev3D = { palmX: palmX, palmY: palmY, pinchDist: dist(lm[4], lm[8]) };
+  }
+
+  function animate3D(lm, gesture) {
+    if (!threeRenderer || !threeScene || !threeCamera) return;
+    handleGesture3D(lm, gesture);
+    if ($video.readyState >= 2) {
+      captureCtx.drawImage($video, 0, 0, GRID_W, GRID_H);
+      updatePointCloud(captureCtx.getImageData(0, 0, GRID_W, GRID_H));
+      renderDepthPreview();
+    }
+    threeScene.rotation.x += (threeTargetRot.x - threeScene.rotation.x) * 0.1;
+    threeScene.rotation.y += (threeTargetRot.y - threeScene.rotation.y) * 0.1;
+    threeCamera.position.x += (threeTargetPos.x - threeCamera.position.x) * 0.1;
+    threeCamera.position.y += (threeTargetPos.y - threeCamera.position.y) * 0.1;
+    threeCamera.position.z += (threeTargetPos.z - threeCamera.position.z) * 0.1;
+    threeRenderer.render(threeScene, threeCamera);
+    drawHandSkeleton(lm, 0.2);
+  }
+
+  function renderDepthPreview() {
+    var el = document.getElementById("gesture-depth-preview");
+    if (!el || !depth3D) return;
+    var pctx = el.getContext("2d");
+    var img = pctx.createImageData(GRID_W, GRID_H);
+    var d = img.data;
+    for (var i = 0, len = GRID_W * GRID_H; i < len; i++) {
+      var v = Math.floor(depth3D[i] * 255);
+      d[i * 4] = v; d[i * 4 + 1] = v; d[i * 4 + 2] = v; d[i * 4 + 3] = 255;
+    }
+    pctx.putImageData(img, 0, 0);
+  }
+
+  function updateSubModeButtons() {
+    document.querySelectorAll(".gesture-submode-btn").forEach(function (b) {
+      b.classList.toggle("active", b.dataset.submode === subMode);
+    });
+  }
+
+  /* ====================================================================
    * 2. Camera Manager
    * ==================================================================== */
   async function startCamera() {
@@ -255,6 +483,9 @@
       if (!(await loadMediaPipe())) return;
     } else {
       if (!(await loadMediaPipe())) return;
+    }
+    if (mode === "3d") {
+      if (!(await loadThree())) return;
     }
     try {
       cameraStream = await navigator.mediaDevices.getUserMedia({
@@ -272,6 +503,7 @@
     $stop.disabled  = false;
     running = true;
     setStatus("running", "检测中");
+    if (mode === "3d") initThreeScene();
     requestAnimationFrame(loop);
   }
 
@@ -288,6 +520,12 @@
     setStatus("ready", "就绪");
     $label.textContent = "";
     $fps.textContent   = "";
+    if ($face) {
+      $face.textContent = "";
+      $face.classList.remove("is-active");
+    }
+    lastFaceResults = [];
+    cleanupThreeScene();
   }
 
   function resizeCanvas() {
@@ -305,6 +543,10 @@
     $canvas.style.height = h + "px";
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     drawCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    if (threeRenderer) {
+      threeRenderer.setSize(w, h);
+      if (threeCamera) { threeCamera.aspect = w / h; threeCamera.updateProjectionMatrix(); }
+    }
   }
 
   /* ====================================================================
@@ -489,15 +731,40 @@
     var ch = $canvas.height / (window.devicePixelRatio || 1);
     ctx.clearRect(0, 0, cw, ch);
 
+    /* Always run face detection if models are loaded (background overlay) */
+    if (faceModelsLoaded) detectFaces();
+
     if (!result.landmarks || result.landmarks.length === 0) {
+      /* Face mode works even without hands */
+      if (mode === "face") {
+        setLabel("人脸分析");
+        animateFace();
+        return;
+      }
+      /* 3D mode: still render scene without gesture input */
+      if (mode === "3d" && threeRenderer) {
+        if ($video.readyState >= 2) {
+          captureCtx.drawImage($video, 0, 0, GRID_W, GRID_H);
+          updatePointCloud(captureCtx.getImageData(0, 0, GRID_W, GRID_H));
+          renderDepthPreview();
+        }
+        threeScene.rotation.x += (threeTargetRot.x - threeScene.rotation.x) * 0.05;
+        threeScene.rotation.y += (threeTargetRot.y - threeScene.rotation.y) * 0.05;
+        threeCamera.position.x += (threeTargetPos.x - threeCamera.position.x) * 0.05;
+        threeCamera.position.y += (threeTargetPos.y - threeCamera.position.y) * 0.05;
+        threeCamera.position.z += (threeTargetPos.z - threeCamera.position.z) * 0.05;
+        threeRenderer.render(threeScene, threeCamera);
+        prev3D = null;
+        setLabel("3D 重建");
+        return;
+      }
       setLabel("未检测到手部");
       if (mode === "draw") {
-        var cw2 = $canvas.width / (window.devicePixelRatio || 1);
-        var ch2 = $canvas.height / (window.devicePixelRatio || 1);
         ctx.drawImage(drawCanvas, 0, 0, $canvas.width, $canvas.height,
-          0, 0, cw2, ch2);
+          0, 0, cw, ch);
       }
       updateParticles();
+      drawFaceOverlay();
       return;
     }
 
@@ -516,7 +783,12 @@
       case "gesture":   animateGesture(lm, gesture);  break;
       case "draw":      animateDraw(lm, gesture);      break;
       case "fruit":     animateFruit(lm, gesture);     break;
+      case "face":      animateFace();                 break;
+      case "3d":        animate3D(lm, gesture);         break;
     }
+
+    /* Overlay face info on non-face modes */
+    if (mode !== "face") drawFaceOverlay();
   }
 
   /* ====================================================================
@@ -1416,6 +1688,258 @@
   }
 
   /* ====================================================================
+   * 9c. Face Analysis Mode
+   * ==================================================================== */
+  function faceCW() { return $canvas.width / (window.devicePixelRatio || 1); }
+  function faceCH() { return $canvas.height / (window.devicePixelRatio || 1); }
+
+  /* Attractiveness score from 68-point facial landmarks (entertainment only) */
+  function calcAttractiveness(pts) {
+    if (!pts || pts.length < 68) return 50;
+    var noseX = pts[27].x;
+    var symSum = 0, symCount = 0;
+    var pairs = [[17,26],[18,25],[19,24],[20,23],[21,22],[36,45],[37,44],[38,43],[39,42],[40,47],[41,46]];
+    pairs.forEach(function (pair) {
+      var dL = Math.abs(pts[pair[0]].x - noseX);
+      var dR = Math.abs(pts[pair[1]].x - noseX);
+      var ratio = Math.min(dL, dR) / (Math.max(dL, dR) || 0.001);
+      symSum += ratio;
+      symCount++;
+    });
+    var symmetry = symSum / symCount;
+
+    /* 三庭比例: forehead→brow, brow→nose, nose→chin */
+    var browY  = (pts[19].y + pts[24].y) / 2;
+    var noseY  = pts[33].y;
+    var chinY  = pts[8].y;
+    var topY   = pts[0].y;
+    var totalH = chinY - topY;
+    if (totalH <= 0) totalH = 0.01;
+    var thirdsDev = (Math.abs((browY - topY) / totalH - 0.33) +
+                     Math.abs((noseY - browY) / totalH - 0.33) +
+                     Math.abs((chinY - noseY) / totalH - 0.33)) / 3;
+    var thirds = 1 - Math.min(1, thirdsDev * 3);
+
+    /* 五眼: face width / eye width ≈ 5 */
+    var faceW = Math.abs(pts[16].x - pts[0].x) || 0.01;
+    var eyeW  = Math.abs(pts[39].x - pts[36].x) || 0.001;
+    var fiveEyes = 1 - Math.min(1, Math.abs(faceW / eyeW - 5) / 5);
+
+    /* Nose straightness */
+    var noseStraight = 1 - Math.abs(pts[27].x - pts[30].x) / (faceW || 0.01);
+
+    var score = symmetry * 35 + thirds * 25 + fiveEyes * 20 + noseStraight * 20;
+    return Math.max(0, Math.min(100, Math.round(score)));
+  }
+
+  var EXPR_EMOJI = {
+    neutral: "😐", happy: "😄", angry: "😠", sad: "😢",
+    disgusted: "🤢", fearful: "😨", surprised: "😲",
+  };
+  var EXPR_NAMES = {
+    neutral: "平静", happy: "开心", angry: "愤怒", sad: "悲伤",
+    disgusted: "厌恶", fearful: "恐惧", surprised: "惊讶",
+  };
+
+  /* Throttled face detection */
+  async function detectFaces() {
+    if (!faceModelsLoaded || !$video || $video.readyState < 2) return;
+    faceFrameCount++;
+    if (faceFrameCount % FACE_INTERVAL !== 0) return;
+    try {
+      lastFaceResults = await faceapi
+        .detectAllFaces($video, new faceapi.TinyFaceDetectorOptions({ inputSize: 320, scoreThreshold: 0.45 }))
+        .withFaceLandmarks()
+        .withAgeAndGender()
+        .withFaceExpressions();
+    } catch (e) {
+      lastFaceResults = [];
+    }
+    /* Update face badge */
+    if ($face && lastFaceResults.length > 0) {
+      var f = lastFaceResults[0];
+      var age = Math.round(f.age);
+      var gender = f.gender === "male" ? "男" : "女";
+      var topExpr = Object.entries(f.expressions).sort(function (a, b) { return b[1] - a[1]; })[0];
+      $face.textContent = (EXPR_EMOJI[topExpr[0]] || "❓") + " " + gender + " " + age + "岁";
+      $face.classList.add("is-active");
+    } else if ($face) {
+      $face.textContent = "";
+      $face.classList.remove("is-active");
+    }
+  }
+
+  /* Full face analysis rendering (face mode) */
+  function animateFace() {
+    var cw = faceCW(), ch = faceCH();
+    updateParticles();
+
+    if (!lastFaceResults || lastFaceResults.length === 0) {
+      ctx.save();
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.font = "16px system-ui, sans-serif";
+      ctx.fillStyle = "rgba(255,255,255,0.5)";
+      ctx.fillText("正在检测人脸…", cw / 2, ch / 2);
+      ctx.restore();
+      return;
+    }
+
+    lastFaceResults.forEach(function (res) {
+      var box = res.detection.box;
+      var age = Math.round(res.age);
+      var gender = res.gender === "male" ? "男性" : "女性";
+      var expressions = res.expressions;
+      var topExpr = Object.entries(expressions).sort(function (a, b) { return b[1] - a[1]; })[0];
+      var exprName = EXPR_NAMES[topExpr[0]] || topExpr[0];
+      var exprEmoji = EXPR_EMOJI[topExpr[0]] || "❓";
+      var exprConf = Math.round(topExpr[1] * 100);
+      var score = calcAttractiveness(res.landmarks.positions);
+
+      /* Mirror box x because canvas is mirrored */
+      var bx = cw - box.x - box.width;
+      var by = box.y;
+      var bw = box.width;
+      var bh = box.height;
+
+      ctx.save();
+
+      /* Bounding box with glow */
+      ctx.strokeStyle = "rgba(0, 200, 255, 0.7)";
+      ctx.lineWidth = 2;
+      ctx.shadowColor = "rgba(0, 200, 255, 0.3)";
+      ctx.shadowBlur = 8;
+      roundRect(ctx, bx, by, bw, bh, 6);
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+      ctx.strokeStyle = "rgba(0, 200, 255, 0.2)";
+      ctx.lineWidth = 1;
+      roundRect(ctx, bx - 3, by - 3, bw + 6, bh + 6, 8);
+      ctx.stroke();
+
+      /* Landmark dots */
+      var pts = res.landmarks.positions;
+      ctx.globalAlpha = 0.35;
+      pts.forEach(function (p) {
+        ctx.beginPath();
+        ctx.arc(cw - p.x, p.y, 1.5, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(0, 200, 255, 0.6)";
+        ctx.fill();
+      });
+      ctx.globalAlpha = 1;
+
+      /* Attribute card */
+      var lineH = 20, cardW = 150, cardH = lineH * 4 + 16;
+      var cardY = by - 8 - cardH;
+      if (cardY < 4) cardY = by + bh + 8;
+
+      ctx.fillStyle = "rgba(0, 0, 0, 0.72)";
+      roundRect(ctx, bx, cardY, cardW, cardH, 8);
+      ctx.fill();
+      ctx.strokeStyle = "rgba(0, 200, 255, 0.35)";
+      ctx.lineWidth = 1;
+      roundRect(ctx, bx, cardY, cardW, cardH, 8);
+      ctx.stroke();
+
+      var tx = bx + 10, ty = cardY + 8;
+      ctx.textAlign = "left";
+      ctx.textBaseline = "top";
+
+      ctx.font = "bold 13px system-ui, sans-serif";
+      ctx.fillStyle = "#80deea";
+      ctx.fillText("👤 " + gender + "  " + age + " 岁", tx, ty);
+      ty += lineH;
+
+      ctx.font = "13px system-ui, sans-serif";
+      ctx.fillStyle = "#fff59d";
+      ctx.fillText(exprEmoji + " " + exprName + " " + exprConf + "%", tx, ty);
+      ty += lineH;
+
+      ctx.font = "13px system-ui, sans-serif";
+      ctx.fillStyle = "#a5d6a7";
+      ctx.fillText("✨ 颜值评分", tx, ty);
+      var barX = tx + 68, barY = ty + 4, barW = 60, barH = 8;
+      ctx.fillStyle = "rgba(255,255,255,0.12)";
+      roundRect(ctx, barX, barY, barW, barH, 4);
+      ctx.fill();
+      var fillW = barW * (score / 100);
+      if (fillW > 0) {
+        var grad = ctx.createLinearGradient(barX, 0, barX + barW, 0);
+        grad.addColorStop(0, "#ff6b6b");
+        grad.addColorStop(0.5, "#ffd93d");
+        grad.addColorStop(1, "#6bcb77");
+        ctx.fillStyle = grad;
+        roundRect(ctx, barX, barY, fillW, barH, 4);
+        ctx.fill();
+      }
+      ty += lineH;
+
+      ctx.font = "bold 13px system-ui, sans-serif";
+      ctx.fillStyle = "#a5d6a7";
+      ctx.fillText("🏆 " + score + " 分", tx, ty);
+
+      /* Expression-driven particles */
+      spawnFaceParticles(bx, by, bw, bh, topExpr[0]);
+
+      ctx.restore();
+    });
+  }
+
+  /* Expression-driven particle effects */
+  function spawnFaceParticles(bx, by, bw, bh, expr) {
+    if (!cooled("face-particle-" + expr, 120)) return;
+    for (var i = 0; i < 3; i++) {
+      var p = {
+        x: bx + Math.random() * bw, y: by - 5,
+        vx: (Math.random() - 0.5) * 2, vy: -(1 + Math.random() * 2),
+        radius: Math.random() * 3 + 2, life: 1, decay: 0.02,
+        shape: "circle", friction: 0.98, gravity: -0.01,
+      };
+      switch (expr) {
+        case "happy":     p.hue = 45;  p.shape = "star"; p.vy = -(2 + Math.random() * 2); break;
+        case "angry":     p.hue = 5;   p.radius = Math.random() * 4 + 3; p.gravity = 0.03; break;
+        case "sad":       p.hue = 210; p.vy = 1 + Math.random() * 2; p.y = by + bh + 5; p.gravity = 0.05; break;
+        case "surprised": p.hue = 290; p.shape = "star"; p.vx = (Math.random() - 0.5) * 5; p.vy = (Math.random() - 0.5) * 5; p.gravity = 0; break;
+        case "fearful":   p.hue = 185; p.radius = 2; p.decay = 0.03; break;
+        case "disgusted": p.hue = 100; p.gravity = 0.04; break;
+        default:          p.hue = 200; p.radius = 2; break;
+      }
+      particles.push(p);
+    }
+  }
+
+  /* Lightweight face overlay for non-face modes */
+  function drawFaceOverlay() {
+    if (!lastFaceResults || lastFaceResults.length === 0) return;
+    var cw = faceCW();
+    ctx.save();
+    lastFaceResults.forEach(function (res) {
+      var box = res.detection.box;
+      var bx = cw - box.x - box.width, by = box.y, bw = box.width, bh = box.height;
+      ctx.strokeStyle = "rgba(0, 200, 255, 0.35)";
+      ctx.lineWidth = 1;
+      roundRect(ctx, bx, by, bw, bh, 4);
+      ctx.stroke();
+      var age = Math.round(res.age);
+      var gender = res.gender === "male" ? "♂" : "♀";
+      var topExpr = Object.entries(res.expressions).sort(function (a, b) { return b[1] - a[1]; })[0];
+      var label = (EXPR_EMOJI[topExpr[0]] || "❓") + " " + gender + " " + age;
+      ctx.font = "11px system-ui, sans-serif";
+      var tw = ctx.measureText(label).width + 10;
+      var ly = by - 18;
+      if (ly < 2) ly = by + bh + 4;
+      ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
+      roundRect(ctx, bx, ly, tw, 16, 3);
+      ctx.fill();
+      ctx.fillStyle = "rgba(0, 200, 255, 0.85)";
+      ctx.textAlign = "left";
+      ctx.textBaseline = "top";
+      ctx.fillText(label, bx + 5, ly + 2);
+    });
+    ctx.restore();
+  }
+
+  /* ====================================================================
    * 10. Particle System
    * ==================================================================== */
   function spawnParticle(x, y, shape, hue, life) {
@@ -1760,6 +2284,13 @@
     fruitBladeTrail.length = 0;
     fruitStartTime = 0;
     lastDetections = [];
+    lastFaceResults = [];
+    revealProgress = 0;
+    prev3D = null;
+    if ($face) {
+      $face.textContent = "";
+      $face.classList.remove("is-active");
+    }
     var cw = drawCanvas.width / (window.devicePixelRatio || 1);
     var ch = drawCanvas.height / (window.devicePixelRatio || 1);
     drawCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
@@ -1794,11 +2325,25 @@
     /* reset detection state */
     lastDetections = [];
     lastDetectTime = 0;
+    /* reset 3D state */
+    revealProgress = 0;
+    prev3D = null;
     /* lazy-load models when switching modes while running */
     if (m === "detect" && running && !objectDetector) {
       loadObjectDetector();
     } else if (m !== "detect" && running && !handLandmarker) {
       loadMediaPipe();
+    }
+    /* lazy-load face-api models when switching to face mode */
+    if (m === "face" && running && !faceModelsLoaded) {
+      loadFaceApi();
+    }
+    /* 3D mode lifecycle */
+    if (m === "3d" && running) {
+      loadThree().then(initThreeScene);
+    }
+    if (mode === "3d" && m !== "3d") {
+      cleanupThreeScene();
     }
   });
 
@@ -1826,5 +2371,15 @@
   if (gesturePanel) {
     observer.observe(gesturePanel, { attributes: true, attributeFilter: ["hidden"] });
   }
+
+  /* Sub-mode button click (point cloud ↔ mesh) */
+  document.addEventListener("click", function (e) {
+    var btn = e.target.closest(".gesture-submode-btn");
+    if (!btn) return;
+    var sm = btn.dataset.submode;
+    if (!sm || sm === subMode) return;
+    if (sm === "mesh") switchToMesh(); else switchToPointCloud();
+    updateSubModeButtons();
+  });
 
 })();
