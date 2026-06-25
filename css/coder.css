@@ -4297,6 +4297,245 @@ body.search-open .search-modal .search-modal-card,
   }
 }
 
+/* ---- 3D Reconstruction Mode ---- */
+
+.gesture-three-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  display: none;
+}
+
+.gesture-three-container canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.gesture-viewport.is-3d-mode .gesture-three-container {
+  display: block;
+}
+
+.gesture-viewport.is-3d-mode .gesture-canvas {
+  z-index: -1;
+}
+
+.gesture-depth-preview {
+  position: absolute;
+  bottom: 0.5rem;
+  right: 0.5rem;
+  width: 120px;
+  height: 90px;
+  border: 1px solid var(--border, rgba(255,255,255,0.1));
+  border-radius: 0.4rem;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 5;
+  image-rendering: pixelated;
+  display: none;
+}
+
+.gesture-viewport.is-3d-mode .gesture-depth-preview {
+  display: block;
+}
+
+.gesture-3d-submodes {
+  display: flex;
+  gap: 0.35rem;
+  margin-bottom: 0.75rem;
+}
+
+.gesture-submode-btn {
+  flex: 1;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--border, rgba(255,255,255,0.15));
+  border-radius: 0.5rem;
+  background: var(--surface, rgba(255,255,255,0.04));
+  color: var(--text-muted, #aaa);
+  font-size: 0.8rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  transition: background 200ms, border-color 200ms, color 200ms;
+}
+
+.gesture-submode-btn:hover {
+  background: var(--accent-soft, rgba(100,180,255,0.1));
+}
+
+.gesture-submode-btn.active {
+  background: var(--accent-soft, rgba(100,180,255,0.15));
+  border-color: var(--accent, #64b4ff);
+  color: var(--accent, #64b4ff);
+}
+
+@media (max-width: 768px) {
+  .gesture-submode-btn span {
+    display: none;
+  }
+
+  .gesture-submode-btn i {
+    font-size: 1rem;
+  }
+
+  .gesture-depth-preview {
+    width: 80px;
+    height: 60px;
+  }
+}
+
+/* ---- Object Search Tool ---- */
+
+.obj-capture-row {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 0.75rem;
+}
+
+.obj-capture-btn {
+  min-width: 120px;
+  font-size: 1rem;
+  padding: 0.65rem 1.5rem;
+}
+
+.obj-capture-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.obj-result {
+  margin-bottom: 0.75rem;
+  text-align: center;
+}
+
+.obj-photo {
+  max-width: 100%;
+  max-height: 300px;
+  border-radius: 0.75rem;
+  border: 1px solid var(--border, rgba(255,255,255,0.1));
+  margin-bottom: 0.5rem;
+}
+
+.obj-result-info {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 0.5rem;
+}
+
+.obj-result-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.25rem 0.7rem;
+  border-radius: 2rem;
+  background: var(--accent-soft, rgba(100,180,255,0.12));
+  border: 1px solid var(--accent, #64b4ff);
+  font-size: 0.85rem;
+  color: var(--accent, #64b4ff);
+  font-weight: 600;
+}
+
+.obj-search-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+@media (max-width: 768px) {
+  .obj-capture-btn {
+    min-width: 100px;
+    padding: 0.55rem 1.2rem;
+  }
+
+  .obj-photo {
+    max-height: 200px;
+  }
+}
+
+/* ---- Face Analysis Overlay ---- */
+
+.face-box {
+  position: absolute;
+  border: 2px solid rgba(0, 200, 255, 0.7);
+  border-radius: 6px;
+  pointer-events: none;
+  box-shadow: 0 0 12px rgba(0, 200, 255, 0.25), inset 0 0 12px rgba(0, 200, 255, 0.08);
+}
+
+.face-box::before {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border: 1px solid rgba(0, 200, 255, 0.2);
+  border-radius: 8px;
+}
+
+.face-attr {
+  position: absolute;
+  left: 0;
+  bottom: 100%;
+  margin-bottom: 6px;
+  padding: 6px 10px;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(0, 200, 255, 0.35);
+  border-radius: 8px;
+  font-size: 0.75rem;
+  line-height: 1.6;
+  color: #e0e0e0;
+  white-space: nowrap;
+  pointer-events: none;
+  transform: translateZ(0);
+}
+
+.face-attr .face-gender {
+  font-weight: 600;
+}
+
+.face-attr .face-age {
+  color: #80deea;
+}
+
+.face-attr .face-expression {
+  color: #fff59d;
+}
+
+.face-score-bar {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.face-score-track {
+  display: inline-block;
+  width: 60px;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.face-score-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, #ff6b6b, #ffd93d, #6bcb77);
+  transition: width 300ms ease;
+}
+
+.face-score-val {
+  color: #a5d6a7;
+  font-weight: 600;
+  font-size: 0.78rem;
+}
+
 /* ---- End Gesture Tool ---- */
 
 .time-now,

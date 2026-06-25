@@ -814,10 +814,29 @@ ${toolHeader(tool)}
             <button class="gesture-mode-btn" data-mode="draw" type="button">
               <i class="fas fa-paint-brush" aria-hidden="true"></i> <span data-i18n="tools.gesture.modeDraw" data-i18n-en="Drawing">指尖绘画</span>
             </button>
+            <button class="gesture-mode-btn" data-mode="fruit" type="button">
+              <i class="fas fa-apple-alt" aria-hidden="true"></i> <span data-i18n="tools.gesture.modeFruit" data-i18n-en="Fruit Ninja">体感切水果</span>
+            </button>
+            <button class="gesture-mode-btn" data-mode="face" type="button">
+              <i class="fas fa-face-smile" aria-hidden="true"></i> <span data-i18n="tools.gesture.modeFace" data-i18n-en="Face Analysis">人脸分析</span>
+            </button>
+            <button class="gesture-mode-btn" data-mode="3d" type="button">
+              <i class="fas fa-cube" aria-hidden="true"></i> <span data-i18n="tools.gesture.mode3d" data-i18n-en="3D Reconstruction">3D 重建</span>
+            </button>
+          </div>
+          <div class="gesture-3d-submodes" id="gesture-3d-submodes" hidden>
+            <button class="gesture-submode-btn active" data-submode="pointcloud" type="button">
+              <i class="fas fa-braille" aria-hidden="true"></i> <span data-i18n="tools.gesture.subPointCloud" data-i18n-en="Point Cloud">点云</span>
+            </button>
+            <button class="gesture-submode-btn" data-submode="mesh" type="button">
+              <i class="fas fa-draw-polygon" aria-hidden="true"></i> <span data-i18n="tools.gesture.subMesh" data-i18n-en="Mesh">网格</span>
+            </button>
           </div>
           <div class="gesture-viewport">
             <video id="gesture-video" class="gesture-video" autoplay playsinline muted></video>
             <canvas id="gesture-canvas" class="gesture-canvas"></canvas>
+            <div id="gesture-three-container" class="gesture-three-container"></div>
+            <canvas id="gesture-depth-preview" class="gesture-depth-preview" width="80" height="60"></canvas>
             <div id="gesture-overlay" class="gesture-overlay">
               <i class="fas fa-hand-sparkles" aria-hidden="true"></i>
               <p data-i18n="tools.gesture.placeholder" data-i18n-en='Click "Start Camera" to begin'>点击"开启摄像头"开始</p>
@@ -827,6 +846,7 @@ ${toolHeader(tool)}
             <span id="gesture-status" class="gesture-badge">就绪</span>
             <span id="gesture-label" class="gesture-badge"></span>
             <span id="gesture-fps" class="gesture-badge"></span>
+            <span id="gesture-face" class="gesture-badge"></span>
           </div>
           <p class="gesture-privacy">
             <i class="fas fa-shield-alt" aria-hidden="true"></i>

@@ -29,6 +29,7 @@
   <script src="/js/tools.js" defer></script>
   <script src="/js/editor.js" defer></script>
   <script src="/js/gesture.js" defer></script>
+  <script src="/js/object-search.js" defer></script>
   <link rel="canonical" href="https://wenliang844.github.io/tools/">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="CWLBlog">
@@ -88,6 +89,23 @@
         </header>
         <div class="tools-shell">
           <nav class="tools-tabs" role="tablist" aria-label="工具分类列表" data-i18n-aria="tools.tabs" data-i18n-en-aria="Categorized tool list">
+            <details class="tool-category" data-tool-category="visual" open>
+              <summary class="tool-category-summary">
+                <span class="tool-category-chevron" aria-hidden="true"><i class="fas fa-chevron-right"></i></span>
+                <span class="tool-category-title" data-i18n="tools.category.visual" data-i18n-en="Visual &amp; Interaction">视觉与交互</span>
+                <span class="tool-category-count" aria-label="2 个工具">2</span>
+              </summary>
+              <div class="tool-category-list">
+            <button class="tool-tab" id="tool-tab-gesture" type="button" role="tab" data-tool-tab="gesture" aria-controls="tool-gesture" aria-label="手势交互动画" aria-selected="false" tabindex="-1" data-i18n-aria="tools.nav.gesture" data-i18n-en-aria="Gesture Animation">
+              <i class="fas fa-hand-sparkles" aria-hidden="true"></i>
+              <span data-i18n="tools.nav.gesture" data-i18n-en="Gesture Animation">手势交互动画</span>
+            </button>
+            <button class="tool-tab" id="tool-tab-objectsearch" type="button" role="tab" data-tool-tab="objectsearch" aria-controls="tool-objectsearch" aria-label="物体识别拍照搜" aria-selected="false" tabindex="-1" data-i18n-aria="tools.nav.objectsearch" data-i18n-en-aria="Object Recognition &amp; Search">
+              <i class="fas fa-camera-retro" aria-hidden="true"></i>
+              <span data-i18n="tools.nav.objectsearch" data-i18n-en="Object Recognition &amp; Search">物体识别拍照搜</span>
+            </button>
+              </div>
+            </details>
             <details class="tool-category" data-tool-category="data" open>
               <summary class="tool-category-summary">
                 <span class="tool-category-chevron" aria-hidden="true"><i class="fas fa-chevron-right"></i></span>
@@ -255,19 +273,6 @@
             <button class="tool-tab" id="tool-tab-ua" type="button" role="tab" data-tool-tab="ua" aria-controls="tool-ua" aria-label="UA 解析" aria-selected="false" tabindex="-1" data-i18n-aria="tools.nav.ua" data-i18n-en-aria="User-Agent Parser">
               <i class="fas fa-desktop" aria-hidden="true"></i>
               <span data-i18n="tools.nav.ua" data-i18n-en="User-Agent Parser">UA 解析</span>
-            </button>
-              </div>
-            </details>
-            <details class="tool-category" data-tool-category="visual" open>
-              <summary class="tool-category-summary">
-                <span class="tool-category-chevron" aria-hidden="true"><i class="fas fa-chevron-right"></i></span>
-                <span class="tool-category-title" data-i18n="tools.category.visual" data-i18n-en="Visual &amp; Interaction">视觉与交互</span>
-                <span class="tool-category-count" aria-label="1 个工具">1</span>
-              </summary>
-              <div class="tool-category-list">
-            <button class="tool-tab" id="tool-tab-gesture" type="button" role="tab" data-tool-tab="gesture" aria-controls="tool-gesture" aria-label="手势交互动画" aria-selected="false" tabindex="-1" data-i18n-aria="tools.nav.gesture" data-i18n-en-aria="Gesture Animation">
-              <i class="fas fa-hand-sparkles" aria-hidden="true"></i>
-              <span data-i18n="tools.nav.gesture" data-i18n-en="Gesture Animation">手势交互动画</span>
             </button>
               </div>
             </details>
@@ -1132,10 +1137,32 @@ q=toolbox"></textarea>
             <button class="gesture-mode-btn" data-mode="draw" type="button">
               <i class="fas fa-paint-brush" aria-hidden="true"></i> <span data-i18n="tools.gesture.modeDraw" data-i18n-en="Drawing">指尖绘画</span>
             </button>
+            <button class="gesture-mode-btn" data-mode="fruit" type="button">
+              <i class="fas fa-apple-alt" aria-hidden="true"></i> <span data-i18n="tools.gesture.modeFruit" data-i18n-en="Fruit Ninja">体感切水果</span>
+            </button>
+            <button class="gesture-mode-btn" data-mode="detect" type="button">
+              <i class="fas fa-crosshairs" aria-hidden="true"></i> <span data-i18n="tools.gesture.modeDetect" data-i18n-en="Object Detection">物体检测</span>
+            </button>
+            <button class="gesture-mode-btn" data-mode="face" type="button">
+              <i class="fas fa-face-smile" aria-hidden="true"></i> <span data-i18n="tools.gesture.modeFace" data-i18n-en="Face Analysis">人脸分析</span>
+            </button>
+            <button class="gesture-mode-btn" data-mode="3d" type="button">
+              <i class="fas fa-cube" aria-hidden="true"></i> <span data-i18n="tools.gesture.mode3d" data-i18n-en="3D Reconstruction">3D 重建</span>
+            </button>
+          </div>
+          <div class="gesture-3d-submodes" id="gesture-3d-submodes" hidden>
+            <button class="gesture-submode-btn active" data-submode="pointcloud" type="button">
+              <i class="fas fa-braille" aria-hidden="true"></i> <span data-i18n="tools.gesture.subPointCloud" data-i18n-en="Point Cloud">点云</span>
+            </button>
+            <button class="gesture-submode-btn" data-submode="mesh" type="button">
+              <i class="fas fa-draw-polygon" aria-hidden="true"></i> <span data-i18n="tools.gesture.subMesh" data-i18n-en="Mesh">网格</span>
+            </button>
           </div>
           <div class="gesture-viewport">
             <video id="gesture-video" class="gesture-video" autoplay playsinline muted></video>
             <canvas id="gesture-canvas" class="gesture-canvas"></canvas>
+            <div id="gesture-three-container" class="gesture-three-container"></div>
+            <canvas id="gesture-depth-preview" class="gesture-depth-preview" width="80" height="60"></canvas>
             <div id="gesture-overlay" class="gesture-overlay">
               <i class="fas fa-hand-sparkles" aria-hidden="true"></i>
               <p data-i18n="tools.gesture.placeholder" data-i18n-en='Click "Start Camera" to begin'>点击"开启摄像头"开始</p>
@@ -1145,10 +1172,68 @@ q=toolbox"></textarea>
             <span id="gesture-status" class="gesture-badge">就绪</span>
             <span id="gesture-label" class="gesture-badge"></span>
             <span id="gesture-fps" class="gesture-badge"></span>
+            <span id="gesture-face" class="gesture-badge"></span>
           </div>
           <p class="gesture-privacy">
             <i class="fas fa-shield-alt" aria-hidden="true"></i>
             <span data-i18n="tools.gesture.privacy" data-i18n-en="All data is processed locally in your browser and is never uploaded to any server.">所有数据均在浏览器本地处理，不会上传到任何服务器。</span>
+          </p>
+        </section>
+        <section class="tool-panel" id="tool-objectsearch" data-tool-panel="objectsearch" role="tabpanel" aria-labelledby="tool-tab-objectsearch" tabindex="0" hidden>
+          <header class="tool-panel-head">
+            <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-camera-retro"></i></span>
+            <div>
+              <h2 data-i18n="tools.objectsearch.title" data-i18n-en="Object Recognition &amp; Search">物体识别拍照搜</h2>
+              <p data-i18n="tools.objectsearch.desc" data-i18n-en="Detect objects in real-time via webcam, capture a photo, and search online.">通过摄像头实时识别物体，拍照后在线搜索。</p>
+            </div>
+          </header>
+          <div class="gesture-controls">
+            <button class="tool-btn primary" id="obj-start" type="button">
+              <i class="fas fa-video" aria-hidden="true"></i> <span data-i18n="tools.objectsearch.start" data-i18n-en="Start Camera">开启摄像头</span>
+            </button>
+            <button class="tool-btn" id="obj-stop" type="button" disabled>
+              <i class="fas fa-video-slash" aria-hidden="true"></i> <span data-i18n="tools.objectsearch.stop" data-i18n-en="Stop Camera">关闭摄像头</span>
+            </button>
+          </div>
+          <div class="gesture-viewport">
+            <video id="obj-video" class="gesture-video" autoplay playsinline muted></video>
+            <canvas id="obj-canvas" class="gesture-canvas"></canvas>
+            <div id="obj-overlay" class="gesture-overlay">
+              <i class="fas fa-camera-retro" aria-hidden="true"></i>
+              <p data-i18n="tools.objectsearch.placeholder" data-i18n-en='Click "Start Camera" to begin'>点击"开启摄像头"开始</p>
+            </div>
+          </div>
+          <div class="gesture-info">
+            <span id="obj-status" class="gesture-badge">就绪</span>
+            <span id="obj-label" class="gesture-badge"></span>
+            <span id="obj-fps" class="gesture-badge"></span>
+          </div>
+          <div class="obj-capture-row">
+            <button class="tool-btn primary obj-capture-btn" id="obj-capture" type="button" disabled>
+              <i class="fas fa-camera" aria-hidden="true"></i> <span data-i18n="tools.objectsearch.capture" data-i18n-en="Capture Photo">拍照</span>
+            </button>
+          </div>
+          <div class="obj-result" id="obj-result" hidden>
+            <img id="obj-photo" class="obj-photo" alt="captured photo">
+            <div class="obj-result-info">
+              <span id="obj-result-label" class="obj-result-chip"></span>
+              <span id="obj-result-confidence" class="obj-result-chip"></span>
+            </div>
+            <div class="obj-search-actions">
+              <button class="tool-btn primary" id="obj-search-text" type="button">
+                <i class="fas fa-search" aria-hidden="true"></i> <span data-i18n="tools.objectsearch.searchText" data-i18n-en="Search Text">搜索文字</span>
+              </button>
+              <button class="tool-btn" id="obj-search-lens" type="button">
+                <i class="fas fa-camera" aria-hidden="true"></i> <span data-i18n="tools.objectsearch.searchLens" data-i18n-en="Google Lens">以图搜图</span>
+              </button>
+              <button class="tool-btn" id="obj-recapture" type="button">
+                <i class="fas fa-redo" aria-hidden="true"></i> <span data-i18n="tools.objectsearch.recapture" data-i18n-en="Recapture">重新拍照</span>
+              </button>
+            </div>
+          </div>
+          <p class="gesture-privacy">
+            <i class="fas fa-shield-alt" aria-hidden="true"></i>
+            <span data-i18n="tools.objectsearch.privacy" data-i18n-en="All image data is processed locally in your browser and is never uploaded to any server.">所有图像数据均在浏览器本地处理，不会上传到任何服务器。</span>
           </p>
         </section>
           </div>

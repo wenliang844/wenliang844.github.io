@@ -12,6 +12,7 @@
   const $status  = document.getElementById("gesture-status");
   const $label   = document.getElementById("gesture-label");
   const $fps     = document.getElementById("gesture-fps");
+  const $face    = document.getElementById("gesture-face");
 
   if (!$canvas) return;                       // not on tools page
 
@@ -23,10 +24,11 @@
   let handLandmarker  = null;                 // MediaPipe instance
   let cameraStream    = null;                 // MediaStream
   let running         = false;                // detection loop active?
-  let mode            = "particle";           // particle | gesture | draw
+  let mode            = "particle";           // particle | gesture | draw | fruit | dance
   let lastGesture     = "none";               // recognised gesture name
   let lastGestureTime = 0;
   let swipeHistory    = [];                   // palm centre history for swipe
+  let waveHistory     = [];                   // wrist x history for wave oscillation
 
   /* FPS counter */
   let frameCount  = 0;
@@ -53,6 +55,97 @@
   let drawHue = 200;
   let prevDrawPoint = null;
 
+  /* Object detection state */
+  let objectDetector  = null;                // MediaPipe ObjectDetector instance
+  const DETECT_INTERVAL = 100;               // throttle detection to ~10 FPS
+  let lastDetectTime  = 0;
+  let lastDetections  = [];                  // cached detections for inter-frame rendering
+
+  /* ---- Fruit Ninja game state ---- */
+  var fruitBladeTrail = [];           /* [{x,y,t}] blade trail points */
+  var fruitList       = [];           /* active fruit objects */
+  var fruitHalves     = [];           /* sliced half animations */
+  var fruitJuice      = [];           /* juice splash particles */
+  var fruitScore      = 0;
+  var fruitCombo      = 0;
+  var fruitComboTime  = 0;            /* last slice timestamp for combo decay */
+  var fruitLives      = 3;
+  var fruitSpawnTimer = 0;            /* next spawn time */
+  var fruitGameOver   = false;
+  var fruitDifficulty = 0;            /* increases over time */
+  var fruitStartTime  = 0;
+  var fruitHighScore  = parseInt(localStorage.getItem("gesture-fruit-hs") || "0", 10);
+
+  var FRUIT_DEFS = [
+    { emoji: "🍎", color: "#e53935", glow: "#ff5252", r: 30, pts: 10 },
+    { emoji: "🍊", color: "#ff9800", glow: "#ffb74d", r: 28, pts: 15 },
+    { emoji: "🍋", color: "#fdd835", glow: "#fff176", r: 25, pts: 20 },
+    { emoji: "🍐", color: "#8bc34a", glow: "#aed581", r: 32, pts: 10 },
+    { emoji: "🍇", color: "#7b1fa2", glow: "#ba68c8", r: 22, pts: 25 },
+    { emoji: "🍉", color: "#2e7d32", glow: "#66bb6a", r: 38, pts: 30 },
+    { emoji: "🍑", color: "#f48fb1", glow: "#f8bbd0", r: 27, pts: 15 },
+    { emoji: "🥝", color: "#689f38", glow: "#9ccc65", r: 22, pts: 20 },
+    { emoji: "💣", color: "#37474f", glow: "#78909c", r: 26, pts: -50 },
+  ];
+  var FRUIT_WEIGHTS = [20, 18, 12, 15, 10, 5, 10, 8, 5];
+
+  /* ---- Face Analysis state ---- */
+  let faceApiReady     = false;        // face-api.js script loaded?
+  let faceModelsLoaded = false;        // all models loaded?
+  let lastFaceResults  = [];           // cached face detection results
+  let faceFrameCount   = 0;           // frame counter for throttling
+  const FACE_INTERVAL  = 3;           // run face detection every N frames
+
+  /* ---- Dance DDR game state ---- */
+  var DANCE_DIRS = {
+    left:  { arrow: "←", hue: 210, color: "#4488ff", glow: "#66aaff" },
+    right: { arrow: "→", hue: 0,   color: "#ff4444", glow: "#ff6666" },
+    up:    { arrow: "↑", hue: 140, color: "#44dd44", glow: "#66ff66" },
+    down:  { arrow: "↓", hue: 50,  color: "#ffcc00", glow: "#ffdd44" },
+  };
+  var DANCE_DIR_KEYS = ["left", "right", "up", "down"];
+
+  var danceArrows       = [];
+  var danceScore        = 0;
+  var danceCombo        = 0;
+  var danceMaxCombo     = 0;
+  var dancePerfect      = 0;
+  var danceGreat        = 0;
+  var danceMiss         = 0;
+  var dancePhase        = "idle";      /* idle | ready | play | over */
+  var danceStartTime    = 0;
+  var danceReadyTime    = 0;
+  var danceDuration     = 60000;       /* 60 s */
+  var danceSpawnIndex   = 0;
+  var dancePattern      = [];
+  var danceMissEffects  = [];
+  var danceJudgmentFX   = [];
+  var danceHighScore    = parseInt(localStorage.getItem("gesture-dance-hs") || "0", 10);
+  var dancePulse        = 0;
+
+  /* ---- 3D Reconstruction state ---- */
+  var THREE_M = null;                  /* THREE module reference */
+  var threeLoaded   = false;
+  var threeScene    = null;
+  var threeCamera   = null;
+  var threeRenderer = null;
+  var threePoints   = null;            /* THREE.Points */
+  var threeMesh     = null;            /* THREE.Mesh */
+  var threeGeometry = null;            /* shared BufferGeometry */
+  var threeLights   = [];              /* scene lights */
+  var depth3D       = null;            /* Float32Array(GRID_W * GRID_H) smoothed */
+  var depthRaw      = null;            /* Float32Array(GRID_W * GRID_H) raw per frame */
+  var subMode       = "pointcloud";    /* "pointcloud" | "mesh" */
+  var revealProgress = 0;              /* 0-1 progressive reveal */
+  var prev3D        = null;            /* previous frame landmarks for delta */
+  var threeTargetRot = { x: 0, y: 0 };
+  var threeTargetPos = { x: 0, y: 0, z: 3 };
+  var captureCanvas  = document.createElement("canvas");
+  var captureCtx     = captureCanvas.getContext("2d", { willReadFrequently: true });
+  var GRID_W = 100, GRID_H = 75;      /* downsample resolution */
+  captureCanvas.width  = GRID_W;
+  captureCanvas.height = GRID_H;
+
   /* ====================================================================
    * 1. MediaPipe CDN Loader
    * ==================================================================== */
@@ -62,6 +155,8 @@
     "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.18/wasm";
   const MODEL_URL =
     "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/latest/hand_landmarker.task";
+  const DETECT_MODEL_URL =
+    "https://storage.googleapis.com/mediapipe-models/object_detector/efficientdet_lite0/float16/latest/efficientdet_lite0.tflite";
 
   async function loadMediaPipe() {
     if (handLandmarker) return true;
@@ -83,11 +178,84 @@
     }
   }
 
+  async function loadObjectDetector() {
+    if (objectDetector) return true;
+    setStatus("loading", "加载物体检测模型…");
+    try {
+      var vision = await import(/* webpackIgnore: true */ VISION_CDN);
+      var fileset = await vision.FilesetResolver.forVisionTasks(WASM_BASE);
+      objectDetector = await vision.ObjectDetector.createFromOptions(fileset, {
+        baseOptions: { modelAssetPath: DETECT_MODEL_URL, delegate: "GPU" },
+        runningMode: "VIDEO",
+        maxResults: 20,
+        scoreThreshold: 0.4,
+      });
+      setStatus("ready", "物体检测模型已加载");
+      return true;
+    } catch (e) {
+      setStatus("error", "物体检测模型加载失败");
+      console.error("[gesture detect]", e);
+      return false;
+    }
+  }
+
+  /* ====================================================================
+   * 1b. face-api.js CDN Loader
+   * ==================================================================== */
+  const FACE_API_CDN =
+    "https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js";
+  const FACE_MODELS_BASE =
+    "https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/";
+
+  async function loadFaceApi() {
+    if (faceModelsLoaded) return true;
+    if (!faceApiReady) {
+      setStatus("loading", "加载人脸分析库…");
+      try {
+        await new Promise(function (resolve, reject) {
+          var s = document.createElement("script");
+          s.src = FACE_API_CDN;
+          s.onload = resolve;
+          s.onerror = reject;
+          document.head.appendChild(s);
+        });
+        faceApiReady = true;
+      } catch (e) {
+        setStatus("error", "人脸分析库加载失败");
+        console.error("[face-api]", e);
+        return false;
+      }
+    }
+    setStatus("loading", "加载人脸模型…");
+    try {
+      await Promise.all([
+        faceapi.nets.tinyFaceDetector.loadFromUri(FACE_MODELS_BASE),
+        faceapi.nets.ageGenderNet.loadFromUri(FACE_MODELS_BASE),
+        faceapi.nets.faceExpressionNet.loadFromUri(FACE_MODELS_BASE),
+        faceapi.nets.faceLandmark68Net.loadFromUri(FACE_MODELS_BASE),
+      ]);
+      faceModelsLoaded = true;
+      setStatus("ready", "人脸模型已加载");
+      return true;
+    } catch (e) {
+      setStatus("error", "人脸模型加载失败");
+      console.error("[face-api models]", e);
+      return false;
+    }
+  }
+
   /* ====================================================================
    * 2. Camera Manager
    * ==================================================================== */
   async function startCamera() {
-    if (!(await loadMediaPipe())) return;
+    if (mode === "detect") {
+      if (!(await loadObjectDetector())) return;
+    } else if (mode === "face") {
+      if (!(await loadFaceApi())) return;
+      if (!(await loadMediaPipe())) return;
+    } else {
+      if (!(await loadMediaPipe())) return;
+    }
     try {
       cameraStream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: "user", width: { ideal: 640 }, height: { ideal: 480 } },
@@ -127,14 +295,15 @@
     var w = Math.floor(rect.width);
     var h = Math.floor(rect.height);
     var dpr = window.devicePixelRatio || 1;
-    $canvas.width  = w * dpr;
-    $canvas.height = h * dpr;
+    if ($canvas.width !== w * dpr || $canvas.height !== h * dpr) {
+      $canvas.width  = w * dpr;
+      $canvas.height = h * dpr;
+      drawCanvas.width  = w * dpr;
+      drawCanvas.height = h * dpr;
+    }
     $canvas.style.width  = w + "px";
     $canvas.style.height = h + "px";
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    /* keep draw canvas in sync */
-    drawCanvas.width  = w * dpr;
-    drawCanvas.height = h * dpr;
     drawCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
 
@@ -144,9 +313,26 @@
   function loop() {
     if (!running) return;
     if (!document.hidden && $video.readyState >= 2) {
-      var result = handLandmarker.detectForVideo($video, performance.now());
-      handleResults(result);
-      updateFPS();
+      if (mode === "detect") {
+        /* object detection mode – throttle to DETECT_INTERVAL */
+        var now = performance.now();
+        if (objectDetector && now - lastDetectTime >= DETECT_INTERVAL) {
+          lastDetectTime = now;
+          var detResult = objectDetector.detectForVideo($video, now);
+          handleDetectResults(detResult);
+        } else {
+          /* between detections, redraw cached results */
+          redrawDetections();
+        }
+        updateFPS();
+      } else {
+        /* hand gesture modes */
+        if (handLandmarker) {
+          var result = handLandmarker.detectForVideo($video, performance.now());
+          handleResults(result);
+        }
+        updateFPS();
+      }
     }
     requestAnimationFrame(loop);
   }
@@ -215,13 +401,26 @@
     /* Fist: all fingers curled */
     if (count === 0) return "fist";
 
+    /* Thumbs-up: thumb extended, all others curled */
+    if (ext.thumb && !ext.index && !ext.middle && !ext.ring && !ext.pinky) {
+      /* verify thumb points upward: tip above wrist by a significant margin */
+      if (lm[4].y < lm[0].y - 0.08) return "thumbs-up";
+    }
+
     /* Point: only index extended */
     if (ext.index && !ext.middle && !ext.ring && !ext.pinky) return "point";
 
     /* Peace: index + middle extended, others curled */
     if (ext.index && ext.middle && !ext.ring && !ext.pinky) return "peace";
 
-    /* Open palm: all extended */
+    /* Number gestures by non-thumb finger count */
+    var fingerCount = (ext.index ? 1 : 0) + (ext.middle ? 1 : 0) +
+                      (ext.ring ? 1 : 0) + (ext.pinky ? 1 : 0);
+
+    if (fingerCount === 3 && !ext.thumb) return "number-3";
+    if (fingerCount === 4 && !ext.thumb) return "number-4";
+
+    /* Open palm: all 5 extended */
     if (count >= 4) return "open";
 
     return "none";
@@ -251,6 +450,37 @@
     return null;
   }
 
+  /* Wave detection: track wrist x-position for oscillation (back-and-forth) */
+  function detectWave(lm) {
+    waveHistory.push({ x: lm[0].x, t: performance.now() });
+    if (waveHistory.length > 30) waveHistory.shift();
+    if (waveHistory.length < 8) return false;
+    /* prune old entries (> 1.2 s) */
+    var now = performance.now();
+    waveHistory = waveHistory.filter(function (h) { return now - h.t < 1200; });
+    if (waveHistory.length < 8) return false;
+    /* count direction changes */
+    var changes = 0;
+    var prevDir = 0;
+    for (var i = 1; i < waveHistory.length; i++) {
+      var dx = waveHistory[i].x - waveHistory[i - 1].x;
+      if (Math.abs(dx) < 0.003) continue;     /* ignore tiny movements */
+      var dir = dx > 0 ? 1 : -1;
+      if (prevDir !== 0 && dir !== prevDir) changes++;
+      prevDir = dir;
+    }
+    /* require at least 2 direction changes and sufficient total displacement */
+    var totalRange = 0;
+    for (var j = 1; j < waveHistory.length; j++) {
+      totalRange += Math.abs(waveHistory[j].x - waveHistory[j - 1].x);
+    }
+    if (changes >= 2 && totalRange > 0.15) {
+      waveHistory = [];
+      return true;
+    }
+    return false;
+  }
+
   /* ====================================================================
    * 6. Results Dispatcher
    * ==================================================================== */
@@ -261,6 +491,12 @@
 
     if (!result.landmarks || result.landmarks.length === 0) {
       setLabel("未检测到手部");
+      if (mode === "draw") {
+        var cw2 = $canvas.width / (window.devicePixelRatio || 1);
+        var ch2 = $canvas.height / (window.devicePixelRatio || 1);
+        ctx.drawImage(drawCanvas, 0, 0, $canvas.width, $canvas.height,
+          0, 0, cw2, ch2);
+      }
       updateParticles();
       return;
     }
@@ -268,7 +504,9 @@
     var lm = result.landmarks[0];           /* primary hand */
     var gesture = recogniseGesture(lm);
     var swipe   = detectSwipe(lm);
+    var waving   = detectWave(lm);
     if (swipe) gesture = swipe;
+    else if (waving && gesture === "open") gesture = "wave";
 
     lastGesture = gesture;
     setLabel(gestureName(gesture));
@@ -277,7 +515,170 @@
       case "particle":  animateParticle(lm, gesture); break;
       case "gesture":   animateGesture(lm, gesture);  break;
       case "draw":      animateDraw(lm, gesture);      break;
+      case "fruit":     animateFruit(lm, gesture);     break;
     }
+  }
+
+  /* ====================================================================
+   * 6b. Object Detection Mode
+   * ==================================================================== */
+
+  /* COCO 80-class colour map – hue value per category */
+  var DETECT_HUE = {
+    person:0, bicycle:20, car:40, motorcycle:60, airplane:80,
+    bus:100, train:120, truck:140, boat:160, "traffic light":180,
+    "fire hydrant":200, "stop sign":220, "parking meter":240, bench:260,
+    bird:280, cat:300, dog:320, horse:340, sheep:10,
+    cow:30, elephant:50, bear:70, zebra:90, giraffe:110,
+    backpack:130, umbrella:150, handbag:170, tie:190, suitcase:210,
+    frisbee:230, skis:250, snowboard:270, "sports ball":290, kite:310,
+    "baseball bat":330, "baseball glove":350, skateboard:15, surfboard:45,
+    "tennis racket":75, bottle:95, "wine glass":115, cup:135,
+    fork:155, knife:175, spoon:195, bowl:215, banana:235,
+    apple:255, sandwich:275, orange:295, broccoli:315, carrot:335,
+    "hot dog":5, pizza:25, donut:45, cake:65, chair:85,
+    couch:105, "potted plant":125, bed:145, "dining table":165,
+    toilet:185, tv:205, laptop:225, mouse:245, remote:265,
+    keyboard:285, "cell phone":305, microwave:325, oven:345,
+    toaster:55, sink:75, refrigerator:95, book:115, clock:135,
+    vase:155, scissors:175, "teddy bear":195, "hair drier":215,
+    toothbrush:235,
+  };
+
+  /* Chinese labels for COCO categories */
+  var DETECT_CN = {
+    person:"人", bicycle:"自行车", car:"汽车", motorcycle:"摩托车",
+    airplane:"飞机", bus:"公交车", train:"火车", truck:"卡车",
+    boat:"船", "traffic light":"红绿灯", "fire hydrant":"消防栓",
+    "stop sign":"停车标志", "parking meter":"停车计时器", bench:"长椅",
+    bird:"鸟", cat:"猫", dog:"狗", horse:"马", sheep:"羊",
+    cow:"牛", elephant:"大象", bear:"熊", zebra:"斑马", giraffe:"长颈鹿",
+    backpack:"背包", umbrella:"雨伞", handbag:"手提包", tie:"领带",
+    suitcase:"行李箱", frisbee:"飞盘", skis:"滑雪板", snowboard:"单板",
+    "sports ball":"运动球", kite:"风筝", "baseball bat":"棒球棒",
+    "baseball glove":"棒球手套", skateboard:"滑板", surfboard:"冲浪板",
+    "tennis racket":"网球拍", bottle:"瓶子", "wine glass":"酒杯",
+    cup:"杯子", fork:"叉子", knife:"刀", spoon:"勺子", bowl:"碗",
+    banana:"香蕉", apple:"苹果", sandwich:"三明治", orange:"橙子",
+    broccoli:"西兰花", carrot:"胡萝卜", "hot dog":"热狗", pizza:"披萨",
+    donut:"甜甜圈", cake:"蛋糕", chair:"椅子", couch:"沙发",
+    "potted plant":"盆栽", bed:"床", "dining table":"餐桌", toilet:"马桶",
+    tv:"电视", laptop:"笔记本电脑", mouse:"鼠标", remote:"遥控器",
+    keyboard:"键盘", "cell phone":"手机", microwave:"微波炉", oven:"烤箱",
+    toaster:"烤面包机", sink:"水槽", refrigerator:"冰箱", book:"书",
+    clock:"时钟", vase:"花瓶", scissors:"剪刀", "teddy bear":"泰迪熊",
+    "hair drier":"吹风机", toothbrush:"牙刷",
+  };
+
+  /* handle object detection results */
+  function handleDetectResults(detResult) {
+    var cw = $canvas.width / (window.devicePixelRatio || 1);
+    var ch = $canvas.height / (window.devicePixelRatio || 1);
+    ctx.clearRect(0, 0, cw, ch);
+
+    var dets = detResult && detResult.detections ? detResult.detections : [];
+    lastDetections = dets;
+
+    drawDetections(dets, cw, ch);
+
+    var n = dets.length;
+    setLabel(n > 0 ? "检测到 " + n + " 个物体" : "未检测到物体");
+  }
+
+  /* redraw cached detections between detection frames */
+  function redrawDetections() {
+    var cw = $canvas.width / (window.devicePixelRatio || 1);
+    var ch = $canvas.height / (window.devicePixelRatio || 1);
+    ctx.clearRect(0, 0, cw, ch);
+    drawDetections(lastDetections, cw, ch);
+  }
+
+  /* render bounding boxes, labels and confidence */
+  function drawDetections(dets, cw, ch) {
+    var vw = $video.videoWidth  || 640;
+    var vh = $video.videoHeight || 480;
+
+    /* scale from video-native pixels to canvas CSS pixels.
+       video is object-fit:cover, mirrored via CSS scaleX(-1). */
+    var scale = Math.max(cw / vw, ch / vh);
+    var offX = (cw - vw * scale) / 2;
+    var offY = (ch - vh * scale) / 2;
+
+    for (var i = 0; i < dets.length; i++) {
+      var det  = dets[i];
+      var cat  = det.categories && det.categories[0];
+      if (!cat) continue;
+      var bb   = det.boundingBox;
+      var name = cat.categoryName || "unknown";
+      var pct  = Math.round(cat.score * 100);
+      var hue  = DETECT_HUE[name] != null ? DETECT_HUE[name] : (i * 47) % 360;
+      var cn   = DETECT_CN[name] || name;
+
+      /* map bounding box to canvas coords */
+      var x1 = bb.originX * scale + offX;
+      var y1 = bb.originY * scale + offY;
+      var bw = bb.width    * scale;
+      var bh = bb.height   * scale;
+
+      /* bounding box */
+      ctx.strokeStyle = "hsla(" + hue + ", 85%, 60%, 0.9)";
+      ctx.lineWidth   = 2.5;
+      ctx.shadowColor = "hsla(" + hue + ", 85%, 55%, 0.5)";
+      ctx.shadowBlur  = 6;
+      roundRect(ctx, x1, y1, bw, bh, 4);
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+
+      /* label background */
+      var label = cn + " " + pct + "%";
+      ctx.font = "bold 13px system-ui, sans-serif";
+      var tw = ctx.measureText(label).width + 12;
+      var th = 20;
+      ctx.fillStyle = "hsla(" + hue + ", 85%, 45%, 0.85)";
+      roundRect(ctx, x1, y1 - th, tw, th, [4, 4, 0, 0]);
+      ctx.fill();
+
+      /* label text */
+      ctx.fillStyle = "#fff";
+      ctx.textAlign = "left";
+      ctx.textBaseline = "middle";
+      ctx.fillText(label, x1 + 6, y1 - th / 2);
+
+      /* corner accents */
+      drawCornerAccents(x1, y1, bw, bh, hue);
+    }
+  }
+
+  /* rounded-rect path helper */
+  function roundRect(c, x, y, w, h, r) {
+    if (typeof r === "number") r = [r, r, r, r];
+    c.beginPath();
+    c.moveTo(x + r[0], y);
+    c.lineTo(x + w - r[1], y);
+    c.quadraticCurveTo(x + w, y, x + w, y + r[1]);
+    c.lineTo(x + w, y + h - r[2]);
+    c.quadraticCurveTo(x + w, y + h, x + w - r[2], y + h);
+    c.lineTo(x + r[3], y + h);
+    c.quadraticCurveTo(x, y + h, x, y + h - r[3]);
+    c.lineTo(x, y + r[0]);
+    c.quadraticCurveTo(x, y, x + r[0], y);
+    c.closePath();
+  }
+
+  /* small corner accent marks for visual flair */
+  function drawCornerAccents(x, y, w, h, hue) {
+    var len = Math.min(10, w * 0.15, h * 0.15);
+    ctx.strokeStyle = "hsla(" + hue + ", 90%, 70%, 0.8)";
+    ctx.lineWidth   = 3;
+    ctx.lineCap     = "round";
+    /* top-left */
+    ctx.beginPath(); ctx.moveTo(x, y + len); ctx.lineTo(x, y); ctx.lineTo(x + len, y); ctx.stroke();
+    /* top-right */
+    ctx.beginPath(); ctx.moveTo(x + w - len, y); ctx.lineTo(x + w, y); ctx.lineTo(x + w, y + len); ctx.stroke();
+    /* bottom-left */
+    ctx.beginPath(); ctx.moveTo(x, y + h - len); ctx.lineTo(x, y + h); ctx.lineTo(x + len, y + h); ctx.stroke();
+    /* bottom-right */
+    ctx.beginPath(); ctx.moveTo(x + w - len, y + h); ctx.lineTo(x + w, y + h); ctx.lineTo(x + w, y + h - len); ctx.stroke();
   }
 
   /* ====================================================================
@@ -329,6 +730,39 @@
         var px = (toX(lm[4]) + toX(lm[8])) / 2;
         var py = (toY(lm[4]) + toY(lm[8])) / 2;
         spawnParticle(px, py, "circle", 45, 0.95);
+        break;
+
+      case "wave":
+        /* side-to-side sparkle trail from fingertips */
+        if (cooled("wave-sparkle", 80)) {
+          [4, 8, 12, 16, 20].forEach(function (idx) {
+            spawnParticle(toX(lm[idx]), toY(lm[idx]), "star", 50 + Math.random() * 30, 0.85);
+          });
+        }
+        break;
+
+      case "thumbs-up":
+        /* upward flame burst from thumb tip */
+        spawnParticle(toX(lm[4]), toY(lm[4]), "star", 30, 0.95);
+        spawnParticle(toX(lm[4]), toY(lm[4]), "circle", 35, 0.9);
+        break;
+
+      case "number-3":
+        /* triple sparkles from 3 extended fingertips */
+        if (cooled("num3-sparkle", 120)) {
+          [8, 12, 16].forEach(function (idx) {
+            spawnParticle(toX(lm[idx]), toY(lm[idx]), "circle", 120, 0.9);
+          });
+        }
+        break;
+
+      case "number-4":
+        /* quadruple sparkles from 4 extended fingertips */
+        if (cooled("num4-sparkle", 120)) {
+          [8, 12, 16, 20].forEach(function (idx) {
+            spawnParticle(toX(lm[idx]), toY(lm[idx]), "circle", 200, 0.9);
+          });
+        }
         break;
     }
 
@@ -398,6 +832,65 @@
           trailSwipe(lm, gesture);
         }
         break;
+
+      case "wave":
+        /* waving hand – dynamic streaks radiating from palm */
+        drawHandSkeleton(lm, 0.4);
+        if (cooled("wave-streak", 100)) {
+          var wc = toX(lm[0]), wy = toY(lm[9]);
+          for (var wi = 0; wi < 6; wi++) {
+            var wa = Math.random() * Math.PI * 2;
+            particles.push({
+              x: wc + Math.cos(wa) * 10,
+              y: wy + Math.sin(wa) * 10,
+              vx: Math.cos(wa) * (2 + Math.random() * 3),
+              vy: Math.sin(wa) * (2 + Math.random() * 3),
+              radius: Math.random() * 3 + 2,
+              life: 1,
+              decay: 0.025,
+              hue: 40 + Math.random() * 30,
+              shape: "star",
+              friction: 0.97,
+              gravity: 0,
+            });
+          }
+        }
+        break;
+
+      case "thumbs-up":
+        /* rising flame from thumb tip */
+        drawHandSkeleton(lm, 0.4);
+        if (cooled("thumb-flame", 120)) {
+          var tx = toX(lm[4]), ty = toY(lm[4]);
+          for (var ti = 0; ti < 4; ti++) {
+            particles.push({
+              x: tx + (Math.random() - 0.5) * 10,
+              y: ty,
+              vx: (Math.random() - 0.5) * 1.5,
+              vy: -(2 + Math.random() * 3),
+              radius: Math.random() * 4 + 2,
+              life: 1,
+              decay: 0.02,
+              hue: 20 + Math.random() * 30,
+              shape: Math.random() > 0.5 ? "star" : "circle",
+              friction: 0.98,
+              gravity: -0.02,
+            });
+          }
+        }
+        break;
+
+      case "number-3":
+        /* three colored arcs */
+        drawHandSkeleton(lm, 0.4);
+        drawNumberGlow(lm, [8, 12, 16], 120);
+        break;
+
+      case "number-4":
+        /* four colored arcs */
+        drawHandSkeleton(lm, 0.4);
+        drawNumberGlow(lm, [8, 12, 16, 20], 200);
+        break;
     }
 
     updateParticles();
@@ -416,12 +909,13 @@
         drawCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
         prevDrawPoint = null;
       }
-    } else if (gesture === "ok" || gesture === "pinch") {
+    } else if (gesture === "ok" || gesture === "pinch" ||
+               gesture === "number-3" || gesture === "number-4") {
       /* change colour */
       drawHue = (drawHue + 2) % 360;
       prevDrawPoint = null;  /* break stroke */
-    } else if (gesture === "point" || gesture === "open") {
-      /* draw line */
+    } else if (gesture === "point" || gesture === "open" || gesture === "wave") {
+      /* draw line from index tip (wave has open palm) */
       if (prevDrawPoint) {
         drawCtx.beginPath();
         drawCtx.moveTo(prevDrawPoint.x, prevDrawPoint.y);
@@ -439,6 +933,24 @@
         spawnParticle(ix, iy, "circle", drawHue, 0.8);
       }
       prevDrawPoint = { x: ix, y: iy };
+    } else if (gesture === "thumbs-up") {
+      /* draw upward stroke from thumb tip */
+      var tx = toX(lm[4]), ty = toY(lm[4]);
+      if (prevDrawPoint) {
+        drawCtx.beginPath();
+        drawCtx.moveTo(prevDrawPoint.x, prevDrawPoint.y);
+        drawCtx.lineTo(tx, ty);
+        drawCtx.strokeStyle = "hsla(35, 100%, 60%, 0.9)";
+        drawCtx.lineWidth = 5;
+        drawCtx.lineCap = "round";
+        drawCtx.lineJoin = "round";
+        drawCtx.shadowColor = "hsla(35, 100%, 55%, 0.6)";
+        drawCtx.shadowBlur = 14;
+        drawCtx.stroke();
+        drawCtx.shadowBlur = 0;
+        spawnParticle(tx, ty, "star", 35, 0.8);
+      }
+      prevDrawPoint = { x: tx, y: ty };
     } else {
       /* break stroke for other gestures */
       prevDrawPoint = null;
@@ -459,6 +971,448 @@
     ctx.shadowBlur = 14;
     ctx.fill();
     ctx.shadowBlur = 0;
+  }
+
+  /* ====================================================================
+   * 9b. Fruit Ninja Mode
+   * ==================================================================== */
+  function fruitCW() { return $canvas.width / (window.devicePixelRatio || 1); }
+  function fruitCH() { return $canvas.height / (window.devicePixelRatio || 1); }
+
+  function fruitPickType() {
+    var total = 0, i;
+    for (i = 0; i < FRUIT_WEIGHTS.length; i++) total += FRUIT_WEIGHTS[i];
+    var r = Math.random() * total, acc = 0;
+    for (i = 0; i < FRUIT_WEIGHTS.length; i++) {
+      acc += FRUIT_WEIGHTS[i];
+      if (r < acc) return i;
+    }
+    return 0;
+  }
+
+  function fruitSpawn() {
+    var cw = fruitCW(), ch = fruitCH();
+    var ti = fruitPickType();
+    var def = FRUIT_DEFS[ti];
+    var x = def.r + Math.random() * (cw - def.r * 2);
+    var speedY = -(7.5 + Math.random() * 4 + fruitDifficulty * 0.3);
+    var speedX = (Math.random() - 0.5) * 3;
+    fruitList.push({
+      x: x, y: ch + def.r + 10,
+      vx: speedX, vy: speedY,
+      r: def.r, typeIdx: ti,
+      rotation: Math.random() * Math.PI * 2,
+      rotSpd: (Math.random() - 0.5) * 0.12,
+    });
+  }
+
+  function fruitSpawnWave() {
+    var count = 2 + Math.floor(Math.random() * (2 + fruitDifficulty * 0.2));
+    for (var i = 0; i < count; i++) {
+      setTimeout(fruitSpawn, i * 120);
+    }
+  }
+
+  function fruitReset() {
+    fruitList.length = 0;
+    fruitHalves.length = 0;
+    fruitJuice.length = 0;
+    fruitBladeTrail.length = 0;
+    fruitScore = 0;
+    fruitCombo = 0;
+    fruitComboTime = 0;
+    fruitLives = 3;
+    fruitDifficulty = 0;
+    fruitGameOver = false;
+    fruitSpawnTimer = performance.now() + 1500;
+    fruitStartTime = performance.now();
+  }
+
+  function animateFruit(lm, gesture) {
+    var cw = fruitCW();
+    var ch = fruitCH();
+    var now = performance.now();
+
+    /* initialise on first frame */
+    if (fruitStartTime === 0 && !fruitGameOver) fruitReset();
+
+    /* Game Over screen */
+    if (fruitGameOver) {
+      drawFruitGameOver(cw, ch);
+      if (gesture === "fist" && cooled("fruit-restart", 1000)) {
+        fruitReset();
+      }
+      return;
+    }
+
+    /* Difficulty ramp */
+    fruitDifficulty = Math.min(10, (now - fruitStartTime) / 15000);
+
+    /* ---- Blade trail from palm ---- */
+    var px = toX(lm[0]);
+    var py = toY(lm[9]);
+    fruitBladeTrail.push({ x: px, y: py, t: now });
+    while (fruitBladeTrail.length > 0 && now - fruitBladeTrail[0].t > 350) {
+      fruitBladeTrail.shift();
+    }
+
+    /* ---- Spawn waves ---- */
+    if (now >= fruitSpawnTimer && !fruitGameOver) {
+      fruitSpawnWave();
+      var interval = Math.max(800, 2200 - fruitDifficulty * 120);
+      fruitSpawnTimer = now + interval + Math.random() * 400;
+    }
+
+    /* ---- Combo decay (2s) ---- */
+    if (fruitCombo > 0 && now - fruitComboTime > 2000) {
+      fruitCombo = 0;
+    }
+
+    /* ---- Slice detection ---- */
+    var slicing = gesture !== "fist" && gesture !== "none";
+    if (slicing && fruitBladeTrail.length >= 2) {
+      var tip = fruitBladeTrail[fruitBladeTrail.length - 1];
+      var prev = fruitBladeTrail[fruitBladeTrail.length - 2];
+      var bladeSpeed = Math.sqrt(
+        (tip.x - prev.x) * (tip.x - prev.x) +
+        (tip.y - prev.y) * (tip.y - prev.y)
+      );
+      if (bladeSpeed > 4) {
+        for (var fi = fruitList.length - 1; fi >= 0; fi--) {
+          var fr = fruitList[fi];
+          if (fr.sliced) continue;
+          var d = ptSegDist(fr.x, fr.y, prev.x, prev.y, tip.x, tip.y);
+          if (d < fr.r + 6) {
+            fr.sliced = true;
+            var sliceAngle = Math.atan2(tip.y - prev.y, tip.x - prev.x);
+            var def = FRUIT_DEFS[fr.typeIdx];
+            if (def.pts < 0) {
+              /* bomb hit */
+              fruitScore = Math.max(0, fruitScore + def.pts);
+              fruitCombo = 0;
+              for (var bi = 0; bi < 25; bi++) {
+                fruitJuice.push(fruitMakeJuice(fr.x, fr.y, 30, 10, 0.04));
+              }
+            } else {
+              fruitCombo++;
+              fruitComboTime = now;
+              fruitScore += def.pts * fruitCombo;
+              var jCount = Math.min(25, 8 + fruitCombo * 2);
+              for (var ji = 0; ji < jCount; ji++) {
+                fruitJuice.push(fruitMakeJuice(fr.x, fr.y, def.r * 0.8, def.color, 0.025));
+              }
+            }
+            /* split halves */
+            var ha = sliceAngle + Math.PI / 2;
+            fruitHalves.push({
+              x: fr.x, y: fr.y,
+              vx: Math.cos(ha) * 3, vy: -1.5,
+              r: fr.r, typeIdx: fr.typeIdx,
+              rotation: fr.rotation, rotSpd: 0.08,
+              life: 1, side: -1,
+            });
+            fruitHalves.push({
+              x: fr.x, y: fr.y,
+              vx: -Math.cos(ha) * 3, vy: -1.5,
+              r: fr.r, typeIdx: fr.typeIdx,
+              rotation: fr.rotation, rotSpd: -0.08,
+              life: 1, side: 1,
+            });
+            fruitList.splice(fi, 1);
+            break;
+          }
+        }
+      }
+    }
+
+    /* ---- Physics: fruits ---- */
+    for (var pi = fruitList.length - 1; pi >= 0; pi--) {
+      var p = fruitList[pi];
+      p.vy += 0.16;
+      p.x += p.vx;
+      p.y += p.vy;
+      p.rotation += p.rotSpd;
+      if (p.y - p.r > ch + 20) {
+        if (!p.sliced) {
+          var pDef = FRUIT_DEFS[p.typeIdx];
+          if (pDef.pts > 0) {
+            fruitLives--;
+            if (fruitLives <= 0) {
+              fruitGameOver = true;
+              if (fruitScore > fruitHighScore) {
+                fruitHighScore = fruitScore;
+                try { localStorage.setItem("gesture-fruit-hs", String(fruitHighScore)); } catch (e) { /* */ }
+              }
+            }
+          }
+        }
+        fruitList.splice(pi, 1);
+      }
+    }
+
+    /* ---- Physics: halves ---- */
+    for (var hi = fruitHalves.length - 1; hi >= 0; hi--) {
+      var h = fruitHalves[hi];
+      h.vy += 0.18;
+      h.x += h.vx;
+      h.y += h.vy;
+      h.rotation += h.rotSpd;
+      h.life -= 0.008;
+      if (h.life <= 0 || h.y > ch + 60) { fruitHalves.splice(hi, 1); }
+    }
+
+    /* ---- Physics: juice ---- */
+    for (var ui = fruitJuice.length - 1; ui >= 0; ui--) {
+      var u = fruitJuice[ui];
+      u.vy += 0.12;
+      u.x += u.vx;
+      u.y += u.vy;
+      u.life -= u.decay;
+      if (u.life <= 0) { fruitJuice.splice(ui, 1); }
+    }
+
+    /* ===== RENDER ===== */
+    var bgGrad = ctx.createLinearGradient(0, 0, 0, ch);
+    bgGrad.addColorStop(0, "#0d1b2a");
+    bgGrad.addColorStop(1, "#1b2838");
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(0, 0, cw, ch);
+
+    /* juice particles */
+    for (var rj = 0; rj < fruitJuice.length; rj++) {
+      var j = fruitJuice[rj];
+      ctx.globalAlpha = j.life * 0.8;
+      ctx.fillStyle = j.color;
+      ctx.beginPath();
+      ctx.arc(j.x, j.y, j.size * j.life, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+
+    /* whole fruits */
+    for (var rf = 0; rf < fruitList.length; rf++) {
+      drawFruitWhole(fruitList[rf]);
+    }
+    /* sliced halves */
+    for (var rh = 0; rh < fruitHalves.length; rh++) {
+      drawFruitHalf(fruitHalves[rh]);
+    }
+    /* blade trail */
+    drawBladeTrail(now);
+    /* HUD */
+    drawFruitHUD(cw, ch);
+    /* combo popup */
+    if (fruitCombo >= 2) {
+      drawComboPopup(cw, ch, now);
+    }
+  }
+
+  function drawFruitWhole(f) {
+    var def = FRUIT_DEFS[f.typeIdx];
+    ctx.save();
+    ctx.translate(f.x, f.y);
+    ctx.rotate(f.rotation);
+    /* glow */
+    ctx.beginPath();
+    ctx.arc(0, 0, f.r + 8, 0, Math.PI * 2);
+    ctx.fillStyle = def.glow + "22";
+    ctx.fill();
+    /* body */
+    ctx.beginPath();
+    ctx.arc(0, 0, f.r, 0, Math.PI * 2);
+    var fg = ctx.createRadialGradient(-f.r * 0.3, -f.r * 0.3, f.r * 0.1, 0, 0, f.r);
+    fg.addColorStop(0, def.glow);
+    fg.addColorStop(1, def.color);
+    ctx.fillStyle = fg;
+    ctx.fill();
+    ctx.strokeStyle = "rgba(255,255,255,0.15)";
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+    /* shine */
+    ctx.beginPath();
+    ctx.arc(-f.r * 0.25, -f.r * 0.25, f.r * 0.35, 0, Math.PI * 2);
+    ctx.fillStyle = "rgba(255,255,255,0.18)";
+    ctx.fill();
+    /* emoji */
+    ctx.font = (f.r * 1.1) + "px serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(def.emoji, 0, 1);
+    ctx.restore();
+  }
+
+  function drawFruitHalf(h) {
+    var def = FRUIT_DEFS[h.typeIdx];
+    ctx.save();
+    ctx.globalAlpha = h.life;
+    ctx.translate(h.x, h.y);
+    ctx.rotate(h.rotation);
+    /* clip to half */
+    ctx.beginPath();
+    if (h.side < 0) {
+      ctx.rect(-h.r - 2, -h.r - 2, h.r * 2 + 4, h.r + 2);
+    } else {
+      ctx.rect(-h.r - 2, 0, h.r * 2 + 4, h.r + 2);
+    }
+    ctx.clip();
+    /* body */
+    ctx.beginPath();
+    ctx.arc(0, 0, h.r, 0, Math.PI * 2);
+    ctx.fillStyle = def.color;
+    ctx.fill();
+    /* inner surface */
+    ctx.beginPath();
+    ctx.ellipse(0, 0, h.r * 0.85, h.r * 0.4, 0, 0, Math.PI * 2);
+    ctx.fillStyle = def.glow;
+    ctx.globalAlpha = h.life * 0.6;
+    ctx.fill();
+    /* seeds */
+    ctx.globalAlpha = h.life;
+    ctx.fillStyle = "rgba(0,0,0,0.3)";
+    for (var si = 0; si < 3; si++) {
+      ctx.beginPath();
+      ctx.arc(-h.r * 0.3 + si * h.r * 0.3, 0, 2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  function drawBladeTrail(now) {
+    if (fruitBladeTrail.length < 2) return;
+    for (var i = 1; i < fruitBladeTrail.length; i++) {
+      var p0 = fruitBladeTrail[i - 1];
+      var p1 = fruitBladeTrail[i];
+      var age = (now - p1.t) / 350;
+      var alpha = Math.max(0, 1 - age);
+      ctx.beginPath();
+      ctx.moveTo(p0.x, p0.y);
+      ctx.lineTo(p1.x, p1.y);
+      ctx.strokeStyle = "rgba(200, 220, 255, " + (alpha * 0.15) + ")";
+      ctx.lineWidth = 18;
+      ctx.lineCap = "round";
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(p0.x, p0.y);
+      ctx.lineTo(p1.x, p1.y);
+      ctx.strokeStyle = "rgba(180, 210, 255, " + (alpha * 0.4) + ")";
+      ctx.lineWidth = 6;
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(p0.x, p0.y);
+      ctx.lineTo(p1.x, p1.y);
+      ctx.strokeStyle = "rgba(255, 255, 255, " + (alpha * 0.9) + ")";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+  }
+
+  function drawFruitHUD(cw, ch) {
+    ctx.save();
+    ctx.font = "bold 28px system-ui, sans-serif";
+    ctx.textAlign = "left";
+    ctx.textBaseline = "top";
+    ctx.fillStyle = "#fff";
+    ctx.shadowColor = "rgba(0,0,0,0.5)";
+    ctx.shadowBlur = 4;
+    ctx.fillText("分数: " + fruitScore, 20, 20);
+    ctx.font = "14px system-ui, sans-serif";
+    ctx.fillStyle = "rgba(255,255,255,0.6)";
+    ctx.fillText("最高: " + fruitHighScore, 20, 54);
+    /* hearts */
+    ctx.textAlign = "right";
+    ctx.font = "24px serif";
+    var hearts = "";
+    for (var li = 0; li < 3; li++) { hearts += li < fruitLives ? "❤️" : "🖤"; }
+    ctx.fillText(hearts, cw - 20, 22);
+    /* combo */
+    if (fruitCombo >= 2) {
+      ctx.textAlign = "center";
+      ctx.font = "bold 20px system-ui, sans-serif";
+      ctx.fillStyle = "rgba(255, 215, 0, 0.9)";
+      ctx.fillText(fruitCombo + "x 连击!", cw / 2, 20);
+    }
+    /* time */
+    var elapsed = Math.floor((performance.now() - fruitStartTime) / 1000);
+    var mins = Math.floor(elapsed / 60);
+    var secs = elapsed % 60;
+    ctx.textAlign = "center";
+    ctx.font = "16px system-ui, sans-serif";
+    ctx.fillStyle = "rgba(255,255,255,0.5)";
+    ctx.fillText(mins + ":" + (secs < 10 ? "0" : "") + secs, cw / 2, 46);
+    /* hint */
+    ctx.font = "13px system-ui, sans-serif";
+    ctx.fillStyle = "rgba(255,255,255,0.35)";
+    ctx.fillText("✋ 手掌划动切水果  ✊ 握拳重新开始", cw / 2, ch - 12);
+    ctx.restore();
+  }
+
+  function drawComboPopup(cw, ch, now) {
+    var age = (now - fruitComboTime) / 600;
+    if (age > 1) return;
+    var scale = 1 + age * 0.4;
+    var alpha = 1 - age;
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.font = "bold " + Math.floor(42 * scale) + "px system-ui, sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillStyle = "#ffd700";
+    ctx.shadowColor = "rgba(255, 200, 0, 0.6)";
+    ctx.shadowBlur = 16;
+    ctx.fillText(fruitCombo + "x COMBO!", cw / 2, ch * 0.4);
+    ctx.restore();
+  }
+
+  function drawFruitGameOver(cw, ch) {
+    ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
+    ctx.fillRect(0, 0, cw, ch);
+    ctx.save();
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.font = "bold 48px system-ui, sans-serif";
+    ctx.fillStyle = "#ff5252";
+    ctx.shadowColor = "rgba(255, 50, 50, 0.5)";
+    ctx.shadowBlur = 20;
+    ctx.fillText("游戏结束", cw / 2, ch * 0.35);
+    ctx.shadowBlur = 0;
+    ctx.font = "28px system-ui, sans-serif";
+    ctx.fillStyle = "#fff";
+    ctx.fillText("得分: " + fruitScore, cw / 2, ch * 0.48);
+    if (fruitScore >= fruitHighScore && fruitScore > 0) {
+      ctx.font = "20px system-ui, sans-serif";
+      ctx.fillStyle = "#ffd700";
+      ctx.fillText("🎉 新纪录!", cw / 2, ch * 0.56);
+    }
+    ctx.font = "16px system-ui, sans-serif";
+    ctx.fillStyle = "rgba(255,255,255,0.7)";
+    ctx.fillText("最高分: " + fruitHighScore, cw / 2, ch * 0.64);
+    ctx.font = "18px system-ui, sans-serif";
+    ctx.fillStyle = "rgba(255,255,255,0.5)";
+    ctx.fillText("✊ 握拳重新开始", cw / 2, ch * 0.75);
+    ctx.restore();
+  }
+
+  function ptSegDist(px, py, ax, ay, bx, by) {
+    var dx = bx - ax, dy = by - ay;
+    var lenSq = dx * dx + dy * dy;
+    var t = lenSq === 0 ? 0 : Math.max(0, Math.min(1, ((px - ax) * dx + (py - ay) * dy) / lenSq));
+    var cx = ax + t * dx, cy = ay + t * dy;
+    return Math.sqrt((px - cx) * (px - cx) + (py - cy) * (py - cy));
+  }
+
+  function fruitMakeJuice(x, y, spread, color, decay) {
+    var angle = Math.random() * Math.PI * 2;
+    var speed = 2 + Math.random() * 5;
+    return {
+      x: x + (Math.random() - 0.5) * spread,
+      y: y + (Math.random() - 0.5) * spread,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed - 2,
+      size: 3 + Math.random() * 4,
+      life: 1,
+      decay: decay || 0.025,
+      color: color || "#ff0",
+    };
   }
 
   /* ====================================================================
@@ -739,6 +1693,28 @@
     spawnParticle(ix, iy, "circle", 0, 0.6);
   }
 
+  /* Glowing arcs at fingertip positions for number gestures */
+  function drawNumberGlow(lm, indices, hue) {
+    var t = performance.now() * 0.003;
+    indices.forEach(function (idx, i) {
+      var fx = toX(lm[idx]), fy = toY(lm[idx]);
+      var r = 12 + Math.sin(t + i * 1.2) * 4;
+      ctx.beginPath();
+      ctx.arc(fx, fy, r, 0, Math.PI * 2);
+      ctx.strokeStyle = "hsla(" + (hue + i * 30) + ", 100%, 65%, 0.7)";
+      ctx.lineWidth = 2.5;
+      ctx.shadowColor = "hsla(" + (hue + i * 30) + ", 100%, 55%, 0.5)";
+      ctx.shadowBlur = 10;
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+      /* number label */
+      ctx.font = "bold 14px sans-serif";
+      ctx.fillStyle = "hsla(" + (hue + i * 30) + ", 100%, 80%, 0.9)";
+      ctx.textAlign = "center";
+      ctx.fillText(String(i + 1), fx, fy - r - 5);
+    });
+  }
+
   /* ====================================================================
    * 12. UI Helpers
    * ==================================================================== */
@@ -754,10 +1730,14 @@
   var GESTURE_NAMES = {
     open:       "✋ 张开手掌",
     fist:       "✊ 握拳",
-    point:      "☝️ 指向",
-    peace:      "✌️ 和平",
+    point:      "☝️ 数字一 / 指向",
+    peace:      "✌️ 数字二 / 和平",
     ok:         "👌 OK",
     pinch:      "🤏 捏合",
+    wave:       "👋 挥手",
+    "thumbs-up": "👍 点赞",
+    "number-3":  "3️⃣ 数字三",
+    "number-4":  "4️⃣ 数字四",
     "swipe-left":  "👈 左滑",
     "swipe-right": "👉 右滑",
     "swipe-up":    "👆 上滑",
@@ -774,6 +1754,12 @@
   $clear.addEventListener("click", function () {
     particles.length = 0;
     prevDrawPoint = null;
+    fruitList.length = 0;
+    fruitHalves.length = 0;
+    fruitJuice.length = 0;
+    fruitBladeTrail.length = 0;
+    fruitStartTime = 0;
+    lastDetections = [];
     var cw = drawCanvas.width / (window.devicePixelRatio || 1);
     var ch = drawCanvas.height / (window.devicePixelRatio || 1);
     drawCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
@@ -798,6 +1784,21 @@
     ctx.clearRect(0, 0, cw, ch);
     if (mode !== "draw") {
       drawCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
+    }
+    /* reset fruit game state on mode switch */
+    fruitList.length = 0;
+    fruitHalves.length = 0;
+    fruitJuice.length = 0;
+    fruitBladeTrail.length = 0;
+    fruitStartTime = 0;
+    /* reset detection state */
+    lastDetections = [];
+    lastDetectTime = 0;
+    /* lazy-load models when switching modes while running */
+    if (m === "detect" && running && !objectDetector) {
+      loadObjectDetector();
+    } else if (m !== "detect" && running && !handLandmarker) {
+      loadMediaPipe();
     }
   });
 
