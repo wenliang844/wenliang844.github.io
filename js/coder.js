@@ -259,7 +259,7 @@
   /* ----------------------------------------------------------------------
    * Reading time + table of contents per article
    * -------------------------------------------------------------------- */
-  const readingMinutes = window.CWLUtils.readingMinutes;
+  const readingMinutes = window.CWLUtils && window.CWLUtils.readingMinutes;
 
   function activeArticleContent(article) {
     return article.querySelector(".article-content:not([hidden])") ||

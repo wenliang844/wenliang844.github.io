@@ -474,13 +474,13 @@ test("tools tabs expose selected state and support keyboard navigation", async (
     assert.equal(tabList.getAttribute("role"), "tablist");
     assert.equal(tabList.getAttribute("data-i18n-aria"), "tools.tabs");
     assert.equal(tabList.getAttribute("data-i18n-en-aria"), "Categorized tool list");
-    assert.equal(document.querySelectorAll(".tool-category").length, 6);
+    assert.equal(document.querySelectorAll(".tool-category").length, 7);
     assert.match(document.querySelector('[data-tool-category="data"]').textContent, /数据格式/);
     assert.match(document.querySelector('[data-tool-category="security"]').textContent, /编码与安全/);
     assert.equal(document.querySelector('[data-tool-category="data"]').tagName, "DETAILS");
     assert.equal(document.querySelector('[data-tool-category="data"]').open, true);
     assert.equal(document.querySelector('[data-tool-category="frontend"]').open, true);
-    assert.equal(document.querySelectorAll("[data-tool-tab]").length, 29);
+    assert.equal(document.querySelectorAll("[data-tool-tab]").length, 30);
     assert.ok(document.querySelector('[data-tool-tab="api"]'));
     assert.ok(document.querySelector('[data-tool-tab="jsondiff"]'));
     assert.ok(document.querySelector('[data-tool-tab="cssunit"]'));
@@ -501,9 +501,10 @@ test("tools tabs expose selected state and support keyboard navigation", async (
     assert.equal(document.querySelector("#tool-json").hidden, true);
 
     yamlTab.dispatchEvent(new KeyboardEvent("keydown", { key: "End", bubbles: true, cancelable: true }));
-    assert.equal(uaTab.getAttribute("aria-selected"), "true");
-    assert.equal(document.querySelector("#tool-ua").hidden, false);
-    assert.equal(document.querySelector('[data-tool-category="frontend"]').open, true);
+    const gestureTab = document.querySelector('[data-tool-tab="gesture"]');
+    assert.equal(gestureTab.getAttribute("aria-selected"), "true");
+    assert.equal(document.querySelector("#tool-gesture").hidden, false);
+    assert.equal(document.querySelector('[data-tool-category="visual"]').open, true);
   } finally {
     dom.window.close();
   }
@@ -553,8 +554,9 @@ test("tools page ignores unknown tab targets without clearing selection", async 
     assert.equal(jsonPanel.hidden, false);
 
     jsonTab.dispatchEvent(new KeyboardEvent("keydown", { key: "End", bubbles: true, cancelable: true }));
-    assert.equal(uaTab.classList.contains("active"), true);
-    assert.equal(uaTab.getAttribute("aria-selected"), "true");
+    const lastTab = document.querySelector('[data-tool-tab="gesture"]');
+    assert.equal(lastTab.classList.contains("active"), true);
+    assert.equal(lastTab.getAttribute("aria-selected"), "true");
 
     const duplicateJsonTab = document.createElement("button");
     duplicateJsonTab.setAttribute("data-tool-tab", "json");

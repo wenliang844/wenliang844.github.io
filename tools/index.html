@@ -90,23 +90,6 @@
         </header>
         <div class="tools-shell">
           <nav class="tools-tabs" role="tablist" aria-label="工具分类列表" data-i18n-aria="tools.tabs" data-i18n-en-aria="Categorized tool list">
-            <details class="tool-category" data-tool-category="visual" open>
-              <summary class="tool-category-summary">
-                <span class="tool-category-chevron" aria-hidden="true"><i class="fas fa-chevron-right"></i></span>
-                <span class="tool-category-title" data-i18n="tools.category.visual" data-i18n-en="Visual &amp; Interaction">视觉与交互</span>
-                <span class="tool-category-count" aria-label="2 个工具">2</span>
-              </summary>
-              <div class="tool-category-list">
-            <button class="tool-tab" id="tool-tab-gesture" type="button" role="tab" data-tool-tab="gesture" aria-controls="tool-gesture" aria-label="手势交互动画" aria-selected="false" tabindex="-1" data-i18n-aria="tools.nav.gesture" data-i18n-en-aria="Gesture Animation">
-              <i class="fas fa-hand-sparkles" aria-hidden="true"></i>
-              <span data-i18n="tools.nav.gesture" data-i18n-en="Gesture Animation">手势交互动画</span>
-            </button>
-            <button class="tool-tab" id="tool-tab-objectsearch" type="button" role="tab" data-tool-tab="objectsearch" aria-controls="tool-objectsearch" aria-label="物体识别拍照搜" aria-selected="false" tabindex="-1" data-i18n-aria="tools.nav.objectsearch" data-i18n-en-aria="Object Recognition &amp; Search">
-              <i class="fas fa-camera-retro" aria-hidden="true"></i>
-              <span data-i18n="tools.nav.objectsearch" data-i18n-en="Object Recognition &amp; Search">物体识别拍照搜</span>
-            </button>
-              </div>
-            </details>
             <details class="tool-category" data-tool-category="data" open>
               <summary class="tool-category-summary">
                 <span class="tool-category-chevron" aria-hidden="true"><i class="fas fa-chevron-right"></i></span>
@@ -873,7 +856,7 @@
             </div>
           </header>
           <div class="tool-grid">
-            <label class="tool-field"><span data-i18n="tools.label.urlInput">urlInput</span>
+            <label class="tool-field"><span data-i18n="tools.label.urlInput">输入 URL</span>
               <textarea id="urlparse-input" spellcheck="false" placeholder="https://example.com:443/docs?a=1&amp;b=中文#top" data-i18n-ph="tools.urlparse.placeholder" data-i18n-en-ph="https://example.com/docs?a=1#top"></textarea>
             </label>
             <label class="tool-field"><span data-i18n="tools.label.output">输出结果</span>
@@ -895,7 +878,7 @@
             </div>
           </header>
           <div class="tool-grid">
-            <label class="tool-field"><span data-i18n="tools.label.queryInput">queryInput</span>
+            <label class="tool-field"><span data-i18n="tools.label.queryInput">输入查询</span>
               <textarea id="query-input" spellcheck="false" placeholder="name=CWLBlog
 q=在线工具箱" data-i18n-ph="tools.query.placeholder" data-i18n-en-ph="name=CWLBlog
 q=toolbox"></textarea>
@@ -944,7 +927,7 @@ q=toolbox"></textarea>
             </div>
           </header>
           <div class="tool-grid">
-            <label class="tool-field"><span data-i18n="tools.label.inputText">inputText</span>
+            <label class="tool-field"><span data-i18n="tools.label.inputText">输入文本</span>
               <textarea id="textstats-input" spellcheck="false" placeholder="输入一段需要统计的文本" data-i18n-ph="tools.textstats.placeholder" data-i18n-en-ph="Paste text to analyze"></textarea>
             </label>
             <label class="tool-field"><span data-i18n="tools.label.output">输出结果</span>
@@ -1117,7 +1100,7 @@ q=toolbox"></textarea>
             </div>
           </header>
           <div class="tool-grid">
-            <label class="tool-field"><span data-i18n="tools.label.uaInput">uaInput</span>
+            <label class="tool-field"><span data-i18n="tools.label.uaInput">输入 UA</span>
               <textarea id="ua-input" spellcheck="false" placeholder="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/126 Safari/537.36" data-i18n-ph="tools.ua.placeholder" data-i18n-en-ph="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/126 Safari/537.36"></textarea>
             </label>
             <label class="tool-field"><span data-i18n="tools.label.output">输出结果</span>
@@ -1182,9 +1165,9 @@ q=toolbox"></textarea>
           </div>
           <div class="gesture-viewport">
             <video id="gesture-video" class="gesture-video" autoplay playsinline muted></video>
-            <canvas id="gesture-canvas" class="gesture-canvas"></canvas>
+            <canvas id="gesture-canvas" class="gesture-canvas" aria-hidden="true"></canvas>
             <div id="gesture-three-container" class="gesture-three-container"></div>
-            <canvas id="gesture-depth-preview" class="gesture-depth-preview" width="80" height="60"></canvas>
+            <canvas id="gesture-depth-preview" class="gesture-depth-preview" width="80" height="60" aria-hidden="true"></canvas>
             <div id="gesture-overlay" class="gesture-overlay">
               <i class="fas fa-hand-sparkles" aria-hidden="true"></i>
               <p data-i18n="tools.gesture.placeholder" data-i18n-en='Click "Start Camera" to begin'>点击"开启摄像头"开始</p>
@@ -1219,7 +1202,7 @@ q=toolbox"></textarea>
           </div>
           <div class="gesture-viewport">
             <video id="obj-video" class="gesture-video" autoplay playsinline muted></video>
-            <canvas id="obj-canvas" class="gesture-canvas"></canvas>
+            <canvas id="obj-canvas" class="gesture-canvas" aria-hidden="true"></canvas>
             <div id="obj-overlay" class="gesture-overlay">
               <i class="fas fa-camera-retro" aria-hidden="true"></i>
               <p data-i18n="tools.objectsearch.placeholder" data-i18n-en='Click "Start Camera" to begin'>点击"开启摄像头"开始</p>
@@ -1320,7 +1303,7 @@ q=toolbox"></textarea>
             </div>
           </div>
           <div class="galaxy-viewport">
-            <canvas id="galaxy-canvas" class="galaxy-canvas"></canvas>
+            <canvas id="galaxy-canvas" class="galaxy-canvas" aria-hidden="true"></canvas>
           </div>
           <div class="galaxy-info">
             <span id="galaxy-fps" class="galaxy-badge">0 FPS</span>

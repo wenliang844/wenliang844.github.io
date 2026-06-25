@@ -98,6 +98,12 @@
   function rand(a, b) { return Math.random() * (b - a) + a }
   function lerp(a, b, t) { return a + (b - a) * t }
 
+  /* random hue that wraps around 360 when lo > hi */
+  function randHue(lo, hi) {
+    if (hi >= lo) return rand(lo, hi)
+    return lo + Math.random() * ((hi + 360) - lo) % 360
+  }
+
   /* ---- Resize ---- */
   var cw = 0, ch = 0, cx = 0, cy = 0
 
@@ -179,20 +185,16 @@
   }
 
   function drawStars() {
-    /* batch tiny dim stars into a single path (fastest) */
-    ctx.fillStyle = 'hsla(220, 20%, 92%, 0.12)'
-    ctx.beginPath()
+    /* dim stars — individual fillRect with per-star twinkle */
     for (var i = 0; i < stars.length; i++) {
       var s = stars[i]
       if (s.r >= 0.6) continue
       var tw = (Math.sin(time * s.twinkleSpeed + s.twinklePhase) + 1) * 0.5
-      var alpha = lerp(0.04, s.brightness, tw)
-      if (alpha < 0.08) continue
-      var x = s.x + s.ox
-      var y = s.y + s.oy
-      ctx.rect(x, y, s.r, s.r)
+      var alpha = lerp(0.03, s.brightness, tw)
+      if (alpha < 0.06) continue
+      ctx.fillStyle = 'hsla(220, 20%, 92%, ' + alpha + ')'
+      ctx.fillRect(s.x + s.ox, s.y + s.oy, s.r, s.r)
     }
-    ctx.fill()
 
     /* medium and bright stars individually */
     for (var i = 0; i < stars.length; i++) {
@@ -459,8 +461,7 @@
     var spread = (rand(-1, 1) + rand(-1, 1)) * diag * 0.055
     var x = bandCx + Math.cos(angle) * t * diag * 0.75 + (-Math.sin(angle)) * spread
     var y = bandCy + Math.sin(angle) * t * diag * 0.75 + Math.cos(angle) * spread
-    var hueRange = theme.starHueHi - theme.starHueLo
-    var hue = theme.starHueLo + Math.random() * hueRange
+    var hue = randHue(theme.starHueLo, theme.starHueHi)
     return {
       x: x, y: y,
       baseX: x, baseY: y,
@@ -682,10 +683,10 @@
       /* recolor stars to match theme */
       var theme = THEMES[themeKey]
       for (var i = 0; i < stars.length; i++) {
-        stars[i].hue = rand(theme.starHueLo, theme.starHueHi)
+        stars[i].hue = randHue(theme.starHueLo, theme.starHueHi)
       }
       for (var i = 0; i < particles.length; i++) {
-        particles[i].hue = rand(theme.starHueLo, theme.starHueHi)
+        particles[i].hue = randHue(theme.starHueLo, theme.starHueHi)
       }
     })
   }

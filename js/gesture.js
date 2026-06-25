@@ -74,7 +74,7 @@
   var fruitGameOver   = false;
   var fruitDifficulty = 0;            /* increases over time */
   var fruitStartTime  = 0;
-  var fruitHighScore  = parseInt(localStorage.getItem("gesture-fruit-hs") || "0", 10);
+  var fruitHighScore  = parseInt((function() { try { return localStorage.getItem("gesture-fruit-hs"); } catch(e) { return "0"; } })() || "0", 10);
 
   var FRUIT_DEFS = [
     { emoji: "🍎", color: "#e53935", glow: "#ff5252", r: 30, pts: 10 },
@@ -120,7 +120,7 @@
   var dancePattern      = [];
   var danceMissEffects  = [];
   var danceJudgmentFX   = [];
-  var danceHighScore    = parseInt(localStorage.getItem("gesture-dance-hs") || "0", 10);
+  var danceHighScore    = parseInt((function() { try { return localStorage.getItem("gesture-dance-hs"); } catch(e) { return "0"; } })() || "0", 10);
   var dancePulse        = 0;
 
   /* ---- 3D Reconstruction state ---- */
