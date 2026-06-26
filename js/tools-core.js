@@ -68,7 +68,16 @@
     return /^[A-Za-z_$][\w$-]*$/.test(key) ? path + "." + key : path + "[" + JSON.stringify(key) + "]";
   }
 
-  function collectJsonDiff(left, right, path, lines) {
+  var MAX_DIFF_DEPTH = 50;
+  var MAX_DIFF_LINES = 500;
+
+  function collectJsonDiff(left, right, path, lines, depth) {
+    if (depth === undefined) depth = 0;
+    if (depth > MAX_DIFF_DEPTH) {
+      lines.push("~ " + path + ": (深度超过限制，已截断)");
+      return;
+    }
+    if (lines.length >= MAX_DIFF_LINES) return;
     const leftType = jsonType(left);
     const rightType = jsonType(right);
     if (leftType !== rightType) {
@@ -79,14 +88,14 @@
     }
     if (leftType === "array") {
       const max = Math.max(left.length, right.length);
-      for (let index = 0; index < max; index += 1) {
+      for (let index = 0; index < max && lines.length < MAX_DIFF_LINES; index += 1) {
         const nextPath = jsonPathJoin(path, index);
         if (index >= left.length) {
           lines.push("+ " + nextPath + ": " + jsonPreview(right[index]));
         } else if (index >= right.length) {
           lines.push("- " + nextPath + ": " + jsonPreview(left[index]));
         } else {
-          collectJsonDiff(left[index], right[index], nextPath, lines);
+          collectJsonDiff(left[index], right[index], nextPath, lines, depth + 1);
         }
       }
       return;
@@ -94,13 +103,14 @@
     if (leftType === "object") {
       const keys = Array.from(new Set(Object.keys(left).concat(Object.keys(right)))).sort();
       keys.forEach(function (key) {
+        if (lines.length >= MAX_DIFF_LINES) return;
         const nextPath = jsonPathJoin(path, key);
         if (!Object.prototype.hasOwnProperty.call(left, key)) {
           lines.push("+ " + nextPath + ": " + jsonPreview(right[key]));
         } else if (!Object.prototype.hasOwnProperty.call(right, key)) {
           lines.push("- " + nextPath + ": " + jsonPreview(left[key]));
         } else {
-          collectJsonDiff(left[key], right[key], nextPath, lines);
+          collectJsonDiff(left[key], right[key], nextPath, lines, depth + 1);
         }
       });
       return;
@@ -147,7 +157,7 @@
 
   function decodeBase64(input) {
     try {
-      const clean = text(input).trim();
+      const clean = text(input).replace(/\s+/g, "");
       const atob = getGlobal("atob");
       if (typeof atob !== "function") {
         return fail("Base64 解码失败：当前浏览器不支持 atob", "base64Decode");
@@ -235,7 +245,7 @@
       return fail("请输入秒或毫秒时间戳", "timestampInput");
     }
     const num = Number(raw);
-    const ms = Math.abs(num) < 100000000000 ? num * 1000 : num;
+    const ms = Math.abs(num) < 1e12 ? num * 1000 : num;
     const date = new Date(ms);
     if (Number.isNaN(date.getTime())) {
       return fail("时间戳无法转换为有效日期", "timestampDate");
@@ -546,7 +556,7 @@
 
   function parseColor(input) {
     const raw = text(input).trim();
-    let match = /^#?([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(raw);
+    let match = /^#?([0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i.exec(raw);
     if (match) {
       const hex = match[1].length === 3
         ? match[1].split("").map(function (part) { return part + part; }).join("")
@@ -555,6 +565,7 @@
         r: parseInt(hex.slice(0, 2), 16),
         g: parseInt(hex.slice(2, 4), 16),
         b: parseInt(hex.slice(4, 6), 16),
+        ...(hex.length === 8 ? { a: parseInt(hex.slice(6, 8), 16) / 255 } : {}),
       });
     }
     match = /^rgba?\(\s*([+-]?\d+(?:\.\d+)?)\s*,\s*([+-]?\d+(?:\.\d+)?)\s*,\s*([+-]?\d+(?:\.\d+)?)/i.exec(raw);
@@ -1161,7 +1172,12 @@
     const words = (raw.match(/[A-Za-z0-9]+|[\u4e00-\u9fff]/g) || []).length;
     const noSpace = raw.replace(/\s/g, "").length;
     const encoder = getGlobal("TextEncoder");
-    const bytes = typeof encoder === "function" ? new encoder().encode(raw).length : unescape(encodeURIComponent(raw)).length;
+    var bytes;
+    try {
+      bytes = typeof encoder === "function" ? new encoder().encode(raw).length : unescape(encodeURIComponent(raw)).length;
+    } catch (_e) {
+      bytes = raw.length;
+    }
     return ok([
       "Characters: " + raw.length,
       "Characters without spaces: " + noSpace,
@@ -1203,8 +1219,9 @@
       return fail("请输入有效数值", "unitValue");
     }
     if (kind === "temperature") {
-      const c = from === "f" ? (amount - 32) * 5 / 9 : from === "k" ? amount - 273.15 : amount;
-      if (["c", "f", "k", "℃", "℉"].indexOf(from) === -1) {return fail("温度单位支持 c/f/k", "unitType");}
+      const normFrom = from === "℃" ? "c" : from === "℉" ? "f" : from;
+      const c = normFrom === "f" ? (amount - 32) * 5 / 9 : normFrom === "k" ? amount - 273.15 : amount;
+      if (["c", "f", "k"].indexOf(normFrom) === -1) {return fail("温度单位支持 c/f/k", "unitType");}
       return ok(["C: " + c.toFixed(4), "F: " + (c * 9 / 5 + 32).toFixed(4), "K: " + (c + 273.15).toFixed(4)].join("\n"));
     }
     const group = UNIT_GROUPS[kind];
