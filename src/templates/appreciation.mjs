@@ -138,6 +138,10 @@ const BOARDS = [
       { name: "经济自由", nameEn: "Financial freedom" },
       { name: "思想自由", nameEn: "Freedom of thought" },
       { name: "个人选择自由", nameEn: "Freedom of personal choice" },
+      { name: "人人都会撒谎", nameEn: "Everyone lies" },
+      { name: "人不会改变", nameEn: "People do not change" },
+      { name: "人性被高估", nameEn: "Human nature is overrated" },
+      { name: "你不可能总是得到你想要的东西", nameEn: "You can't always get what you want" },
     ],
   },
 ];

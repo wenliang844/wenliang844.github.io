@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://cdn.jsdelivr.net https://storage.googleapis.com; base-uri 'self'; object-src 'none'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://giscus.app https://cdn.jsdelivr.net https://storage.googleapis.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https:; frame-src https://giscus.app; form-action 'self' https://buttondown.com https://api.web3forms.com">
-  <meta name="description" content="CWLBlog 在线工具箱：Mini Postman、JSON、时间戳、Base64、URL、UUID、JWT、哈希、密码、颜色、正则、Markdown 编辑器、Diff、Cron、二维码、YAML、URL 解析、文本处理和手势交互动画、星河动画等开发工具。">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' 'unsafe-inline' https://giscus.app; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https:; frame-src https://giscus.app; form-action 'self' https://buttondown.com https://api.web3forms.com">
+  <meta name="description" content="CWLBlog 在线工具箱：Mini Postman、JSON、时间戳、Base64、URL、UUID、JWT、哈希、密码、颜色、正则、Markdown 编辑器、Diff、Cron、二维码、YAML、URL 解析、文本处理和手势交互动画等开发工具。">
   <link rel="icon" href="/images/favicon.png" type="image/png">
   <link rel="preconnect" href="https://giscus.app">
   <link rel="dns-prefetch" href="https://giscus.app">
@@ -29,8 +29,6 @@
   <script src="/js/tools.js" defer></script>
   <script src="/js/editor.js" defer></script>
   <script src="/js/gesture.js" defer></script>
-  <script src="/js/object-search.js" defer></script>
-  <script src="/js/galaxy.js" defer></script>
   <link rel="canonical" href="https://wenliang844.github.io/tools/">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="CWLBlog">
@@ -42,7 +40,7 @@
   <meta name="twitter:image" content="https://wenliang844.github.io/images/favicon.png">
   <meta name="twitter:title" content="在线工具箱 :: CWLBlog">
   <meta name="twitter:description" content="Mini Postman、JSON、时间戳、编码、哈希、密码、颜色、正则、Markdown 编辑器、Diff、Cron、二维码、YAML、URL 解析与文本处理等常用开发工具。">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"CWLBlog 在线工具箱","description":"CWLBlog 在线工具箱：Mini Postman、JSON、时间戳、Base64、URL、UUID、JWT、哈希、密码、颜色、正则、Markdown 编辑器、Diff、Cron、二维码、YAML、URL 解析、文本处理和手势交互动画、星河动画等开发工具。","url":"https://wenliang844.github.io/tools/","inLanguage":"zh-CN","isPartOf":{"@type":"WebSite","name":"CWLBlog","url":"https://wenliang844.github.io/"},"applicationCategory":"DeveloperApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":["JSON Formatter","Mini API Tester","Timestamp Converter","Base64 Codec","URL Codec","UUID Generator","JWT Decoder","Hash Digest","Password Generator","Color Converter","Regex Tester","Markdown Editor","Text Diff","JSON Diff","Case Converter","HTML Entities","Cron Parser","QR Generator","YAML / JSON","URL Parser","Query Builder","JSONPath Query","Text Stats","Text Cleaner","Unit Converter","CSS Unit Converter","Random Generator","Date Diff","User-Agent Parser","Gesture Animation","Galaxy Animation"]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"CWLBlog 在线工具箱","description":"CWLBlog 在线工具箱：Mini Postman、JSON、时间戳、Base64、URL、UUID、JWT、哈希、密码、颜色、正则、Markdown 编辑器、Diff、Cron、二维码、YAML、URL 解析、文本处理和手势交互动画等开发工具。","url":"https://wenliang844.github.io/tools/","inLanguage":"zh-CN","isPartOf":{"@type":"WebSite","name":"CWLBlog","url":"https://wenliang844.github.io/"},"applicationCategory":"DeveloperApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":["JSON Formatter","Mini API Tester","Timestamp Converter","Base64 Codec","URL Codec","UUID Generator","JWT Decoder","Hash Digest","Password Generator","Color Converter","Regex Tester","Markdown Editor","Text Diff","JSON Diff","Case Converter","HTML Entities","Cron Parser","QR Generator","YAML / JSON","URL Parser","Query Builder","JSONPath Query","Text Stats","Text Cleaner","Unit Converter","CSS Unit Converter","Random Generator","Date Diff","User-Agent Parser","Gesture Animation"]}</script>
   <title>在线工具箱 :: CWLBlog</title>
 </head>
 <body class="colorscheme-dark" data-i18n-page="tools" data-i18n-title-en="Toolbox :: CWLBlog" data-i18n-desc-en="CWLBlog online toolbox: Mini Postman, JSON, timestamps, Base64, URL, UUID, JWT, hashes, passwords, colors, regex, Markdown editor, diff, cron, QR, YAML, URL parsing, text tools and gesture animation.">
@@ -264,17 +262,9 @@
               <summary class="tool-category-summary">
                 <span class="tool-category-chevron" aria-hidden="true"><i class="fas fa-chevron-right"></i></span>
                 <span class="tool-category-title" data-i18n="tools.category.visual" data-i18n-en="Visual &amp; Interaction">视觉与交互</span>
-                <span class="tool-category-count" aria-label="3 个工具">3</span>
+                <span class="tool-category-count" aria-label="1 个工具">1</span>
               </summary>
               <div class="tool-category-list">
-            <button class="tool-tab" id="tool-tab-galaxy" type="button" role="tab" data-tool-tab="galaxy" aria-controls="tool-galaxy" aria-label="星河动画" aria-selected="false" tabindex="-1" data-i18n-aria="tools.nav.galaxy" data-i18n-en-aria="Galaxy Animation">
-              <i class="fas fa-meteor" aria-hidden="true"></i>
-              <span data-i18n="tools.nav.galaxy" data-i18n-en="Galaxy Animation">星河动画</span>
-            </button>
-            <button class="tool-tab" id="tool-tab-objectsearch" type="button" role="tab" data-tool-tab="objectsearch" aria-controls="tool-objectsearch" aria-label="物体识别拍照搜" aria-selected="false" tabindex="-1" data-i18n-aria="tools.nav.objectsearch" data-i18n-en-aria="Object Recognition &amp; Search">
-              <i class="fas fa-camera-retro" aria-hidden="true"></i>
-              <span data-i18n="tools.nav.objectsearch" data-i18n-en="Object Recognition &amp; Search">物体识别拍照搜</span>
-            </button>
             <button class="tool-tab" id="tool-tab-gesture" type="button" role="tab" data-tool-tab="gesture" aria-controls="tool-gesture" aria-label="手势交互动画" aria-selected="false" tabindex="-1" data-i18n-aria="tools.nav.gesture" data-i18n-en-aria="Gesture Animation">
               <i class="fas fa-hand-sparkles" aria-hidden="true"></i>
               <span data-i18n="tools.nav.gesture" data-i18n-en="Gesture Animation">手势交互动画</span>
@@ -856,7 +846,7 @@
             </div>
           </header>
           <div class="tool-grid">
-            <label class="tool-field"><span data-i18n="tools.label.urlInput">输入 URL</span>
+            <label class="tool-field"><span data-i18n="tools.label.urlInput">urlInput</span>
               <textarea id="urlparse-input" spellcheck="false" placeholder="https://example.com:443/docs?a=1&amp;b=中文#top" data-i18n-ph="tools.urlparse.placeholder" data-i18n-en-ph="https://example.com/docs?a=1#top"></textarea>
             </label>
             <label class="tool-field"><span data-i18n="tools.label.output">输出结果</span>
@@ -878,7 +868,7 @@
             </div>
           </header>
           <div class="tool-grid">
-            <label class="tool-field"><span data-i18n="tools.label.queryInput">输入查询</span>
+            <label class="tool-field"><span data-i18n="tools.label.queryInput">queryInput</span>
               <textarea id="query-input" spellcheck="false" placeholder="name=CWLBlog
 q=在线工具箱" data-i18n-ph="tools.query.placeholder" data-i18n-en-ph="name=CWLBlog
 q=toolbox"></textarea>
@@ -927,7 +917,7 @@ q=toolbox"></textarea>
             </div>
           </header>
           <div class="tool-grid">
-            <label class="tool-field"><span data-i18n="tools.label.inputText">输入文本</span>
+            <label class="tool-field"><span data-i18n="tools.label.inputText">inputText</span>
               <textarea id="textstats-input" spellcheck="false" placeholder="输入一段需要统计的文本" data-i18n-ph="tools.textstats.placeholder" data-i18n-en-ph="Paste text to analyze"></textarea>
             </label>
             <label class="tool-field"><span data-i18n="tools.label.output">输出结果</span>
@@ -1100,7 +1090,7 @@ q=toolbox"></textarea>
             </div>
           </header>
           <div class="tool-grid">
-            <label class="tool-field"><span data-i18n="tools.label.uaInput">输入 UA</span>
+            <label class="tool-field"><span data-i18n="tools.label.uaInput">uaInput</span>
               <textarea id="ua-input" spellcheck="false" placeholder="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/126 Safari/537.36" data-i18n-ph="tools.ua.placeholder" data-i18n-en-ph="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/126 Safari/537.36"></textarea>
             </label>
             <label class="tool-field"><span data-i18n="tools.label.output">输出结果</span>
@@ -1145,9 +1135,6 @@ q=toolbox"></textarea>
             <button class="gesture-mode-btn" data-mode="fruit" type="button">
               <i class="fas fa-apple-alt" aria-hidden="true"></i> <span data-i18n="tools.gesture.modeFruit" data-i18n-en="Fruit Ninja">体感切水果</span>
             </button>
-            <button class="gesture-mode-btn" data-mode="detect" type="button">
-              <i class="fas fa-crosshairs" aria-hidden="true"></i> <span data-i18n="tools.gesture.modeDetect" data-i18n-en="Object Detection">物体检测</span>
-            </button>
             <button class="gesture-mode-btn" data-mode="face" type="button">
               <i class="fas fa-face-smile" aria-hidden="true"></i> <span data-i18n="tools.gesture.modeFace" data-i18n-en="Face Analysis">人脸分析</span>
             </button>
@@ -1165,9 +1152,9 @@ q=toolbox"></textarea>
           </div>
           <div class="gesture-viewport">
             <video id="gesture-video" class="gesture-video" autoplay playsinline muted></video>
-            <canvas id="gesture-canvas" class="gesture-canvas" aria-hidden="true"></canvas>
+            <canvas id="gesture-canvas" class="gesture-canvas"></canvas>
             <div id="gesture-three-container" class="gesture-three-container"></div>
-            <canvas id="gesture-depth-preview" class="gesture-depth-preview" width="80" height="60" aria-hidden="true"></canvas>
+            <canvas id="gesture-depth-preview" class="gesture-depth-preview" width="80" height="60"></canvas>
             <div id="gesture-overlay" class="gesture-overlay">
               <i class="fas fa-hand-sparkles" aria-hidden="true"></i>
               <p data-i18n="tools.gesture.placeholder" data-i18n-en='Click "Start Camera" to begin'>点击"开启摄像头"开始</p>
@@ -1183,132 +1170,6 @@ q=toolbox"></textarea>
             <i class="fas fa-shield-alt" aria-hidden="true"></i>
             <span data-i18n="tools.gesture.privacy" data-i18n-en="All data is processed locally in your browser and is never uploaded to any server.">所有数据均在浏览器本地处理，不会上传到任何服务器。</span>
           </p>
-        </section>
-        <section class="tool-panel" id="tool-objectsearch" data-tool-panel="objectsearch" role="tabpanel" aria-labelledby="tool-tab-objectsearch" tabindex="0" hidden>
-          <header class="tool-panel-head">
-            <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-camera-retro"></i></span>
-            <div>
-              <h2 data-i18n="tools.objectsearch.title" data-i18n-en="Object Recognition &amp; Search">物体识别拍照搜</h2>
-              <p data-i18n="tools.objectsearch.desc" data-i18n-en="Detect objects in real-time via webcam, capture a photo, and search online.">通过摄像头实时识别物体，拍照后在线搜索。</p>
-            </div>
-          </header>
-          <div class="gesture-controls">
-            <button class="tool-btn primary" id="obj-start" type="button">
-              <i class="fas fa-video" aria-hidden="true"></i> <span data-i18n="tools.objectsearch.start" data-i18n-en="Start Camera">开启摄像头</span>
-            </button>
-            <button class="tool-btn" id="obj-stop" type="button" disabled>
-              <i class="fas fa-video-slash" aria-hidden="true"></i> <span data-i18n="tools.objectsearch.stop" data-i18n-en="Stop Camera">关闭摄像头</span>
-            </button>
-          </div>
-          <div class="gesture-viewport">
-            <video id="obj-video" class="gesture-video" autoplay playsinline muted></video>
-            <canvas id="obj-canvas" class="gesture-canvas" aria-hidden="true"></canvas>
-            <div id="obj-overlay" class="gesture-overlay">
-              <i class="fas fa-camera-retro" aria-hidden="true"></i>
-              <p data-i18n="tools.objectsearch.placeholder" data-i18n-en='Click "Start Camera" to begin'>点击"开启摄像头"开始</p>
-            </div>
-          </div>
-          <div class="gesture-info">
-            <span id="obj-status" class="gesture-badge">就绪</span>
-            <span id="obj-label" class="gesture-badge"></span>
-            <span id="obj-fps" class="gesture-badge"></span>
-          </div>
-          <div class="obj-capture-row">
-            <button class="tool-btn primary obj-capture-btn" id="obj-capture" type="button" disabled>
-              <i class="fas fa-camera" aria-hidden="true"></i> <span data-i18n="tools.objectsearch.capture" data-i18n-en="Capture Photo">拍照</span>
-            </button>
-          </div>
-          <div class="obj-result" id="obj-result" hidden>
-            <img id="obj-photo" class="obj-photo" alt="captured photo">
-            <div class="obj-result-info">
-              <span id="obj-result-label" class="obj-result-chip"></span>
-              <span id="obj-result-confidence" class="obj-result-chip"></span>
-            </div>
-            <div class="obj-search-actions">
-              <button class="tool-btn primary" id="obj-search-text" type="button">
-                <i class="fas fa-search" aria-hidden="true"></i> <span data-i18n="tools.objectsearch.searchText" data-i18n-en="Search Text">搜索文字</span>
-              </button>
-              <button class="tool-btn" id="obj-search-lens" type="button">
-                <i class="fas fa-camera" aria-hidden="true"></i> <span data-i18n="tools.objectsearch.searchLens" data-i18n-en="Google Lens">以图搜图</span>
-              </button>
-              <button class="tool-btn" id="obj-recapture" type="button">
-                <i class="fas fa-redo" aria-hidden="true"></i> <span data-i18n="tools.objectsearch.recapture" data-i18n-en="Recapture">重新拍照</span>
-              </button>
-            </div>
-          </div>
-          <p class="gesture-privacy">
-            <i class="fas fa-shield-alt" aria-hidden="true"></i>
-            <span data-i18n="tools.objectsearch.privacy" data-i18n-en="All image data is processed locally in your browser and is never uploaded to any server.">所有图像数据均在浏览器本地处理，不会上传到任何服务器。</span>
-          </p>
-        </section>
-        <section class="tool-panel" id="tool-galaxy" data-tool-panel="galaxy" role="tabpanel" aria-labelledby="tool-tab-galaxy" tabindex="0" hidden>
-          <header class="tool-panel-head">
-            <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-meteor"></i></span>
-            <div>
-              <h2 data-i18n="tools.galaxy.title" data-i18n-en="Galaxy Animation">星河动画</h2>
-              <p data-i18n="tools.galaxy.desc" data-i18n-en="Immersive Milky Way band with nebula glow, twinkling star field, shooting stars and mouse interaction.">沉浸式星河银河带动画，星云辉光、闪烁星空、流星效果和鼠标交互。</p>
-              <a class="tool-btn galaxy-ref-link" href="https://galaxy.qinuli.top/" target="_blank" rel="noopener noreferrer">
-                <i class="fas fa-external-link-alt" aria-hidden="true"></i> <span data-i18n="tools.galaxy.ref" data-i18n-en="View original">查看原版</span>
-              </a>
-            </div>
-          </header>
-          <div class="galaxy-controls">
-            <div class="galaxy-ctrl-group">
-              <label class="galaxy-ctrl-label" data-i18n="tools.galaxy.theme" data-i18n-en="Theme">配色</label>
-              <div class="galaxy-btn-row" id="galaxy-theme">
-                <button class="galaxy-theme-btn active" data-galaxy-theme="bluePurple" type="button">
-                  <span class="galaxy-theme-dot" style="background:linear-gradient(135deg,#4060ff,#a855f7)"></span>
-                  <span data-i18n="tools.galaxy.themeBP" data-i18n-en="Blue-Purple">蓝紫</span>
-                </button>
-                <button class="galaxy-theme-btn" data-galaxy-theme="pinkOrange" type="button">
-                  <span class="galaxy-theme-dot" style="background:linear-gradient(135deg,#f472b6,#fb923c)"></span>
-                  <span data-i18n="tools.galaxy.themePO" data-i18n-en="Pink-Orange">粉橙</span>
-                </button>
-                <button class="galaxy-theme-btn" data-galaxy-theme="cyanGreen" type="button">
-                  <span class="galaxy-theme-dot" style="background:linear-gradient(135deg,#22d3ee,#4ade80)"></span>
-                  <span data-i18n="tools.galaxy.themeCG" data-i18n-en="Cyan-Green">青绿</span>
-                </button>
-                <button class="galaxy-theme-btn" data-galaxy-theme="rainbow" type="button">
-                  <span class="galaxy-theme-dot" style="background:linear-gradient(135deg,#f00,#ff0,#0f0,#0ff,#00f,#f0f)"></span>
-                  <span data-i18n="tools.galaxy.themeRB" data-i18n-en="Rainbow">彩虹</span>
-                </button>
-              </div>
-            </div>
-            <div class="galaxy-ctrl-group">
-              <label class="galaxy-ctrl-label" data-i18n="tools.galaxy.speed" data-i18n-en="Speed">速度 <span id="galaxy-speed-val">1.0x</span></label>
-              <input type="range" id="galaxy-speed" class="galaxy-range" min="0.1" max="3" step="0.1" value="1">
-            </div>
-            <div class="galaxy-ctrl-group">
-              <label class="galaxy-ctrl-label" data-i18n="tools.galaxy.particles" data-i18n-en="Particles">粒子数</label>
-              <div class="galaxy-btn-row" id="galaxy-count">
-                <button class="galaxy-count-btn" data-galaxy-count="500" type="button">500</button>
-                <button class="galaxy-count-btn active" data-galaxy-count="1000" type="button">1000</button>
-                <button class="galaxy-count-btn" data-galaxy-count="2000" type="button">2000</button>
-                <button class="galaxy-count-btn" data-galaxy-count="3000" type="button">3000</button>
-              </div>
-            </div>
-            <div class="galaxy-ctrl-group">
-              <label class="galaxy-ctrl-label" data-i18n="tools.galaxy.interact" data-i18n-en="Mouse">鼠标交互</label>
-              <div class="galaxy-btn-row" id="galaxy-interact">
-                <button class="galaxy-interact-btn active" data-galaxy-interact="attract" type="button">
-                  <i class="fas fa-magnet" aria-hidden="true"></i> <span data-i18n="tools.galaxy.attract" data-i18n-en="Attract">吸引</span>
-                </button>
-                <button class="galaxy-interact-btn" data-galaxy-interact="repel" type="button">
-                  <i class="fas fa-arrows-alt" aria-hidden="true"></i> <span data-i18n="tools.galaxy.repel" data-i18n-en="Repel">排斥</span>
-                </button>
-                <button class="galaxy-interact-btn" data-galaxy-interact="none" type="button">
-                  <i class="fas fa-ban" aria-hidden="true"></i> <span data-i18n="tools.galaxy.noInteract" data-i18n-en="Off">关闭</span>
-                </button>
-              </div>
-            </div>
-          </div>
-          <div class="galaxy-viewport">
-            <canvas id="galaxy-canvas" class="galaxy-canvas" aria-hidden="true"></canvas>
-          </div>
-          <div class="galaxy-info">
-            <span id="galaxy-fps" class="galaxy-badge">0 FPS</span>
-            <span id="galaxy-particles" class="galaxy-badge">0 粒子</span>
-          </div>
         </section>
           </div>
         </div>
