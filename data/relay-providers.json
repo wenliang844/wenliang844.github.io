@@ -13,7 +13,7 @@
       "commercial": {
         "label": "商业站",
         "source": "external-actions",
-        "generatedAt": "2026-06-26T20:12:24.709Z",
+        "generatedAt": "2026-06-27T04:18:05.362Z",
         "totalProviders": 24
       }
     },
@@ -759,7 +759,7 @@
     }
   ],
   "commercialMeta": {
-    "generatedAt": "2026-06-26T20:12:24.709Z",
+    "generatedAt": "2026-06-27T04:18:05.362Z",
     "source": "external-actions",
     "totalProviders": 24
   }
