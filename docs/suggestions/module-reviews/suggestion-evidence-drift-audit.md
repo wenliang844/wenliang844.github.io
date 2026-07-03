@@ -7,20 +7,20 @@
 
 - `npm run lint:check`：通过，当前没有 ESLint warning 输出。
 - `npm test`：786/786 通过。
-- `npm run test:coverage`：786/786 通过；all files line 96.76%、branch 83.95%、funcs 96.30%。
+- `npm run test:coverage`：786/786 通过；all files line 96.72%、branch 83.74%、funcs 96.30%。
 - 只读文档扫描发现建议库中同时存在多代测试数字，例如 731/731、742/742、752/752、769/769、773/773、786/786。
 - 本轮提交前测试曾依赖若干未跟踪文件：`src/page-assets.mjs`、`css/tools.css`、`css/trust.css`、`src/templates/trust.mjs`、`src/trust-data.mjs`、`trust/index.html`。这些资源已在 `1a9370d` 中进入 Git 跟踪集合，但该过程暴露出证据需要记录工作区范围。
 
 ## 结论摘要
 
-建议库已经记录了大量高质量证据，但证据本身开始出现“时间层”问题：早期审计的 731/731、77 warnings、94% coverage 是当时事实，后续 786/786、0 warnings、96.76% coverage 是当前事实。两者都真实，但如果缺少时间戳、commit、dirty-worktree 标记和机器可读快照，读者很难知道某个数字是历史基线、当前 HEAD，还是包含未跟踪文件的本地工作区结果。
+建议库已经记录了大量高质量证据，但证据本身开始出现“时间层”问题：早期审计的 731/731、77 warnings、94% coverage 是当时事实，后续 786/786、0 warnings、96.72% coverage 是当前事实。两者都真实，但如果缺少时间戳、commit、dirty-worktree 标记和机器可读快照，读者很难知道某个数字是历史基线、当前 HEAD，还是包含未跟踪文件的本地工作区结果。
 
 ---
 
 ## 📌 EVD-01：测试总数和覆盖率数字散落在多份文档，缺少当前基线单一来源
 
 - 📍 位置：`docs/suggestions/full-browser-audit-2026-07-03.md:30-36`、`docs/suggestions/full-browser-audit-2026-07-03.md:268-274`、`docs/suggestions/current-worktree-verification-2026-07-03.md:9-12`、`docs/suggestions/module-reviews/test-coverage-risk-map.md:4-10`
-- 📝 当前状况描述：历史报告记录了 731/731、752 passed、line 94.27% 等当时基线；近期报告记录 786/786、line 96.76%。这些数字都可作为时间点证据，但没有一个“当前质量基线”文件或 JSON 作为单一来源。README、健康评分、工作报告和模块评审只能手工复制，容易出现读者看到多个互相不同的“当前”。
+- 📝 当前状况描述：历史报告记录了 731/731、752 passed、line 94.27% 等当时基线；近期报告记录 786/786、line 96.72%。这些数字都可作为时间点证据，但没有一个“当前质量基线”文件或 JSON 作为单一来源。README、健康评分、工作报告和模块评审只能手工复制，容易出现读者看到多个互相不同的“当前”。
 - ⚠️ 影响程度：中
 - 💡 建议方案（含伪代码或示例片段）：新增只读 `docs/suggestions/evidence/current-quality-baseline.json` 或 CI artifact，记录最新验证命令、结果、覆盖率、commit 和工作区状态；README 只引用它。
 
@@ -36,7 +36,7 @@
       "command": "npm run test:coverage",
       "status": "pass",
       "passed": 786,
-      "coverage": { "lines": 96.76, "branches": 83.95, "functions": 96.30 }
+      "coverage": { "lines": 96.72, "branches": 83.74, "functions": 96.30 }
     }
   ]
 }
@@ -98,7 +98,7 @@ baseline.untrackedReferences = untrackedReferences;
 ## 📌 EVD-04：覆盖率报告只存在于控制台输出，缺少可追溯 artifact
 
 - 📍 位置：`package.json:18-18`、`.github/workflows/ci.yml:47-48`、`docs/suggestions/module-reviews/test-coverage-risk-map.md:118-137`
-- 📝 当前状况描述：`npm run test:coverage` 能输出完整覆盖率表，当前结果为 786/786、line 96.76%、branch 83.95%、funcs 96.30%。但报告没有 JSON、Markdown summary 或 CI artifact。历史文档只能复制关键行，导致覆盖率趋势散落在人工报告中，且难以比较 file-level 变化，例如 `update-commercial-relay.mjs` 当前 line 76.65%、`parse-relay.mjs` branch 69.90%。
+- 📝 当前状况描述：`npm run test:coverage` 能输出完整覆盖率表，当前结果为 786/786、line 96.72%、branch 83.74%、funcs 96.30%。但报告没有 JSON、Markdown summary 或 CI artifact。历史文档只能复制关键行，导致覆盖率趋势散落在人工报告中，且难以比较 file-level 变化，例如 `update-commercial-relay.mjs` 当前 line 76.65%、`parse-relay.mjs` branch 69.90%。
 - ⚠️ 影响程度：中
 - 💡 建议方案（含伪代码或示例片段）：在 CI 中保存原始 coverage log，并提取 all files 和低覆盖文件到 `$GITHUB_STEP_SUMMARY`。
 
