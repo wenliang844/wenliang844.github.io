@@ -32,6 +32,11 @@ async function loadAssistant(options = {}) {
   }
   dom.window.localStorage.clear();
   dom.window.sessionStorage.clear();
+  if (options.localStorage) {
+    Object.entries(options.localStorage).forEach(([key, value]) => {
+      dom.window.localStorage.setItem(key, value);
+    });
+  }
   if (options.sessionStorage) {
     Object.entries(options.sessionStorage).forEach(([key, value]) => {
       dom.window.sessionStorage.setItem(key, value);
@@ -65,7 +70,7 @@ test("assistant starts open, answers locally and escapes user input", async () =
   assert.equal(document.querySelector(".assistant-config").hidden, false);
   assert.equal(document.querySelector(".assistant-config-body").hidden, true);
   assert.equal(document.querySelector(".assistant-config-toggle").getAttribute("aria-expanded"), "false");
-  assert.equal(document.querySelector(".assistant-format").value, "anthropic");
+  assert.equal(document.querySelector(".assistant-format").value, "openai");
   assert.equal(document.querySelector(".assistant-relay-cta").getAttribute("href"), "/ai/#relay");
 
   document.querySelector('[data-assistant-mode="site"]').click();
@@ -402,7 +407,7 @@ test("assistant uses the OpenAI experience key without showing or storing it", a
   format.dispatchEvent(new Event("change", { bubbles: true }));
 
   assert.equal(document.querySelector(".assistant-format").value, "openai");
-  assert.equal(document.querySelector(".assistant-endpoint").value, "https://free.lyclaude.site/v1/responses");
+  assert.equal(document.querySelector(".assistant-endpoint").value, "https://muyuan.do/v1/responses");
   assert.equal(document.querySelector(".assistant-api-key").value, "");
   assert.equal(document.querySelector(".assistant-stream input").checked, true);
   assert.equal(document.querySelector(".assistant-api-key").getAttribute("placeholder"), "请输入你自己的 API key");
@@ -415,7 +420,7 @@ test("assistant uses the OpenAI experience key without showing or storing it", a
   await wait();
 
   assert.equal(calls.length, 1);
-  assert.equal(calls[0].url, "https://free.lyclaude.site/v1/responses");
+  assert.equal(calls[0].url, "https://muyuan.do/v1/responses");
   assert.match(calls[0].init.headers.Authorization, /^Bearer sk-[A-Za-z0-9_-]{20,}$/);
   assert.match(document.querySelector(".assistant-messages").textContent, /pong/);
   assert.equal(JSON.parse(localStorage.getItem("cwl.assistant.llmConfig")).apiKey, "");
@@ -450,7 +455,7 @@ test("assistant still requires an API key for custom OpenAI endpoints", async ()
   assert.match(document.querySelector(".assistant-messages").textContent, /请先填写 API key/);
 });
 
-test("assistant defaults LLM mode to Claude with a hidden experience key", async () => {
+test("assistant defaults LLM mode to ChatGPT with a hidden experience key", async () => {
   const calls = [];
   const dom = await loadAssistant();
   const { document, Event } = dom.window;
@@ -467,9 +472,9 @@ test("assistant defaults LLM mode to Claude with a hidden experience key", async
   assert.equal(document.querySelector('[data-assistant-mode="llm"]').classList.contains("active"), true);
   assert.equal(document.querySelector(".assistant-config").hidden, false);
   assert.equal(document.querySelector(".assistant-config-body").hidden, true);
-  assert.equal(document.querySelector(".assistant-format").value, "anthropic");
-  assert.equal(document.querySelector(".assistant-endpoint").value, "https://token-plan-cn.xiaomimimo.com/anthropic");
-  assert.equal(document.querySelector(".assistant-model").value, "mimo-v2.5-pro");
+  assert.equal(document.querySelector(".assistant-format").value, "openai");
+  assert.equal(document.querySelector(".assistant-endpoint").value, "https://muyuan.do/v1/responses");
+  assert.equal(document.querySelector(".assistant-model").value, "gpt-5.5");
   assert.equal(document.querySelector(".assistant-api-key").value, "");
   assert.equal(document.querySelector(".assistant-stream input").checked, true);
 
@@ -480,9 +485,29 @@ test("assistant defaults LLM mode to Claude with a hidden experience key", async
   await wait();
 
   assert.equal(calls.length, 1);
-  assert.equal(calls[0].url, "https://token-plan-cn.xiaomimimo.com/anthropic/v1/messages");
-  assert.match(calls[0].init.headers["x-api-key"], /^tp-[A-Za-z0-9_-]{20,}$/);
+  assert.equal(calls[0].url, "https://muyuan.do/v1/responses");
+  assert.match(calls[0].init.headers.Authorization, /^Bearer sk-[A-Za-z0-9_-]{20,}$/);
   assert.match(document.querySelector(".assistant-messages").textContent, /pong/);
+});
+
+test("assistant migrates legacy default anthropic config to the new ChatGPT preset", async () => {
+  const dom = await loadAssistant({
+    localStorage: {
+      "cwl.assistant.llmConfig": JSON.stringify({
+        format: "anthropic",
+        endpoint: "https://token-plan-cn.xiaomimimo.com/anthropic",
+        apiKey: "",
+        model: "mimo-v2.5-pro",
+        stream: true,
+      }),
+    },
+  });
+  const { document } = dom.window;
+
+  assert.equal(document.querySelector(".assistant-format").value, "openai");
+  assert.equal(document.querySelector(".assistant-endpoint").value, "https://muyuan.do/v1/responses");
+  assert.equal(document.querySelector(".assistant-model").value, "gpt-5.5");
+  assert.equal(document.querySelector(".assistant-api-key").value, "");
 });
 
 test("assistant source does not expose experience keys as contiguous literals", async () => {
@@ -626,8 +651,8 @@ test("assistant retries Codex-style OpenAI responses requests", async () => {
   await wait(40);
 
   assert.equal(calls.length, 2);
-  assert.equal(calls[0].url, "https://free.lyclaude.site/v1/responses");
-  assert.equal(calls[1].url, "https://free.lyclaude.site/v1/responses");
+  assert.equal(calls[0].url, "https://muyuan.do/v1/responses");
+  assert.equal(calls[1].url, "https://muyuan.do/v1/responses");
 
   const firstBody = JSON.parse(calls[0].init.body);
   assert.equal(firstBody.store, false);

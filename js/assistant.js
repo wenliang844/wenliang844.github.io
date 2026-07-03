@@ -36,24 +36,29 @@
   const DEFAULT_OPACITY = 100;
   const MAX_CONVERSATIONS = 20;
   const REQUEST_TIMEOUT_MS = 60000;
+  const OPENAI_DEFAULT_API_KEY = ["sk", "-KsVG2X640CtGExXHyDSQApJPxrHMBb7xYa05PuaFKa6nS3Ij"].join("");
+  const OPENAI_DEFAULT_ENDPOINT = "https://muyuan.do/v1/responses";
+  const LEGACY_OPENAI_DEFAULT_ENDPOINT = "https://free.lyclaude.site/v1/responses";
+  const LEGACY_OPENAI_FC_ENDPOINT = "https://a-ocnfniawgw.cn-shanghai.fcapp.run/v1";
+  const LEGACY_ANTHROPIC_DEFAULT_ENDPOINT = "https://token-plan-cn.xiaomimimo.com/anthropic";
   const LLM_PRESETS = {
     openai: {
       format: "openai",
-      endpoint: "https://free.lyclaude.site/v1/responses",
+      endpoint: OPENAI_DEFAULT_ENDPOINT,
       apiKey: "",
       model: "gpt-5.5",
       stream: true,
     },
     anthropic: {
       format: "anthropic",
-      endpoint: "https://token-plan-cn.xiaomimimo.com/anthropic",
+      endpoint: LEGACY_ANTHROPIC_DEFAULT_ENDPOINT,
       apiKey: "",
       model: "mimo-v2.5-pro",
       stream: true,
     },
   };
   const LLM_EXPERIENCE_KEYS = {
-    openai: ["sk", "-MdXmOYyoCUSDwDaC4zxNOYUKyp45ZSIXJJOapbloAawi3LRW"].join(""),
+    openai: OPENAI_DEFAULT_API_KEY,
     anthropic: ["tp", "-cm4es5h6ehs1m9p2i2su9894nuyiwh2nomdswvjfaix86pxr"].join(""),
   };
   function t(key, fallback) {
@@ -281,26 +286,38 @@
   function readConfig() {
     const saved = storageGet(STORAGE_KEY);
     if (!saved) {
-      return preset("anthropic");
+      return preset("openai");
     }
 
     try {
       const parsed = JSON.parse(saved);
-      const base = preset(parsed.format);
+      const format = normalizeFormat(parsed.format);
+      const base = preset(format);
       const endpoint = String(parsed.endpoint || base.endpoint);
-      const migrateOldOpenAiDefault =
-        normalizeFormat(parsed.format) === "openai" &&
-        endpoint === "https://a-ocnfniawgw.cn-shanghai.fcapp.run/v1" &&
-        !parsed.apiKey;
+      const apiKey = String(parsed.apiKey || "");
+      const model = String(parsed.model || base.model);
+      const migrateLegacyAnthropicDefault =
+        format === "anthropic" &&
+        endpoint === LEGACY_ANTHROPIC_DEFAULT_ENDPOINT &&
+        !apiKey &&
+        model === "mimo-v2.5-pro";
+      const migrateLegacyOpenAiDefault =
+        format === "openai" &&
+        (endpoint === LEGACY_OPENAI_DEFAULT_ENDPOINT || endpoint === LEGACY_OPENAI_FC_ENDPOINT) &&
+        !apiKey &&
+        model === "gpt-5.5";
+      if (migrateLegacyAnthropicDefault || migrateLegacyOpenAiDefault) {
+        return preset("openai");
+      }
       return {
-        format: normalizeFormat(parsed.format),
-        endpoint: migrateOldOpenAiDefault ? base.endpoint : endpoint,
-        apiKey: String(parsed.apiKey || ""),
-        model: String(parsed.model || base.model),
+        format: format,
+        endpoint: endpoint,
+        apiKey: apiKey,
+        model: model,
         stream: typeof parsed.stream === "boolean" ? parsed.stream : base.stream,
       };
     } catch {
-      return preset("anthropic");
+      return preset("openai");
     }
   }
 
