@@ -7,7 +7,7 @@ import { fileURLToPath } from "node:url";
 
 const ROOT = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const HOST = "127.0.0.1";
-const ROUTES = ["/", "/tools/", "/ai/", "/post/", "/contact/"];
+const ROUTES = ["/", "/tools/", "/ai/", "/post/", "/contact/", "/trust/"];
 const MIME_TYPES = new Map([
   [".css", "text/css; charset=utf-8"],
   [".html", "text/html; charset=utf-8"],

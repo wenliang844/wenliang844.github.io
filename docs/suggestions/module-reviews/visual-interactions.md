@@ -4,7 +4,7 @@
 
 ## 验证背景
 
-当前工作树已通过 `npm run lint:check`、`npm test` / 生产验证内部测试 779/779、`npm run test:coverage`、`npm run test:http-smoke`、`npm run test:browser-smoke`、`npm run validate:production`、`npm audit --registry=https://registry.npmjs.org --audit-level=moderate` 和 `git diff --check`。以下建议不修改源码，只记录视觉交互脚本中仍值得治理的边界。
+当前工作树已通过 `npm run lint:check`、`npm test` / 生产验证内部测试 786/786、`npm run test:coverage`、`npm run test:http-smoke`、`npm run test:browser-smoke`、`npm run validate:production`、`npm audit --registry=https://registry.npmjs.org --audit-level=moderate` 和 `git diff --check`。以下建议不修改源码，只记录视觉交互脚本中仍值得治理的边界。
 
 ## 📌 MR-VIS-01 [已修复]: 手势摄像头启动缺少 `starting` 门闩，快速重复点击可能并发申请摄像头
 

@@ -20,6 +20,7 @@ const NAV_ITEMS = [
 const MORE_ITEMS = [
   { href: "/tools/", label: "工具箱", key: "tools", i18n: "nav.tools" },
   { href: "/overleaf/", label: "简历模版", key: "overleaf", i18n: "nav.overleaf" },
+  { href: "/trust/", label: "隐私与信任", key: "trust", i18n: "nav.trust" },
 ];
 
 export const SPONSOR_LINKS = {
@@ -112,6 +113,12 @@ function renderScripts(scripts) {
     .join("\n");
 }
 
+function renderStyles(styles) {
+  return styles
+    .map((href) => `  <link rel="stylesheet" href="${escapeAttr(href)}">`)
+    .join("\n");
+}
+
 function renderResourceHints() {
   return RESOURCE_HINTS
     .map(({ rel, href }) => `  <link rel="${rel}" href="${escapeAttr(href)}">`)
@@ -126,6 +133,14 @@ function renderSponsorFooterCta() {
             <a class="sponsor-mini-btn sponsor-mini-secondary" href="${SPONSOR_LINKS.paypal}" target="_blank" rel="noopener noreferrer" data-i18n="sponsorMini.paypal">💳 PayPal 支持</a>
           </div>
         </div>`;
+}
+
+function renderFooterLinks() {
+  return `        <nav class="footer-links" aria-label="站点说明" data-i18n-aria="footer.links.aria">
+          <a href="/trust/" data-i18n="footer.trust">隐私与信任</a>
+          <a href="/contact/" data-i18n="footer.contact">联系反馈</a>
+          <a href="/sponsor/" data-i18n="footer.sponsor">赞助支持</a>
+        </nav>`;
 }
 
 /**
@@ -189,6 +204,7 @@ export function buildPageJsonLd({ type = "WebPage", name, description, path, ...
  * @param {string} [opts.descriptionEn] 英文 meta description
  * @param {string} opts.active       导航高亮 key（blog/editor/contact 或 ""）
  * @param {string[]} opts.scripts    额外 defer 脚本（coder.js 已默认包含）
+ * @param {string[]} [opts.styles]   额外页面级样式（全站 core CSS 已默认包含）
  * @param {string} opts.bodyClass    body 额外 class，默认 colorscheme-light
  * @param {string} opts.page         用于 i18n head 切换（如 "home"/"posts"/"tags"），对应 head.title.* / head.desc.* 键
  * @param {string} opts.main         <main> 内部 HTML
@@ -203,6 +219,7 @@ export function renderPage(opts) {
     descriptionEn = "",
     active = "",
     scripts = [],
+    styles = [],
     bodyClass = "colorscheme-dark",
     page = "",
     main,
@@ -212,6 +229,7 @@ export function renderPage(opts) {
   } = opts;
 
   const allScripts = [...new Set([...CORE_SCRIPTS, ...scripts])];
+  const pageStyles = [...new Set(styles)];
   const meta = renderMeta(og);
   // JSON-LD 结构化数据：转义 "<" 防止 </script> 提前闭合脚本块。
   const jsonLdTag = jsonLd
@@ -235,6 +253,7 @@ export function renderPage(opts) {
 ${renderResourceHints()}
   <link rel="stylesheet" href="/css/fontawesome-all.min.css">
   <link rel="stylesheet" href="/css/coder.css">
+${renderStyles(pageStyles)}
 ${renderScripts(allScripts)}${meta ? "\n" + meta : ""}${jsonLdTag}
   <title>${escapeHtml(title)}</title>
 </head>
@@ -264,6 +283,7 @@ ${main}
           <p class="subscribe-status" role="status" aria-live="polite"></p>
         </div>
 ${renderSponsorFooterCta()}
+${renderFooterLinks()}
         <p data-i18n="footer.text">© 2021 - 2026 CWL · Powered by Cwl · Theme inspired by Coder</p>
       </section>
     </footer>

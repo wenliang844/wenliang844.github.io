@@ -5,20 +5,21 @@
 
 ## 本轮验证
 
-- `node --test tests/css.test.mjs tests/templates.test.mjs tests/templates-extended.test.mjs tests/performance.test.mjs tests/links.test.mjs`：100/101 通过，唯一失败为 `trust.css` 的移动端 media query 正则断言。
-- `git ls-files --error-unmatch css/tools.css css/trust.css src/templates/trust.mjs src/trust-data.mjs trust/index.html`：退出 1，说明这些当前工作区文件尚未进入 Git 跟踪集合。
-- 当前 `src/templates/tools.mjs` 与 `src/templates/trust.mjs` 已通过 `styles` 注入页面级 CSS，但 `tools/index.html`、`trust/index.html` 的当前生成产物仍只引用 `/css/coder.css`。
+- `node --test tests/css.test.mjs tests/templates.test.mjs tests/templates-extended.test.mjs tests/performance.test.mjs tests/build.test.mjs tests/workflows.test.mjs`：108/108 通过。
+- `npm run lint:check`、`npm run test:http-smoke`、`npm run test:browser-smoke`、`npm run test:coverage`、`npm run validate:production` 和 `git diff --check` 均已通过。
+- 当前 `src/templates/tools.mjs` 与 `src/templates/trust.mjs` 已通过 `styles` 注入页面级 CSS，`tools/index.html` 引用 `/css/tools.css`，`trust/index.html` 引用 `/css/trust.css`；本轮提交需同时纳入这两个 CSS 文件和新信任页源文件。
 
 ## 结论摘要
 
-项目正在从“所有样式集中在 `css/coder.css`”过渡到“公共 CSS + 页面级 CSS”。这个方向对性能和维护性都有价值，但当前处在半迁移阶段：模板、测试、生成产物、Git 跟踪状态和生产验证脚本还没有形成同一个事实来源。短期最需要补的是资源清单、干净检出校验和格式鲁棒的 CSS 测试。
+项目正在从“所有样式集中在 `css/coder.css`”过渡到“公共 CSS + 页面级 CSS”。这个方向对性能和维护性都有价值，本轮已经完成工具页/信任页的首批页面级样式落地，新增 `src/page-assets.mjs` 统一声明页面级 CSS，并用路由级 raw/gzip CSS 预算衡量实际加载成本。剩余主要是干净检出校验和更清晰的选择器归属边界。
 
 ---
 
-## 📌 CSS-OWN-01：页面级 CSS 缺少统一资源清单，模板和产物容易漂移
+## 📌 CSS-OWN-01 [已修复]：页面级 CSS 缺少统一资源清单，模板和产物容易漂移
 
 - 📍 位置：`src/templates/layout.mjs:116-119`、`src/templates/layout.mjs:254-256`、`src/templates/tools.mjs:1058-1067`、`src/templates/trust.mjs:136-145`、`tools/index.html:15-16`、`trust/index.html:15-16`
-- 📝 当前状况描述：公共模板已经提供 `renderStyles(styles)`，并在全站固定加载 `/css/fontawesome-all.min.css` 与 `/css/coder.css` 后追加页面级样式。工具箱模板声明 `styles: ["/css/tools.css"]`，信任页模板声明 `styles: ["/css/trust.css"]`。但当前生成产物扫描显示 `tools/index.html` 和 `trust/index.html` 仍只引用 `/css/coder.css`，页面级样式声明没有同步到根目录 HTML 产物。
+- ✅ 修复状态：公共模板已经提供 `renderStyles(styles)`，并在全站固定加载 `/css/fontawesome-all.min.css` 与 `/css/coder.css` 后追加页面级样式。新增 `src/page-assets.mjs` 作为页面级资源清单，工具箱和信任页模板通过 `stylesForRoute("/tools/")` / `stylesForRoute("/trust/")` 读取样式；当前生成产物中 `tools/index.html` 和 `trust/index.html` 均已引用对应页面级 CSS，`tests/templates-extended.test.mjs` 会校验 manifest 与模板输出一致。
+- 📝 剩余状况描述：生产验证脚本还未直接从 manifest 收集资源，干净检出下的 Git 跟踪校验仍需补齐。
 - ⚠️ 影响程度：高
 - 💡 建议方案（含伪代码或示例片段）：为每个路由建立资源 manifest，并让模板、构建产物校验、链接测试和生产验证都从同一份 manifest 派生。
 
@@ -50,10 +51,10 @@ for (const [route, assets] of Object.entries(PAGE_ASSETS)) {
 
 ---
 
-## 📌 CSS-OWN-02：测试会读取未跟踪 CSS，本地通过不等于干净部署可用
+## 📌 CSS-OWN-02 [本轮提交需收口]：测试会读取未跟踪 CSS，本地通过不等于干净部署可用
 
 - 📍 位置：`tests/css.test.mjs:123-132`、`tests/css.test.mjs:182-191`、`tests/performance.test.mjs:54-65`、`css/tools.css:1-60`、`css/trust.css:1-5`
-- 📝 当前状况描述：样式测试直接读取 `css/tools.css` 和 `css/trust.css`，链接完整性测试只检查当前文件系统存在即可。当前工作区中这两个 CSS 文件存在，但 `git ls-files --error-unmatch` 证明它们还未被 Git 跟踪。这样本地测试可能因为未跟踪文件存在而通过，CI 或 GitHub Pages 干净检出时却缺少资源。
+- 📝 当前状况描述：样式测试直接读取 `css/tools.css` 和 `css/trust.css`，链接完整性测试只检查当前文件系统存在即可。本轮提交必须把 `css/tools.css`、`css/trust.css`、`src/templates/trust.mjs`、`src/trust-data.mjs` 和 `trust/index.html` 一起纳入 Git；后续仍建议增加“引用资源必须被 Git 跟踪”的只读校验，让 CI 自动发现类似缺口。
 - ⚠️ 影响程度：高
 - 💡 建议方案（含伪代码或示例片段）：对所有被 HTML 或模板引用的 CSS/JS 增加“必须被 Git 跟踪”的只读校验，或在 CI 中使用干净 clone 运行同一组测试。
 
@@ -115,10 +116,11 @@ css/trust.css
 
 ---
 
-## 📌 CSS-OWN-04：CSS 断言对格式过于敏感，压缩写法会触发误报
+## 📌 CSS-OWN-04 [已修复]：CSS 断言对格式过于敏感，压缩写法会触发误报
 
 - 📍 位置：`tests/css.test.mjs:182-191`、`css/trust.css:3-5`
-- 📝 当前状况描述：本轮样式测试唯一失败来自 `trust.css contains trust center selectors`。`css/trust.css` 中确实存在 `@media(max-width:768px)` 和 `.trust-stats,.trust-card-grid,.trust-columns,.trust-service-facts{grid-template-columns:1fr}`，但测试用正则对 media query 与选择器串联方式较敏感，导致压缩后的 CSS 被判为不匹配。类似断言如果继续增加，会让格式化、压缩或选择器重排变成测试噪音。
+- ✅ 修复状态：`trust.css contains trust center selectors` 已改为允许压缩写法的 media query 正则，聚焦 CSS/模板/性能/构建/工作流测试 108/108 通过。
+- 📝 剩余状况描述：类似断言如果继续增加，仍建议抽出 CSS 规范化 helper 或引入解析器，避免格式化、压缩或选择器重排变成测试噪音。
 - ⚠️ 影响程度：中
 - 💡 建议方案（含伪代码或示例片段）：对 CSS 规则使用解析器或最小规范化函数；如果继续用正则，应先去除无意义空白并拆成多个语义断言。
 
@@ -147,10 +149,10 @@ assert.ok(mobileRules.some((rule) => rule.toString().includes(".trust-service-fa
 
 ---
 
-## 📌 CSS-OWN-05：性能预算仍以 `coder.css` 原始体积为主，无法衡量路由级收益
+## 📌 CSS-OWN-05 [已修复]：性能预算仍以 `coder.css` 原始体积为主，无法衡量路由级收益
 
 - 📍 位置：`tests/performance.test.mjs:222-225`、`src/templates/layout.mjs:254-256`、`src/templates/tools.mjs:1066-1067`、`src/templates/trust.mjs:143-143`
-- 📝 当前状况描述：现有性能测试只约束 `coder.css` 原始体积不超过 140KB。页面级 CSS 拆分后，单看 `coder.css` 变小并不等于首屏 CSS 成本下降；还需要统计每个路由实际加载的 CSS 总 raw/gzip 体积、请求数量和页面专属 CSS 是否只出现在对应路由。
+- ✅ 修复状态：`tests/performance.test.mjs` 保留 `coder.css <= 140KB` 单文件门禁，同时新增 `/`、`/tools/`、`/trust/` 路由级 CSS 预算，校验 HTML 中的 CSS 引用必须等于 core CSS 加 `PAGE_ASSETS`，并统计 raw/gzip 总体积。
 - ⚠️ 影响程度：中
 - 💡 建议方案（含伪代码或示例片段）：增加路由级 CSS 预算报告，保留单文件门禁，同时统计 gzip 后大小。
 
@@ -200,13 +202,12 @@ async function checkPageAssets() {
 
 ## 优先级待办
 
-1. 高优先级：补充“引用资源必须被 Git 跟踪”的测试，覆盖 CSS 和 JS。
-2. 高优先级：让页面级 CSS 的模板声明、生成产物和生产验证脚本共享同一份资源清单。
-3. 中优先级：修正 `trust.css` 测试为格式无关断言，避免压缩 CSS 误报。
-4. 中优先级：明确 `coder.css`、`tools.css`、`trust.css` 的选择器归属边界，逐步移除重复规则。
-5. 中优先级：新增按路由 raw/gzip CSS 预算，观察拆分后的真实加载成本。
+1. 高优先级：提交本轮新增页面级 CSS、Trust 数据/模板和生成产物，避免干净检出缺资源。
+2. 中优先级：补充“引用资源必须被 Git 跟踪”的测试，覆盖 CSS 和 JS。
+3. 中优先级：明确 `coder.css`、`tools.css`、`trust.css` 的选择器归属边界，逐步移除重复规则。
+4. 中优先级：继续将 AI 助手浮层样式和工具页基础样式从 core CSS 中拆出。
 
 ## 本轮健康度评分
 
-CSS 资源治理健康度：3.4 / 5。
-优势是模板已经具备页面级样式注入能力，且现有测试覆盖了大量选择器和资源引用；风险在于当前拆分链路还没有跨模板、产物、Git 跟踪和生产验证形成闭环。
+CSS 资源治理健康度：3.8 / 5。
+优势是模板、资源 manifest、生成产物和测试已经覆盖工具页/信任页页面级 CSS，并且有路由级 raw/gzip 预算；风险在于 Git 跟踪校验和选择器归属边界仍需继续收紧。

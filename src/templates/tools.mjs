@@ -1,4 +1,5 @@
 import { buildPageJsonLd, renderPage } from "./layout.mjs";
+import { stylesForRoute } from "../page-assets.mjs";
 
 const TOOLS = [
   { id: "json", icon: "fa-code", title: "JSON 格式化", titleEn: "JSON Formatter", desc: "格式化、压缩和校验 JSON 文本。", descEn: "Format, minify and validate JSON text." },
@@ -1063,6 +1064,7 @@ ${panels}
     active: "tools",
     page: "tools",
     connectSrc: "'self' https: http:",
+    styles: stylesForRoute("/tools/"),
     scripts: ["/js/vendor/marked.min.js", "/js/vendor/purify.min.js", "/js/vendor/qrcode.min.js", "/js/vendor/highlight.min.js", "/js/tools-core.js", "/js/tools.js", "/js/editor.js"],
     jsonLd: buildPageJsonLd({
       type: "WebApplication",

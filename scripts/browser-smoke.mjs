@@ -7,10 +7,10 @@ import { fileURLToPath } from "node:url";
 
 const ROOT = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const HOST = "127.0.0.1";
-const ROUTES = ["/", "/tools/", "/ai/", "/post/", "/contact/"];
+const ROUTES = ["/", "/tools/", "/ai/", "/post/", "/contact/", "/trust/"];
 const VIEWPORTS = [
   { name: "desktop", width: 1366, height: 768, routes: ROUTES },
-  { name: "mobile", width: 390, height: 844, routes: ["/", "/tools/", "/post/"] },
+  { name: "mobile", width: 390, height: 844, routes: ["/", "/tools/", "/post/", "/trust/"] },
 ];
 const MIME_TYPES = new Map([
   [".css", "text/css; charset=utf-8"],
@@ -164,6 +164,32 @@ async function assertNoHorizontalOverflow(page, label) {
   }
 }
 
+async function assertCanvasHasPixels(page, selector, label) {
+  await assertVisible(page.locator(selector), label);
+  await page.waitForFunction(
+    (canvasSelector) => {
+      const canvas = document.querySelector(canvasSelector);
+      if (!canvas || canvas.clientWidth <= 0 || canvas.clientHeight <= 0 || canvas.width <= 0 || canvas.height <= 0) {
+        return false;
+      }
+      const ctx = canvas.getContext("2d");
+      if (!ctx) {
+        return false;
+      }
+      const samples = [
+        [Math.floor(canvas.width / 2), Math.floor(canvas.height / 2)],
+        [Math.floor(canvas.width / 4), Math.floor(canvas.height / 4)],
+        [Math.floor(canvas.width * 0.75), Math.floor(canvas.height * 0.75)],
+      ];
+      return samples.some(([x, y]) => Array.from(ctx.getImageData(x, y, 1, 1).data).some((value) => value !== 0));
+    },
+    selector,
+    { timeout: 5000 },
+  ).catch((error) => {
+    throw new Error(`${label} did not render non-empty canvas pixels: ${error.message}`);
+  });
+}
+
 async function smokeRoute(browser, baseUrl, viewport, route) {
   const page = await browser.newPage({ viewport });
   const errors = collectRuntimeErrors(page, new URL(baseUrl).origin);
@@ -187,7 +213,11 @@ async function smokeRoute(browser, baseUrl, viewport, route) {
 }
 
 async function smokeToolInteractions(browser, baseUrl) {
-  const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+  const context = await browser.newContext({
+    viewport: { width: 1280, height: 900 },
+    permissions: ["clipboard-read", "clipboard-write"],
+  });
+  const page = await context.newPage();
   const errors = collectRuntimeErrors(page, new URL(baseUrl).origin);
   try {
     await page.goto(`${baseUrl}/tools/`, { waitUntil: "load" });
@@ -205,13 +235,39 @@ async function smokeToolInteractions(browser, baseUrl) {
       throw new Error(`Random warning missing or unexpected: ${warning}`);
     }
 
+    await page.click('[data-tool-tab="galaxy"]');
+    await assertCanvasHasPixels(page, "#galaxy-canvas", "Galaxy canvas");
+
+    await page.click('[data-tool-tab="uuid"]');
+    await page.click("[data-uuid-generate]");
+    const uuid = (await page.locator("#uuid-output").innerText()).trim();
+    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(uuid)) {
+      throw new Error(`UUID generator returned unexpected value: ${uuid}`);
+    }
+    await page.click('[data-copy-target="uuid-output"]');
+    await page.waitForFunction(() => /已复制|Copied/.test(document.querySelector("#uuid-status")?.textContent || ""), null, {
+      timeout: 5000,
+    });
+    const clipboardText = await page.evaluate(() => navigator.clipboard.readText());
+    if (clipboardText !== uuid) {
+      throw new Error(`Clipboard did not receive generated UUID: ${clipboardText}`);
+    }
+
+    await page.click('[data-tool-tab="gesture"]');
+    await assertVisible(page.locator("#gesture-canvas"), "Gesture canvas");
+    if (await page.locator("#gesture-start").isEnabled()) {
+      throw new Error("Gesture camera start should be disabled until the remote-runtime notice is acknowledged");
+    }
+    await page.locator(".gesture-consent").click();
+    await page.waitForFunction(() => !document.querySelector("#gesture-start")?.disabled, null, { timeout: 5000 });
+
     await assertNoHorizontalOverflow(page, "desktop /tools/ interactions");
     if (errors.length > 0) {
       throw new Error(`/tools/ interaction runtime errors:\n${errors.join("\n")}`);
     }
     console.log("✓ /tools/ interactions");
   } finally {
-    await page.close();
+    await context.close();
   }
 }
 

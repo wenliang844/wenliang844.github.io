@@ -7,14 +7,32 @@ import { renderAiPage } from "../src/templates/ai.mjs";
 import { renderCategoriesPage } from "../src/templates/categories.mjs";
 import { renderAppreciationPage } from "../src/templates/appreciation.mjs";
 import { renderSponsorPage } from "../src/templates/sponsor.mjs";
+import { renderTrustPage } from "../src/templates/trust.mjs";
 import { renderPostPage, renderPostList } from "../src/templates/post.mjs";
 import { renderTagsPage } from "../src/templates/tags.mjs";
+import { STATIC_PAGES, SEARCH_PAGES } from "../src/config.mjs";
+import { PAGE_ASSETS } from "../src/page-assets.mjs";
+import { LOCAL_DATA_ITEMS, THIRD_PARTY_SERVICES } from "../src/trust-data.mjs";
 
 function extractJsonLd(html) {
   const match = html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/);
   assert.ok(match, "page should include JSON-LD");
   return JSON.parse(match[1]);
 }
+
+test("page asset manifest stays aligned with rendered templates", () => {
+  const rendered = {
+    "/tools/": renderToolsPage(),
+    "/trust/": renderTrustPage(),
+  };
+
+  for (const [route, assets] of Object.entries(PAGE_ASSETS)) {
+    assert.ok(rendered[route], `${route} should have a rendered template fixture`);
+    for (const href of assets.styles) {
+      assert.match(rendered[route], new RegExp(`href="${href.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}"`));
+    }
+  }
+});
 
 // ─── Tools 页面测试 ────────────────────────────────────────────────────────────
 
@@ -67,6 +85,7 @@ test("renderToolsPage has correct script references", () => {
   assert.match(html, /src="\/js\/editor\.js"/);
   assert.match(html, /src="\/js\/assistant-loader\.js"/);
   assert.doesNotMatch(html, /src="\/js\/assistant\.js"/);
+  assert.match(html, /href="\/css\/tools\.css"/);
   assert.match(html, /src="\/js\/vendor\/marked\.min\.js"/);
   assert.match(html, /src="\/js\/vendor\/purify\.min\.js"/);
   assert.match(html, /src="\/js\/vendor\/highlight\.min\.js"/);
@@ -161,6 +180,39 @@ test("generated static templates include page-specific JSON-LD", () => {
   const sponsorLd = extractJsonLd(renderSponsorPage());
   assert.equal(sponsorLd["@type"], "WebPage");
   assert.equal(sponsorLd.potentialAction[0]["@type"], "DonateAction");
+
+  const trustLd = extractJsonLd(renderTrustPage());
+  assert.equal(trustLd["@type"], "WebPage");
+  assert.equal(trustLd.mainEntity.numberOfItems, THIRD_PARTY_SERVICES.length);
+});
+
+test("renderTrustPage exposes local data, third-party services and user controls", () => {
+  const html = renderTrustPage();
+
+  assert.match(html, /<title>隐私与信任 :: CWLBlog<\/title>/);
+  assert.match(html, /id="trust-title"/);
+  assert.match(html, /data-i18n-page="trust"/);
+  assert.match(html, /href="\/css\/trust\.css"/);
+  assert.match(html, /href="https:\/\/wenliang844\.github\.io\/trust\/"/);
+  assert.match(html, /class="[^"]*\btrust-stats\b[^"]*"/);
+  assert.match(html, /class="[^"]*\btrust-service-list\b[^"]*"/);
+  assert.match(html, /class="trust-report-link" href="\/contact\/"/);
+  for (const item of LOCAL_DATA_ITEMS) {
+    assert.match(html, new RegExp(item.title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+    assert.match(html, new RegExp(item.storage.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  }
+  for (const service of THIRD_PARTY_SERVICES) {
+    assert.match(html, new RegExp(service.host.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  }
+});
+
+test("privacy trust page is discoverable from static page and search config", () => {
+  assert.ok(STATIC_PAGES.some((page) => page.path === "/trust/" && page.withDate && page.priority === "0.5"));
+  const searchPage = SEARCH_PAGES.find((page) => page.path === "/trust/");
+  assert.ok(searchPage, "trust page should be searchable");
+  assert.ok(searchPage.tags.includes("隐私"));
+  assert.ok(searchPage.tags.includes("第三方服务"));
+  assert.equal(searchPage.i18n.en.title, "Privacy & Trust");
 });
 
 // ─── AI 导航页面测试 ───────────────────────────────────────────────────────────

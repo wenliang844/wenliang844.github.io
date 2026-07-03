@@ -120,6 +120,17 @@ test("coder.css contains tools page selectors", async () => {
   assert.ok(css.includes(".tool-status"), "should have tool-status");
 });
 
+test("tools.css contains browser API tool selectors", async () => {
+  const css = await readFile(join(ROOT, "css", "tools.css"), "utf8");
+
+  assert.ok(css.includes(".gesture-controls"), "should have gesture controls");
+  assert.ok(css.includes(".gesture-supply-chain"), "should have gesture supply-chain notice");
+  assert.ok(css.includes(".gesture-viewport"), "should have gesture viewport");
+  assert.ok(css.includes(".galaxy-controls"), "should have galaxy controls");
+  assert.ok(css.includes(".galaxy-canvas"), "should have galaxy canvas");
+  assert.ok(css.includes(".obj-capture-row"), "should have object capture styles");
+});
+
 test("coder.css keeps QR preview square", async () => {
   const css = await readFile(join(ROOT, "css", "coder.css"), "utf8");
   const rule = css.match(/\.qr-box img\s*{([^}]*)}/s);
@@ -166,6 +177,24 @@ test("coder.css contains sponsor page selectors", async () => {
   assert.ok(css.includes(".sponsor-panel"), "should have sponsor-panel");
   assert.ok(css.includes(".sponsor-mini"), "should have sponsor-mini");
   assert.ok(css.includes(".sponsor-pay-btn"), "should have sponsor-pay-btn");
+});
+
+test("trust.css contains trust center selectors", async () => {
+  const css = await readFile(join(ROOT, "css", "trust.css"), "utf8");
+
+  assert.ok(css.includes(".trust-page"), "should have trust-page");
+  assert.ok(css.includes(".trust-stats"), "should have trust-stats");
+  assert.ok(css.includes(".trust-card-grid"), "should have trust-card-grid");
+  assert.ok(css.includes(".trust-service-list"), "should have trust-service-list");
+  assert.ok(css.includes(".trust-service-facts"), "should have trust-service-facts");
+  assert.ok(css.includes(".trust-report-link"), "should have trust-report-link");
+  assert.match(css, /@media\s*\(\s*max-width:\s*768px\s*\)\s*{[\s\S]*?\.trust-stats,[\s\S]*?\.trust-card-grid,[\s\S]*?\.trust-columns,[\s\S]*?\.trust-service-facts\s*{[^}]*grid-template-columns:\s*1fr;/);
+});
+
+test("coder.css exposes footer trust links", async () => {
+  const css = await readFile(join(ROOT, "css", "coder.css"), "utf8");
+
+  assert.ok(css.includes(".footer-links"), "should expose footer trust links");
 });
 
 test("coder.css contains assistant selectors", async () => {

@@ -26,6 +26,7 @@ test("build writes the expected static artifacts", async () => {
     const postsHtml = await readFile(join(outDir, "post", "index.html"), "utf8");
     const singlePostHtml = await readFile(join(outDir, "post", "manage-system", "index.html"), "utf8");
     const appreciationHtml = await readFile(join(outDir, "appreciation", "index.html"), "utf8");
+    const trustHtml = await readFile(join(outDir, "trust", "index.html"), "utf8");
     const toolsHtml = await readFile(join(outDir, "tools", "index.html"), "utf8");
     const aiHtml = await readFile(join(outDir, "ai", "index.html"), "utf8");
     const sitemap = await readFile(join(outDir, "sitemap.xml"), "utf8");
@@ -103,11 +104,13 @@ test("build writes the expected static artifacts", async () => {
     assert.match(sitemap, /<loc>https:\/\/wenliang844.github.io\/about\/<\/loc><lastmod>[^<]+<\/lastmod><priority>0\.6<\/priority>/);
     assert.match(sitemap, /<loc>https:\/\/wenliang844.github.io\/contact\/<\/loc>/);
     assert.match(sitemap, /<loc>https:\/\/wenliang844.github.io\/tools\/<\/loc>/);
+    assert.match(sitemap, /<loc>https:\/\/wenliang844.github.io\/trust\/<\/loc><lastmod>[^<]+<\/lastmod><priority>0\.5<\/priority>/);
     assert.match(sitemap, /<loc>https:\/\/wenliang844.github.io\/post\/manage-system\/<\/loc><lastmod>[^<]+<\/lastmod><priority>0\.8<\/priority>/);
     assert.doesNotMatch(sitemap, /<priority>0<\/priority>/);
     assert.doesNotMatch(sitemap, /<loc>https:\/\/wenliang844.github.io\/ai\/relay\/<\/loc>/);
     assert.match(robots, /Sitemap: https:\/\/wenliang844.github.io\/sitemap.xml/);
     assert.match(robots, /Allow: \/post\//);
+    assert.match(robots, /Allow: \/trust\//);
     assert.match(toolsHtml, /在线工具箱/);
     assert.match(toolsHtml, /JSON 格式化/);
     assert.match(toolsHtml, /JWT 解码/);
@@ -126,6 +129,10 @@ test("build writes the expected static artifacts", async () => {
     assert.match(aiHtml, /\/js\/relay\.js/);
     assert.match(aiHtml, /id="relay"/);
     assert.match(aiHtml, /data-relay-filter="healthy"/);
+    assert.match(trustHtml, /隐私与信任/);
+    assert.match(trustHtml, /buttondown\.com/);
+    assert.match(trustHtml, /giscus\.app/);
+    assert.match(trustHtml, /localStorage: cwl\.assistant\.\*/);
     // 单篇页：阅读时长占位、JSON-LD Article、相关文章、下一篇浮动卡。
     assert.match(singlePostHtml, /class="reading-time"/);
     assert.match(singlePostHtml, />约<\/span> \d+ <span data-i18n="dyn\.readingSuffix">分钟<\/span>/);
@@ -142,6 +149,7 @@ test("build writes the expected static artifacts", async () => {
     assert.ok(searchIndex.some((item) => item.path === "/tools/" && item.summary.includes("JSON")));
     assert.ok(searchIndex.some((item) => item.path === "/ai/" && item.title === "中转站排名" && item.summary.includes("中转站")));
     assert.ok(searchIndex.some((item) => item.path === "/ai/#nav" && item.title === "AI导航网站"));
+    assert.ok(searchIndex.some((item) => item.path === "/trust/" && item.title === "隐私与信任" && item.summary.includes("第三方服务")));
     assert.ok(searchIndex.every((item) => item.path !== "/ai/relay/"));
     assert.ok(searchIndex.some((item) => item.path === "/appreciation/" && item.summary.includes("顿悟")));
     assert.ok(searchIndex.every((item) => item.path && !item.path.includes("\\")));

@@ -13,7 +13,7 @@
 | 项目结构与脚本 | `package.json`, `scripts/*.mjs`, `src/templates/*.mjs` | 确认 Node ESM 静态站点生成器，构建产物输出到根目录 |
 | 安全热点 | `js/assistant.js`, `js/tools.js`, `js/gesture.js`, `src/templates/tools.mjs` | 发现 1 个高危 key 回归、2 个中危隐私/供应链问题 |
 | 工具箱与手势模块 | `tools/index.html`, `js/tools.js`, `js/gesture.js` | 发现 runtime 加载竞态、模型冷启动和隐私文案问题 |
-| 性能与体积 | `css/coder.css`, `tools/index.html`, `post/index.html`, `js/*.js` | CSS 137KB，工具箱/博客列表 HTML 均超 100KB |
+| 性能与体积 | `css/coder.css`, `css/tools.css`, `css/trust.css`, `tools/index.html`, `post/index.html`, `js/*.js` | `coder.css` 已拆回 129,973 bytes，工具箱/博客列表 HTML 均约 110KB，新增路由级 CSS raw/gzip 预算 |
 | 测试与覆盖率 | `tests/*.test.mjs` | 731/731 通过，覆盖率总体 lines 94.32%、branches 76.28%、functions 91.70% |
 | 依赖安全 | `npm audit`, `npm outdated` | 0 漏洞；ESLint 8.57.1 可升级到 9.39.4 |
 
@@ -47,7 +47,7 @@
 
 1. 深挖 `assistant.js`：会话持久化、请求取消、流式解析、i18n 和默认 key 移除方案。
 2. 深挖 `tools-core.js`：正则、JSONPath、diff、cron 等工具的边界输入与性能上限。
-3. 深挖 CSS：当前 137KB 接近预算，识别可拆分页面样式和重复规则。
+3. 深挖 CSS：核心 CSS 已拆回 129,973 bytes，继续识别助手样式、工具基础样式和路由级预算扩展机会。
 4. 继续维护 README 索引与健康度评分。
 
 ---
@@ -92,7 +92,7 @@
 
 ### 下一步分析计划
 
-1. 深挖 `css/coder.css` 当前 137KB 的重复规则、页面级拆分机会和移动端样式成本。
+1. 深挖 `css/coder.css`、`css/tools.css` 和 `css/trust.css` 的选择器归属边界、页面级拆分机会和移动端样式成本。
 2. 对 `tools/index.html` 与 `src/templates/tools.mjs` 做结构/可访问性复查，补充工具箱专题建议。
 3. 继续检查生成 HTML 的 SEO、JSON-LD、图片尺寸和可访问性一致性。
 4. 维护 README 索引、健康度评分和优先级待办列表。
@@ -169,10 +169,10 @@
 | 命令 | 结果 |
 |------|------|
 | `npm run lint:check` | 通过，0 warnings |
-| `npm test` / 生产验证内部测试 | 779/779 通过 |
-| `npm run test:coverage` | 779/779 通过；line 96.48% / branch 83.73% / funcs 96.13% |
-| `npm run test:http-smoke` | 5/5 路由通过，覆盖 `/`、`/tools/`、`/ai/`、`/post/`、`/contact/` |
-| `npm run test:browser-smoke` | 通过，覆盖桌面 5 个关键路径、移动端 3 个关键路径和 `/tools/` 基础交互 |
+| `npm test` / 生产验证内部测试 | 786/786 通过 |
+| `npm run test:coverage` | 786/786 通过；line 96.72% / branch 83.74% / funcs 96.30% |
+| `npm run test:http-smoke` | 6/6 路由通过，覆盖 `/`、`/tools/`、`/ai/`、`/post/`、`/contact/`、`/trust/` |
+| `npm run test:browser-smoke` | 通过，覆盖桌面 6 个关键路径、移动端 4 个关键路径，以及 `/tools/` JSON/随机数/Galaxy Canvas/UUID Clipboard/手势确认门闩交互 |
 | `npm run validate:production` | 34/34 通过 |
 | `npm audit --registry=https://registry.npmjs.org --audit-level=moderate` | 0 vulnerabilities |
 | `git diff --check` | 通过，仅 CRLF 工作区提示 |
@@ -184,6 +184,8 @@
 - SSE 流结束时未处理最后一个未闭合事件，部分代理实现会导致回答尾部缺失。
 - Cron 典型无解日期表达式会触发同步百万级扫描，工具页输入反馈可能卡顿。
 - 生产验证脚本收集完整测试输出时缓冲不足，导致测试已通过但门禁误报失败。
+- 公开站点缺少面向访问者的隐私与信任入口，用户无法集中了解本机数据、第三方服务和清理方式。
+- Trust Center 初版样式一度让 `coder.css` 超出 140KB 性能预算，已通过页面级 `css/tools.css` / `css/trust.css` 拆分和公共模板 `styles` 注入拉回预算。
 
 ### 下一步计划
 
@@ -236,8 +238,9 @@
 | 内容发现体验修复 | `js/blog.js`, `tests/blog.test.mjs` | 年份分组计数按组更新，空年份自动隐藏；博客搜索支持 `?q=` 直达/同步；移动端目录打开/关闭时焦点可预测恢复 |
 | 搜索加载失败反馈 | `js/search-loader.js`, `css/coder.css`, `js/i18n.js`, `tests/search-loader-behavior.test.mjs` | 搜索 bundle 加载失败时按钮进入错误态、弹出 toast、写入日志、移除失败脚本并允许重试 |
 | 产品信息页与排行榜分析 | `docs/suggestions/module-reviews/product-info-pages-and-rankings.md` | 新增 AI 导航状态元数据、鉴赏页占位符/JSON-LD、赞助目标数据源和进度语义等 7 项建议 |
-| 浏览器与视觉冒烟分析 | `docs/suggestions/module-reviews/browser-visual-smoke-testing.md` | 记录真实浏览器 smoke、HTTP smoke、响应式截图、权限 API 和 CI artifact 6 项建议；HTTP smoke 已接入 CI，Playwright smoke 已固化为本地脚本 |
+| 浏览器与视觉冒烟分析 | `docs/suggestions/module-reviews/browser-visual-smoke-testing.md` | 记录真实浏览器 smoke、HTTP smoke、响应式截图、权限 API 和 CI artifact 6 项建议；HTTP smoke 已接入 CI，Playwright smoke 已覆盖关键路径、Canvas、Clipboard 和手势确认门闩 |
 | Relay 数据质量修复 | `scripts/update-commercial-relay.mjs`, `tests/relay.test.mjs` | 商业源布尔字段和 header 配置错误 fail-fast 已修复，relay 异常矩阵补齐到 8 个用例 |
+| 隐私与信任中心落地 | `src/trust-data.mjs`, `src/templates/trust.mjs`, `trust/index.html`, `tests/templates-extended.test.mjs` | 新增公开 `/trust/` 页面，集中展示本机数据、第三方服务、用户控制和安全摘要，并纳入搜索、sitemap、robots、页脚、导航和 smoke 路由 |
 | 内容新鲜度与信任信号分析 | `docs/suggestions/module-reviews/content-freshness-and-trust-signals.md` | 新增 sitemap lastmod、文章最后更新、搜索新鲜度、RSS 更新策略、旧文状态和就近反馈 6 项建议 |
 | 按钮可访问名称测试修复 | `tests/i18n-a11y.test.mjs`, `docs/suggestions/module-reviews/browser-visual-smoke-testing.md` | 用 JSDOM 解析按钮并计算 `aria-labelledby` / `aria-label` / `title` / 文本名称，替代空转的开始标签正则检查 |
 

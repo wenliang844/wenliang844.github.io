@@ -33,6 +33,8 @@ test("layout escapes title and metadata", () => {
   assert.match(html, /<meta name="description" content="bad &quot;description&quot; &lt;tag&gt;">/);
   assert.match(html, /property="og:title" content="OG &lt;title&gt;"/);
   assert.match(html, /href="\/tools\/" data-i18n="nav.tools">工具箱<\/a>/);
+  assert.match(html, /href="\/trust\/" data-i18n="nav\.trust">隐私与信任<\/a>/);
+  assert.match(html, /<nav class="footer-links" aria-label="站点说明" data-i18n-aria="footer\.links\.aria">/);
   assert.doesNotMatch(html, /href="\/editor\/" data-i18n="nav\.editor"/);
   assert.match(html, /class="nav-search-trigger" type="button" aria-label="全局搜索（Ctrl\+K 或 \/）" title="全局搜索（Ctrl\+K 或 \/）" data-i18n-aria="nav.searchHint" data-i18n-title="nav.searchHint"/);
   assert.match(html, /class="nav-ai-experience assistant-nav-trigger" type="button" aria-label="打开 AI 助手" title="打开 AI 助手" data-assistant-toggle data-i18n-aria="assistant.open" data-i18n-title="assistant.open"/);
@@ -86,6 +88,7 @@ test("layout deduplicates core and page scripts", () => {
     description: "Script test",
     active: "",
     scripts: ["/js/utils.js", "/js/tools.js", "/js/tools.js"],
+    styles: ["/css/tools.css", "/css/tools.css"],
     bodyClass: "colorscheme-dark",
     page: "",
     main: "<main></main>",
@@ -93,6 +96,7 @@ test("layout deduplicates core and page scripts", () => {
 
   assert.equal((html.match(/src="\/js\/utils\.js"/g) || []).length, 1);
   assert.equal((html.match(/src="\/js\/tools\.js"/g) || []).length, 1);
+  assert.equal((html.match(/href="\/css\/tools\.css"/g) || []).length, 1);
   assert.match(html, /src="\/js\/assistant-loader\.js"/);
 });
 

@@ -9,7 +9,7 @@
 ### 📌 P-13: 关键静态产物体积已经接近当前性能预算
 
 - **📍 位置**：`css/coder.css:1-6637`, `tools/index.html:1-1308`, `post/index.html:1-1283`, `js/gesture.js:1-2470`, `js/assistant.js:1-1686`
-- **📝 当前状况描述**：本轮文件体积扫描显示：`css/coder.css` 140,052 bytes、`tools/index.html` 108,156 bytes、`post/index.html` 109,869 bytes、`js/gesture.js` 90,300 bytes、`js/assistant.js` 61,368 bytes。CSS 仍在测试中的 140 KiB 预算内，但已经贴边；工具箱和博客列表 HTML 都超过 100KB，随着工具和文章继续增加，首屏解析成本仍需继续控制。
+- **📝 当前状况描述**：最新文件体积扫描显示：`css/coder.css` 129,973 bytes、`css/tools.css` 12,287 bytes、`css/trust.css` 854 bytes、`tools/index.html` 110,158 bytes、`post/index.html` 110,800 bytes、`js/gesture.js` 91,424 bytes、`js/assistant.js` 68,881 bytes。核心 CSS 已通过页面级拆分回到 140 KiB 预算内；工具箱和博客列表 HTML 仍超过 100KB，随着工具和文章继续增加，首屏解析成本仍需继续控制。
 - **⚠️ 影响程度**：中
 - **💡 建议方案**：
   ```text
@@ -44,7 +44,7 @@
 
 - **📍 位置**：`scripts/parse-relay.mjs:1-593`, `scripts/update-commercial-relay.mjs:1-226`, `tests/relay.test.mjs:1-57`, `tests/workflows.test.mjs:1-55`
 - **✅ 部分修复状态**：本轮为 relay 链路补充 SQL official 过滤/失败摘要、CLI 参数保护、缺源配置、认证 header、非法 header JSON 和商业字段清洗测试；商业源 `isCurrent` 字符串误判已修复，非法自定义 header 会在请求前失败。
-- **🧪 验证**：`tests/relay.test.mjs` 8/8 通过；`npm run test:coverage` 779/779 通过，总体 line 96.48%、branch 83.73%、function 96.13%。`parse-relay.mjs` 提升到 line 89.21%、branch 69.90%、function 91.80%；`update-commercial-relay.mjs` 提升到 line 76.65%、branch 86.84%、function 90.91%。
+- **🧪 验证**：`tests/relay.test.mjs` 8/8 通过；`npm run test:coverage` 786/786 通过，总体 line 96.72%、branch 83.74%、function 96.30%。`parse-relay.mjs` 提升到 line 89.21%、branch 69.90%、function 91.80%；`update-commercial-relay.mjs` 提升到 line 76.65%、branch 86.84%、function 90.91%。
 - **📝 剩余状况描述**：`parse-relay.mjs` 行覆盖已超过 85%，分支覆盖距离 70% 预算只差 0.10 个百分点；`update-commercial-relay.mjs` 分支/函数覆盖已达标，但主流程写文件、最低数量门禁和部分清洗 fallback 的行覆盖仍低于 85%。relay 数据会进入公开 AI 中转站榜单，仍属于数据质量敏感路径。
 - **⚠️ 影响程度**：低
 - **💡 建议方案**：
@@ -74,10 +74,11 @@
 - **📊 实际收益**：典型无解日期表达式即时失败，避免工具箱交互被同步循环阻塞；更稀疏但可匹配的表达式仍可继续用字段跳跃优化。
 - **🔗 相关建议引用**：[MR-CORE-01](module-reviews/tools-core.md#mr-core-01-cron-解析器需要避免主线程百万次扫描), [DE-13](devex-improvements.md#de-13-为-ai-助手和-cron-边界行为补充回归测试)
 
-### 📌 P-17: 全站统一加载 `coder.css`，工具箱和助手样式成本扩散到所有页面
+### 📌 P-17 [部分修复]: 全站统一加载 `coder.css`，工具箱和助手样式成本扩散到所有页面
 
 - **📍 位置**：`src/templates/layout.mjs:225-226`, `css/coder.css:3910-4898`, `css/coder.css:4982-6084`, `css/coder.css:6260-6543`
-- **📝 当前状况描述**：第 5 轮统计显示 `css/coder.css` 已增长到 6,637 行，`layout.mjs` 仍在每个页面统一加载该文件。工具箱样式约从 3,910 行开始，AI 助手样式约 4,982-6,084 行，手势/视觉工具还有后续专属样式；普通文章页、404、关于页都会解析这些仅工具页或助手面板才需要的规则。
+- **✅ 已完成**：公共布局模板支持页面级 `styles` 注入；`src/page-assets.mjs` 集中声明 `/tools/` 与 `/trust/` 样式；工具页手势、Galaxy、对象/视觉 API 等重型样式已迁入 `css/tools.css`，信任页增量样式迁入 `css/trust.css`。`tests/performance.test.mjs` 新增 `/`、`/tools/`、`/trust/` 路由级 CSS raw/gzip 预算，避免只看单个文件体积。
+- **📝 剩余状况描述**：`coder.css` 已回落到 6,130 行 / 129,973 bytes，但工具箱基础选择器、AI 助手浮层和部分共享组件仍在全站 core CSS 中；普通文章页、404、关于页仍会解析一部分只在工具页或助手面板中使用的规则。
 - **⚠️ 影响程度**：中
 - **💡 建议方案**：
   ```text
@@ -86,7 +87,7 @@
   css/assistant.css  — AI 助手浮层
   ```
   构建层可先不引入打包器，只在 `renderPage()` 中按页面类型输出额外 `<link>`；AI 助手样式也可在助手首次打开时按需加载。
-- **📊 预期收益**：降低非工具页的 CSS 解析和样式匹配成本，让 CSS 体积预算从“全站单包”转成“页面级预算”。
+- **📊 实际收益**：非工具页核心 CSS 回到 140KB 预算内，工具页和信任页具备页面级样式入口；后续继续拆助手样式和工具基础样式时已有 manifest 与路由级预算护栏。
 - **🔗 相关建议引用**：[MR-CSS-07](module-reviews/css-analysis.md#mr-css-07-复查发现-css-单包已增长到-6637-行), [AR-08](architecture-review.md#ar-08-工具箱和助手资源需要从全站核心层剥离)
 
 ### 📌 P-18: 工具页首屏一次性解析 31 个工具面板
@@ -297,7 +298,7 @@
   - 文章浮层与卡片：`blur(10px)` × 多处
   - 其他组件：`blur(8px)` × 2
 - **🧪 回归测试**：`tests/css.test.mjs` 验证移动端 media query 同时关闭标准和 WebKit 前缀的 backdrop blur，并为关键浮层设置实色背景。
-- **📊 实际收益**：移动端减少 GPU 密集型背景采样；`coder.css` 当前约 136.77KB，仍低于 140KB 性能门禁。
+- **📊 实际收益**：移动端减少 GPU 密集型背景采样；`coder.css` 当前约 126.91KB，仍低于 140KB 性能门禁。
 - **🔗 相关建议**：[MR-CSS-06](module-reviews/css-analysis.md#mr-css-06)
 
 > 整体评估：当前站点性能良好（静态站点天然轻量），主要优化空间在动画性能和资源加载策略上。

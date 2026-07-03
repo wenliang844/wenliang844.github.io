@@ -6,15 +6,17 @@
 
 本轮验证：
 
-- `node --test tests/templates.test.mjs tests/subscribe-deep.test.mjs tests/share-subscribe-feedback-deep.test.mjs tests/security-extended.test.mjs tests/links.test.mjs`：59 项测试全部通过。
-- 只读扫描 `privacy` / `trust` / `隐私` / `信任` / `本机数据` 等关键词，公开站点未发现 `/privacy/` 或 `/trust/` 入口。
-- 本轮只新增 `/docs/suggestions/module-reviews/privacy-and-trust-center.md`，未修改源码、配置或测试。
+- `node --test tests/css.test.mjs tests/templates.test.mjs tests/templates-extended.test.mjs tests/performance.test.mjs tests/build.test.mjs tests/workflows.test.mjs`：108/108 通过。
+- `npm run test:coverage`：786/786 通过，line 96.72% / branch 83.74% / funcs 96.30%。
+- `npm run test:http-smoke`：6/6 路由通过，新增覆盖 `/trust/`。
+- `npm run test:browser-smoke`：通过，新增桌面与移动端 `/trust/`，并覆盖 `/tools/` Canvas/Clipboard/手势确认门闩交互。
+- `npm run validate:production`：34/34 通过；`git diff --check` 通过，仅 CRLF 工作区提示。
 
 ## 总览
 
 项目的实际安全姿态已经比普通个人博客更复杂：有本地 AI 助手、API Tester、Markdown 与简历编辑器、Buttondown 订阅、Giscus 评论、Web3Forms 可选反馈提交、CSP、第三方资源提示和本地数据保留策略。工程侧已经记录了 `docs/SECURITY.md`、`docs/DEPLOYMENT.md` 以及大量建议文档，局部 UI 也已经加入了不少好提示。
 
-缺口在于用户视角：普通访问者无法从导航、页脚或搜索里找到一个“本站如何处理数据、会连接哪些第三方、如何删除本机数据、如何联系维护者”的公开页面。现在的信任信息散落在按钮旁、脚本注释、测试和工程文档里；越是功能变多，越需要一个面向访问者的 Trust Center / Privacy 页面来降低理解成本。
+本轮已修复用户视角的核心缺口：新增公开 `/trust/` 页面，并从导航、页脚、站内搜索、sitemap、robots、HTTP smoke 和 browser smoke 中接入。页面将本机数据、第三方服务、用户控制和安全摘要集中展示，信息来源由 `src/trust-data.mjs` 数据清单渲染，避免信任说明继续散落在脚本注释和工程文档里。
 
 严重程度分布：
 
@@ -24,7 +26,7 @@
 
 ## 建议清单
 
-### 📌 MR-TRUST-01：新增公开 Trust Center / Privacy 页面，并纳入导航、页脚和站内搜索
+### 📌 MR-TRUST-01 [已修复]：新增公开 Trust Center / Privacy 页面，并纳入导航、页脚和站内搜索
 
 📍 位置（文件路径 + 行号范围）
 
@@ -35,7 +37,11 @@
 - `README.md:7-8`
 - `docs/SECURITY.md:31-71`
 
-📝 当前状况描述
+✅ 修复状态
+
+已新增 `src/trust-data.mjs` 和 `src/templates/trust.mjs`，构建生成 `trust/index.html`；`src/config.mjs` 将 `/trust/` 纳入 `STATIC_PAGES`、`SEARCH_PAGES`；`src/templates/layout.mjs` 将入口加入“更多”导航和页脚链接；`scripts/build.mjs` 将页面写入构建产物，并同步 `sitemap.xml`、`robots.txt`、`search-index.json`。新增回归测试覆盖模板渲染、第三方服务清单、静态页/搜索配置、CSS 选择器、构建产物和 smoke 路由。
+
+📝 原状况描述
 
 `STATIC_PAGES` 和 `SEARCH_PAGES` 中没有隐私、信任或安全说明页面；公共导航包含博客、AI、工具箱、留言反馈、订阅、赞助等入口，但没有“隐私/数据/安全”入口。仓库 README 能链接到 `docs/SECURITY.md`，但这是面向开发者或维护者的工程文档，不是访问者会自然打开的站点页面。
 
@@ -73,7 +79,7 @@ SEARCH_PAGES.push({
 - 用户控制：清空对话、清空 API 历史、删除反馈、清除本机数据、关闭隐私模式。
 - 安全策略：CSP、无内置 API key、客户端 secret 不可保密、如何报告问题。
 
-📊 预期收益
+📊 实际收益
 
 - 让访问者在使用 AI 助手、API Tester、评论和订阅前有统一预期。
 - 把已有安全工程成果转化为用户可见信任信号。
@@ -85,7 +91,7 @@ SEARCH_PAGES.push({
 - `docs/suggestions/module-reviews/local-data-retention-map.md`
 - `docs/suggestions/module-reviews/user-data-entrypoints.md`
 
-### 📌 MR-TRUST-02：第三方服务与 CSP 放行域名缺少用户可读的数据流清单
+### 📌 MR-TRUST-02 [已部分落地]：第三方服务与 CSP 放行域名缺少用户可读的数据流清单
 
 📍 位置（文件路径 + 行号范围）
 
@@ -96,7 +102,11 @@ SEARCH_PAGES.push({
 - `js/giscus.js:79-95`
 - `js/feedback.js:1-10`
 
-📝 当前状况描述
+✅ 落地状态
+
+`src/trust-data.mjs` 已新增 `THIRD_PARTY_SERVICES` 清单，并在 `/trust/` 页面渲染 Buttondown、Giscus/GitHub Discussions、Web3Forms、手势工具远程运行时资源、赞助跳转等数据流。每项包含 host、用途、触发时机、数据类别和用户控制。后续仍可把 CSP/resource hints 逐步从同一份 manifest 推导。
+
+📝 原状况描述
 
 公共模板会输出 Giscus、Buttondown、爱发电和 PayPal 的资源提示，并在 CSP 中放行 `giscus.app`、`buttondown.com`、`api.web3forms.com` 等域名。脚本注释解释了 Buttondown、Giscus 和 Web3Forms 的作用，但访问者看不到这些注释。工具箱手势面板已经能说明“第三方 CDN 下载模型”，但站点级第三方服务没有一张统一表。
 
@@ -133,11 +143,11 @@ const THIRD_PARTY_SERVICES = [
 ];
 ```
 
-📊 预期收益
+📊 实际收益
 
 - 把 CSP 允许的外部域名从“浏览器策略细节”转成用户能理解的数据流。
 - 新增第三方服务时必须说明目的、触发时机、数据类别和用户控制方式。
-- 后续可以顺手收敛 resource hints，避免普通页面无条件预热低概率第三方连接。
+- 后续可以继续收敛 resource hints，避免普通页面无条件预热低概率第三方连接。
 
 🔗 相关建议引用
 
@@ -286,7 +296,7 @@ function showGiscusFallback(reason) {
 - `docs/suggestions/module-reviews/content-freshness-and-trust-signals.md`
 - `docs/suggestions/module-reviews/suggestions-knowledge-base-governance.md`
 
-### 📌 MR-TRUST-06：缺少信任信息的回归测试契约
+### 📌 MR-TRUST-06 [已修复]：缺少信任信息的回归测试契约
 
 📍 位置（文件路径 + 行号范围）
 
@@ -295,7 +305,11 @@ function showGiscusFallback(reason) {
 - `tests/security-extended.test.mjs:18-80`
 - `tests/links.test.mjs:1-90`
 
-📝 当前状况描述
+✅ 修复状态
+
+已新增/扩展 `tests/templates-extended.test.mjs`、`tests/css.test.mjs`、`tests/build.test.mjs`、`tests/templates.test.mjs` 和 `tests/workflows.test.mjs`，约束 `/trust/` 必须在静态页、站内搜索、导航、页脚、构建产物、sitemap、robots、HTTP smoke、browser smoke 中可发现；同时锁定 `THIRD_PARTY_SERVICES` 的渲染和 CSS 移动端栅格降级。
+
+📝 原状况描述
 
 现有测试已经覆盖模板转义、CSP 存在、工具页 `connect-src` 放宽、手势第三方资源确认、链接可用性、无 inline event handler、无 `javascript:` URL 等关键安全约束。本轮信任页建议目前还只是文档建议，没有测试要求“公开页面必须包含 Trust Center 入口”“第三方服务必须登记”“本机数据说明必须可搜索”。如果未来新增一个外部服务或本地存储 key，测试不会提醒同步用户可见说明。
 
@@ -335,8 +349,7 @@ test("third party services are declared", () => {
 
 ## 下一步优先级
 
-1. 中优先级：设计 `/trust/` 或 `/privacy/` 页面信息架构，并登记到静态页、站内搜索、页脚。
-2. 中优先级：抽出第三方服务清单，先用于 Trust Center 文案，再逐步连接 CSP/resource hints。
-3. 中优先级：优化订阅和评论区就近文案，明确 Buttondown 与 Giscus 的托管边界。
-4. 低优先级：把 `docs/SECURITY.md` 的关键点改写成访问者可读摘要。
-5. 低优先级：新增信任信息回归测试，防止后续功能新增时漏登记。
+1. 中优先级：优化订阅和评论区就近文案，明确 Buttondown 与 Giscus 的托管边界。
+2. 中优先级：将 `THIRD_PARTY_SERVICES` 继续连接到 CSP/resource hints 检查，减少清单与策略漂移。
+3. 低优先级：把 `docs/SECURITY.md` 的关键点进一步改写成访问者可读摘要并从 `/trust/` 链出。
+4. 低优先级：为本机数据清理增加统一入口或“清理指南”锚点。

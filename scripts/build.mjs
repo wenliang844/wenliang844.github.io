@@ -21,6 +21,7 @@ import { renderAiPage } from "../src/templates/ai.mjs";
 import { renderToolsPage } from "../src/templates/tools.mjs";
 import { renderAppreciationPage } from "../src/templates/appreciation.mjs";
 import { renderSponsorPage } from "../src/templates/sponsor.mjs";
+import { renderTrustPage } from "../src/templates/trust.mjs";
 import { escapeXml, rfc822, sitemapDate } from "../src/lib/format.mjs";
 import { readingMinutes } from "../src/lib/reading.mjs";
 
@@ -452,6 +453,7 @@ Allow: /post/
 Allow: /tags/
 Allow: /categories/
 Allow: /ai/
+Allow: /trust/
 
 # 排除资源文件夹
 Disallow: /js/vendor/
@@ -598,6 +600,9 @@ async function main() {
 
   // 赞助页
   await writeFileEnsured("sponsor/index.html", renderSponsorPage() + "\n");
+
+  // 隐私与信任页
+  await writeFileEnsured("trust/index.html", renderTrustPage() + "\n");
 
   // sitemap + RSS
   await writeFileEnsured("sitemap.xml", buildSitemap(posts) + "\n");

@@ -5,6 +5,9 @@ import { readFile, readdir, stat } from "node:fs/promises";
 import { join } from "node:path";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
+import { gzipSync } from "node:zlib";
+
+import { PAGE_ASSETS } from "../src/page-assets.mjs";
 
 const execFileAsync = promisify(execFile);
 const ROOT = join(import.meta.dirname, "..");
@@ -223,6 +226,38 @@ test("coder.css is reasonably sized (under 140KB)", async () => {
   const fileStat = await stat(join(ROOT, "css", "coder.css"));
   const sizeKB = fileStat.size / 1024;
   assert.ok(sizeKB <= 140, `coder.css is ${sizeKB.toFixed(1)}KB, exceeds 140KB`);
+});
+
+function cssRefsFromHtml(html) {
+  return [...html.matchAll(/href="([^"]+\.css)"/g)].map((match) => match[1]);
+}
+
+test("route CSS budgets reflect page-level stylesheet split", async () => {
+  const routes = {
+    "/": { html: "index.html", rawKb: 132, gzipKb: 24, styles: [] },
+    "/tools/": { html: "tools/index.html", rawKb: 145, gzipKb: 26, styles: PAGE_ASSETS["/tools/"].styles },
+    "/trust/": { html: "trust/index.html", rawKb: 132, gzipKb: 24, styles: PAGE_ASSETS["/trust/"].styles },
+  };
+
+  for (const [route, budget] of Object.entries(routes)) {
+    const html = await readFile(join(ROOT, budget.html), "utf8");
+    const refs = cssRefsFromHtml(html);
+    const expectedRefs = ["/css/fontawesome-all.min.css", "/css/coder.css", ...budget.styles];
+    assert.deepEqual(refs, expectedRefs, `${route} CSS references should match the page asset manifest`);
+
+    let rawBytes = 0;
+    let gzipBytes = 0;
+    for (const href of refs) {
+      const css = await readFile(join(ROOT, href.replace(/^\//, "")));
+      rawBytes += css.length;
+      gzipBytes += gzipSync(css).length;
+    }
+
+    const rawKb = rawBytes / 1024;
+    const gzipKb = gzipBytes / 1024;
+    assert.ok(rawKb <= budget.rawKb, `${route} CSS raw size is ${rawKb.toFixed(1)}KB, exceeds ${budget.rawKb}KB`);
+    assert.ok(gzipKb <= budget.gzipKb, `${route} CSS gzip size is ${gzipKb.toFixed(1)}KB, exceeds ${budget.gzipKb}KB`);
+  }
 });
 
 // ─── Vendor 脚本存在性 ────────────────────────────────────────────────────────

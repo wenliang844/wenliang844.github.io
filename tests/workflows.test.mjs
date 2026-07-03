@@ -127,7 +127,7 @@ test("production validator builds into a temporary output directory", async () =
 test("HTTP smoke script covers critical public routes and local scripts", async () => {
   const smokeScript = await readFile(join(ROOT, "scripts", "http-smoke.mjs"), "utf8");
 
-  assert.match(smokeScript, /ROUTES\s*=\s*\["\/",\s*"\/tools\/",\s*"\/ai\/",\s*"\/post\/",\s*"\/contact\/"\]/);
+  assert.match(smokeScript, /ROUTES\s*=\s*\["\/",\s*"\/tools\/",\s*"\/ai\/",\s*"\/post\/",\s*"\/contact\/",\s*"\/trust\/"\]/);
   assert.match(smokeScript, /main#main-content/);
   assert.match(smokeScript, /is missing an h1/);
   assert.match(smokeScript, /extractLocalScriptSources/);
@@ -137,7 +137,7 @@ test("HTTP smoke script covers critical public routes and local scripts", async 
 test("browser smoke script covers critical routes, viewports and tool interactions", async () => {
   const smokeScript = await readFile(join(ROOT, "scripts", "browser-smoke.mjs"), "utf8");
 
-  assert.match(smokeScript, /ROUTES\s*=\s*\["\/",\s*"\/tools\/",\s*"\/ai\/",\s*"\/post\/",\s*"\/contact\/"\]/);
+  assert.match(smokeScript, /ROUTES\s*=\s*\["\/",\s*"\/tools\/",\s*"\/ai\/",\s*"\/post\/",\s*"\/contact\/",\s*"\/trust\/"\]/);
   assert.match(smokeScript, /name:\s*"desktop"/);
   assert.match(smokeScript, /name:\s*"mobile"/);
   assert.match(smokeScript, /page\.on\("console"/);
@@ -145,6 +145,12 @@ test("browser smoke script covers critical routes, viewports and tool interactio
   assert.match(smokeScript, /main#main-content/);
   assert.match(smokeScript, /h1:visible/);
   assert.match(smokeScript, /assertNoHorizontalOverflow/);
+  assert.match(smokeScript, /assertCanvasHasPixels/);
   assert.match(smokeScript, /data-json-action="format"/);
   assert.match(smokeScript, /random-warning/);
+  assert.match(smokeScript, /#galaxy-canvas/);
+  assert.match(smokeScript, /data-uuid-generate/);
+  assert.match(smokeScript, /navigator\.clipboard\.readText/);
+  assert.match(smokeScript, /#gesture-start/);
+  assert.match(smokeScript, /\.gesture-consent/);
 });

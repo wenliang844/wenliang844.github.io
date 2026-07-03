@@ -28,6 +28,7 @@ export const STATIC_PAGES = [
   { path: "/overleaf/", withDate: true, priority: "0.6" },
   { path: "/contact/", withDate: true, priority: "0.6" },
   { path: "/ai/", withDate: true, priority: "0.6" },
+  { path: "/trust/", withDate: true, priority: "0.5" },
   { path: "/appreciation/", withDate: true, priority: "0.6" },
   { path: "/sponsor/", withDate: true, priority: "0.6" },
   { path: "/categories/", withDate: false, priority: "0.6" },
@@ -63,6 +64,13 @@ export const SEARCH_PAGES = [
     path: "/ai/#nav",
     tags: ["AI", "工具", "导航"],
     i18n: { en: { title: "AI Websites", summary: "A categorized directory of frequently used AI websites and tools.", tags: ["AI", "Tools", "Navigation"] } },
+  },
+  {
+    title: "隐私与信任",
+    summary: "本站本机数据、第三方服务、AI 助手、工具箱、订阅、评论和反馈的数据流说明。",
+    path: "/trust/",
+    tags: ["隐私", "信任", "数据", "安全", "第三方服务"],
+    i18n: { en: { title: "Privacy & Trust", summary: "How local data, third-party services, the AI assistant, toolbox, subscriptions, comments and feedback behave on this site.", tags: ["Privacy", "Trust", "Data", "Security", "Third-party services"] } },
   },
   {
     title: "在线工具箱",

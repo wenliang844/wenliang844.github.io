@@ -4,9 +4,9 @@
 分析范围：`package.json` 测试脚本、GitHub Actions 质量门禁、静态 HTML/性能/无障碍测试、本地静态服务页面读取、工具箱浏览器 API 交互面。  
 本轮验证：
 
-- 本地只读静态服务：`/`、`/tools/`、`/ai/`、`/post/`、`/contact/` 均返回 200。
+- 本地只读静态服务：`/`、`/tools/`、`/ai/`、`/post/`、`/contact/`、`/trust/` 均返回 200。
 - 页面抽样结果：`/tools/` 约 104900 字符、15 个脚本引用，是当前最需要真实浏览器冒烟覆盖的页面。
-- 自动化测试：`npm run test:http-smoke` 5/5 路由通过；`npm run test:browser-smoke` 覆盖桌面 5 个关键路径、移动端 3 个关键路径和 `/tools/` JSON/随机数交互；`node --test tests/workflows.test.mjs`，8/8 通过；`npm run test:coverage`，779/779 通过。
+- 自动化测试：`npm run test:http-smoke` 6/6 路由通过；`npm run test:browser-smoke` 覆盖桌面 6 个关键路径、移动端 4 个关键路径和 `/tools/` JSON/随机数、Galaxy Canvas、UUID Clipboard、手势远程运行时确认门闩；`node --test tests/workflows.test.mjs`，8/8 通过；`npm run test:coverage`，786/786 通过。
 - 实际发现并修复：真实浏览器 mobile `/post/` 冒烟暴露首个 `h1` 位于默认隐藏的浮动文章目录内，随后静态 a11y 门禁发现 `post/index.html` 存在双 `h1`；已将目录标题改为 `.post-tree-title`，页面保留单一可见 `h1`。
 - 约束说明：真实浏览器 smoke 已作为 `npm run test:browser-smoke` 固化，暂未接入主 CI；待稳定运行一段时间后再考虑 nightly 或单独可选 job。
 
@@ -29,6 +29,7 @@
 | `/ai/` | 200 | 30540 | 中转站排名 | 10 | 2 |
 | `/post/` | 200 | 85937 | 文章 | 12 | 2 |
 | `/contact/` | 200 | 10853 | 关于CWL | 9 | 2 |
+| `/trust/` | 200 | 25575 | 本站如何处理数据 | 7 | 2 |
 
 ## 建议清单
 
@@ -36,7 +37,7 @@
 
 - 📌 问题/建议标题：增加最小 Playwright/浏览器冒烟门禁
 - 📍 位置：`package.json:12-22`、`scripts/browser-smoke.mjs`、`tests/workflows.test.mjs:30-150`、`.github/workflows/ci.yml:27-48`
-- ✅ 落地状态：新增 `scripts/browser-smoke.mjs` 和 `npm run test:browser-smoke`，脚本会启动本地静态服务，用 Playwright Chromium 打开 `/`、`/tools/`、`/ai/`、`/post/`、`/contact/` 桌面视口，以及 `/`、`/tools/`、`/post/` 移动视口；同时检查 `main#main-content`、可见 H1、横向溢出、控制台错误、页面错误、同源 4xx/失败请求，并覆盖 `/tools/` JSON 格式化和随机数安全提示。
+- ✅ 落地状态：新增 `scripts/browser-smoke.mjs` 和 `npm run test:browser-smoke`，脚本会启动本地静态服务，用 Playwright Chromium 打开 `/`、`/tools/`、`/ai/`、`/post/`、`/contact/`、`/trust/` 桌面视口，以及 `/`、`/tools/`、`/post/`、`/trust/` 移动视口；同时检查 `main#main-content`、可见 H1、横向溢出、控制台错误、页面错误、同源 4xx/失败请求，并覆盖 `/tools/` JSON 格式化、随机数安全提示、Galaxy Canvas 非空像素、UUID Clipboard 复制和手势远程运行时确认门闩。
 - 🧪 回归测试：`tests/workflows.test.mjs` 已加入脚本契约断言，覆盖关键路由、桌面/移动视口、运行时错误收集、横向溢出检查和工具交互选择器。真实浏览器运行曾发现 mobile `/post/` H1 检测落到隐藏目录标题；静态门禁进一步发现双 `h1`，现已通过单一可见 `h1` 和 `.post-tree-title` 修复。
 - 📝 剩余状况描述：CI 当前仍只运行 HTTP smoke，尚未把 Playwright smoke 放进主质量门禁。保守原因是 GitHub runner 需要安装浏览器依赖，运行时间和偶发资源加载噪声都高于 Node/JSDOM 测试；更适合先作为本地发布前检查或 nightly/可选 job。
 - ⚠️ 影响程度：中
@@ -149,11 +150,13 @@ for (const viewport of viewports) {
 - 📊 实际收益：移动端文章列表标题缺失和关键路径横向溢出已进入可重复检查；截图和 trace 证据仍是下一步收益点。
 - 🔗 相关建议引用：`docs/suggestions/module-reviews/layout-responsive-print-review.md`、`docs/suggestions/performance-bottlenecks.md`、`docs/suggestions/module-reviews/product-info-pages-and-rankings.md`。
 
-### 4. 工具箱真实浏览器 API 面积大，JSDOM mock 难覆盖权限和降级行为
+### 4. [已部分落地] 工具箱真实浏览器 API 面积大，摄像头授权失败路径仍待扩展
 
 - 📌 问题/建议标题：给摄像头、Canvas/WebGL、Clipboard 增加真实环境 smoke
 - 📍 位置：`src/templates/tools.mjs:865-923`、`js/gesture.js:279-285`、`js/gesture.js:520-535`、`js/gesture.js:565-612`、`js/object-search.js:109-127`、`js/object-search.js:295-297`、`js/galaxy.js:112-120`、`js/galaxy.js:613-661`、`js/relay.js:70-71`、`js/overleaf.js:854-855`
-- 📝 当前状况描述：工具箱页面包含手势识别画布、星河动画画布、物体识别摄像头、Clipboard 复制、WebGLRenderer、requestAnimationFrame 动画和大量尺寸计算。现有 JSDOM 测试通过 mock `getContext`、`mediaDevices`、`localStorage`、Clipboard 等方式验证逻辑，但 mock 很难覆盖真实浏览器权限弹窗、非安全上下文限制、设备不可用、WebGL 初始化失败、Canvas 尺寸为 0、DPR 缩放和移动端触摸坐标偏移。
+- ✅ 落地状态：`scripts/browser-smoke.mjs` 已扩展 `/tools/` 真实浏览器交互：点击 Galaxy tab 后等待 `#galaxy-canvas` 具备非零尺寸和非空像素；生成 UUID 后通过真实 `navigator.clipboard.readText()` 验证复制内容；进入手势 tab 后确认未勾选第三方运行时说明时 `#gesture-start` 禁用，勾选 `.gesture-consent` 后启动按钮才放开。
+- 🧪 回归测试：`tests/workflows.test.mjs` 已约束 `assertCanvasHasPixels`、`#galaxy-canvas`、`data-uuid-generate`、`navigator.clipboard.readText`、`#gesture-start` 和 `.gesture-consent` 保留在 browser smoke 中。
+- 📝 剩余状况描述：工具箱页面包含手势识别画布、星河动画画布、物体识别摄像头、Clipboard 复制、WebGLRenderer、requestAnimationFrame 动画和大量尺寸计算。现有 browser smoke 已覆盖 Canvas/Clipboard/摄像头启动门闩的低噪声路径，但尚未实际授予/拒绝摄像头、加载 MediaPipe/Three.js 外部模型，或验证 WebGLRenderer 失败兜底。JSDOM mock 仍很难覆盖真实权限弹窗、非安全上下文限制、设备不可用、WebGL 初始化失败、DPR 缩放和移动端触摸坐标偏移。
 - ⚠️ 影响程度：中
 - 💡 建议方案（含伪代码或示例片段）：
 
@@ -177,15 +180,15 @@ test("tools browser APIs expose graceful fallback", async ({ page }) => {
 
 首轮不必追求完整功能验证，优先断言“页面不崩、关键 Canvas 非零尺寸、权限失败有用户可见反馈、控制台无未捕获错误”。
 
-- 📊 预期收益：覆盖 JSDOM 无法模拟的真实平台行为，减少工具箱这种高交互页面在不同浏览器和移动设备上的回归风险。
+- 📊 实际收益：Galaxy canvas 空白、Clipboard 权限/复制状态、手势确认门闩这三类真实浏览器问题已进入可重复 smoke；摄像头授权失败、外部视觉模型和 WebGL 兜底仍是后续扩展点。
 - 🔗 相关建议引用：`docs/suggestions/module-reviews/tools-gesture-and-api.md`、`docs/suggestions/module-reviews/tools-core-runtime-safety.md`、`docs/suggestions/module-reviews/visual-interactions.md`。
 
 ### 5. [已修复] 静态服务可用性检查已固化为脚本
 
 - 📌 问题/建议标题：把关键路径 HTTP smoke 固化为轻量脚本
 - 📍 位置：`package.json:21-22`、`.github/workflows/ci.yml:39-45`
-- ✅ 修复状态：新增 `scripts/http-smoke.mjs` 和 `npm run test:http-smoke`，脚本会启动本地静态服务，访问 `/`、`/tools/`、`/ai/`、`/post/`、`/contact/`，并检查 200、HTML content-type、`main#main-content`、`h1` 和本地脚本引用可达。CI 在 `npm run build` 后执行该 smoke。
-- 🧪 回归测试：`npm run test:http-smoke` 5/5 路由通过；`node --test tests/workflows.test.mjs` 7/7 通过，覆盖 npm 脚本、CI 步骤和关键路由清单。
+- ✅ 修复状态：新增 `scripts/http-smoke.mjs` 和 `npm run test:http-smoke`，脚本会启动本地静态服务，访问 `/`、`/tools/`、`/ai/`、`/post/`、`/contact/`、`/trust/`，并检查 200、HTML content-type、`main#main-content`、`h1` 和本地脚本引用可达。CI 在 `npm run build` 后执行该 smoke。
+- 🧪 回归测试：`npm run test:http-smoke` 6/6 路由通过；`node --test tests/workflows.test.mjs` 8/8 通过，覆盖 npm 脚本、CI 步骤和关键路由清单。
 - 📝 原状况描述：本轮通过本地静态服务读取了 5 个关键路径，能快速发现 404、路由目录缺失、生成产物为空、H1 缺失和脚本引用异常。但这个步骤此前没有固化为 npm 脚本或 CI 步骤；`serve` 只负责启动静态服务，`validate:production` 和测试组更多是静态文件扫描。若未来某个目录页面缺失但文件扫描没有覆盖到用户入口，可能仍需人工打开才发现。
 - ⚠️ 影响程度：中
 - 💡 建议方案（含伪代码或示例片段）：
@@ -237,8 +240,8 @@ for (const route of routes) {
 ## 建议落地顺序
 
 1. 已修复 `tests/i18n-a11y.test.mjs` 的按钮可访问名称检查，让现有 Node 测试变得真实有效。
-2. 已增加 `test:http-smoke`，把本轮 5 个关键路径的 200/H1/脚本检查固化。
-3. 已引入最小 Playwright Chromium smoke，覆盖 `/`、`/tools/`、`/ai/`、`/post/`、`/contact/` 桌面路径和移动端 `/`、`/tools/`、`/post/`。
+2. 已增加 `test:http-smoke`，把本轮 6 个关键路径的 200/H1/脚本检查固化。
+3. 已引入最小 Playwright Chromium smoke，覆盖 `/`、`/tools/`、`/ai/`、`/post/`、`/contact/`、`/trust/` 桌面路径和移动端 `/`、`/tools/`、`/post/`、`/trust/`。
 4. 已为关键路径增加移动端和桌面端横向溢出检查；后续可扩展截图基线。
-5. 对工具箱 Canvas、Clipboard、摄像头权限失败路径补充真实浏览器测试。
+5. 已对工具箱 Galaxy Canvas、Clipboard 和摄像头启动确认门闩补充真实浏览器测试；摄像头授权失败和外部模型加载路径留作下一步。
 6. 浏览器测试稳定后再加入截图基线和失败 artifact。
