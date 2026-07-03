@@ -5,6 +5,7 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
+import { JSDOM } from "jsdom";
 
 const execFileAsync = promisify(execFile);
 const ROOT = join(import.meta.dirname, "..");
@@ -12,6 +13,33 @@ const ROOT = join(import.meta.dirname, "..");
 async function htmlFiles() {
   const { stdout } = await execFileAsync("git", ["ls-files", "*.html"], { cwd: ROOT, windowsHide: true });
   return stdout.trim().split(/\r?\n/).filter(Boolean);
+}
+
+function accessibleName(element) {
+  const labelledBy = element.getAttribute("aria-labelledby");
+  if (labelledBy) {
+    const text = labelledBy
+      .split(/\s+/)
+      .map((id) => element.ownerDocument.getElementById(id)?.textContent || "")
+      .join(" ")
+      .trim();
+    if (text) {
+      return text;
+    }
+  }
+  return (
+    element.getAttribute("aria-label") ||
+    element.getAttribute("title") ||
+    element.textContent ||
+    ""
+  ).trim();
+}
+
+function describeButton(button) {
+  const id = button.id ? `#${button.id}` : "";
+  const classes = button.className ? `.${String(button.className).trim().split(/\s+/).join(".")}` : "";
+  const type = button.getAttribute("type") ? `[type="${button.getAttribute("type")}"]` : "";
+  return `button${id}${classes}${type}`;
 }
 
 // ─── ARIA 属性测试 ─────────────────────────────────────────────────────────────
@@ -104,17 +132,13 @@ test("interactive elements have accessible labels", async () => {
   const failures = [];
   for (const file of await htmlFiles()) {
     const html = await readFile(join(ROOT, file), "utf8");
-    // 检查按钮是否有 aria-label 或可见文本
-    const buttons = html.match(/<button[^>]*>/g) || [];
-    for (const btn of buttons) {
-      if (!btn.includes("aria-label") && !btn.includes("data-i18n") && !btn.includes(">")) {
-        // 简单检查：没有 aria-label 也没有 data-i18n 的按钮可能缺少标签
-        // 这里只检查 theme-toggle 等图标按钮
-        if (btn.includes("theme-toggle") && !btn.includes("aria-label")) {
-          failures.push(`${file}: theme-toggle button missing aria-label`);
-        }
+    const dom = new JSDOM(html);
+    for (const button of dom.window.document.querySelectorAll("button")) {
+      if (!accessibleName(button)) {
+        failures.push(`${file}: ${describeButton(button)} missing accessible name`);
       }
     }
+    dom.window.close();
   }
   assert.deepEqual(failures, []);
 });

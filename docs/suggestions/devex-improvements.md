@@ -6,10 +6,12 @@
 
 ## 2026-07-03 复查补充
 
-### 📌 DE-11: 把生产验证改造成真正只读的质量门禁
+### 📌 DE-11 [已修复]: 把生产验证改造成真正只读的质量门禁
 
 - **📍 位置**：`scripts/validate-production.mjs:222-254`, `package.json:20-24`
-- **📝 当前状况描述**：项目已经有 `check:readonly`，但 `validate:production` 内部仍执行默认 `node scripts/build.mjs`，会写根目录产物。本轮验证后 Git 没有新增 diff，只是碰巧构建产物一致；脚本设计上仍然不是只读。
+- **✅ 修复状态**：`validate:production` 的构建检查已改为 `--out temp/production-validate`，产物存在性检查指向该临时目录，`finally` 阶段会清理输出目录。
+- **🧪 验证**：`node --test tests/workflows.test.mjs` 6/6 通过；`npm run validate:production` 34/34 通过；验证后 `temp/production-validate` 不存在。
+- **📝 原状况描述**：项目已经有 `check:readonly`，但 `validate:production` 内部仍执行默认 `node scripts/build.mjs`，会写根目录产物。本轮验证后 Git 没有新增 diff，只是碰巧构建产物一致；脚本设计上仍然不是只读。
 - **⚠️ 影响程度**：中
 - **💡 建议方案**：
   ```json
@@ -21,8 +23,8 @@
   }
   ```
   `validate-production.mjs` 中所有产物检查都指向临时 outDir；结束后可清理临时目录，或保留到 `temp/` 供调试。
-- **📊 预期收益**：让本地、CI、AI 自动分析都能安全运行完整验证，不污染工作区。
-- **🔗 相关建议引用**：[B-13](bugs-and-risks.md#b-13-生产验证脚本默认会覆盖根目录构建产物)
+- **📊 实际收益**：让本地、CI、AI 自动分析都能安全运行完整验证，不污染工作区。
+- **🔗 相关建议引用**：[B-13](bugs-and-risks.md#b-13-已修复-生产验证脚本默认会覆盖根目录构建产物)
 
 ### 📌 DE-12: `validate` / `precommit` 同时包含自动修复和构建写入，语义不够清晰
 
@@ -40,7 +42,7 @@
   ```
   把“检查”“修复”“生成”拆成独立命令，precommit 默认只跑不写文件的检查。
 - **📊 预期收益**：减少意外工作区变更，提升命令命名和实际行为的一致性。
-- **🔗 相关建议引用**：[DE-11](#de-11-把生产验证改造成真正只读的质量门禁), [TD-11](tech-debt.md#td-11-eslint-8-迁移前应先清零当前-warning-债务)
+- **🔗 相关建议引用**：[DE-11](#de-11-已修复-把生产验证改造成真正只读的质量门禁), [TD-11](tech-debt.md#td-11-eslint-8-迁移前应先清零当前-warning-债务)
 
 ### 📌 DE-13: 为 AI 助手和 Cron 边界行为补充回归测试
 
@@ -63,7 +65,7 @@
 
 - **📍 位置**：`scripts/validate-production.mjs:16`, `scripts/validate-production.mjs:130-136`, `tests/workflows.test.mjs:103-108`
 - **✅ 修复状态**：新增 `TEST_OUTPUT_MAX_BUFFER` 并传给生产验证内部的 `execFileAsync("node", ["--test", "tests/*.test.mjs"])`，同时新增 workflow 测试确认该保护存在。
-- **🧪 验证**：`node --test tests/workflows.test.mjs` 5/5 通过；`npm run validate:production` 34/34 通过；`npm run test:coverage` 770/770 通过。
+- **🧪 验证**：`node --test tests/workflows.test.mjs` 6/6 通过；`npm run validate:production` 34/34 通过；`npm run test:coverage` 772/772 通过。
 - **📝 原状况描述**：完整测试套件单独执行通过，但 `validate:production` 在收集测试输出时使用 Node 默认缓冲；当测试输出增长到当前规模时，门禁脚本会误报“测试执行失败”。
 - **⚠️ 影响程度**：中
 - **💡 建议方案**：短期保留 32MB 专用缓冲；中期可改为 `spawn` 流式读取测试摘要，进一步降低内存占用和输出耦合。

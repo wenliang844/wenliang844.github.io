@@ -106,3 +106,12 @@ test("production validator tolerates the full test suite output", async () => {
   assert.match(productionValidator, /TEST_OUTPUT_MAX_BUFFER/);
   assert.match(productionValidator, /maxBuffer:\s*TEST_OUTPUT_MAX_BUFFER/);
 });
+
+test("production validator builds into a temporary output directory", async () => {
+  const productionValidator = await readFile(join(ROOT, "scripts", "validate-production.mjs"), "utf8");
+
+  assert.match(productionValidator, /BUILD_CHECK_OUT\s*=\s*'temp\/production-validate'/);
+  assert.match(productionValidator, /\['scripts\/build\.mjs',\s*'--out',\s*BUILD_CHECK_OUT\]/);
+  assert.match(productionValidator, /fileExists\(output,\s*BUILD_CHECK_DIR\)/);
+  assert.match(productionValidator, /rm\(BUILD_CHECK_DIR,\s*\{\s*recursive:\s*true,\s*force:\s*true\s*\}\)/);
+});

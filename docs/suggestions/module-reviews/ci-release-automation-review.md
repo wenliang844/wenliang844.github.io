@@ -69,7 +69,7 @@ await assertRequiredOutputs(outDir);
 ```
 
 - 📊 预期收益：让 CI 的质量门禁可重复、可审计，避免自动化在脏工作区中误判或覆盖人类变更。
-- 🔗 相关建议引用：`docs/suggestions/devex-improvements.md#de-11-把生产验证改造成真正只读的质量门禁`、`docs/suggestions/bugs-and-risks.md#b-13-生产验证脚本默认会覆盖根目录构建产物`。
+- 🔗 相关建议引用：`docs/suggestions/devex-improvements.md#de-11-已修复-把生产验证改造成真正只读的质量门禁`、`docs/suggestions/bugs-and-risks.md#b-13-已修复-生产验证脚本默认会覆盖根目录构建产物`。
 
 ### 3. 有写权限的商业中转站同步 workflow 缺少并发保护
 
@@ -195,4 +195,3 @@ GitHub Actions 更新也可以单独加 `labels: ["dependencies", "github-action
 3. 把同步 workflow 的直推改为 PR 或至少输出 `$GITHUB_STEP_SUMMARY` 审计摘要。
 4. 将生产验证改为临时目录只读构建，并在 CI 中加入构建产物 `git diff --exit-code`。
 5. 增加测试日志/覆盖率 artifact，先保留零依赖方案。
-

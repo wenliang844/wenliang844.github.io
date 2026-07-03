@@ -5,7 +5,7 @@
  * 在部署前运行此脚本以确保项目符合生产级标准
  */
 
-import { readFile, access } from 'node:fs/promises';
+import { readFile, access, rm } from 'node:fs/promises';
 import { join } from 'node:path';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
@@ -14,6 +14,8 @@ const execFileAsync = promisify(execFile);
 const ROOT = process.cwd();
 const IS_WINDOWS = process.platform === 'win32';
 const TEST_OUTPUT_MAX_BUFFER = 32 * 1024 * 1024;
+const BUILD_CHECK_OUT = 'temp/production-validate';
+const BUILD_CHECK_DIR = join(ROOT, BUILD_CHECK_OUT);
 
 const checks = {
   passed: [],
@@ -36,9 +38,9 @@ function warn(message) {
   console.warn(`⚠ ${message}`);
 }
 
-async function fileExists(path) {
+async function fileExists(path, baseDir = ROOT) {
   try {
-    await access(join(ROOT, path));
+    await access(join(baseDir, path));
     return true;
   } catch {
     return false;
@@ -225,13 +227,15 @@ async function checkBuild() {
   console.log('\n🔨 验证构建...');
 
   try {
-    const { stdout } = await execFileAsync('node', ['scripts/build.mjs'], {
+    await rm(BUILD_CHECK_DIR, { recursive: true, force: true });
+
+    const { stdout } = await execFileAsync('node', ['scripts/build.mjs', '--out', BUILD_CHECK_OUT], {
       cwd: ROOT,
       windowsHide: true
     });
 
     if (stdout.includes('构建完成')) {
-      pass('构建成功');
+      pass('构建成功（临时目录）');
 
       // 检查输出文件
       const outputs = [
@@ -242,7 +246,7 @@ async function checkBuild() {
       ];
 
       for (const output of outputs) {
-        if (await fileExists(output)) {
+        if (await fileExists(output, BUILD_CHECK_DIR)) {
           pass(`输出文件存在: ${output}`);
         } else {
           fail(`输出文件缺失: ${output}`);
@@ -253,6 +257,8 @@ async function checkBuild() {
     }
   } catch (error) {
     fail(`构建失败: ${error.message}`);
+  } finally {
+    await rm(BUILD_CHECK_DIR, { recursive: true, force: true });
   }
 }
 

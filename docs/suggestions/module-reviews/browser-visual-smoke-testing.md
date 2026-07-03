@@ -72,10 +72,12 @@ CI 中可先只跑 Chromium 和 5 个关键路径，失败时上传 screenshot/t
 - 📊 预期收益：把“页面能构建”升级为“关键页面能在真实浏览器中打开并可交互”，降低 CSS、运行时脚本和权限 API 回归漏发概率。
 - 🔗 相关建议引用：`docs/suggestions/module-reviews/test-coverage-risk-map.md`、`docs/suggestions/module-reviews/ci-release-automation-review.md`、`docs/suggestions/devex-improvements.md`。
 
-### 2. 按钮可访问名称测试存在静态正则盲区
+### 2. [已修复] 按钮可访问名称测试存在静态正则盲区
 
 - 📌 问题/建议标题：用 DOM 解析替代 `<button>` 开始标签正则
 - 📍 位置：`tests/i18n-a11y.test.mjs:103-116`
+- ✅ 修复状态：`interactive elements have accessible labels` 已改用 JSDOM 解析已提交 HTML，并通过 `aria-labelledby`、`aria-label`、`title` 和 `textContent` 计算按钮可访问名称；失败信息会输出按钮 id/class/type，便于定位。
+- 🧪 回归测试：`node --test tests/i18n-a11y.test.mjs` 16/16 通过，更严格的 DOM 检查未发现当前页面按钮缺失名称。
 - 📝 当前状况描述：`interactive elements have accessible labels` 测试用 `html.match(/<button[^>]*>/g)` 只抓取按钮开始标签，然后判断 `!btn.includes(">")`。由于每个开始标签都包含 `>`，这个分支不会进入，实际无法检查按钮可见文本、`aria-label`、`aria-labelledby` 或图标按钮名称。本轮该测试通过，但通过结果主要说明没有触发失败条件，不能代表所有按钮都具备真实可访问名称。
 - ⚠️ 影响程度：中
 - 💡 建议方案（含伪代码或示例片段）：
@@ -107,7 +109,7 @@ for (const button of dom.window.document.querySelectorAll("button")) {
 
 后续如果引入 Playwright，可再用浏览器级 Locator 断言关键按钮 `toBeVisible()`、`toHaveAttribute()` 和键盘可达性。
 
-- 📊 预期收益：避免“测试通过但检查逻辑空转”，更早发现图标按钮、动态按钮和多语言切换后的可访问名称缺失。
+- 📊 实际收益：避免“测试通过但检查逻辑空转”，更早发现图标按钮、动态按钮和多语言切换后的可访问名称缺失。
 - 🔗 相关建议引用：`docs/suggestions/module-reviews/i18n-and-accessibility.md`、`docs/suggestions/ux-improvements.md`、`docs/suggestions/full-browser-audit-2026-07-03.md`。
 
 ### 3. 性能测试偏静态文件检查，缺少视口溢出和视觉回归信号
@@ -231,7 +233,7 @@ for (const route of routes) {
 
 ## 建议落地顺序
 
-1. 先修复 `tests/i18n-a11y.test.mjs` 的按钮可访问名称检查，让现有 Node 测试变得真实有效。
+1. 已修复 `tests/i18n-a11y.test.mjs` 的按钮可访问名称检查，让现有 Node 测试变得真实有效。
 2. 增加 `test:http-smoke`，把本轮 5 个关键路径的 200/H1/脚本检查固化。
 3. 引入最小 Playwright Chromium smoke，只覆盖 `/`、`/tools/`、`/ai/`、`/post/`、`/contact/`。
 4. 为 `/tools/` 增加移动端和桌面端横向溢出检查。

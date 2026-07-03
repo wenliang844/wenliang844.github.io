@@ -9,8 +9,8 @@
 | 项目 | 结果 |
 |------|------|
 | 当前分支 | `codex/autonomous-optimization` |
-| 工作区注意事项 | 本轮包含源码、测试与文档修复；生产验证脚本已修复大测试输出下的假失败 |
-| 质量门禁 | `npm run lint:check` 通过；`npm test` 771/771 通过 |
+| 工作区注意事项 | 本轮包含源码、测试与文档修复；生产验证脚本已修复大测试输出假失败和根目录构建写入副作用 |
+| 质量门禁 | `npm run lint:check` 通过；`npm test` 772/772 通过 |
 | 生产验证 | `npm run validate:production` 34/34 通过 |
 | 依赖审计 | `npm audit --registry=https://registry.npmjs.org --audit-level=moderate` 0 漏洞 |
 | 覆盖率 | 总体 lines 94.44%、branches 78.33%、functions 91.84%，通过阈值 |
@@ -29,7 +29,7 @@
 | S-14 | 中 | AI 助手对话和 LLM 上下文长期留存在 localStorage（核心风险已修复） | [security-audit.md](security-audit.md#s-14-已修复核心风险-ai-助手对话和-llm-上下文长期留存在-localstorage) |
 | S-12 | 中 | Mini API Tester 会把 Authorization 头和请求体持久化到 localStorage | [security-audit.md](security-audit.md#s-12-mini-api-tester-会把-authorization-头和请求体持久化到-localstorage) |
 | S-13 | 中 | 手势工具运行时加载 CDN 机器视觉脚本和模型（核心确认已补，自托管/hash 清单待推进） | [security-audit.md](security-audit.md#s-13-已修复核心治理-手势工具运行时加载-cdn-机器视觉脚本和模型缺少完整供应链约束) |
-| B-13 | 中 | 生产验证脚本默认会覆盖根目录构建产物 | [bugs-and-risks.md](bugs-and-risks.md#b-13-生产验证脚本默认会覆盖根目录构建产物) |
+| B-13 | 中 | 生产验证脚本默认会覆盖根目录构建产物（已修复） | [bugs-and-risks.md](bugs-and-risks.md#b-13-已修复-生产验证脚本默认会覆盖根目录构建产物) |
 | B-14 | 中 | 工具箱按需脚本加载 Promise 过早 resolve，手势页存在初始化竞态（核心竞态已修复） | [bugs-and-risks.md](bugs-and-risks.md#b-14-已修复核心竞态-工具箱按需脚本加载-promise-过早-resolve手势页存在初始化竞态) |
 | B-15 | 中 | AI 助手模式偏好写入后不会被恢复 | [bugs-and-risks.md](bugs-and-risks.md#b-15-ai-助手模式偏好写入后不会被恢复) |
 | B-16 | 中 | AI 助手 SSE 流结束时可能丢失最后一个未闭合事件 | [bugs-and-risks.md](bugs-and-risks.md#b-16-ai-助手-sse-流结束时可能丢失最后一个未闭合事件) |
@@ -51,6 +51,7 @@
 - 已完成：P-16 / MR-CORE-01 为 Cron 不可能日期表达式增加短路和 `<50ms` 回归预算，保留 day-of-month/day-of-week OR 语义。
 - 已完成：S-14 / F-13 为 AI 助手增加隐私模式、历史保留期限和清空全部对话入口，并补英文文案和样式测试。
 - 已完成：B-17 / DE-15 为生产验证测试命令设置专用输出缓冲，避免全量测试输出导致 `validate:production` 假失败。
+- 已完成：B-13 / DE-11 将生产验证构建检查改到 `temp/production-validate` 临时目录，验证后自动清理，避免覆盖根目录生成产物。
 - 已完成：MR-RT-02 / MR-RT-03 修复 JSONPath 非法尾部部分解析，以及 API Tester 历史保存失败误报成功。
 - 已完成：MR-RT-04 为 API Tester 增加本机/内网/非 HTTPS 请求显式允许开关和回归测试。
 - 已完成：MR-RT-05 为 API Tester 增加请求超时、响应大小预算和大响应跳过/截断反馈。
@@ -61,13 +62,15 @@
 - 已完成：内容发现专题 1-4 修复博客年份分组计数、空分组隐藏、`?q=` 搜索直达和移动目录焦点恢复。
 - 已完成：内容发现专题 5 为搜索脚本加载失败增加按钮错误态、toast、日志和可重试路径。
 - 已完成：新增真实浏览器与视觉冒烟专题，记录 Playwright/HTTP smoke、响应式截图、权限 API 和 CI artifact 后续落地路径。
+- 已完成：新增内容新鲜度与信任信号专题，记录 sitemap lastmod、文章最后更新、搜索新鲜度和反馈入口 6 项建议。
+- 已完成：修复按钮可访问名称测试的静态正则盲区，改用 JSDOM 解析真实按钮名称。
 
 ### 当前健康度修正
 
 | 维度 | 2026-06-18 | 2026-07-03 复查 | 说明 |
 |------|------------|------------------|------|
 | 安全性 | 3.5 / 5 | 3.5 / 5 | 前端默认体验 key、AI 对话保留、手势第三方资源确认、UUID 弱随机 fallback 和普通随机数用途提示已修复；模型自托管/hash 清单仍需治理 |
-| 工程化 | 4.2 / 5 | 4.0 / 5 | assistant 默认 key、模式恢复、SSE 尾包、超时/停止语义、Cron 性能预算和生产验证缓冲已补回归；质量门禁写入副作用、通用 DOM 契约仍需推进 |
+| 工程化 | 4.2 / 5 | 4.0 / 5 | assistant 默认 key、模式恢复、SSE 尾包、超时/停止语义、Cron 性能预算和生产验证缓冲/只读构建已补回归；通用 DOM 契约仍需推进 |
 | 性能 | 4.2 / 5 | 3.9 / 5 | 工具页首屏 DOM 已拆到按需挂载，Cron 不可能日期已短路；CSS 单包、工具页 JS 单包和更泛化稀疏表达式优化仍需治理 |
 | 用户体验 | 4.0 / 5 | 4.0 / 5 | AI 助手默认模式、隐私文案、超时反馈、内容筛选状态、编辑器标签和 QR 预览稳定性已处理；更细的错误国际化仍需推进 |
 | 综合 | 3.9 / 5 | 3.8 / 5 | 项目整体可稳定运行，剩余高优先级集中在工具 JS/CSS 拆包、模型自托管和 hash 清单 |
@@ -118,8 +121,9 @@
 | 🔵 第四 | 社交分享与评论集成 | [module-reviews/social-comments-integrations.md](module-reviews/social-comments-integrations.md) | 6（中 4 / 低 2） |
 | 🔵 第四 | 内容发现与视觉搜索入口 | [module-reviews/content-discovery-and-object-search.md](module-reviews/content-discovery-and-object-search.md) | 8（中 5 / 低 3） |
 | 🔵 第四 | 产品信息页与排行榜 | [module-reviews/product-info-pages-and-rankings.md](module-reviews/product-info-pages-and-rankings.md) | 7（中 4 / 低 3） |
+| 🔵 第四 | 内容新鲜度与信任信号 | [module-reviews/content-freshness-and-trust-signals.md](module-reviews/content-freshness-and-trust-signals.md) | 6（中 4 / 低 2） |
 | 🔵 第四 | 竞品分析 | [competitive-analysis.md](competitive-analysis.md) | 6 |
-| | **总计** | | **历史 141 条 + 复查新增/更新 82 条** |
+| | **总计** | | **历史 141 条 + 复查新增/更新 88 条** |
 
 ---
 

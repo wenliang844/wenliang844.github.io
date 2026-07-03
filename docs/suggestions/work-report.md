@@ -41,7 +41,7 @@
 
 ### 当前进度
 
-第一轮已完成“架构理解 → 只读验证 → 本地运行冒烟 → 核心模块安全/性能/工程化复查 → 文档落地”。本轮不修改任何源码或配置，待提交文档 commit 后进入第二轮。
+第一轮已完成“架构理解 → 只读验证 → 本地运行冒烟 → 核心模块安全/性能/工程化复查 → 文档落地”。后续轮次已开始按优先级落地源码、测试和文档修复。
 
 ### 下一步分析计划
 
@@ -159,15 +159,16 @@
 | Markdown 输入可访问名称 | 独立编辑器与工具箱内嵌编辑器补 `.sr-only` label 和英文 i18n | 相关模板/CSS/i18n 测试 84/84 通过 |
 | QR 预览稳定性 | QR 结果图片补 `width` / `height` / `loading` / `decoding`，CSS 补 `aspect-ratio: 1` | `tests/templates-extended.test.mjs` / `tests/css.test.mjs` 通过 |
 | Cron 典型无解表达式 | 提前识别不可能日期，避免两年分钟粒度扫描，并保护 day-of-month/day-of-week OR 语义 | `tests/tools-core-deep.test.mjs` 新增 `<50ms` 性能预算和 OR 语义测试 |
-| 生产验证假失败 | 为 `validate-production.mjs` 内部测试执行设置专用输出缓冲，避免全量测试输出触发默认 `execFile` 上限 | `tests/workflows.test.mjs` 5/5 通过；`npm run validate:production` 34/34 通过 |
+| 生产验证假失败 | 为 `validate-production.mjs` 内部测试执行设置专用输出缓冲，避免全量测试输出触发默认 `execFile` 上限 | `tests/workflows.test.mjs` 6/6 通过；`npm run validate:production` 34/34 通过 |
+| 生产验证只读化 | 构建检查改为 `node scripts/build.mjs --out temp/production-validate`，产物检查指向临时目录并在结束后清理 | `tests/workflows.test.mjs` 6/6 通过；`npm run validate:production` 34/34 通过；`temp/production-validate` 已清理 |
 
 ### 最新验证结果
 
 | 命令 | 结果 |
 |------|------|
 | `npm run lint:check` | 通过，0 warnings |
-| `npm test` / 生产验证内部测试 | 770/770 通过 |
-| `npm run test:coverage` | line 94.44% / branch 78.33% / funcs 91.84% |
+| `npm test` / 生产验证内部测试 | 772/772 通过 |
+| `npm run test:coverage` | 772/772 通过；line 94.44% / branch 78.33% / funcs 91.84% |
 | `npm run validate:production` | 34/34 通过 |
 | `npm audit --registry=https://registry.npmjs.org --audit-level=moderate` | 0 vulnerabilities |
 | `git diff --check` | 通过，仅 CRLF 工作区提示 |
@@ -232,6 +233,8 @@
 | 搜索加载失败反馈 | `js/search-loader.js`, `css/coder.css`, `js/i18n.js`, `tests/search-loader-behavior.test.mjs` | 搜索 bundle 加载失败时按钮进入错误态、弹出 toast、写入日志、移除失败脚本并允许重试 |
 | 产品信息页与排行榜分析 | `docs/suggestions/module-reviews/product-info-pages-and-rankings.md` | 新增 AI 导航状态元数据、鉴赏页占位符/JSON-LD、赞助目标数据源和进度语义等 7 项建议 |
 | 浏览器与视觉冒烟分析 | `docs/suggestions/module-reviews/browser-visual-smoke-testing.md` | 记录真实浏览器 smoke、HTTP smoke、响应式截图、权限 API 和 CI artifact 6 项建议；配套静态/i18n/performance/workflow 测试 35/35 通过 |
+| 内容新鲜度与信任信号分析 | `docs/suggestions/module-reviews/content-freshness-and-trust-signals.md` | 新增 sitemap lastmod、文章最后更新、搜索新鲜度、RSS 更新策略、旧文状态和就近反馈 6 项建议 |
+| 按钮可访问名称测试修复 | `tests/i18n-a11y.test.mjs`, `docs/suggestions/module-reviews/browser-visual-smoke-testing.md` | 用 JSDOM 解析按钮并计算 `aria-labelledby` / `aria-label` / `title` / 文本名称，替代空转的开始标签正则检查 |
 
 ### 验证
 
@@ -240,6 +243,7 @@
 - `node --test tests/tools.test.mjs tests/tools-core-deep.test.mjs`：73/73 通过
 - `node --test tests/tools.test.mjs tests/templates.test.mjs tests/templates-extended.test.mjs tests/security-extended.test.mjs tests/css.test.mjs`：132/132 通过
 - `node --test tests/i18n-a11y.test.mjs tests/performance.test.mjs tests/workflows.test.mjs`：35/35 通过
+- `node --test tests/i18n-a11y.test.mjs`：16/16 通过
 - `node --test tests/share.test.mjs tests/subscribe.test.mjs tests/subscribe-deep.test.mjs tests/feedback.test.mjs tests/giscus-behavior.test.mjs tests/share-subscribe-feedback-deep.test.mjs`：70/70 通过
 - `node --test tests/blog.test.mjs tests/search-loader-behavior.test.mjs tests/js-behavior.test.mjs tests/integration.test.mjs tests/links.test.mjs tests/workflows.test.mjs`：80/80 通过
 - `node --test tests/ai-tabs.test.mjs tests/templates.test.mjs tests/templates-extended.test.mjs tests/build-extra.test.mjs tests/css.test.mjs tests/i18n-a11y.test.mjs`：128/128 通过
