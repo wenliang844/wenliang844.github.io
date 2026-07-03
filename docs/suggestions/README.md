@@ -10,10 +10,10 @@
 |------|------|
 | 当前分支 | `codex/autonomous-optimization` |
 | 工作区注意事项 | 本轮包含源码、测试与文档修复；生产验证脚本已修复大测试输出假失败和根目录构建写入副作用 |
-| 质量门禁 | `npm run lint:check` 通过；`npm test` / `npm run test:coverage` 786/786 通过；`npm run test:http-smoke` 6/6 路由通过；`npm run test:browser-smoke` 通过 |
+| 质量门禁 | `npm run lint:check` 通过；`npm test` / `npm run test:coverage` 788/788 通过；`npm run test:http-smoke` 6/6 路由通过；`npm run test:browser-smoke` 通过 |
 | 生产验证 | `npm run validate:production` 34/34 通过 |
 | 依赖审计 | `npm audit --registry=https://registry.npmjs.org --audit-level=moderate` 0 漏洞 |
-| 覆盖率 | 总体 lines 96.72%、branches 83.74%、functions 96.30%，通过阈值 |
+| 覆盖率 | 总体 lines 96.76%、branches 83.95%、functions 96.30%，通过阈值 |
 | 本地服务冒烟 | `/`、`/tools/`、`/post/`、`/search-index.json` 均返回 200 |
 | 第 2 轮深挖 | `js/assistant.js`、`js/tools-core.js`、`tests/assistant*.mjs`、`tests/tools*.mjs` |
 | 第 2 轮行为探测 | Cron 无解表达式 `0 0 31 2 *` 约 127.57ms；普通表达式约 0.19-1.52ms |

@@ -27,6 +27,7 @@ test("CI workflow runs quality gates without write permissions", async () => {
   );
   assert.equal(packageJson.scripts["test:browser-smoke"], "npx --yes --package=playwright node scripts/browser-smoke.mjs");
   assert.equal(packageJson.scripts["test:http-smoke"], "node scripts/http-smoke.mjs");
+  assert.equal(packageJson.scripts["quality:baseline"], "node scripts/write-quality-baseline.mjs");
 
   [
     "npm ci",
@@ -153,4 +154,25 @@ test("browser smoke script covers critical routes, viewports and tool interactio
   assert.match(smokeScript, /navigator\.clipboard\.readText/);
   assert.match(smokeScript, /#gesture-start/);
   assert.match(smokeScript, /\.gesture-consent/);
+});
+
+test("quality baseline script records commands, coverage and git scope", async () => {
+  const packageJson = JSON.parse(await readFile(join(ROOT, "package.json"), "utf8"));
+  const baselineScript = await readFile(join(ROOT, "scripts", "write-quality-baseline.mjs"), "utf8");
+
+  assert.equal(packageJson.scripts["quality:baseline"], "node scripts/write-quality-baseline.mjs");
+  assert.match(baselineScript, /docs\/suggestions\/evidence\/current-quality-baseline\.json/);
+  assert.match(baselineScript, /git",\s*\["status",\s*"--porcelain",\s*"--untracked-files=all"\]/);
+  assert.match(baselineScript, /untrackedFileCount/);
+  assert.match(baselineScript, /untrackedFiles/);
+  assert.match(baselineScript, /npm",\s*args:\s*\["run",\s*"lint:check"\]/);
+  assert.match(baselineScript, /npm",\s*args:\s*\["test"\]/);
+  assert.match(baselineScript, /npm",\s*args:\s*\["run",\s*"test:coverage"\]/);
+  assert.match(baselineScript, /npm",\s*args:\s*\["run",\s*"test:http-smoke"\]/);
+  assert.match(baselineScript, /npm",\s*args:\s*\["run",\s*"test:browser-smoke"\]/);
+  assert.match(baselineScript, /npm",\s*args:\s*\["run",\s*"validate:production"\]/);
+  assert.match(baselineScript, /function parseCoverageOutput/);
+  assert.match(baselineScript, /all files\\s\*\\\|/);
+  assert.match(baselineScript, /positionalOutput\s*=\s*argv\.find/);
+  assert.match(baselineScript, /scope:\s*"working-tree"/);
 });

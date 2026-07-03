@@ -17,6 +17,18 @@ async function htmlFiles() {
   return stdout.trim().split(/\r?\n/).filter(Boolean);
 }
 
+async function trackedFiles() {
+  const { stdout } = await execFileAsync("git", ["ls-files"], { cwd: ROOT, windowsHide: true });
+  return new Set(stdout.trim().split(/\r?\n/).filter(Boolean));
+}
+
+function localAssetPath(ref) {
+  if (/^(?:https?:)?\/\//i.test(ref) || ref.startsWith("data:")) {
+    return "";
+  }
+  return ref.replace(/[?#].*$/, "").replace(/^\//, "");
+}
+
 // ─── HTML 文件大小检查 ─────────────────────────────────────────────────────────
 
 test("HTML files are reasonably sized (under 200KB each)", async () => {
@@ -92,6 +104,29 @@ test("all referenced JS files exist", async () => {
   }
 
   assert.deepEqual(missing, [], "Referenced JS files not found");
+});
+
+test("referenced local CSS and JS files are tracked by git", async () => {
+  const files = await htmlFiles();
+  const tracked = await trackedFiles();
+  const untracked = [];
+
+  for (const file of files) {
+    const html = await readFile(join(ROOT, file), "utf8");
+    const refs = [
+      ...html.matchAll(/href="([^"]+\.css(?:[?#][^"]*)?)"/g),
+      ...html.matchAll(/src="([^"]+\.js(?:[?#][^"]*)?)"/g),
+    ];
+
+    for (const match of refs) {
+      const assetPath = localAssetPath(match[1]);
+      if (assetPath && !tracked.has(assetPath)) {
+        untracked.push(`${file}: ${match[1]}`);
+      }
+    }
+  }
+
+  assert.deepEqual(untracked, [], "Referenced local CSS/JS files not tracked by git");
 });
 
 // ─── favicon 引用 ─────────────────────────────────────────────────────────────

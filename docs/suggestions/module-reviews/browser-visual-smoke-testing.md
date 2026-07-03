@@ -6,7 +6,7 @@
 
 - 本地只读静态服务：`/`、`/tools/`、`/ai/`、`/post/`、`/contact/`、`/trust/` 均返回 200。
 - 页面抽样结果：`/tools/` 约 104900 字符、15 个脚本引用，是当前最需要真实浏览器冒烟覆盖的页面。
-- 自动化测试：`npm run test:http-smoke` 6/6 路由通过；`npm run test:browser-smoke` 覆盖桌面 6 个关键路径、移动端 4 个关键路径和 `/tools/` JSON/随机数、Galaxy Canvas、UUID Clipboard、手势远程运行时确认门闩；`node --test tests/workflows.test.mjs`，8/8 通过；`npm run test:coverage`，786/786 通过。
+- 自动化测试：`npm run test:http-smoke` 6/6 路由通过；`npm run test:browser-smoke` 覆盖桌面 6 个关键路径、移动端 4 个关键路径和 `/tools/` JSON/随机数、Galaxy Canvas、UUID Clipboard、手势远程运行时确认门闩；`node --test tests/workflows.test.mjs`，9/9 通过；`npm run test:coverage`，788/788 通过。
 - 实际发现并修复：真实浏览器 mobile `/post/` 冒烟暴露首个 `h1` 位于默认隐藏的浮动文章目录内，随后静态 a11y 门禁发现 `post/index.html` 存在双 `h1`；已将目录标题改为 `.post-tree-title`，页面保留单一可见 `h1`。
 - 约束说明：真实浏览器 smoke 已作为 `npm run test:browser-smoke` 固化，暂未接入主 CI；待稳定运行一段时间后再考虑 nightly 或单独可选 job。
 

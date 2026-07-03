@@ -7,7 +7,7 @@
 本轮验证：
 
 - `node --test tests/build.test.mjs tests/build-extra.test.mjs tests/integration.test.mjs tests/format.test.mjs tests/performance.test.mjs`：82/82 通过。
-- 扩展组合验证已修复此前 `renderTrustPage()` class 字面量断言脆弱问题；当前聚焦模板/构建/性能/工作流测试 `node --test tests/css.test.mjs tests/templates.test.mjs tests/templates-extended.test.mjs tests/performance.test.mjs tests/build.test.mjs tests/workflows.test.mjs` 108/108 通过，完整 `npm run test:coverage` 786/786 通过。
+- 扩展组合验证已修复此前 `renderTrustPage()` class 字面量断言脆弱问题；当前聚焦模板/构建/性能/工作流测试 `node --test tests/css.test.mjs tests/templates.test.mjs tests/templates-extended.test.mjs tests/performance.test.mjs tests/build.test.mjs tests/workflows.test.mjs` 110/110 通过，完整 `npm run test:coverage` 788/788 通过。
 - 只读扫描当前 `sitemap.xml`、`index.xml`、`robots.txt`、构建脚本和 SEO 相关模板。
 - 本轮只新增 `/docs/suggestions/module-reviews/seo-feed-and-structured-data.md`。
 

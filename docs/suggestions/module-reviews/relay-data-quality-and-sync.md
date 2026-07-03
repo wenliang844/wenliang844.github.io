@@ -2,7 +2,7 @@
 
 > 分析时间：2026-07-04 01:48 +08:00  
 > 分析范围：`data/relay-providers.json`, `scripts/parse-relay.mjs`, `scripts/update-commercial-relay.mjs`, `.github/workflows/relay-commercial-sync.yml`, `js/relay.js`, `js/tools.js`, `src/templates/relay.mjs`, `src/templates/tools.mjs`  
-> 验证命令：`node --test tests/relay.test.mjs`，8/8 通过；`npm run test:coverage`，786/786 通过
+> 验证命令：`node --test tests/relay.test.mjs`，8/8 通过；`npm run test:coverage`，788/788 通过
 
 ## 本轮结论
 
