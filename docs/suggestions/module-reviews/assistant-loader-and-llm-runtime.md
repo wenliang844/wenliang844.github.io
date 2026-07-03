@@ -42,7 +42,7 @@ function assertTrackedByGit(path) {
 
 - 📌 问题/建议标题：用户 API key 会被发送到预置或自填 endpoint，但 UI 缺少域名确认/信任提示
 - 📍 位置：`js/assistant.js:39-58`、`js/assistant.js:449-489`、`js/assistant.js:780-838`、`src/templates/layout.mjs:39-49`
-- 📝 当前状况描述：默认 OpenAI-compatible preset 指向 `https://muyuan.do/v1/responses`，Anthropic 旧 preset 仍在迁移逻辑中出现；自定义 endpoint 只做字符串 trim 和路径拼接。CSP 使用 `connect-src 'self' https:` 以兼容自定义请求，这意味着一旦用户填入 API key，前端可以把 key 发往任意 HTTPS 域名。当前隐私文案说明“请求你配置的中转站”，但没有在发送前突出显示实际 host、协议和路径，也没有“首次信任此 endpoint”的确认。
+- 📝 当前状况描述：默认 OpenAI-compatible preset 指向 `https://muyuan.do/v1/responses`，Anthropic 旧 preset 仍在迁移逻辑中出现；自定义 endpoint 只做字符串 trim 和路径拼接。CSP 使用 `connect-src 'self' https: http:` 以兼容自定义请求和 API Tester 本机/内网调试，这意味着一旦用户填入 API key，前端可以把 key 发往任意 HTTPS 域名。当前隐私文案说明“请求你配置的中转站”，但没有在发送前突出显示实际 host、协议和路径，也没有“首次信任此 endpoint”的确认。
 - ⚠️ 影响程度：高
 - 💡 建议方案（含伪代码或示例片段）：
 
@@ -69,7 +69,7 @@ function confirmEndpointTrust(url) {
 默认 preset 也建议展示“将请求到 muyuan.do”的明确提示；更稳妥的长期方案是把公共体验或推荐 relay 迁到服务端代理，前端只保存用户显式选择。
 
 - 📊 预期收益：让用户在提交 key 前理解真实数据流，降低钓鱼式 endpoint、误填代理地址和第三方 relay 信任不透明带来的凭据风险。
-- 🔗 相关建议引用：`docs/suggestions/security-audit.md#s-14-ai-助手对话和-llm-上下文长期留存在-localstorage`、`docs/suggestions/module-reviews/user-data-entrypoints.md#mr-data-06全站-csp-的-connect-src-https-对普通页面过宽`。
+- 🔗 相关建议引用：`docs/suggestions/security-audit.md#s-14-已修复核心风险-ai-助手对话和-llm-上下文长期留存在-localstorage`、`docs/suggestions/module-reviews/user-data-entrypoints.md#mr-data-06全站-csp-的-connect-src-https-对普通页面过宽`。
 
 ### 3. API key 默认长期保存在 `localStorage`
 
@@ -102,7 +102,7 @@ function withEffectiveApiKey(config) {
 UI 层增加“记住 API key”复选框，默认关闭；再提供“一键清除本机 key 和对话”的按钮。
 
 - 📊 预期收益：保留便捷配置，同时让默认隐私边界更安全；用户可以临时试用 LLM 模式而不把 key 长期留在浏览器。
-- 🔗 相关建议引用：`docs/suggestions/module-reviews/assistant-deep-dive.md#mr-ast-04-对话持久化缺少生命周期和隐私控制`、`docs/suggestions/security-audit.md#s-14-ai-助手对话和-llm-上下文长期留存在-localstorage`。
+- 🔗 相关建议引用：`docs/suggestions/module-reviews/assistant-deep-dive.md#mr-ast-04-已修复核心风险-对话持久化缺少生命周期和隐私控制`、`docs/suggestions/security-audit.md#s-14-已修复核心风险-ai-助手对话和-llm-上下文长期留存在-localstorage`。
 
 ### 4. 对话条数有限，但单条内容和写入失败没有用户反馈
 

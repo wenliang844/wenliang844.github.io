@@ -207,17 +207,21 @@ test("committed HTML files include the shared Content Security Policy", async ()
     }
 
     const policy = match[1];
+    const connectDirective = policy.match(/(?:^|; )connect-src ([^;]+)/)?.[1] || "";
     for (const directive of [
       "default-src 'self'",
       "object-src 'none'",
       "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://giscus.app https://cdn.jsdelivr.net",
       "style-src 'self' 'unsafe-inline' https://giscus.app",
-      "connect-src 'self' https:",
       "frame-src https://giscus.app",
     ]) {
       if (!policy.includes(directive)) {
         incomplete.push(`${file}: missing ${directive}`);
       }
+    }
+    const expectedConnect = file === "tools/index.html" ? "'self' https: http:" : "'self' https:";
+    if (connectDirective !== expectedConnect) {
+      incomplete.push(`${file}: expected connect-src ${expectedConnect}, got ${connectDirective || "<missing>"}`);
     }
   }
 

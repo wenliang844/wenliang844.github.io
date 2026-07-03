@@ -53,7 +53,7 @@
 ### 📌 S-13: 手势工具运行时加载 CDN 机器视觉脚本和模型，缺少完整供应链约束
 
 - **📍 位置**：`js/gesture.js:160-167`, `js/gesture.js:213-216`, `js/gesture.js:223-229`, `js/gesture.js:258-265`, `src/templates/layout.mjs:39-50`, `src/templates/tools.mjs:865-868`
-- **📝 当前状况描述**：手势工具运行时从 `cdn.jsdelivr.net`、`storage.googleapis.com` 加载 MediaPipe、face-api、Three.js、WASM 和模型文件；CSP 也为工具页放开了 `script-src https://cdn.jsdelivr.net`、`connect-src https:` 与 `wasm-unsafe-eval`。虽然摄像头帧处理在浏览器端执行，但第三方脚本一旦被供应链污染，就具备读取页面状态和摄像头处理数据的能力。
+- **📝 当前状况描述**：手势工具运行时从 `cdn.jsdelivr.net`、`storage.googleapis.com` 加载 MediaPipe、face-api、Three.js、WASM 和模型文件；CSP 也为工具页放开了 `script-src https://cdn.jsdelivr.net`、`connect-src https: http:` 与 `wasm-unsafe-eval`。虽然摄像头帧处理在浏览器端执行，但第三方脚本一旦被供应链污染，就具备读取页面状态和摄像头处理数据的能力。
 - **⚠️ 影响程度**：中
 - **💡 建议方案**：
   ```text
@@ -67,7 +67,7 @@
 - **📊 预期收益**：减少第三方供应链风险，提升摄像头功能的隐私可信度，并让离线/弱网体验更可控。
 - **🔗 相关建议引用**：[S-06](#s-06-第三方脚本缺少-subresource-integrity-sri-校验), [P-14](performance-bottlenecks.md#p-14-手势工具首次启动依赖远程模型链路弱网下冷启动不可控)
 
-### 📌 S-14: AI 助手对话和 LLM 上下文长期留存在 localStorage
+### 📌 S-14 [已修复核心风险]: AI 助手对话和 LLM 上下文长期留存在 localStorage
 
 - **📍 位置**：`js/assistant.js:34`, `js/assistant.js:130-145`, `js/assistant.js:220-243`, `js/assistant.js:1104-1108`, `js/assistant.js:1454-1478`
 - **✅ 修复状态**：AI 助手已增加隐私模式、历史保留期限（仅本次会话 / 7 天 / 30 天 / 永久）和“清空全部对话”入口；隐私模式与 session 保留不会写入 `cwl.assistant.conversations` / `cwl.assistant.activeConversation`，保留期限会清理过期对话。
@@ -216,7 +216,7 @@
   ```html
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' 'unsafe-inline' https://giscus.app; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https:; frame-src https://giscus.app; form-action 'self' https://buttondown.com https://api.web3forms.com">
   ```
-  说明：`connect-src` 保留 `https:` 以兼容 AI 助手用户自定义 HTTPS API 端点；`style-src 'unsafe-inline'` 用于兼容现有运行时样式属性。`frame-ancestors` 不能通过 meta CSP 生效，未来若迁移到可配置 HTTP header 的托管平台，可在响应头中补充。
+  说明：普通页面 `connect-src` 保留 `https:` 以兼容 AI 助手用户自定义 HTTPS API 端点；工具页通过页面级 CSP 单独放宽到 `connect-src 'self' https: http:`，用于 API Tester 在用户显式勾选后调试本机/内网/非 HTTPS 目标。`style-src 'unsafe-inline'` 用于兼容现有运行时样式属性。`frame-ancestors` 不能通过 meta CSP 生效，未来若迁移到可配置 HTTP header 的托管平台，可在响应头中补充。
 
 - **📊 实际收益**：限制默认资源加载来源，禁止插件对象加载，约束 giscus iframe 和表单提交目标，降低 XSS 后续扩展面。
 - **🔗 相关建议**：[S-01](#s-01), [TD-02](tech-debt.md#td-02)

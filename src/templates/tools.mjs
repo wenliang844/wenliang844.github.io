@@ -160,6 +160,9 @@ ${toolHeader(tool)}
             <label class="tool-inline"><span data-i18n="tools.label.saveBody">保存请求体</span>
               <input id="api-save-body-history" type="checkbox">
             </label>
+            <label class="tool-inline"><span data-i18n="tools.label.allowRiskyApiTarget">允许本机/内网/非 HTTPS 请求</span>
+              <input id="api-allow-risky-target" type="checkbox">
+            </label>
             <label class="tool-inline"><span data-i18n="tools.label.history">历史</span>
               <select id="api-history">
                 <option value="" data-i18n="tools.api.noHistory">暂无历史</option>
@@ -1051,6 +1054,7 @@ ${panels}
     descriptionEn: "CWLBlog online toolbox: Mini Postman, JSON, timestamps, Base64, URL, UUID, JWT, hashes, passwords, colors, regex, Markdown editor, diff, cron, QR, YAML, URL parsing, text tools and gesture animation.",
     active: "tools",
     page: "tools",
+    connectSrc: "'self' https: http:",
     scripts: ["/js/vendor/marked.min.js", "/js/vendor/purify.min.js", "/js/vendor/qrcode.min.js", "/js/vendor/highlight.min.js", "/js/tools-core.js", "/js/tools.js", "/js/editor.js"],
     jsonLd: buildPageJsonLd({
       type: "WebApplication",

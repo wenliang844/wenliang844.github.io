@@ -5,6 +5,7 @@ import { escapeAttr, escapeHtml, escapeXml } from "../src/lib/format.mjs";
 import { renderPage } from "../src/templates/layout.mjs";
 import { renderPostPage } from "../src/templates/post.mjs";
 import { renderTagsPage } from "../src/templates/tags.mjs";
+import { renderToolsPage } from "../src/templates/tools.mjs";
 
 test("escape helpers protect text and attribute contexts", () => {
   assert.equal(escapeHtml(`<script>"x"&'y'</script>`), "&lt;script&gt;&quot;x&quot;&amp;&#39;y&#39;&lt;/script&gt;");
@@ -43,6 +44,7 @@ test("layout escapes title and metadata", () => {
   assert.match(html, /style-src 'self' 'unsafe-inline' https:\/\/giscus\.app/);
   assert.match(html, /frame-src https:\/\/giscus\.app/);
   assert.match(html, /connect-src 'self' https:/);
+  assert.doesNotMatch(html, /connect-src 'self' https: http:/);
   assert.match(html, /<link rel="preconnect" href="https:\/\/giscus\.app">/);
   assert.match(html, /<link rel="dns-prefetch" href="https:\/\/giscus\.app">/);
   assert.match(html, /<link rel="preconnect" href="https:\/\/buttondown\.com">/);
@@ -50,6 +52,13 @@ test("layout escapes title and metadata", () => {
   assert.match(html, /<link rel="dns-prefetch" href="https:\/\/www\.ifdian\.net">/);
   assert.match(html, /<link rel="dns-prefetch" href="https:\/\/paypal\.me">/);
   assert.match(html, /<label class="menu-overlay" for="menu-toggle" aria-hidden="true"><\/label>/);
+});
+
+test("tools page widens connect-src only for explicit API tester targets", () => {
+  const html = renderToolsPage();
+
+  assert.match(html, /connect-src 'self' https: http:/);
+  assert.match(html, /id="api-allow-risky-target"/);
 });
 
 test("layout deduplicates core and page scripts", () => {

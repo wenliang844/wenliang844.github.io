@@ -615,6 +615,65 @@ test("assistant sends the default OpenAI preset with a user key and flushes fina
   assert.match(document.querySelector(".assistant-messages").textContent, /pong!/);
 });
 
+test("assistant distinguishes request timeout from manual stop", async () => {
+  const calls = [];
+  const dom = await loadAssistant({
+    fetch: async (url, init) => {
+      calls.push({ url, init });
+      return new Promise((resolve, reject) => {
+        init.signal.addEventListener("abort", () => {
+          reject(init.signal.reason || new dom.window.DOMException("aborted", "AbortError"));
+        }, { once: true });
+      });
+    },
+  });
+  const { document, Event } = dom.window;
+  const nativeSetTimeout = dom.window.setTimeout.bind(dom.window);
+  dom.window.setTimeout = (callback, ms, ...args) => nativeSetTimeout(callback, ms === 60000 ? 1 : ms, ...args);
+
+  document.querySelector('[data-assistant-mode="llm"]').click();
+  document.querySelector(".assistant-api-key").value = "sk-user-owned-key";
+  const input = document.querySelector(".assistant-input");
+  input.value = "你好";
+  document.querySelector(".assistant-form").dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+
+  await wait(30);
+
+  assert.equal(calls.length, 1);
+  assert.match(document.querySelector(".assistant-messages").textContent, /请求超时，请稍后重试或切换中转站。/);
+  assert.doesNotMatch(document.querySelector(".assistant-messages").textContent, /已停止生成。/);
+});
+
+test("assistant reports manual generation stop without using timeout copy", async () => {
+  const calls = [];
+  const dom = await loadAssistant({
+    fetch: async (url, init) => {
+      calls.push({ url, init });
+      return new Promise((resolve, reject) => {
+        init.signal.addEventListener("abort", () => {
+          reject(init.signal.reason || new dom.window.DOMException("aborted", "AbortError"));
+        }, { once: true });
+      });
+    },
+  });
+  const { document, Event } = dom.window;
+
+  document.querySelector('[data-assistant-mode="llm"]').click();
+  document.querySelector(".assistant-api-key").value = "sk-user-owned-key";
+  const input = document.querySelector(".assistant-input");
+  const form = document.querySelector(".assistant-form");
+  input.value = "你好";
+  form.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+  await wait();
+
+  form.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+  await wait();
+
+  assert.equal(calls.length, 1);
+  assert.match(document.querySelector(".assistant-messages").textContent, /已停止生成。/);
+  assert.doesNotMatch(document.querySelector(".assistant-messages").textContent, /请求超时/);
+});
+
 test("assistant defaults to local site mode while keeping the OpenAI preset ready", async () => {
   const calls = [];
   const dom = await loadAssistant();

@@ -43,6 +43,8 @@
     "30d": 30,
   };
   const REQUEST_TIMEOUT_MS = 60000;
+  const LLM_TIMEOUT_MESSAGE = "请求超时，请稍后重试或切换中转站。";
+  const LLM_STOPPED_MESSAGE = "已停止生成。";
   const OPENAI_DEFAULT_ENDPOINT = "https://muyuan.do/v1/responses";
   const LEGACY_OPENAI_DEFAULT_ENDPOINT = "https://free.lyclaude.site/v1/responses";
   const LEGACY_OPENAI_FC_ENDPOINT = "https://a-ocnfniawgw.cn-shanghai.fcapp.run/v1";
@@ -720,14 +722,35 @@
     return result;
   }
 
+  function createLlmAbortError(name, message) {
+    if (typeof DOMException === "function") {
+      return new DOMException(message, name);
+    }
+    const error = new Error(message);
+    error.name = name;
+    return error;
+  }
+
   function withTimeout(parentSignal) {
     const controller = new AbortController();
+    let timedOut = false;
+    function abort(reason) {
+      try {
+        controller.abort(reason);
+      } catch (_error) {
+        controller.abort();
+      }
+    }
     const timer = window.setTimeout(function () {
-      controller.abort();
+      timedOut = true;
+      abort(createLlmAbortError("TimeoutError", "timeout"));
     }, REQUEST_TIMEOUT_MS);
     if (parentSignal) {
+      if (parentSignal.aborted) {
+        abort(parentSignal.reason || createLlmAbortError("AbortError", "aborted"));
+      }
       parentSignal.addEventListener("abort", function () {
-        controller.abort();
+        abort(parentSignal.reason || createLlmAbortError("AbortError", "aborted"));
       }, { once: true });
     }
     return {
@@ -735,12 +758,18 @@
       clear: function () {
         window.clearTimeout(timer);
       },
+      timedOut: function () {
+        return timedOut;
+      },
     };
   }
 
   function normalizeLlmError(error) {
+    if (error && error.name === "TimeoutError") {
+      return LLM_TIMEOUT_MESSAGE;
+    }
     if (error && error.name === "AbortError") {
-      return "已停止生成。";
+      return LLM_STOPPED_MESSAGE;
     }
     const status = error && error.status;
     if (status === 401 || status === 403) {
@@ -892,6 +921,11 @@
         ? await callAnthropic(config, history, timeout.signal, onDelta)
         : await callOpenAi(config, history, timeout.signal, onDelta);
       return result || "";
+    } catch (error) {
+      if (timeout.timedOut() && error && (error.name === "AbortError" || error.name === "TimeoutError")) {
+        throw createLlmAbortError("TimeoutError", "timeout");
+      }
+      throw error;
     } finally {
       timeout.clear();
     }
@@ -1664,7 +1698,7 @@
         });
         const finalText = received || answerText || "中转站没有返回文本内容。";
         updateMessage(botMessage, finalText, conversation);
-        if (finalText !== "已停止生成。") {
+        if (finalText !== LLM_STOPPED_MESSAGE) {
           conversation.llmHistory.push({ role: "assistant", content: finalText });
           conversation.llmHistory = conversation.llmHistory.slice(-12);
           touchConversation(conversation);

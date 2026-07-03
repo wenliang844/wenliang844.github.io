@@ -1174,16 +1174,25 @@
     if (!/^\$/.test(rawPath)) {
       return fail("JSONPath 需要以 $ 开头", "jsonPath");
     }
-    const tokens = rawPath.match(/(?:\.[A-Za-z_$][\w$-]*)|(?:\[['"][^'"]+['"]\])|(?:\[\d+\])/g) || [];
+    const tokenPattern = /(?:\.([A-Za-z_$][\w$-]*))|(?:\[['"]([^'"]+)['"]\])|(?:\[(\d+)\])/g;
     let cursor = parsed.value;
-    for (const token of tokens) {
-      const key = token.charAt(0) === "."
-        ? token.slice(1)
-        : token.replace(/^\[['"]?/, "").replace(/['"]?\]$/, "");
-      cursor = cursor && cursor[key];
-      if (cursor === undefined) {
+    let index = 1;
+    while (index < rawPath.length) {
+      tokenPattern.lastIndex = index;
+      const match = tokenPattern.exec(rawPath);
+      if (!match || match.index !== index) {
+        return fail("JSONPath 包含暂不支持的语法片段", "jsonPathSyntax");
+      }
+      const key = match[1] !== undefined ? match[1] : match[2] !== undefined ? match[2] : match[3];
+      if (
+        cursor === null ||
+        cursor === undefined ||
+        !Object.prototype.hasOwnProperty.call(Object(cursor), key)
+      ) {
         return fail("路径没有匹配到值", "jsonPath");
       }
+      cursor = cursor[key];
+      index = tokenPattern.lastIndex;
     }
     return ok(JSON.stringify(cursor, null, 2));
   }

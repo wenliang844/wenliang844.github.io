@@ -36,6 +36,8 @@ const RESOURCE_HINTS = [
   { rel: "dns-prefetch", href: "https://paypal.me" },
 ];
 
+const DEFAULT_CONNECT_SRC = "'self' https:";
+
 const CONTENT_SECURITY_POLICY = [
   "default-src 'self'",
   "base-uri 'self'",
@@ -44,10 +46,17 @@ const CONTENT_SECURITY_POLICY = [
   "style-src 'self' 'unsafe-inline' https://giscus.app",
   "img-src 'self' data: https:",
   "font-src 'self' data:",
-  "connect-src 'self' https:",
+  `connect-src ${DEFAULT_CONNECT_SRC}`,
   "frame-src https://giscus.app",
   "form-action 'self' https://buttondown.com https://api.web3forms.com",
 ].join("; ");
+
+function renderContentSecurityPolicy(connectSrc = DEFAULT_CONNECT_SRC) {
+  return CONTENT_SECURITY_POLICY.replace(
+    `connect-src ${DEFAULT_CONNECT_SRC}`,
+    `connect-src ${connectSrc}`,
+  );
+}
 
 const CORE_SCRIPTS = [
   "/js/error-handler.js",
@@ -184,6 +193,7 @@ export function buildPageJsonLd({ type = "WebPage", name, description, path, ...
  * @param {string} opts.page         用于 i18n head 切换（如 "home"/"posts"/"tags"），对应 head.title.* / head.desc.* 键
  * @param {string} opts.main         <main> 内部 HTML
  * @param {object} [opts.og]         OG/Twitter 卡片数据 { title, description, path, type? }；省略则不输出
+ * @param {string} [opts.connectSrc] 页面级 CSP connect-src 值；工具页可显式放宽调试请求
  */
 export function renderPage(opts) {
   const {
@@ -198,6 +208,7 @@ export function renderPage(opts) {
     main,
     og,
     jsonLd,
+    connectSrc = DEFAULT_CONNECT_SRC,
   } = opts;
 
   const allScripts = [...new Set([...CORE_SCRIPTS, ...scripts])];
@@ -218,7 +229,7 @@ export function renderPage(opts) {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta http-equiv="Content-Security-Policy" content="${escapeAttr(CONTENT_SECURITY_POLICY)}">
+  <meta http-equiv="Content-Security-Policy" content="${escapeAttr(renderContentSecurityPolicy(connectSrc))}">
   <meta name="description" content="${escapeAttr(description)}">
   <link rel="icon" href="/images/favicon.png" type="image/png">
 ${renderResourceHints()}

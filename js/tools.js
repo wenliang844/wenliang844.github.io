@@ -8,6 +8,9 @@
   const timeResults = {};
   let nowTimer = null;
   const API_HISTORY_KEY = "cwl.tools.apiHistory";
+  const API_REQUEST_TIMEOUT_MS = 15000;
+  const API_RESPONSE_CHAR_LIMIT = 500000;
+  const REGEX_WORKER_TIMEOUT_MS = 250;
   let relayProviders = [];
   const TOOL_RUNTIME_SCRIPTS = {
     galaxy: ["/js/galaxy.js"],
@@ -664,6 +667,50 @@
     }
   }
 
+  function runRegexTest(pattern, flags, input, onDone) {
+    if (typeof window.Worker !== "function") {
+      onDone(core.testRegex(pattern, flags, input));
+      return;
+    }
+
+    let worker;
+    try {
+      worker = new window.Worker("/js/regex-worker.js");
+    } catch (_error) {
+      onDone(core.testRegex(pattern, flags, input));
+      return;
+    }
+
+    let finished = false;
+    function finish(result) {
+      if (finished) {return;}
+      finished = true;
+      window.clearTimeout(timeoutId);
+      try { worker.terminate(); } catch (_error) { /* ignore worker cleanup failures */ }
+      onDone(result);
+    }
+
+    let timeoutId = 0;
+    timeoutId = window.setTimeout(function () {
+      finish({
+        ok: false,
+        error: "正则执行超时，请简化表达式或缩短测试文本",
+        code: "regexTimeout",
+      });
+    }, REGEX_WORKER_TIMEOUT_MS);
+
+    worker.onmessage = function (event) {
+      const result = event.data && typeof event.data === "object"
+        ? event.data
+        : { ok: false, error: "正则 Worker 返回结果无效", code: "regexWorker" };
+      finish(result);
+    };
+    worker.onerror = function () {
+      finish({ ok: false, error: "正则 Worker 执行失败", code: "regexWorker" });
+    };
+    worker.postMessage({ pattern: pattern, flags: flags, input: input });
+  }
+
   function renderColorPalette(colors) {
     const palette = document.getElementById("color-palette");
     if (!palette) {
@@ -694,9 +741,11 @@
 
   function setApiHistory(items) {
     try {
-      window.localStorage.setItem(API_HISTORY_KEY, JSON.stringify(items.slice(0, 20)));
+      const next = JSON.stringify(items.slice(0, 20));
+      window.localStorage.setItem(API_HISTORY_KEY, next);
+      return window.localStorage.getItem(API_HISTORY_KEY) === next;
     } catch (_error) {
-      // Ignore storage quota or privacy-mode failures.
+      return false;
     }
   }
 
@@ -803,7 +852,10 @@
       return !(item.method === historyItem.method && item.url === historyItem.url && item.headers === historyItem.headers && item.body === historyItem.body);
     });
     history.unshift(historyItem);
-    setApiHistory(history);
+    if (!setApiHistory(history)) {
+      setStatusError("api-status", { ok: false, error: "请求未保存：浏览器阻止了本地历史写入", code: "apiHistorySave" });
+      return false;
+    }
     renderApiHistory();
     setStatusKey("api-status", "tools.status.savedSafe", "请求已安全保存", "ok");
     return true;
@@ -852,13 +904,79 @@
     return headers;
   }
 
+  function apiTargetRisk(url) {
+    const parsed = new URL(url);
+    const host = parsed.hostname.toLowerCase().replace(/^\[|\]$/g, "");
+    if (
+      host === "localhost" ||
+      host === "::1" ||
+      host === "0.0.0.0" ||
+      /^127\./.test(host) ||
+      host.endsWith(".local")
+    ) {
+      return "local";
+    }
+    if (
+      /^10\./.test(host) ||
+      /^192\.168\./.test(host) ||
+      /^172\.(1[6-9]|2\d|3[0-1])\./.test(host) ||
+      /^169\.254\./.test(host) ||
+      /^f[cd][0-9a-f]{2}:/i.test(host) ||
+      /^fe80:/i.test(host)
+    ) {
+      return "private";
+    }
+    return parsed.protocol === "http:" ? "insecure" : "";
+  }
+
   function formatApiBody(body) {
-    if (body.length > 500000) {return body;} /* skip pretty-print for large responses */
+    if (body.length > API_RESPONSE_CHAR_LIMIT) {return body;} /* skip pretty-print for large responses */
     try {
       return JSON.stringify(JSON.parse(body), null, 2);
     } catch (_error) {
       return body;
     }
+  }
+
+  function apiHeaderValue(headers, name) {
+    if (!headers || typeof headers.get !== "function") {
+      return "";
+    }
+    return headers.get(name) || headers.get(name.toLowerCase()) || "";
+  }
+
+  function readApiResponseBody(response) {
+    const contentLength = Number(apiHeaderValue(response.headers, "content-length"));
+    if (Number.isFinite(contentLength) && contentLength > API_RESPONSE_CHAR_LIMIT) {
+      return Promise.resolve({
+        body: "",
+        skipped: true,
+        truncated: true,
+        size: contentLength,
+      });
+    }
+    return response.text().then(function (body) {
+      if (body.length <= API_RESPONSE_CHAR_LIMIT) {
+        return { body: body, skipped: false, truncated: false, size: body.length };
+      }
+      return {
+        body: body.slice(0, API_RESPONSE_CHAR_LIMIT),
+        skipped: false,
+        truncated: true,
+        size: body.length,
+      };
+    });
+  }
+
+  function apiBodyOutput(data) {
+    if (data.skipped) {
+      return "响应正文超过 " + API_RESPONSE_CHAR_LIMIT + " 字符，已跳过读取。";
+    }
+    const body = formatApiBody(data.body);
+    if (!data.truncated) {
+      return body;
+    }
+    return body + "\n\n[响应已截断，仅显示前 " + API_RESPONSE_CHAR_LIMIT + " 字符]";
   }
 
   function sendApiRequest() {
@@ -872,6 +990,10 @@
       const parsed = new URL(request.url);
       if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
         setStatusError("api-status", { ok: false, error: "仅支持 http:// 和 https:// 协议", code: "apiScheme" });
+        return;
+      }
+      if (apiTargetRisk(request.url) && !checked("api-allow-risky-target")) {
+        setStatusError("api-status", { ok: false, error: "目标是本机、内网或非 HTTPS 地址，请先勾选允许后再发送", code: "apiRiskyTarget" });
         return;
       }
     } catch (_e) {
@@ -893,15 +1015,21 @@
     const startedAt = Date.now();
     /* Cancel previous in-flight request */
     if (apiAbortController) { try { apiAbortController.abort(); } catch (_e) { /* */ } }
-    apiAbortController = new AbortController();
-    const init = { method: method, headers: headers, signal: apiAbortController.signal };
+    const requestController = new AbortController();
+    apiAbortController = requestController;
+    let timeoutFired = false;
+    const timeoutId = window.setTimeout(function () {
+      timeoutFired = true;
+      requestController.abort();
+    }, API_REQUEST_TIMEOUT_MS);
+    const init = { method: method, headers: headers, signal: requestController.signal };
     if (method !== "GET" && method !== "HEAD" && request.body) {
       init.body = request.body;
     }
     value("api-response", "");
     setStatusKey("api-status", "tools.status.processing", "处理中", "");
     window.fetch(request.url, init).then(function (response) {
-      return response.text().then(function (body) {
+      return readApiResponseBody(response).then(function (bodyData) {
         const headerLines = [];
         if (response.headers && typeof response.headers.forEach === "function") {
           response.headers.forEach(function (headerValue, key) {
@@ -917,15 +1045,31 @@
           headerLines.length ? headerLines.join("\n") : "(none)",
           "",
           "Body:",
-          formatApiBody(body),
+          apiBodyOutput(bodyData),
         ].join("\n"));
-        saveApiRequest();
-        setStatusKey("api-status", "tools.status.sentSafe", "请求完成，历史已脱敏保存", response.ok ? "ok" : "error");
+        const saved = saveApiRequest();
+        if (saved) {
+          setStatusKey(
+            "api-status",
+            bodyData.truncated ? "tools.status.responseTruncated" : "tools.status.sentSafe",
+            bodyData.truncated ? "请求完成，响应过大已限制显示，历史已脱敏保存" : "请求完成，历史已脱敏保存",
+            response.ok && !bodyData.truncated ? "ok" : "error",
+          );
+        } else {
+          setStatusError("api-status", { ok: false, error: "请求完成，但浏览器阻止了本地历史写入", code: "apiHistorySave" });
+        }
       });
     }).catch(function (error) {
+      if (error.name === "AbortError" && timeoutFired) {
+        value("api-response", "请求超时: " + API_REQUEST_TIMEOUT_MS + " ms");
+        setStatusError("api-status", { ok: false, error: "请求超时，请检查目标服务或缩小响应内容", code: "apiTimeout" });
+        return;
+      }
       if (error.name === "AbortError") {return;}
       value("api-response", "请求失败: " + error.message);
       setStatusError("api-status", { ok: false, error: "请求失败：" + error.message, code: "apiRequest" });
+    }).finally(function () {
+      window.clearTimeout(timeoutId);
     });
   }
 
@@ -1146,9 +1290,12 @@
     }
 
     if (closest(event.target, "[data-api-clear-history]")) {
-      setApiHistory([]);
-      renderApiHistory();
-      setStatusKey("api-status", "tools.status.cleared", "历史已清空", "ok");
+      if (setApiHistory([])) {
+        renderApiHistory();
+        setStatusKey("api-status", "tools.status.cleared", "历史已清空", "ok");
+      } else {
+        setStatusError("api-status", { ok: false, error: "历史清空失败：浏览器阻止了本地历史写入", code: "apiHistorySave" });
+      }
       return;
     }
 
@@ -1259,11 +1406,10 @@
     }
 
     if (closest(event.target, "[data-regex-test]")) {
-      applyResult(
-        core.testRegex(inputValue("regex-pattern"), inputValue("regex-flags"), inputValue("regex-input")),
-        "regex-output",
-        "regex-status",
-      );
+      setStatusKey("regex-status", "tools.status.processing", "处理中", "");
+      runRegexTest(inputValue("regex-pattern"), inputValue("regex-flags"), inputValue("regex-input"), function (result) {
+        applyResult(result, "regex-output", "regex-status");
+      });
       return;
     }
 

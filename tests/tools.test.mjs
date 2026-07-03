@@ -133,6 +133,12 @@ async function loadToolsPage(options = {}) {
   if (options.fetch) {
     dom.window.fetch = options.fetch;
   }
+  if (Object.prototype.hasOwnProperty.call(options, "Worker")) {
+    Object.defineProperty(dom.window, "Worker", {
+      configurable: true,
+      value: options.Worker,
+    });
+  }
   dom.window.eval(toolsCode);
   dom.window.eval(editorCode);
   return {
@@ -430,6 +436,8 @@ test("tools core handles the expanded toolbox utilities", async () => {
   const jsonPath = tools.queryJsonPath('{"users":[{"name":"CWL"}]}', "$.users[0].name");
   assert.equal(jsonPath.value, '"CWL"');
   assert.equal(tools.queryJsonPath("{}", "users").code, "jsonPath");
+  assert.equal(tools.queryJsonPath('{"deep":{"value":1}}', "$.deep.value trailing").code, "jsonPathSyntax");
+  assert.equal(tools.queryJsonPath('{"deep":{"value":0}}', "$.deep.value").value, "0");
 
   assert.match(tools.textStats("Hello 世界\nCodex").value, /Lines: 2/);
   assert.equal(tools.cleanText(" b \n\na\n b ", { trim: true, removeEmpty: true, removeDupes: true, sort: true }).value, "a\nb");
@@ -524,6 +532,7 @@ test("tools tabs expose selected state and support keyboard navigation", async (
     assert.equal(document.querySelector("#base64-input").getAttribute("data-i18n-en-ph"), "Text to encode or decode");
     document.querySelector('[data-tool-tab="api"]').click();
     assert.equal(document.querySelector("#api-url").getAttribute("aria-label"), "URL");
+    assert.equal(document.querySelector("#api-allow-risky-target").getAttribute("aria-label"), "允许本机/内网/非 HTTPS 请求");
     document.querySelector('[data-tool-tab="cron"]').click();
     assert.equal(document.querySelector("#cron-minute-step").getAttribute("aria-label"), "分钟间隔");
     document.querySelector('[data-tool-tab="url"]').click();
@@ -765,6 +774,93 @@ test("expanded tools page runs all new tool actions locally", async () => {
   }
 });
 
+test("regex tester runs inside a worker when available", async () => {
+  const workerMessages = [];
+  const workerUrls = [];
+  class FakeWorker {
+    constructor(url) {
+      this.url = url;
+      workerUrls.push(url);
+      this.terminated = false;
+    }
+
+    postMessage(message) {
+      workerMessages.push(message);
+      setTimeout(() => {
+        this.onmessage({
+          data: {
+            ok: true,
+            value: 'Matches: 1\n#1: "a@example.com"',
+          },
+        });
+      }, 0);
+    }
+
+    terminate() {
+      this.terminated = true;
+    }
+  }
+
+  const { dom } = await loadToolsPage({ Worker: FakeWorker });
+  const { document } = dom.window;
+  try {
+    document.querySelector('[data-tool-tab="regex"]').click();
+    document.querySelector("#regex-pattern").value = "(\\w+)@(example\\.com)";
+    document.querySelector("#regex-flags").value = "gi";
+    document.querySelector("#regex-input").value = "a@example.com";
+    document.querySelector("[data-regex-test]").click();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    assert.equal(workerUrls[0], "/js/regex-worker.js");
+    assert.deepEqual(JSON.parse(JSON.stringify(workerMessages[0])), {
+      pattern: "(\\w+)@(example\\.com)",
+      flags: "gi",
+      input: "a@example.com",
+    });
+    assert.match(document.querySelector("#regex-output").value, /Matches: 1/);
+    assert.equal(document.querySelector("#regex-status").classList.contains("is-ok"), true);
+  } finally {
+    dom.window.close();
+  }
+});
+
+test("regex tester times out stalled worker execution", async () => {
+  const terminated = [];
+  class HangingWorker {
+    postMessage() {}
+
+    terminate() {
+      terminated.push(true);
+    }
+  }
+
+  const { dom } = await loadToolsPage({ Worker: HangingWorker });
+  const { document } = dom.window;
+  const originalSetTimeout = dom.window.setTimeout;
+  try {
+    dom.window.setTimeout = function (callback, delay) {
+      if (delay === 250) {
+        callback();
+        return 1;
+      }
+      return originalSetTimeout.call(this, callback, delay);
+    };
+
+    document.querySelector('[data-tool-tab="regex"]').click();
+    document.querySelector("#regex-pattern").value = "(a+)+$";
+    document.querySelector("#regex-input").value = "aaaaaaaaaaaaaaaaaaaa!";
+    document.querySelector("[data-regex-test]").click();
+
+    assert.equal(terminated.length, 1);
+    assert.equal(document.querySelector("#regex-output").value, "");
+    assert.equal(document.querySelector("#regex-status").textContent, "正则执行超时，请简化表达式或缩短测试文本");
+    assert.equal(document.querySelector("#regex-status").classList.contains("is-error"), true);
+  } finally {
+    dom.window.setTimeout = originalSetTimeout;
+    dom.window.close();
+  }
+});
+
 test("mini API tester fills relay presets, sends requests and stores history", async () => {
   const fetchCalls = [];
   const { dom } = await loadToolsPage({
@@ -904,6 +1000,190 @@ test("mini API tester redacts sensitive history by default and saves body only w
     assert.doesNotMatch(history[0].headers, /json-token|json-key/);
     assert.equal(history[0].body, '{"secret":"body-value"}');
   } finally {
+    dom.window.close();
+  }
+});
+
+test("mini API tester reports local history save failures", async () => {
+  const fetchCalls = [];
+  const { dom } = await loadToolsPage({
+    fetch(url, init) {
+      fetchCalls.push({ url: String(url), init });
+      return Promise.resolve({
+        ok: false,
+        status: 500,
+        statusText: "Internal Server Error",
+        url: String(url),
+        headers: new Map(),
+        text: () => Promise.resolve('{"ok":true}'),
+      });
+    },
+  });
+  const { document, localStorage, Storage } = dom.window;
+  const originalSetItem = Storage.prototype.setItem;
+  try {
+    document.querySelector('[data-tool-tab="api"]').click();
+    document.querySelector("#api-method").value = "POST";
+    document.querySelector("#api-url").value = "https://api.example.test/v1/messages";
+    document.querySelector("#api-headers").value = "Authorization: Bearer real-token";
+    document.querySelector("#api-body").value = '{"secret":"body-value"}';
+
+    Storage.prototype.setItem = function (key, value) {
+      if (key === "cwl.tools.apiHistory") {
+        throw new Error("QuotaExceeded");
+      }
+      return originalSetItem.call(this, key, value);
+    };
+
+    document.querySelector("[data-api-save]").click();
+    assert.equal(localStorage.getItem("cwl.tools.apiHistory"), null);
+    assert.equal(
+      document.querySelector("#api-status").textContent,
+      "请求未保存：浏览器阻止了本地历史写入",
+    );
+
+    document.querySelector("[data-api-send]").click();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    assert.equal(fetchCalls.filter((call) => call.url === "https://api.example.test/v1/messages").length, 1);
+    assert.match(document.querySelector("#api-response").value, /Status: 500 Internal Server Error/);
+    assert.equal(
+      document.querySelector("#api-status").textContent,
+      "请求完成，但浏览器阻止了本地历史写入",
+    );
+  } finally {
+    Storage.prototype.setItem = originalSetItem;
+    dom.window.close();
+  }
+});
+
+test("mini API tester requires opt-in for local private or non-HTTPS targets", async () => {
+  const fetchCalls = [];
+  const { dom } = await loadToolsPage({
+    fetch(url, init) {
+      fetchCalls.push({ url: String(url), init });
+      return Promise.resolve({
+        ok: true,
+        status: 200,
+        statusText: "OK",
+        url: String(url),
+        headers: new Map(),
+        text: () => Promise.resolve("pong"),
+      });
+    },
+  });
+  const { document } = dom.window;
+  try {
+    document.querySelector('[data-tool-tab="api"]').click();
+    [
+      "http://api.example.test/ping",
+      "https://192.168.1.20/ping",
+      "https://[fd00::1]/ping",
+      "https://localhost:3000/ping",
+      "https://printer.local/ping",
+    ].forEach((url) => {
+      document.querySelector("#api-url").value = url;
+      document.querySelector("[data-api-send]").click();
+      assert.equal(fetchCalls.filter((call) => call.url === url).length, 0);
+      assert.equal(
+        document.querySelector("#api-status").textContent,
+        "目标是本机、内网或非 HTTPS 地址，请先勾选允许后再发送",
+      );
+    });
+
+    document.querySelector("#api-allow-risky-target").checked = true;
+    document.querySelector("#api-url").value = "http://127.0.0.1:3000/ping";
+    document.querySelector("[data-api-send]").click();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    assert.equal(fetchCalls.filter((call) => call.url === "http://127.0.0.1:3000/ping").length, 1);
+    assert.match(document.querySelector("#api-response").value, /Status: 200 OK/);
+  } finally {
+    dom.window.close();
+  }
+});
+
+test("mini API tester limits oversized responses before reading the body", async () => {
+  let bodyRead = false;
+  const { dom } = await loadToolsPage({
+    fetch(url) {
+      return Promise.resolve({
+        ok: true,
+        status: 200,
+        statusText: "OK",
+        url: String(url),
+        headers: new Map([["content-length", "500001"]]),
+        text: () => {
+          bodyRead = true;
+          return Promise.resolve("x".repeat(500001));
+        },
+      });
+    },
+  });
+  const { document } = dom.window;
+  try {
+    document.querySelector('[data-tool-tab="api"]').click();
+    document.querySelector("#api-url").value = "https://api.example.test/large";
+    document.querySelector("[data-api-send]").click();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    assert.equal(bodyRead, false);
+    assert.match(document.querySelector("#api-response").value, /已跳过读取/);
+    assert.equal(
+      document.querySelector("#api-status").textContent,
+      "请求完成，响应过大已限制显示，历史已脱敏保存",
+    );
+  } finally {
+    dom.window.close();
+  }
+});
+
+test("mini API tester reports request timeout distinctly", async () => {
+  const { dom } = await loadToolsPage({
+    fetch(_url, init) {
+      if (!init || !init.signal) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({ providers: [] }),
+        });
+      }
+      if (init.signal.aborted) {
+        const error = new Error("Aborted");
+        error.name = "AbortError";
+        return Promise.reject(error);
+      }
+      return new Promise((_resolve, reject) => {
+        init.signal.addEventListener("abort", () => {
+          const error = new Error("Aborted");
+          error.name = "AbortError";
+          reject(error);
+        });
+      });
+    },
+  });
+  const { document } = dom.window;
+  const originalSetTimeout = dom.window.setTimeout;
+  try {
+    dom.window.setTimeout = function (callback, delay) {
+      if (delay === 15000) {
+        callback();
+        return 1;
+      }
+      return originalSetTimeout.call(this, callback, delay);
+    };
+
+    document.querySelector('[data-tool-tab="api"]').click();
+    document.querySelector("#api-url").value = "https://api.example.test/slow";
+    document.querySelector("[data-api-send]").click();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    assert.equal(document.querySelector("#api-response").value, "请求超时: 15000 ms");
+    assert.equal(document.querySelector("#api-status").textContent, "请求超时，请检查目标服务或缩小响应内容");
+  } finally {
+    dom.window.setTimeout = originalSetTimeout;
     dom.window.close();
   }
 });

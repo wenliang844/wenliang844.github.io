@@ -69,9 +69,11 @@
 - **📊 实际收益**：降低本地敏感信息长期暴露，增强 AI 助手长期使用的信任基础。
 - **🔗 相关建议引用**：[S-14](../security-audit.md#s-14-已修复核心风险-ai-助手对话和-llm-上下文长期留存在-localstorage), [F-13](../new-features.md#f-13-已完成核心能力-ai-助手增加隐私模式和对话保留策略)
 
-## 📌 MR-AST-05: 请求取消语义需要区分用户停止与超时
+## 📌 MR-AST-05 [已修复]: 请求取消语义需要区分用户停止与超时
 
 - **📍 位置**：`js/assistant.js:652-687`, `js/assistant.js:1461-1481`
+- **✅ 修复状态**：助手请求超时会携带 `TimeoutError`，且在 AbortSignal reason 不可用或流读取退化为 `AbortError` 时通过 `timedOut` 标记重新归一化；手动停止继续走 `AbortError`。
+- **🧪 回归测试**：`tests/assistant.test.mjs` 覆盖“请求超时”和“手动停止生成”两类可见文案。
 - **📝 当前状况描述**：超时和手动停止都通过 abort 进入 `AbortError`，最终都显示“已停止生成。”。这让网络异常的可诊断性偏弱，尤其是中转站链路不稳定时。
 - **⚠️ 影响程度**：低
 - **💡 建议方案**：
@@ -83,5 +85,5 @@
   }, REQUEST_TIMEOUT_MS);
   ```
   在 normalize 前携带 `timedOut` 状态，输出“请求超时”和“已停止生成”两类文案。
-- **📊 预期收益**：帮助用户决定重试、切换 endpoint 或主动缩短 prompt。
+- **📊 实际收益**：帮助用户决定重试、切换 endpoint 或主动缩短 prompt。
 - **🔗 相关建议引用**：[UX-12](../ux-improvements.md#ux-12-ai-助手超时和用户手动停止使用同一错误文案)

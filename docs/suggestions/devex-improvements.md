@@ -45,7 +45,7 @@
 ### 📌 DE-13: 为 AI 助手和 Cron 边界行为补充回归测试
 
 - **📍 位置**：`tests/assistant.test.mjs:1-562`, `tests/assistant-deep.test.mjs:1-335`, `tests/tools-core-deep.test.mjs:258-266`
-- **✅ 修复状态**：AI 助手默认站点模式、保存模式恢复、默认 preset 空 key 不请求、自填 key 才请求、SSE 尾部未闭合事件 flush 均已进入回归测试；生产验证输出缓冲和 Cron 无解表达式性能预算也已补护栏。AbortError 文案区分仍待推进。
+- **✅ 修复状态**：AI 助手默认站点模式、保存模式恢复、默认 preset 空 key 不请求、自填 key 才请求、SSE 尾部未闭合事件 flush、超时/手动停止文案区分均已进入回归测试；生产验证输出缓冲和 Cron 无解表达式性能预算也已补护栏。
 - **📝 当前状况描述**：测试覆盖率总体很高，但第 2 轮发现的部分边界曾缺少测试锁定：`readMode()` 固定返回 LLM、SSE 流结束未处理剩余 buffer、AbortError 无法区分超时和手动停止、Cron 无解表达式耗时无预算断言。
 - **⚠️ 影响程度**：中
 - **💡 建议方案**：
@@ -55,8 +55,8 @@
     // Assert the visible messages explain different causes.
   });
   ```
-  已完成项继续保留在 assistant / tools-core 回归测试中，后续只补剩余 AbortError 语义。
-- **📊 实际收益**：已把 assistant 模式/安全、SSE 尾包、生产验证缓冲和 Cron 慢路径变成可自动阻断的回归条件；剩余 AbortError 文案区分可继续补齐。
+  已完成项继续保留在 assistant / tools-core 回归测试中。
+- **📊 实际收益**：已把 assistant 模式/安全、SSE 尾包、超时/停止语义、生产验证缓冲和 Cron 慢路径变成可自动阻断的回归条件。
 - **🔗 相关建议引用**：[B-15](bugs-and-risks.md#b-15-ai-助手模式偏好写入后不会被恢复), [B-16](bugs-and-risks.md#b-16-ai-助手-sse-流结束时可能丢失最后一个未闭合事件), [P-16](performance-bottlenecks.md#p-16-cron-无解表达式会在主线程同步扫描两年分钟粒度)
 
 ### 📌 DE-15 [已修复]: 生产验证测试输出缓冲不足导致门禁假失败

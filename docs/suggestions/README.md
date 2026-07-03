@@ -10,10 +10,10 @@
 |------|------|
 | 当前分支 | `codex/autonomous-optimization` |
 | 工作区注意事项 | 本轮包含源码、测试与文档修复；生产验证脚本已修复大测试输出下的假失败 |
-| 质量门禁 | `npm run lint:check` 通过；`npm test` 752/752 通过 |
+| 质量门禁 | `npm run lint:check` 通过；`npm test` 765/765 通过 |
 | 生产验证 | `npm run validate:production` 34/34 通过 |
 | 依赖审计 | `npm audit --registry=https://registry.npmjs.org --audit-level=moderate` 0 漏洞 |
-| 覆盖率 | 总体 lines 94.41%、branches 78.30%、functions 91.81%，通过阈值 |
+| 覆盖率 | 总体 lines 94.43%、branches 78.33%、functions 91.84%，通过阈值 |
 | 本地服务冒烟 | `/`、`/tools/`、`/post/`、`/search-index.json` 均返回 200 |
 | 第 2 轮深挖 | `js/assistant.js`、`js/tools-core.js`、`tests/assistant*.mjs`、`tests/tools*.mjs` |
 | 第 2 轮行为探测 | Cron 无解表达式 `0 0 31 2 *` 约 127.57ms；普通表达式约 0.19-1.52ms |
@@ -50,16 +50,21 @@
 - 已完成：B-14 / MR-TOOLS-02 修复工具箱按需 runtime 脚本加载 Promise 过早 resolve 的核心竞态。
 - 已完成：P-16 / MR-CORE-01 为 Cron 不可能日期表达式增加短路和 `<50ms` 回归预算，保留 day-of-month/day-of-week OR 语义。
 - 已完成：S-14 / F-13 为 AI 助手增加隐私模式、历史保留期限和清空全部对话入口，并补英文文案和样式测试。
-- 已完成：B-17 / DE-15 为生产验证测试命令设置专用输出缓冲，避免 752 条测试输出导致 `validate:production` 假失败。
+- 已完成：B-17 / DE-15 为生产验证测试命令设置专用输出缓冲，避免全量测试输出导致 `validate:production` 假失败。
+- 已完成：MR-RT-02 / MR-RT-03 修复 JSONPath 非法尾部部分解析，以及 API Tester 历史保存失败误报成功。
+- 已完成：MR-RT-04 为 API Tester 增加本机/内网/非 HTTPS 请求显式允许开关和回归测试。
+- 已完成：MR-RT-05 为 API Tester 增加请求超时、响应大小预算和大响应跳过/截断反馈。
+- 已完成：MR-RT-01 将正则测试迁移到 Worker 优先执行，并增加 250ms 超时反馈。
+- 已完成：UX-12 / MR-AST-05 区分 AI 助手请求超时和用户手动停止文案，并补回归测试。
 
 ### 当前健康度修正
 
 | 维度 | 2026-06-18 | 2026-07-03 复查 | 说明 |
 |------|------------|------------------|------|
 | 安全性 | 3.5 / 5 | 3.5 / 5 | 前端默认体验 key 与 AI 对话保留核心风险已修复；手势供应链和 UUID 弱随机 fallback 仍需治理 |
-| 工程化 | 4.2 / 5 | 4.0 / 5 | assistant 默认 key、模式恢复、SSE 尾包、Cron 性能预算和生产验证缓冲已补回归；质量门禁写入副作用、通用 DOM 契约仍需推进 |
+| 工程化 | 4.2 / 5 | 4.0 / 5 | assistant 默认 key、模式恢复、SSE 尾包、超时/停止语义、Cron 性能预算和生产验证缓冲已补回归；质量门禁写入副作用、通用 DOM 契约仍需推进 |
 | 性能 | 4.2 / 5 | 3.9 / 5 | 工具页首屏 DOM 已拆到按需挂载，Cron 不可能日期已短路；CSS 单包、工具页 JS 单包和更泛化稀疏表达式优化仍需治理 |
-| 用户体验 | 4.0 / 5 | 4.0 / 5 | AI 助手默认模式、隐私文案、编辑器标签和 QR 预览稳定性已处理；超时反馈仍需推进 |
+| 用户体验 | 4.0 / 5 | 4.0 / 5 | AI 助手默认模式、隐私文案、超时反馈、编辑器标签和 QR 预览稳定性已处理；更细的错误国际化仍需推进 |
 | 综合 | 3.9 / 5 | 3.8 / 5 | 项目整体可稳定运行，剩余高优先级集中在工具 JS/CSS 拆包和供应链治理 |
 
 ---
@@ -105,8 +110,11 @@
 | 🔵 第四 | tools-core 深度分析 | [module-reviews/tools-core.md](module-reviews/tools-core.md) | 5（中 1 / 低 4） |
 | 🔵 第四 | 工具箱运行时安全专题 | [module-reviews/tools-core-runtime-safety.md](module-reviews/tools-core-runtime-safety.md) | 5（中 5） |
 | 🔵 第四 | 视觉交互脚本深度分析 | [module-reviews/visual-interactions.md](module-reviews/visual-interactions.md) | 4（中 4） |
+| 🔵 第四 | 社交分享与评论集成 | [module-reviews/social-comments-integrations.md](module-reviews/social-comments-integrations.md) | 6（中 4 / 低 2） |
+| 🔵 第四 | 内容发现与视觉搜索入口 | [module-reviews/content-discovery-and-object-search.md](module-reviews/content-discovery-and-object-search.md) | 8（中 5 / 低 3） |
+| 🔵 第四 | 产品信息页与排行榜 | [module-reviews/product-info-pages-and-rankings.md](module-reviews/product-info-pages-and-rankings.md) | 7（中 4 / 低 3） |
 | 🔵 第四 | 竞品分析 | [competitive-analysis.md](competitive-analysis.md) | 6 |
-| | **总计** | | **历史 141 条 + 复查新增/更新 61 条** |
+| | **总计** | | **历史 141 条 + 复查新增/更新 82 条** |
 
 ---
 

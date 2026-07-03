@@ -286,7 +286,7 @@ function canUpload() {
 - `security-audit.md` 中关于敏感信息与外发请求的建议。
 - `devex-improvements.md` 中关于可观测性工程化的建议。
 
-## 📌 MR-DATA-06：全站 CSP 的 `connect-src https:` 对普通页面过宽
+## 📌 MR-DATA-06：普通页面 CSP 的 `connect-src https:` 仍偏宽
 
 📍 位置（文件路径 + 行号范围）
 
@@ -297,7 +297,7 @@ function canUpload() {
 
 📝 当前状况描述
 
-模板 CSP 使用 `connect-src 'self' https:`，这允许任意 HTTPS 端点作为 fetch/WebSocket/EventSource 目标。工具箱中的 API 测试器和 AI 助手可能需要较宽的连接能力，但普通文章页、联系页和静态内容页只需要 Buttondown、Web3Forms、Giscus 或站点自身。当前全站共享宽策略会放大 XSS 后的数据外带面。
+普通页面默认 CSP 使用 `connect-src 'self' https:`，这允许任意 HTTPS 端点作为 fetch/WebSocket/EventSource 目标。工具页已通过页面级 CSP 单独放宽到 `connect-src 'self' https: http:`，用于支持用户显式允许后的 API Tester 调试目标；但普通文章页、联系页和静态内容页只需要 Buttondown、Web3Forms、Giscus 或站点自身。普通页面继续共享宽 HTTPS 策略，仍会放大 XSS 后的数据外带面。
 
 ⚠️ 影响程度（高/中/低）
 
@@ -315,7 +315,7 @@ const BASE_CSP = [
 
 const TOOL_CSP = [
   ...BASE_CSP.filter(rule => !rule.startsWith("connect-src")),
-  "connect-src 'self' https:",
+  "connect-src 'self' https: http:",
 ];
 
 renderPage({ csp: active === "tools" ? TOOL_CSP : BASE_CSP });

@@ -20,9 +20,11 @@
 - **📊 预期收益**：让用户在摄像头授权和 API key 输入前理解真实数据流，减少误用与信任落差。
 - **🔗 相关建议引用**：[S-12](security-audit.md#s-12-mini-api-tester-会把-authorization-头和请求体持久化到-localstorage), [S-13](security-audit.md#s-13-手势工具运行时加载-cdn-机器视觉脚本和模型缺少完整供应链约束)
 
-### 📌 UX-12: AI 助手超时和用户手动停止使用同一错误文案
+### 📌 UX-12 [已修复]: AI 助手超时和用户手动停止使用同一错误文案
 
 - **📍 位置**：`js/assistant.js:652-668`, `js/assistant.js:670-687`, `js/assistant.js:1461-1481`
+- **✅ 修复状态**：`withTimeout()` 现在为超时取消附带 `TimeoutError`，并保留 `timedOut` 标记兜底；`normalizeLlmError()` 会把请求超时显示为“请求超时，请稍后重试或切换中转站。”，用户手动停止仍显示“已停止生成。”。
+- **🧪 回归测试**：`tests/assistant.test.mjs` 新增超时与手动停止两条用例，分别模拟 timeout abort 和用户二次提交 stop，确认界面文案不会混淆。
 - **📝 当前状况描述**：`withTimeout()` 超时会调用 `controller.abort()`，用户点击停止也会触发 abort；`normalizeLlmError()` 对所有 `AbortError` 都返回“已停止生成。”。当请求实际因 60 秒超时或网络中断被取消时，用户会误以为自己手动停止了生成，无法判断是否应重试、切换中转站或缩短提示词。
 - **⚠️ 影响程度**：低
 - **💡 建议方案**：
@@ -41,7 +43,7 @@
   }
   ```
   如果目标浏览器不支持 abort reason，可在闭包中维护 `didTimeout` 标志。
-- **📊 预期收益**：让失败反馈更可诊断，减少用户对“停止/超时/网络失败”的困惑。
+- **📊 实际收益**：让失败反馈更可诊断，减少用户对“停止/超时/网络失败”的困惑。
 - **🔗 相关建议引用**：[B-16](bugs-and-risks.md#b-16-ai-助手-sse-流结束时可能丢失最后一个未闭合事件), [MR-AST-05](module-reviews/assistant-deep-dive.md#mr-ast-05-请求取消语义需要区分用户停止与超时)
 
 ### 📌 UX-13 [已修复核心问题]: AI 助手默认模式与隐私文案需要重新对齐
@@ -58,7 +60,7 @@
   ```
   在首次开启 LLM 时展示一次性确认：请求会发送到配置的 endpoint，本地会保存最近对话上下文，可在设置中关闭保存。
 - **📊 预期收益**：让默认体验符合最小外发原则，用户能清楚理解何时使用本地规则、何时调用外部模型。
-- **🔗 相关建议引用**：[B-15](bugs-and-risks.md#b-15-ai-助手模式偏好写入后不会被恢复), [S-11](security-audit.md#s-11-assistantjs-仍在前端运行时拼接并使用默认体验-api-key), [S-14](security-audit.md#s-14-ai-助手对话和-llm-上下文长期留存在-localstorage)
+- **🔗 相关建议引用**：[B-15](bugs-and-risks.md#b-15-ai-助手模式偏好写入后不会被恢复), [S-11](security-audit.md#s-11-assistantjs-仍在前端运行时拼接并使用默认体验-api-key), [S-14](security-audit.md#s-14-已修复核心风险-ai-助手对话和-llm-上下文长期留存在-localstorage)
 
 ### 📌 UX-14 [已修复]: Markdown 编辑器主输入框缺少可关联标签
 

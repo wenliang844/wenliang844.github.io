@@ -58,7 +58,7 @@
 
 | 模块 | 文件/范围 | 结果 |
 |------|-----------|------|
-| AI 助手核心 | `js/assistant.js:31-1568` | 发现模式偏好不恢复、SSE 尾部事件可能丢失、超时/停止文案混淆、对话持久化缺少保留策略 |
+| AI 助手核心 | `js/assistant.js:31-1568` | 模式偏好不恢复、SSE 尾部事件丢失、超时/停止文案混淆、对话持久化核心风险均已修复并补测试 |
 | AI 助手测试 | `tests/assistant.test.mjs`, `tests/assistant-deep.test.mjs` | 发现默认体验 key 行为被测试固化，但缺少模式恢复和 SSE 尾部事件测试 |
 | 工具核心库 | `js/tools-core.js:204-1293` | UUID 弱随机 fallback、随机数用途边界仍需标注；Cron 典型无解日期慢路径已短路 |
 | 工具核心测试 | `tests/tools.test.mjs`, `tests/tools-core-deep.test.mjs` | 已补 Cron 无解表达式性能预算和 OR 语义保护；随机强度语义仍需测试 |
@@ -159,15 +159,15 @@
 | Markdown 输入可访问名称 | 独立编辑器与工具箱内嵌编辑器补 `.sr-only` label 和英文 i18n | 相关模板/CSS/i18n 测试 84/84 通过 |
 | QR 预览稳定性 | QR 结果图片补 `width` / `height` / `loading` / `decoding`，CSS 补 `aspect-ratio: 1` | `tests/templates-extended.test.mjs` / `tests/css.test.mjs` 通过 |
 | Cron 典型无解表达式 | 提前识别不可能日期，避免两年分钟粒度扫描，并保护 day-of-month/day-of-week OR 语义 | `tests/tools-core-deep.test.mjs` 新增 `<50ms` 性能预算和 OR 语义测试 |
-| 生产验证假失败 | 为 `validate-production.mjs` 内部测试执行设置专用输出缓冲，避免 752 条测试输出触发默认 `execFile` 上限 | `tests/workflows.test.mjs` 5/5 通过；`npm run validate:production` 34/34 通过 |
+| 生产验证假失败 | 为 `validate-production.mjs` 内部测试执行设置专用输出缓冲，避免全量测试输出触发默认 `execFile` 上限 | `tests/workflows.test.mjs` 5/5 通过；`npm run validate:production` 34/34 通过 |
 
 ### 最新验证结果
 
 | 命令 | 结果 |
 |------|------|
 | `npm run lint:check` | 通过，0 warnings |
-| `npm test` / 生产验证内部测试 | 752/752 通过 |
-| `npm run test:coverage` | line 94.41% / branch 78.30% / funcs 91.81% |
+| `npm test` / 生产验证内部测试 | 765/765 通过 |
+| `npm run test:coverage` | line 94.43% / branch 78.33% / funcs 91.84% |
 | `npm run validate:production` | 34/34 通过 |
 | `npm audit --registry=https://registry.npmjs.org --audit-level=moderate` | 0 vulnerabilities |
 | `git diff --check` | 通过，仅 CRLF 工作区提示 |
@@ -184,7 +184,7 @@
 
 1. 为工具箱 runtime 加载补充可见的加载中/失败重试状态。
 2. 推进工具页 JS/CSS 拆包复测和更泛化的 Cron 稀疏表达式字段跳跃优化。
-3. 继续补 AI 助手“导出/删除当前对话”和超时/手动停止文案区分。
+3. 继续补 AI 助手“导出/删除当前对话”和更细的错误态国际化。
 
 ---
 
@@ -219,17 +219,27 @@
 |------|-----------|------|
 | AI 助手隐私与保留策略 | `js/assistant.js`, `css/coder.css`, `tests/assistant.test.mjs`, `tests/css.test.mjs` | 增加隐私模式、历史保留期限、清空全部对话入口和对应样式/测试；隐私模式与 session 保留不再写入对话 localStorage |
 | 工具箱运行时安全分析 | `docs/suggestions/module-reviews/tools-core-runtime-safety.md` | 新增正则 ReDoS、JSONPath 非法尾部、API 历史保存失败、私网/HTTP 边界、大响应预算 5 项后续治理建议 |
+| 工具箱 P1 运行时修复 | `js/tools-core.js`, `js/tools.js`, `tests/tools.test.mjs` | JSONPath 严格拒绝非法尾部；API Tester 历史写入失败时显示失败反馈，不再误报保存成功 |
+| API Tester 请求边界 | `src/templates/tools.mjs`, `js/tools.js`, `js/i18n.js`, `tests/tools.test.mjs` | 本机/内网/非 HTTPS 目标默认拦截，用户勾选显式允许后才发送 |
+| API Tester 响应预算 | `js/tools.js`, `js/i18n.js`, `tests/tools.test.mjs` | 增加 15 秒超时、超时文案区分、响应正文 500000 字符预算和大响应跳过/截断反馈 |
+| 正则 Worker 运行时隔离 | `js/regex-worker.js`, `js/tools.js`, `js/i18n.js`, `tests/tools.test.mjs` | 正则匹配优先在 Worker 中执行，主线程设置 250ms 超时，避免危险表达式卡住工具页 |
+| 社交分享与评论集成分析 | `docs/suggestions/module-reviews/social-comments-integrations.md` | 新增 canonical 分享、Giscus 懒加载/失败兜底、语言主题同步、strict 映射和微博弹窗兜底 6 项建议 |
+| 内容发现与视觉搜索分析 | `docs/suggestions/module-reviews/content-discovery-and-object-search.md` | 新增博客筛选分组计数、搜索加载失败反馈、移动目录焦点和对象识别脚本去留等 8 项建议 |
+| 产品信息页与排行榜分析 | `docs/suggestions/module-reviews/product-info-pages-and-rankings.md` | 新增 AI 导航状态元数据、鉴赏页占位符/JSON-LD、赞助目标数据源和进度语义等 7 项建议 |
 
 ### 验证
 
 - `node --test tests/css.test.mjs`：35/35 通过
-- `node --test tests/assistant.test.mjs tests/assistant-deep.test.mjs`：45/45 通过
+- `node --test tests/assistant.test.mjs tests/assistant-deep.test.mjs`：47/47 通过
+- `node --test tests/tools.test.mjs tests/tools-core-deep.test.mjs`：71/71 通过
+- `node --test tests/share.test.mjs tests/subscribe.test.mjs tests/subscribe-deep.test.mjs tests/feedback.test.mjs tests/giscus-behavior.test.mjs tests/share-subscribe-feedback-deep.test.mjs`：70/70 通过
+- `node --test tests/blog.test.mjs tests/search-loader-behavior.test.mjs tests/js-behavior.test.mjs tests/integration.test.mjs tests/links.test.mjs tests/workflows.test.mjs`：78/78 通过
+- `node --test tests/ai-tabs.test.mjs tests/templates.test.mjs tests/templates-extended.test.mjs tests/build-extra.test.mjs tests/css.test.mjs tests/i18n-a11y.test.mjs`：128/128 通过
 
 ### 下一步计划
 
-1. 优先修复 JSONPath 非法尾部和 API 历史保存失败反馈。
-2. 为 Mini API Tester 增加私网/非 HTTPS 风险提示。
-3. 评估正则 Worker/超时预算，避免危险表达式阻塞主线程。
+1. 继续评估 CSS/JS 拆包和供应链治理。
+2. 推进 AI 助手错误态国际化和更细的连接诊断。
 
 ---
 
@@ -244,6 +254,9 @@
 | 编辑器 | editor | 405 | ✅ 完整 |
 | Overleaf | overleaf | 833 | ✅ 完整 |
 | 订阅/反馈 | subscribe, feedback | ~383 | ✅ 完整 |
+| 分享与评论 | share, giscus | ~390 | ✅ 专题分析 |
+| 内容发现与视觉搜索 | blog, search-loader, object-search | ~650 | ✅ 专题分析 |
+| 产品信息页 | ai, appreciation, sponsor | ~600 | ✅ 专题分析 |
 | AI 助手 | assistant | 1568 | ✅ 完整（深度分析） |
 | 性能监控 | performance-monitor, logger | ~293 | ✅ 完整 |
 | CSS | coder.css | 4655 | ✅ 抽样分析 |
