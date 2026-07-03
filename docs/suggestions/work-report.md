@@ -182,9 +182,9 @@
 
 ### 下一步计划
 
-1. 继续处理 AI 助手对话保留策略：增加清空/隐私模式或保留期限。
-2. 为工具箱 runtime 加载补充可见的加载中/失败重试状态。
-3. 推进工具页 JS/CSS 拆包复测和更泛化的 Cron 稀疏表达式字段跳跃优化。
+1. 为工具箱 runtime 加载补充可见的加载中/失败重试状态。
+2. 推进工具页 JS/CSS 拆包复测和更泛化的 Cron 稀疏表达式字段跳跃优化。
+3. 继续补 AI 助手“导出/删除当前对话”和超时/手动停止文案区分。
 
 ---
 
@@ -208,6 +208,28 @@
 1. 为 Galaxy/手势按需加载补充加载中、失败重试和不可用状态提示。
 2. 给手势摄像头启动增加 `starting` 状态和重复点击回归测试。
 3. 为 Galaxy 增加 reduced-motion 静态模式。
+
+---
+
+## 2026-07-04 工具运行时与隐私样式补充
+
+### 已完成内容
+
+| 项目 | 文件/范围 | 结果 |
+|------|-----------|------|
+| AI 助手隐私与保留策略 | `js/assistant.js`, `css/coder.css`, `tests/assistant.test.mjs`, `tests/css.test.mjs` | 增加隐私模式、历史保留期限、清空全部对话入口和对应样式/测试；隐私模式与 session 保留不再写入对话 localStorage |
+| 工具箱运行时安全分析 | `docs/suggestions/module-reviews/tools-core-runtime-safety.md` | 新增正则 ReDoS、JSONPath 非法尾部、API 历史保存失败、私网/HTTP 边界、大响应预算 5 项后续治理建议 |
+
+### 验证
+
+- `node --test tests/css.test.mjs`：35/35 通过
+- `node --test tests/assistant.test.mjs tests/assistant-deep.test.mjs`：45/45 通过
+
+### 下一步计划
+
+1. 优先修复 JSONPath 非法尾部和 API 历史保存失败反馈。
+2. 为 Mini API Tester 增加私网/非 HTTPS 风险提示。
+3. 评估正则 Worker/超时预算，避免危险表达式阻塞主线程。
 
 ---
 

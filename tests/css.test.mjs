@@ -181,6 +181,12 @@ test("coder.css contains assistant selectors", async () => {
   assert.ok(css.includes(".assistant-relay-cta"), "should have assistant relay CTA");
   assert.ok(css.includes(".assistant-message"), "should have assistant-message");
   assert.ok(css.includes(".assistant-input"), "should have assistant-input");
+  assert.ok(css.includes(".assistant-privacy-controls"), "should have assistant privacy controls");
+  assert.ok(css.includes(".assistant-privacy-mode-input"), "should have assistant privacy mode input");
+  assert.ok(css.includes(".assistant-retention-select"), "should have assistant retention select");
+  assert.ok(css.includes(".assistant-clear-all"), "should have assistant clear-all control");
+  assert.match(css, /\.assistant-privacy-controls\s*{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)\s*minmax\(9rem,\s*0\.7fr\)\s*auto;/s);
+  assert.match(css, /@media\s*\(max-width:\s*768px\)\s*{[\s\S]*?\.assistant-privacy-controls\s*{[^}]*grid-template-columns:\s*1fr;/);
 });
 
 test("coder.css contains search selectors", async () => {

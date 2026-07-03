@@ -70,7 +70,9 @@
 ### 📌 S-14: AI 助手对话和 LLM 上下文长期留存在 localStorage
 
 - **📍 位置**：`js/assistant.js:34`, `js/assistant.js:130-145`, `js/assistant.js:220-243`, `js/assistant.js:1104-1108`, `js/assistant.js:1454-1478`
-- **📝 当前状况描述**：AI 助手会把站点问答消息和最近 12 条 LLM 上下文写入 `cwl.assistant.conversations`。这些内容可能包含用户输入的隐私问题、代码片段、业务信息或模型回复；当前只有本地持久化，没有保留期限、敏感内容提示、一次性会话模式或“清除所有对话”的强提示入口。
+- **✅ 修复状态**：AI 助手已增加隐私模式、历史保留期限（仅本次会话 / 7 天 / 30 天 / 永久）和“清空全部对话”入口；隐私模式与 session 保留不会写入 `cwl.assistant.conversations` / `cwl.assistant.activeConversation`，保留期限会清理过期对话。
+- **🧪 回归测试**：`tests/assistant.test.mjs` 覆盖隐私模式不落盘、30 天保留清理旧对话、session 模式临时会话、清空全部对话和英文文案；`tests/css.test.mjs` 覆盖隐私控件样式与移动端布局。
+- **📝 原状况描述**：AI 助手会把站点问答消息和最近 12 条 LLM 上下文写入 `cwl.assistant.conversations`。这些内容可能包含用户输入的隐私问题、代码片段、业务信息或模型回复；此前只有本地持久化，没有保留期限、敏感内容提示、一次性会话模式或“清除所有对话”的强提示入口。
 - **⚠️ 影响程度**：中
 - **💡 建议方案**：
   ```javascript
@@ -85,9 +87,9 @@
     storageSet(CONVERSATIONS_KEY, JSON.stringify(retained));
   }
   ```
-  UI 层增加“隐私模式：不保存本轮对话”“清除全部对话”“导出/删除当前对话”，并在 LLM 输入区说明本地保存范围。
-- **📊 预期收益**：降低共享设备、浏览器扩展或本机恶意软件读取历史对话的隐私风险，同时保留多轮上下文体验。
-- **🔗 相关建议引用**：[F-13](new-features.md#f-13-ai-助手增加隐私模式和对话保留策略), [MR-AST-04](module-reviews/assistant-deep-dive.md#mr-ast-04-对话持久化缺少生命周期和隐私控制)
+  已落地隐私模式、保留期限和清空全部对话；后续如需继续增强，可补“导出/删除当前对话”和更醒目的敏感输入提示。
+- **📊 实际收益**：降低共享设备、浏览器扩展或本机恶意软件读取历史对话的隐私风险，同时保留可选多轮上下文体验。
+- **🔗 相关建议引用**：[F-13](new-features.md#f-13-已完成核心能力-ai-助手增加隐私模式和对话保留策略), [MR-AST-04](module-reviews/assistant-deep-dive.md#mr-ast-04-已修复核心风险-对话持久化缺少生命周期和隐私控制)
 
 ### 📌 S-15: UUID 工具在 Web Crypto 不可用时退化到 `Math.random()`
 

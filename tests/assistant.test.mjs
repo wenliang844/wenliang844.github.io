@@ -359,6 +359,10 @@ test("assistant can render English labels through the i18n bridge", async () => 
       "assistant.minimize": "Minimize AI assistant",
       "assistant.config.toggle": "Settings",
       "assistant.opacity": "Opacity",
+      "assistant.privacyMode": "Privacy mode",
+      "assistant.retention": "Retention",
+      "assistant.retention.30d": "30 days",
+      "assistant.clearAll": "Clear all",
     },
   });
   const { document } = dom.window;
@@ -367,6 +371,10 @@ test("assistant can render English labels through the i18n bridge", async () => 
   assert.equal(document.querySelector('[data-assistant-action="tools"]').textContent, "Open toolbox");
   assert.equal(document.querySelector(".assistant-config-toggle").textContent, "Settings");
   assert.equal(document.querySelector(".assistant-opacity > span").textContent, "Opacity");
+  assert.equal(document.querySelector(".assistant-privacy-mode span").textContent, "Privacy mode");
+  assert.equal(document.querySelector(".assistant-retention > span").textContent, "Retention");
+  assert.equal(document.querySelector('.assistant-retention-select option[value="30d"]').textContent, "30 days");
+  assert.equal(document.querySelector(".assistant-clear-all").textContent, "Clear all");
   assert.equal(document.querySelector(".assistant-fab").getAttribute("aria-label"), "Open AI assistant");
 });
 
@@ -394,6 +402,92 @@ test("assistant config is collapsible and opacity is adjustable", async () => {
   assert.equal(document.querySelector(".assistant-widget").style.getPropertyValue("--assistant-opacity"), "0.75");
   assert.equal(document.querySelector(".assistant-opacity-value").textContent, "75%");
   assert.equal(localStorage.getItem("cwl.assistant.opacity"), "75");
+});
+
+test("assistant privacy mode keeps chats out of localStorage", async () => {
+  const dom = await loadAssistant();
+  const { document, Event, localStorage } = dom.window;
+
+  document.querySelector(".assistant-config-toggle").click();
+  const privacy = document.querySelector(".assistant-privacy-mode-input");
+  privacy.checked = true;
+  privacy.dispatchEvent(new Event("change", { bubbles: true }));
+
+  assert.equal(localStorage.getItem("cwl.assistant.privacyMode"), "1");
+  assert.equal(localStorage.getItem("cwl.assistant.conversations"), null);
+  assert.match(document.querySelector("#assistant-privacy").textContent, /不会保存/);
+
+  const input = document.querySelector(".assistant-input");
+  input.value = "工具箱在哪里";
+  document.querySelector(".assistant-form").dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+
+  assert.match(document.querySelector(".assistant-messages").textContent, /工具箱在哪里/);
+  assert.equal(localStorage.getItem("cwl.assistant.conversations"), null);
+  assert.equal(localStorage.getItem("cwl.assistant.activeConversation"), null);
+});
+
+test("assistant retention prunes old conversations and session mode is ephemeral", async () => {
+  const oldTime = Date.now() - 40 * 86400000;
+  const freshTime = Date.now();
+  const dom = await loadAssistant({
+    localStorage: {
+      "cwl.assistant.retention": "30d",
+      "cwl.assistant.conversations": JSON.stringify([
+        {
+          id: "old",
+          title: "Old chat",
+          createdAt: oldTime,
+          updatedAt: oldTime,
+          messages: [{ id: "old-msg", role: "user", text: "old secret" }],
+          llmHistory: [{ role: "user", content: "old secret" }],
+        },
+        {
+          id: "fresh",
+          title: "Fresh chat",
+          createdAt: freshTime,
+          updatedAt: freshTime,
+          messages: [{ id: "fresh-msg", role: "user", text: "fresh topic" }],
+          llmHistory: [],
+        },
+      ]),
+    },
+  });
+  const { document, Event, localStorage } = dom.window;
+
+  assert.doesNotMatch(document.querySelector(".assistant-history-list").textContent, /Old chat/);
+  assert.match(document.querySelector(".assistant-history-list").textContent, /Fresh chat/);
+  assert.doesNotMatch(localStorage.getItem("cwl.assistant.conversations"), /old secret/);
+
+  document.querySelector(".assistant-config-toggle").click();
+  const retention = document.querySelector(".assistant-retention-select");
+  retention.value = "session";
+  retention.dispatchEvent(new Event("change", { bubbles: true }));
+
+  assert.equal(localStorage.getItem("cwl.assistant.retention"), "session");
+  assert.equal(localStorage.getItem("cwl.assistant.conversations"), null);
+
+  const input = document.querySelector(".assistant-input");
+  input.value = "本次会话";
+  document.querySelector(".assistant-form").dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+  assert.match(document.querySelector(".assistant-messages").textContent, /本次会话/);
+  assert.equal(localStorage.getItem("cwl.assistant.conversations"), null);
+});
+
+test("assistant can clear all stored conversations", async () => {
+  const dom = await loadAssistant();
+  const { document, Event, localStorage } = dom.window;
+
+  const input = document.querySelector(".assistant-input");
+  input.value = "工具箱在哪里";
+  document.querySelector(".assistant-form").dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+  assert.match(localStorage.getItem("cwl.assistant.conversations"), /工具箱在哪里/);
+
+  document.querySelector(".assistant-config-toggle").click();
+  document.querySelector(".assistant-clear-all").click();
+
+  assert.doesNotMatch(document.querySelector(".assistant-messages").textContent, /工具箱在哪里/);
+  assert.doesNotMatch(localStorage.getItem("cwl.assistant.conversations"), /工具箱在哪里/);
+  assert.equal(JSON.parse(localStorage.getItem("cwl.assistant.conversations")).length, 1);
 });
 
 test("assistant restores the saved mode and defaults to local site mode", async () => {

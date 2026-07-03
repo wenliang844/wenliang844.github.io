@@ -54,20 +54,20 @@
 - **📊 预期收益**：兼容更多 SSE 实现，避免回答尾部缺字或 `[DONE]` 前最后 delta 丢失。
 - **🔗 相关建议引用**：[B-16](../bugs-and-risks.md#b-16-ai-助手-sse-流结束时可能丢失最后一个未闭合事件), [DE-13](../devex-improvements.md#de-13-为-ai-助手和-cron-边界行为补充回归测试)
 
-## 📌 MR-AST-04: 对话持久化缺少生命周期和隐私控制
+## 📌 MR-AST-04 [已修复核心风险]: 对话持久化缺少生命周期和隐私控制
 
 - **📍 位置**：`js/assistant.js:34`, `js/assistant.js:220-243`, `js/assistant.js:1104-1108`, `js/assistant.js:1454-1478`
-- **📝 当前状况描述**：助手会清理并保留最近对话，但没有保留期限和隐私模式。`llmHistory` 截断到 12 条能控制上下文长度，却不能控制本地保存周期。
+- **✅ 修复状态**：助手会话持久化已受隐私模式和保留周期控制：隐私模式 / session 保留只保留内存态，7 天 / 30 天会清理过期会话，永久保留需要用户显式选择。
+- **🧪 验证**：`tests/assistant.test.mjs` 覆盖隐私模式、保留期限、session 模式和清空全部对话；`tests/css.test.mjs` 覆盖隐私控件样式与移动端布局。
+- **📝 原状况描述**：助手会清理并保留最近对话，但没有保留期限和隐私模式。`llmHistory` 截断到 12 条能控制上下文长度，却不能控制本地保存周期。
 - **⚠️ 影响程度**：中
-- **💡 建议方案**：
+- **💡 后续建议**：
   ```javascript
-  const retention = readRetentionSetting(); // session / 7d / 30d / forever
-  if (retention === "session") return;
-  storageSet(CONVERSATIONS_KEY, JSON.stringify(prune(conversations, retention)));
+  exportConversationAsJson(activeConversation());
+  deleteConversation(activeConversationId);
   ```
-  设计上应把“当前请求上下文”和“长期历史记录”拆开，分别受隐私模式和保留周期控制。
-- **📊 预期收益**：降低本地敏感信息长期暴露，增强 AI 助手长期使用的信任基础。
-- **🔗 相关建议引用**：[S-14](../security-audit.md#s-14-ai-助手对话和-llm-上下文长期留存在-localstorage), [F-13](../new-features.md#f-13-ai-助手增加隐私模式和对话保留策略)
+- **📊 实际收益**：降低本地敏感信息长期暴露，增强 AI 助手长期使用的信任基础。
+- **🔗 相关建议引用**：[S-14](../security-audit.md#s-14-已修复核心风险-ai-助手对话和-llm-上下文长期留存在-localstorage), [F-13](../new-features.md#f-13-已完成核心能力-ai-助手增加隐私模式和对话保留策略)
 
 ## 📌 MR-AST-05: 请求取消语义需要区分用户停止与超时
 

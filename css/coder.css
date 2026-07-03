@@ -5463,6 +5463,55 @@ body.assistant-fullscreen .site-shell {
   text-align: right;
 }
 
+.assistant-privacy-controls {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(9rem, 0.7fr) auto;
+  align-items: end;
+  gap: 0.6rem;
+}
+
+.assistant-privacy-mode,
+.assistant-retention {
+  display: grid;
+  gap: 0.3rem;
+  min-width: 0;
+  color: var(--assistant-muted);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.assistant-privacy-mode {
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  min-height: 2.35rem;
+}
+
+.assistant-privacy-mode-input {
+  accent-color: var(--accent);
+}
+
+.assistant-retention-select {
+  width: 100%;
+  min-height: 2.35rem;
+  border: 1px solid var(--assistant-border);
+  border-radius: 0.55rem;
+  padding: 0.48rem 0.62rem;
+  background: var(--assistant-input-bg);
+  color: var(--assistant-text);
+  font: inherit;
+}
+
+.assistant-retention-select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.assistant-clear-all {
+  min-height: 2.35rem;
+  padding: 0.45rem 0.75rem;
+}
+
 .assistant-config {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -6076,6 +6125,10 @@ body.assistant-fullscreen .site-shell {
 
   .assistant-config-toggle {
     width: 100%;
+  }
+
+  .assistant-privacy-controls {
+    grid-template-columns: 1fr;
   }
 
   .assistant-config {
