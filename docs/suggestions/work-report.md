@@ -99,6 +99,77 @@
 
 ---
 
+## 2026-07-03 23:55 第三轮自主复查报告
+
+### 已分析的模块
+
+| 模块 | 文件/范围 | 结果 |
+|------|-----------|------|
+| CSS 资源结构 | `css/coder.css`, `src/templates/layout.mjs` | `coder.css` 6,617 行，全站统一加载；工具箱和助手样式成本扩散到所有页面 |
+| 工具页 DOM | `tools/index.html`, `src/templates/tools.mjs` | 初始 DOM 约 1,199 个元素，31 个工具面板中 30 个 hidden 但仍会被解析 |
+| 页面 SEO/a11y | 19 个非临时 HTML 页面 | description、main、h1、skip link、OG image 全部具备；404 缺 JSON-LD |
+| 编辑器无障碍 | `editor/index.html`, `tools/index.html`, `src/templates/tools.mjs` | `textarea#markdown-input` 缺 label/aria 名称 |
+| 图片稳定性 | `tools/index.html#qr-image`, `src/templates/tools.mjs:559` | 动态 QR 图片缺 width/height/loading/decoding |
+
+### 发现的问题数量和等级分布
+
+| 范围 | 高 | 中 | 低 | 总计 |
+|------|----|----|----|------|
+| 主建议文档新增/更新 | 0 | 5 | 1 | 6 |
+| 模块深度分析新增 | 0 | 2 | 2 | 4 |
+| **合计** | **0** | **7** | **3** | **10** |
+
+### 新增/更新的建议文档
+
+- `docs/suggestions/performance-bottlenecks.md`
+- `docs/suggestions/ux-improvements.md`
+- `docs/suggestions/architecture-review.md`
+- `docs/suggestions/devex-improvements.md`
+- `docs/suggestions/module-reviews/css-analysis.md`
+- `docs/suggestions/module-reviews/seo-analysis.md`
+- `docs/suggestions/module-reviews/html-pages.md`
+- `docs/suggestions/module-reviews/editor.md`
+- `docs/suggestions/README.md`
+- `docs/suggestions/health-score.md`
+- `docs/suggestions/work-report.md`
+
+### 当前进度
+
+第三轮已完成“CSS 资源测量 → 工具页 DOM 审计 → 页面级 SEO/a11y JSDOM 扫描 → 文档落地”。仍未修改源码或配置。
+
+### 下一步分析计划
+
+1. 深挖 `js/gesture.js` 和 `js/galaxy.js` 的动画循环、资源释放和 reduced-motion 行为。
+2. 复查生成内容和搜索索引的隐私/SEO 边界，关注摘要、标签和 sitemap image。
+3. 继续维护 README、健康度、优先级待办并按轮次提交。
+
+---
+
+## 2026-07-03 AI 助手安全修复轮报告
+
+### 已完成内容
+
+| 项目 | 修复方案 | 验证 |
+|------|----------|------|
+| 前端默认体验 key | 删除 `OPENAI_DEFAULT_API_KEY` / `LLM_EXPERIENCE_KEYS` 与自动注入逻辑；默认 preset 空 key 不再请求 | `npm run test:assistant` 34/34 通过 |
+| 默认模式与隐私边界 | `readMode()` 读取 `cwl.assistant.mode`，无偏好时默认 `site`；LLM 文案改为用户自填 key | `tests/assistant.test.mjs` 新增模式恢复断言 |
+| SSE 尾包丢失 | `postStream()` flush `TextDecoder` 并消费剩余 `buffer`，支持 CRLF 事件分隔 | 新增无尾随空行 SSE 流测试，消息完整包含尾部 delta |
+| 安全回归测试 | 源码扫描禁止默认 key 机制；运行时断言空 key 不调用 `fetch`，自填 key 才请求 | `tests/assistant.test.mjs` / `tests/assistant-deep.test.mjs` 通过 |
+
+### 发现的问题
+
+- 默认体验 key 被测试固化，原测试只验证“不显示/不存储”，没有验证“前端根本不携带可还原 key”。
+- 助手模式保存和读取不对称，默认 LLM 与隐私最小外发原则冲突。
+- SSE 流结束时未处理最后一个未闭合事件，部分代理实现会导致回答尾部缺失。
+
+### 下一步计划
+
+1. 继续处理 AI 助手对话保留策略：增加清空/隐私模式或保留期限。
+2. 修复工具箱 runtime 加载 Promise 过早 resolve 的弱网竞态。
+3. 推进 Cron 无解表达式性能预算和工具页首屏 DOM 拆分。
+
+---
+
 ## 已分析模块
 
 | 模块 | 文件 | 行数 | 分析深度 |
