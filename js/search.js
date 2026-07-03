@@ -21,7 +21,7 @@
     '<div class="search-modal-card">' +
     '<div class="search-modal-head">' +
     '<i class="fas fa-search" aria-hidden="true"></i>' +
-    '<input class="search-modal-input" type="text" placeholder="搜索文章标题、标签、内容…" autocomplete="off" spellcheck="false" role="combobox" aria-expanded="false" aria-controls="search-modal-results" aria-autocomplete="list">' +
+    '<input class="search-modal-input" type="text" placeholder="搜索文章标题、标签、内容…" aria-label="搜索文章" autocomplete="off" spellcheck="false" role="combobox" aria-expanded="false" aria-controls="search-modal-results" aria-autocomplete="list">' +
     '<button class="search-modal-clear" type="button" aria-label="清空搜索"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button>' +
     '<kbd class="search-modal-kbd">Esc</kbd>' +
     '</div>' +
@@ -52,6 +52,7 @@
   function applyI18n() {
     overlay.setAttribute("aria-label", t("dyn.search.aria", "搜索文章"));
     input.setAttribute("placeholder", t("dyn.search.ph", "搜索文章标题、标签、内容…"));
+    input.setAttribute("aria-label", t("dyn.search.aria", "搜索文章"));
     clearBtn.setAttribute("aria-label", t("dyn.search.clear", "清空搜索"));
     if (trigger) {
       const triggerHint = t("nav.searchHint", "全局搜索（Ctrl+K 或 /）");

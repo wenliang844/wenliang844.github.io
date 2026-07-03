@@ -26,10 +26,12 @@
 - **📊 预期收益**：消除前端 key 被提取、滥用和产生费用的高危风险，避免测试对“隐藏但仍可还原”的错误安全模型背书。
 - **🔗 相关建议引用**：[S-00](#s-00-已修复-assistantjs-硬编码-demo-api-key-泄露), [CQ-12](code-quality.md#cq-12-安全回归测试只检查连续-key-字面量无法识别拼接型密钥)
 
-### 📌 S-12: Mini API Tester 会把 Authorization 头和请求体持久化到 localStorage
+### 📌 S-12 [已修复核心风险]: Mini API Tester 会把 Authorization 头和请求体持久化到 localStorage
 
 - **📍 位置**：`src/templates/tools.mjs:123-170`, `js/tools.js:461-529`, `js/tools.js:584-643`, `js/tools.js:686-692`
-- **📝 当前状况描述**：API 测试器的 placeholder 引导用户填写 `Authorization: Bearer YOUR_API_KEY`，`currentApiRequest()` 会读取完整 `headers` 和 `body`，`saveApiRequest()` 直接写入 `localStorage` 的 `cwl.tools.apiHistory`。发送成功后 `sendApiRequest()` 还会自动调用 `saveApiRequest()`。真实 token、cookie、body 中的密钥或个人数据可能长期留在浏览器本地历史。
+- **✅ 修复状态**：保存历史前会对敏感 Header 做 `[redacted]` 处理，请求体默认不写入 `localStorage`；用户显式勾选“保存请求体”后才保存 body。发送请求仍使用原始 headers/body，不影响调试功能。
+- **🧪 回归测试**：`tests/tools.test.mjs` 覆盖自动保存脱敏、默认 body 为空、显式保存 body；Playwright 抽查 `/tools/` API Tester 本地历史通过。
+- **📝 原状况描述**：API 测试器的 placeholder 引导用户填写 `Authorization: Bearer YOUR_API_KEY`，`currentApiRequest()` 会读取完整 `headers` 和 `body`，`saveApiRequest()` 直接写入 `localStorage` 的 `cwl.tools.apiHistory`。发送成功后 `sendApiRequest()` 还会自动调用 `saveApiRequest()`。真实 token、cookie、body 中的密钥或个人数据可能长期留在浏览器本地历史。
 - **⚠️ 影响程度**：中
 - **💡 建议方案**：
   ```javascript
@@ -182,10 +184,11 @@
 
 ---
 
-## 📌 S-04: `giscus.js` 硬编码 GitHub 仓库 ID 和 Category ID
+## 📌 S-04 [已优化]: `giscus.js` 默认包含 GitHub 仓库 ID 和 Category ID
 
 - **📍 位置**：`js/giscus.js:16-24`
-- **📝 当前状况**：
+- **✅ 优化状态**：默认值保留为当前站点公开的 giscus.app 配置，确保评论功能默认可用；部署方可以在加载 `js/giscus.js` 前设置 `window.CWL_GISCUS_CONFIG` 覆盖或置空这些值，未配置时会显示安全占位提示。
+- **📝 当前默认值**：
   ```javascript
   repo: "wenliang844/wenliang844.github.io",
   repoId: "MDEwOlJlcG9zaXRvcnkzNTQyNDE4MDY=",
@@ -193,7 +196,7 @@
   ```
   这些是公开的 GitHub 仓库元数据，不是敏感信息。Giscus 设计就是在前端配置这些值。
 - **⚠️ 影响程度**：无（设计如此）
-- **💡 建议方案**：无需修改。但建议在注释中说明这些值的来源（giscus.app 配置页面），方便未来维护。
+- **💡 建议方案**：继续保留公共默认配置；若需要多环境部署，使用 `window.CWL_GISCUS_CONFIG` 注入环境特定配置。
 - **📊 预期收益**：提升代码可维护性
 - **🔗 相关建议**：无
 

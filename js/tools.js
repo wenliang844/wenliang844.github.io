@@ -14,6 +14,7 @@
     gesture: ["/js/gesture-premium.js", "/js/gesture.js"],
   };
   const loadedToolRuntimes = Object.create(null);
+  const initialToolValues = Object.create(null);
 
   const t = window.CWLUtils.t;
 
@@ -190,6 +191,134 @@
         control.setAttribute("aria-label", label);
       }
     });
+  }
+
+  function toolControls(panel) {
+    return Array.from(panel.querySelectorAll("input, textarea, select")).filter(function (control) {
+      return control.type !== "hidden";
+    });
+  }
+
+  function captureInitialToolValues() {
+    toolPanels().forEach(function (panel) {
+      const id = panel.getAttribute("data-tool-panel");
+      initialToolValues[id] = toolControls(panel).map(function (control) {
+        return {
+          id: control.id,
+          element: control,
+          checked: control.checked,
+          value: control.value,
+        };
+      });
+    });
+  }
+
+  function installToolResetButtons() {
+    toolPanels().forEach(function (panel) {
+      const id = panel.getAttribute("data-tool-panel");
+      const hasGeneratedState = id === "uuid";
+      if ((!toolControls(panel).length && !hasGeneratedState) || panel.querySelector("[data-tool-reset]")) {
+        return;
+      }
+      let actions = panel.querySelector(".tool-actions");
+      if (!actions) {
+        actions = document.createElement("div");
+        actions.className = "tool-actions";
+        panel.appendChild(actions);
+      }
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "tool-btn";
+      button.setAttribute("data-tool-reset", id);
+      const icon = document.createElement("i");
+      icon.className = "fas fa-eraser";
+      icon.setAttribute("aria-hidden", "true");
+      const label = document.createElement("span");
+      label.setAttribute("data-i18n", "tools.btn.reset");
+      label.textContent = t("tools.btn.reset", "重置");
+      button.appendChild(icon);
+      button.appendChild(document.createTextNode(" "));
+      button.appendChild(label);
+      actions.appendChild(button);
+    });
+  }
+
+  function resetToolPanel(panel) {
+    if (!panel) {
+      return;
+    }
+    const id = panel.getAttribute("data-tool-panel");
+    const snapshot = initialToolValues[id] || [];
+    snapshot.forEach(function (item) {
+      const control = item.id ? document.getElementById(item.id) : item.element;
+      if (!control) {
+        return;
+      }
+      if (control.type === "checkbox" || control.type === "radio") {
+        control.checked = item.checked;
+      } else {
+        control.value = item.value;
+      }
+      control.dispatchEvent(new Event("input", { bubbles: true }));
+      control.dispatchEvent(new Event("change", { bubbles: true }));
+    });
+    Array.from(panel.querySelectorAll(".tool-output, pre[id]")).forEach(function (output) {
+      output.textContent = "";
+    });
+    Array.from(panel.querySelectorAll(".tool-status")).forEach(function (status) {
+      setStatusElement(status, "", "", "", "");
+    });
+    resetToolDerivedState(id);
+    const status = panel.querySelector(".tool-status");
+    setStatusElementKey(status, "tools.status.reset", "已重置", "ok");
+  }
+
+  function resetToolDerivedState(id) {
+    if (id === "time") {
+      delete timeResults["timestamp-output"];
+      delete timeResults["datetime-output"];
+    }
+
+    if (id === "uuid") {
+      const output = document.getElementById("uuid-output");
+      if (output) {
+        output.textContent = t("tools.uuid.empty", "点击生成 UUID");
+        output.setAttribute("data-empty", "true");
+        output.setAttribute("data-i18n", "tools.uuid.empty");
+      }
+    }
+
+    if (id === "color") {
+      const swatch = document.getElementById("color-swatch");
+      const preview = document.getElementById("color-preview-text");
+      if (swatch) {
+        swatch.style.backgroundColor = "";
+      }
+      if (preview) {
+        preview.textContent = t("tools.color.empty", "等待转换颜色");
+      }
+      renderColorPalette([]);
+    }
+
+    if (id === "markdown") {
+      const preview = document.getElementById("markdown-preview");
+      if (preview) {
+        preview.textContent = "";
+      }
+    }
+
+    if (id === "qr") {
+      const image = document.getElementById("qr-image");
+      const empty = document.getElementById("qr-empty");
+      if (image) {
+        image.removeAttribute("src");
+        image.hidden = true;
+      }
+      if (empty) {
+        empty.hidden = false;
+        empty.textContent = t("tools.qr.empty", "等待生成二维码");
+      }
+    }
   }
 
   function statusError(result) {
@@ -485,6 +614,60 @@
     };
   }
 
+  function isSensitiveHeader(name) {
+    const normalized = String(name || "").trim().toLowerCase();
+    return normalized === "authorization" ||
+      normalized === "proxy-authorization" ||
+      normalized === "cookie" ||
+      normalized === "set-cookie" ||
+      normalized === "x-api-key" ||
+      normalized === "api-key" ||
+      /\b(token|secret|credential)\b/.test(normalized);
+  }
+
+  function redactHeaderValue(name, headerValue) {
+    return isSensitiveHeader(name) ? "[redacted]" : headerValue;
+  }
+
+  function sanitizeApiHeaders(raw) {
+    const source = String(raw || "");
+    if (!source.trim()) {
+      return "";
+    }
+    if (source.trim().charAt(0) === "{") {
+      try {
+        const parsed = JSON.parse(source);
+        Object.keys(parsed).forEach(function (key) {
+          parsed[key] = redactHeaderValue(key, parsed[key]);
+        });
+        return JSON.stringify(parsed, null, 2);
+      } catch (_error) {
+        // Fall back to line-based redaction for partially typed JSON.
+      }
+    }
+    return source.split(/\r?\n/).map(function (line) {
+      const index = line.indexOf(":");
+      if (index <= 0) {
+        return line;
+      }
+      const name = line.slice(0, index).trim();
+      if (!isSensitiveHeader(name)) {
+        return line;
+      }
+      return line.slice(0, index + 1) + " [redacted]";
+    }).join("\n");
+  }
+
+  function historyRequest(request) {
+    return {
+      method: request.method,
+      url: request.url,
+      headers: sanitizeApiHeaders(request.headers),
+      body: checked("api-save-body-history") ? request.body : "",
+      savedAt: request.savedAt,
+    };
+  }
+
   function apiHistoryLabel(item) {
     const url = item.url || "";
     return (item.method || "GET") + " " + (url.length > 70 ? url.slice(0, 67) + "..." : url);
@@ -519,13 +702,14 @@
       setStatusError("api-status", { ok: false, error: "请输入请求 URL", code: "apiUrl" });
       return false;
     }
+    const historyItem = historyRequest(request);
     const history = apiHistory().filter(function (item) {
-      return !(item.method === request.method && item.url === request.url && item.headers === request.headers && item.body === request.body);
+      return !(item.method === historyItem.method && item.url === historyItem.url && item.headers === historyItem.headers && item.body === historyItem.body);
     });
-    history.unshift(request);
+    history.unshift(historyItem);
     setApiHistory(history);
     renderApiHistory();
-    setStatusKey("api-status", "tools.status.saved", "请求已保存", "ok");
+    setStatusKey("api-status", "tools.status.savedSafe", "请求已安全保存", "ok");
     return true;
   }
 
@@ -640,7 +824,7 @@
           formatApiBody(body),
         ].join("\n"));
         saveApiRequest();
-        setStatusKey("api-status", "tools.status.sent", "请求完成并已保存历史", response.ok ? "ok" : "error");
+        setStatusKey("api-status", "tools.status.sentSafe", "请求完成，历史已脱敏保存", response.ok ? "ok" : "error");
       });
     }).catch(function (error) {
       if (error.name === "AbortError") {return;}
@@ -836,6 +1020,12 @@
     const tab = closest(event.target, "[data-tool-tab]");
     if (tab && tab.closest(".tools-tabs")) {
       switchTool(tab.getAttribute("data-tool-tab"));
+      return;
+    }
+
+    const reset = closest(event.target, "[data-tool-reset]");
+    if (reset) {
+      resetToolPanel(closest(reset, "[data-tool-panel]"));
       return;
     }
 
@@ -1119,6 +1309,8 @@
   initDateDiffInputs();
   renderApiHistory();
   initRelayProviders();
+  captureInitialToolValues();
+  installToolResetButtons();
   syncToolControlLabels();
   minimizeAssistantAfterInit();
   document.addEventListener("visibilitychange", syncNowTimer);

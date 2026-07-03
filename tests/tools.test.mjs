@@ -794,6 +794,79 @@ test("mini API tester fills relay presets, sends requests and stores history", a
     assert.match(document.querySelector("#api-response").value, /Status: 200 OK/);
     assert.match(document.querySelector("#api-response").value, /"ok": true/);
     assert.match(document.querySelector("#api-history").textContent, /POST https:\/\/relay\.example/);
+    const history = JSON.parse(dom.window.localStorage.getItem("cwl.tools.apiHistory"));
+    assert.equal(history.length, 1);
+    assert.match(history[0].headers, /Authorization: \[redacted\]/);
+    assert.doesNotMatch(history[0].headers, /YOUR_API_KEY/);
+    assert.equal(history[0].body, "");
+  } finally {
+    dom.window.close();
+  }
+});
+
+test("mini API tester can explicitly save request bodies while redacting sensitive headers", async () => {
+  const { dom } = await loadToolsPage();
+  const { document } = dom.window;
+  try {
+    document.querySelector('[data-tool-tab="api"]').click();
+    document.querySelector("#api-method").value = "POST";
+    document.querySelector("#api-url").value = "https://api.example.test/v1/messages";
+    document.querySelector("#api-headers").value = [
+      "Content-Type: application/json",
+      "x-api-key: secret-key",
+      "Cookie: session=secret",
+      "x-trace-id: visible",
+    ].join("\n");
+    document.querySelector("#api-body").value = '{"keep":true}';
+    document.querySelector("#api-save-body-history").checked = true;
+    document.querySelector("[data-api-save]").click();
+
+    const history = JSON.parse(dom.window.localStorage.getItem("cwl.tools.apiHistory"));
+    assert.equal(history[0].body, '{"keep":true}');
+    assert.match(history[0].headers, /x-api-key: \[redacted\]/);
+    assert.match(history[0].headers, /Cookie: \[redacted\]/);
+    assert.match(history[0].headers, /x-trace-id: visible/);
+    assert.equal(document.querySelector("#api-status").textContent, "请求已安全保存");
+  } finally {
+    dom.window.close();
+  }
+});
+
+test("mini API tester redacts sensitive history by default and saves body only when opted in", async () => {
+  const { dom } = await loadToolsPage();
+  const { document, localStorage } = dom.window;
+  try {
+    document.querySelector('[data-tool-tab="api"]').click();
+    document.querySelector("#api-method").value = "POST";
+    document.querySelector("#api-url").value = "https://api.example.test/v1/messages";
+    document.querySelector("#api-headers").value = [
+      "Content-Type: application/json",
+      "Authorization: Bearer real-token",
+      "Cookie: sid=secret-cookie",
+      "x-api-key: live-key",
+    ].join("\n");
+    document.querySelector("#api-body").value = '{"secret":"body-value"}';
+
+    document.querySelector("[data-api-save]").click();
+    let history = JSON.parse(localStorage.getItem("cwl.tools.apiHistory"));
+    assert.equal(history.length, 1);
+    assert.match(history[0].headers, /Authorization: \[redacted\]/);
+    assert.match(history[0].headers, /Cookie: \[redacted\]/);
+    assert.match(history[0].headers, /x-api-key: \[redacted\]/);
+    assert.doesNotMatch(history[0].headers, /real-token|secret-cookie|live-key/);
+    assert.equal(history[0].body, "");
+    assert.equal(document.querySelector("#api-status").textContent, "请求已安全保存");
+
+    document.querySelector("#api-save-body-history").checked = true;
+    document.querySelector("#api-headers").value = '{"Authorization":"Bearer json-token","X-Api-Key":"json-key","Accept":"application/json"}';
+    document.querySelector("[data-api-save]").click();
+    history = JSON.parse(localStorage.getItem("cwl.tools.apiHistory"));
+    assert.equal(history.length, 2);
+    assert.match(history[0].headers, /"Authorization": "\[redacted\]"/);
+    assert.match(history[0].headers, /"X-Api-Key": "\[redacted\]"/);
+    assert.match(history[0].headers, /"Accept": "application\/json"/);
+    assert.doesNotMatch(history[0].headers, /json-token|json-key/);
+    assert.equal(history[0].body, '{"secret":"body-value"}');
   } finally {
     dom.window.close();
   }
@@ -821,6 +894,72 @@ test("time conversion output rerenders after language changes", async () => {
   }
 });
 
+test("tool reset buttons restore controls and generated previews", async () => {
+  const { dom } = await loadToolsPage({ i18n: true });
+  const { document } = dom.window;
+  try {
+    const jsonReset = document.querySelector('#tool-json [data-tool-reset]');
+    assert.ok(jsonReset, "json tool should receive a reset button");
+    assert.match(jsonReset.textContent, /重置/);
+
+    document.querySelector("#json-input").value = '{"ok":true}';
+    document.querySelector('[data-json-action="format"]').click();
+    assert.match(document.querySelector("#json-output").value, /"ok": true/);
+
+    jsonReset.click();
+    assert.equal(document.querySelector("#json-input").value, "");
+    assert.equal(document.querySelector("#json-output").value, "");
+    assert.equal(document.querySelector("#json-status").textContent, "已重置");
+    assert.equal(document.querySelector("#json-status").classList.contains("is-ok"), true);
+
+    document.querySelector(".lang-toggle").click();
+    assert.equal(document.documentElement.getAttribute("lang"), "en");
+    assert.match(jsonReset.innerHTML, /fa-eraser/);
+    assert.equal(jsonReset.textContent.trim(), "Reset");
+    assert.equal(document.querySelector("#json-status").textContent, "Reset complete");
+
+    document.querySelector('[data-tool-tab="time"]').click();
+    document.querySelector("#timestamp-input").value = "1718697600";
+    document.querySelector('[data-time-action="from-timestamp"]').click();
+    assert.match(document.querySelector("#timestamp-output").textContent, /1718697600000/);
+    document.querySelector('#tool-time [data-tool-reset]').click();
+    assert.equal(document.querySelector("#timestamp-input").value, "");
+    assert.equal(document.querySelector("#timestamp-output").textContent, "");
+    document.querySelector(".lang-toggle").click();
+    assert.equal(document.querySelector("#timestamp-output").textContent, "");
+
+    document.querySelector('[data-tool-tab="uuid"]').click();
+    document.querySelector("[data-uuid-generate]").click();
+    assert.equal(document.querySelector("#uuid-output").hasAttribute("data-empty"), false);
+    document.querySelector('#tool-uuid [data-tool-reset]').click();
+    assert.equal(document.querySelector("#uuid-output").getAttribute("data-empty"), "true");
+    assert.match(document.querySelector("#uuid-output").textContent, /点击生成 UUID/);
+
+    document.querySelector('[data-tool-tab="color"]').click();
+    document.querySelector("#color-input").value = "#2563eb";
+    document.querySelector("[data-color-convert]").click();
+    assert.equal(document.querySelector("#color-swatch").style.backgroundColor, "rgb(37, 99, 235)");
+    assert.equal(document.querySelectorAll("#color-palette [data-color-value]").length, 7);
+    document.querySelector('#tool-color [data-tool-reset]').click();
+    assert.equal(document.querySelector("#color-swatch").style.backgroundColor, "");
+    assert.equal(document.querySelectorAll("#color-palette [data-color-value]").length, 0);
+    assert.match(document.querySelector("#color-preview-text").textContent, /等待转换颜色/);
+
+    document.querySelector('[data-tool-tab="qr"]').click();
+    document.querySelector("#qr-input").value = "https://wenliang844.github.io/tools/";
+    document.querySelector("[data-qr-generate]").click();
+    assert.equal(document.querySelector("#qr-image").hidden, false);
+    assert.equal(document.querySelector("#qr-empty").hidden, true);
+    document.querySelector('#tool-qr [data-tool-reset]').click();
+    assert.equal(document.querySelector("#qr-output").value, "");
+    assert.equal(document.querySelector("#qr-image").hidden, true);
+    assert.equal(document.querySelector("#qr-image").hasAttribute("src"), false);
+    assert.equal(document.querySelector("#qr-empty").hidden, false);
+  } finally {
+    dom.window.close();
+  }
+});
+
 test("current time timer pauses while the tools page is hidden", async () => {
   const { clearedTimers, dom, setHidden, timerCalls } = await loadToolsPage({ timerSpy: true });
   const { document, Event } = dom.window;
@@ -842,6 +981,37 @@ test("current time timer pauses while the tools page is hidden", async () => {
 
     document.dispatchEvent(new Event("visibilitychange"));
     assert.equal(timerCalls().length, 2);
+  } finally {
+    dom.window.close();
+  }
+});
+
+test("tool reset buttons restore initial values and rerender after language changes", async () => {
+  const { dom } = await loadToolsPage({ i18n: true });
+  const { document } = dom.window;
+  try {
+    const input = document.querySelector("#json-input");
+    const output = document.querySelector("#json-output");
+    const status = document.querySelector("#json-status");
+    const reset = document.querySelector('#tool-json [data-tool-reset="json"]');
+    const initialValue = input.value;
+
+    assert.ok(reset, "reset button should be installed for panels with controls");
+    assert.equal(reset.querySelector('[data-i18n="tools.btn.reset"]').textContent, "重置");
+
+    input.value = '{"ok":true}';
+    document.querySelector('[data-json-action="format"]').click();
+    assert.match(output.value, /"ok": true/);
+
+    reset.click();
+    assert.equal(input.value, initialValue);
+    assert.equal(output.value, "");
+    assert.equal(status.textContent, "已重置");
+    assert.equal(status.classList.contains("is-ok"), true);
+
+    document.querySelector(".lang-toggle").click();
+    assert.equal(reset.querySelector('[data-i18n="tools.btn.reset"]').textContent, "Reset");
+    assert.equal(status.textContent, "Reset complete");
   } finally {
     dom.window.close();
   }

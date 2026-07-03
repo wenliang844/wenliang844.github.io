@@ -6,18 +6,21 @@
 
 ## 2026-07-03 复查补充
 
-### 📌 F-11: 为 API Tester 增加“隐私模式”和敏感信息脱敏保存
+### 📌 F-11 [核心防护已修复]: 为 API Tester 增加“隐私模式”和敏感信息脱敏保存
 
 - **📍 位置**：`src/templates/tools.mjs:123-170`, `js/tools.js:461-529`, `js/tools.js:584-643`
-- **📝 当前状况描述**：API Tester 已经具备中转站填充、发送请求和历史保存，是很实用的工具；但历史保存默认包含 header/body，缺少面向 API key 场景的隐私模式。
+- **✅ 修复状态**：历史保存前会自动隐藏 `Authorization`、`Cookie`、`x-api-key`、`api-key`、token/secret/credential 等敏感 Header；请求体默认不保存，只有用户显式勾选“保存请求体”时才写入历史。
+- **🧪 回归测试**：`tests/tools.test.mjs` 覆盖发送后历史脱敏、默认不保存 body、显式保存 body；Playwright 抽查 `/tools/` API Tester 本地历史通过。
+- **📝 原状况描述**：API Tester 已经具备中转站填充、发送请求和历史保存，是很实用的工具；但历史保存默认包含 header/body，缺少面向 API key 场景的隐私模式。
 - **⚠️ 影响程度**：中
 - **💡 建议方案**：
   ```text
-  [x] 隐私模式：发送后不保存历史
   [x] 保存时自动隐藏 Authorization/Cookie/x-api-key
-  [ ] 保存 body
+  [x] 请求体默认不保存
+  [x] 用户显式勾选后才保存 body
+  [ ] 后续可增加一次性确认弹窗和更细粒度保留策略
   ```
-  默认开启隐私模式；当用户点击“保存请求”时弹出一次性确认，说明哪些字段会持久化。
+  当前已完成核心本地历史防护；后续可再加入一次性确认弹窗，说明哪些字段会持久化。
 - **📊 预期收益**：在保留调试效率的同时增强安全感，API Tester 可以更放心地承载真实开发调试场景。
 - **🔗 相关建议引用**：[S-12](security-audit.md#s-12-mini-api-tester-会把-authorization-头和请求体持久化到-localstorage), [UX-11](ux-improvements.md#ux-11-手势与-api-工具的隐私边界文案需要更精确)
 

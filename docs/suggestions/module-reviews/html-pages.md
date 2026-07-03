@@ -107,6 +107,24 @@
 
 ---
 
+## 📌 MR-HTML-06: 页面级 DOM 审计显示手写页仍有少量例外
+
+- **📍 位置**：`404.html:1-98`, `editor/index.html:117-119`, `tools/index.html:806-809`
+- **📝 当前状况描述**：第 3 轮 JSDOM 审计覆盖 19 个非临时 HTML 页面，所有页面都有 `meta description`、`main#main-content`、`h1`、skip link 和 OG image；例外包括：`404.html` 缺 JSON-LD，`editor/index.html` / `tools/index.html` 的 `textarea#markdown-input` 缺 label，`tools/index.html#qr-image` 缺尺寸和加载属性。
+- **⚠️ 影响程度**：低
+- **💡 建议方案**：
+  ```text
+  将页面契约纳入 tests：
+  - 每页必须有 description/main/h1/skip link/OG image
+  - 公开内容页必须有 JSON-LD，404 需明确白名单或补 WebPage
+  - 所有表单字段必须有关联 label 或 aria-label
+  - 非装饰图片必须有 alt、width、height
+  ```
+- **📊 预期收益**：用自动化守住手写页和生成页的一致性，避免后续单页改动带来隐性 a11y/SEO 回退。
+- **🔗 相关建议引用**：[DE-14](../devex-improvements.md#de-14-增加页面级-dom-契约审计防止-seo-a11y-回退), [UX-14](../ux-improvements.md#ux-14-markdown-编辑器主输入框缺少可关联标签), [SEO-07](seo-analysis.md#seo-07-404-页面缺少-json-ld-结构化数据)
+
+---
+
 ## 模块健康度评分：3.5 / 5 — 中等
 
 > 手写 HTML 页面功能完整，但与生成页面的维护一致性是主要改进方向。建议长期将手写页面也纳入构建流程。

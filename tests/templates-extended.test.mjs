@@ -199,6 +199,8 @@ test("renderAiPage includes the relay ranking tab content", () => {
   assert.match(html, /data-relay-filter="chatgpt"/);
   assert.match(html, /data-relay-filter="claude"/);
   assert.match(html, /id="relay-search-input"/);
+  assert.match(html, /aria-label="搜索中转站"/);
+  assert.match(html, /data-i18n-aria="relay\.search\.aria"/);
   assert.match(html, /LinuxDo 站/);
   assert.match(html, /商业站/);
   assert.match(html, /id="relay-list-linuxdo"/);
@@ -447,6 +449,22 @@ test("renderPostList groups posts by year with correct counts", () => {
   assert.match(html, /2023-2024/); // range
 });
 
+test("renderPostList prefixes article heading ids to avoid duplicates", () => {
+  const repeatedHeading = '<h2 id="toc-1-overview">Overview</h2><h3 id="toc-1-detail">Detail</h3>';
+  const posts = [
+    { slug: "a", shortTitle: "A", shortTitleEn: "A", title: "A", titleEn: "A", date: "2024-06-01", eyebrow: "项目", summary: "S", summaryEn: "S", tags: [], tagsEn: [], contentHtml: repeatedHeading, contentHtmlEn: "", readMinutes: 1, images: [] },
+    { slug: "b", shortTitle: "B", shortTitleEn: "B", title: "B", titleEn: "B", date: "2024-03-01", eyebrow: "项目", summary: "S", summaryEn: "S", tags: [], tagsEn: [], contentHtml: repeatedHeading, contentHtmlEn: "", readMinutes: 1, images: [] },
+  ];
+  const stats = { count: 2, systems: 1, startYear: "2024", endYear: "2024", yearCount: 1, range: "2024" };
+  const html = renderPostList(posts, stats);
+  const ids = Array.from(html.matchAll(/\sid="([^"]+)"/g)).map((match) => match[1]);
+  const duplicateIds = ids.filter((id, index) => ids.indexOf(id) !== index);
+
+  assert.deepEqual([...new Set(duplicateIds)], []);
+  assert.match(html, /id="post-a-toc-1-overview"/);
+  assert.match(html, /id="post-b-toc-1-overview"/);
+});
+
 test("renderPostList renders search input and tag filter", () => {
   const posts = [
     { slug: "a", shortTitle: "A", shortTitleEn: "A", title: "A", titleEn: "A", date: "2024-01-01", eyebrow: "项目", summary: "S", summaryEn: "S", tags: ["Java"], tagsEn: ["Java"], contentHtml: "<p>A</p>", contentHtmlEn: "", readMinutes: 1, images: [] },
@@ -456,4 +474,23 @@ test("renderPostList renders search input and tag filter", () => {
 
   assert.match(html, /id="post-search-input"/);
   assert.match(html, /id="tag-filter"/);
+});
+
+test("renderPostList prefixes repeated article heading ids per post", () => {
+  const repeatedContent = '<h2 id="toc-1-overview">Overview</h2>\n<p><a href="#toc-1-overview">Jump</a></p>';
+  const posts = [
+    { slug: "alpha", shortTitle: "A", shortTitleEn: "A", title: "A", titleEn: "A", date: "2024-01-02", eyebrow: "项目", summary: "S", summaryEn: "S", tags: [], tagsEn: [], contentHtml: repeatedContent, contentHtmlEn: "", readMinutes: 1, images: [] },
+    { slug: "beta", shortTitle: "B", shortTitleEn: "B", title: "B", titleEn: "B", date: "2024-01-01", eyebrow: "项目", summary: "S", summaryEn: "S", tags: [], tagsEn: [], contentHtml: repeatedContent, contentHtmlEn: "", readMinutes: 1, images: [] },
+  ];
+  const stats = { count: 2, systems: 1, startYear: "2024", endYear: "2024", yearCount: 1, range: "2024" };
+  const html = renderPostList(posts, stats);
+  const ids = [...html.matchAll(/\sid="([^"]+)"/g)].map((match) => match[1]);
+  const duplicates = ids.filter((id, index) => ids.indexOf(id) !== index);
+
+  assert.equal(duplicates.length, 0);
+  assert.match(html, /id="post-alpha-toc-1-overview"/);
+  assert.match(html, /href="#post-alpha-toc-1-overview"/);
+  assert.match(html, /id="post-beta-toc-1-overview"/);
+  assert.match(html, /href="#post-beta-toc-1-overview"/);
+  assert.doesNotMatch(html, /\sid="toc-1-overview"/);
 });

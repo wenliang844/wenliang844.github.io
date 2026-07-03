@@ -157,6 +157,9 @@ ${toolHeader(tool)}
           <div class="tool-actions">
             <button class="tool-btn primary" type="button" data-api-send data-i18n="tools.btn.sendRequest" data-i18n-html><i class="fas fa-paper-plane" aria-hidden="true"></i> 发送请求</button>
             <button class="tool-btn" type="button" data-api-save data-i18n="tools.btn.saveRequest" data-i18n-html><i class="fas fa-save" aria-hidden="true"></i> 保存请求</button>
+            <label class="tool-inline"><span data-i18n="tools.label.saveBody">保存请求体</span>
+              <input id="api-save-body-history" type="checkbox">
+            </label>
             <label class="tool-inline"><span data-i18n="tools.label.history">历史</span>
               <select id="api-history">
                 <option value="" data-i18n="tools.api.noHistory">暂无历史</option>

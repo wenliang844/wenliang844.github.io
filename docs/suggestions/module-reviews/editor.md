@@ -67,4 +67,22 @@
 
 ---
 
+## 📌 MR-EDITOR-06: Markdown 主输入框缺少可访问名称
+
+- **📍 位置**：`editor/index.html:117-119`, `src/templates/tools.mjs:405-407`, `tools/index.html:634-636`
+- **📝 当前状况描述**：编辑器主输入框 `textarea#markdown-input` 没有关联 label 或 aria 名称。该控件是编辑器最重要的输入区域，缺少名称会影响屏幕阅读器用户定位，也会让页面级表单审计持续报错。
+- **⚠️ 影响程度**：中
+- **💡 建议方案**：
+  ```html
+  <label class="sr-only" for="markdown-input" data-i18n="editor.input.label">
+    Markdown 原文输入
+  </label>
+  <textarea id="markdown-input" spellcheck="false"></textarea>
+  ```
+  工具箱内嵌编辑器与独立编辑器页应共享同一段 markup，避免修一处漏一处。
+- **📊 预期收益**：提升编辑器无障碍质量，并降低手写页与工具模板之间的维护漂移。
+- **🔗 相关建议引用**：[UX-14](../ux-improvements.md#ux-14-markdown-编辑器主输入框缺少可关联标签), [DE-14](../devex-improvements.md#de-14-增加页面级-dom-契约审计防止-seo-a11y-回退)
+
+---
+
 ## 模块健康度评分：4.1 / 5 — 优秀

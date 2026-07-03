@@ -2,10 +2,9 @@
   /* ------------------------------------------------------------------------
    * Giscus comments (GitHub Discussions powered).
    *
-   * To enable: open https://giscus.app, select your repository (Discussions
-   * must be enabled), then copy the generated values below.
-   * While any of repo / repoId / categoryId is empty the comment area shows a
-   * placeholder instead of loading anything.
+   * Default values come from the public giscus.app configuration for this
+   * repository. Set window.CWL_GISCUS_CONFIG before this script if a deployment
+   * needs to override or disable comments.
    *
    * 两种页面共用一个 #giscus-thread 容器：
    *  - 单篇页：按 pathname 映射，直接加载该篇讨论。
@@ -13,7 +12,7 @@
    *    postMessage(setConfig) 切到对应讨论线程（term = 该篇单篇页 pathname，
    *    与单篇页共用同一条 GitHub Discussion）。避免多实例 iframe 冲突。
    * ---------------------------------------------------------------------- */
-  const config = {
+  const config = Object.assign({
     repo: "wenliang844/wenliang844.github.io",
     repoId: "MDEwOlJlcG9zaXRvcnkzNTQyNDE4MDY=",
     category: "Announcements",
@@ -21,7 +20,7 @@
     mapping: "pathname",
     theme: "preferred_color_scheme",
     lang: "zh-CN"
-  };
+  }, window.CWL_GISCUS_CONFIG || {});
 
   const configured = config.repo && config.repoId && config.categoryId;
 

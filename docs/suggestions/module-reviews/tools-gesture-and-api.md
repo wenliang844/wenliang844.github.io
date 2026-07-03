@@ -53,10 +53,12 @@
 
 ---
 
-## 📌 MR-TOOLS-03: API Tester 历史保存未区分普通请求和敏感请求
+## 📌 MR-TOOLS-03 [已修复核心风险]: API Tester 历史保存未区分普通请求和敏感请求
 
 - **📍 位置**：`src/templates/tools.mjs:147-167`, `js/tools.js:461-529`, `js/tools.js:584-643`
-- **📝 当前状况描述**：API Tester 保存历史时持久化完整 header/body；发送成功还会自动保存。对中转站、OpenAI/Anthropic 兼容接口等场景来说，Authorization 与 x-api-key 是高概率输入。
+- **✅ 修复状态**：API Tester 保存历史前会脱敏敏感 Header，请求体默认不保存；显式勾选“保存请求体”后才持久化 body。发送请求仍使用原始输入，历史记录使用安全副本。
+- **🧪 回归测试**：`tests/tools.test.mjs` 和 Playwright `/tools/` 抽查均覆盖该行为。
+- **📝 原状况描述**：API Tester 保存历史时持久化完整 header/body；发送成功还会自动保存。对中转站、OpenAI/Anthropic 兼容接口等场景来说，Authorization 与 x-api-key 是高概率输入。
 - **⚠️ 影响程度**：中
 - **💡 建议方案**：
   ```javascript

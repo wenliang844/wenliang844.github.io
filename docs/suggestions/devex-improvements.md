@@ -66,6 +66,28 @@
 - **📊 预期收益**：把已发现的复杂边界变成可自动阻断的回归条件，减少后续重构 assistant 和工具核心时的行为漂移。
 - **🔗 相关建议引用**：[B-15](bugs-and-risks.md#b-15-ai-助手模式偏好写入后不会被恢复), [B-16](bugs-and-risks.md#b-16-ai-助手-sse-流结束时可能丢失最后一个未闭合事件), [P-16](performance-bottlenecks.md#p-16-cron-无解表达式会在主线程同步扫描两年分钟粒度)
 
+### 📌 DE-14: 增加页面级 DOM 契约审计，防止 SEO/a11y 回退
+
+- **📍 位置**：`tests/*.test.mjs`, `404.html:1-98`, `editor/index.html:117-119`, `tools/index.html:806-809`
+- **📝 当前状况描述**：第 3 轮临时 JSDOM 审计覆盖 19 个非临时 HTML 页面，确认 description、main、h1、skip link、OG image 整体良好；同时发现 404 缺 JSON-LD、`markdown-input` 缺 label、`qr-image` 缺尺寸/加载属性。这类问题适合变成持续测试，而不是靠人工巡检。
+- **⚠️ 影响程度**：中
+- **💡 建议方案**：
+  ```javascript
+  test("public html pages keep seo and a11y contracts", () => {
+    for (const file of publicHtmlFiles()) {
+      const doc = parseHtml(file);
+      assert.ok(doc.querySelector("main#main-content"));
+      assert.ok(doc.querySelector("h1"));
+      assert.ok(doc.querySelector('a.skip-link[href="#main-content"]'));
+      assert.equal(findFieldsWithoutLabel(doc).length, 0);
+      assert.equal(findImagesWithoutSize(doc).length, 0);
+    }
+  });
+  ```
+  对 404 是否必须 JSON-LD 可作为白名单或单独断言，避免误报。
+- **📊 预期收益**：把页面级 SEO/a11y 质量从文档建议固化为自动门禁，减少手写 HTML 与生成页的漂移。
+- **🔗 相关建议引用**：[UX-14](ux-improvements.md#ux-14-markdown-编辑器主输入框缺少可关联标签), [UX-15](ux-improvements.md#ux-15-qr-结果图片缺少尺寸和加载属性生成后可能产生布局跳动), [SEO-07](module-reviews/seo-analysis.md#seo-07-404-页面缺少-json-ld-结构化数据)
+
 ---
 
 ## 📌 DE-01 [已修复]: 无自动化 CI/CD 流程

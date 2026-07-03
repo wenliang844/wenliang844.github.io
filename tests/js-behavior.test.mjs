@@ -182,12 +182,15 @@ test("search.js gives the nav trigger a shortcut hint", async () => {
   dom.window.eval(search);
 
   const trigger = dom.window.document.querySelector(".nav-search-trigger");
+  const input = dom.window.document.querySelector(".search-modal-input");
   assert.equal(trigger.getAttribute("aria-label"), "全局搜索（Ctrl+K 或 /）");
   assert.equal(trigger.getAttribute("title"), "全局搜索（Ctrl+K 或 /）");
+  assert.equal(input.getAttribute("aria-label"), "搜索文章");
 
   dom.window.cwlSetLang("en");
   assert.equal(trigger.getAttribute("aria-label"), "Global search (Ctrl+K or /)");
   assert.equal(trigger.getAttribute("title"), "Global search (Ctrl+K or /)");
+  assert.equal(input.getAttribute("aria-label"), "Search posts");
   dom.window.close();
 });
 

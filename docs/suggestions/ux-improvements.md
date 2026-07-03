@@ -58,6 +58,33 @@
 - **📊 预期收益**：让默认体验符合最小外发原则，用户能清楚理解何时使用本地规则、何时调用外部模型。
 - **🔗 相关建议引用**：[B-15](bugs-and-risks.md#b-15-ai-助手模式偏好写入后不会被恢复), [S-11](security-audit.md#s-11-assistantjs-仍在前端运行时拼接并使用默认体验-api-key), [S-14](security-audit.md#s-14-ai-助手对话和-llm-上下文长期留存在-localstorage)
 
+### 📌 UX-14: Markdown 编辑器主输入框缺少可关联标签
+
+- **📍 位置**：`editor/index.html:117-119`, `src/templates/tools.mjs:405-407`, `tools/index.html:634-636`
+- **📝 当前状况描述**：JSDOM 表单标签审计显示独立编辑器页和工具箱内嵌 Markdown 编辑器的 `textarea#markdown-input` 没有关联的 `<label for="markdown-input">`、`aria-label` 或 `aria-labelledby`。视觉上有编辑区上下文，但屏幕阅读器和表单导航无法稳定读出该输入区用途。
+- **⚠️ 影响程度**：中
+- **💡 建议方案**：
+  ```html
+  <label class="sr-only" for="markdown-input">Markdown 原文输入</label>
+  <textarea id="markdown-input" spellcheck="false"></textarea>
+  ```
+  如果不想新增可见文案，也可使用 `aria-label="Markdown 原文输入"` 并接入 `data-i18n-aria`。
+- **📊 预期收益**：提升编辑器键盘和辅助技术可用性，避免一个核心输入控件在自动化 a11y 审计中持续报错。
+- **🔗 相关建议引用**：[MR-EDITOR-06](module-reviews/editor.md#mr-editor-06-markdown-主输入框缺少可访问名称), [DE-14](devex-improvements.md#de-14-增加页面级-dom-契约审计防止-seo-a11y-回退)
+
+### 📌 UX-15: QR 结果图片缺少尺寸和加载属性，生成后可能产生布局跳动
+
+- **📍 位置**：`src/templates/tools.mjs:559`, `tools/index.html:806-809`
+- **📝 当前状况描述**：`img#qr-image` 有 `alt` 和 `hidden`，但没有 `width`、`height`、`loading`、`decoding`。当用户生成二维码后，图片从 hidden 状态显示，浏览器需要在 data URL 解码后才知道尺寸，预览区域可能出现轻微布局跳动。
+- **⚠️ 影响程度**：低
+- **💡 建议方案**：
+  ```html
+  <img id="qr-image" alt="QR code" width="256" height="256" loading="lazy" decoding="async" hidden>
+  ```
+  CSS 中给 `.tool-preview` 或 QR 容器预留固定 `min-height`，生成失败时也保持布局稳定。
+- **📊 预期收益**：减少二维码生成瞬间的布局抖动，让工具输出区更稳定。
+- **🔗 相关建议引用**：[P-11](performance-bottlenecks.md#p-11), [DE-14](devex-improvements.md#de-14-增加页面级-dom-契约审计防止-seo-a11y-回退)
+
 ---
 
 ## 📌 UX-01 [已修复]: 移动端导航菜单无遮罩层，点击外部区域无法关闭
@@ -163,10 +190,12 @@
 
 ---
 
-## 📌 UX-07: 工具箱缺少"重置"按钮
+## 📌 UX-07 [已修复]: 工具箱缺少"重置"按钮
 
 - **📍 位置**：`js/tools.js`、`src/templates/tools.mjs`
-- **📝 当前状况**：工具箱的各工具（JSON 格式化、Base64 等）有输入和输出区域，但没有统一的"清空/重置"按钮。用户需要手动清空输入框。
+- **✅ 修复状态**：工具面板会自动安装“重置”按钮，恢复初始输入值、清空输出和状态；UUID、时间戳、颜色、Markdown 预览、二维码等派生 UI 也会回到初始状态。按钮文案支持中英文切换。
+- **🧪 回归测试**：`tests/tools.test.mjs` 覆盖重置按钮安装、JSON/时间/UUID/颜色/二维码状态恢复和 i18n 状态刷新；Playwright 移动端工具箱抽查通过。
+- **📝 原状况**：工具箱的各工具（JSON 格式化、Base64 等）有输入和输出区域，但没有统一的"清空/重置"按钮。用户需要手动清空输入框。
 - **⚠️ 影响程度**：低
 - **💡 建议方案**：为每个工具面板添加重置按钮：
   ```html
@@ -251,6 +280,6 @@
 | ✅ | UX-05 | 订阅用户 | 已完成 |
 | ✅ | UX-02 | 搜索用户 | 已完成 |
 | ~~🥉~~ | ~~UX-06~~ | ~~反馈用户~~ | ~~低~~ ✅ 已修复 |
-| 🥉 | UX-07 | 工具箱用户 | 低 |
+| ~~🥉~~ | ~~UX-07~~ | ~~工具箱用户~~ | ~~低~~ ✅ 已修复 |
 | ~~🥉~~ | ~~UX-08~~ | ~~移动端用户~~ | ~~低~~ ✅ 已修复 |
 | ✅ | UX-10 | 所有用户 | 已完成 |

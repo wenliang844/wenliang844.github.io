@@ -79,6 +79,44 @@
 - **📊 预期收益**：让 Cron 工具在无解或稀疏表达式下保持即时反馈，避免工具箱交互被同步循环阻塞。
 - **🔗 相关建议引用**：[MR-CORE-01](module-reviews/tools-core.md#mr-core-01-cron-解析器需要避免主线程百万次扫描), [DE-13](devex-improvements.md#de-13-为-ai-助手和-cron-边界行为补充回归测试)
 
+### 📌 P-17: 全站统一加载 `coder.css`，工具箱和助手样式成本扩散到所有页面
+
+- **📍 位置**：`src/templates/layout.mjs:225-226`, `css/coder.css:3910-4898`, `css/coder.css:4982-6084`, `css/coder.css:6260-6543`
+- **📝 当前状况描述**：第 3 轮统计显示 `css/coder.css` 已增长到 6,617 行，`layout.mjs` 仍在每个页面统一加载该文件。工具箱样式约从 3,910 行开始，AI 助手样式约 4,982-6,084 行，手势/视觉工具还有后续专属样式；普通文章页、404、关于页都会解析这些仅工具页或助手面板才需要的规则。
+- **⚠️ 影响程度**：中
+- **💡 建议方案**：
+  ```text
+  css/core.css       — 变量、导航、布局、文章基础
+  css/tools.css      — 工具箱、编辑器嵌入、视觉工具
+  css/assistant.css  — AI 助手浮层
+  ```
+  构建层可先不引入打包器，只在 `renderPage()` 中按页面类型输出额外 `<link>`；AI 助手样式也可在助手首次打开时按需加载。
+- **📊 预期收益**：降低非工具页的 CSS 解析和样式匹配成本，让 CSS 体积预算从“全站单包”转成“页面级预算”。
+- **🔗 相关建议引用**：[MR-CSS-07](module-reviews/css-analysis.md#mr-css-07-复查发现-css-单包已增长到-6617-行), [AR-08](architecture-review.md#ar-08-工具箱和助手资源需要从全站核心层剥离)
+
+### 📌 P-18: 工具页首屏一次性解析 31 个工具面板
+
+- **📍 位置**：`tools/index.html:89-279`, `tools/index.html:302-1235`, `src/templates/tools.mjs:64-85`, `src/templates/tools.mjs:923-944`
+- **📝 当前状况描述**：JSDOM 审计显示工具页初始 HTML 包含 31 个 tab、31 个 panel，其中 30 个 panel 默认 hidden，但仍会被浏览器解析成 DOM；页面内有 50 个 textarea、55 个 input、141 个 button、总计约 1,199 个元素。用户首次只看到 JSON 工具，却已经支付了所有工具 markup 的解析成本。
+- **⚠️ 影响程度**：中
+- **💡 建议方案**：
+  ```javascript
+  const TOOL_TEMPLATES = {
+    json: renderJsonTool,
+    api: renderApiTool,
+  };
+
+  function activateTool(id) {
+    if (!panelCache.has(id)) {
+      mountPanel(id, TOOL_TEMPLATES[id]());
+    }
+    showPanel(id);
+  }
+  ```
+  短期可把非首屏 panel 放入 `<template>`，点击 tab 时再实例化；中期把工具定义拆成 JSON/模块，按分类懒加载。
+- **📊 预期收益**：减少工具页首屏 HTML 体积、DOM 构建时间和内存占用，给继续新增工具留出空间。
+- **🔗 相关建议引用**：[P-13](#p-13-关键静态产物体积已经接近当前性能预算), [AR-08](architecture-review.md#ar-08-工具箱和助手资源需要从全站核心层剥离), [MR-TOOLS-05](module-reviews/tools-gesture-and-api.md#mr-tools-05-工具箱主模板已经过大新增工具会继续推高生成页体积)
+
 ---
 
 ## 📌 P-01 [已修复]: 粒子动画 `requestAnimationFrame` 持续运行，无空闲停止机制
