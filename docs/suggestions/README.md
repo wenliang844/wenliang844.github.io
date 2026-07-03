@@ -21,6 +21,18 @@
 | 第 3 轮新增例外 | 404 JSON-LD、`markdown-input` label、`qr-image` 尺寸/加载属性均已修复 |
 | 第 3-5 轮资源测量 | `coder.css` 6,130 行 / 129,973 bytes；`tools.css` 12,287 bytes；`trust.css` 854 bytes；新增 `src/page-assets.mjs` 和路由级 CSS raw/gzip 预算；工具页首屏约 310 个元素、1 个真实面板、30 个按需 template |
 
+## 2026-07-04 最终收口快照
+
+| 项目 | 结果 |
+|------|------|
+| 完整分析报告 | [final-analysis-report-2026-07-03.md](final-analysis-report-2026-07-03.md) |
+| 小时报告 | 已生成第 2-6 小时工作报告；第 6 小时报告见 [hourly-report-2026-07-03-06.md](hourly-report-2026-07-03-06.md) |
+| 建议库规模 | 66 个建议文档，其中 45 个模块专题 |
+| 当前质量基线 | `npm run lint:check` 通过；`npm test` 788/788 通过；`npm run test:coverage` line 96.76%、branch 83.95%、funcs 96.30%；HTTP smoke 6/6 |
+| 综合健康度 | 3.9 / 5（良好） |
+| 最高优先级 | 质量基线 artifact 正式化、PWA 缓存安全矩阵、资源 manifest 驱动生产验证、生成产物漂移只读门禁 |
+| 工作树说明 | 当前存在外部并发修改；最终报告按 dirty scope 标注证据，不把外部源码/测试改动计入 docs-only 提交 |
+
 ### 新增高优先级发现
 
 | 编号 | 等级 | 建议 | 文档 |
@@ -234,8 +246,11 @@
 docs/
 └── suggestions/
     ├── README.md                           ← 本文件（索引总览）
+    ├── final-analysis-report-2026-07-03.md ← 完整分析报告与最终路线图
     ├── health-score.md                     ← 项目健康度评分报告
     ├── work-report.md                      ← 工作报告
+    ├── hourly-report-2026-07-03-06.md      ← 第 6 小时工作报告
+    ├── evidence/                           ← 当前质量基线证据
     ├── bugs-and-risks.md                   ← 潜在 Bug 与崩溃风险
     ├── security-audit.md                   ← 安全漏洞与防护建议
     ├── performance-bottlenecks.md          ← 性能瓶颈与优化建议
@@ -257,7 +272,9 @@ docs/
         ├── html-pages.md                   ← 手写 HTML 页面一致性分析
         ├── tools-gesture-and-api.md        ← 工具箱手势与 API 测试器复查
         ├── visual-interactions.md          ← 视觉交互脚本深度分析
-        └── tools-core-runtime-safety.md    ← 工具箱运行时安全专题
+        ├── tools-core-runtime-safety.md    ← 工具箱运行时安全专题
+        ├── shared-formatting-and-reading-contract.md ← 共享格式化与阅读指标契约
+        └── pwa-offline-cache-readiness.md  ← PWA 离线能力与缓存策略
 ```
 
 ---
