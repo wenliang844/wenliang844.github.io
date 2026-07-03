@@ -3,7 +3,7 @@
   if (!core) {
     return;
   }
-  var apiAbortController = null;
+  let apiAbortController = null;
 
   const timeResults = {};
   let nowTimer = null;
@@ -493,7 +493,7 @@
   }
 
   function formatApiBody(body) {
-    if (body.length > 500000) return body; /* skip pretty-print for large responses */
+    if (body.length > 500000) {return body;} /* skip pretty-print for large responses */
     try {
       return JSON.stringify(JSON.parse(body), null, 2);
     } catch (_error) {
@@ -509,7 +509,7 @@
     }
     /* URL scheme validation */
     try {
-      var parsed = new URL(request.url);
+      const parsed = new URL(request.url);
       if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
         setStatusError("api-status", { ok: false, error: "仅支持 http:// 和 https:// 协议", code: "apiScheme" });
         return;
@@ -563,7 +563,7 @@
         setStatusKey("api-status", "tools.status.sent", "请求完成并已保存历史", response.ok ? "ok" : "error");
       });
     }).catch(function (error) {
-      if (error.name === "AbortError") return;
+      if (error.name === "AbortError") {return;}
       value("api-response", "请求失败: " + error.message);
       setStatusError("api-status", { ok: false, error: "请求失败：" + error.message, code: "apiRequest" });
     });
@@ -872,7 +872,7 @@
     }
 
     if (closest(event.target, "[data-password-generate]")) {
-      var pwLen = parseInt(inputValue("password-length"), 10);
+      const pwLen = parseInt(inputValue("password-length"), 10);
       if (!Number.isFinite(pwLen) || pwLen < 1 || pwLen > 256) {
         setStatusError("password-status", { ok: false, error: "密码长度需在 1-256 之间", code: "passwordLength" });
         return;

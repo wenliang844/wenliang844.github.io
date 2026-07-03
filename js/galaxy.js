@@ -1,23 +1,24 @@
+/* eslint-disable no-redeclare, no-unused-vars */
 /* ===== Galaxy (星河动画) — self-contained IIFE ===== */
-;(function () {
-  'use strict'
+(function () {
+  
 
   /* ---- DOM refs ---- */
-  var $canvas  = document.getElementById('galaxy-canvas')
-  if (!$canvas) return
-  var $viewport = $canvas.parentElement
-  var $theme    = document.getElementById('galaxy-theme')
-  var $speed    = document.getElementById('galaxy-speed')
-  var $count    = document.getElementById('galaxy-count')
-  var $interact = document.getElementById('galaxy-interact')
-  var $fps      = document.getElementById('galaxy-fps')
-  var $pcount   = document.getElementById('galaxy-particles')
-  var $panel    = document.getElementById('tool-galaxy')
+  const $canvas  = document.getElementById('galaxy-canvas')
+  if (!$canvas) {return}
+  const $viewport = $canvas.parentElement
+  const $theme    = document.getElementById('galaxy-theme')
+  const $speed    = document.getElementById('galaxy-speed')
+  const $count    = document.getElementById('galaxy-count')
+  const $interact = document.getElementById('galaxy-interact')
+  const $fps      = document.getElementById('galaxy-fps')
+  const $pcount   = document.getElementById('galaxy-particles')
+  const $panel    = document.getElementById('tool-galaxy')
 
-  var ctx = $canvas.getContext('2d')
+  const ctx = $canvas.getContext('2d')
 
   /* ---- Color themes ---- */
-  var THEMES = {
+  const THEMES = {
     bluePurple: {
       name: '蓝紫',
       clouds: [
@@ -69,30 +70,30 @@
   }
 
   /* ---- State ---- */
-  var themeKey    = 'bluePurple'
-  var speedMul    = 1
-  var targetCount = 1000
-  var interactMode = 'attract'
-  var running     = false
-  var rafId       = null
-  var mouse       = { x: -9999, y: -9999, active: false }
-  var time        = 0
+  let themeKey    = 'bluePurple'
+  let speedMul    = 1
+  let targetCount = 1000
+  let interactMode = 'attract'
+  let running     = false
+  let rafId       = null
+  const mouse       = { x: -9999, y: -9999, active: false }
+  let time        = 0
 
   /* Star field */
-  var stars = []
+  let stars = []
 
   /* Milky way band — cached */
-  var bandCache = null
-  var bandCacheKey = ''
+  let bandCache = null
+  let bandCacheKey = ''
 
   /* Shooting stars */
-  var shootingStars = []
+  const shootingStars = []
 
   /* Mouse trail */
-  var trail = []
+  let trail = []
 
   /* FPS */
-  var fpsFrames = 0, fpsTime = 0, fpsVal = 0
+  let fpsFrames = 0, fpsTime = 0, fpsVal = 0
 
   /* ---- Helpers ---- */
   function rand(a, b) { return Math.random() * (b - a) + a }
@@ -100,19 +101,19 @@
 
   /* random hue that wraps around 360 when lo > hi */
   function randHue(lo, hi) {
-    if (hi >= lo) return rand(lo, hi)
+    if (hi >= lo) {return rand(lo, hi)}
     return lo + Math.random() * ((hi + 360) - lo) % 360
   }
 
   /* ---- Resize ---- */
-  var cw = 0, ch = 0, cx = 0, cy = 0
+  let cw = 0, ch = 0, cx = 0, cy = 0
 
   function resize() {
-    var rect = $viewport.getBoundingClientRect()
+    const rect = $viewport.getBoundingClientRect()
     cw = rect.width
     ch = rect.height
-    if (cw < 1 || ch < 1) return
-    var dpr = Math.min(window.devicePixelRatio || 1, 1.5)
+    if (cw < 1 || ch < 1) {return}
+    const dpr = Math.min(window.devicePixelRatio || 1, 1.5)
     $canvas.width  = cw * dpr
     $canvas.height = ch * dpr
     $canvas.style.width  = cw + 'px'
@@ -129,9 +130,9 @@
      ============================================================ */
   function initStars() {
     stars = []
-    var area = cw * ch
+    const area = cw * ch
     /* layer 1: many tiny dim background specks */
-    var dimCount = Math.min(Math.floor(area / 120), 4000)
+    const dimCount = Math.min(Math.floor(area / 120), 4000)
     for (var i = 0; i < dimCount; i++) {
       stars.push({
         x: rand(0, cw), y: rand(0, ch),
@@ -144,7 +145,7 @@
       })
     }
     /* layer 2: medium stars */
-    var midCount = Math.min(Math.floor(area / 400), 600)
+    const midCount = Math.min(Math.floor(area / 400), 600)
     for (var i = 0; i < midCount; i++) {
       stars.push({
         x: rand(0, cw), y: rand(0, ch),
@@ -157,7 +158,7 @@
       })
     }
     /* layer 3: bright stars with glow */
-    var brightCount = Math.min(Math.floor(area / 3000), 80)
+    const brightCount = Math.min(Math.floor(area / 3000), 80)
     for (var i = 0; i < brightCount; i++) {
       stars.push({
         x: rand(0, cw), y: rand(0, ch),
@@ -170,7 +171,7 @@
       })
     }
     /* layer 4: very bright stars with cross rays */
-    var vBrightCount = Math.min(Math.floor(area / 15000), 15)
+    const vBrightCount = Math.min(Math.floor(area / 15000), 15)
     for (var i = 0; i < vBrightCount; i++) {
       stars.push({
         x: rand(0, cw), y: rand(0, ch),
@@ -188,10 +189,10 @@
     /* dim stars — individual fillRect with per-star twinkle */
     for (var i = 0; i < stars.length; i++) {
       var s = stars[i]
-      if (s.r >= 0.6) continue
+      if (s.r >= 0.6) {continue}
       var tw = (Math.sin(time * s.twinkleSpeed + s.twinklePhase) + 1) * 0.5
       var alpha = lerp(0.03, s.brightness, tw)
-      if (alpha < 0.06) continue
+      if (alpha < 0.06) {continue}
       ctx.fillStyle = 'hsla(220, 20%, 92%, ' + alpha + ')'
       ctx.fillRect(s.x + s.ox, s.y + s.oy, s.r, s.r)
     }
@@ -199,11 +200,11 @@
     /* medium and bright stars individually */
     for (var i = 0; i < stars.length; i++) {
       var s = stars[i]
-      if (s.r < 0.6) continue
+      if (s.r < 0.6) {continue}
       var tw = (Math.sin(time * s.twinkleSpeed + s.twinklePhase) + 1) * 0.5
       var alpha = lerp(0.04, s.brightness, tw)
-      var x = s.x + s.ox
-      var y = s.y + s.oy
+      const x = s.x + s.ox
+      const y = s.y + s.oy
 
       /* glow halo for medium+ stars */
       if (s.r > 0.9 && alpha > 0.3) {
@@ -214,14 +215,14 @@
 
         /* strong diffraction spikes for very bright stars */
         if (s.r > 2.0 && alpha > 0.6) {
-          var spikeLen = s.r * 10
+          const spikeLen = s.r * 10
           ctx.strokeStyle = 'hsla(' + s.hue + ', 30%, 92%, ' + (alpha * 0.22) + ')'
           ctx.lineWidth = 0.7
           ctx.beginPath()
           ctx.moveTo(x - spikeLen, y); ctx.lineTo(x + spikeLen, y)
           ctx.moveTo(x, y - spikeLen); ctx.lineTo(x, y + spikeLen)
           ctx.stroke()
-          var sl2 = spikeLen * 0.5
+          const sl2 = spikeLen * 0.5
           ctx.strokeStyle = 'hsla(' + s.hue + ', 25%, 90%, ' + (alpha * 0.1) + ')'
           ctx.lineWidth = 0.4
           ctx.beginPath()
@@ -243,27 +244,27 @@
      MILKY WAY BAND — diagonal nebula glow (cached)
      ============================================================ */
   function buildBandCache() {
-    var theme = THEMES[themeKey]
-    var key = cw + ',' + ch + ',' + themeKey
-    if (bandCache && bandCacheKey === key) return
+    const theme = THEMES[themeKey]
+    const key = cw + ',' + ch + ',' + themeKey
+    if (bandCache && bandCacheKey === key) {return}
     bandCacheKey = key
-    if (!bandCache) bandCache = document.createElement('canvas')
+    if (!bandCache) {bandCache = document.createElement('canvas')}
     bandCache.width = $canvas.width
     bandCache.height = $canvas.height
-    var bc = bandCache.getContext('2d')
-    var dpr = Math.min(window.devicePixelRatio || 1, 1.5)
+    const bc = bandCache.getContext('2d')
+    const dpr = Math.min(window.devicePixelRatio || 1, 1.5)
     bc.setTransform(dpr, 0, 0, dpr, 0, 0)
 
-    var angle = theme.bandAngle
-    var diag = Math.sqrt(cw * cw + ch * ch)
-    var bandCx = cw * 0.48
-    var bandCy = ch * 0.52
-    var perpX = -Math.sin(angle)
-    var perpY = Math.cos(angle)
+    const angle = theme.bandAngle
+    const diag = Math.sqrt(cw * cw + ch * ch)
+    const bandCx = cw * 0.48
+    const bandCy = ch * 0.52
+    const perpX = -Math.sin(angle)
+    const perpY = Math.cos(angle)
 
     /* hue gradient: left end → right end across the band */
-    var hueStart = theme.clouds[0].hue - 35
-    var hueEnd   = theme.clouds[0].hue + 65
+    const hueStart = theme.clouds[0].hue - 35
+    const hueEnd   = theme.clouds[0].hue + 65
 
     function hueAt(tNorm) {
       return hueStart + (hueEnd - hueStart) * (tNorm + 0.5)
@@ -275,10 +276,10 @@
     }
 
     /* --- Layer 0: continuous smooth backbone strokes --- */
-    for (var pass = 0; pass < 3; pass++) {
-      var w = diag * (0.18 - pass * 0.04)
-      var alpha = [0.06, 0.04, 0.025][pass]
-      var steps = 50
+    for (let pass = 0; pass < 3; pass++) {
+      const w = diag * (0.18 - pass * 0.04)
+      const alpha = [0.06, 0.04, 0.025][pass]
+      const steps = 50
       for (var si = 0; si <= steps; si++) {
         var t = (si / steps) - 0.5
         var bw = w * bandWidthMul(t)
@@ -315,11 +316,11 @@
     }
 
     /* --- Layer 2: main cloud layers (more segments for smoothness) --- */
-    for (var ci = 0; ci < theme.clouds.length; ci++) {
-      var cloud = theme.clouds[ci]
-      var bandWidth = diag * cloud.spread * 1.2
+    for (let ci = 0; ci < theme.clouds.length; ci++) {
+      const cloud = theme.clouds[ci]
+      const bandWidth = diag * cloud.spread * 1.2
 
-      var segments = 28
+      const segments = 28
       for (var si = 0; si <= segments; si++) {
         var t = (si / segments) - 0.5
         var bw = bandWidthMul(t)
@@ -329,11 +330,11 @@
         bx += perpX * shift
         by += perpY * shift
 
-        var rx = bandWidth * bw * rand(0.6, 1.15)
-        var ry = bandWidth * bw * rand(0.3, 0.55)
+        const rx = bandWidth * bw * rand(0.6, 1.15)
+        const ry = bandWidth * bw * rand(0.3, 0.55)
         var h = hueAt(t) + rand(-8, 8)
-        var s = cloud.sat
-        var l = cloud.light
+        const s = cloud.sat
+        const l = cloud.light
 
         var g = bc.createRadialGradient(bx, by, 0, bx, by, rx)
         g.addColorStop(0, 'hsla(' + h + ',' + s + '%,' + l + '%, 0.18)')
@@ -375,10 +376,10 @@
     }
 
     /* --- Layer 4: scattered bright nebula knots --- */
-    for (var ki = 0; ki < 18; ki++) {
+    for (let ki = 0; ki < 18; ki++) {
       var t = rand(-0.42, 0.42)
       var bw = bandWidthMul(t)
-      var spread = rand(-diag * 0.06, diag * 0.06) * bw
+      const spread = rand(-diag * 0.06, diag * 0.06) * bw
       var bx = bandCx + Math.cos(angle) * t * diag * 0.72 + perpX * spread
       var by = bandCy + Math.sin(angle) * t * diag * 0.72 + perpY * spread
       var coreR = diag * rand(0.012, 0.035)
@@ -447,21 +448,21 @@
   /* ============================================================
      PARTICLE FIELD — small glowing dots scattered in the band
      ============================================================ */
-  var particles = []
-  var MAX_PARTICLES = 5000
+  let particles = []
+  const MAX_PARTICLES = 5000
 
   function spawnParticle() {
-    var theme = THEMES[themeKey]
-    var angle = theme.bandAngle
-    var diag = Math.sqrt(cw * cw + ch * ch)
-    var bandCx = cw * 0.48
-    var bandCy = ch * 0.52
-    var t = rand(-0.45, 0.45)
+    const theme = THEMES[themeKey]
+    const angle = theme.bandAngle
+    const diag = Math.sqrt(cw * cw + ch * ch)
+    const bandCx = cw * 0.48
+    const bandCy = ch * 0.52
+    const t = rand(-0.45, 0.45)
     /* gaussian-like concentration near band center */
-    var spread = (rand(-1, 1) + rand(-1, 1)) * diag * 0.055
-    var x = bandCx + Math.cos(angle) * t * diag * 0.75 + (-Math.sin(angle)) * spread
-    var y = bandCy + Math.sin(angle) * t * diag * 0.75 + Math.cos(angle) * spread
-    var hue = randHue(theme.starHueLo, theme.starHueHi)
+    const spread = (rand(-1, 1) + rand(-1, 1)) * diag * 0.055
+    const x = bandCx + Math.cos(angle) * t * diag * 0.75 + (-Math.sin(angle)) * spread
+    const y = bandCy + Math.sin(angle) * t * diag * 0.75 + Math.cos(angle) * spread
+    const hue = randHue(theme.starHueLo, theme.starHueHi)
     return {
       x: x, y: y,
       baseX: x, baseY: y,
@@ -493,21 +494,21 @@
     p.baseY += p.dy * speedMul
 
     /* wrap around */
-    if (p.baseX < -20) p.baseX = cw + 20
-    if (p.baseX > cw + 20) p.baseX = -20
-    if (p.baseY < -20) p.baseY = ch + 20
-    if (p.baseY > ch + 20) p.baseY = -20
+    if (p.baseX < -20) {p.baseX = cw + 20}
+    if (p.baseX > cw + 20) {p.baseX = -20}
+    if (p.baseY < -20) {p.baseY = ch + 20}
+    if (p.baseY > ch + 20) {p.baseY = -20}
 
     /* mouse interaction */
     if (interactMode !== 'none' && mouse.active) {
-      var dx = p.baseX - mouse.x
-      var dy = p.baseY - mouse.y
-      var d2 = dx * dx + dy * dy
-      var radius = 150
+      const dx = p.baseX - mouse.x
+      const dy = p.baseY - mouse.y
+      const d2 = dx * dx + dy * dy
+      const radius = 150
       if (d2 < radius * radius) {
-        var d = Math.sqrt(d2) || 1
-        var force = (1 - d / radius) * 25
-        var dir = interactMode === 'attract' ? -1 : 1
+        const d = Math.sqrt(d2) || 1
+        const force = (1 - d / radius) * 25
+        const dir = interactMode === 'attract' ? -1 : 1
         p.ox += (dx / d) * force * dir * 0.06
         p.oy += (dy / d) * force * dir * 0.06
       }
@@ -515,11 +516,11 @@
     p.ox *= 0.94
     p.oy *= 0.94
 
-    var x = p.baseX + p.ox
-    var y = p.baseY + p.oy
+    const x = p.baseX + p.ox
+    const y = p.baseY + p.oy
 
-    var tw = (Math.sin(time * p.twinkleSpeed + p.twinklePhase) + 1) * 0.5
-    var alpha = lerp(0.1, p.alpha, tw)
+    const tw = (Math.sin(time * p.twinkleSpeed + p.twinklePhase) + 1) * 0.5
+    const alpha = lerp(0.1, p.alpha, tw)
 
     /* glow for larger particles */
     if (p.size > 1.2 && alpha > 0.4) {
@@ -540,8 +541,8 @@
      SHOOTING STARS
      ============================================================ */
   function maybeSpawnShootingStar() {
-    if (Math.random() > 0.004 * speedMul) return
-    var fromLeft = Math.random() < 0.5
+    if (Math.random() > 0.004 * speedMul) {return}
+    const fromLeft = Math.random() < 0.5
     shootingStars.push({
       x: fromLeft ? rand(0, cw * 0.3) : rand(cw * 0.7, cw),
       y: rand(0, ch * 0.4),
@@ -555,16 +556,16 @@
   }
 
   function drawShootingStars() {
-    for (var i = shootingStars.length - 1; i >= 0; i--) {
-      var s = shootingStars[i]
+    for (let i = shootingStars.length - 1; i >= 0; i--) {
+      const s = shootingStars[i]
       s.x += s.vx * speedMul
       s.y += s.vy * speedMul
       s.life -= s.decay * speedMul
       if (s.life <= 0) { shootingStars.splice(i, 1); continue }
 
-      var tailX = s.x - s.vx * s.len * 0.15
-      var tailY = s.y - s.vy * s.len * 0.15
-      var grad = ctx.createLinearGradient(tailX, tailY, s.x, s.y)
+      const tailX = s.x - s.vx * s.len * 0.15
+      const tailY = s.y - s.vy * s.len * 0.15
+      const grad = ctx.createLinearGradient(tailX, tailY, s.x, s.y)
       grad.addColorStop(0, 'hsla(' + s.hue + ', 60%, 80%, 0)')
       grad.addColorStop(0.7, 'hsla(' + s.hue + ', 80%, 90%, ' + (s.life * 0.6) + ')')
       grad.addColorStop(1, 'hsla(' + s.hue + ', 100%, 98%, ' + s.life + ')')
@@ -590,12 +591,12 @@
   function drawMouseTrail() {
     if (!mouse.active || interactMode === 'none') { trail = []; return }
     trail.push({ x: mouse.x, y: mouse.y, life: 1 })
-    if (trail.length > 25) trail.shift()
-    for (var i = 0; i < trail.length; i++) {
-      var t = trail[i]
+    if (trail.length > 25) {trail.shift()}
+    for (let i = 0; i < trail.length; i++) {
+      const t = trail[i]
       t.life -= 0.04
-      if (t.life <= 0) continue
-      var hue = THEMES[themeKey].clouds[0].hue + i * 5
+      if (t.life <= 0) {continue}
+      const hue = THEMES[themeKey].clouds[0].hue + i * 5
       ctx.beginPath()
       ctx.arc(t.x, t.y, 1.5 + i * 0.08, 0, Math.PI * 2)
       ctx.fillStyle = 'hsla(' + hue + ', 70%, 70%, ' + (t.life * 0.25) + ')'
@@ -608,7 +609,7 @@
      MAIN LOOP
      ============================================================ */
   function frame(ts) {
-    if (!running) return
+    if (!running) {return}
     rafId = requestAnimationFrame(frame)
     time = ts / 1000
 
@@ -618,7 +619,7 @@
       fpsVal = fpsFrames
       fpsFrames = 0
       fpsTime = ts
-      if ($fps) $fps.textContent = fpsVal + ' FPS'
+      if ($fps) {$fps.textContent = fpsVal + ' FPS'}
     }
 
     /* clear to pure black */
@@ -637,7 +638,7 @@
     /* particles in the band */
     ctx.globalCompositeOperation = 'lighter'
     ensureParticles()
-    for (var i = 0; i < particles.length; i++) {
+    for (let i = 0; i < particles.length; i++) {
       drawParticle(particles[i])
     }
 
@@ -648,16 +649,16 @@
     drawMouseTrail()
 
     /* particle count */
-    if ($pcount) $pcount.textContent = (stars.length + particles.length) + ' 星'
+    if ($pcount) {$pcount.textContent = (stars.length + particles.length) + ' 星'}
   }
 
   /* ---- Start / Stop ---- */
   function start() {
-    if (running) return
+    if (running) {return}
     running = true
     resize()
     ensureParticles()
-    if (!rafId) rafId = requestAnimationFrame(frame)
+    if (!rafId) {rafId = requestAnimationFrame(frame)}
   }
 
   function stop() {
@@ -673,15 +674,15 @@
   /* ---- Event bindings ---- */
   if ($theme) {
     $theme.addEventListener('click', function (e) {
-      var btn = e.target.closest('[data-galaxy-theme]')
-      if (!btn) return
+      const btn = e.target.closest('[data-galaxy-theme]')
+      if (!btn) {return}
       themeKey = btn.getAttribute('data-galaxy-theme')
       bandCacheKey = ''
       $theme.querySelectorAll('.galaxy-theme-btn').forEach(function (b) {
         b.classList.toggle('active', b === btn)
       })
       /* recolor stars to match theme */
-      var theme = THEMES[themeKey]
+      const theme = THEMES[themeKey]
       for (var i = 0; i < stars.length; i++) {
         stars[i].hue = randHue(theme.starHueLo, theme.starHueHi)
       }
@@ -694,15 +695,15 @@
   if ($speed) {
     $speed.addEventListener('input', function () {
       speedMul = parseFloat($speed.value) || 1
-      var label = document.getElementById('galaxy-speed-val')
-      if (label) label.textContent = speedMul.toFixed(1) + 'x'
+      const label = document.getElementById('galaxy-speed-val')
+      if (label) {label.textContent = speedMul.toFixed(1) + 'x'}
     })
   }
 
   if ($count) {
     $count.addEventListener('click', function (e) {
-      var btn = e.target.closest('[data-galaxy-count]')
-      if (!btn) return
+      const btn = e.target.closest('[data-galaxy-count]')
+      if (!btn) {return}
       targetCount = parseInt(btn.getAttribute('data-galaxy-count'), 10)
       $count.querySelectorAll('.galaxy-count-btn').forEach(function (b) {
         b.classList.toggle('active', b === btn)
@@ -713,8 +714,8 @@
 
   if ($interact) {
     $interact.addEventListener('click', function (e) {
-      var btn = e.target.closest('[data-galaxy-interact]')
-      if (!btn) return
+      const btn = e.target.closest('[data-galaxy-interact]')
+      if (!btn) {return}
       interactMode = btn.getAttribute('data-galaxy-interact')
       $interact.querySelectorAll('.galaxy-interact-btn').forEach(function (b) {
         b.classList.toggle('active', b === btn)
@@ -724,7 +725,7 @@
 
   /* Mouse tracking */
   $canvas.addEventListener('mousemove', function (e) {
-    var rect = $canvas.getBoundingClientRect()
+    const rect = $canvas.getBoundingClientRect()
     mouse.x = e.clientX - rect.left
     mouse.y = e.clientY - rect.top
     mouse.active = true
@@ -737,8 +738,8 @@
   /* Touch */
   $canvas.addEventListener('touchmove', function (e) {
     e.preventDefault()
-    var touch = e.touches[0]
-    var rect = $canvas.getBoundingClientRect()
+    const touch = e.touches[0]
+    const rect = $canvas.getBoundingClientRect()
     mouse.x = touch.clientX - rect.left
     mouse.y = touch.clientY - rect.top
     mouse.active = true
@@ -746,7 +747,7 @@
   $canvas.addEventListener('touchend', function () { mouse.active = false })
 
   /* Resize */
-  var resizeTimer = null
+  let resizeTimer = null
   window.addEventListener('resize', function () {
     clearTimeout(resizeTimer)
     resizeTimer = setTimeout(resize, 150)
@@ -761,12 +762,14 @@
   }
 
   document.addEventListener('visibilitychange', function () {
-    if (document.hidden) stop()
-    else if ($panel && !$panel.hidden) start()
+    if (document.hidden) {stop()}
+    else if ($panel && !$panel.hidden) {start()}
   })
 
   window.addEventListener('beforeunload', stop)
 
   /* ---- Auto-start ---- */
-  start()
+  if (!$panel || !$panel.hidden) {
+    start()
+  }
 })()

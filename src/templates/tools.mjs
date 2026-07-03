@@ -30,11 +30,12 @@ const TOOLS = [
   { id: "random", icon: "fa-dice", title: "随机数生成", titleEn: "Random Generator", desc: "生成整数、浮点数或随机列表。", descEn: "Generate integers, decimals or random lists." },
   { id: "datediff", icon: "fa-hourglass-half", title: "日期差计算", titleEn: "Date Diff", desc: "计算两个日期之间的天数和时间跨度。", descEn: "Calculate days and duration between two dates." },
   { id: "ua", icon: "fa-desktop", title: "UA 解析", titleEn: "User-Agent Parser", desc: "解析浏览器、系统、设备类型和渲染引擎。", descEn: "Parse browser, OS, device type and rendering engine." },
+  { id: "galaxy", icon: "fa-meteor", title: "星河", titleEn: "Galaxy", desc: "可交互的星河粒子画布，支持主题、星量、速度和鼠标引力切换。", descEn: "An interactive galaxy canvas with themes, star density, speed and pointer gravity controls." },
   { id: "gesture", icon: "fa-hand-sparkles", title: "手势交互动画", titleEn: "Gesture Animation", desc: "通过摄像头识别手势，触发炫酷的粒子动画和绘画效果。", descEn: "Detect gestures via webcam and trigger particle animations and drawing effects." },
 ];
 
 const TOOL_CATEGORIES = [
-  { id: "visual", title: "视觉与交互", titleEn: "Visual & Interaction", ids: ["gesture"] },
+  { id: "visual", title: "视觉与交互", titleEn: "Visual & Interaction", ids: ["galaxy", "gesture"] },
   { id: "data", title: "数据格式", titleEn: "Data", ids: ["json", "yaml", "jsonpath", "jsondiff", "urlparse", "query"] },
   { id: "api", title: "接口调试", titleEn: "API", ids: ["api"] },
   { id: "security", title: "编码与安全", titleEn: "Encoding & Security", ids: ["base64", "url", "jwt", "hash", "password", "uuid"] },
@@ -868,6 +869,52 @@ ${toolHeader(tool)}
         </section>`;
 }
 
+function renderGalaxyTool() {
+  const tool = toolById("galaxy");
+  return `        <section ${panelAttrs(tool)}>
+${toolHeader(tool)}
+          <div class="galaxy-controls">
+            <div class="galaxy-ctrl-group">
+              <span class="galaxy-ctrl-label" data-i18n="tools.galaxy.theme" data-i18n-en="Theme">主题</span>
+              <div class="galaxy-btn-row" id="galaxy-theme" role="group" aria-label="星河主题" data-i18n-aria="tools.galaxy.theme" data-i18n-en-aria="Galaxy theme">
+                <button class="galaxy-theme-btn active" type="button" data-galaxy-theme="bluePurple"><span class="galaxy-theme-dot" style="background:linear-gradient(135deg,#22d3ee,#8b5cf6)" aria-hidden="true"></span><span data-i18n="tools.galaxy.themeBlue" data-i18n-en="Blue">蓝紫</span></button>
+                <button class="galaxy-theme-btn" type="button" data-galaxy-theme="pinkOrange"><span class="galaxy-theme-dot" style="background:linear-gradient(135deg,#fb7185,#f59e0b)" aria-hidden="true"></span><span data-i18n="tools.galaxy.themePink" data-i18n-en="Amber">粉橙</span></button>
+                <button class="galaxy-theme-btn" type="button" data-galaxy-theme="cyanGreen"><span class="galaxy-theme-dot" style="background:linear-gradient(135deg,#06b6d4,#22c55e)" aria-hidden="true"></span><span data-i18n="tools.galaxy.themeCyan" data-i18n-en="Cyan">青绿</span></button>
+                <button class="galaxy-theme-btn" type="button" data-galaxy-theme="rainbow"><span class="galaxy-theme-dot" style="background:linear-gradient(135deg,#ef4444,#eab308,#22c55e,#3b82f6)" aria-hidden="true"></span><span data-i18n="tools.galaxy.themeRainbow" data-i18n-en="Prism">彩虹</span></button>
+              </div>
+            </div>
+            <div class="galaxy-ctrl-group">
+              <label class="galaxy-ctrl-label" for="galaxy-speed"><span data-i18n="tools.galaxy.speed" data-i18n-en="Speed">速度</span><span id="galaxy-speed-val">1.0x</span></label>
+              <input class="galaxy-range" id="galaxy-speed" type="range" min="0.2" max="3" step="0.1" value="1">
+            </div>
+            <div class="galaxy-ctrl-group">
+              <span class="galaxy-ctrl-label" data-i18n="tools.galaxy.count" data-i18n-en="Stars">星量</span>
+              <div class="galaxy-btn-row" id="galaxy-count" role="group" aria-label="星河星量" data-i18n-aria="tools.galaxy.count" data-i18n-en-aria="Star density">
+                <button class="galaxy-count-btn" type="button" data-galaxy-count="500">500</button>
+                <button class="galaxy-count-btn active" type="button" data-galaxy-count="1000">1000</button>
+                <button class="galaxy-count-btn" type="button" data-galaxy-count="1800">1800</button>
+                <button class="galaxy-count-btn" type="button" data-galaxy-count="2600">2600</button>
+              </div>
+            </div>
+            <div class="galaxy-ctrl-group">
+              <span class="galaxy-ctrl-label" data-i18n="tools.galaxy.interaction" data-i18n-en="Interaction">交互</span>
+              <div class="galaxy-btn-row" id="galaxy-interact" role="group" aria-label="星河交互模式" data-i18n-aria="tools.galaxy.interaction" data-i18n-en-aria="Galaxy interaction">
+                <button class="galaxy-interact-btn active" type="button" data-galaxy-interact="attract"><i class="fas fa-magnet" aria-hidden="true"></i><span data-i18n="tools.galaxy.attract" data-i18n-en="Attract">吸引</span></button>
+                <button class="galaxy-interact-btn" type="button" data-galaxy-interact="repel"><i class="fas fa-expand-arrows-alt" aria-hidden="true"></i><span data-i18n="tools.galaxy.repel" data-i18n-en="Repel">排斥</span></button>
+                <button class="galaxy-interact-btn" type="button" data-galaxy-interact="none"><i class="fas fa-ban" aria-hidden="true"></i><span data-i18n="tools.galaxy.none" data-i18n-en="None">关闭</span></button>
+              </div>
+            </div>
+          </div>
+          <div class="galaxy-viewport">
+            <canvas id="galaxy-canvas" class="galaxy-canvas" aria-label="星河动画画布" data-i18n-aria="tools.galaxy.canvas" data-i18n-en-aria="Galaxy animation canvas"></canvas>
+          </div>
+          <div class="galaxy-info">
+            <span class="galaxy-badge" id="galaxy-fps">0 FPS</span>
+            <span class="galaxy-badge" id="galaxy-particles">0 星</span>
+          </div>
+        </section>`;
+}
+
 export function renderToolsPage() {
   const description = "CWLBlog 在线工具箱：Mini Postman、JSON、时间戳、Base64、URL、UUID、JWT、哈希、密码、颜色、正则、Markdown 编辑器、Diff、Cron、二维码、YAML、URL 解析、文本处理和手势交互动画等开发工具。";
   const main = `    <main id="main-content" class="content">
@@ -911,6 +958,7 @@ ${renderCssUnitTool()}
 ${renderRandomTool()}
 ${renderDateDiffTool()}
 ${renderUaTool()}
+${renderGalaxyTool()}
 ${renderGestureTool()}
           </div>
         </div>
@@ -924,7 +972,7 @@ ${renderGestureTool()}
     descriptionEn: "CWLBlog online toolbox: Mini Postman, JSON, timestamps, Base64, URL, UUID, JWT, hashes, passwords, colors, regex, Markdown editor, diff, cron, QR, YAML, URL parsing, text tools and gesture animation.",
     active: "tools",
     page: "tools",
-    scripts: ["/js/vendor/marked.min.js", "/js/vendor/purify.min.js", "/js/vendor/qrcode.min.js", "/js/vendor/highlight.min.js", "/js/tools-core.js", "/js/tools.js", "/js/editor.js", "/js/gesture-premium.js", "/js/gesture.js"],
+    scripts: ["/js/vendor/marked.min.js", "/js/vendor/purify.min.js", "/js/vendor/qrcode.min.js", "/js/vendor/highlight.min.js", "/js/tools-core.js", "/js/tools.js", "/js/editor.js", "/js/gesture-premium.js", "/js/gesture.js", "/js/galaxy.js"],
     jsonLd: buildPageJsonLd({
       type: "WebApplication",
       name: "CWLBlog 在线工具箱",

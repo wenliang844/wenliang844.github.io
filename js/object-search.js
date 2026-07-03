@@ -1,55 +1,55 @@
 /* =====  Object Recognition & Photo Search Tool  ===== */
 (function () {
-  "use strict";
+  
 
   /* ---- DOM refs ---- */
-  var $start    = document.getElementById("obj-start");
-  var $stop     = document.getElementById("obj-stop");
-  var $video    = document.getElementById("obj-video");
-  var $canvas   = document.getElementById("obj-canvas");
-  var $overlay  = document.getElementById("obj-overlay");
-  var $status   = document.getElementById("obj-status");
-  var $label    = document.getElementById("obj-label");
-  var $fps      = document.getElementById("obj-fps");
-  var $capture  = document.getElementById("obj-capture");
-  var $result   = document.getElementById("obj-result");
-  var $photo    = document.getElementById("obj-photo");
-  var $resLabel = document.getElementById("obj-result-label");
-  var $resConf  = document.getElementById("obj-result-confidence");
-  var $searchText = document.getElementById("obj-search-text");
-  var $searchLens = document.getElementById("obj-search-lens");
-  var $recapture  = document.getElementById("obj-recapture");
+  const $start    = document.getElementById("obj-start");
+  const $stop     = document.getElementById("obj-stop");
+  const $video    = document.getElementById("obj-video");
+  const $canvas   = document.getElementById("obj-canvas");
+  const $overlay  = document.getElementById("obj-overlay");
+  const $status   = document.getElementById("obj-status");
+  const $label    = document.getElementById("obj-label");
+  const $fps      = document.getElementById("obj-fps");
+  const $capture  = document.getElementById("obj-capture");
+  const $result   = document.getElementById("obj-result");
+  const $photo    = document.getElementById("obj-photo");
+  const $resLabel = document.getElementById("obj-result-label");
+  const $resConf  = document.getElementById("obj-result-confidence");
+  const $searchText = document.getElementById("obj-search-text");
+  const $searchLens = document.getElementById("obj-search-lens");
+  const $recapture  = document.getElementById("obj-recapture");
 
-  if (!$canvas) return;
+  if (!$canvas) {return;}
 
-  var ctx = $canvas.getContext("2d");
+  const ctx = $canvas.getContext("2d");
 
   /* ====================================================================
    * 0. State
    * ==================================================================== */
-  var objectDetector = null;
-  var cameraStream   = null;
-  var running        = false;
-  var detections     = [];
-  var topDetection   = null;
-  var capturedPhoto  = null;
+  let objectDetector = null;
+  let cameraStream   = null;
+  let running        = false;
+  let detections     = [];
+  let topDetection   = null;
+  let capturedPhoto  = null;
 
   /* FPS counter */
-  var frameCount = 0;
-  var fpsTimer   = performance.now();
+  let frameCount = 0;
+  let fpsTimer   = performance.now();
 
   /* ====================================================================
    * 1. Constants
    * ==================================================================== */
-  var VISION_CDN =
+  const VISION_CDN =
     "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.18/vision_bundle.mjs";
-  var WASM_BASE =
+  const WASM_BASE =
     "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.18/wasm";
-  var MODEL_URL =
+  const MODEL_URL =
     "https://storage.googleapis.com/mediapipe-models/object_detector/efficientdet_lite0/float16/latest/efficientdet_lite0.tflite";
 
   /* COCO 80-class label → Chinese */
-  var LABEL_ZH = {
+  const LABEL_ZH = {
     "person": "人", "bicycle": "自行车", "car": "汽车", "motorcycle": "摩托车",
     "airplane": "飞机", "bus": "公共汽车", "train": "火车", "truck": "卡车",
     "boat": "船", "traffic light": "交通灯", "fire hydrant": "消防栓",
@@ -80,11 +80,11 @@
    * 2. MediaPipe Object Detector Loader
    * ==================================================================== */
   async function loadModel() {
-    if (objectDetector) return true;
+    if (objectDetector) {return true;}
     setStatus("loading", "加载模型…");
     try {
-      var mod = await import(/* webpackIgnore: true */ VISION_CDN);
-      var fileset = await mod.FilesetResolver.forVisionTasks(WASM_BASE);
+      const mod = await import(/* webpackIgnore: true */ VISION_CDN);
+      const fileset = await mod.FilesetResolver.forVisionTasks(WASM_BASE);
       objectDetector = await mod.ObjectDetector.createFromOptions(fileset, {
         baseOptions: { modelAssetPath: MODEL_URL, delegate: "GPU" },
         runningMode: "VIDEO",
@@ -104,7 +104,7 @@
    * 3. Camera Manager
    * ==================================================================== */
   async function startCamera() {
-    if (!(await loadModel())) return;
+    if (!(await loadModel())) {return;}
     try {
       cameraStream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: "environment", width: { ideal: 1280 }, height: { ideal: 720 } },
@@ -146,10 +146,10 @@
   }
 
   function resizeCanvas() {
-    var rect = $canvas.parentElement.getBoundingClientRect();
-    var w = Math.floor(rect.width);
-    var h = Math.floor(rect.height);
-    var dpr = window.devicePixelRatio || 1;
+    const rect = $canvas.parentElement.getBoundingClientRect();
+    const w = Math.floor(rect.width);
+    const h = Math.floor(rect.height);
+    const dpr = window.devicePixelRatio || 1;
     if ($canvas.width !== w * dpr || $canvas.height !== h * dpr) {
       $canvas.width  = w * dpr;
       $canvas.height = h * dpr;
@@ -163,9 +163,9 @@
    * 4. Detection Loop
    * ==================================================================== */
   function loop() {
-    if (!running) return;
+    if (!running) {return;}
     if (!document.hidden && $video.readyState >= 2) {
-      var result = objectDetector.detectForVideo($video, performance.now());
+      const result = objectDetector.detectForVideo($video, performance.now());
       handleResults(result);
       updateFPS();
     }
@@ -174,7 +174,7 @@
 
   function updateFPS() {
     frameCount++;
-    var now = performance.now();
+    const now = performance.now();
     if (now - fpsTimer >= 1000) {
       $fps.textContent = frameCount + " FPS";
       frameCount = 0;
@@ -186,8 +186,8 @@
    * 5. Results Handler – draw bounding boxes
    * ==================================================================== */
   function handleResults(result) {
-    var cw = $canvas.width / (window.devicePixelRatio || 1);
-    var ch = $canvas.height / (window.devicePixelRatio || 1);
+    const cw = $canvas.width / (window.devicePixelRatio || 1);
+    const ch = $canvas.height / (window.devicePixelRatio || 1);
     ctx.clearRect(0, 0, cw, ch);
 
     detections = result.detections || [];
@@ -200,20 +200,20 @@
     topDetection = detections[0];
 
     /* scale: MediaPipe coords are relative to video natural size */
-    var scaleX = cw / $video.videoWidth;
-    var scaleY = ch / $video.videoHeight;
+    const scaleX = cw / $video.videoWidth;
+    const scaleY = ch / $video.videoHeight;
 
     detections.forEach(function (det) {
-      var bb = det.boundingBox;
-      var cat  = det.categories[0];
-      var name = cat.categoryName;
-      var score = (cat.score * 100).toFixed(1);
-      var labelText = (LABEL_ZH[name] || name) + " " + score + "%";
+      const bb = det.boundingBox;
+      const cat  = det.categories[0];
+      const name = cat.categoryName;
+      const score = (cat.score * 100).toFixed(1);
+      const labelText = (LABEL_ZH[name] || name) + " " + score + "%";
 
-      var x = bb.originX * scaleX;
-      var y = bb.originY * scaleY;
-      var w = bb.width   * scaleX;
-      var h = bb.height  * scaleY;
+      const x = bb.originX * scaleX;
+      const y = bb.originY * scaleY;
+      const w = bb.width   * scaleX;
+      const h = bb.height  * scaleY;
 
       /* bounding box */
       ctx.strokeStyle = "rgba(0, 200, 255, 0.85)";
@@ -222,7 +222,7 @@
 
       /* label background */
       ctx.font = "bold 13px sans-serif";
-      var tw = ctx.measureText(labelText).width;
+      const tw = ctx.measureText(labelText).width;
       ctx.fillStyle = "rgba(0, 160, 220, 0.75)";
       ctx.fillRect(x, y > 22 ? y - 22 : y, tw + 10, 20);
 
@@ -232,8 +232,8 @@
     });
 
     /* update badge */
-    var topCat = topDetection.categories[0];
-    var topZh  = LABEL_ZH[topCat.categoryName] || topCat.categoryName;
+    const topCat = topDetection.categories[0];
+    const topZh  = LABEL_ZH[topCat.categoryName] || topCat.categoryName;
     setLabel(topZh + " (" + (topCat.score * 100).toFixed(1) + "%)");
   }
 
@@ -241,12 +241,12 @@
    * 6. Photo Capture
    * ==================================================================== */
   function capturePhoto() {
-    if (!running || $video.readyState < 2) return;
+    if (!running || $video.readyState < 2) {return;}
 
-    var tempCanvas = document.createElement("canvas");
+    const tempCanvas = document.createElement("canvas");
     tempCanvas.width  = $video.videoWidth;
     tempCanvas.height = $video.videoHeight;
-    var tempCtx = tempCanvas.getContext("2d");
+    const tempCtx = tempCanvas.getContext("2d");
     tempCtx.drawImage($video, 0, 0);
 
     capturedPhoto = tempCanvas.toDataURL("image/jpeg", 0.9);
@@ -254,8 +254,8 @@
     $result.hidden = false;
 
     if (topDetection) {
-      var cat  = topDetection.categories[0];
-      var name = cat.categoryName;
+      const cat  = topDetection.categories[0];
+      const name = cat.categoryName;
       $resLabel.textContent = (LABEL_ZH[name] || name);
       $resConf.textContent  = (cat.score * 100).toFixed(1) + "%";
     } else {
@@ -270,30 +270,30 @@
    * 7. Search Actions
    * ==================================================================== */
   function searchText() {
-    var query = "";
+    let query = "";
     if (topDetection) {
-      var name = topDetection.categories[0].categoryName;
+      const name = topDetection.categories[0].categoryName;
       query = LABEL_ZH[name] || name;
     } else if ($resLabel.textContent && $resLabel.textContent !== "未识别到物体") {
       query = $resLabel.textContent;
     }
-    if (!query) return;
+    if (!query) {return;}
     window.open("https://www.google.com/search?q=" + encodeURIComponent(query), "_blank");
   }
 
   function searchLens() {
-    if (!capturedPhoto) return;
+    if (!capturedPhoto) {return;}
     /* Convert data URL to Blob and copy to clipboard so user can paste into Lens */
     try {
-      var base64 = capturedPhoto.split(",")[1];
-      var byteChars = atob(base64);
-      var byteArray = new Uint8Array(byteChars.length);
-      for (var i = 0; i < byteChars.length; i++) {
+      const base64 = capturedPhoto.split(",")[1];
+      const byteChars = atob(base64);
+      const byteArray = new Uint8Array(byteChars.length);
+      for (let i = 0; i < byteChars.length; i++) {
         byteArray[i] = byteChars.charCodeAt(i);
       }
-      var blob = new Blob([byteArray], { type: "image/jpeg" });
+      const blob = new Blob([byteArray], { type: "image/jpeg" });
       if (navigator.clipboard && navigator.clipboard.write) {
-        var item = new ClipboardItem({ "image/jpeg": blob });
+        const item = new ClipboardItem({ "image/jpeg": blob });
         navigator.clipboard.write([item]).then(function () {
           window.open("https://lens.google.com/", "_blank");
         }, function () {
@@ -334,20 +334,20 @@
 
   /* Responsive canvas resize */
   window.addEventListener("resize", function () {
-    if (running) resizeCanvas();
+    if (running) {resizeCanvas();}
   });
 
   /* Stop camera when navigating away */
   window.addEventListener("beforeunload", stopCamera);
 
   /* Tab-switch detection: release camera when panel is hidden */
-  var observer = new MutationObserver(function () {
-    var panel = document.querySelector('[data-tool-panel="objectsearch"]');
+  const observer = new MutationObserver(function () {
+    const panel = document.querySelector('[data-tool-panel="objectsearch"]');
     if (panel && panel.hidden && running) {
       stopCamera();
     }
   });
-  var objectPanel = document.querySelector('[data-tool-panel="objectsearch"]');
+  const objectPanel = document.querySelector('[data-tool-panel="objectsearch"]');
   if (objectPanel) {
     observer.observe(objectPanel, { attributes: true, attributeFilter: ["hidden"] });
   }

@@ -18,7 +18,7 @@ function extractJsonLd(html) {
 
 // ─── Tools 页面测试 ────────────────────────────────────────────────────────────
 
-test("renderToolsPage includes all 29 tool panels", () => {
+test("renderToolsPage includes all 31 tool panels", () => {
   const html = renderToolsPage();
   const panelIds = [
     "json",
@@ -50,12 +50,14 @@ test("renderToolsPage includes all 29 tool panels", () => {
     "random",
     "datediff",
     "ua",
+    "galaxy",
+    "gesture",
   ];
 
   for (const id of panelIds) {
     assert.match(html, new RegExp(`id="tool-${id}"`));
   }
-  assert.equal(panelIds.length, 29);
+  assert.equal(panelIds.length, 31);
 });
 
 test("renderToolsPage has correct script references", () => {
@@ -68,6 +70,7 @@ test("renderToolsPage has correct script references", () => {
   assert.match(html, /src="\/js\/vendor\/purify\.min\.js"/);
   assert.match(html, /src="\/js\/vendor\/highlight\.min\.js"/);
   assert.match(html, /src="\/js\/vendor\/qrcode\.min\.js"/);
+  assert.match(html, /src="\/js\/galaxy\.js"/);
 });
 
 test("renderToolsPage has OG meta tags", () => {
@@ -81,6 +84,8 @@ test("renderToolsPage has tool navigation tabs with aria attributes", () => {
   const html = renderToolsPage();
   assert.match(html, /<nav class="tools-tabs"[\s\S]*?<details class="tool-category" data-tool-category="visual" open>/);
   assert.match(html, /data-tool-tab="json"/);
+  assert.match(html, /data-tool-tab="galaxy"/);
+  assert.match(html, /id="galaxy-canvas"/);
   assert.match(html, /aria-controls="tool-json"/);
   assert.match(html, /data-tool-tab="jwt"/);
   assert.match(html, /data-tool-category="data"/);
@@ -122,6 +127,7 @@ test("generated static templates include page-specific JSON-LD", () => {
   assert.equal(toolsLd.applicationCategory, "DeveloperApplication");
   assert.ok(toolsLd.featureList.includes("JSON Formatter"));
   assert.ok(toolsLd.featureList.includes("Markdown Editor"));
+  assert.ok(toolsLd.featureList.includes("Galaxy"));
 
   const aiLd = extractJsonLd(renderAiPage());
   assert.equal(aiLd["@type"], "CollectionPage");

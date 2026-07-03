@@ -68,16 +68,16 @@
     return /^[A-Za-z_$][\w$-]*$/.test(key) ? path + "." + key : path + "[" + JSON.stringify(key) + "]";
   }
 
-  var MAX_DIFF_DEPTH = 50;
-  var MAX_DIFF_LINES = 500;
+  const MAX_DIFF_DEPTH = 50;
+  const MAX_DIFF_LINES = 500;
 
   function collectJsonDiff(left, right, path, lines, depth) {
-    if (depth === undefined) depth = 0;
+    if (depth === undefined) {depth = 0;}
     if (depth > MAX_DIFF_DEPTH) {
       lines.push("~ " + path + ": (深度超过限制，已截断)");
       return;
     }
-    if (lines.length >= MAX_DIFF_LINES) return;
+    if (lines.length >= MAX_DIFF_LINES) {return;}
     const leftType = jsonType(left);
     const rightType = jsonType(right);
     if (leftType !== rightType) {
@@ -103,7 +103,7 @@
     if (leftType === "object") {
       const keys = Array.from(new Set(Object.keys(left).concat(Object.keys(right)))).sort();
       keys.forEach(function (key) {
-        if (lines.length >= MAX_DIFF_LINES) return;
+        if (lines.length >= MAX_DIFF_LINES) {return;}
         const nextPath = jsonPathJoin(path, key);
         if (!Object.prototype.hasOwnProperty.call(left, key)) {
           lines.push("+ " + nextPath + ": " + jsonPreview(right[key]));
@@ -1172,7 +1172,7 @@
     const words = (raw.match(/[A-Za-z0-9]+|[\u4e00-\u9fff]/g) || []).length;
     const noSpace = raw.replace(/\s/g, "").length;
     const encoder = getGlobal("TextEncoder");
-    var bytes;
+    let bytes;
     try {
       bytes = typeof encoder === "function" ? new encoder().encode(raw).length : unescape(encodeURIComponent(raw)).length;
     } catch (_e) {

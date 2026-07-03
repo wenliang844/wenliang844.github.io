@@ -1,6 +1,8 @@
+/* global faceapi */
+/* eslint-disable no-unused-vars */
 /* =====  Gesture Interaction Animation Tool  ===== */
 (function () {
-  "use strict";
+  
 
   /* ---- DOM refs ---- */
   const $start   = document.getElementById("gesture-start");
@@ -16,7 +18,7 @@
   const $haptics = document.getElementById("gesture-haptics");
   const $sound   = document.getElementById("gesture-sound");
 
-  if (!$canvas) return;                       // not on tools page
+  if (!$canvas) {return;}                       // not on tools page
 
   const ctx = $canvas.getContext("2d");
 
@@ -28,7 +30,7 @@
   let running         = false;                // detection loop active?
   let mode            = "particle";           // particle | gesture | premium | draw | fruit | detect | face | dance | 3d
   let lastGesture     = "none";               // recognised gesture name
-  let lastGestureTime = 0;
+  const lastGestureTime = 0;
   let swipeHistory    = [];                   // palm centre history for swipe
   let waveHistory     = [];                   // wrist x history for wave oscillation
 
@@ -48,7 +50,7 @@
   const cooldowns = {};
   function cooled(name, ms) {
     const now = performance.now();
-    if (cooldowns[name] && now - cooldowns[name] < ms) return false;
+    if (cooldowns[name] && now - cooldowns[name] < ms) {return false;}
     cooldowns[name] = now;
     return true;
   }
@@ -64,21 +66,21 @@
   let lastDetections  = [];                  // cached detections for inter-frame rendering
 
   /* ---- Fruit Ninja game state ---- */
-  var fruitBladeTrail = [];           /* [{x,y,t}] blade trail points */
-  var fruitList       = [];           /* active fruit objects */
-  var fruitHalves     = [];           /* sliced half animations */
-  var fruitJuice      = [];           /* juice splash particles */
-  var fruitScore      = 0;
-  var fruitCombo      = 0;
-  var fruitComboTime  = 0;            /* last slice timestamp for combo decay */
-  var fruitLives      = 3;
-  var fruitSpawnTimer = 0;            /* next spawn time */
-  var fruitGameOver   = false;
-  var fruitDifficulty = 0;            /* increases over time */
-  var fruitStartTime  = 0;
-  var fruitHighScore  = parseInt((function() { try { return localStorage.getItem("gesture-fruit-hs"); } catch(e) { return "0"; } })() || "0", 10);
+  const fruitBladeTrail = [];           /* [{x,y,t}] blade trail points */
+  const fruitList       = [];           /* active fruit objects */
+  const fruitHalves     = [];           /* sliced half animations */
+  const fruitJuice      = [];           /* juice splash particles */
+  let fruitScore      = 0;
+  let fruitCombo      = 0;
+  let fruitComboTime  = 0;            /* last slice timestamp for combo decay */
+  let fruitLives      = 3;
+  let fruitSpawnTimer = 0;            /* next spawn time */
+  let fruitGameOver   = false;
+  let fruitDifficulty = 0;            /* increases over time */
+  let fruitStartTime  = 0;
+  let fruitHighScore  = parseInt((function() { try { return localStorage.getItem("gesture-fruit-hs"); } catch(e) { return "0"; } })() || "0", 10);
 
-  var FRUIT_DEFS = [
+  const FRUIT_DEFS = [
     { emoji: "🍎", color: "#e53935", glow: "#ff5252", r: 30, pts: 10 },
     { emoji: "🍊", color: "#ff9800", glow: "#ffb74d", r: 28, pts: 15 },
     { emoji: "🍋", color: "#fdd835", glow: "#fff176", r: 25, pts: 20 },
@@ -89,7 +91,7 @@
     { emoji: "🥝", color: "#689f38", glow: "#9ccc65", r: 22, pts: 20 },
     { emoji: "💣", color: "#37474f", glow: "#78909c", r: 26, pts: -50 },
   ];
-  var FRUIT_WEIGHTS = [20, 18, 12, 15, 10, 5, 10, 8, 5];
+  const FRUIT_WEIGHTS = [20, 18, 12, 15, 10, 5, 10, 8, 5];
 
   /* ---- Face Analysis state ---- */
   let faceApiReady     = false;        // face-api.js script loaded?
@@ -99,58 +101,58 @@
   const FACE_INTERVAL  = 3;           // run face detection every N frames
 
   /* ---- Dance DDR game state ---- */
-  var DANCE_DIRS = {
+  const DANCE_DIRS = {
     left:  { arrow: "←", hue: 210, color: "#4488ff", glow: "#66aaff" },
     right: { arrow: "→", hue: 0,   color: "#ff4444", glow: "#ff6666" },
     up:    { arrow: "↑", hue: 140, color: "#44dd44", glow: "#66ff66" },
     down:  { arrow: "↓", hue: 50,  color: "#ffcc00", glow: "#ffdd44" },
   };
-  var DANCE_DIR_KEYS = ["left", "right", "up", "down"];
+  const DANCE_DIR_KEYS = ["left", "right", "up", "down"];
 
-  var danceArrows       = [];
-  var danceScore        = 0;
-  var danceCombo        = 0;
-  var danceMaxCombo     = 0;
-  var dancePerfect      = 0;
-  var danceGreat        = 0;
-  var danceMiss         = 0;
-  var dancePhase        = "idle";      /* idle | ready | play | over */
-  var danceStartTime    = 0;
-  var danceReadyTime    = 0;
-  var danceDuration     = 60000;       /* 60 s */
-  var danceSpawnIndex   = 0;
-  var dancePattern      = [];
-  var danceMissEffects  = [];
-  var danceJudgmentFX   = [];
-  var danceHighScore    = parseInt((function() { try { return localStorage.getItem("gesture-dance-hs"); } catch(e) { return "0"; } })() || "0", 10);
-  var dancePulse        = 0;
+  const danceArrows       = [];
+  const danceScore        = 0;
+  const danceCombo        = 0;
+  const danceMaxCombo     = 0;
+  const dancePerfect      = 0;
+  const danceGreat        = 0;
+  const danceMiss         = 0;
+  const dancePhase        = "idle";      /* idle | ready | play | over */
+  const danceStartTime    = 0;
+  const danceReadyTime    = 0;
+  const danceDuration     = 60000;       /* 60 s */
+  const danceSpawnIndex   = 0;
+  const dancePattern      = [];
+  const danceMissEffects  = [];
+  const danceJudgmentFX   = [];
+  const danceHighScore    = parseInt((function() { try { return localStorage.getItem("gesture-dance-hs"); } catch(e) { return "0"; } })() || "0", 10);
+  const dancePulse        = 0;
 
   /* ---- 3D Reconstruction state ---- */
-  var THREE_M = null;                  /* THREE module reference */
-  var threeLoaded   = false;
-  var threeScene    = null;
-  var threeCamera   = null;
-  var threeRenderer = null;
-  var threePoints   = null;            /* THREE.Points */
-  var threeMesh     = null;            /* THREE.Mesh */
-  var threeGeometry = null;            /* shared BufferGeometry */
-  var threeLights   = [];              /* scene lights */
-  var depth3D       = null;            /* Float32Array(GRID_W * GRID_H) smoothed */
-  var depthRaw      = null;            /* Float32Array(GRID_W * GRID_H) raw per frame */
-  var subMode       = "pointcloud";    /* "pointcloud" | "mesh" */
-  var revealProgress = 0;              /* 0-1 progressive reveal */
-  var prev3D        = null;            /* previous frame landmarks for delta */
-  var threeTargetRot = { x: 0, y: 0 };
-  var threeTargetPos = { x: 0, y: 0, z: 3 };
-  var captureCanvas  = document.createElement("canvas");
-  var captureCtx     = captureCanvas.getContext("2d", { willReadFrequently: true });
-  var GRID_W = 100, GRID_H = 75;      /* downsample resolution */
+  let THREE_M = null;                  /* THREE module reference */
+  let threeLoaded   = false;
+  let threeScene    = null;
+  let threeCamera   = null;
+  let threeRenderer = null;
+  let threePoints   = null;            /* THREE.Points */
+  let threeMesh     = null;            /* THREE.Mesh */
+  let threeGeometry = null;            /* shared BufferGeometry */
+  let threeLights   = [];              /* scene lights */
+  let depth3D       = null;            /* Float32Array(GRID_W * GRID_H) smoothed */
+  let depthRaw      = null;            /* Float32Array(GRID_W * GRID_H) raw per frame */
+  let subMode       = "pointcloud";    /* "pointcloud" | "mesh" */
+  let revealProgress = 0;              /* 0-1 progressive reveal */
+  let prev3D        = null;            /* previous frame landmarks for delta */
+  let threeTargetRot = { x: 0, y: 0 };
+  let threeTargetPos = { x: 0, y: 0, z: 3 };
+  const captureCanvas  = document.createElement("canvas");
+  const captureCtx     = captureCanvas.getContext("2d", { willReadFrequently: true });
+  const GRID_W = 100, GRID_H = 75;      /* downsample resolution */
   captureCanvas.width  = GRID_W;
   captureCanvas.height = GRID_H;
 
   /* ---- Premium interaction state ---- */
-  var premiumHaptics = !$haptics || $haptics.checked;
-  var premiumSound   = !!($sound && $sound.checked);
+  let premiumHaptics = !$haptics || $haptics.checked;
+  let premiumSound   = !!($sound && $sound.checked);
 
   /* ====================================================================
    * 1. MediaPipe CDN Loader
@@ -165,7 +167,7 @@
     "https://storage.googleapis.com/mediapipe-models/object_detector/efficientdet_lite0/float16/latest/efficientdet_lite0.tflite";
 
   async function loadMediaPipe() {
-    if (handLandmarker) return true;
+    if (handLandmarker) {return true;}
     setStatus("loading", "加载模型…");
     try {
       const { HandLandmarker, FilesetResolver } = await import(/* webpackIgnore: true */ VISION_CDN);
@@ -185,11 +187,11 @@
   }
 
   async function loadObjectDetector() {
-    if (objectDetector) return true;
+    if (objectDetector) {return true;}
     setStatus("loading", "加载物体检测模型…");
     try {
-      var vision = await import(/* webpackIgnore: true */ VISION_CDN);
-      var fileset = await vision.FilesetResolver.forVisionTasks(WASM_BASE);
+      const vision = await import(/* webpackIgnore: true */ VISION_CDN);
+      const fileset = await vision.FilesetResolver.forVisionTasks(WASM_BASE);
       objectDetector = await vision.ObjectDetector.createFromOptions(fileset, {
         baseOptions: { modelAssetPath: DETECT_MODEL_URL, delegate: "GPU" },
         runningMode: "VIDEO",
@@ -214,12 +216,12 @@
     "https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/";
 
   async function loadFaceApi() {
-    if (faceModelsLoaded) return true;
+    if (faceModelsLoaded) {return true;}
     if (!faceApiReady) {
       setStatus("loading", "加载人脸分析库…");
       try {
         await new Promise(function (resolve, reject) {
-          var s = document.createElement("script");
+          const s = document.createElement("script");
           s.src = FACE_API_CDN;
           s.onload = resolve;
           s.onerror = reject;
@@ -253,10 +255,10 @@
   /* ====================================================================
    * 1b. Three.js CDN Loader & 3D Reconstruction
    * ==================================================================== */
-  var THREE_CDN = "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js";
+  const THREE_CDN = "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js";
 
   async function loadThree() {
-    if (threeLoaded) return true;
+    if (threeLoaded) {return true;}
     setStatus("loading", "加载 3D 引擎…");
     try {
       THREE_M = await import(/* webpackIgnore: true */ THREE_CDN);
@@ -270,10 +272,10 @@
   }
 
   function initThreeScene() {
-    if (!THREE_M) return;
-    var viewport = $canvas.parentElement;
-    var rect = viewport.getBoundingClientRect();
-    var w = Math.floor(rect.width), h = Math.floor(rect.height);
+    if (!THREE_M) {return;}
+    const viewport = $canvas.parentElement;
+    const rect = viewport.getBoundingClientRect();
+    const w = Math.floor(rect.width), h = Math.floor(rect.height);
     threeScene = new THREE_M.Scene();
     threeScene.background = new THREE_M.Color(0x080808);
     threeCamera = new THREE_M.PerspectiveCamera(60, w / h, 0.1, 1000);
@@ -281,14 +283,14 @@
     threeRenderer = new THREE_M.WebGLRenderer({ antialias: true, alpha: true });
     threeRenderer.setSize(w, h);
     threeRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    var ctr = document.getElementById("gesture-three-container");
+    const ctr = document.getElementById("gesture-three-container");
     if (ctr) { ctr.innerHTML = ""; ctr.appendChild(threeRenderer.domElement); }
-    var count = GRID_W * GRID_H;
-    var positions = new Float32Array(count * 3);
-    var colors = new Float32Array(count * 3);
-    for (var r = 0; r < GRID_H; r++) {
-      for (var c = 0; c < GRID_W; c++) {
-        var i = r * GRID_W + c;
+    const count = GRID_W * GRID_H;
+    const positions = new Float32Array(count * 3);
+    const colors = new Float32Array(count * 3);
+    for (let r = 0; r < GRID_H; r++) {
+      for (let c = 0; c < GRID_W; c++) {
+        const i = r * GRID_W + c;
         positions[i * 3] = (c / GRID_W - 0.5) * 4;
         positions[i * 3 + 1] = -(r / GRID_H - 0.5) * 3;
         positions[i * 3 + 2] = 0;
@@ -313,24 +315,24 @@
     threeTargetRot = { x: 0, y: 0 };
     threeTargetPos = { x: 0, y: 0, z: 3 };
     viewport.classList.add("is-3d-mode");
-    var subPanel = document.getElementById("gesture-3d-submodes");
-    if (subPanel) subPanel.hidden = false;
-    var depthEl = document.getElementById("gesture-depth-preview");
+    const subPanel = document.getElementById("gesture-3d-submodes");
+    if (subPanel) {subPanel.hidden = false;}
+    const depthEl = document.getElementById("gesture-depth-preview");
     if (depthEl) { depthEl.width = GRID_W; depthEl.height = GRID_H; }
   }
 
   function cleanupThreeScene() {
-    var viewport = $canvas.parentElement;
+    const viewport = $canvas.parentElement;
     viewport.classList.remove("is-3d-mode");
-    var subPanel = document.getElementById("gesture-3d-submodes");
-    if (subPanel) subPanel.hidden = true;
+    const subPanel = document.getElementById("gesture-3d-submodes");
+    if (subPanel) {subPanel.hidden = true;}
     if (threeGeometry) { threeGeometry.dispose(); threeGeometry = null; }
-    if (threePoints) { if (threePoints.parent) threeScene.remove(threePoints); threePoints.material.dispose(); threePoints = null; }
-    if (threeMesh) { if (threeMesh.parent) threeScene.remove(threeMesh); threeMesh.material.dispose(); threeMesh = null; }
+    if (threePoints) { if (threePoints.parent) {threeScene.remove(threePoints);} threePoints.material.dispose(); threePoints = null; }
+    if (threeMesh) { if (threeMesh.parent) {threeScene.remove(threeMesh);} threeMesh.material.dispose(); threeMesh = null; }
     if (threeRenderer) {
       threeRenderer.dispose();
-      var ctr = document.getElementById("gesture-three-container");
-      if (ctr) ctr.innerHTML = "";
+      const ctr = document.getElementById("gesture-three-container");
+      if (ctr) {ctr.innerHTML = "";}
       threeRenderer = null;
     }
     threeScene = null; threeCamera = null; threeLights = [];
@@ -338,34 +340,34 @@
   }
 
   function estimateDepth(imgData) {
-    var data = imgData.data, len = GRID_W * GRID_H;
-    for (var i = 0; i < len; i++) {
-      var off = i * 4;
+    const data = imgData.data, len = GRID_W * GRID_H;
+    for (let i = 0; i < len; i++) {
+      const off = i * 4;
       depthRaw[i] = (0.299 * data[off] + 0.587 * data[off + 1] + 0.114 * data[off + 2]) / 255;
     }
-    for (var y = 1; y < GRID_H - 1; y++) {
-      for (var x = 1; x < GRID_W - 1; x++) {
-        var idx = y * GRID_W + x;
-        var tl = depthRaw[(y-1)*GRID_W+(x-1)], tc = depthRaw[(y-1)*GRID_W+x], tr = depthRaw[(y-1)*GRID_W+(x+1)];
-        var ml = depthRaw[y*GRID_W+(x-1)], mr = depthRaw[y*GRID_W+(x+1)];
-        var bl = depthRaw[(y+1)*GRID_W+(x-1)], bc = depthRaw[(y+1)*GRID_W+x], br = depthRaw[(y+1)*GRID_W+(x+1)];
-        var gx = -tl + tr - 2*ml + 2*mr - bl + br;
-        var gy = -tl - 2*tc - tr + bl + 2*bc + br;
+    for (let y = 1; y < GRID_H - 1; y++) {
+      for (let x = 1; x < GRID_W - 1; x++) {
+        const idx = y * GRID_W + x;
+        const tl = depthRaw[(y-1)*GRID_W+(x-1)], tc = depthRaw[(y-1)*GRID_W+x], tr = depthRaw[(y-1)*GRID_W+(x+1)];
+        const ml = depthRaw[y*GRID_W+(x-1)], mr = depthRaw[y*GRID_W+(x+1)];
+        const bl = depthRaw[(y+1)*GRID_W+(x-1)], bc = depthRaw[(y+1)*GRID_W+x], br = depthRaw[(y+1)*GRID_W+(x+1)];
+        const gx = -tl + tr - 2*ml + 2*mr - bl + br;
+        const gy = -tl - 2*tc - tr + bl + 2*bc + br;
         depthRaw[idx] = Math.min(1, depthRaw[idx] + Math.sqrt(gx * gx + gy * gy) * 0.25);
       }
     }
-    for (var j = 0; j < len; j++) { depth3D[j] = depth3D[j] * 0.7 + depthRaw[j] * 0.3; }
+    for (let j = 0; j < len; j++) { depth3D[j] = depth3D[j] * 0.7 + depthRaw[j] * 0.3; }
   }
 
   function updatePointCloud(imgData) {
     estimateDepth(imgData);
-    var posAttr = threeGeometry.getAttribute("position");
-    var colAttr = threeGeometry.getAttribute("color");
-    var pos = posAttr.array, col = colAttr.array, pixels = imgData.data;
-    var revealCol = revealProgress < 1 ? Math.floor(revealProgress * GRID_W) : GRID_W;
-    for (var r = 0; r < GRID_H; r++) {
-      for (var c = 0; c < GRID_W; c++) {
-        var i = r * GRID_W + c, i3 = i * 3;
+    const posAttr = threeGeometry.getAttribute("position");
+    const colAttr = threeGeometry.getAttribute("color");
+    const pos = posAttr.array, col = colAttr.array, pixels = imgData.data;
+    const revealCol = revealProgress < 1 ? Math.floor(revealProgress * GRID_W) : GRID_W;
+    for (let r = 0; r < GRID_H; r++) {
+      for (let c = 0; c < GRID_W; c++) {
+        const i = r * GRID_W + c, i3 = i * 3;
         if (c < revealCol) {
           pos[i3] = (c / GRID_W - 0.5) * 4;
           pos[i3 + 1] = -(r / GRID_H - 0.5) * 3;
@@ -376,16 +378,16 @@
         }
       }
     }
-    if (revealProgress < 1) revealProgress += 0.015;
+    if (revealProgress < 1) {revealProgress += 0.015;}
     posAttr.needsUpdate = true;
     colAttr.needsUpdate = true;
   }
 
   function buildMeshIndices() {
-    var indices = [];
-    for (var r = 0; r < GRID_H - 1; r++) {
-      for (var c = 0; c < GRID_W - 1; c++) {
-        var i = r * GRID_W + c;
+    const indices = [];
+    for (let r = 0; r < GRID_H - 1; r++) {
+      for (let c = 0; c < GRID_W - 1; c++) {
+        const i = r * GRID_W + c;
         indices.push(i, i + 1, i + GRID_W);
         indices.push(i + 1, i + GRID_W + 1, i + GRID_W);
       }
@@ -394,7 +396,7 @@
   }
 
   function switchToMesh() {
-    if (!threeScene || threeMesh) return;
+    if (!threeScene || threeMesh) {return;}
     threeScene.remove(threePoints);
     buildMeshIndices();
     threeMesh = new THREE_M.Mesh(threeGeometry, new THREE_M.MeshBasicMaterial({
@@ -406,7 +408,7 @@
   }
 
   function switchToPointCloud() {
-    if (!threeScene || (threePoints && threePoints.parent)) return;
+    if (!threeScene || (threePoints && threePoints.parent)) {return;}
     if (threeMesh) { threeScene.remove(threeMesh); threeMesh.material.dispose(); threeMesh = null; }
     threeLights.forEach(function (l) { threeScene.remove(l); });
     threeGeometry.setIndex(null);
@@ -415,10 +417,10 @@
   }
 
   function handleGesture3D(lm, gesture) {
-    var palmX = (lm[0].x + lm[5].x + lm[9].x + lm[13].x + lm[17].x) / 5;
-    var palmY = (lm[0].y + lm[5].y + lm[9].y + lm[13].y + lm[17].y) / 5;
+    const palmX = (lm[0].x + lm[5].x + lm[9].x + lm[13].x + lm[17].x) / 5;
+    const palmY = (lm[0].y + lm[5].y + lm[9].y + lm[13].y + lm[17].y) / 5;
     if (prev3D) {
-      var dx = palmX - prev3D.palmX, dy = palmY - prev3D.palmY;
+      const dx = palmX - prev3D.palmX, dy = palmY - prev3D.palmY;
       switch (gesture) {
         case "open": threeTargetRot.y += dx * 4; threeTargetRot.x += dy * 4; break;
         case "ok": case "pinch":
@@ -428,7 +430,7 @@
         case "point": threeTargetPos.x -= dx * 3; threeTargetPos.y += dy * 3; break;
         case "peace":
           if (cooled("3d-toggle", 600)) {
-            if (subMode === "pointcloud") switchToMesh(); else switchToPointCloud();
+            if (subMode === "pointcloud") {switchToMesh();} else {switchToPointCloud();}
             updateSubModeButtons();
           } break;
         case "fist": threeTargetRot = { x: 0, y: 0 }; threeTargetPos = { x: 0, y: 0, z: 3 }; break;
@@ -443,7 +445,7 @@
   }
 
   function animate3D(lm, gesture) {
-    if (!threeRenderer || !threeScene || !threeCamera) return;
+    if (!threeRenderer || !threeScene || !threeCamera) {return;}
     handleGesture3D(lm, gesture);
     if ($video.readyState >= 2) {
       captureCtx.drawImage($video, 0, 0, GRID_W, GRID_H);
@@ -460,13 +462,13 @@
   }
 
   function renderDepthPreview() {
-    var el = document.getElementById("gesture-depth-preview");
-    if (!el || !depth3D) return;
-    var pctx = el.getContext("2d");
-    var img = pctx.createImageData(GRID_W, GRID_H);
-    var d = img.data;
-    for (var i = 0, len = GRID_W * GRID_H; i < len; i++) {
-      var v = Math.floor(depth3D[i] * 255);
+    const el = document.getElementById("gesture-depth-preview");
+    if (!el || !depth3D) {return;}
+    const pctx = el.getContext("2d");
+    const img = pctx.createImageData(GRID_W, GRID_H);
+    const d = img.data;
+    for (let i = 0, len = GRID_W * GRID_H; i < len; i++) {
+      const v = Math.floor(depth3D[i] * 255);
       d[i * 4] = v; d[i * 4 + 1] = v; d[i * 4 + 2] = v; d[i * 4 + 3] = 255;
     }
     pctx.putImageData(img, 0, 0);
@@ -483,15 +485,15 @@
    * ==================================================================== */
   async function startCamera() {
     if (mode === "detect") {
-      if (!(await loadObjectDetector())) return;
+      if (!(await loadObjectDetector())) {return;}
     } else if (mode === "face") {
-      if (!(await loadFaceApi())) return;
-      if (!(await loadMediaPipe())) return;
+      if (!(await loadFaceApi())) {return;}
+      if (!(await loadMediaPipe())) {return;}
     } else {
-      if (!(await loadMediaPipe())) return;
+      if (!(await loadMediaPipe())) {return;}
     }
     if (mode === "3d") {
-      if (!(await loadThree())) return;
+      if (!(await loadThree())) {return;}
     }
     try {
       cameraStream = await navigator.mediaDevices.getUserMedia({
@@ -509,7 +511,7 @@
     $stop.disabled  = false;
     running = true;
     setStatus("running", "检测中");
-    if (mode === "3d") initThreeScene();
+    if (mode === "3d") {initThreeScene();}
     requestAnimationFrame(loop);
   }
 
@@ -536,10 +538,10 @@
   }
 
   function resizeCanvas() {
-    var rect = $canvas.parentElement.getBoundingClientRect();
-    var w = Math.floor(rect.width);
-    var h = Math.floor(rect.height);
-    var dpr = window.devicePixelRatio || 1;
+    const rect = $canvas.parentElement.getBoundingClientRect();
+    const w = Math.floor(rect.width);
+    const h = Math.floor(rect.height);
+    const dpr = window.devicePixelRatio || 1;
     if ($canvas.width !== w * dpr || $canvas.height !== h * dpr) {
       $canvas.width  = w * dpr;
       $canvas.height = h * dpr;
@@ -560,14 +562,14 @@
    * 3. Detection Loop
    * ==================================================================== */
   function loop() {
-    if (!running) return;
+    if (!running) {return;}
     if (!document.hidden && $video.readyState >= 2) {
       if (mode === "detect") {
         /* object detection mode – throttle to DETECT_INTERVAL */
-        var now = performance.now();
+        const now = performance.now();
         if (objectDetector && now - lastDetectTime >= DETECT_INTERVAL) {
           lastDetectTime = now;
-          var detResult = objectDetector.detectForVideo($video, now);
+          const detResult = objectDetector.detectForVideo($video, now);
           handleDetectResults(detResult);
         } else {
           /* between detections, redraw cached results */
@@ -577,7 +579,7 @@
       } else {
         /* hand gesture modes */
         if (handLandmarker) {
-          var result = handLandmarker.detectForVideo($video, performance.now());
+          const result = handLandmarker.detectForVideo($video, performance.now());
           handleResults(result);
         }
         updateFPS();
@@ -588,7 +590,7 @@
 
   function updateFPS() {
     frameCount++;
-    var now = performance.now();
+    const now = performance.now();
     if (now - fpsTimer >= 1000) {
       $fps.textContent = frameCount + " FPS";
       frameCount = 0;
@@ -605,7 +607,7 @@
   function toX(lm) { return lm.x * ($canvas.width / (window.devicePixelRatio || 1)); }
   function toY(lm) { return lm.y * ($canvas.height / (window.devicePixelRatio || 1)); }
   function dist(a, b) {
-    var dx = toX(a) - toX(b), dy = toY(a) - toY(b);
+    const dx = toX(a) - toX(b), dy = toY(a) - toY(b);
     return Math.sqrt(dx * dx + dy * dy);
   }
 
@@ -614,7 +616,7 @@
    * ==================================================================== */
 
   /* Finger tip / pip / mcp indices */
-  var FINGER = {
+  const FINGER = {
     thumb:  { tip: 4,  ip: 3,  mcp: 2 },
     index:  { tip: 8,  pip: 6, mcp: 5 },
     middle: { tip: 12, pip: 10, mcp: 9 },
@@ -623,10 +625,10 @@
   };
 
   function fingerExtended(lm, key) {
-    var f = FINGER[key];
+    const f = FINGER[key];
     if (key === "thumb") {
       /* thumb: compare tip x distance from palm centre vs ip */
-      var palmX = (lm[0].x + lm[5].x + lm[17].x) / 3;
+      const palmX = (lm[0].x + lm[5].x + lm[17].x) / 3;
       return Math.abs(lm[f.tip].x - palmX) > Math.abs(lm[f.ip].x - palmX) * 1.1;
     }
     /* other fingers: tip above (y < ) pip */
@@ -634,60 +636,60 @@
   }
 
   function recogniseGesture(lm) {
-    var ext = {
+    const ext = {
       thumb:  fingerExtended(lm, "thumb"),
       index:  fingerExtended(lm, "index"),
       middle: fingerExtended(lm, "middle"),
       ring:   fingerExtended(lm, "ring"),
       pinky:  fingerExtended(lm, "pinky"),
     };
-    var count = (ext.thumb?1:0) + (ext.index?1:0) + (ext.middle?1:0) + (ext.ring?1:0) + (ext.pinky?1:0);
+    const count = (ext.thumb?1:0) + (ext.index?1:0) + (ext.middle?1:0) + (ext.ring?1:0) + (ext.pinky?1:0);
 
     /* OK / Pinch: thumb tip close to index tip */
-    var pinchDist = dist(lm[4], lm[8]);
-    if (pinchDist < 30) return count <= 2 ? "ok" : "pinch";
+    const pinchDist = dist(lm[4], lm[8]);
+    if (pinchDist < 30) {return count <= 2 ? "ok" : "pinch";}
 
     /* Fist: all fingers curled */
-    if (count === 0) return "fist";
+    if (count === 0) {return "fist";}
 
     /* Thumbs-up: thumb extended, all others curled */
     if (ext.thumb && !ext.index && !ext.middle && !ext.ring && !ext.pinky) {
       /* verify thumb points upward: tip above wrist by a significant margin */
-      if (lm[4].y < lm[0].y - 0.08) return "thumbs-up";
+      if (lm[4].y < lm[0].y - 0.08) {return "thumbs-up";}
     }
 
     /* Point: only index extended */
-    if (ext.index && !ext.middle && !ext.ring && !ext.pinky) return "point";
+    if (ext.index && !ext.middle && !ext.ring && !ext.pinky) {return "point";}
 
     /* Peace: index + middle extended, others curled */
-    if (ext.index && ext.middle && !ext.ring && !ext.pinky) return "peace";
+    if (ext.index && ext.middle && !ext.ring && !ext.pinky) {return "peace";}
 
     /* Number gestures by non-thumb finger count */
-    var fingerCount = (ext.index ? 1 : 0) + (ext.middle ? 1 : 0) +
+    const fingerCount = (ext.index ? 1 : 0) + (ext.middle ? 1 : 0) +
                       (ext.ring ? 1 : 0) + (ext.pinky ? 1 : 0);
 
-    if (fingerCount === 3 && !ext.thumb) return "number-3";
-    if (fingerCount === 4 && !ext.thumb) return "number-4";
+    if (fingerCount === 3 && !ext.thumb) {return "number-3";}
+    if (fingerCount === 4 && !ext.thumb) {return "number-4";}
 
     /* Open palm: all 5 extended */
-    if (count >= 4) return "open";
+    if (count >= 4) {return "open";}
 
     return "none";
   }
 
   /* Swipe detection: track palm centre over recent frames */
   function detectSwipe(lm) {
-    var cx = (lm[0].x + lm[5].x + lm[9].x + lm[13].x + lm[17].x) / 5;
-    var cy = (lm[0].y + lm[5].y + lm[9].y + lm[13].y + lm[17].y) / 5;
+    const cx = (lm[0].x + lm[5].x + lm[9].x + lm[13].x + lm[17].x) / 5;
+    const cy = (lm[0].y + lm[5].y + lm[9].y + lm[13].y + lm[17].y) / 5;
     swipeHistory.push({ x: cx, y: cy, t: performance.now() });
-    if (swipeHistory.length > 10) swipeHistory.shift();
-    if (swipeHistory.length < 6) return null;
-    var first = swipeHistory[0];
-    var last  = swipeHistory[swipeHistory.length - 1];
-    var dt = last.t - first.t;
-    if (dt > 600) return null;
-    var dx = last.x - first.x;
-    var dy = last.y - first.y;
+    if (swipeHistory.length > 10) {swipeHistory.shift();}
+    if (swipeHistory.length < 6) {return null;}
+    const first = swipeHistory[0];
+    const last  = swipeHistory[swipeHistory.length - 1];
+    const dt = last.t - first.t;
+    if (dt > 600) {return null;}
+    const dx = last.x - first.x;
+    const dy = last.y - first.y;
     if (Math.abs(dx) > 0.25 && Math.abs(dx) > Math.abs(dy) * 1.5) {
       swipeHistory = [];
       return dx > 0 ? "swipe-left" : "swipe-right";  /* mirrored */
@@ -702,25 +704,25 @@
   /* Wave detection: track wrist x-position for oscillation (back-and-forth) */
   function detectWave(lm) {
     waveHistory.push({ x: lm[0].x, t: performance.now() });
-    if (waveHistory.length > 30) waveHistory.shift();
-    if (waveHistory.length < 8) return false;
+    if (waveHistory.length > 30) {waveHistory.shift();}
+    if (waveHistory.length < 8) {return false;}
     /* prune old entries (> 1.2 s) */
-    var now = performance.now();
+    const now = performance.now();
     waveHistory = waveHistory.filter(function (h) { return now - h.t < 1200; });
-    if (waveHistory.length < 8) return false;
+    if (waveHistory.length < 8) {return false;}
     /* count direction changes */
-    var changes = 0;
-    var prevDir = 0;
-    for (var i = 1; i < waveHistory.length; i++) {
-      var dx = waveHistory[i].x - waveHistory[i - 1].x;
-      if (Math.abs(dx) < 0.003) continue;     /* ignore tiny movements */
-      var dir = dx > 0 ? 1 : -1;
-      if (prevDir !== 0 && dir !== prevDir) changes++;
+    let changes = 0;
+    let prevDir = 0;
+    for (let i = 1; i < waveHistory.length; i++) {
+      const dx = waveHistory[i].x - waveHistory[i - 1].x;
+      if (Math.abs(dx) < 0.003) {continue;}     /* ignore tiny movements */
+      const dir = dx > 0 ? 1 : -1;
+      if (prevDir !== 0 && dir !== prevDir) {changes++;}
       prevDir = dir;
     }
     /* require at least 2 direction changes and sufficient total displacement */
-    var totalRange = 0;
-    for (var j = 1; j < waveHistory.length; j++) {
+    let totalRange = 0;
+    for (let j = 1; j < waveHistory.length; j++) {
       totalRange += Math.abs(waveHistory[j].x - waveHistory[j - 1].x);
     }
     if (changes >= 2 && totalRange > 0.15) {
@@ -734,12 +736,12 @@
    * 6. Results Dispatcher
    * ==================================================================== */
   function handleResults(result) {
-    var cw = $canvas.width / (window.devicePixelRatio || 1);
-    var ch = $canvas.height / (window.devicePixelRatio || 1);
+    const cw = $canvas.width / (window.devicePixelRatio || 1);
+    const ch = $canvas.height / (window.devicePixelRatio || 1);
     ctx.clearRect(0, 0, cw, ch);
 
     /* Always run face detection if models are loaded (background overlay) */
-    if (faceModelsLoaded) detectFaces();
+    if (faceModelsLoaded) {detectFaces();}
 
     if (!result.landmarks || result.landmarks.length === 0) {
       /* Face mode works even without hands */
@@ -781,12 +783,12 @@
       return;
     }
 
-    var lm = result.landmarks[0];           /* primary hand */
-    var gesture = recogniseGesture(lm);
-    var swipe   = detectSwipe(lm);
-    var waving   = detectWave(lm);
-    if (swipe) gesture = swipe;
-    else if (waving && gesture === "open") gesture = "wave";
+    const lm = result.landmarks[0];           /* primary hand */
+    let gesture = recogniseGesture(lm);
+    const swipe   = detectSwipe(lm);
+    const waving   = detectWave(lm);
+    if (swipe) {gesture = swipe;}
+    else if (waving && gesture === "open") {gesture = "wave";}
 
     lastGesture = gesture;
     setLabel(gestureName(gesture));
@@ -802,7 +804,7 @@
     }
 
     /* Overlay face info on non-face modes */
-    if (mode !== "face") drawFaceOverlay();
+    if (mode !== "face") {drawFaceOverlay();}
   }
 
   /* ====================================================================
@@ -810,7 +812,7 @@
    * ==================================================================== */
 
   /* COCO 80-class colour map – hue value per category */
-  var DETECT_HUE = {
+  const DETECT_HUE = {
     person:0, bicycle:20, car:40, motorcycle:60, airplane:80,
     bus:100, train:120, truck:140, boat:160, "traffic light":180,
     "fire hydrant":200, "stop sign":220, "parking meter":240, bench:260,
@@ -832,7 +834,7 @@
   };
 
   /* Chinese labels for COCO categories */
-  var DETECT_CN = {
+  const DETECT_CN = {
     person:"人", bicycle:"自行车", car:"汽车", motorcycle:"摩托车",
     airplane:"飞机", bus:"公交车", train:"火车", truck:"卡车",
     boat:"船", "traffic light":"红绿灯", "fire hydrant":"消防栓",
@@ -858,53 +860,53 @@
 
   /* handle object detection results */
   function handleDetectResults(detResult) {
-    var cw = $canvas.width / (window.devicePixelRatio || 1);
-    var ch = $canvas.height / (window.devicePixelRatio || 1);
+    const cw = $canvas.width / (window.devicePixelRatio || 1);
+    const ch = $canvas.height / (window.devicePixelRatio || 1);
     ctx.clearRect(0, 0, cw, ch);
 
-    var dets = detResult && detResult.detections ? detResult.detections : [];
+    const dets = detResult && detResult.detections ? detResult.detections : [];
     lastDetections = dets;
 
     drawDetections(dets, cw, ch);
 
-    var n = dets.length;
+    const n = dets.length;
     setLabel(n > 0 ? "检测到 " + n + " 个物体" : "未检测到物体");
   }
 
   /* redraw cached detections between detection frames */
   function redrawDetections() {
-    var cw = $canvas.width / (window.devicePixelRatio || 1);
-    var ch = $canvas.height / (window.devicePixelRatio || 1);
+    const cw = $canvas.width / (window.devicePixelRatio || 1);
+    const ch = $canvas.height / (window.devicePixelRatio || 1);
     ctx.clearRect(0, 0, cw, ch);
     drawDetections(lastDetections, cw, ch);
   }
 
   /* render bounding boxes, labels and confidence */
   function drawDetections(dets, cw, ch) {
-    var vw = $video.videoWidth  || 640;
-    var vh = $video.videoHeight || 480;
+    const vw = $video.videoWidth  || 640;
+    const vh = $video.videoHeight || 480;
 
     /* scale from video-native pixels to canvas CSS pixels.
        video is object-fit:cover, mirrored via CSS scaleX(-1). */
-    var scale = Math.max(cw / vw, ch / vh);
-    var offX = (cw - vw * scale) / 2;
-    var offY = (ch - vh * scale) / 2;
+    const scale = Math.max(cw / vw, ch / vh);
+    const offX = (cw - vw * scale) / 2;
+    const offY = (ch - vh * scale) / 2;
 
-    for (var i = 0; i < dets.length; i++) {
-      var det  = dets[i];
-      var cat  = det.categories && det.categories[0];
-      if (!cat) continue;
-      var bb   = det.boundingBox;
-      var name = cat.categoryName || "unknown";
-      var pct  = Math.round(cat.score * 100);
-      var hue  = DETECT_HUE[name] != null ? DETECT_HUE[name] : (i * 47) % 360;
-      var cn   = DETECT_CN[name] || name;
+    for (let i = 0; i < dets.length; i++) {
+      const det  = dets[i];
+      const cat  = det.categories && det.categories[0];
+      if (!cat) {continue;}
+      const bb   = det.boundingBox;
+      const name = cat.categoryName || "unknown";
+      const pct  = Math.round(cat.score * 100);
+      const hue  = DETECT_HUE[name] !== null && DETECT_HUE[name] !== undefined ? DETECT_HUE[name] : (i * 47) % 360;
+      const cn   = DETECT_CN[name] || name;
 
       /* map bounding box to canvas coords */
-      var x1 = bb.originX * scale + offX;
-      var y1 = bb.originY * scale + offY;
-      var bw = bb.width    * scale;
-      var bh = bb.height   * scale;
+      const x1 = bb.originX * scale + offX;
+      const y1 = bb.originY * scale + offY;
+      const bw = bb.width    * scale;
+      const bh = bb.height   * scale;
 
       /* bounding box */
       ctx.strokeStyle = "hsla(" + hue + ", 85%, 60%, 0.9)";
@@ -916,10 +918,10 @@
       ctx.shadowBlur = 0;
 
       /* label background */
-      var label = cn + " " + pct + "%";
+      const label = cn + " " + pct + "%";
       ctx.font = "bold 13px system-ui, sans-serif";
-      var tw = ctx.measureText(label).width + 12;
-      var th = 20;
+      const tw = ctx.measureText(label).width + 12;
+      const th = 20;
       ctx.fillStyle = "hsla(" + hue + ", 85%, 45%, 0.85)";
       roundRect(ctx, x1, y1 - th, tw, th, [4, 4, 0, 0]);
       ctx.fill();
@@ -937,7 +939,7 @@
 
   /* rounded-rect path helper */
   function roundRect(c, x, y, w, h, r) {
-    if (typeof r === "number") r = [r, r, r, r];
+    if (typeof r === "number") {r = [r, r, r, r];}
     c.beginPath();
     c.moveTo(x + r[0], y);
     c.lineTo(x + w - r[1], y);
@@ -953,7 +955,7 @@
 
   /* small corner accent marks for visual flair */
   function drawCornerAccents(x, y, w, h, hue) {
-    var len = Math.min(10, w * 0.15, h * 0.15);
+    const len = Math.min(10, w * 0.15, h * 0.15);
     ctx.strokeStyle = "hsla(" + hue + ", 90%, 70%, 0.8)";
     ctx.lineWidth   = 3;
     ctx.lineCap     = "round";
@@ -972,8 +974,8 @@
    * ==================================================================== */
   function animateParticle(lm, gesture) {
     /* hand centre */
-    var cx = toX(lm[0]);
-    var cy = toY(lm[0]);
+    const cx = toX(lm[0]);
+    const cy = toY(lm[0]);
 
     /* spawn particles at fingertips */
     if (gesture !== "fist") {
@@ -987,8 +989,8 @@
       case "fist":
         /* pull existing particles toward centre, then explode */
         particles.forEach(function (p) {
-          var dx = cx - p.x, dy = cy - p.y;
-          var d  = Math.sqrt(dx * dx + dy * dy) || 1;
+          const dx = cx - p.x, dy = cy - p.y;
+          const d  = Math.sqrt(dx * dx + dy * dy) || 1;
           p.vx += (dx / d) * 0.8;
           p.vy += (dy / d) * 0.8;
           p.friction = 0.96;
@@ -1059,8 +1061,8 @@
    * 8. Gesture Recognition Mode
    * ==================================================================== */
   function animateGesture(lm, gesture) {
-    var cw = $canvas.width / (window.devicePixelRatio || 1);
-    var ch = $canvas.height / (window.devicePixelRatio || 1);
+    const cw = $canvas.width / (window.devicePixelRatio || 1);
+    const ch = $canvas.height / (window.devicePixelRatio || 1);
 
     /* always draw hand skeleton lightly */
     drawHandSkeleton(lm, 0.15);
@@ -1088,8 +1090,8 @@
       case "ok":
         /* golden ripple */
         if (cooled("ok-ripple", 350)) {
-          var px = (toX(lm[4]) + toX(lm[8])) / 2;
-          var py = (toY(lm[4]) + toY(lm[8])) / 2;
+          const px = (toX(lm[4]) + toX(lm[8])) / 2;
+          const py = (toY(lm[4]) + toY(lm[8])) / 2;
           rippleAt(px, py, 45);
         }
         break;
@@ -1099,8 +1101,8 @@
         var cx = toX(lm[0]);
         var cy = toY(lm[9]);
         particles.forEach(function (p) {
-          var dx = cx - p.x, dy = cy - p.y;
-          var d  = Math.sqrt(dx * dx + dy * dy) || 1;
+          const dx = cx - p.x, dy = cy - p.y;
+          const d  = Math.sqrt(dx * dx + dy * dy) || 1;
           p.vx += (dx / d) * 1.2;
           p.vy += (dy / d) * 1.2;
         });
@@ -1123,9 +1125,9 @@
         /* waving hand – dynamic streaks radiating from palm */
         drawHandSkeleton(lm, 0.4);
         if (cooled("wave-streak", 100)) {
-          var wc = toX(lm[0]), wy = toY(lm[9]);
-          for (var wi = 0; wi < 6; wi++) {
-            var wa = Math.random() * Math.PI * 2;
+          const wc = toX(lm[0]), wy = toY(lm[9]);
+          for (let wi = 0; wi < 6; wi++) {
+            const wa = Math.random() * Math.PI * 2;
             particles.push({
               x: wc + Math.cos(wa) * 10,
               y: wy + Math.sin(wa) * 10,
@@ -1147,8 +1149,8 @@
         /* rising flame from thumb tip */
         drawHandSkeleton(lm, 0.4);
         if (cooled("thumb-flame", 120)) {
-          var tx = toX(lm[4]), ty = toY(lm[4]);
-          for (var ti = 0; ti < 4; ti++) {
+          const tx = toX(lm[4]), ty = toY(lm[4]);
+          for (let ti = 0; ti < 4; ti++) {
             particles.push({
               x: tx + (Math.random() - 0.5) * 10,
               y: ty,
@@ -1187,7 +1189,7 @@
    * ==================================================================== */
   function animateDraw(lm, gesture) {
     /* draw persistent strokes onto drawCanvas */
-    var ix = toX(lm[8]), iy = toY(lm[8]);
+    const ix = toX(lm[8]), iy = toY(lm[8]);
 
     if (gesture === "fist") {
       /* clear drawing */
@@ -1221,7 +1223,7 @@
       prevDrawPoint = { x: ix, y: iy };
     } else if (gesture === "thumbs-up") {
       /* draw upward stroke from thumb tip */
-      var tx = toX(lm[4]), ty = toY(lm[4]);
+      const tx = toX(lm[4]), ty = toY(lm[4]);
       if (prevDrawPoint) {
         drawCtx.beginPath();
         drawCtx.moveTo(prevDrawPoint.x, prevDrawPoint.y);
@@ -1284,21 +1286,21 @@
   }
 
   function resetPremiumState() {
-    var api = premiumApi();
+    const api = premiumApi();
     if (api && typeof api.reset === "function") {
       api.reset();
     }
   }
 
   function premiumFeedback(kind) {
-    var api = premiumApi();
+    const api = premiumApi();
     if (api && typeof api.feedback === "function") {
       api.feedback(premiumEnv(), kind);
     }
   }
 
   function animatePremium(lm, gesture, hands) {
-    var api = premiumApi();
+    const api = premiumApi();
     if (api && typeof api.animate === "function") {
       api.animate(premiumEnv(), lm, gesture, hands || []);
       return;
@@ -1313,23 +1315,23 @@
   function fruitCH() { return $canvas.height / (window.devicePixelRatio || 1); }
 
   function fruitPickType() {
-    var total = 0, i;
-    for (i = 0; i < FRUIT_WEIGHTS.length; i++) total += FRUIT_WEIGHTS[i];
-    var r = Math.random() * total, acc = 0;
+    let total = 0, i;
+    for (i = 0; i < FRUIT_WEIGHTS.length; i++) {total += FRUIT_WEIGHTS[i];}
+    let r = Math.random() * total, acc = 0;
     for (i = 0; i < FRUIT_WEIGHTS.length; i++) {
       acc += FRUIT_WEIGHTS[i];
-      if (r < acc) return i;
+      if (r < acc) {return i;}
     }
     return 0;
   }
 
   function fruitSpawn() {
-    var cw = fruitCW(), ch = fruitCH();
-    var ti = fruitPickType();
-    var def = FRUIT_DEFS[ti];
-    var x = def.r + Math.random() * (cw - def.r * 2);
-    var speedY = -(7.5 + Math.random() * 4 + fruitDifficulty * 0.3);
-    var speedX = (Math.random() - 0.5) * 3;
+    const cw = fruitCW(), ch = fruitCH();
+    const ti = fruitPickType();
+    const def = FRUIT_DEFS[ti];
+    const x = def.r + Math.random() * (cw - def.r * 2);
+    const speedY = -(7.5 + Math.random() * 4 + fruitDifficulty * 0.3);
+    const speedX = (Math.random() - 0.5) * 3;
     fruitList.push({
       x: x, y: ch + def.r + 10,
       vx: speedX, vy: speedY,
@@ -1340,8 +1342,8 @@
   }
 
   function fruitSpawnWave() {
-    var count = 2 + Math.floor(Math.random() * (2 + fruitDifficulty * 0.2));
-    for (var i = 0; i < count; i++) {
+    const count = 2 + Math.floor(Math.random() * (2 + fruitDifficulty * 0.2));
+    for (let i = 0; i < count; i++) {
       setTimeout(fruitSpawn, i * 120);
     }
   }
@@ -1362,12 +1364,12 @@
   }
 
   function animateFruit(lm, gesture) {
-    var cw = fruitCW();
-    var ch = fruitCH();
-    var now = performance.now();
+    const cw = fruitCW();
+    const ch = fruitCH();
+    const now = performance.now();
 
     /* initialise on first frame */
-    if (fruitStartTime === 0 && !fruitGameOver) fruitReset();
+    if (fruitStartTime === 0 && !fruitGameOver) {fruitReset();}
 
     /* Game Over screen */
     if (fruitGameOver) {
@@ -1382,8 +1384,8 @@
     fruitDifficulty = Math.min(10, (now - fruitStartTime) / 15000);
 
     /* ---- Blade trail from palm ---- */
-    var px = toX(lm[0]);
-    var py = toY(lm[9]);
+    const px = toX(lm[0]);
+    const py = toY(lm[9]);
     fruitBladeTrail.push({ x: px, y: py, t: now });
     while (fruitBladeTrail.length > 0 && now - fruitBladeTrail[0].t > 350) {
       fruitBladeTrail.shift();
@@ -1392,7 +1394,7 @@
     /* ---- Spawn waves ---- */
     if (now >= fruitSpawnTimer && !fruitGameOver) {
       fruitSpawnWave();
-      var interval = Math.max(800, 2200 - fruitDifficulty * 120);
+      const interval = Math.max(800, 2200 - fruitDifficulty * 120);
       fruitSpawnTimer = now + interval + Math.random() * 400;
     }
 
@@ -1402,41 +1404,41 @@
     }
 
     /* ---- Slice detection ---- */
-    var slicing = gesture !== "fist" && gesture !== "none";
+    const slicing = gesture !== "fist" && gesture !== "none";
     if (slicing && fruitBladeTrail.length >= 2) {
-      var tip = fruitBladeTrail[fruitBladeTrail.length - 1];
-      var prev = fruitBladeTrail[fruitBladeTrail.length - 2];
-      var bladeSpeed = Math.sqrt(
+      const tip = fruitBladeTrail[fruitBladeTrail.length - 1];
+      const prev = fruitBladeTrail[fruitBladeTrail.length - 2];
+      const bladeSpeed = Math.sqrt(
         (tip.x - prev.x) * (tip.x - prev.x) +
         (tip.y - prev.y) * (tip.y - prev.y)
       );
       if (bladeSpeed > 4) {
-        for (var fi = fruitList.length - 1; fi >= 0; fi--) {
-          var fr = fruitList[fi];
-          if (fr.sliced) continue;
-          var d = ptSegDist(fr.x, fr.y, prev.x, prev.y, tip.x, tip.y);
+        for (let fi = fruitList.length - 1; fi >= 0; fi--) {
+          const fr = fruitList[fi];
+          if (fr.sliced) {continue;}
+          const d = ptSegDist(fr.x, fr.y, prev.x, prev.y, tip.x, tip.y);
           if (d < fr.r + 6) {
             fr.sliced = true;
-            var sliceAngle = Math.atan2(tip.y - prev.y, tip.x - prev.x);
-            var def = FRUIT_DEFS[fr.typeIdx];
+            const sliceAngle = Math.atan2(tip.y - prev.y, tip.x - prev.x);
+            const def = FRUIT_DEFS[fr.typeIdx];
             if (def.pts < 0) {
               /* bomb hit */
               fruitScore = Math.max(0, fruitScore + def.pts);
               fruitCombo = 0;
-              for (var bi = 0; bi < 25; bi++) {
+              for (let bi = 0; bi < 25; bi++) {
                 fruitJuice.push(fruitMakeJuice(fr.x, fr.y, 30, 10, 0.04));
               }
             } else {
               fruitCombo++;
               fruitComboTime = now;
               fruitScore += def.pts * fruitCombo;
-              var jCount = Math.min(25, 8 + fruitCombo * 2);
-              for (var ji = 0; ji < jCount; ji++) {
+              const jCount = Math.min(25, 8 + fruitCombo * 2);
+              for (let ji = 0; ji < jCount; ji++) {
                 fruitJuice.push(fruitMakeJuice(fr.x, fr.y, def.r * 0.8, def.color, 0.025));
               }
             }
             /* split halves */
-            var ha = sliceAngle + Math.PI / 2;
+            const ha = sliceAngle + Math.PI / 2;
             fruitHalves.push({
               x: fr.x, y: fr.y,
               vx: Math.cos(ha) * 3, vy: -1.5,
@@ -1459,15 +1461,15 @@
     }
 
     /* ---- Physics: fruits ---- */
-    for (var pi = fruitList.length - 1; pi >= 0; pi--) {
-      var p = fruitList[pi];
+    for (let pi = fruitList.length - 1; pi >= 0; pi--) {
+      const p = fruitList[pi];
       p.vy += 0.16;
       p.x += p.vx;
       p.y += p.vy;
       p.rotation += p.rotSpd;
       if (p.y - p.r > ch + 20) {
         if (!p.sliced) {
-          var pDef = FRUIT_DEFS[p.typeIdx];
+          const pDef = FRUIT_DEFS[p.typeIdx];
           if (pDef.pts > 0) {
             fruitLives--;
             if (fruitLives <= 0) {
@@ -1484,8 +1486,8 @@
     }
 
     /* ---- Physics: halves ---- */
-    for (var hi = fruitHalves.length - 1; hi >= 0; hi--) {
-      var h = fruitHalves[hi];
+    for (let hi = fruitHalves.length - 1; hi >= 0; hi--) {
+      const h = fruitHalves[hi];
       h.vy += 0.18;
       h.x += h.vx;
       h.y += h.vy;
@@ -1495,8 +1497,8 @@
     }
 
     /* ---- Physics: juice ---- */
-    for (var ui = fruitJuice.length - 1; ui >= 0; ui--) {
-      var u = fruitJuice[ui];
+    for (let ui = fruitJuice.length - 1; ui >= 0; ui--) {
+      const u = fruitJuice[ui];
       u.vy += 0.12;
       u.x += u.vx;
       u.y += u.vy;
@@ -1505,15 +1507,15 @@
     }
 
     /* ===== RENDER ===== */
-    var bgGrad = ctx.createLinearGradient(0, 0, 0, ch);
+    const bgGrad = ctx.createLinearGradient(0, 0, 0, ch);
     bgGrad.addColorStop(0, "#0d1b2a");
     bgGrad.addColorStop(1, "#1b2838");
     ctx.fillStyle = bgGrad;
     ctx.fillRect(0, 0, cw, ch);
 
     /* juice particles */
-    for (var rj = 0; rj < fruitJuice.length; rj++) {
-      var j = fruitJuice[rj];
+    for (let rj = 0; rj < fruitJuice.length; rj++) {
+      const j = fruitJuice[rj];
       ctx.globalAlpha = j.life * 0.8;
       ctx.fillStyle = j.color;
       ctx.beginPath();
@@ -1523,11 +1525,11 @@
     ctx.globalAlpha = 1;
 
     /* whole fruits */
-    for (var rf = 0; rf < fruitList.length; rf++) {
+    for (let rf = 0; rf < fruitList.length; rf++) {
       drawFruitWhole(fruitList[rf]);
     }
     /* sliced halves */
-    for (var rh = 0; rh < fruitHalves.length; rh++) {
+    for (let rh = 0; rh < fruitHalves.length; rh++) {
       drawFruitHalf(fruitHalves[rh]);
     }
     /* blade trail */
@@ -1541,7 +1543,7 @@
   }
 
   function drawFruitWhole(f) {
-    var def = FRUIT_DEFS[f.typeIdx];
+    const def = FRUIT_DEFS[f.typeIdx];
     ctx.save();
     ctx.translate(f.x, f.y);
     ctx.rotate(f.rotation);
@@ -1553,7 +1555,7 @@
     /* body */
     ctx.beginPath();
     ctx.arc(0, 0, f.r, 0, Math.PI * 2);
-    var fg = ctx.createRadialGradient(-f.r * 0.3, -f.r * 0.3, f.r * 0.1, 0, 0, f.r);
+    const fg = ctx.createRadialGradient(-f.r * 0.3, -f.r * 0.3, f.r * 0.1, 0, 0, f.r);
     fg.addColorStop(0, def.glow);
     fg.addColorStop(1, def.color);
     ctx.fillStyle = fg;
@@ -1575,7 +1577,7 @@
   }
 
   function drawFruitHalf(h) {
-    var def = FRUIT_DEFS[h.typeIdx];
+    const def = FRUIT_DEFS[h.typeIdx];
     ctx.save();
     ctx.globalAlpha = h.life;
     ctx.translate(h.x, h.y);
@@ -1602,7 +1604,7 @@
     /* seeds */
     ctx.globalAlpha = h.life;
     ctx.fillStyle = "rgba(0,0,0,0.3)";
-    for (var si = 0; si < 3; si++) {
+    for (let si = 0; si < 3; si++) {
       ctx.beginPath();
       ctx.arc(-h.r * 0.3 + si * h.r * 0.3, 0, 2, 0, Math.PI * 2);
       ctx.fill();
@@ -1611,12 +1613,12 @@
   }
 
   function drawBladeTrail(now) {
-    if (fruitBladeTrail.length < 2) return;
-    for (var i = 1; i < fruitBladeTrail.length; i++) {
-      var p0 = fruitBladeTrail[i - 1];
-      var p1 = fruitBladeTrail[i];
-      var age = (now - p1.t) / 350;
-      var alpha = Math.max(0, 1 - age);
+    if (fruitBladeTrail.length < 2) {return;}
+    for (let i = 1; i < fruitBladeTrail.length; i++) {
+      const p0 = fruitBladeTrail[i - 1];
+      const p1 = fruitBladeTrail[i];
+      const age = (now - p1.t) / 350;
+      const alpha = Math.max(0, 1 - age);
       ctx.beginPath();
       ctx.moveTo(p0.x, p0.y);
       ctx.lineTo(p1.x, p1.y);
@@ -1654,8 +1656,8 @@
     /* hearts */
     ctx.textAlign = "right";
     ctx.font = "24px serif";
-    var hearts = "";
-    for (var li = 0; li < 3; li++) { hearts += li < fruitLives ? "❤️" : "🖤"; }
+    let hearts = "";
+    for (let li = 0; li < 3; li++) { hearts += li < fruitLives ? "❤️" : "🖤"; }
     ctx.fillText(hearts, cw - 20, 22);
     /* combo */
     if (fruitCombo >= 2) {
@@ -1665,9 +1667,9 @@
       ctx.fillText(fruitCombo + "x 连击!", cw / 2, 20);
     }
     /* time */
-    var elapsed = Math.floor((performance.now() - fruitStartTime) / 1000);
-    var mins = Math.floor(elapsed / 60);
-    var secs = elapsed % 60;
+    const elapsed = Math.floor((performance.now() - fruitStartTime) / 1000);
+    const mins = Math.floor(elapsed / 60);
+    const secs = elapsed % 60;
     ctx.textAlign = "center";
     ctx.font = "16px system-ui, sans-serif";
     ctx.fillStyle = "rgba(255,255,255,0.5)";
@@ -1680,10 +1682,10 @@
   }
 
   function drawComboPopup(cw, ch, now) {
-    var age = (now - fruitComboTime) / 600;
-    if (age > 1) return;
-    var scale = 1 + age * 0.4;
-    var alpha = 1 - age;
+    const age = (now - fruitComboTime) / 600;
+    if (age > 1) {return;}
+    const scale = 1 + age * 0.4;
+    const alpha = 1 - age;
     ctx.save();
     ctx.globalAlpha = alpha;
     ctx.font = "bold " + Math.floor(42 * scale) + "px system-ui, sans-serif";
@@ -1726,16 +1728,16 @@
   }
 
   function ptSegDist(px, py, ax, ay, bx, by) {
-    var dx = bx - ax, dy = by - ay;
-    var lenSq = dx * dx + dy * dy;
-    var t = lenSq === 0 ? 0 : Math.max(0, Math.min(1, ((px - ax) * dx + (py - ay) * dy) / lenSq));
-    var cx = ax + t * dx, cy = ay + t * dy;
+    const dx = bx - ax, dy = by - ay;
+    const lenSq = dx * dx + dy * dy;
+    const t = lenSq === 0 ? 0 : Math.max(0, Math.min(1, ((px - ax) * dx + (py - ay) * dy) / lenSq));
+    const cx = ax + t * dx, cy = ay + t * dy;
     return Math.sqrt((px - cx) * (px - cx) + (py - cy) * (py - cy));
   }
 
   function fruitMakeJuice(x, y, spread, color, decay) {
-    var angle = Math.random() * Math.PI * 2;
-    var speed = 2 + Math.random() * 5;
+    const angle = Math.random() * Math.PI * 2;
+    const speed = 2 + Math.random() * 5;
     return {
       x: x + (Math.random() - 0.5) * spread,
       y: y + (Math.random() - 0.5) * spread,
@@ -1756,57 +1758,57 @@
 
   /* Attractiveness score from 68-point facial landmarks (entertainment only) */
   function calcAttractiveness(pts) {
-    if (!pts || pts.length < 68) return 50;
-    var noseX = pts[27].x;
-    var symSum = 0, symCount = 0;
-    var pairs = [[17,26],[18,25],[19,24],[20,23],[21,22],[36,45],[37,44],[38,43],[39,42],[40,47],[41,46]];
+    if (!pts || pts.length < 68) {return 50;}
+    const noseX = pts[27].x;
+    let symSum = 0, symCount = 0;
+    const pairs = [[17,26],[18,25],[19,24],[20,23],[21,22],[36,45],[37,44],[38,43],[39,42],[40,47],[41,46]];
     pairs.forEach(function (pair) {
-      var dL = Math.abs(pts[pair[0]].x - noseX);
-      var dR = Math.abs(pts[pair[1]].x - noseX);
-      var ratio = Math.min(dL, dR) / (Math.max(dL, dR) || 0.001);
+      const dL = Math.abs(pts[pair[0]].x - noseX);
+      const dR = Math.abs(pts[pair[1]].x - noseX);
+      const ratio = Math.min(dL, dR) / (Math.max(dL, dR) || 0.001);
       symSum += ratio;
       symCount++;
     });
-    var symmetry = symSum / symCount;
+    const symmetry = symSum / symCount;
 
     /* 三庭比例: forehead→brow, brow→nose, nose→chin */
-    var browY  = (pts[19].y + pts[24].y) / 2;
-    var noseY  = pts[33].y;
-    var chinY  = pts[8].y;
-    var topY   = pts[0].y;
-    var totalH = chinY - topY;
-    if (totalH <= 0) totalH = 0.01;
-    var thirdsDev = (Math.abs((browY - topY) / totalH - 0.33) +
+    const browY  = (pts[19].y + pts[24].y) / 2;
+    const noseY  = pts[33].y;
+    const chinY  = pts[8].y;
+    const topY   = pts[0].y;
+    let totalH = chinY - topY;
+    if (totalH <= 0) {totalH = 0.01;}
+    const thirdsDev = (Math.abs((browY - topY) / totalH - 0.33) +
                      Math.abs((noseY - browY) / totalH - 0.33) +
                      Math.abs((chinY - noseY) / totalH - 0.33)) / 3;
-    var thirds = 1 - Math.min(1, thirdsDev * 3);
+    const thirds = 1 - Math.min(1, thirdsDev * 3);
 
     /* 五眼: face width / eye width ≈ 5 */
-    var faceW = Math.abs(pts[16].x - pts[0].x) || 0.01;
-    var eyeW  = Math.abs(pts[39].x - pts[36].x) || 0.001;
-    var fiveEyes = 1 - Math.min(1, Math.abs(faceW / eyeW - 5) / 5);
+    const faceW = Math.abs(pts[16].x - pts[0].x) || 0.01;
+    const eyeW  = Math.abs(pts[39].x - pts[36].x) || 0.001;
+    const fiveEyes = 1 - Math.min(1, Math.abs(faceW / eyeW - 5) / 5);
 
     /* Nose straightness */
-    var noseStraight = 1 - Math.abs(pts[27].x - pts[30].x) / (faceW || 0.01);
+    const noseStraight = 1 - Math.abs(pts[27].x - pts[30].x) / (faceW || 0.01);
 
-    var score = symmetry * 35 + thirds * 25 + fiveEyes * 20 + noseStraight * 20;
+    const score = symmetry * 35 + thirds * 25 + fiveEyes * 20 + noseStraight * 20;
     return Math.max(0, Math.min(100, Math.round(score)));
   }
 
-  var EXPR_EMOJI = {
+  const EXPR_EMOJI = {
     neutral: "😐", happy: "😄", angry: "😠", sad: "😢",
     disgusted: "🤢", fearful: "😨", surprised: "😲",
   };
-  var EXPR_NAMES = {
+  const EXPR_NAMES = {
     neutral: "平静", happy: "开心", angry: "愤怒", sad: "悲伤",
     disgusted: "厌恶", fearful: "恐惧", surprised: "惊讶",
   };
 
   /* Throttled face detection */
   async function detectFaces() {
-    if (!faceModelsLoaded || !$video || $video.readyState < 2) return;
+    if (!faceModelsLoaded || !$video || $video.readyState < 2) {return;}
     faceFrameCount++;
-    if (faceFrameCount % FACE_INTERVAL !== 0) return;
+    if (faceFrameCount % FACE_INTERVAL !== 0) {return;}
     try {
       lastFaceResults = await faceapi
         .detectAllFaces($video, new faceapi.TinyFaceDetectorOptions({ inputSize: 320, scoreThreshold: 0.45 }))
@@ -1818,10 +1820,10 @@
     }
     /* Update face badge */
     if ($face && lastFaceResults.length > 0) {
-      var f = lastFaceResults[0];
-      var age = Math.round(f.age);
-      var gender = f.gender === "male" ? "男" : "女";
-      var topExpr = Object.entries(f.expressions).sort(function (a, b) { return b[1] - a[1]; })[0];
+      const f = lastFaceResults[0];
+      const age = Math.round(f.age);
+      const gender = f.gender === "male" ? "男" : "女";
+      const topExpr = Object.entries(f.expressions).sort(function (a, b) { return b[1] - a[1]; })[0];
       $face.textContent = (EXPR_EMOJI[topExpr[0]] || "❓") + " " + gender + " " + age + "岁";
       $face.classList.add("is-active");
     } else if ($face) {
@@ -1832,7 +1834,7 @@
 
   /* Full face analysis rendering (face mode) */
   function animateFace() {
-    var cw = faceCW(), ch = faceCH();
+    const cw = faceCW(), ch = faceCH();
     updateParticles();
 
     if (!lastFaceResults || lastFaceResults.length === 0) {
@@ -1847,21 +1849,21 @@
     }
 
     lastFaceResults.forEach(function (res) {
-      var box = res.detection.box;
-      var age = Math.round(res.age);
-      var gender = res.gender === "male" ? "男性" : "女性";
-      var expressions = res.expressions;
-      var topExpr = Object.entries(expressions).sort(function (a, b) { return b[1] - a[1]; })[0];
-      var exprName = EXPR_NAMES[topExpr[0]] || topExpr[0];
-      var exprEmoji = EXPR_EMOJI[topExpr[0]] || "❓";
-      var exprConf = Math.round(topExpr[1] * 100);
-      var score = calcAttractiveness(res.landmarks.positions);
+      const box = res.detection.box;
+      const age = Math.round(res.age);
+      const gender = res.gender === "male" ? "男性" : "女性";
+      const expressions = res.expressions;
+      const topExpr = Object.entries(expressions).sort(function (a, b) { return b[1] - a[1]; })[0];
+      const exprName = EXPR_NAMES[topExpr[0]] || topExpr[0];
+      const exprEmoji = EXPR_EMOJI[topExpr[0]] || "❓";
+      const exprConf = Math.round(topExpr[1] * 100);
+      const score = calcAttractiveness(res.landmarks.positions);
 
       /* Mirror box x because canvas is mirrored */
-      var bx = cw - box.x - box.width;
-      var by = box.y;
-      var bw = box.width;
-      var bh = box.height;
+      const bx = cw - box.x - box.width;
+      const by = box.y;
+      const bw = box.width;
+      const bh = box.height;
 
       ctx.save();
 
@@ -1879,7 +1881,7 @@
       ctx.stroke();
 
       /* Landmark dots */
-      var pts = res.landmarks.positions;
+      const pts = res.landmarks.positions;
       ctx.globalAlpha = 0.35;
       pts.forEach(function (p) {
         ctx.beginPath();
@@ -1890,9 +1892,9 @@
       ctx.globalAlpha = 1;
 
       /* Attribute card */
-      var lineH = 20, cardW = 150, cardH = lineH * 4 + 16;
-      var cardY = by - 8 - cardH;
-      if (cardY < 4) cardY = by + bh + 8;
+      const lineH = 20, cardW = 150, cardH = lineH * 4 + 16;
+      let cardY = by - 8 - cardH;
+      if (cardY < 4) {cardY = by + bh + 8;}
 
       ctx.fillStyle = "rgba(0, 0, 0, 0.72)";
       roundRect(ctx, bx, cardY, cardW, cardH, 8);
@@ -1902,7 +1904,7 @@
       roundRect(ctx, bx, cardY, cardW, cardH, 8);
       ctx.stroke();
 
-      var tx = bx + 10, ty = cardY + 8;
+      let tx = bx + 10, ty = cardY + 8;
       ctx.textAlign = "left";
       ctx.textBaseline = "top";
 
@@ -1919,13 +1921,13 @@
       ctx.font = "13px system-ui, sans-serif";
       ctx.fillStyle = "#a5d6a7";
       ctx.fillText("✨ 颜值评分", tx, ty);
-      var barX = tx + 68, barY = ty + 4, barW = 60, barH = 8;
+      const barX = tx + 68, barY = ty + 4, barW = 60, barH = 8;
       ctx.fillStyle = "rgba(255,255,255,0.12)";
       roundRect(ctx, barX, barY, barW, barH, 4);
       ctx.fill();
-      var fillW = barW * (score / 100);
+      const fillW = barW * (score / 100);
       if (fillW > 0) {
-        var grad = ctx.createLinearGradient(barX, 0, barX + barW, 0);
+        const grad = ctx.createLinearGradient(barX, 0, barX + barW, 0);
         grad.addColorStop(0, "#ff6b6b");
         grad.addColorStop(0.5, "#ffd93d");
         grad.addColorStop(1, "#6bcb77");
@@ -1948,9 +1950,9 @@
 
   /* Expression-driven particle effects */
   function spawnFaceParticles(bx, by, bw, bh, expr) {
-    if (!cooled("face-particle-" + expr, 120)) return;
-    for (var i = 0; i < 3; i++) {
-      var p = {
+    if (!cooled("face-particle-" + expr, 120)) {return;}
+    for (let i = 0; i < 3; i++) {
+      const p = {
         x: bx + Math.random() * bw, y: by - 5,
         vx: (Math.random() - 0.5) * 2, vy: -(1 + Math.random() * 2),
         radius: Math.random() * 3 + 2, life: 1, decay: 0.02,
@@ -1971,24 +1973,24 @@
 
   /* Lightweight face overlay for non-face modes */
   function drawFaceOverlay() {
-    if (!lastFaceResults || lastFaceResults.length === 0) return;
-    var cw = faceCW();
+    if (!lastFaceResults || lastFaceResults.length === 0) {return;}
+    const cw = faceCW();
     ctx.save();
     lastFaceResults.forEach(function (res) {
-      var box = res.detection.box;
-      var bx = cw - box.x - box.width, by = box.y, bw = box.width, bh = box.height;
+      const box = res.detection.box;
+      const bx = cw - box.x - box.width, by = box.y, bw = box.width, bh = box.height;
       ctx.strokeStyle = "rgba(0, 200, 255, 0.35)";
       ctx.lineWidth = 1;
       roundRect(ctx, bx, by, bw, bh, 4);
       ctx.stroke();
-      var age = Math.round(res.age);
-      var gender = res.gender === "male" ? "♂" : "♀";
-      var topExpr = Object.entries(res.expressions).sort(function (a, b) { return b[1] - a[1]; })[0];
-      var label = (EXPR_EMOJI[topExpr[0]] || "❓") + " " + gender + " " + age;
+      const age = Math.round(res.age);
+      const gender = res.gender === "male" ? "♂" : "♀";
+      const topExpr = Object.entries(res.expressions).sort(function (a, b) { return b[1] - a[1]; })[0];
+      const label = (EXPR_EMOJI[topExpr[0]] || "❓") + " " + gender + " " + age;
       ctx.font = "11px system-ui, sans-serif";
-      var tw = ctx.measureText(label).width + 10;
-      var ly = by - 18;
-      if (ly < 2) ly = by + bh + 4;
+      const tw = ctx.measureText(label).width + 10;
+      let ly = by - 18;
+      if (ly < 2) {ly = by + bh + 4;}
       ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
       roundRect(ctx, bx, ly, tw, 16, 3);
       ctx.fill();
@@ -2016,7 +2018,7 @@
       radius: Math.random() * 4 + 2,
       life: life || 1,
       decay: 0.012 + Math.random() * 0.008,
-      hue: hue != null ? hue + Math.random() * 30 : (190 + Math.random() * 40),
+      hue: hue !== null && hue !== undefined ? hue + Math.random() * 30 : (190 + Math.random() * 40),
       shape: shape || "circle",
       friction: 0.98,
       gravity: 0.02,
@@ -2024,9 +2026,9 @@
   }
 
   function explodeAt(x, y, count) {
-    for (var i = 0; i < count; i++) {
-      var angle = (Math.PI * 2 / count) * i + Math.random() * 0.3;
-      var speed = 3 + Math.random() * 5;
+    for (let i = 0; i < count; i++) {
+      const angle = (Math.PI * 2 / count) * i + Math.random() * 0.3;
+      const speed = 3 + Math.random() * 5;
       particles.push({
         x: x,
         y: y,
@@ -2044,9 +2046,9 @@
   }
 
   function ringAt(x, y) {
-    var count = 24;
-    for (var i = 0; i < count; i++) {
-      var angle = (Math.PI * 2 / count) * i;
+    const count = 24;
+    for (let i = 0; i < count; i++) {
+      const angle = (Math.PI * 2 / count) * i;
       particles.push({
         x: x,
         y: y,
@@ -2064,10 +2066,10 @@
   }
 
   function fireworkAt(x, y) {
-    var hue = Math.random() * 360;
-    for (var i = 0; i < 30; i++) {
-      var angle = Math.random() * Math.PI * 2;
-      var speed = 2 + Math.random() * 6;
+    const hue = Math.random() * 360;
+    for (let i = 0; i < 30; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = 2 + Math.random() * 6;
       particles.push({
         x: x,
         y: y,
@@ -2085,9 +2087,9 @@
   }
 
   function rippleAt(x, y, hue) {
-    var count = 20;
-    for (var i = 0; i < count; i++) {
-      var angle = (Math.PI * 2 / count) * i;
+    const count = 20;
+    for (let i = 0; i < count; i++) {
+      const angle = (Math.PI * 2 / count) * i;
       particles.push({
         x: x,
         y: y,
@@ -2105,10 +2107,10 @@
   }
 
   function trailSwipe(lm, gesture) {
-    var cx = toX(lm[0]);
-    var cy = toY(lm[9]);
-    var count = 15;
-    for (var i = 0; i < count; i++) {
+    const cx = toX(lm[0]);
+    const cy = toY(lm[9]);
+    const count = 15;
+    for (let i = 0; i < count; i++) {
       particles.push({
         x: cx + (Math.random() - 0.5) * 30,
         y: cy + (Math.random() - 0.5) * 30,
@@ -2131,8 +2133,8 @@
 
   function updateParticles() {
     ctx.globalCompositeOperation = "lighter";
-    for (var i = particles.length - 1; i >= 0; i--) {
-      var p = particles[i];
+    for (let i = particles.length - 1; i >= 0; i--) {
+      const p = particles[i];
       p.x += p.vx;
       p.y += p.vy;
       p.vy += p.gravity;
@@ -2145,8 +2147,8 @@
         continue;
       }
 
-      var alpha = p.life * 0.8;
-      var r = p.radius * p.life;
+      const alpha = p.life * 0.8;
+      const r = p.radius * p.life;
 
       ctx.globalAlpha = alpha;
 
@@ -2172,12 +2174,12 @@
   function drawStar(x, y, r, hue) {
     ctx.fillStyle = "hsla(" + hue + ", 90%, 72%, 1)";
     ctx.beginPath();
-    for (var i = 0; i < 5; i++) {
-      var angle = (Math.PI * 2 / 5) * i - Math.PI / 2;
-      var ox = x + Math.cos(angle) * r;
-      var oy = y + Math.sin(angle) * r;
-      if (i === 0) ctx.moveTo(ox, oy); else ctx.lineTo(ox, oy);
-      var inner = angle + Math.PI / 5;
+    for (let i = 0; i < 5; i++) {
+      const angle = (Math.PI * 2 / 5) * i - Math.PI / 2;
+      const ox = x + Math.cos(angle) * r;
+      const oy = y + Math.sin(angle) * r;
+      if (i === 0) {ctx.moveTo(ox, oy);} else {ctx.lineTo(ox, oy);}
+      const inner = angle + Math.PI / 5;
       ctx.lineTo(x + Math.cos(inner) * r * 0.4, y + Math.sin(inner) * r * 0.4);
     }
     ctx.closePath();
@@ -2188,7 +2190,7 @@
    * 11. Gesture-Mode Visual Effects
    * ==================================================================== */
   function drawHandSkeleton(lm, alpha) {
-    var connections = [
+    const connections = [
       [0,1],[1,2],[2,3],[3,4],
       [0,5],[5,6],[6,7],[7,8],
       [5,9],[9,10],[10,11],[11,12],
@@ -2215,15 +2217,15 @@
   }
 
   function drawRainbowWave(cw, ch) {
-    var t = performance.now() * 0.002;
+    const t = performance.now() * 0.002;
     ctx.globalCompositeOperation = "lighter";
-    for (var i = 0; i < 5; i++) {
-      var y = ch * 0.5 + Math.sin(t + i * 0.8) * ch * 0.25;
-      var hue = (t * 50 + i * 60) % 360;
+    for (let i = 0; i < 5; i++) {
+      const y = ch * 0.5 + Math.sin(t + i * 0.8) * ch * 0.25;
+      const hue = (t * 50 + i * 60) % 360;
       ctx.beginPath();
       ctx.moveTo(0, y);
-      for (var x = 0; x < cw; x += 10) {
-        var wave = Math.sin(x * 0.01 + t * 2 + i) * 20;
+      for (let x = 0; x < cw; x += 10) {
+        const wave = Math.sin(x * 0.01 + t * 2 + i) * 20;
         ctx.lineTo(x, y + wave);
       }
       ctx.strokeStyle = "hsla(" + hue + ", 100%, 60%, 0.15)";
@@ -2234,12 +2236,12 @@
   }
 
   function drawLaser(lm) {
-    var ix = toX(lm[8]), iy = toY(lm[8]);
-    var mx = toX(lm[5]), my = toY(lm[5]);
-    var angle = Math.atan2(iy - my, ix - mx);
-    var len = 800;
-    var ex = ix + Math.cos(angle) * len;
-    var ey = iy + Math.sin(angle) * len;
+    const ix = toX(lm[8]), iy = toY(lm[8]);
+    const mx = toX(lm[5]), my = toY(lm[5]);
+    const angle = Math.atan2(iy - my, ix - mx);
+    const len = 800;
+    const ex = ix + Math.cos(angle) * len;
+    const ey = iy + Math.sin(angle) * len;
 
     /* outer glow */
     ctx.beginPath();
@@ -2280,10 +2282,10 @@
 
   /* Glowing arcs at fingertip positions for number gestures */
   function drawNumberGlow(lm, indices, hue) {
-    var t = performance.now() * 0.003;
+    const t = performance.now() * 0.003;
     indices.forEach(function (idx, i) {
-      var fx = toX(lm[idx]), fy = toY(lm[idx]);
-      var r = 12 + Math.sin(t + i * 1.2) * 4;
+      const fx = toX(lm[idx]), fy = toY(lm[idx]);
+      const r = 12 + Math.sin(t + i * 1.2) * 4;
       ctx.beginPath();
       ctx.arc(fx, fy, r, 0, Math.PI * 2);
       ctx.strokeStyle = "hsla(" + (hue + i * 30) + ", 100%, 65%, 0.7)";
@@ -2312,7 +2314,7 @@
     $label.textContent = text;
   }
 
-  var GESTURE_NAMES = {
+  const GESTURE_NAMES = {
     open:       "✋ 张开手掌",
     fist:       "✊ 握拳",
     point:      "☝️ 数字一 / 指向",
@@ -2353,19 +2355,19 @@
       $face.textContent = "";
       $face.classList.remove("is-active");
     }
-    var cw = drawCanvas.width / (window.devicePixelRatio || 1);
-    var ch = drawCanvas.height / (window.devicePixelRatio || 1);
+    const cw = drawCanvas.width / (window.devicePixelRatio || 1);
+    const ch = drawCanvas.height / (window.devicePixelRatio || 1);
     drawCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
     ctx.clearRect(0, 0, cw, ch);
   });
 
   /* Mode switch */
   document.addEventListener("click", function (e) {
-    var btn = e.target.closest(".gesture-mode-btn");
-    if (!btn) return;
-    var m = btn.dataset.mode;
-    if (!m || m === mode) return;
-    var prevMode = mode;
+    const btn = e.target.closest(".gesture-mode-btn");
+    if (!btn) {return;}
+    const m = btn.dataset.mode;
+    if (!m || m === mode) {return;}
+    const prevMode = mode;
     mode = m;
     document.querySelectorAll(".gesture-mode-btn").forEach(function (b) {
       b.classList.toggle("active", b.dataset.mode === m);
@@ -2373,8 +2375,8 @@
     /* clear canvas on mode switch */
     particles.length = 0;
     prevDrawPoint = null;
-    var cw = $canvas.width / (window.devicePixelRatio || 1);
-    var ch = $canvas.height / (window.devicePixelRatio || 1);
+    const cw = $canvas.width / (window.devicePixelRatio || 1);
+    const ch = $canvas.height / (window.devicePixelRatio || 1);
     ctx.clearRect(0, 0, cw, ch);
     if (mode !== "draw") {
       drawCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
@@ -2431,7 +2433,7 @@
 
   /* Responsive canvas resize */
   window.addEventListener("resize", function () {
-    if (running) resizeCanvas();
+    if (running) {resizeCanvas();}
   });
 
   /* Stop camera when navigating away */
@@ -2443,24 +2445,24 @@
   });
 
   /* Tab-switch detection: release camera when gesture panel is hidden */
-  var observer = new MutationObserver(function () {
-    var panel = document.querySelector('[data-tool-panel="gesture"]');
+  const observer = new MutationObserver(function () {
+    const panel = document.querySelector('[data-tool-panel="gesture"]');
     if (panel && panel.hidden && running) {
       stopCamera();
     }
   });
-  var gesturePanel = document.querySelector('[data-tool-panel="gesture"]');
+  const gesturePanel = document.querySelector('[data-tool-panel="gesture"]');
   if (gesturePanel) {
     observer.observe(gesturePanel, { attributes: true, attributeFilter: ["hidden"] });
   }
 
   /* Sub-mode button click (point cloud ↔ mesh) */
   document.addEventListener("click", function (e) {
-    var btn = e.target.closest(".gesture-submode-btn");
-    if (!btn) return;
-    var sm = btn.dataset.submode;
-    if (!sm || sm === subMode) return;
-    if (sm === "mesh") switchToMesh(); else switchToPointCloud();
+    const btn = e.target.closest(".gesture-submode-btn");
+    if (!btn) {return;}
+    const sm = btn.dataset.submode;
+    if (!sm || sm === subMode) {return;}
+    if (sm === "mesh") {switchToMesh();} else {switchToPointCloud();}
     updateSubModeButtons();
   });
 

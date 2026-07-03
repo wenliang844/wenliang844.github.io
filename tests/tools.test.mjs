@@ -469,6 +469,7 @@ test("tools tabs expose selected state and support keyboard navigation", async (
     const yamlTab = document.querySelector('[data-tool-tab="yaml"]');
     const timeTab = document.querySelector('[data-tool-tab="time"]');
     const uaTab = document.querySelector('[data-tool-tab="ua"]');
+    const galaxyTab = document.querySelector('[data-tool-tab="galaxy"]');
 
     const tabList = document.querySelector(".tools-tabs");
     assert.equal(tabList.getAttribute("role"), "tablist");
@@ -478,13 +479,19 @@ test("tools tabs expose selected state and support keyboard navigation", async (
     assert.equal(document.querySelector(".tool-category").getAttribute("data-tool-category"), "visual");
     assert.match(document.querySelector('[data-tool-category="data"]').textContent, /数据格式/);
     assert.match(document.querySelector('[data-tool-category="security"]').textContent, /编码与安全/);
+    assert.match(document.querySelector('[data-tool-category="visual"]').textContent, /星河/);
+    assert.equal(document.querySelector('[data-tool-category="visual"] .tool-category-count').textContent, "2");
     assert.equal(document.querySelector('[data-tool-category="data"]').tagName, "DETAILS");
     assert.equal(document.querySelector('[data-tool-category="data"]').open, true);
     assert.equal(document.querySelector('[data-tool-category="frontend"]').open, true);
-    assert.equal(document.querySelectorAll("[data-tool-tab]").length, 30);
+    assert.equal(document.querySelectorAll("[data-tool-tab]").length, 31);
     assert.ok(document.querySelector('[data-tool-tab="api"]'));
     assert.ok(document.querySelector('[data-tool-tab="jsondiff"]'));
     assert.ok(document.querySelector('[data-tool-tab="cssunit"]'));
+    assert.ok(galaxyTab);
+    assert.equal(document.querySelector("#tool-galaxy .galaxy-canvas").id, "galaxy-canvas");
+    assert.equal(document.querySelector("#galaxy-theme [data-galaxy-theme].active").getAttribute("data-galaxy-theme"), "bluePurple");
+    assert.equal(document.querySelector("#galaxy-count [data-galaxy-count].active").getAttribute("data-galaxy-count"), "1000");
     assert.equal(document.querySelector("#base64-input").getAttribute("data-i18n-ph"), "tools.base64.placeholder");
     assert.equal(document.querySelector("#base64-input").getAttribute("data-i18n-en-ph"), "Text to encode or decode");
     assert.equal(document.querySelector("#url-input").getAttribute("data-i18n-en-ph"), "https://example.com/?q=search");
@@ -506,9 +513,8 @@ test("tools tabs expose selected state and support keyboard navigation", async (
     assert.equal(document.querySelector("#tool-ua").hidden, false);
 
     uaTab.dispatchEvent(new KeyboardEvent("keydown", { key: "Home", bubbles: true, cancelable: true }));
-    const gestureTab = document.querySelector('[data-tool-tab="gesture"]');
-    assert.equal(gestureTab.getAttribute("aria-selected"), "true");
-    assert.equal(document.querySelector("#tool-gesture").hidden, false);
+    assert.equal(galaxyTab.getAttribute("aria-selected"), "true");
+    assert.equal(document.querySelector("#tool-galaxy").hidden, false);
     assert.equal(document.querySelector('[data-tool-category="visual"]').open, true);
   } finally {
     dom.window.close();
@@ -586,6 +592,7 @@ test("tools page localizes English placeholders and dynamic statuses", async () 
     assert.equal(document.documentElement.getAttribute("lang"), "en");
     assert.equal(document.querySelector(".tools-header h1").textContent, "Toolbox");
     assert.equal(document.querySelector(".tools-tabs").getAttribute("aria-label"), "Categorized tool list");
+    assert.equal(document.querySelector('[data-tool-tab="galaxy"] span').textContent, "Galaxy");
     assert.equal(document.querySelector("#base64-input").getAttribute("placeholder"), "Text to encode or decode");
     assert.equal(document.querySelector("#url-input").getAttribute("placeholder"), "https://example.com/?q=search");
     document.querySelector('[data-tool-tab="jwt"]').click();
