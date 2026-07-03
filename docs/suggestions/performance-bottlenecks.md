@@ -57,6 +57,28 @@
 - **📊 预期收益**：提高数据同步脚本的回归防护，减少公开榜单因输入异常而污染或缺失。
 - **🔗 相关建议引用**：[DE-02](devex-improvements.md#de-02), [S-09](security-audit.md#s-09)
 
+### 📌 P-16: Cron 无解表达式会在主线程同步扫描两年分钟粒度
+
+- **📍 位置**：`js/tools-core.js:938-980`, `tests/tools-core-deep.test.mjs:258-266`
+- **📝 当前状况描述**：`parseCronExpression()` 对合法但无解的表达式会循环最多 `1,051,200` 次，逐分钟推进两年。第 2 轮探测中，`0 0 31 2 *` 在本机约 127.57ms，同一批普通表达式约 0.19ms 到 1.52ms。该计算发生在工具页主线程，连续输入或低端移动设备上可能造成明显卡顿。
+- **⚠️ 影响程度**：中
+- **💡 建议方案**：
+  ```javascript
+  function hasImpossibleDate(dayOfMonth, month) {
+    return [...month.values].every((m) => {
+      const maxDay = new Date(2026, m, 0).getDate();
+      return [...dayOfMonth.values].every((day) => day > maxDay);
+    });
+  }
+
+  if (hasImpossibleDate(dayOfMonth.value, month.value)) {
+    return fail("日期字段永远无法匹配", "cronNoRuns");
+  }
+  ```
+  更通用的方案是按“下一可用分钟/小时/日期”跳跃，而不是逐分钟扫描；若继续保留扫描，可放入 Web Worker 或在 UI 层 debounce。
+- **📊 预期收益**：让 Cron 工具在无解或稀疏表达式下保持即时反馈，避免工具箱交互被同步循环阻塞。
+- **🔗 相关建议引用**：[MR-CORE-01](module-reviews/tools-core.md#mr-core-01-cron-解析器需要避免主线程百万次扫描), [DE-13](devex-improvements.md#de-13-为-ai-助手和-cron-边界行为补充回归测试)
+
 ---
 
 ## 📌 P-01 [已修复]: 粒子动画 `requestAnimationFrame` 持续运行，无空闲停止机制

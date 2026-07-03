@@ -52,6 +52,53 @@
 
 ---
 
+## 2026-07-03 23:20 第二轮自主复查报告
+
+### 已分析的模块
+
+| 模块 | 文件/范围 | 结果 |
+|------|-----------|------|
+| AI 助手核心 | `js/assistant.js:31-1568` | 发现模式偏好不恢复、SSE 尾部事件可能丢失、超时/停止文案混淆、对话持久化缺少保留策略 |
+| AI 助手测试 | `tests/assistant.test.mjs`, `tests/assistant-deep.test.mjs` | 发现默认体验 key 行为被测试固化，但缺少模式恢复和 SSE 尾部事件测试 |
+| 工具核心库 | `js/tools-core.js:204-1293` | 发现 UUID 弱随机 fallback、Cron 无解表达式主线程同步扫描、随机数用途边界需标注 |
+| 工具核心测试 | `tests/tools.test.mjs`, `tests/tools-core-deep.test.mjs` | 现有测试覆盖格式正确性和无解表达式结果，但未约束性能预算和随机强度语义 |
+| 行为探测 | 直接调用 `CWLToolsCore.parseCronExpression()` | `0 0 31 2 *` 约 127.57ms；普通表达式约 0.19-1.52ms |
+
+### 发现的问题数量和等级分布
+
+| 范围 | 高 | 中 | 低 | 总计 |
+|------|----|----|----|------|
+| 主建议文档新增/更新 | 0 | 7 | 3 | 10 |
+| 模块深度分析新增 | 1 | 4 | 5 | 10 |
+| **合计** | **1** | **11** | **8** | **20** |
+
+### 新增/更新的建议文档
+
+- `docs/suggestions/bugs-and-risks.md`
+- `docs/suggestions/security-audit.md`
+- `docs/suggestions/performance-bottlenecks.md`
+- `docs/suggestions/ux-improvements.md`
+- `docs/suggestions/new-features.md`
+- `docs/suggestions/devex-improvements.md`
+- `docs/suggestions/tech-debt.md`
+- `docs/suggestions/module-reviews/assistant-deep-dive.md`
+- `docs/suggestions/module-reviews/tools-core.md`
+- `docs/suggestions/README.md`
+- `docs/suggestions/health-score.md`
+
+### 当前进度
+
+第二轮已完成“AI 助手深挖 → 工具核心边界审计 → Cron 行为探测 → 文档落地”。本轮仍未修改任何源码或配置，计划只提交 `/docs/suggestions` 下的文档变更。
+
+### 下一步分析计划
+
+1. 深挖 `css/coder.css` 当前 137KB 的重复规则、页面级拆分机会和移动端样式成本。
+2. 对 `tools/index.html` 与 `src/templates/tools.mjs` 做结构/可访问性复查，补充工具箱专题建议。
+3. 继续检查生成 HTML 的 SEO、JSON-LD、图片尺寸和可访问性一致性。
+4. 维护 README 索引、健康度评分和优先级待办列表。
+
+---
+
 ## 已分析模块
 
 | 模块 | 文件 | 行数 | 分析深度 |

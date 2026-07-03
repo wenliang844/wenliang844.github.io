@@ -4,38 +4,46 @@
 
 ---
 
-## 2026-07-03 自主复查快照
+## 2026-07-03 自主复查快照（第 2 轮更新）
 
 | 项目 | 结果 |
 |------|------|
 | 当前分支 | `codex/autonomous-optimization` |
-| 工作区注意事项 | `css/coder.css` 存在非本轮修改，已保留不触碰 |
+| 工作区注意事项 | 多个源码/生成文件存在非本轮修改，已保留不触碰；本轮仅写入 `/docs/suggestions` |
 | 只读检查 | `npm run check:readonly` 通过，731/731 tests pass，ESLint 0 error / 77 warning |
 | 生产验证 | `npm run validate:production` 通过，但发现该脚本会写根目录构建产物 |
 | 依赖审计 | `npm audit --omit=dev --json` 0 漏洞 |
 | 覆盖率 | 总体 lines 94.32%、branches 76.28%、functions 91.70%，通过阈值 |
 | 本地服务冒烟 | `/`、`/tools/`、`/post/`、`/search-index.json` 均返回 200 |
+| 第 2 轮深挖 | `js/assistant.js`、`js/tools-core.js`、`tests/assistant*.mjs`、`tests/tools*.mjs` |
+| 第 2 轮行为探测 | Cron 无解表达式 `0 0 31 2 *` 约 127.57ms；普通表达式约 0.19-1.52ms |
 
 ### 新增高优先级发现
 
 | 编号 | 等级 | 建议 | 文档 |
 |------|------|------|------|
 | S-11 | 高 | `assistant.js` 仍在前端运行时拼接并使用默认体验 API Key | [security-audit.md](security-audit.md#s-11-assistantjs-仍在前端运行时拼接并使用默认体验-api-key) |
+| S-14 | 中 | AI 助手对话和 LLM 上下文长期留存在 localStorage | [security-audit.md](security-audit.md#s-14-ai-助手对话和-llm-上下文长期留存在-localstorage) |
 | S-12 | 中 | Mini API Tester 会把 Authorization 头和请求体持久化到 localStorage | [security-audit.md](security-audit.md#s-12-mini-api-tester-会把-authorization-头和请求体持久化到-localstorage) |
 | S-13 | 中 | 手势工具运行时加载 CDN 机器视觉脚本和模型，缺少完整供应链约束 | [security-audit.md](security-audit.md#s-13-手势工具运行时加载-cdn-机器视觉脚本和模型缺少完整供应链约束) |
 | B-13 | 中 | 生产验证脚本默认会覆盖根目录构建产物 | [bugs-and-risks.md](bugs-and-risks.md#b-13-生产验证脚本默认会覆盖根目录构建产物) |
 | B-14 | 中 | 工具箱按需脚本加载 Promise 过早 resolve，手势页存在初始化竞态 | [bugs-and-risks.md](bugs-and-risks.md#b-14-工具箱按需脚本加载-promise-过早-resolve手势页存在初始化竞态) |
+| B-15 | 中 | AI 助手模式偏好写入后不会被恢复 | [bugs-and-risks.md](bugs-and-risks.md#b-15-ai-助手模式偏好写入后不会被恢复) |
+| B-16 | 中 | AI 助手 SSE 流结束时可能丢失最后一个未闭合事件 | [bugs-and-risks.md](bugs-and-risks.md#b-16-ai-助手-sse-流结束时可能丢失最后一个未闭合事件) |
 | P-13 | 中 | 关键静态产物体积已经接近当前性能预算 | [performance-bottlenecks.md](performance-bottlenecks.md#p-13-关键静态产物体积已经接近当前性能预算) |
+| P-16 | 中 | Cron 无解表达式会在主线程同步扫描两年分钟粒度 | [performance-bottlenecks.md](performance-bottlenecks.md#p-16-cron-无解表达式会在主线程同步扫描两年分钟粒度) |
+| UX-13 | 中 | AI 助手默认模式与隐私文案需要重新对齐 | [ux-improvements.md](ux-improvements.md#ux-13-ai-助手默认模式与隐私文案需要重新对齐) |
 | CQ-12 | 中 | 安全回归测试只检查连续 key 字面量，无法识别拼接型密钥 | [code-quality.md](code-quality.md#cq-12-安全回归测试只检查连续-key-字面量无法识别拼接型密钥) |
 
 ### 当前健康度修正
 
 | 维度 | 2026-06-18 | 2026-07-03 复查 | 说明 |
 |------|------------|------------------|------|
-| 安全性 | 3.5 / 5 | 2.8 / 5 | 前端默认体验 key 回归为高危问题 |
-| 工程化 | 4.2 / 5 | 3.9 / 5 | 质量门禁存在写入副作用，lint warning 未清零 |
-| 性能 | 4.2 / 5 | 3.9 / 5 | CSS/工具箱/博客列表体积接近预算 |
-| 综合 | 3.9 / 5 | 3.5 / 5 | 项目整体仍可运行且测试强，但需优先处理 S-11 |
+| 安全性 | 3.5 / 5 | 2.7 / 5 | 前端默认体验 key、AI 对话持久化和 UUID 弱随机 fallback 需优先治理 |
+| 工程化 | 4.2 / 5 | 3.8 / 5 | 质量门禁存在写入副作用，assistant/Cron 边界缺少回归测试 |
+| 性能 | 4.2 / 5 | 3.8 / 5 | CSS/HTML 体积接近预算，Cron 无解表达式存在主线程同步扫描 |
+| 用户体验 | 4.0 / 5 | 3.8 / 5 | AI 助手默认模式、超时反馈和隐私文案需对齐 |
+| 综合 | 3.9 / 5 | 3.4 / 5 | 项目整体仍可稳定运行，但安全和助手体验是当前最高优先级 |
 
 ---
 
@@ -58,15 +66,15 @@
 
 | 优先级 | 类别 | 文档 | 发现数量 |
 |--------|------|------|----------|
-| 🔴 第一 | Bug 与风险 | [bugs-and-risks.md](bugs-and-risks.md) | 12（中 1 / 低 0 / 已修复 11） |
-| 🔴 第一 | 安全审计 | [security-audit.md](security-audit.md) | 11（高 1 / 中 1 / 低 4 / 无 2 / 已修复 3） |
-| 🔴 第一 | 性能瓶颈 | [performance-bottlenecks.md](performance-bottlenecks.md) | 12（中 3 / 低 3 / 部分 1 / 已修复 5） |
-| 🟡 第二 | 代码质量 | [code-quality.md](code-quality.md) | 10（中 2 / 低 2 / 已修复 6） |
+| 🔴 第一 | Bug 与风险 | [bugs-and-risks.md](bugs-and-risks.md) | 16（中 5 / 已修复 11） |
+| 🔴 第一 | 安全审计 | [security-audit.md](security-audit.md) | 16（高 1 / 中 3 / 低 7 / 已修复 5） |
+| 🔴 第一 | 性能瓶颈 | [performance-bottlenecks.md](performance-bottlenecks.md) | 16（中 6 / 低 2 / 预防 1 / 部分 1 / 已修复 6） |
+| 🟡 第二 | 代码质量 | [code-quality.md](code-quality.md) | 12（中 3 / 低 3 / 已修复 6） |
 | 🟡 第二 | 架构评审 | [architecture-review.md](architecture-review.md) | 7（中 3 / 低 4） |
-| 🟡 第二 | 技术债务 | [tech-debt.md](tech-debt.md) | 10（中 2 / 低 7 / 已修复 1） |
-| 🟢 第三 | 新功能建议 | [new-features.md](new-features.md) | 10 |
-| 🟢 第三 | UX 优化 | [ux-improvements.md](ux-improvements.md) | 10（中 1 / 低 1 / 已修复 8） |
-| 🟢 第三 | 开发体验 | [devex-improvements.md](devex-improvements.md) | 10（低 4 / 部分 1 / 已修复 5） |
+| 🟡 第二 | 技术债务 | [tech-debt.md](tech-debt.md) | 12（中 2 / 低 8 / 已修复 2） |
+| 🟢 第三 | 新功能建议 | [new-features.md](new-features.md) | 13 |
+| 🟢 第三 | UX 优化 | [ux-improvements.md](ux-improvements.md) | 13（中 3 / 低 2 / 已修复 8） |
+| 🟢 第三 | 开发体验 | [devex-improvements.md](devex-improvements.md) | 13（中 2 / 低 4 / 部分 1 / 已修复 6） |
 | 🔵 第四 | 模块分析-构建系统 | [module-reviews/build-system.md](module-reviews/build-system.md) | 5（低 2 / 已修复 3） |
 | 🔵 第四 | 模块分析-客户端JS | [module-reviews/client-javascript.md](module-reviews/client-javascript.md) | 5（低 3 / 已修复 2） |
 | 🔵 第四 | 模块分析-编辑器 | [module-reviews/editor.md](module-reviews/editor.md) | 5 |
@@ -76,8 +84,10 @@
 | 🔵 第四 | 资源与内容分析 | [module-reviews/resource-analysis.md](module-reviews/resource-analysis.md) | 5 |
 | 🔵 第四 | HTML 页面一致性 | [module-reviews/html-pages.md](module-reviews/html-pages.md) | 5 |
 | 🔵 第四 | 工具箱手势与 API 测试器 | [module-reviews/tools-gesture-and-api.md](module-reviews/tools-gesture-and-api.md) | 5（中 3 / 低 2） |
+| 🔵 第四 | AI 助手深度分析 | [module-reviews/assistant-deep-dive.md](module-reviews/assistant-deep-dive.md) | 5（高 1 / 中 3 / 低 1） |
+| 🔵 第四 | tools-core 深度分析 | [module-reviews/tools-core.md](module-reviews/tools-core.md) | 5（中 1 / 低 4） |
 | 🔵 第四 | 竞品分析 | [competitive-analysis.md](competitive-analysis.md) | 6 |
-| | **总计** | | **历史 141 条 + 本轮新增/更新 20 条** |
+| | **总计** | | **历史 141 条 + 复查新增/更新 40 条** |
 
 ---
 
@@ -87,6 +97,11 @@
 
 | 编号 | 建议 | 来源 | 难度 |
 |------|------|------|------|
+| S-11 | 移除前端可还原体验 API key，改走服务端限额代理或用户自填 key | 安全 | ⭐⭐ |
+| B-15 | 修复 AI 助手模式偏好读取逻辑，默认回到站点模式 | Bug | ⭐ |
+| B-16 | 补齐 SSE 流结束 buffer flush，避免尾部 delta 丢失 | Bug | ⭐ |
+| S-14 | 为 AI 助手增加隐私模式、历史保留期限和清除全部对话入口 | 安全/功能 | ⭐⭐ |
+| P-16 | 优化 Cron 无解表达式，避免主线程百万次扫描 | 性能 | ⭐⭐ |
 | ~~F-04~~ | ~~主题跟随系统~~ ✅ 已优化 | 功能 | ~~⭐~~ |
 
 已完成：S-00 移除前端硬编码 API key，并新增无 key 阻断和源码密钥扫描回归测试。

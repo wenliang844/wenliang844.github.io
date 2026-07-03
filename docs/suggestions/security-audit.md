@@ -63,6 +63,43 @@
 - **📊 预期收益**：减少第三方供应链风险，提升摄像头功能的隐私可信度，并让离线/弱网体验更可控。
 - **🔗 相关建议引用**：[S-06](#s-06-第三方脚本缺少-subresource-integrity-sri-校验), [P-14](performance-bottlenecks.md#p-14-手势工具首次启动依赖远程模型链路弱网下冷启动不可控)
 
+### 📌 S-14: AI 助手对话和 LLM 上下文长期留存在 localStorage
+
+- **📍 位置**：`js/assistant.js:34`, `js/assistant.js:130-145`, `js/assistant.js:220-243`, `js/assistant.js:1104-1108`, `js/assistant.js:1454-1478`
+- **📝 当前状况描述**：AI 助手会把站点问答消息和最近 12 条 LLM 上下文写入 `cwl.assistant.conversations`。这些内容可能包含用户输入的隐私问题、代码片段、业务信息或模型回复；当前只有本地持久化，没有保留期限、敏感内容提示、一次性会话模式或“清除所有对话”的强提示入口。
+- **⚠️ 影响程度**：中
+- **💡 建议方案**：
+  ```javascript
+  const RETENTION_MS = 7 * 24 * 60 * 60 * 1000;
+
+  function shouldKeepConversation(item) {
+    return Date.now() - Number(item.updatedAt || 0) < RETENTION_MS;
+  }
+
+  function saveConversations() {
+    const retained = conversations.filter(shouldKeepConversation);
+    storageSet(CONVERSATIONS_KEY, JSON.stringify(retained));
+  }
+  ```
+  UI 层增加“隐私模式：不保存本轮对话”“清除全部对话”“导出/删除当前对话”，并在 LLM 输入区说明本地保存范围。
+- **📊 预期收益**：降低共享设备、浏览器扩展或本机恶意软件读取历史对话的隐私风险，同时保留多轮上下文体验。
+- **🔗 相关建议引用**：[F-13](new-features.md#f-13-ai-助手增加隐私模式和对话保留策略), [MR-AST-04](module-reviews/assistant-deep-dive.md#mr-ast-04-对话持久化缺少生命周期和隐私控制)
+
+### 📌 S-15: UUID 工具在 Web Crypto 不可用时退化到 `Math.random()`
+
+- **📍 位置**：`js/tools-core.js:204-228`, `tests/tools.test.mjs:236-258`
+- **📝 当前状况描述**：`generateUuid()` 优先使用 `crypto.randomUUID()` 和 `crypto.getRandomValues()`，这是正确主路径；但当 crypto 访问失败时会使用 `Math.random()` 填充 UUID 字节。测试还断言“blocked crypto access”下仍应生成 UUID，等于把弱随机 fallback 固化为行为契约。对普通占位 ID 尚可，对用户认为“UUID 可用于安全 token”的场景会形成误导。
+- **⚠️ 影响程度**：低
+- **💡 建议方案**：
+  ```javascript
+  if (!filled) {
+    return fail("当前浏览器不支持安全随机数，无法生成安全 UUID", "uuidCrypto");
+  }
+  ```
+  如果必须保留兼容 fallback，输出区应标记“非加密随机，仅用于临时标识”，并把复制按钮状态同步为警示。
+- **📊 预期收益**：避免工具输出被误用为邀请码、重置 token 或安全凭据，明确随机数强度边界。
+- **🔗 相关建议引用**：[TD-12](tech-debt.md#td-12-随机数能力边界需要产品和测试共同收敛), [MR-CORE-02](module-reviews/tools-core.md#mr-core-02-uuid-生成器的弱随机-fallback-需要明确降级语义)
+
 ---
 
 ## 📌 S-00 [已修复]: `assistant.js` 硬编码 Demo API Key 泄露

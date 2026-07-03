@@ -45,6 +45,53 @@
 - **📊 预期收益**：消除弱网竞态，提升视觉/摄像头工具的可预期性和可诊断性。
 - **🔗 相关建议引用**：[MR-TOOLS-02](module-reviews/tools-gesture-and-api.md#mr-tools-02-按需-runtime-加载没有等待脚本执行完成), [P-14](performance-bottlenecks.md#p-14-手势工具首次启动依赖远程模型链路弱网下冷启动不可控)
 
+### 📌 B-15: AI 助手模式偏好写入后不会被恢复
+
+- **📍 位置**：`js/assistant.js:31`, `js/assistant.js:337-339`, `js/assistant.js:1306-1309`
+- **📝 当前状况描述**：`MODE_KEY` 已定义，`applyMode()` 也会把用户选择的 `site` / `llm` 写入 localStorage，但 `readMode()` 固定返回 `"llm"`。用户切到“站点模式”后刷新页面会重新回到大模型模式，保存逻辑与读取逻辑不对称。
+- **⚠️ 影响程度**：中
+- **💡 建议方案**：
+  ```javascript
+  function readMode() {
+    const saved = storageGet(MODE_KEY);
+    if (saved === "site" || saved === "llm") {
+      return saved;
+    }
+    return "site";
+  }
+  ```
+  如果产品仍希望默认展示 LLM，可在没有 API key 且没有体验代理时回落到 `site`，避免新用户默认进入网络请求路径。
+- **📊 预期收益**：恢复用户偏好的一致性，减少刷新后误入大模型模式和误解隐私边界的概率。
+- **🔗 相关建议引用**：[MR-AST-02](module-reviews/assistant-deep-dive.md#mr-ast-02-模式偏好保存与读取不对称), [UX-13](ux-improvements.md#ux-13-ai-助手默认模式与隐私文案需要重新对齐)
+
+### 📌 B-16: AI 助手 SSE 流结束时可能丢失最后一个未闭合事件
+
+- **📍 位置**：`js/assistant.js:594-649`
+- **📝 当前状况描述**：`postStream()` 每次把 `buffer.split("\n\n")` 的最后一段留作未完成事件，但 `reader.read()` 返回 `done` 后直接 `break`，没有调用 `decoder.decode()` flush，也没有处理剩余 `buffer`。如果中转站最后一个 `data:` 事件没有以空行结尾，最后一段 delta 可能不会进入 `onDelta()`。
+- **⚠️ 影响程度**：中
+- **💡 建议方案**：
+  ```javascript
+  function consumeEvent(eventText) {
+    eventText.split("\n").forEach(consumeLine);
+  }
+
+  for (;;) {
+    const chunk = await reader.read();
+    if (chunk.done) {
+      buffer += decoder.decode();
+      if (buffer.trim()) consumeEvent(buffer);
+      break;
+    }
+    buffer += decoder.decode(chunk.value, { stream: true });
+    const events = buffer.split("\n\n");
+    buffer = events.pop() || "";
+    events.forEach(consumeEvent);
+  }
+  ```
+  同时增加一个单元测试：模拟最后一个 SSE 事件不带尾随 `\n\n`，断言回答文本完整。
+- **📊 预期收益**：提升流式回答完整性，避免少数中转站或代理实现差异导致尾句缺失。
+- **🔗 相关建议引用**：[MR-AST-03](module-reviews/assistant-deep-dive.md#mr-ast-03-sse-解析缺少流结束收尾处理), [DE-13](devex-improvements.md#de-13-为-ai-助手和-cron-边界行为补充回归测试)
+
 ---
 
 ## 📌 B-01 [已修复]: `coder.js` 中 `draw()` 递归动画无法停止，离开页面持续消耗资源

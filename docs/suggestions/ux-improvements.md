@@ -20,6 +20,44 @@
 - **📊 预期收益**：让用户在摄像头授权和 API key 输入前理解真实数据流，减少误用与信任落差。
 - **🔗 相关建议引用**：[S-12](security-audit.md#s-12-mini-api-tester-会把-authorization-头和请求体持久化到-localstorage), [S-13](security-audit.md#s-13-手势工具运行时加载-cdn-机器视觉脚本和模型缺少完整供应链约束)
 
+### 📌 UX-12: AI 助手超时和用户手动停止使用同一错误文案
+
+- **📍 位置**：`js/assistant.js:652-668`, `js/assistant.js:670-687`, `js/assistant.js:1461-1481`
+- **📝 当前状况描述**：`withTimeout()` 超时会调用 `controller.abort()`，用户点击停止也会触发 abort；`normalizeLlmError()` 对所有 `AbortError` 都返回“已停止生成。”。当请求实际因 60 秒超时或网络中断被取消时，用户会误以为自己手动停止了生成，无法判断是否应重试、切换中转站或缩短提示词。
+- **⚠️ 影响程度**：低
+- **💡 建议方案**：
+  ```javascript
+  function withTimeout(parentSignal) {
+    const controller = new AbortController();
+    const timer = window.setTimeout(() => {
+      controller.abort(new DOMException("timeout", "TimeoutError"));
+    }, REQUEST_TIMEOUT_MS);
+    return { signal: controller.signal, clear: () => clearTimeout(timer) };
+  }
+
+  function normalizeLlmError(error) {
+    if (error && error.name === "TimeoutError") return "请求超时，请稍后重试或切换中转站。";
+    if (error && error.name === "AbortError") return "已停止生成。";
+  }
+  ```
+  如果目标浏览器不支持 abort reason，可在闭包中维护 `didTimeout` 标志。
+- **📊 预期收益**：让失败反馈更可诊断，减少用户对“停止/超时/网络失败”的困惑。
+- **🔗 相关建议引用**：[B-16](bugs-and-risks.md#b-16-ai-助手-sse-流结束时可能丢失最后一个未闭合事件), [MR-AST-05](module-reviews/assistant-deep-dive.md#mr-ast-05-请求取消语义需要区分用户停止与超时)
+
+### 📌 UX-13: AI 助手默认模式与隐私文案需要重新对齐
+
+- **📍 位置**：`js/assistant.js:337-339`, `js/assistant.js:1306-1316`, `js/assistant.js:1445-1450`
+- **📝 当前状况描述**：助手读取模式时固定回到 LLM，隐私文案仍说明“未填写时使用内置体验 key”。这与安全复查中“前端不应内置可还原 key”的目标冲突，也让用户在站点问答和大模型问答之间的切换成本变高。
+- **⚠️ 影响程度**：中
+- **💡 建议方案**：
+  ```text
+  站点模式：默认打开，仅查询本站内容，不发送到外部服务。
+  大模型模式：需用户显式开启，并选择“自填 key”或“服务端体验代理”。
+  ```
+  在首次开启 LLM 时展示一次性确认：请求会发送到配置的 endpoint，本地会保存最近对话上下文，可在设置中关闭保存。
+- **📊 预期收益**：让默认体验符合最小外发原则，用户能清楚理解何时使用本地规则、何时调用外部模型。
+- **🔗 相关建议引用**：[B-15](bugs-and-risks.md#b-15-ai-助手模式偏好写入后不会被恢复), [S-11](security-audit.md#s-11-assistantjs-仍在前端运行时拼接并使用默认体验-api-key), [S-14](security-audit.md#s-14-ai-助手对话和-llm-上下文长期留存在-localstorage)
+
 ---
 
 ## 📌 UX-01 [已修复]: 移动端导航菜单无遮罩层，点击外部区域无法关闭

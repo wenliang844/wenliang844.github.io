@@ -42,6 +42,30 @@
 - **📊 预期收益**：减少意外工作区变更，提升命令命名和实际行为的一致性。
 - **🔗 相关建议引用**：[DE-11](#de-11-把生产验证改造成真正只读的质量门禁), [TD-11](tech-debt.md#td-11-eslint-8-迁移前应先清零当前-warning-债务)
 
+### 📌 DE-13: 为 AI 助手和 Cron 边界行为补充回归测试
+
+- **📍 位置**：`tests/assistant.test.mjs:1-562`, `tests/assistant-deep.test.mjs:1-335`, `tests/tools-core-deep.test.mjs:258-266`
+- **📝 当前状况描述**：测试覆盖率总体很高，但第 2 轮发现的边界点没有被测试锁住：`readMode()` 固定返回 LLM、SSE 流结束未处理剩余 buffer、AbortError 无法区分超时和手动停止、Cron 无解表达式耗时无预算断言。
+- **⚠️ 影响程度**：中
+- **💡 建议方案**：
+  ```javascript
+  test("assistant restores saved site mode", async () => {
+    localStorage.setItem("cwl.assistant.mode", "site");
+    await loadAssistant();
+    assert.equal(document.querySelector("[data-mode='site']").classList.contains("active"), true);
+  });
+
+  test("cron impossible date returns within budget", () => {
+    const started = performance.now();
+    const result = core.parseCronExpression("0 0 31 2 *", now);
+    assert.equal(result.code, "cronNoRuns");
+    assert.ok(performance.now() - started < 20);
+  });
+  ```
+  SSE 测试可用 mock ReadableStream 模拟最后一个事件不带尾随空行。
+- **📊 预期收益**：把已发现的复杂边界变成可自动阻断的回归条件，减少后续重构 assistant 和工具核心时的行为漂移。
+- **🔗 相关建议引用**：[B-15](bugs-and-risks.md#b-15-ai-助手模式偏好写入后不会被恢复), [B-16](bugs-and-risks.md#b-16-ai-助手-sse-流结束时可能丢失最后一个未闭合事件), [P-16](performance-bottlenecks.md#p-16-cron-无解表达式会在主线程同步扫描两年分钟粒度)
+
 ---
 
 ## 📌 DE-01 [已修复]: 无自动化 CI/CD 流程
