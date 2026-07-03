@@ -34,13 +34,13 @@ const TOOLS = [
 ];
 
 const TOOL_CATEGORIES = [
+  { id: "visual", title: "视觉与交互", titleEn: "Visual & Interaction", ids: ["gesture"] },
   { id: "data", title: "数据格式", titleEn: "Data", ids: ["json", "yaml", "jsonpath", "jsondiff", "urlparse", "query"] },
   { id: "api", title: "接口调试", titleEn: "API", ids: ["api"] },
   { id: "security", title: "编码与安全", titleEn: "Encoding & Security", ids: ["base64", "url", "jwt", "hash", "password", "uuid"] },
   { id: "text", title: "文本处理", titleEn: "Text", ids: ["regex", "markdown", "diff", "case", "html", "textstats", "cleantext"] },
   { id: "time", title: "时间与生成", titleEn: "Time & Generate", ids: ["time", "cron", "random", "datediff"] },
   { id: "frontend", title: "前端与媒体", titleEn: "Frontend & Media", ids: ["color", "qr", "unit", "cssunit", "ua"] },
-  { id: "visual", title: "视觉与交互", titleEn: "Visual & Interaction", ids: ["gesture"] },
 ];
 
 function attr(value) {

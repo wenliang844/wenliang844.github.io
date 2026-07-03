@@ -79,6 +79,7 @@ test("renderToolsPage has OG meta tags", () => {
 
 test("renderToolsPage has tool navigation tabs with aria attributes", () => {
   const html = renderToolsPage();
+  assert.match(html, /<nav class="tools-tabs"[\s\S]*?<details class="tool-category" data-tool-category="visual" open>/);
   assert.match(html, /data-tool-tab="json"/);
   assert.match(html, /aria-controls="tool-json"/);
   assert.match(html, /data-tool-tab="jwt"/);

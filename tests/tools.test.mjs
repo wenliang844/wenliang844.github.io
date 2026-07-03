@@ -475,6 +475,7 @@ test("tools tabs expose selected state and support keyboard navigation", async (
     assert.equal(tabList.getAttribute("data-i18n-aria"), "tools.tabs");
     assert.equal(tabList.getAttribute("data-i18n-en-aria"), "Categorized tool list");
     assert.equal(document.querySelectorAll(".tool-category").length, 7);
+    assert.equal(document.querySelector(".tool-category").getAttribute("data-tool-category"), "visual");
     assert.match(document.querySelector('[data-tool-category="data"]').textContent, /数据格式/);
     assert.match(document.querySelector('[data-tool-category="security"]').textContent, /编码与安全/);
     assert.equal(document.querySelector('[data-tool-category="data"]').tagName, "DETAILS");
@@ -501,6 +502,10 @@ test("tools tabs expose selected state and support keyboard navigation", async (
     assert.equal(document.querySelector("#tool-json").hidden, true);
 
     yamlTab.dispatchEvent(new KeyboardEvent("keydown", { key: "End", bubbles: true, cancelable: true }));
+    assert.equal(uaTab.getAttribute("aria-selected"), "true");
+    assert.equal(document.querySelector("#tool-ua").hidden, false);
+
+    uaTab.dispatchEvent(new KeyboardEvent("keydown", { key: "Home", bubbles: true, cancelable: true }));
     const gestureTab = document.querySelector('[data-tool-tab="gesture"]');
     assert.equal(gestureTab.getAttribute("aria-selected"), "true");
     assert.equal(document.querySelector("#tool-gesture").hidden, false);
@@ -554,7 +559,7 @@ test("tools page ignores unknown tab targets without clearing selection", async 
     assert.equal(jsonPanel.hidden, false);
 
     jsonTab.dispatchEvent(new KeyboardEvent("keydown", { key: "End", bubbles: true, cancelable: true }));
-    const lastTab = document.querySelector('[data-tool-tab="gesture"]');
+    const lastTab = document.querySelector('[data-tool-tab="ua"]');
     assert.equal(lastTab.classList.contains("active"), true);
     assert.equal(lastTab.getAttribute("aria-selected"), "true");
 
