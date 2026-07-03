@@ -140,10 +140,11 @@
 
 ---
 
-## 📌 MR-CSS-07: 复查发现 CSS 单包已增长到 6637 行
+## 📌 MR-CSS-07 [部分修复]: 复查发现 CSS 单包已增长到 6637 行
 
-- **📍 位置**：`css/coder.css:1-6637`, `src/templates/layout.mjs:225-226`
-- **📝 当前状况描述**：历史模块概况记录为 4,655 行；第 5 轮复查时 `coder.css` 已达到 6,637 行。工具箱样式约从 `css/coder.css:3910` 开始，AI 助手样式约 `css/coder.css:4982-6084`，但 `layout.mjs` 仍对所有页面统一加载该 CSS。
+- **📍 位置**：`css/coder.css:1-6130`, `css/tools.css`, `css/trust.css`, `src/page-assets.mjs`, `src/templates/layout.mjs:225-226`
+- **✅ 已完成**：公共模板已支持页面级 `styles` 注入，`src/page-assets.mjs` 统一声明 `/tools/` 和 `/trust/` 的页面样式；工具页视觉/浏览器 API 样式迁入 `css/tools.css`，信任页增量样式迁入 `css/trust.css`，`coder.css` 回落到 6,130 行 / 129,973 bytes。
+- **📝 剩余状况描述**：工具箱基础选择器和 AI 助手浮层样式仍在 core CSS 中，后续应继续拆成页面级或按需样式，并明确三份 CSS 的选择器归属边界。
 - **⚠️ 影响程度**：中
 - **💡 建议方案**：
   ```text
