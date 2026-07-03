@@ -18,6 +18,7 @@
     "test:coverage": "node --test --experimental-test-coverage --test-coverage-lines=90 --test-coverage-branches=70 --test-coverage-functions=85 tests/*.test.mjs",
     "test:watch": "node --test --watch tests/*.test.mjs",
     "quality:baseline": "node scripts/write-quality-baseline.mjs",
+    "quality:baseline:clean": "node scripts/write-quality-baseline.mjs --require-clean",
     "lint": "eslint js/*.js --fix",
     "lint:check": "eslint js/*.js",
     "check:readonly": "npm run lint:check && npm test && npm run validate:posts",

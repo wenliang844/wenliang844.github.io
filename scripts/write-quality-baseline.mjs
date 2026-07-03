@@ -4,12 +4,22 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
+import { pathToFileURL } from "node:url";
+import {
+  buildSummary,
+  numberMatch,
+  optionsFromArgs,
+  parseBrowserSmokeOutput,
+  parseCoverageOutput,
+  parseHttpSmokeOutput,
+  parseNodeTestOutput,
+  parseProductionOutput,
+} from "./quality-baseline-core.mjs";
 
 const execFileAsync = promisify(execFile);
 const ROOT = process.cwd();
 const IS_WINDOWS = process.platform === "win32";
 const OUTPUT_MAX_BUFFER = 32 * 1024 * 1024;
-const DEFAULT_OUTPUT = "docs/suggestions/evidence/current-quality-baseline.json";
 
 const COMMANDS = [
   { id: "lint", command: "npm", args: ["run", "lint:check"], purpose: "release-gate" },
@@ -20,68 +30,8 @@ const COMMANDS = [
   { id: "production", command: "npm", args: ["run", "validate:production"], purpose: "release-gate", parser: parseProductionOutput },
 ];
 
-function outputPathFromArgs(argv) {
-  const outIndex = argv.indexOf("--out");
-  if (outIndex !== -1) {
-    const value = argv[outIndex + 1];
-    if (!value || value.startsWith("--")) {
-      throw new Error("--out requires a file path");
-    }
-    return value;
-  }
-
-  const positionalOutput = argv.find((value) => value && !value.startsWith("--"));
-  return positionalOutput || DEFAULT_OUTPUT;
-}
-
 function commandString({ command, args }) {
   return [command, ...args].join(" ");
-}
-
-function numberMatch(output, pattern) {
-  const match = output.match(pattern);
-  return match ? Number(match[1]) : undefined;
-}
-
-function parseNodeTestOutput(output) {
-  return {
-    tests: numberMatch(output, /\btests\s+(\d+)/),
-    passed: numberMatch(output, /\bpass\s+(\d+)/),
-    failed: numberMatch(output, /\bfail\s+(\d+)/),
-  };
-}
-
-function parseCoverageOutput(output) {
-  const stats = parseNodeTestOutput(output);
-  const coverageMatch = output.match(/all files\s*\|\s*([\d.]+)\s*\|\s*([\d.]+)\s*\|\s*([\d.]+)/);
-  if (coverageMatch) {
-    stats.coverage = {
-      lines: Number(coverageMatch[1]),
-      branches: Number(coverageMatch[2]),
-      functions: Number(coverageMatch[3]),
-    };
-  }
-  return stats;
-}
-
-function parseHttpSmokeOutput(output) {
-  return {
-    routes: numberMatch(output, /HTTP smoke passed for (\d+) route/),
-  };
-}
-
-function parseBrowserSmokeOutput(output) {
-  return {
-    passed: /Browser smoke passed\./.test(output),
-  };
-}
-
-function parseProductionOutput(output) {
-  return {
-    passedChecks: numberMatch(output, /通过:\s*(\d+)/),
-    failedChecks: numberMatch(output, /失败:\s*(\d+)/),
-    warnings: numberMatch(output, /警告:\s*(\d+)/),
-  };
 }
 
 async function run(command, args, options = {}) {
@@ -150,33 +100,18 @@ async function runQualityCommands() {
   return results;
 }
 
-function buildSummary(commands) {
-  const failedCommands = commands.filter((item) => item.status !== "pass");
-  const coverageCommand = commands.find((item) => item.id === "coverage");
-  const testCommand = commands.find((item) => item.id === "test");
-  return {
-    status: failedCommands.length === 0 ? "pass" : "fail",
-    commands: {
-      total: commands.length,
-      passed: commands.length - failedCommands.length,
-      failed: failedCommands.length,
-    },
-    tests: {
-      total: coverageCommand?.tests ?? testCommand?.tests ?? null,
-      passed: coverageCommand?.passed ?? testCommand?.passed ?? null,
-      failed: coverageCommand?.failed ?? testCommand?.failed ?? null,
-    },
-    coverage: coverageCommand?.coverage ?? null,
-  };
-}
-
 async function main() {
-  const outputPath = outputPathFromArgs(process.argv.slice(2));
+  const { outputPath, requireClean } = optionsFromArgs(process.argv.slice(2));
+  const git = await gitInfo();
+  if (requireClean && git.dirty) {
+    throw new Error(`Quality baseline requires a clean worktree:\n${git.status.join("\n")}`);
+  }
+
   const commands = await runQualityCommands();
   const baseline = {
     generatedAt: new Date().toISOString(),
-    scope: "working-tree",
-    git: await gitInfo(),
+    scope: requireClean ? "clean-commit" : "working-tree",
+    git,
     summary: buildSummary(commands),
     commands,
   };
@@ -191,7 +126,23 @@ async function main() {
   }
 }
 
-main().catch((error) => {
-  console.error(error);
-  process.exitCode = 1;
-});
+function isDirectRun() {
+  return process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;
+}
+
+if (isDirectRun()) {
+  main().catch((error) => {
+    console.error(error);
+    process.exitCode = 1;
+  });
+}
+
+export {
+  buildSummary,
+  optionsFromArgs,
+  parseBrowserSmokeOutput,
+  parseCoverageOutput,
+  parseHttpSmokeOutput,
+  parseNodeTestOutput,
+  parseProductionOutput,
+};

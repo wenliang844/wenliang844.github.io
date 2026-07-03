@@ -4,21 +4,21 @@
 
 ## 本轮验证
 
-- 只读读取 `scripts/write-quality-baseline.mjs`，确认脚本会顺序运行 lint、test、coverage、HTTP smoke、browser smoke 和 production validation。
-- 只读读取 `docs/suggestions/evidence/current-quality-baseline.json`，当前 artifact 记录 `scope: "working-tree"`、`dirty: true`、789/789 通过、coverage line 96.76%、branch 83.95%、functions 96.30%。
+- 只读读取 `scripts/write-quality-baseline.mjs`，确认脚本会顺序运行 lint、test、coverage、HTTP smoke、browser smoke 和 production validation，并新增 `--require-clean` 的 clean-commit 发布模式。
+- 只读读取 `docs/suggestions/evidence/current-quality-baseline.json`，当前 artifact 记录 `scope: "working-tree"`、`dirty: true`、792/792 通过、coverage line 96.82%、branch 83.51%、functions 96.50%。
 - 只读读取 `tests/workflows.test.mjs`，当前测试主要通过源码正则断言脚本包含关键命令、coverage parser、dirty scope 和 untracked 文件记录。
 
 ## 结论摘要
 
 质量基线 artifact 是本轮建议库治理中最关键的进展之一：它把散落在报告里的测试数量、覆盖率、smoke、production gate 和 dirty worktree 统一成机器可读 JSON。剩余问题集中在“证据如何保持新鲜、如何进入发布门禁、失败时如何追溯，以及脚本自身如何测试”。如果这些边界补齐，README、健康评分、小时报告和最终报告就可以引用同一份可信证据。
 
-## 📌 QBG-01：当前 artifact 记录的是 working-tree 快照，不能直接替代 clean release baseline
+## 📌 QBG-01 [部分修复]：当前 artifact 记录的是 working-tree 快照，不能直接替代 clean release baseline
 
 - 📌 问题/建议标题：区分 working-tree baseline 与 clean-commit baseline
 - 📍 位置：`scripts/write-quality-baseline.mjs:175-181`、`docs/suggestions/evidence/current-quality-baseline.json:1-18`
-- 📝 当前状况描述：脚本固定输出 `scope: "working-tree"`，并记录 `git status --porcelain --untracked-files=all`。这对本地分析很好，能解释 dirty scope；但它不等价于发布基线。当前 artifact 记录的 commit 和 dirty 状态会随着后续 docs 提交迅速过期，例如最终 README/health-score 提交后，旧 artifact 仍可能显示生成前的 dirty 文件。
+- 📝 当前状况描述：脚本默认输出 `scope: "working-tree"`，并记录 `git status --porcelain --untracked-files=all`。这对本地分析很好，能解释 dirty scope；但它不等价于发布基线。当前已新增 `--require-clean` / `quality:baseline:clean`，在 dirty worktree 下会提前失败，并在干净工作树中输出 `scope: "clean-commit"`。剩余问题是 CI 还没有把 clean baseline artifact 作为正式发布产物上传。
 - ⚠️ 影响程度：高
-- 💡 建议方案（含伪代码或示例片段）：增加 `--scope working-tree|clean-commit` 或 `--require-clean`。CI/release 默认要求干净工作树；本地分析允许 dirty，但 README 必须明确标注。
+- 💡 建议方案（含伪代码或示例片段）：CI/release 默认运行 `npm run quality:baseline:clean` 并上传 artifact；本地分析继续允许 dirty，但 README 必须明确标注。
 
 ```js
 const requireClean = argv.includes("--require-clean");
@@ -101,20 +101,20 @@ if (baseline.git.commit !== head) {
 - 📊 预期收益：让质量数字具备时间和提交边界，避免最终报告引用“刚刚已经过期”的结果。
 - 🔗 相关建议引用：`module-reviews/suggestion-evidence-drift-audit.md`、`module-reviews/suggestions-knowledge-base-governance.md`
 
-## 📌 QBG-06：质量基线脚本测试偏静态正则，缺少 fixture 级解析回归
+## 📌 QBG-06 [部分修复]：质量基线脚本测试偏静态正则，缺少 fixture 级解析回归
 
 - 📌 问题/建议标题：给 parser 和 git dirty scope 增加可执行单元测试
 - 📍 位置：`tests/workflows.test.mjs:160-179`、`scripts/write-quality-baseline.mjs:42-85`、`scripts/write-quality-baseline.mjs:112-130`
-- 📝 当前状况描述：`tests/workflows.test.mjs` 当前主要断言脚本文本包含关键命令、regex 和字段。这能防止脚本被误删，但不能验证 parser 对真实输出样本是否正确，也不能验证 `gitInfo()` 对 untracked/modified/staged 文件的分类。随着 artifact 被 README 和最终报告引用，脚本自身需要更强的可执行测试。
+- 📝 当前状况描述：`tests/quality-baseline.test.mjs` 已新增 fixture 级解析回归，覆盖 Node test、coverage、HTTP smoke、browser smoke、production 中文输出、参数解析和 summary 汇总；`tests/workflows.test.mjs` 仍保留脚本存在性守卫。剩余缺口是 `gitInfo()` 对 untracked/modified/staged 文件的分类尚未用临时 Git fixture 测试。
 - ⚠️ 影响程度：中
-- 💡 建议方案（含伪代码或示例片段）：导出 parser 纯函数，或把脚本拆成 `src/quality-baseline.mjs`；用 fixture 覆盖 Node test、coverage、production 中文输出、browser smoke pass/fail、dirty/untracked 状态。
+- 💡 建议方案（含伪代码或示例片段）：下一步用临时 Git fixture 覆盖 dirty/untracked/staged 状态，并验证 `--require-clean` 在 dirty worktree 下提前失败。
 
 ```js
-import { parseCoverageOutput } from "../scripts/write-quality-baseline.mjs";
+import { parseCoverageOutput } from "../scripts/quality-baseline-core.mjs";
 
 test("coverage parser reads all files summary", () => {
   const parsed = parseCoverageOutput(fixtureCoverageOutput);
-  assert.deepEqual(parsed.coverage, { lines: 96.76, branches: 83.95, functions: 96.3 });
+  assert.deepEqual(parsed.coverage, { lines: 96.82, branches: 83.51, functions: 96.5 });
 });
 ```
 

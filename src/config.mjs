@@ -20,20 +20,23 @@ export const SITE = {
 // sitemap 中需要列出的静态页（文章 URL 由构建脚本动态插入到 /post/ 之后）。
 // withDate=false 的页面不输出 lastmod，对齐现有 sitemap。
 export const STATIC_PAGES = [
-  { path: "/", withDate: true, priority: "1.0" },
+  { path: "/", withDate: true, priority: "1.0", smoke: true, mobileSmoke: true },
   { path: "/about/", withDate: true, priority: "0.6" },
-  { path: "/post/", withDate: true, insertPostsAfter: true, priority: "0.6" },
-  { path: "/tools/", withDate: true, priority: "0.6" },
+  { path: "/post/", withDate: true, insertPostsAfter: true, priority: "0.6", smoke: true, mobileSmoke: true },
+  { path: "/tools/", withDate: true, priority: "0.6", smoke: true, mobileSmoke: true },
   { path: "/editor/", withDate: true, priority: "0.6" },
   { path: "/overleaf/", withDate: true, priority: "0.6" },
-  { path: "/contact/", withDate: true, priority: "0.6" },
-  { path: "/ai/", withDate: true, priority: "0.6" },
-  { path: "/trust/", withDate: true, priority: "0.5" },
+  { path: "/contact/", withDate: true, priority: "0.6", smoke: true },
+  { path: "/ai/", withDate: true, priority: "0.6", smoke: true },
+  { path: "/trust/", withDate: true, priority: "0.5", smoke: true, mobileSmoke: true },
   { path: "/appreciation/", withDate: true, priority: "0.6" },
   { path: "/sponsor/", withDate: true, priority: "0.6" },
   { path: "/categories/", withDate: false, priority: "0.6" },
   { path: "/tags/", withDate: true, priority: "0.6" },
 ];
+
+export const SMOKE_ROUTES = STATIC_PAGES.filter((page) => page.smoke).map((page) => page.path);
+export const MOBILE_SMOKE_ROUTES = STATIC_PAGES.filter((page) => page.mobileSmoke).map((page) => page.path);
 
 // 全局搜索索引中额外包含的静态页（文章页由构建脚本动态生成）。
 export const SEARCH_PAGES = [

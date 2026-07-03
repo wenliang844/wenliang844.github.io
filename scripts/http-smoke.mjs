@@ -4,10 +4,10 @@ import { createServer } from "node:http";
 import { readFile, stat } from "node:fs/promises";
 import { extname, isAbsolute, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { SMOKE_ROUTES as ROUTES } from "../src/config.mjs";
 
 const ROOT = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const HOST = "127.0.0.1";
-const ROUTES = ["/", "/tools/", "/ai/", "/post/", "/contact/", "/trust/"];
 const MIME_TYPES = new Map([
   [".css", "text/css; charset=utf-8"],
   [".html", "text/html; charset=utf-8"],

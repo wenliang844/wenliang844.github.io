@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { parse } from "yaml";
+import { MOBILE_SMOKE_ROUTES, SMOKE_ROUTES, STATIC_PAGES } from "../src/config.mjs";
 
 const ROOT = join(import.meta.dirname, "..");
 
@@ -28,6 +29,7 @@ test("CI workflow runs quality gates without write permissions", async () => {
   assert.equal(packageJson.scripts["test:browser-smoke"], "npx --yes --package=playwright node scripts/browser-smoke.mjs");
   assert.equal(packageJson.scripts["test:http-smoke"], "node scripts/http-smoke.mjs");
   assert.equal(packageJson.scripts["quality:baseline"], "node scripts/write-quality-baseline.mjs");
+  assert.equal(packageJson.scripts["quality:baseline:clean"], "node scripts/write-quality-baseline.mjs --require-clean");
 
   [
     "npm ci",
@@ -127,8 +129,11 @@ test("production validator builds into a temporary output directory", async () =
 
 test("HTTP smoke script covers critical public routes and local scripts", async () => {
   const smokeScript = await readFile(join(ROOT, "scripts", "http-smoke.mjs"), "utf8");
+  const staticRoutes = new Set(STATIC_PAGES.map((page) => page.path));
 
-  assert.match(smokeScript, /ROUTES\s*=\s*\["\/",\s*"\/tools\/",\s*"\/ai\/",\s*"\/post\/",\s*"\/contact\/",\s*"\/trust\/"\]/);
+  assert.deepEqual(SMOKE_ROUTES, ["/", "/post/", "/tools/", "/contact/", "/ai/", "/trust/"]);
+  assert.ok(SMOKE_ROUTES.every((route) => staticRoutes.has(route)), "smoke routes should come from STATIC_PAGES");
+  assert.match(smokeScript, /import\s+\{\s*SMOKE_ROUTES\s+as\s+ROUTES\s*\}\s+from\s+"..\/src\/config\.mjs"/);
   assert.match(smokeScript, /main#main-content/);
   assert.match(smokeScript, /is missing an h1/);
   assert.match(smokeScript, /extractLocalScriptSources/);
@@ -137,8 +142,12 @@ test("HTTP smoke script covers critical public routes and local scripts", async 
 
 test("browser smoke script covers critical routes, viewports and tool interactions", async () => {
   const smokeScript = await readFile(join(ROOT, "scripts", "browser-smoke.mjs"), "utf8");
+  const staticRoutes = new Set(STATIC_PAGES.map((page) => page.path));
 
-  assert.match(smokeScript, /ROUTES\s*=\s*\["\/",\s*"\/tools\/",\s*"\/ai\/",\s*"\/post\/",\s*"\/contact\/",\s*"\/trust\/"\]/);
+  assert.deepEqual(SMOKE_ROUTES, ["/", "/post/", "/tools/", "/contact/", "/ai/", "/trust/"]);
+  assert.deepEqual(MOBILE_SMOKE_ROUTES, ["/", "/post/", "/tools/", "/trust/"]);
+  assert.ok(MOBILE_SMOKE_ROUTES.every((route) => staticRoutes.has(route)), "mobile smoke routes should come from STATIC_PAGES");
+  assert.match(smokeScript, /import\s+\{\s*MOBILE_SMOKE_ROUTES,\s*SMOKE_ROUTES\s*\}\s+from\s+"..\/src\/config\.mjs"/);
   assert.match(smokeScript, /name:\s*"desktop"/);
   assert.match(smokeScript, /name:\s*"mobile"/);
   assert.match(smokeScript, /page\.on\("console"/);
@@ -160,9 +169,15 @@ test("browser smoke script covers critical routes, viewports and tool interactio
 test("quality baseline script records commands, coverage and git scope", async () => {
   const packageJson = JSON.parse(await readFile(join(ROOT, "package.json"), "utf8"));
   const baselineScript = await readFile(join(ROOT, "scripts", "write-quality-baseline.mjs"), "utf8");
+  const baselineCore = await readFile(join(ROOT, "scripts", "quality-baseline-core.mjs"), "utf8");
 
   assert.equal(packageJson.scripts["quality:baseline"], "node scripts/write-quality-baseline.mjs");
-  assert.match(baselineScript, /docs\/suggestions\/evidence\/current-quality-baseline\.json/);
+  assert.equal(packageJson.scripts["quality:baseline:clean"], "node scripts/write-quality-baseline.mjs --require-clean");
+  assert.match(baselineCore, /docs\/suggestions\/evidence\/current-quality-baseline\.json/);
+  assert.match(baselineScript, /quality-baseline-core\.mjs/);
+  assert.match(baselineScript, /Quality baseline requires a clean worktree/);
+  assert.match(baselineScript, /clean-commit/);
+  assert.match(baselineScript, /pathToFileURL/);
   assert.match(baselineScript, /git",\s*\["status",\s*"--porcelain",\s*"--untracked-files=all"\]/);
   assert.match(baselineScript, /untrackedFileCount/);
   assert.match(baselineScript, /untrackedFiles/);
@@ -172,8 +187,8 @@ test("quality baseline script records commands, coverage and git scope", async (
   assert.match(baselineScript, /npm",\s*args:\s*\["run",\s*"test:http-smoke"\]/);
   assert.match(baselineScript, /npm",\s*args:\s*\["run",\s*"test:browser-smoke"\]/);
   assert.match(baselineScript, /npm",\s*args:\s*\["run",\s*"validate:production"\]/);
-  assert.match(baselineScript, /function parseCoverageOutput/);
-  assert.match(baselineScript, /all files\\s\*\\\|/);
-  assert.match(baselineScript, /positionalOutput\s*=\s*argv\.find/);
-  assert.match(baselineScript, /scope:\s*"working-tree"/);
+  assert.match(baselineCore, /function parseCoverageOutput/);
+  assert.match(baselineCore, /all files\\s\*\\\|/);
+  assert.match(baselineCore, /positionalOutput\s*=\s*argv\.find/);
+  assert.match(baselineScript, /scope:\s*requireClean\s*\?\s*"clean-commit"\s*:\s*"working-tree"/);
 });

@@ -124,7 +124,7 @@ for (const link of markdownLinks(file)) {
     "ux": 4.5
   },
   "updatedAt": "2026-07-03",
-  "evidence": ["npm test 789/789", "coverage 96.76%", "npm audit 0 moderate+"]
+  "evidence": ["npm test 792/792", "coverage 96.82%", "npm audit 0 moderate+"]
 }
 ```
 

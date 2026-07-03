@@ -8,26 +8,26 @@
 
 - `node --test tests/templates.test.mjs tests/templates-extended.test.mjs tests/i18n-deep.test.mjs tests/workflows.test.mjs`：64/64 通过。
 - `node --test tests/build.test.mjs`：3/3 通过，新增 `STATIC_PAGES` 已登记路径必须存在已提交 `index.html` 的只读门禁。
-- `node scripts/http-smoke.mjs`：6 个路由全部通过，包含 `/trust/`。
-- `npx --yes --package=playwright node scripts/browser-smoke.mjs`：桌面与移动关键路由、`/trust/`、工具箱 JSON/Galaxy/UUID/Gesture 交互全部通过。
-- 只读扫描 `src/config.mjs`、`src/templates/trust.mjs`、`src/trust-data.mjs`、`scripts/http-smoke.mjs`、`scripts/browser-smoke.mjs`、`tests/workflows.test.mjs`、`css/coder.css`。
-- 本轮只新增 `/docs/suggestions/module-reviews/trust-page-launch-readiness.md`。
+- `node --test tests/workflows.test.mjs tests/build.test.mjs tests/templates-extended.test.mjs`：48/48 通过，新增 `SMOKE_ROUTES` / `MOBILE_SMOKE_ROUTES` 配置源守卫。
+- `npm run test:http-smoke`：6 个由 `STATIC_PAGES` 派生的路由全部通过，包含 `/trust/`。
+- `npm run test:browser-smoke`：桌面与移动关键路由、`/trust/`、工具箱 JSON/Galaxy/UUID/Gesture 交互全部通过。
+- 复核 `src/config.mjs`、`src/templates/trust.mjs`、`src/trust-data.mjs`、`scripts/http-smoke.mjs`、`scripts/browser-smoke.mjs`、`tests/workflows.test.mjs`、`css/coder.css`。
 
 ## 总览
 
 信任页的基础上线质量已经较好：`STATIC_PAGES`、`SEARCH_PAGES`、构建脚本、导航、页脚、模板测试、HTTP smoke 和浏览器 smoke 都已覆盖 `/trust/`，页面也能在桌面和移动视口通过真实浏览器检查。
 
-剩余风险不在“页面是否存在”，而在“新增页面时有哪些清单需要同步”。当前页面路径分别出现在静态页配置、搜索索引配置、构建写出逻辑、HTTP smoke 路由、浏览器 smoke 路由、工作流源码断言和生成后的 `trust/index.html`。这些清单已经被补齐，但仍是多处手工维护；未来新增 `/privacy/`、`/changelog/`、专题页或商业化页面时，容易再次出现路由已登记但产物未生成、产物已生成但烟测未覆盖、或测试断言滞后的短暂漂移。
+剩余风险不在“页面是否存在”，而在“新增页面时有哪些清单需要同步”。当前 `STATIC_PAGES` 已经同时驱动 sitemap、静态产物检查、HTTP smoke 和浏览器 smoke 的关键路由；新增页面时不再需要在两个 smoke 脚本里重复维护数组。后续主要风险转向信任页声明本身是否跟真实本机存储、第三方域名和源码密钥扫描持续一致。
 
 严重程度分布：
 
 - 高：0
-- 中：2
+- 中：1
 - 低：3
 
 ## 建议清单
 
-### 📌 MR-TRUST-LAUNCH-01：用静态路由清单驱动 smoke 路由，减少多处手写数组漂移
+### 📌 MR-TRUST-LAUNCH-01 [已修复]：用静态路由清单驱动 smoke 路由，减少多处手写数组漂移
 
 📍 位置（文件路径 + 行号范围）
 
@@ -38,30 +38,22 @@
 
 📝 当前状况描述
 
-`/trust/` 已经登记到 `STATIC_PAGES`，HTTP smoke 和浏览器 smoke 也已手工加入同一路由；工作流测试又用正则断言 smoke 脚本中必须包含这些路径。这个结果当前是通过的，但维护链路较长：每新增一个公共静态页，至少要同步静态配置、搜索配置、构建输出、HTTP smoke、浏览器 smoke 和源码断言。只要其中一处漏改，就会出现短暂的测试失败或页面未覆盖。
+`src/config.mjs` 已新增 `SMOKE_ROUTES` 和 `MOBILE_SMOKE_ROUTES`，它们从 `STATIC_PAGES` 中的 `smoke` / `mobileSmoke` 字段派生。`scripts/http-smoke.mjs` 直接导入 `SMOKE_ROUTES`，`scripts/browser-smoke.mjs` 直接导入桌面和移动路由清单；工作流测试改为验证这些路由均来自 `STATIC_PAGES`，并确认两个脚本消费配置源。
 
 ⚠️ 影响程度（高/中/低）
 
-中。
+已修复。
 
 💡 建议方案（含伪代码或示例片段）
 
-把 smoke 路由从 `STATIC_PAGES` 或一个显式 `PUBLIC_ROUTE_MANIFEST` 生成，而不是在两个脚本里重复维护数组。对不适合 smoke 的旧手写页可以通过字段排除。
+已把 smoke 路由从 `STATIC_PAGES` 生成，而不是在两个脚本里重复维护数组。关键页面用字段显式加入 smoke 集合，移动端路由用 `mobileSmoke` 独立标记。
 
 ```js
-import { STATIC_PAGES } from "../src/config.mjs";
-
-const ROUTES = STATIC_PAGES
-  .filter((page) => page.smoke !== false)
-  .map((page) => page.path)
-  .filter((path) => !path.includes("#"));
-
-const MOBILE_ROUTES = ROUTES.filter((path) =>
-  ["/", "/tools/", "/post/", "/trust/"].includes(path)
-);
+export const SMOKE_ROUTES = STATIC_PAGES.filter((page) => page.smoke).map((page) => page.path);
+export const MOBILE_SMOKE_ROUTES = STATIC_PAGES.filter((page) => page.mobileSmoke).map((page) => page.path);
 ```
 
-配套测试从“正则匹配固定数组”改成“脚本导出的路由覆盖 `STATIC_PAGES` 中的关键页”。
+配套测试已从“正则匹配固定数组”改成“脚本导出的路由覆盖 `STATIC_PAGES` 中的关键页”。
 
 📊 预期收益
 
@@ -371,8 +363,7 @@ assert.ok(metrics.overflow <= 2);
 
 ## 建议优先级
 
-1. 中优先级：让 HTTP/browser smoke 路由从 `STATIC_PAGES` 或公共路由清单生成。
-2. 中优先级：把信任页数据与源码扫描结果建立事实来源测试。
-3. 低优先级：把多 host 第三方服务改为结构化数组，改善 JSON-LD 和校验能力。
-4. 低优先级：生成 i18n 覆盖报告，区分字典英文、内联英文和缺失英文。
-5. 低优先级：为 `/trust/` 增加专属视觉布局预算和截图 artifact。
+1. 中优先级：把信任页数据与源码扫描结果建立事实来源测试。
+2. 低优先级：把多 host 第三方服务改为结构化数组，改善 JSON-LD 和校验能力。
+3. 低优先级：生成 i18n 覆盖报告，区分字典英文、内联英文和缺失英文。
+4. 低优先级：为 `/trust/` 增加专属视觉布局预算和截图 artifact。

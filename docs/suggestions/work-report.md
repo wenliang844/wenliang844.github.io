@@ -169,8 +169,8 @@
 | 命令 | 结果 |
 |------|------|
 | `npm run lint:check` | 通过，0 warnings |
-| `npm test` / 生产验证内部测试 | 789/789 通过 |
-| `npm run test:coverage` | 789/789 通过；line 96.76% / branch 83.95% / funcs 96.30% |
+| `npm test` / 生产验证内部测试 | 792/792 通过 |
+| `npm run test:coverage` | 792/792 通过；line 96.82% / branch 83.51% / funcs 96.50% |
 | `npm run test:http-smoke` | 6/6 路由通过，覆盖 `/`、`/tools/`、`/ai/`、`/post/`、`/contact/`、`/trust/` |
 | `npm run test:browser-smoke` | 通过，覆盖桌面 6 个关键路径、移动端 4 个关键路径，以及 `/tools/` JSON/随机数/Galaxy Canvas/UUID Clipboard/手势确认门闩交互 |
 | `npm run validate:production` | 34/34 通过 |

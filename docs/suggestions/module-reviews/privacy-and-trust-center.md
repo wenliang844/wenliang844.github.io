@@ -7,7 +7,7 @@
 本轮验证：
 
 - `node --test tests/css.test.mjs tests/templates.test.mjs tests/templates-extended.test.mjs tests/performance.test.mjs tests/build.test.mjs tests/workflows.test.mjs`：111/111 通过。
-- `npm run test:coverage`：789/789 通过，line 96.76% / branch 83.95% / funcs 96.30%。
+- `npm run test:coverage`：792/792 通过，line 96.82% / branch 83.51% / funcs 96.50%。
 - `npm run test:http-smoke`：6/6 路由通过，新增覆盖 `/trust/`。
 - `npm run test:browser-smoke`：通过，新增桌面与移动端 `/trust/`，并覆盖 `/tools/` Canvas/Clipboard/手势确认门闩交互。
 - `npm run validate:production`：34/34 通过；`git diff --check` 通过，仅 CRLF 工作区提示。

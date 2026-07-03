@@ -4,14 +4,15 @@ import { createServer } from "node:http";
 import { readFile, stat } from "node:fs/promises";
 import { extname, isAbsolute, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { MOBILE_SMOKE_ROUTES, SMOKE_ROUTES } from "../src/config.mjs";
 
 const ROOT = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const HOST = "127.0.0.1";
 const STRICT_CLIPBOARD_SMOKE = process.env.STRICT_CLIPBOARD_SMOKE === "1";
-const ROUTES = ["/", "/tools/", "/ai/", "/post/", "/contact/", "/trust/"];
+const ROUTES = SMOKE_ROUTES;
 const VIEWPORTS = [
   { name: "desktop", width: 1366, height: 768, routes: ROUTES },
-  { name: "mobile", width: 390, height: 844, routes: ["/", "/tools/", "/post/", "/trust/"] },
+  { name: "mobile", width: 390, height: 844, routes: MOBILE_SMOKE_ROUTES },
 ];
 const MIME_TYPES = new Map([
   [".css", "text/css; charset=utf-8"],

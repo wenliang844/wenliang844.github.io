@@ -10,10 +10,10 @@
 |------|------|
 | 当前分支 | `codex/autonomous-optimization` |
 | 工作区注意事项 | 本轮包含源码、测试与文档修复；生产验证脚本已修复大测试输出假失败和根目录构建写入副作用 |
-| 质量门禁 | `npm run lint:check` 通过；`npm test` / `npm run test:coverage` 789/789 通过；`npm run test:http-smoke` 6/6 路由通过；`npm run test:browser-smoke` 通过 |
+| 质量门禁 | `npm run lint:check` 通过；`npm test` / `npm run test:coverage` 792/792 通过；`npm run test:http-smoke` 6/6 路由通过；`npm run test:browser-smoke` 通过 |
 | 生产验证 | `npm run validate:production` 34/34 通过 |
 | 依赖审计 | `npm audit --registry=https://registry.npmjs.org --audit-level=moderate` 0 漏洞 |
-| 覆盖率 | 总体 lines 96.76%、branches 83.95%、functions 96.30%，通过阈值 |
+| 覆盖率 | 总体 lines 96.82%、branches 83.51%、functions 96.50%，通过阈值 |
 | 本地服务冒烟 | `/`、`/tools/`、`/post/`、`/search-index.json` 均返回 200 |
 | 第 2 轮深挖 | `js/assistant.js`、`js/tools-core.js`、`tests/assistant*.mjs`、`tests/tools*.mjs` |
 | 第 2 轮行为探测 | Cron 无解表达式 `0 0 31 2 *` 约 127.57ms；普通表达式约 0.19-1.52ms |
@@ -28,7 +28,7 @@
 | 完整分析报告 | [final-analysis-report-2026-07-03.md](final-analysis-report-2026-07-03.md) |
 | 小时报告 | 已生成第 2-6 小时工作报告；第 6 小时报告见 [hourly-report-2026-07-03-06.md](hourly-report-2026-07-03-06.md) |
 | 建议库规模 | 66 个建议文档，其中 45 个模块专题 |
-| 当前质量基线 | `npm run lint:check` 通过；`npm test` 789/789 通过；`npm run test:coverage` line 96.76%、branch 83.95%、funcs 96.30%；HTTP smoke 6/6 |
+| 当前质量基线 | `npm run lint:check` 通过；`npm test` 792/792 通过；`npm run test:coverage` line 96.82%、branch 83.51%、funcs 96.50%；HTTP smoke 6/6 |
 | 综合健康度 | 3.9 / 5（良好） |
 | 最高优先级 | 质量基线 artifact 正式化、PWA 缓存安全矩阵、资源 manifest 驱动生产验证、生成产物漂移只读门禁 |
 | 工作树说明 | 当前存在外部并发修改；最终报告按 dirty scope 标注证据，不把外部源码/测试改动计入 docs-only 提交 |
@@ -76,6 +76,7 @@
 - 已完成：新增真实浏览器与视觉冒烟专题，记录 Playwright/HTTP smoke、响应式截图、权限 API 和 CI artifact 后续落地路径。
 - 已完成：新增 `test:browser-smoke`，用 Playwright Chromium 覆盖桌面关键路径、移动端关键路径和 `/tools/` JSON/随机数/Galaxy Canvas/UUID Clipboard/手势确认门闩交互，并修复博客列表双 `h1` 语义问题。
 - 已完成：新增 `test:http-smoke`，把 `/`、`/tools/`、`/ai/`、`/post/`、`/contact/`、`/trust/` 的 HTTP 可达性、H1/main 和本地脚本引用检查接入 CI。
+- 已完成：MR-TRUST-LAUNCH-01 将 HTTP/browser smoke 路由改为由 `STATIC_PAGES` 派生的 `SMOKE_ROUTES` / `MOBILE_SMOKE_ROUTES`，减少新增页面时的多处清单漂移。
 - 已完成：新增 `/trust/` 隐私与信任中心，纳入导航、页脚、站内搜索、sitemap、robots、HTTP/browser smoke 和模板回归测试；第三方服务与本机数据说明集中由 `src/trust-data.mjs` 渲染。
 - 已完成：新增内容新鲜度与信任信号专题，记录 sitemap lastmod、文章最后更新、搜索新鲜度和反馈入口 6 项建议。
 - 已完成：修复按钮可访问名称测试的静态正则盲区，改用 JSDOM 解析真实按钮名称。

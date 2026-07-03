@@ -6,7 +6,7 @@
 
 - 本地只读静态服务：`/`、`/tools/`、`/ai/`、`/post/`、`/contact/`、`/trust/` 均返回 200。
 - 页面抽样结果：`/tools/` 约 104900 字符、15 个脚本引用，是当前最需要真实浏览器冒烟覆盖的页面。
-- 自动化测试：`npm run test:http-smoke` 6/6 路由通过；`npm run test:browser-smoke` 覆盖桌面 6 个关键路径、移动端 4 个关键路径和 `/tools/` JSON/随机数、Galaxy Canvas、UUID Clipboard、手势远程运行时确认门闩；`node --test tests/workflows.test.mjs`，9/9 通过；`npm run test:coverage`，789/789 通过。
+- 自动化测试：`npm run test:http-smoke` 6/6 路由通过；`npm run test:browser-smoke` 覆盖由 `STATIC_PAGES` 派生的桌面 6 个关键路径、移动端 4 个关键路径和 `/tools/` JSON/随机数、Galaxy Canvas、UUID Clipboard、手势远程运行时确认门闩；`node --test tests/workflows.test.mjs`，9/9 通过；`npm run test:coverage`，792/792 通过。
 - 实际发现并修复：真实浏览器 mobile `/post/` 冒烟暴露首个 `h1` 位于默认隐藏的浮动文章目录内，随后静态 a11y 门禁发现 `post/index.html` 存在双 `h1`；已将目录标题改为 `.post-tree-title`，页面保留单一可见 `h1`。
 - 约束说明：真实浏览器 smoke 已作为 `npm run test:browser-smoke` 固化，暂未接入主 CI；待稳定运行一段时间后再考虑 nightly 或单独可选 job。
 
@@ -37,8 +37,8 @@
 
 - 📌 问题/建议标题：增加最小 Playwright/浏览器冒烟门禁
 - 📍 位置：`package.json:12-22`、`scripts/browser-smoke.mjs`、`tests/workflows.test.mjs:30-150`、`.github/workflows/ci.yml:27-48`
-- ✅ 落地状态：新增 `scripts/browser-smoke.mjs` 和 `npm run test:browser-smoke`，脚本会启动本地静态服务，用 Playwright Chromium 打开 `/`、`/tools/`、`/ai/`、`/post/`、`/contact/`、`/trust/` 桌面视口，以及 `/`、`/tools/`、`/post/`、`/trust/` 移动视口；同时检查 `main#main-content`、可见 H1、横向溢出、控制台错误、页面错误、同源 4xx/失败请求，并覆盖 `/tools/` JSON 格式化、随机数安全提示、Galaxy Canvas 非空像素、UUID Clipboard 复制和手势远程运行时确认门闩。
-- 🧪 回归测试：`tests/workflows.test.mjs` 已加入脚本契约断言，覆盖关键路由、桌面/移动视口、运行时错误收集、横向溢出检查和工具交互选择器。真实浏览器运行曾发现 mobile `/post/` H1 检测落到隐藏目录标题；静态门禁进一步发现双 `h1`，现已通过单一可见 `h1` 和 `.post-tree-title` 修复。
+- ✅ 落地状态：新增 `scripts/browser-smoke.mjs` 和 `npm run test:browser-smoke`，脚本会启动本地静态服务，用 Playwright Chromium 打开 `SMOKE_ROUTES` 派生的 `/`、`/post/`、`/tools/`、`/contact/`、`/ai/`、`/trust/` 桌面视口，以及 `MOBILE_SMOKE_ROUTES` 派生的 `/`、`/post/`、`/tools/`、`/trust/` 移动视口；同时检查 `main#main-content`、可见 H1、横向溢出、控制台错误、页面错误、同源 4xx/失败请求，并覆盖 `/tools/` JSON 格式化、随机数安全提示、Galaxy Canvas 非空像素、UUID Clipboard 复制和手势远程运行时确认门闩。
+- 🧪 回归测试：`tests/workflows.test.mjs` 已加入脚本契约断言，覆盖配置驱动路由、桌面/移动视口、运行时错误收集、横向溢出检查和工具交互选择器。真实浏览器运行曾发现 mobile `/post/` H1 检测落到隐藏目录标题；静态门禁进一步发现双 `h1`，现已通过单一可见 `h1` 和 `.post-tree-title` 修复。
 - 📝 剩余状况描述：CI 当前仍只运行 HTTP smoke，尚未把 Playwright smoke 放进主质量门禁。保守原因是 GitHub runner 需要安装浏览器依赖，运行时间和偶发资源加载噪声都高于 Node/JSDOM 测试；更适合先作为本地发布前检查或 nightly/可选 job。
 - ⚠️ 影响程度：中
 - 💡 建议方案（含伪代码或示例片段）：
@@ -54,7 +54,7 @@
 ```js
 import { test, expect } from "@playwright/test";
 
-for (const path of ["/", "/tools/", "/ai/", "/post/", "/contact/"]) {
+for (const path of SMOKE_ROUTES) {
   test(`${path} opens without console errors`, async ({ page }) => {
     const errors = [];
     page.on("console", (msg) => {
@@ -187,16 +187,16 @@ test("tools browser APIs expose graceful fallback", async ({ page }) => {
 
 - 📌 问题/建议标题：把关键路径 HTTP smoke 固化为轻量脚本
 - 📍 位置：`package.json:21-22`、`.github/workflows/ci.yml:39-45`
-- ✅ 修复状态：新增 `scripts/http-smoke.mjs` 和 `npm run test:http-smoke`，脚本会启动本地静态服务，访问 `/`、`/tools/`、`/ai/`、`/post/`、`/contact/`、`/trust/`，并检查 200、HTML content-type、`main#main-content`、`h1` 和本地脚本引用可达。CI 在 `npm run build` 后执行该 smoke。
-- 🧪 回归测试：`npm run test:http-smoke` 6/6 路由通过；`node --test tests/workflows.test.mjs` 9/9 通过，覆盖 npm 脚本、CI 步骤和关键路由清单。
+- ✅ 修复状态：新增 `scripts/http-smoke.mjs` 和 `npm run test:http-smoke`，脚本会启动本地静态服务，访问从 `STATIC_PAGES` 派生的 `SMOKE_ROUTES`：`/`、`/post/`、`/tools/`、`/contact/`、`/ai/`、`/trust/`，并检查 200、HTML content-type、`main#main-content`、`h1` 和本地脚本引用可达。CI 在 `npm run build` 后执行该 smoke。
+- 🧪 回归测试：`npm run test:http-smoke` 6/6 路由通过；`node --test tests/workflows.test.mjs` 9/9 通过，覆盖 npm 脚本、CI 步骤和配置驱动的关键路由清单。
 - 📝 原状况描述：本轮通过本地静态服务读取了 5 个关键路径，能快速发现 404、路由目录缺失、生成产物为空、H1 缺失和脚本引用异常。但这个步骤此前没有固化为 npm 脚本或 CI 步骤；`serve` 只负责启动静态服务，`validate:production` 和测试组更多是静态文件扫描。若未来某个目录页面缺失但文件扫描没有覆盖到用户入口，可能仍需人工打开才发现。
 - ⚠️ 影响程度：中
 - 💡 建议方案（含伪代码或示例片段）：
 
 ```js
-const routes = ["/", "/tools/", "/ai/", "/post/", "/contact/"];
+import { SMOKE_ROUTES } from "../src/config.mjs";
 
-for (const route of routes) {
+for (const route of SMOKE_ROUTES) {
   const res = await fetch(`http://127.0.0.1:${port}${route}`);
   assert.equal(res.status, 200, `${route} should be reachable`);
   const html = await res.text();
