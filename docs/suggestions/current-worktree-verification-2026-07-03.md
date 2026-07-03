@@ -7,7 +7,7 @@
 | 项目 | 结果 |
 |------|------|
 | Lint | `npm run lint:check` 通过，0 warnings |
-| 全量测试 | `npm run validate:production` 内部测试通过；`npm run test:coverage` 772/772 通过 |
+| 全量测试 | `npm run validate:production` 内部测试通过；`npm run test:coverage` 773/773 通过；`npm run test:http-smoke` 5/5 路由通过 |
 | 覆盖率 | `npm run test:coverage` 通过，line 94.44% / branch 78.33% / funcs 91.84% |
 | 生产验证 | `npm run validate:production` 34/34 通过 |
 | 依赖审计 | `npm audit --registry=https://registry.npmjs.org --audit-level=moderate` 0 vulnerabilities |
@@ -23,7 +23,7 @@
 ## WV-02 [已处理]: README 与工作报告验证基线已同步
 
 - **位置**：`docs/suggestions/README.md`, `docs/suggestions/work-report.md`, `docs/suggestions/health-score.md`
-- **修复状态**：README 快照、健康度评分和工作报告已更新为 772/772 测试、94.44% 行覆盖率、0 漏洞、生产验证 34/34。
+- **修复状态**：README 快照、健康度评分和工作报告已更新为 773/773 测试、94.44% 行覆盖率、0 漏洞、生产验证 34/34。
 - **收益**：建议索引反映最新验证基线，减少后续分析时重复确认测试数量。
 
 ## WV-05 [已处理]: 生产验证脚本在大输出测试套件下误报失败
@@ -31,14 +31,14 @@
 - **位置**：`scripts/validate-production.mjs:16`, `scripts/validate-production.mjs:130-136`, `tests/workflows.test.mjs:103-108`
 - **当前状态**：`npm run validate:production` 首次在内部测试阶段误报失败；直接运行 `node --test tests/*.test.mjs` 和覆盖率套件均通过，确认是校验脚本输出缓冲不足。
 - **修复方案**：为测试执行设置 `TEST_OUTPUT_MAX_BUFFER = 32 * 1024 * 1024`，并新增静态回归测试锁定该保护。
-- **验证**：`node --test tests/workflows.test.mjs` 6/6 通过；`npm run validate:production` 34/34 通过；`npm run test:coverage` 772/772 通过。
+- **验证**：`node --test tests/workflows.test.mjs` 7/7 通过；`npm run validate:production` 34/34 通过；`npm run test:coverage` 773/773 通过。
 - **收益**：生产门禁不再因测试输出增长而假红，后续自主循环能继续依赖该命令作为部署前质量信号。
 
 ## WV-03 [已处理]: Cron 不可能日期表达式已短路
 
 - **位置**：`js/tools-core.js:938-980`, `tests/tools-core-deep.test.mjs:258-266`
 - **修复状态**：`parseCronExpression()` 已提前识别“月份中没有任何可匹配 day-of-month，且 day-of-week 为通配”的不可能日期表达式，避免两年分钟粒度扫描。
-- **验证**：`npm test` 772/772 通过；`tests/tools-core-deep.test.mjs` 新增 `<50ms` 性能预算断言和 `0 0 31 2 mon` OR 语义保护用例。
+- **验证**：`npm test` 773/773 通过；`tests/tools-core-deep.test.mjs` 新增 `<50ms` 性能预算断言和 `0 0 31 2 mon` OR 语义保护用例。
 - **影响程度**：中
 - **后续建议**：
   ```javascript

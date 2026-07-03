@@ -10,7 +10,7 @@
 
 - **📍 位置**：`scripts/validate-production.mjs:222-254`, `scripts/build.mjs:31-35`, `scripts/build.mjs:586-608`
 - **✅ 修复状态**：`checkBuild()` 现在执行 `node scripts/build.mjs --out temp/production-validate`，只在临时目录检查构建产物，并在验证结束后清理该目录；`validate:production` 不再重写根目录 HTML、sitemap、RSS 或搜索索引。
-- **🧪 验证**：`node --test tests/workflows.test.mjs` 6/6 通过；`npm run validate:production` 34/34 通过，构建阶段显示“构建成功（临时目录）”，且 `temp/production-validate` 已清理。
+- **🧪 验证**：`node --test tests/workflows.test.mjs` 7/7 通过；`npm run validate:production` 34/34 通过，构建阶段显示“构建成功（临时目录）”，且 `temp/production-validate` 已清理。
 - **📝 原状况描述**：`validate-production.mjs` 的 `checkBuild()` 直接执行 `node scripts/build.mjs`，而 `build.mjs` 默认输出到项目根目录，会重写 `post/*/index.html`、`post/index.html`、`tags/index.html`、`categories/index.html`、`tools/index.html`、`sitemap.xml`、`robots.txt`、`index.xml`、`search-index.json` 等产物。本轮运行后没有产生 Git diff，但“验证”脚本具备写入副作用，不适合只读质量门禁。
 - **⚠️ 影响程度**：中
 - **💡 建议方案**：
@@ -27,7 +27,7 @@
 
 - **📍 位置**：`scripts/validate-production.mjs:16`, `scripts/validate-production.mjs:130-136`, `tests/workflows.test.mjs:103-108`
 - **✅ 修复状态**：为生产验证内部的 `node --test tests/*.test.mjs` 设置 `TEST_OUTPUT_MAX_BUFFER = 32 * 1024 * 1024`，并新增 workflow 静态回归断言，确保完整测试输出增长后不会再次触发默认 `execFile` 缓冲上限。
-- **🧪 验证**：`node --test tests/workflows.test.mjs` 6/6 通过；`npm run validate:production` 34/34 通过；`npm run test:coverage` 772/772 通过。
+- **🧪 验证**：`node --test tests/workflows.test.mjs` 7/7 通过；`npm run validate:production` 34/34 通过；`npm run test:coverage` 773/773 通过。
 - **📝 原状况描述**：完整测试套件本身通过，但 `validate:production` 在内部执行测试时使用 `execFile` 默认输出缓冲。测试数量和输出增长后，生产验证会把门禁误判为“测试执行失败”，造成部署前假红。
 - **⚠️ 影响程度**：中
 - **💡 建议方案**：保留专用输出缓冲；后续若测试输出继续膨胀，可进一步切换为 `spawn` 流式读取或使用低噪声 test reporter。

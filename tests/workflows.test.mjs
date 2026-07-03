@@ -25,6 +25,7 @@ test("CI workflow runs quality gates without write permissions", async () => {
     packageJson.scripts["test:coverage"],
     "node --test --experimental-test-coverage --test-coverage-lines=90 --test-coverage-branches=70 --test-coverage-functions=85 tests/*.test.mjs",
   );
+  assert.equal(packageJson.scripts["test:http-smoke"], "node scripts/http-smoke.mjs");
 
   [
     "npm ci",
@@ -32,6 +33,7 @@ test("CI workflow runs quality gates without write permissions", async () => {
     "npm test",
     "npm run validate:posts",
     "npm run build",
+    "npm run test:http-smoke",
     "npm run validate:production",
     "npm run test:coverage",
     "npm audit --audit-level=moderate --registry=https://registry.npmjs.org",
@@ -42,6 +44,11 @@ test("CI workflow runs quality gates without write permissions", async () => {
   assert.equal(packageJson.scripts["lint:check"], "eslint js/*.js");
   assert.equal(packageJson.scripts["validate:posts"], "node scripts/validate-posts.mjs");
   assert.match(packageJson.scripts.validate, /npm run validate:posts/);
+  assert.ok(
+    steps.findIndex((step) => step.run === "npm run build") <
+      steps.findIndex((step) => step.run === "npm run test:http-smoke"),
+    "HTTP smoke should run after the committed site is built",
+  );
 });
 
 test("commercial relay sync workflow skips safely when source secret is absent", async () => {
@@ -114,4 +121,14 @@ test("production validator builds into a temporary output directory", async () =
   assert.match(productionValidator, /\['scripts\/build\.mjs',\s*'--out',\s*BUILD_CHECK_OUT\]/);
   assert.match(productionValidator, /fileExists\(output,\s*BUILD_CHECK_DIR\)/);
   assert.match(productionValidator, /rm\(BUILD_CHECK_DIR,\s*\{\s*recursive:\s*true,\s*force:\s*true\s*\}\)/);
+});
+
+test("HTTP smoke script covers critical public routes and local scripts", async () => {
+  const smokeScript = await readFile(join(ROOT, "scripts", "http-smoke.mjs"), "utf8");
+
+  assert.match(smokeScript, /ROUTES\s*=\s*\["\/",\s*"\/tools\/",\s*"\/ai\/",\s*"\/post\/",\s*"\/contact\/"\]/);
+  assert.match(smokeScript, /main#main-content/);
+  assert.match(smokeScript, /is missing an h1/);
+  assert.match(smokeScript, /extractLocalScriptSources/);
+  assert.match(smokeScript, /method:\s*"HEAD"/);
 });

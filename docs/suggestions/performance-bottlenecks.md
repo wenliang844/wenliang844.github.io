@@ -43,7 +43,7 @@
 ### 📌 P-15: 测试覆盖率总体达标，但 relay 同步脚本覆盖率明显低于整体水平
 
 - **📍 位置**：`scripts/parse-relay.mjs:1-593`, `scripts/update-commercial-relay.mjs:1-226`, `tests/relay.test.mjs:1-57`, `tests/workflows.test.mjs:1-55`
-- **📝 当前状况描述**：`npm run test:coverage` 通过阈值，总体 line 94.44%、branch 78.33%、function 91.84%。但 `parse-relay.mjs` line 77.23%、branch 46.58%，`update-commercial-relay.mjs` line 68.14%、branch 64.91%，低于其他核心构建模块。relay 数据会进入公开 AI 中转站榜单，属于数据质量敏感路径。
+- **📝 当前状况描述**：`npm run test:coverage` 通过阈值，总体 line 94.39%、branch 78.12%、function 91.84%。但 `parse-relay.mjs` line 77.23%、branch 46.58%，`update-commercial-relay.mjs` line 68.14%、branch 64.91%，低于其他核心构建模块。relay 数据会进入公开 AI 中转站榜单，属于数据质量敏感路径。
 - **⚠️ 影响程度**：低
 - **💡 建议方案**：
   ```text

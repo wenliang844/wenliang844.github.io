@@ -6,7 +6,7 @@
 
 - 本地只读静态服务：`/`、`/tools/`、`/ai/`、`/post/`、`/contact/` 均返回 200。
 - 页面抽样结果：`/tools/` 约 104900 字符、15 个脚本引用，是当前最需要真实浏览器冒烟覆盖的页面。
-- 自动化测试：`node --test tests/i18n-a11y.test.mjs tests/performance.test.mjs tests/workflows.test.mjs`，35/35 通过。
+- 自动化测试：`npm run test:http-smoke` 5/5 路由通过；`node --test tests/workflows.test.mjs`，7/7 通过；`npm run test:coverage`，773/773 通过。
 - 约束说明：本轮仅新增 `/docs/suggestions/module-reviews/browser-visual-smoke-testing.md`，未修改源码、配置或测试。
 
 ## 总览
@@ -179,11 +179,13 @@ test("tools browser APIs expose graceful fallback", async ({ page }) => {
 - 📊 预期收益：覆盖 JSDOM 无法模拟的真实平台行为，减少工具箱这种高交互页面在不同浏览器和移动设备上的回归风险。
 - 🔗 相关建议引用：`docs/suggestions/module-reviews/tools-gesture-and-api.md`、`docs/suggestions/module-reviews/tools-core-runtime-safety.md`、`docs/suggestions/module-reviews/visual-interactions.md`。
 
-### 5. 静态服务可用性检查仍停留在人工临时命令
+### 5. [已修复] 静态服务可用性检查已固化为脚本
 
 - 📌 问题/建议标题：把关键路径 HTTP smoke 固化为轻量脚本
 - 📍 位置：`package.json:21-22`、`.github/workflows/ci.yml:39-45`
-- 📝 当前状况描述：本轮通过本地静态服务读取了 5 个关键路径，能快速发现 404、路由目录缺失、生成产物为空、H1 缺失和脚本引用异常。但这个步骤目前没有固化为 npm 脚本或 CI 步骤；`serve` 只负责启动静态服务，`validate:production` 和测试组更多是静态文件扫描。若未来某个目录页面缺失但文件扫描没有覆盖到用户入口，可能仍需人工打开才发现。
+- ✅ 修复状态：新增 `scripts/http-smoke.mjs` 和 `npm run test:http-smoke`，脚本会启动本地静态服务，访问 `/`、`/tools/`、`/ai/`、`/post/`、`/contact/`，并检查 200、HTML content-type、`main#main-content`、`h1` 和本地脚本引用可达。CI 在 `npm run build` 后执行该 smoke。
+- 🧪 回归测试：`npm run test:http-smoke` 5/5 路由通过；`node --test tests/workflows.test.mjs` 7/7 通过，覆盖 npm 脚本、CI 步骤和关键路由清单。
+- 📝 原状况描述：本轮通过本地静态服务读取了 5 个关键路径，能快速发现 404、路由目录缺失、生成产物为空、H1 缺失和脚本引用异常。但这个步骤此前没有固化为 npm 脚本或 CI 步骤；`serve` 只负责启动静态服务，`validate:production` 和测试组更多是静态文件扫描。若未来某个目录页面缺失但文件扫描没有覆盖到用户入口，可能仍需人工打开才发现。
 - ⚠️ 影响程度：中
 - 💡 建议方案（含伪代码或示例片段）：
 
@@ -201,7 +203,7 @@ for (const route of routes) {
 
 可以把它作为 `test:http-smoke`，运行成本低于 Playwright，适合作为浏览器测试前的快速守门。
 
-- 📊 预期收益：把本轮人工验证沉淀为可重复门禁，优先拦截最基础的站点可达性问题。
+- 📊 实际收益：把本轮人工验证沉淀为可重复门禁，优先拦截最基础的站点可达性问题。
 - 🔗 相关建议引用：`docs/suggestions/module-reviews/ci-release-automation-review.md`、`docs/suggestions/module-reviews/search-and-seo-pipeline.md`。
 
 ### 6. 浏览器测试失败时缺少可追溯证据设计
@@ -234,7 +236,7 @@ for (const route of routes) {
 ## 建议落地顺序
 
 1. 已修复 `tests/i18n-a11y.test.mjs` 的按钮可访问名称检查，让现有 Node 测试变得真实有效。
-2. 增加 `test:http-smoke`，把本轮 5 个关键路径的 200/H1/脚本检查固化。
+2. 已增加 `test:http-smoke`，把本轮 5 个关键路径的 200/H1/脚本检查固化。
 3. 引入最小 Playwright Chromium smoke，只覆盖 `/`、`/tools/`、`/ai/`、`/post/`、`/contact/`。
 4. 为 `/tools/` 增加移动端和桌面端横向溢出检查。
 5. 对工具箱 Canvas、Clipboard、摄像头权限失败路径补充真实浏览器测试。

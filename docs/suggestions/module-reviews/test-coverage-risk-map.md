@@ -2,12 +2,12 @@
 
 生成时间：2026-07-03  
 分析范围：`npm run test:coverage` 输出、Node 原生覆盖率、JSDOM 客户端脚本测试、relay 数据脚本测试与 CI 覆盖率门禁。  
-本轮验证：`npm run test:coverage`，772/772 通过；总体 line 94.44%、branch 78.33%、functions 91.84%。
+本轮验证：`npm run test:coverage`，773/773 通过；总体 line 94.39%、branch 78.12%、functions 91.84%。
 约束说明：本轮仅新增 `/docs/suggestions/module-reviews/test-coverage-risk-map.md`，未修改源码、配置或测试。
 
 ## 总览
 
-测试体系总体很强，且覆盖率阈值已经进入 CI。但当前覆盖率报告主要覆盖被 Node 作为 ESM 模块导入的 `scripts/` 与 `src/`，大量真实浏览器运行的 `js/*.js` 是通过 JSDOM `eval()` 加载，行为测试很多，却没有进入文件级覆盖率表。因此“总体 94.44%”更像构建/模板层覆盖率，而不是全站客户端脚本覆盖率。后续应把覆盖率从全局指标升级为风险地图：关键发布脚本、数据同步脚本、浏览器交互脚本分别有自己的可见指标和门槛。
+测试体系总体很强，且覆盖率阈值已经进入 CI。但当前覆盖率报告主要覆盖被 Node 作为 ESM 模块导入的 `scripts/` 与 `src/`，大量真实浏览器运行的 `js/*.js` 是通过 JSDOM `eval()` 加载，行为测试很多，却没有进入文件级覆盖率表。因此“总体 94.39%”更像构建/模板层覆盖率，而不是全站客户端脚本覆盖率。后续应把覆盖率从全局指标升级为风险地图：关键发布脚本、数据同步脚本、浏览器交互脚本分别有自己的可见指标和门槛。
 
 严重程度分布：
 
@@ -45,7 +45,7 @@ function runClientScript(dom, file, code) {
 
 - 📌 问题/建议标题：为高风险脚本设置单文件或分组覆盖率阈值
 - 📍 位置：`package.json:16-16`、`scripts/parse-relay.mjs:1-593`、`scripts/update-commercial-relay.mjs:1-226`、`tests/relay.test.mjs:1-134`
-- 📝 当前状况描述：本轮整体 line 94.44%、branch 78.33%、functions 91.84%，满足 CI 阈值。但 `parse-relay.mjs` line 77.23%、branch 46.58%，`update-commercial-relay.mjs` line 68.14%、branch 64.91%。这两个脚本负责把外部 relay 数据清洗进公开 AI 排行榜，属于数据质量和敏感信息边界比较关键的路径。
+- 📝 当前状况描述：本轮整体 line 94.39%、branch 78.12%、functions 91.84%，满足 CI 阈值。但 `parse-relay.mjs` line 77.23%、branch 46.58%，`update-commercial-relay.mjs` line 68.14%、branch 64.91%。这两个脚本负责把外部 relay 数据清洗进公开 AI 排行榜，属于数据质量和敏感信息边界比较关键的路径。
 - ⚠️ 影响程度：中
 - 💡 建议方案（含伪代码或示例片段）：
 
@@ -115,7 +115,7 @@ test("expanded tools page runs all new tool actions locally", { timeout: 5000 },
 
 - 📌 问题/建议标题：把覆盖率摘要保存为文档化 artifact 或 JSON
 - 📍 位置：`package.json:16-16`、`.github/workflows/ci.yml:44-45`、`tests/workflows.test.mjs:25-37`
-- 📝 当前状况描述：`npm run test:coverage` 会在控制台输出覆盖率表，但 CI 没有上传 artifact，也没有生成 JSON/Markdown 摘要。历史文档中已有 752/752、731/731 等旧数字，本轮已经达到 772/772；如果没有自动化记录，很难判断覆盖率变化来自新增测试、删除测试还是覆盖目标变化。
+- 📝 当前状况描述：`npm run test:coverage` 会在控制台输出覆盖率表，但 CI 没有上传 artifact，也没有生成 JSON/Markdown 摘要。历史文档中已有 752/752、731/731 等旧数字，本轮已经达到 773/773；如果没有自动化记录，很难判断覆盖率变化来自新增测试、删除测试还是覆盖目标变化。
 - ⚠️ 影响程度：低
 - 💡 建议方案（含伪代码或示例片段）：
 
