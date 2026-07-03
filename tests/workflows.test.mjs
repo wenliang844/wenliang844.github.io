@@ -151,6 +151,7 @@ test("browser smoke script covers critical routes, viewports and tool interactio
   assert.match(smokeScript, /random-warning/);
   assert.match(smokeScript, /#galaxy-canvas/);
   assert.match(smokeScript, /data-uuid-generate/);
+  assert.match(smokeScript, /STRICT_CLIPBOARD_SMOKE/);
   assert.match(smokeScript, /navigator\.clipboard\.readText/);
   assert.match(smokeScript, /#gesture-start/);
   assert.match(smokeScript, /\.gesture-consent/);

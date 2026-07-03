@@ -44,7 +44,7 @@
 
 - **📍 位置**：`scripts/parse-relay.mjs:1-593`, `scripts/update-commercial-relay.mjs:1-226`, `tests/relay.test.mjs:1-57`, `tests/workflows.test.mjs:1-55`
 - **✅ 部分修复状态**：本轮为 relay 链路补充 SQL official 过滤/失败摘要、CLI 参数保护、缺源配置、认证 header、非法 header JSON 和商业字段清洗测试；商业源 `isCurrent` 字符串误判已修复，非法自定义 header 会在请求前失败。
-- **🧪 验证**：`tests/relay.test.mjs` 8/8 通过；`npm run test:coverage` 788/788 通过，总体 line 96.76%、branch 83.95%、function 96.30%。`parse-relay.mjs` 提升到 line 89.21%、branch 69.90%、function 91.80%；`update-commercial-relay.mjs` 提升到 line 76.65%、branch 86.84%、function 90.91%。
+- **🧪 验证**：`tests/relay.test.mjs` 8/8 通过；`npm run test:coverage` 789/789 通过，总体 line 96.76%、branch 83.95%、function 96.30%。`parse-relay.mjs` 提升到 line 89.21%、branch 69.90%、function 91.80%；`update-commercial-relay.mjs` 提升到 line 76.65%、branch 86.84%、function 90.91%。
 - **📝 剩余状况描述**：`parse-relay.mjs` 行覆盖已超过 85%，分支覆盖距离 70% 预算只差 0.10 个百分点；`update-commercial-relay.mjs` 分支/函数覆盖已达标，但主流程写文件、最低数量门禁和部分清洗 fallback 的行覆盖仍低于 85%。relay 数据会进入公开 AI 中转站榜单，仍属于数据质量敏感路径。
 - **⚠️ 影响程度**：低
 - **💡 建议方案**：

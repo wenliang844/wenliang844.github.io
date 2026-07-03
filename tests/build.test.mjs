@@ -4,6 +4,7 @@ import { join } from "node:path";
 import { promisify } from "node:util";
 import test from "node:test";
 import assert from "node:assert/strict";
+import { STATIC_PAGES } from "../src/config.mjs";
 
 const execFileAsync = promisify(execFile);
 const ROOT = join(import.meta.dirname, "..");
@@ -13,6 +14,21 @@ async function runBuild(args = []) {
     cwd: ROOT,
     windowsHide: true,
   });
+}
+
+function indexPathForRoute(root, route) {
+  const segments = route.split("/").filter(Boolean);
+  return join(root, ...segments, "index.html");
+}
+
+function indexArtifactForRoute(route) {
+  const segments = route.split("/").filter(Boolean);
+  return segments.length ? `${segments.join("/")}/index.html` : "index.html";
+}
+
+async function trackedFiles() {
+  const { stdout } = await execFileAsync("git", ["ls-files"], { cwd: ROOT, windowsHide: true });
+  return new Set(stdout.trim().split(/\r?\n/).filter(Boolean));
 }
 
 test("build writes the expected static artifacts", async () => {
@@ -161,4 +177,16 @@ test("build writes the expected static artifacts", async () => {
 test("build rejects missing or unsafe output directories", async () => {
   await assert.rejects(runBuild(["--out"]), /缺少 --out <dir> 参数/);
   await assert.rejects(runBuild(["--out", ".."]), /--out 只能指向项目内目录/);
+});
+
+test("registered static pages have committed index artifacts", async () => {
+  const tracked = await trackedFiles();
+
+  for (const page of STATIC_PAGES) {
+    const artifact = indexArtifactForRoute(page.path);
+    assert.ok(tracked.has(artifact), `${page.path} should have a tracked ${artifact}`);
+
+    const html = await readFile(indexPathForRoute(ROOT, page.path), "utf8");
+    assert.match(html, /<main\b[^>]*\bid=["']main-content["']/i, `${page.path} should have main#main-content`);
+  }
 });

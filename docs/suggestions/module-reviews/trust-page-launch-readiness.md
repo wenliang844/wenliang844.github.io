@@ -7,6 +7,7 @@
 本轮验证：
 
 - `node --test tests/templates.test.mjs tests/templates-extended.test.mjs tests/i18n-deep.test.mjs tests/workflows.test.mjs`：64/64 通过。
+- `node --test tests/build.test.mjs`：3/3 通过，新增 `STATIC_PAGES` 已登记路径必须存在已提交 `index.html` 的只读门禁。
 - `node scripts/http-smoke.mjs`：6 个路由全部通过，包含 `/trust/`。
 - `npx --yes --package=playwright node scripts/browser-smoke.mjs`：桌面与移动关键路由、`/trust/`、工具箱 JSON/Galaxy/UUID/Gesture 交互全部通过。
 - 只读扫描 `src/config.mjs`、`src/templates/trust.mjs`、`src/trust-data.mjs`、`scripts/http-smoke.mjs`、`scripts/browser-smoke.mjs`、`tests/workflows.test.mjs`、`css/coder.css`。
@@ -21,7 +22,7 @@
 严重程度分布：
 
 - 高：0
-- 中：4
+- 中：2
 - 低：3
 
 ## 建议清单
@@ -73,7 +74,7 @@ const MOBILE_ROUTES = ROUTES.filter((path) =>
 - `/docs/suggestions/module-reviews/build-artifact-synchronization.md`
 - `/docs/suggestions/module-reviews/privacy-and-trust-center.md`
 
-### 📌 MR-TRUST-LAUNCH-02：新增“已登记静态页必须存在生成产物”的只读门禁
+### 📌 MR-TRUST-LAUNCH-02 [已修复]：新增“已登记静态页必须存在生成产物”的只读门禁
 
 📍 位置（文件路径 + 行号范围）
 
@@ -84,27 +85,43 @@ const MOBILE_ROUTES = ROUTES.filter((path) =>
 
 📝 当前状况描述
 
-当前工作区已经存在 `trust/index.html`，HTTP smoke 可访问 `/trust/`。但新增页面的上线链路依赖先改源码、再运行构建生成根目录产物。若只提交 `src/config.mjs` 和 `scripts/build.mjs` 而忘记提交 `trust/index.html`，`STATIC_PAGES` 和 sitemap 会期待 `/trust/`，而静态站点会返回 404。现有 `validate-production` 能临时构建并验证基础产物，但它更像“可以构建”，不是“当前提交的根目录产物完整且未漂移”。
+`tests/build.test.mjs` 已新增只读门禁：直接读取 `STATIC_PAGES`，把 `/` 映射到根目录 `index.html`，把其它静态路径映射到 `<path>/index.html`，并通过 `git ls-files` 确认每个已登记页面都有已跟踪 HTML 产物和 `main#main-content`。这样新增页面如果只改配置或构建逻辑、忘记提交根目录静态产物，会在本地测试和 CI 中直接失败。
 
 ⚠️ 影响程度（高/中/低）
 
-中。
+已修复。
 
 💡 建议方案（含伪代码或示例片段）
 
-增加只读检查：读取 `STATIC_PAGES`，对不含 hash 的页面确认仓库根目录存在对应 `index.html`，再结合临时构建输出做漂移比较。
+已增加只读检查：读取 `STATIC_PAGES`，对每个登记页面确认仓库根目录存在且 Git 跟踪对应 `index.html`。后续仍可再扩展为“临时构建输出与已提交产物内容漂移比较”。
 
 ```js
-import { access } from "node:fs/promises";
+import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { STATIC_PAGES } from "../src/config.mjs";
 
+const tracked = await trackedFiles();
+
+function indexPathForRoute(root, route) {
+  const segments = route.split("/").filter(Boolean);
+  return join(root, ...segments, "index.html");
+}
+
+function indexArtifactForRoute(route) {
+  const segments = route.split("/").filter(Boolean);
+  return segments.length ? `${segments.join("/")}/index.html` : "index.html";
+}
+
+async function trackedFiles() {
+  const { stdout } = await execFileAsync("git", ["ls-files"], { cwd: ROOT, windowsHide: true });
+  return new Set(stdout.trim().split(/\r?\n/).filter(Boolean));
+}
+
 for (const page of STATIC_PAGES) {
-  if (page.path.includes("#")) continue;
-  const output = page.path === "/" ? "index.html" : join(page.path.slice(1), "index.html");
-  await access(join(rootDir, output)).catch(() => {
-    throw new Error(`${page.path} is registered but ${output} is missing`);
-  });
+  const artifact = indexArtifactForRoute(page.path);
+  assert.ok(tracked.has(artifact));
+  const html = await readFile(indexPathForRoute(rootDir, page.path), "utf8");
+  assert.match(html, /<main\b[^>]*\bid=["']main-content["']/i);
 }
 ```
 
@@ -214,7 +231,7 @@ item: {
 - `/docs/suggestions/module-reviews/csp-resource-policy-review.md`
 - `/docs/suggestions/module-reviews/static-assets-and-third-party-resources.md`
 
-### 📌 MR-TRUST-LAUNCH-05：浏览器 smoke 的剪贴板断言应增加能力探测和失败降级
+### 📌 MR-TRUST-LAUNCH-05 [已修复]：浏览器 smoke 的剪贴板断言应增加能力探测和失败降级
 
 📍 位置（文件路径 + 行号范围）
 
@@ -225,15 +242,15 @@ item: {
 
 📝 当前状况描述
 
-真实浏览器 smoke 已通过，并验证 UUID 生成后可以写入并读取剪贴板。这个覆盖价值高，但 `navigator.clipboard.readText()` 在不同浏览器 channel、权限模型、非安全上下文或 CI 沙箱里可能表现不同。当前脚本只创建 context 时申请 `clipboard-read` / `clipboard-write` 权限，一旦某个运行环境禁止读取剪贴板，整个浏览器 smoke 会失败，即使产品里的复制功能已经有 fallback 或状态提示。
+真实浏览器 smoke 现在分层验证 UUID 复制：默认模式必须看到 `#uuid-status` 的“已复制 / Copied”反馈，覆盖用户可见结果；只有设置 `STRICT_CLIPBOARD_SMOKE=1` 时才要求 `navigator.clipboard.readText()` 可用并读回系统剪贴板。这样 CI 默认路径不再被浏览器权限模型差异拖垮，本地或专门环境仍能运行严格剪贴板读回。
 
 ⚠️ 影响程度（高/中/低）
 
-中。
+已修复。
 
 💡 建议方案（含伪代码或示例片段）
 
-把“复制状态反馈”和“系统剪贴板真实读回”拆成两级断言：默认必须检查状态反馈；只有能力探测通过或显式设置 `STRICT_CLIPBOARD_SMOKE=1` 时才读回系统剪贴板。
+已把“复制状态反馈”和“系统剪贴板真实读回”拆成两级断言：默认必须检查状态反馈；显式设置 `STRICT_CLIPBOARD_SMOKE=1` 时才读回系统剪贴板，且严格模式下如果缺少 `navigator.clipboard.readText()` 会失败。
 
 ```js
 await page.click('[data-copy-target="uuid-output"]');
@@ -243,7 +260,8 @@ const canReadClipboard = await page.evaluate(() =>
   Boolean(navigator.clipboard && navigator.clipboard.readText)
 );
 
-if (canReadClipboard && process.env.STRICT_CLIPBOARD_SMOKE === "1") {
+if (process.env.STRICT_CLIPBOARD_SMOKE === "1") {
+  assert.ok(canReadClipboard);
   const clipboardText = await page.evaluate(() => navigator.clipboard.readText());
   assert.equal(clipboardText, uuid);
 }
@@ -354,9 +372,7 @@ assert.ok(metrics.overflow <= 2);
 ## 建议优先级
 
 1. 中优先级：让 HTTP/browser smoke 路由从 `STATIC_PAGES` 或公共路由清单生成。
-2. 中优先级：增加“已登记静态页必须存在生成产物”的只读门禁，并与构建漂移检查结合。
-3. 中优先级：把信任页数据与源码扫描结果建立事实来源测试。
-4. 中优先级：为浏览器 smoke 的剪贴板读回增加能力探测和严格模式。
-5. 低优先级：把多 host 第三方服务改为结构化数组，改善 JSON-LD 和校验能力。
-6. 低优先级：生成 i18n 覆盖报告，区分字典英文、内联英文和缺失英文。
-7. 低优先级：为 `/trust/` 增加专属视觉布局预算和截图 artifact。
+2. 中优先级：把信任页数据与源码扫描结果建立事实来源测试。
+3. 低优先级：把多 host 第三方服务改为结构化数组，改善 JSON-LD 和校验能力。
+4. 低优先级：生成 i18n 覆盖报告，区分字典英文、内联英文和缺失英文。
+5. 低优先级：为 `/trust/` 增加专属视觉布局预算和截图 artifact。

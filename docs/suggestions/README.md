@@ -10,7 +10,7 @@
 |------|------|
 | 当前分支 | `codex/autonomous-optimization` |
 | 工作区注意事项 | 本轮包含源码、测试与文档修复；生产验证脚本已修复大测试输出假失败和根目录构建写入副作用 |
-| 质量门禁 | `npm run lint:check` 通过；`npm test` / `npm run test:coverage` 788/788 通过；`npm run test:http-smoke` 6/6 路由通过；`npm run test:browser-smoke` 通过 |
+| 质量门禁 | `npm run lint:check` 通过；`npm test` / `npm run test:coverage` 789/789 通过；`npm run test:http-smoke` 6/6 路由通过；`npm run test:browser-smoke` 通过 |
 | 生产验证 | `npm run validate:production` 34/34 通过 |
 | 依赖审计 | `npm audit --registry=https://registry.npmjs.org --audit-level=moderate` 0 漏洞 |
 | 覆盖率 | 总体 lines 96.76%、branches 83.95%、functions 96.30%，通过阈值 |
@@ -28,7 +28,7 @@
 | 完整分析报告 | [final-analysis-report-2026-07-03.md](final-analysis-report-2026-07-03.md) |
 | 小时报告 | 已生成第 2-6 小时工作报告；第 6 小时报告见 [hourly-report-2026-07-03-06.md](hourly-report-2026-07-03-06.md) |
 | 建议库规模 | 66 个建议文档，其中 45 个模块专题 |
-| 当前质量基线 | `npm run lint:check` 通过；`npm test` 788/788 通过；`npm run test:coverage` line 96.76%、branch 83.95%、funcs 96.30%；HTTP smoke 6/6 |
+| 当前质量基线 | `npm run lint:check` 通过；`npm test` 789/789 通过；`npm run test:coverage` line 96.76%、branch 83.95%、funcs 96.30%；HTTP smoke 6/6 |
 | 综合健康度 | 3.9 / 5（良好） |
 | 最高优先级 | 质量基线 artifact 正式化、PWA 缓存安全矩阵、资源 manifest 驱动生产验证、生成产物漂移只读门禁 |
 | 工作树说明 | 当前存在外部并发修改；最终报告按 dirty scope 标注证据，不把外部源码/测试改动计入 docs-only 提交 |

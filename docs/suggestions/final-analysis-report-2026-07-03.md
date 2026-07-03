@@ -9,10 +9,10 @@
 | --- | --- |
 | 分支 | `codex/autonomous-optimization` |
 | 建议库规模 | 66 个 `/docs/suggestions` 文档，其中 45 个模块专题 |
-| 当前工作树 | 存在外部并发修改；本报告只新增 `/docs/suggestions/final-analysis-report-2026-07-03.md` |
+| 当前工作树 | 存在本轮源码、测试和文档改动；质量基线以 dirty scope 记录当前证据范围 |
 | Lint | `npm run lint:check` 通过，0 warnings |
-| 单元/行为测试 | `npm test` 788/788 通过 |
-| 覆盖率 | `npm run test:coverage` 788/788 通过；line 96.76%、branch 83.95%、funcs 96.30% |
+| 单元/行为测试 | `npm test` 789/789 通过 |
+| 覆盖率 | `npm run test:coverage` 789/789 通过；line 96.76%、branch 83.95%、funcs 96.30% |
 | HTTP smoke | `node scripts/http-smoke.mjs` 6/6 路由通过 |
 | 生产/浏览器证据 | 外部质量基线记录显示 smoke、production gate 和 browser smoke 均通过；dirty scope 已记录 |
 

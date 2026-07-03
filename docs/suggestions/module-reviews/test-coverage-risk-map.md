@@ -2,7 +2,7 @@
 
 生成时间：2026-07-03  
 分析范围：`npm run test:coverage` 输出、Node 原生覆盖率、JSDOM 客户端脚本测试、relay 数据脚本测试与 CI 覆盖率门禁。  
-本轮验证：`npm run test:coverage`，788/788 通过；总体 line 96.76%、branch 83.95%、functions 96.30%。
+本轮验证：`npm run test:coverage`，789/789 通过；总体 line 96.76%、branch 83.95%、functions 96.30%。
 约束说明：本轮仅新增 `/docs/suggestions/module-reviews/test-coverage-risk-map.md`，未修改源码、配置或测试。
 
 ## 总览
@@ -45,7 +45,7 @@ function runClientScript(dom, file, code) {
 
 - 📌 问题/建议标题：为高风险脚本设置单文件或分组覆盖率阈值
 - 📍 位置：`package.json:16-16`、`scripts/parse-relay.mjs:1-593`、`scripts/update-commercial-relay.mjs:1-226`、`tests/relay.test.mjs:1-134`
-- ✅ 修复状态：新增 relay 异常矩阵和 Trust Center 模板/数据契约后，`parse-relay.mjs` 已提升到 line 89.21%、branch 69.90%、functions 91.80%；`update-commercial-relay.mjs` 已提升到 line 76.65%、branch 86.84%、functions 90.91%。全局覆盖率提升到 line 96.76%、branch 83.95%、functions 96.30%。
+- ✅ 修复状态：新增 relay 异常矩阵和 Trust Center 模板/数据契约后，`parse-relay.mjs` 已提升到 line 89.21%、branch 69.90%、functions 91.80%；`update-commercial-relay.mjs` 已提升到 line 76.65%、branch 86.84%、functions 90.91%。全局覆盖率当前为 line 96.76%、branch 83.95%、functions 96.30%。
 - 📝 剩余状况描述：`parse-relay.mjs` 分支覆盖距离 70% 预算只差 0.10 个百分点；`update-commercial-relay.mjs` 行覆盖仍低于 85%，未覆盖区域主要集中在主流程写文件、最低数量门禁和少量 URL/时间 fallback。两个脚本负责把外部 relay 数据清洗进公开 AI 排行榜，仍适合设置单文件或分组预算。
 - ⚠️ 影响程度：中
 - 💡 建议方案（含伪代码或示例片段）：
@@ -117,7 +117,7 @@ test("expanded tools page runs all new tool actions locally", { timeout: 5000 },
 
 - 📌 问题/建议标题：把覆盖率摘要保存为文档化 artifact 或 JSON
 - 📍 位置：`package.json:16-16`、`.github/workflows/ci.yml:44-45`、`tests/workflows.test.mjs:25-37`
-- 📝 当前状况描述：`npm run test:coverage` 会在控制台输出覆盖率表，但 CI 没有上传 artifact，也没有生成 JSON/Markdown 摘要。历史文档中已有 752/752、731/731 等旧数字，本轮已经达到 788/788；如果没有自动化记录，很难判断覆盖率变化来自新增测试、删除测试还是覆盖目标变化。
+- 📝 当前状况描述：`npm run test:coverage` 会在控制台输出覆盖率表，但 CI 没有上传 artifact，也没有生成 Markdown 摘要。历史文档中已有 752/752、731/731、788/788 等旧数字，本轮已经达到 789/789，并通过 `quality:baseline` 写入 JSON 快照；如果没有自动化记录，很难判断覆盖率变化来自新增测试、删除测试还是覆盖目标变化。
 - ⚠️ 影响程度：低
 - 💡 建议方案（含伪代码或示例片段）：
 

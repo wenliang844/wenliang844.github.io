@@ -5,7 +5,7 @@
 
 ## 本轮验证
 
-- `node --test tests/css.test.mjs tests/templates.test.mjs tests/templates-extended.test.mjs tests/performance.test.mjs tests/build.test.mjs tests/workflows.test.mjs`：110/110 通过。
+- `node --test tests/css.test.mjs tests/templates.test.mjs tests/templates-extended.test.mjs tests/performance.test.mjs tests/build.test.mjs tests/workflows.test.mjs`：111/111 通过。
 - `npm run lint:check`、`npm run test:http-smoke`、`npm run test:browser-smoke`、`npm run test:coverage`、`npm run validate:production` 和 `git diff --check` 均已通过。
 - 当前 `src/templates/tools.mjs` 与 `src/templates/trust.mjs` 已通过 `styles` 注入页面级 CSS，`tools/index.html` 引用 `/css/tools.css`，`trust/index.html` 引用 `/css/trust.css`；本轮提交需同时纳入这两个 CSS 文件和新信任页源文件。
 
@@ -119,7 +119,7 @@ css/trust.css
 ## 📌 CSS-OWN-04 [已修复]：CSS 断言对格式过于敏感，压缩写法会触发误报
 
 - 📍 位置：`tests/css.test.mjs:182-191`、`css/trust.css:3-5`
-- ✅ 修复状态：`trust.css contains trust center selectors` 已改为允许压缩写法的 media query 正则，聚焦 CSS/模板/性能/构建/工作流测试 110/110 通过。
+- ✅ 修复状态：`trust.css contains trust center selectors` 已改为允许压缩写法的 media query 正则，聚焦 CSS/模板/性能/构建/工作流测试 111/111 通过。
 - 📝 剩余状况描述：类似断言如果继续增加，仍建议抽出 CSS 规范化 helper 或引入解析器，避免格式化、压缩或选择器重排变成测试噪音。
 - ⚠️ 影响程度：中
 - 💡 建议方案（含伪代码或示例片段）：对 CSS 规则使用解析器或最小规范化函数；如果继续用正则，应先去除无意义空白并拆成多个语义断言。

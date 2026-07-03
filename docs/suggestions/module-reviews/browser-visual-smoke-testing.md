@@ -6,7 +6,7 @@
 
 - 本地只读静态服务：`/`、`/tools/`、`/ai/`、`/post/`、`/contact/`、`/trust/` 均返回 200。
 - 页面抽样结果：`/tools/` 约 104900 字符、15 个脚本引用，是当前最需要真实浏览器冒烟覆盖的页面。
-- 自动化测试：`npm run test:http-smoke` 6/6 路由通过；`npm run test:browser-smoke` 覆盖桌面 6 个关键路径、移动端 4 个关键路径和 `/tools/` JSON/随机数、Galaxy Canvas、UUID Clipboard、手势远程运行时确认门闩；`node --test tests/workflows.test.mjs`，9/9 通过；`npm run test:coverage`，788/788 通过。
+- 自动化测试：`npm run test:http-smoke` 6/6 路由通过；`npm run test:browser-smoke` 覆盖桌面 6 个关键路径、移动端 4 个关键路径和 `/tools/` JSON/随机数、Galaxy Canvas、UUID Clipboard、手势远程运行时确认门闩；`node --test tests/workflows.test.mjs`，9/9 通过；`npm run test:coverage`，789/789 通过。
 - 实际发现并修复：真实浏览器 mobile `/post/` 冒烟暴露首个 `h1` 位于默认隐藏的浮动文章目录内，随后静态 a11y 门禁发现 `post/index.html` 存在双 `h1`；已将目录标题改为 `.post-tree-title`，页面保留单一可见 `h1`。
 - 约束说明：真实浏览器 smoke 已作为 `npm run test:browser-smoke` 固化，暂未接入主 CI；待稳定运行一段时间后再考虑 nightly 或单独可选 job。
 
@@ -188,7 +188,7 @@ test("tools browser APIs expose graceful fallback", async ({ page }) => {
 - 📌 问题/建议标题：把关键路径 HTTP smoke 固化为轻量脚本
 - 📍 位置：`package.json:21-22`、`.github/workflows/ci.yml:39-45`
 - ✅ 修复状态：新增 `scripts/http-smoke.mjs` 和 `npm run test:http-smoke`，脚本会启动本地静态服务，访问 `/`、`/tools/`、`/ai/`、`/post/`、`/contact/`、`/trust/`，并检查 200、HTML content-type、`main#main-content`、`h1` 和本地脚本引用可达。CI 在 `npm run build` 后执行该 smoke。
-- 🧪 回归测试：`npm run test:http-smoke` 6/6 路由通过；`node --test tests/workflows.test.mjs` 8/8 通过，覆盖 npm 脚本、CI 步骤和关键路由清单。
+- 🧪 回归测试：`npm run test:http-smoke` 6/6 路由通过；`node --test tests/workflows.test.mjs` 9/9 通过，覆盖 npm 脚本、CI 步骤和关键路由清单。
 - 📝 原状况描述：本轮通过本地静态服务读取了 5 个关键路径，能快速发现 404、路由目录缺失、生成产物为空、H1 缺失和脚本引用异常。但这个步骤此前没有固化为 npm 脚本或 CI 步骤；`serve` 只负责启动静态服务，`validate:production` 和测试组更多是静态文件扫描。若未来某个目录页面缺失但文件扫描没有覆盖到用户入口，可能仍需人工打开才发现。
 - ⚠️ 影响程度：中
 - 💡 建议方案（含伪代码或示例片段）：
