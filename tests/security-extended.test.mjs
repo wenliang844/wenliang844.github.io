@@ -204,7 +204,7 @@ test("committed HTML files include the shared Content Security Policy", async ()
     for (const directive of [
       "default-src 'self'",
       "object-src 'none'",
-      "script-src 'self' 'unsafe-inline' https://giscus.app",
+      "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://giscus.app https://cdn.jsdelivr.net",
       "connect-src 'self' https:",
       "frame-src https://giscus.app",
     ]) {
