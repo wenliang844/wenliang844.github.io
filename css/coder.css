@@ -5775,11 +5775,17 @@ body.assistant-fullscreen .site-shell {
     display: flex;
     gap: 0.75rem;
     overflow-x: auto;
+    max-width: 100%;
+    max-height: none;
     padding: 0.55rem;
+    scroll-padding-inline: 0.55rem;
+    scroll-snap-type: x proximity;
+    scrollbar-width: thin;
   }
 
   .tool-category {
-    flex: 0 0 min(22rem, 82vw);
+    flex: 0 0 min(20rem, calc(100vw - 2rem));
+    scroll-snap-align: start;
     padding: 0 0.1rem;
   }
 

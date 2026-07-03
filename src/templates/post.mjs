@@ -319,7 +319,7 @@ function renderArticlePanel(post, isFirst) {
           <article class="article blog-article${activeCls}" id="post-${post.slug}" data-post-slug="${post.slug}">
             <header class="article-header">
               <span class="eyebrow">${escapeHtml(post.eyebrow)}</span>
-              <h1 ${i18nText(`post.${post.slug}.title`, post.title, enValue(post, "title"))}>${escapeHtml(post.title)}</h1>
+              <h2 ${i18nText(`post.${post.slug}.title`, post.title, enValue(post, "title"))}>${escapeHtml(post.title)}</h2>
               <div class="article-meta">
                 <time datetime="${isoDate(post.date)}">${longDate(post.date)}</time>
                 <span>·</span>

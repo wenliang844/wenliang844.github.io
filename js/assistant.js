@@ -253,14 +253,6 @@
     return clean.length > 18 ? clean.slice(0, 18) + "..." : clean;
   }
 
-  function sessionGet(key) {
-    try {
-      return window.sessionStorage.getItem(key);
-    } catch {
-      return null;
-    }
-  }
-
   function sessionSet(key, value) {
     try {
       window.sessionStorage.setItem(key, value);
@@ -369,23 +361,8 @@
     }
   }
 
-  function isHomePage() {
-    try {
-      const path = window.location.pathname || "/";
-      return path === "/" || path === "/index.html";
-    } catch {
-      return false;
-    }
-  }
-
   function shouldAutoOpen() {
-    if (shouldStartFullscreen()) {
-      return true;
-    }
-    if (isHomePage()) {
-      return true;
-    }
-    return sessionGet(DISMISS_KEY) !== "1";
+    return shouldStartFullscreen();
   }
 
   function rememberDismissed() {

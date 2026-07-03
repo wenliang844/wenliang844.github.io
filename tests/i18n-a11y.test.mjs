@@ -52,6 +52,18 @@ test("all HTML files have meta description", async () => {
   assert.deepEqual(failures, []);
 });
 
+test("all HTML files have exactly one h1", async () => {
+  const failures = [];
+  for (const file of await htmlFiles()) {
+    const html = await readFile(join(ROOT, file), "utf8");
+    const count = (html.match(/<h1\b/gi) || []).length;
+    if (count !== 1) {
+      failures.push(`${file}: expected 1 h1, found ${count}`);
+    }
+  }
+  assert.deepEqual(failures, []);
+});
+
 test("navigation has aria-label", async () => {
   const failures = [];
   for (const file of await htmlFiles()) {

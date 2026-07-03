@@ -470,6 +470,7 @@ test("tools tabs expose selected state and support keyboard navigation", async (
     const timeTab = document.querySelector('[data-tool-tab="time"]');
     const uaTab = document.querySelector('[data-tool-tab="ua"]');
     const galaxyTab = document.querySelector('[data-tool-tab="galaxy"]');
+    const gestureTab = document.querySelector('[data-tool-tab="gesture"]');
 
     const tabList = document.querySelector(".tools-tabs");
     assert.equal(tabList.getAttribute("role"), "tablist");
@@ -494,6 +495,9 @@ test("tools tabs expose selected state and support keyboard navigation", async (
     assert.equal(document.querySelector("#galaxy-count [data-galaxy-count].active").getAttribute("data-galaxy-count"), "1000");
     assert.equal(document.querySelector("#base64-input").getAttribute("data-i18n-ph"), "tools.base64.placeholder");
     assert.equal(document.querySelector("#base64-input").getAttribute("data-i18n-en-ph"), "Text to encode or decode");
+    assert.equal(document.querySelector("#json-input").getAttribute("aria-label"), "输入 JSON");
+    assert.equal(document.querySelector("#api-url").getAttribute("aria-label"), "URL");
+    assert.equal(document.querySelector("#cron-minute-step").getAttribute("aria-label"), "分钟间隔");
     assert.equal(document.querySelector("#url-input").getAttribute("data-i18n-en-ph"), "https://example.com/?q=search");
     assert.equal(document.querySelector("#html-input").getAttribute("data-i18n-ph"), "tools.html.placeholder");
     assert.equal(document.querySelector("#tool-jwt .jwt-warning").getAttribute("data-i18n"), "tools.jwt.warning");
@@ -516,6 +520,11 @@ test("tools tabs expose selected state and support keyboard navigation", async (
     assert.equal(galaxyTab.getAttribute("aria-selected"), "true");
     assert.equal(document.querySelector("#tool-galaxy").hidden, false);
     assert.equal(document.querySelector('[data-tool-category="visual"]').open, true);
+    assert.ok(Array.from(document.querySelectorAll("script")).some((script) => script.getAttribute("src") === "/js/galaxy.js"));
+
+    gestureTab.click();
+    assert.ok(Array.from(document.querySelectorAll("script")).some((script) => script.getAttribute("src") === "/js/gesture-premium.js"));
+    assert.ok(Array.from(document.querySelectorAll("script")).some((script) => script.getAttribute("src") === "/js/gesture.js"));
   } finally {
     dom.window.close();
   }

@@ -9,6 +9,11 @@
   let nowTimer = null;
   const API_HISTORY_KEY = "cwl.tools.apiHistory";
   let relayProviders = [];
+  const TOOL_RUNTIME_SCRIPTS = {
+    galaxy: ["/js/galaxy.js"],
+    gesture: ["/js/gesture-premium.js", "/js/gesture.js"],
+  };
+  const loadedToolRuntimes = Object.create(null);
 
   const t = window.CWLUtils.t;
 
@@ -52,6 +57,39 @@
     return panels.find(function (panel) {
       return panel.getAttribute("data-tool-panel") === id;
     });
+  }
+
+  function scriptAlreadyPresent(src) {
+    return Array.from(document.querySelectorAll("script")).some(function (script) {
+      return script.getAttribute("src") === src;
+    });
+  }
+
+  function loadScript(src) {
+    if (scriptAlreadyPresent(src)) {
+      return Promise.resolve();
+    }
+    const script = document.createElement("script");
+    script.src = src;
+    script.defer = true;
+    script.async = false;
+    script.onerror = function () {
+      console.warn("Failed to load " + src);
+    };
+    document.head.appendChild(script);
+    return Promise.resolve();
+  }
+
+  function loadToolRuntime(id) {
+    const scripts = TOOL_RUNTIME_SCRIPTS[id];
+    if (!scripts) {
+      return Promise.resolve();
+    }
+    if (!loadedToolRuntimes[id]) {
+      scripts.forEach(loadScript);
+      loadedToolRuntimes[id] = Promise.resolve();
+    }
+    return loadedToolRuntimes[id];
   }
 
   function toolTabs(panels) {
@@ -112,6 +150,45 @@
       const fallback = el.getAttribute("data-status-fallback") || el.textContent;
       const suffix = el.getAttribute("data-status-suffix") || "";
       setStatusElement(el, t(key, fallback) + suffix, statusType(el), key, fallback, suffix);
+    });
+  }
+
+  function labelTextForControl(control) {
+    if (!control) {
+      return "";
+    }
+    const id = control.id || "";
+    const explicitLabel = id
+      ? Array.from(document.querySelectorAll("label[for]")).find(function (label) {
+        return label.getAttribute("for") === id;
+      })
+      : null;
+    const label = explicitLabel || closest(control, "label");
+    if (label) {
+      const labelSpan = label.querySelector("span");
+      return (labelSpan ? labelSpan.textContent : label.textContent).trim();
+    }
+    const field = closest(control, ".tool-field, .tool-inline");
+    if (field) {
+      const fieldLabel = field.querySelector("label, span");
+      if (fieldLabel && fieldLabel !== control) {
+        return fieldLabel.textContent.trim();
+      }
+    }
+    const panel = closest(control, "[data-tool-panel]");
+    const title = panel ? panel.querySelector(".tool-panel-head h2") : null;
+    return title && id ? title.textContent.trim() + " " + id.replace(/-/g, " ") : "";
+  }
+
+  function syncToolControlLabels() {
+    Array.from(document.querySelectorAll(".tools-page input, .tools-page textarea, .tools-page select")).forEach(function (control) {
+      if (control.type === "hidden" || control.hasAttribute("aria-labelledby")) {
+        return;
+      }
+      const label = labelTextForControl(control);
+      if (label) {
+        control.setAttribute("aria-label", label);
+      }
     });
   }
 
@@ -232,6 +309,9 @@
     if (options && options.focus) {
       selectedTab.focus();
     }
+    loadToolRuntime(id).catch(function (error) {
+      console.warn(error.message);
+    });
     return true;
   }
 
@@ -1039,6 +1119,7 @@
   initDateDiffInputs();
   renderApiHistory();
   initRelayProviders();
+  syncToolControlLabels();
   minimizeAssistantAfterInit();
   document.addEventListener("visibilitychange", syncNowTimer);
   document.addEventListener("cwl:langchange", function () {
@@ -1055,5 +1136,6 @@
     if (timeStatus && timeStatus.classList.contains("is-ok") && Object.keys(timeResults).length) {
       setStatusKey("time-status", "tools.status.converted", "转换完成", "ok");
     }
+    syncToolControlLabels();
   });
 })();

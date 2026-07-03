@@ -972,7 +972,7 @@ ${renderGestureTool()}
     descriptionEn: "CWLBlog online toolbox: Mini Postman, JSON, timestamps, Base64, URL, UUID, JWT, hashes, passwords, colors, regex, Markdown editor, diff, cron, QR, YAML, URL parsing, text tools and gesture animation.",
     active: "tools",
     page: "tools",
-    scripts: ["/js/vendor/marked.min.js", "/js/vendor/purify.min.js", "/js/vendor/qrcode.min.js", "/js/vendor/highlight.min.js", "/js/tools-core.js", "/js/tools.js", "/js/editor.js", "/js/gesture-premium.js", "/js/gesture.js", "/js/galaxy.js"],
+    scripts: ["/js/vendor/marked.min.js", "/js/vendor/purify.min.js", "/js/vendor/qrcode.min.js", "/js/vendor/highlight.min.js", "/js/tools-core.js", "/js/tools.js", "/js/editor.js"],
     jsonLd: buildPageJsonLd({
       type: "WebApplication",
       name: "CWLBlog 在线工具箱",

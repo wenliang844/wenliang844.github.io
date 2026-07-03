@@ -70,7 +70,9 @@ test("renderToolsPage has correct script references", () => {
   assert.match(html, /src="\/js\/vendor\/purify\.min\.js"/);
   assert.match(html, /src="\/js\/vendor\/highlight\.min\.js"/);
   assert.match(html, /src="\/js\/vendor\/qrcode\.min\.js"/);
-  assert.match(html, /src="\/js\/galaxy\.js"/);
+  assert.doesNotMatch(html, /src="\/js\/galaxy\.js"/);
+  assert.doesNotMatch(html, /src="\/js\/gesture\.js"/);
+  assert.doesNotMatch(html, /src="\/js\/gesture-premium\.js"/);
 });
 
 test("renderToolsPage has OG meta tags", () => {

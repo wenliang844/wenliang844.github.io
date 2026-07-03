@@ -53,15 +53,21 @@ function wait(ms = 20) {
   });
 }
 
-test("assistant starts open, answers locally and escapes user input", async () => {
+test("assistant starts minimized, opens on demand, answers locally and escapes user input", async () => {
   const dom = await loadAssistant();
   const { document, KeyboardEvent, Event } = dom.window;
 
   const toggle = document.querySelector(".assistant-fab");
   assert.ok(toggle, "assistant floating button should be created");
+  assert.equal(document.body.classList.contains("assistant-open"), false);
+  assert.equal(toggle.getAttribute("aria-expanded"), "false");
+  const panel = document.querySelector(".assistant-panel");
+  assert.equal(panel.hidden, true);
+
+  toggle.click();
+
   assert.equal(document.body.classList.contains("assistant-open"), true);
   assert.equal(toggle.getAttribute("aria-expanded"), "true");
-  const panel = document.querySelector(".assistant-panel");
   assert.equal(panel.hidden, false);
   assert.equal(panel.getAttribute("role"), "dialog");
   assert.equal(panel.getAttribute("aria-labelledby"), "assistant-title");
@@ -231,7 +237,7 @@ test("assistant remembers dismissal on non-home pages for the current session", 
   assert.equal(dismissedDom.window.document.body.classList.contains("assistant-open"), false);
 });
 
-test("assistant opens the homepage popup by default", async () => {
+test("assistant keeps the homepage popup minimized by default", async () => {
   const dom = await loadAssistant({
     url: "https://example.test/",
     body: '<header class="navigation"><div class="container"></div></header><button class="nav-search-trigger" type="button">Search</button>',
@@ -242,9 +248,9 @@ test("assistant opens the homepage popup by default", async () => {
   const { document } = dom.window;
 
   const toggle = document.querySelector(".assistant-fab");
-  assert.equal(document.querySelector(".assistant-panel").hidden, false);
-  assert.equal(document.body.classList.contains("assistant-open"), true);
-  assert.equal(toggle.getAttribute("aria-expanded"), "true");
+  assert.equal(document.querySelector(".assistant-panel").hidden, true);
+  assert.equal(document.body.classList.contains("assistant-open"), false);
+  assert.equal(toggle.getAttribute("aria-expanded"), "false");
 });
 
 test("assistant tracks navigation height for the homepage top dock", async () => {
@@ -359,7 +365,7 @@ test("assistant can render English labels through the i18n bridge", async () => 
   assert.equal(document.querySelector('[data-assistant-action="tools"]').textContent, "Open toolbox");
   assert.equal(document.querySelector(".assistant-config-toggle").textContent, "Settings");
   assert.equal(document.querySelector(".assistant-opacity > span").textContent, "Opacity");
-  assert.equal(document.querySelector(".assistant-fab").getAttribute("aria-label"), "Minimize AI assistant");
+  assert.equal(document.querySelector(".assistant-fab").getAttribute("aria-label"), "Open AI assistant");
 });
 
 test("assistant config is collapsible and opacity is adjustable", async () => {

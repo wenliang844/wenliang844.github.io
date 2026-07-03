@@ -28,8 +28,6 @@
   <script src="/js/tools-core.js" defer></script>
   <script src="/js/tools.js" defer></script>
   <script src="/js/editor.js" defer></script>
-  <script src="/js/gesture-premium.js" defer></script>
-  <script src="/js/gesture.js" defer></script>
   <link rel="canonical" href="https://wenliang844.github.io/tools/">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="CWLBlog">
@@ -41,7 +39,7 @@
   <meta name="twitter:image" content="https://wenliang844.github.io/images/favicon.png">
   <meta name="twitter:title" content="在线工具箱 :: CWLBlog">
   <meta name="twitter:description" content="Mini Postman、JSON、时间戳、编码、哈希、密码、颜色、正则、Markdown 编辑器、Diff、Cron、二维码、YAML、URL 解析与文本处理等常用开发工具。">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"CWLBlog 在线工具箱","description":"CWLBlog 在线工具箱：Mini Postman、JSON、时间戳、Base64、URL、UUID、JWT、哈希、密码、颜色、正则、Markdown 编辑器、Diff、Cron、二维码、YAML、URL 解析、文本处理和手势交互动画等开发工具。","url":"https://wenliang844.github.io/tools/","inLanguage":"zh-CN","isPartOf":{"@type":"WebSite","name":"CWLBlog","url":"https://wenliang844.github.io/"},"applicationCategory":"DeveloperApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":["JSON Formatter","Mini API Tester","Timestamp Converter","Base64 Codec","URL Codec","UUID Generator","JWT Decoder","Hash Digest","Password Generator","Color Converter","Regex Tester","Markdown Editor","Text Diff","JSON Diff","Case Converter","HTML Entities","Cron Parser","QR Generator","YAML / JSON","URL Parser","Query Builder","JSONPath Query","Text Stats","Text Cleaner","Unit Converter","CSS Unit Converter","Random Generator","Date Diff","User-Agent Parser","Gesture Animation"]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"CWLBlog 在线工具箱","description":"CWLBlog 在线工具箱：Mini Postman、JSON、时间戳、Base64、URL、UUID、JWT、哈希、密码、颜色、正则、Markdown 编辑器、Diff、Cron、二维码、YAML、URL 解析、文本处理和手势交互动画等开发工具。","url":"https://wenliang844.github.io/tools/","inLanguage":"zh-CN","isPartOf":{"@type":"WebSite","name":"CWLBlog","url":"https://wenliang844.github.io/"},"applicationCategory":"DeveloperApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":["JSON Formatter","Mini API Tester","Timestamp Converter","Base64 Codec","URL Codec","UUID Generator","JWT Decoder","Hash Digest","Password Generator","Color Converter","Regex Tester","Markdown Editor","Text Diff","JSON Diff","Case Converter","HTML Entities","Cron Parser","QR Generator","YAML / JSON","URL Parser","Query Builder","JSONPath Query","Text Stats","Text Cleaner","Unit Converter","CSS Unit Converter","Random Generator","Date Diff","User-Agent Parser","Galaxy","Gesture Animation"]}</script>
   <title>在线工具箱 :: CWLBlog</title>
 </head>
 <body class="colorscheme-dark" data-i18n-page="tools" data-i18n-title-en="Toolbox :: CWLBlog" data-i18n-desc-en="CWLBlog online toolbox: Mini Postman, JSON, timestamps, Base64, URL, UUID, JWT, hashes, passwords, colors, regex, Markdown editor, diff, cron, QR, YAML, URL parsing, text tools and gesture animation.">
@@ -93,9 +91,13 @@
               <summary class="tool-category-summary">
                 <span class="tool-category-chevron" aria-hidden="true"><i class="fas fa-chevron-right"></i></span>
                 <span class="tool-category-title" data-i18n="tools.category.visual" data-i18n-en="Visual &amp; Interaction">视觉与交互</span>
-                <span class="tool-category-count" aria-label="1 个工具">1</span>
+                <span class="tool-category-count" aria-label="2 个工具">2</span>
               </summary>
               <div class="tool-category-list">
+            <button class="tool-tab" id="tool-tab-galaxy" type="button" role="tab" data-tool-tab="galaxy" aria-controls="tool-galaxy" aria-label="星河" aria-selected="false" tabindex="-1" data-i18n-aria="tools.nav.galaxy" data-i18n-en-aria="Galaxy">
+              <i class="fas fa-meteor" aria-hidden="true"></i>
+              <span data-i18n="tools.nav.galaxy" data-i18n-en="Galaxy">星河</span>
+            </button>
             <button class="tool-tab" id="tool-tab-gesture" type="button" role="tab" data-tool-tab="gesture" aria-controls="tool-gesture" aria-label="手势交互动画" aria-selected="false" tabindex="-1" data-i18n-aria="tools.nav.gesture" data-i18n-en-aria="Gesture Animation">
               <i class="fas fa-hand-sparkles" aria-hidden="true"></i>
               <span data-i18n="tools.nav.gesture" data-i18n-en="Gesture Animation">手势交互动画</span>
@@ -1103,6 +1105,54 @@ q=toolbox"></textarea>
             <button class="tool-btn" type="button" data-copy-target="ua-output" data-i18n="tools.btn.copyResult" data-i18n-html><i class="fas fa-copy" aria-hidden="true"></i> 复制结果</button>
           </div>
           <p class="tool-status" id="ua-status" role="status" aria-live="polite"></p>
+        </section>
+        <section class="tool-panel" id="tool-galaxy" data-tool-panel="galaxy" role="tabpanel" aria-labelledby="tool-tab-galaxy" tabindex="0" hidden>
+          <header class="tool-panel-head">
+            <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-meteor"></i></span>
+            <div>
+              <h2 data-i18n="tools.galaxy.title" data-i18n-en="Galaxy">星河</h2>
+              <p data-i18n="tools.galaxy.desc" data-i18n-en="An interactive galaxy canvas with themes, star density, speed and pointer gravity controls.">可交互的星河粒子画布，支持主题、星量、速度和鼠标引力切换。</p>
+            </div>
+          </header>
+          <div class="galaxy-controls">
+            <div class="galaxy-ctrl-group">
+              <span class="galaxy-ctrl-label" data-i18n="tools.galaxy.theme" data-i18n-en="Theme">主题</span>
+              <div class="galaxy-btn-row" id="galaxy-theme" role="group" aria-label="星河主题" data-i18n-aria="tools.galaxy.theme" data-i18n-en-aria="Galaxy theme">
+                <button class="galaxy-theme-btn active" type="button" data-galaxy-theme="bluePurple"><span class="galaxy-theme-dot" style="background:linear-gradient(135deg,#22d3ee,#8b5cf6)" aria-hidden="true"></span><span data-i18n="tools.galaxy.themeBlue" data-i18n-en="Blue">蓝紫</span></button>
+                <button class="galaxy-theme-btn" type="button" data-galaxy-theme="pinkOrange"><span class="galaxy-theme-dot" style="background:linear-gradient(135deg,#fb7185,#f59e0b)" aria-hidden="true"></span><span data-i18n="tools.galaxy.themePink" data-i18n-en="Amber">粉橙</span></button>
+                <button class="galaxy-theme-btn" type="button" data-galaxy-theme="cyanGreen"><span class="galaxy-theme-dot" style="background:linear-gradient(135deg,#06b6d4,#22c55e)" aria-hidden="true"></span><span data-i18n="tools.galaxy.themeCyan" data-i18n-en="Cyan">青绿</span></button>
+                <button class="galaxy-theme-btn" type="button" data-galaxy-theme="rainbow"><span class="galaxy-theme-dot" style="background:linear-gradient(135deg,#ef4444,#eab308,#22c55e,#3b82f6)" aria-hidden="true"></span><span data-i18n="tools.galaxy.themeRainbow" data-i18n-en="Prism">彩虹</span></button>
+              </div>
+            </div>
+            <div class="galaxy-ctrl-group">
+              <label class="galaxy-ctrl-label" for="galaxy-speed"><span data-i18n="tools.galaxy.speed" data-i18n-en="Speed">速度</span><span id="galaxy-speed-val">1.0x</span></label>
+              <input class="galaxy-range" id="galaxy-speed" type="range" min="0.2" max="3" step="0.1" value="1">
+            </div>
+            <div class="galaxy-ctrl-group">
+              <span class="galaxy-ctrl-label" data-i18n="tools.galaxy.count" data-i18n-en="Stars">星量</span>
+              <div class="galaxy-btn-row" id="galaxy-count" role="group" aria-label="星河星量" data-i18n-aria="tools.galaxy.count" data-i18n-en-aria="Star density">
+                <button class="galaxy-count-btn" type="button" data-galaxy-count="500">500</button>
+                <button class="galaxy-count-btn active" type="button" data-galaxy-count="1000">1000</button>
+                <button class="galaxy-count-btn" type="button" data-galaxy-count="1800">1800</button>
+                <button class="galaxy-count-btn" type="button" data-galaxy-count="2600">2600</button>
+              </div>
+            </div>
+            <div class="galaxy-ctrl-group">
+              <span class="galaxy-ctrl-label" data-i18n="tools.galaxy.interaction" data-i18n-en="Interaction">交互</span>
+              <div class="galaxy-btn-row" id="galaxy-interact" role="group" aria-label="星河交互模式" data-i18n-aria="tools.galaxy.interaction" data-i18n-en-aria="Galaxy interaction">
+                <button class="galaxy-interact-btn active" type="button" data-galaxy-interact="attract"><i class="fas fa-magnet" aria-hidden="true"></i><span data-i18n="tools.galaxy.attract" data-i18n-en="Attract">吸引</span></button>
+                <button class="galaxy-interact-btn" type="button" data-galaxy-interact="repel"><i class="fas fa-expand-arrows-alt" aria-hidden="true"></i><span data-i18n="tools.galaxy.repel" data-i18n-en="Repel">排斥</span></button>
+                <button class="galaxy-interact-btn" type="button" data-galaxy-interact="none"><i class="fas fa-ban" aria-hidden="true"></i><span data-i18n="tools.galaxy.none" data-i18n-en="None">关闭</span></button>
+              </div>
+            </div>
+          </div>
+          <div class="galaxy-viewport">
+            <canvas id="galaxy-canvas" class="galaxy-canvas" aria-label="星河动画画布" data-i18n-aria="tools.galaxy.canvas" data-i18n-en-aria="Galaxy animation canvas"></canvas>
+          </div>
+          <div class="galaxy-info">
+            <span class="galaxy-badge" id="galaxy-fps">0 FPS</span>
+            <span class="galaxy-badge" id="galaxy-particles">0 星</span>
+          </div>
         </section>
         <section class="tool-panel" id="tool-gesture" data-tool-panel="gesture" role="tabpanel" aria-labelledby="tool-tab-gesture" tabindex="0" hidden>
           <header class="tool-panel-head">

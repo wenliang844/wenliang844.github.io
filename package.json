@@ -17,6 +17,7 @@
     "test:watch": "node --test --watch tests/*.test.mjs",
     "lint": "eslint js/*.js --fix",
     "lint:check": "eslint js/*.js",
+    "check:readonly": "npm run lint:check && npm test && npm run validate:posts",
     "serve": "npx --yes http-server . -p 8137 -c-1",
     "dev": "npm run build && npm run serve",
     "validate": "npm run lint && npm test && npm run validate:posts && npm run build",
