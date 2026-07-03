@@ -4,6 +4,46 @@
 
 ---
 
+## 2026-07-03 复查补充
+
+### 📌 DE-11: 把生产验证改造成真正只读的质量门禁
+
+- **📍 位置**：`scripts/validate-production.mjs:222-254`, `package.json:20-24`
+- **📝 当前状况描述**：项目已经有 `check:readonly`，但 `validate:production` 内部仍执行默认 `node scripts/build.mjs`，会写根目录产物。本轮验证后 Git 没有新增 diff，只是碰巧构建产物一致；脚本设计上仍然不是只读。
+- **⚠️ 影响程度**：中
+- **💡 建议方案**：
+  ```json
+  {
+    "scripts": {
+      "build:check": "node scripts/build.mjs --out temp/build-check",
+      "validate:production": "node scripts/validate-production.mjs --readonly"
+    }
+  }
+  ```
+  `validate-production.mjs` 中所有产物检查都指向临时 outDir；结束后可清理临时目录，或保留到 `temp/` 供调试。
+- **📊 预期收益**：让本地、CI、AI 自动分析都能安全运行完整验证，不污染工作区。
+- **🔗 相关建议引用**：[B-13](bugs-and-risks.md#b-13-生产验证脚本默认会覆盖根目录构建产物)
+
+### 📌 DE-12: `validate` / `precommit` 同时包含自动修复和构建写入，语义不够清晰
+
+- **📍 位置**：`package.json:18-26`
+- **📝 当前状况描述**：`lint` 使用 `eslint js/*.js --fix`，`validate` 执行 `npm run lint && npm test && npm run validate:posts && npm run build`，`precommit` 又指向 `npm run validate`。这意味着一个名为 validate/precommit 的命令会自动修改 JS 格式和生成站点产物。对自动化代理、CI 或多人协作来说，命令副作用不直观。
+- **⚠️ 影响程度**：低
+- **💡 建议方案**：
+  ```json
+  {
+    "lint": "eslint js/*.js",
+    "lint:fix": "eslint js/*.js --fix",
+    "check": "npm run lint && npm test && npm run validate:posts",
+    "build:site": "node scripts/build.mjs"
+  }
+  ```
+  把“检查”“修复”“生成”拆成独立命令，precommit 默认只跑不写文件的检查。
+- **📊 预期收益**：减少意外工作区变更，提升命令命名和实际行为的一致性。
+- **🔗 相关建议引用**：[DE-11](#de-11-把生产验证改造成真正只读的质量门禁), [TD-11](tech-debt.md#td-11-eslint-8-迁移前应先清零当前-warning-债务)
+
+---
+
 ## 📌 DE-01 [已修复]: 无自动化 CI/CD 流程
 
 - **📍 位置**：`.github/workflows/ci.yml`、`package.json`

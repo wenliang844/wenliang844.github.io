@@ -4,6 +4,41 @@
 
 ---
 
+## 2026-07-03 自主复查快照
+
+| 项目 | 结果 |
+|------|------|
+| 当前分支 | `codex/autonomous-optimization` |
+| 工作区注意事项 | `css/coder.css` 存在非本轮修改，已保留不触碰 |
+| 只读检查 | `npm run check:readonly` 通过，731/731 tests pass，ESLint 0 error / 77 warning |
+| 生产验证 | `npm run validate:production` 通过，但发现该脚本会写根目录构建产物 |
+| 依赖审计 | `npm audit --omit=dev --json` 0 漏洞 |
+| 覆盖率 | 总体 lines 94.32%、branches 76.28%、functions 91.70%，通过阈值 |
+| 本地服务冒烟 | `/`、`/tools/`、`/post/`、`/search-index.json` 均返回 200 |
+
+### 新增高优先级发现
+
+| 编号 | 等级 | 建议 | 文档 |
+|------|------|------|------|
+| S-11 | 高 | `assistant.js` 仍在前端运行时拼接并使用默认体验 API Key | [security-audit.md](security-audit.md#s-11-assistantjs-仍在前端运行时拼接并使用默认体验-api-key) |
+| S-12 | 中 | Mini API Tester 会把 Authorization 头和请求体持久化到 localStorage | [security-audit.md](security-audit.md#s-12-mini-api-tester-会把-authorization-头和请求体持久化到-localstorage) |
+| S-13 | 中 | 手势工具运行时加载 CDN 机器视觉脚本和模型，缺少完整供应链约束 | [security-audit.md](security-audit.md#s-13-手势工具运行时加载-cdn-机器视觉脚本和模型缺少完整供应链约束) |
+| B-13 | 中 | 生产验证脚本默认会覆盖根目录构建产物 | [bugs-and-risks.md](bugs-and-risks.md#b-13-生产验证脚本默认会覆盖根目录构建产物) |
+| B-14 | 中 | 工具箱按需脚本加载 Promise 过早 resolve，手势页存在初始化竞态 | [bugs-and-risks.md](bugs-and-risks.md#b-14-工具箱按需脚本加载-promise-过早-resolve手势页存在初始化竞态) |
+| P-13 | 中 | 关键静态产物体积已经接近当前性能预算 | [performance-bottlenecks.md](performance-bottlenecks.md#p-13-关键静态产物体积已经接近当前性能预算) |
+| CQ-12 | 中 | 安全回归测试只检查连续 key 字面量，无法识别拼接型密钥 | [code-quality.md](code-quality.md#cq-12-安全回归测试只检查连续-key-字面量无法识别拼接型密钥) |
+
+### 当前健康度修正
+
+| 维度 | 2026-06-18 | 2026-07-03 复查 | 说明 |
+|------|------------|------------------|------|
+| 安全性 | 3.5 / 5 | 2.8 / 5 | 前端默认体验 key 回归为高危问题 |
+| 工程化 | 4.2 / 5 | 3.9 / 5 | 质量门禁存在写入副作用，lint warning 未清零 |
+| 性能 | 4.2 / 5 | 3.9 / 5 | CSS/工具箱/博客列表体积接近预算 |
+| 综合 | 3.9 / 5 | 3.5 / 5 | 项目整体仍可运行且测试强，但需优先处理 S-11 |
+
+---
+
 ## 🏥 项目健康度总评
 
 | 维度 | 评分 | 等级 |
@@ -40,8 +75,9 @@
 | 🔵 第四 | SEO 与可访问性 | [module-reviews/seo-analysis.md](module-reviews/seo-analysis.md) | 6 |
 | 🔵 第四 | 资源与内容分析 | [module-reviews/resource-analysis.md](module-reviews/resource-analysis.md) | 5 |
 | 🔵 第四 | HTML 页面一致性 | [module-reviews/html-pages.md](module-reviews/html-pages.md) | 5 |
+| 🔵 第四 | 工具箱手势与 API 测试器 | [module-reviews/tools-gesture-and-api.md](module-reviews/tools-gesture-and-api.md) | 5（中 3 / 低 2） |
 | 🔵 第四 | 竞品分析 | [competitive-analysis.md](competitive-analysis.md) | 6 |
-| | **总计** | | **141 条建议** |
+| | **总计** | | **历史 141 条 + 本轮新增/更新 20 条** |
 
 ---
 
@@ -161,7 +197,8 @@ docs/
         ├── css-analysis.md                 ← CSS 样式系统分析
         ├── seo-analysis.md                 ← SEO 与可访问性专项分析
         ├── resource-analysis.md            ← 资源与内容深度分析
-        └── html-pages.md                   ← 手写 HTML 页面一致性分析
+        ├── html-pages.md                   ← 手写 HTML 页面一致性分析
+        └── tools-gesture-and-api.md        ← 工具箱手势与 API 测试器复查
 ```
 
 ---

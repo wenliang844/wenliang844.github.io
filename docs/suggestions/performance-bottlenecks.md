@@ -4,6 +4,61 @@
 
 ---
 
+## 2026-07-03 复查补充
+
+### 📌 P-13: 关键静态产物体积已经接近当前性能预算
+
+- **📍 位置**：`css/coder.css:1-6481`, `tools/index.html:1-1247`, `post/index.html:1-1283`, `js/gesture.js:1-2470`, `js/assistant.js:1-1568`
+- **📝 当前状况描述**：本轮文件体积扫描显示：`css/coder.css` 137,647 bytes、`tools/index.html` 105,773 bytes、`post/index.html` 108,252 bytes、`js/gesture.js` 90,259 bytes、`js/assistant.js` 61,069 bytes。CSS 已接近测试中 140KB 预算；工具箱和博客列表 HTML 都超过 100KB，随着工具和文章继续增加，首屏解析成本会继续线性增长。
+- **⚠️ 影响程度**：中
+- **💡 建议方案**：
+  ```text
+  1. 为 tools/post 建立独立体积预算：HTML < 120KB、首屏 JS < 80KB、CSS < 140KB。
+  2. 工具箱按 category 拆分 HTML：首屏只渲染 active panel，其余 panel 通过 template 或 JSON 延迟挂载。
+  3. CSS 按页面拆分：core.css + tools.css + article.css，并在构建期按页面注入。
+  ```
+- **📊 预期收益**：控制解析与样式计算成本，避免个人站点功能持续扩张后首屏退化。
+- **🔗 相关建议引用**：[P-02](#p-02), [P-03](#p-03), [P-07](#p-07)
+
+### 📌 P-14: 手势工具首次启动依赖远程模型链路，弱网下冷启动不可控
+
+- **📍 位置**：`js/gesture.js:160-167`, `js/gesture.js:169-207`, `js/gesture.js:213-252`, `js/gesture.js:258-265`, `src/templates/tools.mjs:793-870`
+- **📝 当前状况描述**：点击手势工具后，MediaPipe vision bundle、WASM、hand landmarker、object detector、face-api 模型、Three.js 均按需远程加载。当前 UI 只有“加载模型...”这类状态，没有资源大小、失败重试、预热、缓存策略或离线提示。弱网下用户可能在摄像头授权前后等待较久，且失败原因不可见。
+- **⚠️ 影响程度**：中
+- **💡 建议方案**：
+  ```javascript
+  const MODEL_ASSETS = [
+    "/models/hand_landmarker.task",
+    "/models/efficientdet_lite0.tflite",
+  ];
+
+  async function warmGestureAssets() {
+    await Promise.all(MODEL_ASSETS.map((url) => fetch(url, { cache: "force-cache" })));
+  }
+  ```
+  将模型自托管后用 `Cache-Control` 和 Service Worker 预缓存；UI 上显示“下载模型/初始化摄像头/开始识别”三段状态，并允许用户重试。
+- **📊 预期收益**：降低首次启动延迟和失败率，提升摄像头功能在移动网络下的可用性。
+- **🔗 相关建议引用**：[S-13](security-audit.md#s-13-手势工具运行时加载-cdn-机器视觉脚本和模型缺少完整供应链约束), [MR-TOOLS-01](module-reviews/tools-gesture-and-api.md#mr-tools-01-手势工具的供应链和隐私边界需要产品化治理)
+
+### 📌 P-15: 测试覆盖率总体达标，但 relay 同步脚本覆盖率明显低于整体水平
+
+- **📍 位置**：`scripts/parse-relay.mjs:1-593`, `scripts/update-commercial-relay.mjs:1-226`, `tests/relay.test.mjs:1-57`, `tests/workflows.test.mjs:1-55`
+- **📝 当前状况描述**：`npm run test:coverage` 通过阈值，总体 line 94.32%、branch 76.28%、function 91.70%。但 `parse-relay.mjs` line 77.23%、branch 46.58%，`update-commercial-relay.mjs` line 68.14%、branch 64.91%，低于其他核心构建模块。relay 数据会进入公开 AI 中转站榜单，属于数据质量敏感路径。
+- **⚠️ 影响程度**：低
+- **💡 建议方案**：
+  ```text
+  tests/relay-import-errors.test.mjs
+  - SQL 字段缺失
+  - 异常 JSON settings_config
+  - 重复 provider 合并
+  - token/email/url 查询参数脱敏
+  - 商业源部分失败但保留已有数据
+  ```
+- **📊 预期收益**：提高数据同步脚本的回归防护，减少公开榜单因输入异常而污染或缺失。
+- **🔗 相关建议引用**：[DE-02](devex-improvements.md#de-02), [S-09](security-audit.md#s-09)
+
+---
+
 ## 📌 P-01 [已修复]: 粒子动画 `requestAnimationFrame` 持续运行，无空闲停止机制
 
 - **📍 位置**：`js/coder.js`

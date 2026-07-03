@@ -4,6 +4,24 @@
 
 ---
 
+## 2026-07-03 复查补充
+
+### 📌 UX-11: 手势与 API 工具的隐私边界文案需要更精确
+
+- **📍 位置**：`src/templates/tools.mjs:123-170`, `src/templates/tools.mjs:793-870`, `src/templates/tools.mjs:923-926`, `tools/index.html:307-356`, `tools/index.html:1233-1235`
+- **📝 当前状况描述**：工具箱 lead 文案写“其余工具全部在浏览器本地运行”，手势面板写“所有数据均在浏览器本地处理，不会上传到任何服务器”。但手势工具会加载第三方 CDN 脚本/模型，API Tester 会发送用户填写的 URL/Header/Body，并保存历史。当前文案没有明确区分“本地处理”“外部资源加载”“用户主动发送请求”“本地持久化历史”这四个边界。
+- **⚠️ 影响程度**：中
+- **💡 建议方案**：
+  ```text
+  手势工具：摄像头画面在本机浏览器处理；首次使用会下载第三方开源模型资源。
+  API Tester：请求会直接发送到你填写的目标 URL；保存历史前会自动隐藏 Authorization 等敏感头。
+  ```
+  在 API Tester header 区附近增加小型隐私提示和“不要保存敏感 header”的状态反馈；手势面板在开启摄像头前展示模型来源和本地处理说明。
+- **📊 预期收益**：让用户在摄像头授权和 API key 输入前理解真实数据流，减少误用与信任落差。
+- **🔗 相关建议引用**：[S-12](security-audit.md#s-12-mini-api-tester-会把-authorization-头和请求体持久化到-localstorage), [S-13](security-audit.md#s-13-手势工具运行时加载-cdn-机器视觉脚本和模型缺少完整供应链约束)
+
+---
+
 ## 📌 UX-01 [已修复]: 移动端导航菜单无遮罩层，点击外部区域无法关闭
 
 - **📍 位置**：`src/templates/layout.mjs`、`css/coder.css`、手写 HTML 页面导航区

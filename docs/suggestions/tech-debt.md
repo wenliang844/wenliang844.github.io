@@ -4,6 +4,25 @@
 
 ---
 
+## 2026-07-03 复查补充
+
+### 📌 TD-11: ESLint 8 迁移前应先清零当前 warning 债务
+
+- **📍 位置**：`package.json:18-32`, `.eslintrc.json:1-34`, `js/galaxy.js:136-690`, `js/gesture.js:427-1907`
+- **📝 当前状况描述**：`npm outdated --json` 显示 `eslint` 当前 8.57.1，latest 9.39.4；`npm run lint:check` 当前仍有 77 个 warning。直接迁移 ESLint 9 flat config 会同时面对配置迁移和历史 warning，容易把机械迁移变成大改动。
+- **⚠️ 影响程度**：低
+- **💡 建议方案**：
+  ```text
+  阶段 1：清零现有 no-var / prefer-const warning。
+  阶段 2：把 .eslintrc.json 迁到 eslint.config.js。
+  阶段 3：CI 增加 --max-warnings=0。
+  ```
+  迁移期间保持 Node engines `20 || >=22`，避免工具链版本不一致。
+- **📊 预期收益**：降低 ESLint 9 升级风险，让后续 lint 输出保持高信噪比。
+- **🔗 相关建议引用**：[CQ-11](code-quality.md#cq-11-eslint-当前仍有-77-个-warning集中在视觉交互大文件), [DE-12](devex-improvements.md#de-12-validate--precommit-同时包含自动修复和构建写入语义不够清晰)
+
+---
+
 ## 📌 TD-01: 使用已废弃的 Web API
 
 - **📍 位置**：多个文件

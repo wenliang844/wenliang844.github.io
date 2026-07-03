@@ -4,6 +4,49 @@
 
 ---
 
+## 2026-07-03 复查补充
+
+### 📌 B-13: 生产验证脚本默认会覆盖根目录构建产物
+
+- **📍 位置**：`scripts/validate-production.mjs:222-254`, `scripts/build.mjs:31-35`, `scripts/build.mjs:586-608`
+- **📝 当前状况描述**：`validate-production.mjs` 的 `checkBuild()` 直接执行 `node scripts/build.mjs`，而 `build.mjs` 默认输出到项目根目录，会重写 `post/*/index.html`、`post/index.html`、`tags/index.html`、`categories/index.html`、`tools/index.html`、`sitemap.xml`、`robots.txt`、`index.xml`、`search-index.json` 等产物。本轮运行后没有产生 Git diff，但“验证”脚本具备写入副作用，不适合只读质量门禁。
+- **⚠️ 影响程度**：中
+- **💡 建议方案**：
+  ```javascript
+  const outDir = join(ROOT, "temp", "production-validate");
+  await execFileAsync("node", ["scripts/build.mjs", "--out", outDir], { cwd: ROOT });
+  // 后续检查 join(outDir, output)，最后清理 temp 目录
+  ```
+  或新增 `npm run build:check`，固定输出到临时目录，CI 和 `validate:production` 全部使用该命令。
+- **📊 预期收益**：避免本地验证污染工作区，减少生成文件意外混入业务提交的风险。
+- **🔗 相关建议引用**：[DE-11](devex-improvements.md#de-11-把生产验证改造成真正只读的质量门禁), [DE-05](devex-improvements.md#de-05)
+
+### 📌 B-14: 工具箱按需脚本加载 Promise 过早 resolve，手势页存在初始化竞态
+
+- **📍 位置**：`js/tools.js:68-92`, `js/tools.js:312-315`, `js/tools.js:842-846`, `js/gesture.js:2339-2341`
+- **📝 当前状况描述**：`loadScript()` 创建 `<script>` 后立即 `return Promise.resolve()`，没有等待 `onload`。用户切换到 Galaxy/Gesture 面板后，面板已可交互，但 `gesture.js` 可能尚未执行到按钮事件绑定。极端弱网或 CDN 阻塞时，用户点击“开启摄像头”可能没有反应，且当前只在 console warn。
+- **⚠️ 影响程度**：中
+- **💡 建议方案**：
+  ```javascript
+  function loadScript(src) {
+    return new Promise((resolve, reject) => {
+      const script = document.createElement("script");
+      script.src = src;
+      script.defer = true;
+      script.onload = resolve;
+      script.onerror = reject;
+      document.head.appendChild(script);
+    });
+  }
+
+  loadedToolRuntimes[id] = Promise.all(scripts.map(loadScript));
+  ```
+  UI 层在 runtime 加载中禁用该面板关键按钮，失败时在 `tool-status` 中展示可恢复错误。
+- **📊 预期收益**：消除弱网竞态，提升视觉/摄像头工具的可预期性和可诊断性。
+- **🔗 相关建议引用**：[MR-TOOLS-02](module-reviews/tools-gesture-and-api.md#mr-tools-02-按需-runtime-加载没有等待脚本执行完成), [P-14](performance-bottlenecks.md#p-14-手势工具首次启动依赖远程模型链路弱网下冷启动不可控)
+
+---
+
 ## 📌 B-01 [已修复]: `coder.js` 中 `draw()` 递归动画无法停止，离开页面持续消耗资源
 
 - **📍 位置**：`js/coder.js`
