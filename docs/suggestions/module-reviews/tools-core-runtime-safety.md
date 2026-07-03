@@ -2,11 +2,11 @@
 
 > 分析时间：2026-07-04 01:02 +08:00  
 > 分析范围：`js/tools-core.js`, `js/tools.js`, `src/templates/tools.mjs`, `tests/tools*.mjs`  
-> 验证命令：`node --test tests/tools.test.mjs tests/tools-core-deep.test.mjs`，71/71 通过
+> 验证命令：`node --test tests/tools.test.mjs tests/tools-core-deep.test.mjs`，73/73 通过
 
 ## 本轮结论
 
-工具箱主路径测试稳定，且已经修复了 API 历史敏感 Header 脱敏、请求体默认不保存、Cron 无解表达式提前失败、JSONPath 非法尾部拒绝、API 历史写入失败反馈、Mini API Tester 私网/非 HTTPS 显式确认、API 请求超时和大响应预算、正则 Worker 超时等核心风险。本轮聚焦的 5 个工具运行时风险均已进入回归测试。
+工具箱主路径测试稳定，且已经修复了 API 历史敏感 Header 脱敏、请求体默认不保存、Cron 无解表达式提前失败、JSONPath 非法尾部拒绝、API 历史写入失败反馈、Mini API Tester 私网/非 HTTPS 显式确认、API 请求超时和大响应预算、正则 Worker 超时、UUID 弱随机 fallback 等核心风险。本轮聚焦的工具运行时风险均已进入回归测试。
 
 ---
 
@@ -52,7 +52,7 @@
   }
   ```
 - **📊 预期收益**：让“不支持”变成明确错误，避免部分解析造成错误数据判断，也便于后续补充 JSONPath 语法测试。
-- **🔗 相关建议引用**：[MR-CORE-05](tools-core.md#mr-core-05-现有输入上限值得保留为工具核心契约), [UX-11](../ux-improvements.md#ux-11-手势与-api-工具的隐私边界文案需要更精确)
+- **🔗 相关建议引用**：[MR-CORE-05](tools-core.md#mr-core-05-现有输入上限值得保留为工具核心契约), [UX-11](../ux-improvements.md#ux-11-已修复核心问题-手势与-api-工具的隐私边界文案需要更精确)
 
 ---
 
@@ -100,7 +100,7 @@
   }
   ```
 - **📊 预期收益**：保留开发调试能力，同时把“这个网页将从你的浏览器访问本机/内网/明文 HTTP”的信任边界明确给用户。
-- **🔗 相关建议引用**：[UX-11](../ux-improvements.md#ux-11-手势与-api-工具的隐私边界文案需要更精确), [MR-TOOLS-03](tools-gesture-and-api.md#mr-tools-03-已修复核心风险-api-tester-历史保存未区分普通请求和敏感请求)
+- **🔗 相关建议引用**：[UX-11](../ux-improvements.md#ux-11-已修复核心问题-手势与-api-工具的隐私边界文案需要更精确), [MR-TOOLS-03](tools-gesture-and-api.md#mr-tools-03-已修复核心风险-api-tester-历史保存未区分普通请求和敏感请求)
 
 ---
 

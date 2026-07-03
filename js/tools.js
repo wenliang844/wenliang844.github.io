@@ -576,6 +576,16 @@
     output.removeAttribute("data-i18n");
   }
 
+  function runUuidGenerator() {
+    const result = core.generateUuid();
+    if (result.ok) {
+      setGeneratedUuid(result.value);
+      setStatusKey("uuid-status", "tools.status.uuid", "UUID 已生成", "ok");
+    } else {
+      setStatusError("uuid-status", result);
+    }
+  }
+
   function setPasswordResult(result) {
     if (result.ok) {
       value("password-output", result.value.password);
@@ -1355,8 +1365,7 @@
     }
 
     if (closest(event.target, "[data-uuid-generate]")) {
-      setGeneratedUuid(core.generateUuid());
-      setStatusKey("uuid-status", "tools.status.uuid", "UUID 已生成", "ok");
+      runUuidGenerator();
       return;
     }
 

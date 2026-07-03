@@ -61,6 +61,25 @@ test("tools page widens connect-src only for explicit API tester targets", () =>
   assert.match(html, /id="api-allow-risky-target"/);
 });
 
+test("tools page requires gesture supply-chain acknowledgement before camera start", () => {
+  const html = renderToolsPage();
+
+  assert.match(html, /id="gesture-start" type="button" disabled/);
+  assert.match(html, /id="gesture-allow-remote-runtime"/);
+  assert.match(html, /data-i18n="tools\.gesture\.consent"/);
+  assert.match(html, /jsDelivr 和 Google Storage/);
+  assert.match(html, /data-i18n-en="The camera stream stays in this browser for recognition\./);
+});
+
+test("tools page labels random generator as non-security randomness", () => {
+  const html = renderToolsPage();
+
+  assert.match(html, /class="tool-note random-warning"/);
+  assert.match(html, /data-i18n="tools\.random\.warning"/);
+  assert.match(html, /普通伪随机数/);
+  assert.match(html, /Do not use these values as passwords, tokens, verification codes or security credentials/);
+});
+
 test("layout deduplicates core and page scripts", () => {
   const html = renderPage({
     title: "Scripts",

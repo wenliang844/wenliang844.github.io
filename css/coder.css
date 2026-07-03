@@ -3127,6 +3127,17 @@ body:not(.to-top-ready) .to-top {
   border-color: var(--accent);
 }
 
+.nav-search-trigger.is-error {
+  color: #ef4444;
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.16);
+}
+
+.nav-search-trigger.is-error:hover {
+  color: #dc2626;
+  border-color: #dc2626;
+}
+
 .search-modal {
   position: fixed;
   inset: 0;
@@ -4266,6 +4277,17 @@ body.search-open .search-modal .search-modal-card,
   color: var(--accent);
 }
 
+.tool-note {
+  margin: 0 0 0.8rem;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  background: var(--surface);
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  line-height: 1.55;
+}
+
 /* ---- Gesture Animation Tool ---- */
 
 .gesture-controls {
@@ -4278,6 +4300,23 @@ body.search-open .search-modal .search-modal-card,
 .gesture-controls .tool-btn:disabled {
   opacity: 0.4;
   cursor: not-allowed;
+}
+
+.gesture-supply-chain {
+  display: grid;
+  gap: 0.35rem;
+  padding: 0.65rem 0.75rem;
+  margin: -0.25rem 0 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  background: var(--surface);
+}
+
+.gesture-supply-chain p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  line-height: 1.55;
 }
 
 .gesture-modes {

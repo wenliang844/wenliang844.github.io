@@ -747,6 +747,7 @@ function renderRandomTool() {
   const tool = toolById("random");
   return `        <section ${panelAttrs(tool)}>
 ${toolHeader(tool)}
+          <p class="tool-note random-warning" role="note" data-i18n="tools.random.warning" data-i18n-en="Uses regular pseudo-random numbers for sampling, demos and quick picks. Do not use these values as passwords, tokens, verification codes or security credentials.">使用普通伪随机数，适合抽样、演示和快速选择；不要将结果用作密码、令牌、验证码或安全凭据。</p>
           <div class="tool-grid">
             <div class="tool-field">
               <label for="random-min" data-i18n="tools.label.min">最小值</label>
@@ -802,7 +803,7 @@ function renderGestureTool() {
   return `        <section ${panelAttrs(tool)}>
 ${toolHeader(tool)}
           <div class="gesture-controls">
-            <button class="tool-btn primary" id="gesture-start" type="button">
+            <button class="tool-btn primary" id="gesture-start" type="button" disabled>
               <i class="fas fa-video" aria-hidden="true"></i> <span data-i18n="tools.gesture.start" data-i18n-en="Start Camera">开启摄像头</span>
             </button>
             <button class="tool-btn" id="gesture-stop" type="button" disabled>
@@ -811,6 +812,13 @@ ${toolHeader(tool)}
             <button class="tool-btn" id="gesture-clear" type="button">
               <i class="fas fa-eraser" aria-hidden="true"></i> <span data-i18n="tools.gesture.clear" data-i18n-en="Clear Canvas">清除画布</span>
             </button>
+          </div>
+          <div class="gesture-supply-chain" role="note">
+            <label class="gesture-toggle gesture-consent">
+              <input id="gesture-allow-remote-runtime" type="checkbox">
+              <span><i class="fas fa-shield-alt" aria-hidden="true"></i> <span data-i18n="tools.gesture.consent" data-i18n-en="I understand the visual runtime and models are downloaded from third-party CDNs.">我了解视觉运行时和模型会从第三方 CDN 下载</span></span>
+            </label>
+            <p data-i18n="tools.gesture.supplyChain" data-i18n-en="The camera stream stays in this browser for recognition. Starting the tool may download MediaPipe, face-api, Three.js and model files from jsDelivr and Google Storage.">摄像头画面只在本机浏览器识别；启动时可能从 jsDelivr 和 Google Storage 下载 MediaPipe、face-api、Three.js 与模型文件。</p>
           </div>
           <div class="gesture-modes" role="radiogroup" data-i18n-aria="tools.gesture.modeGroup" data-i18n-en-aria="Animation mode">
             <button class="gesture-mode-btn active" data-mode="particle" type="button">

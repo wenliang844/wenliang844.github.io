@@ -17,6 +17,7 @@
   const $face    = document.getElementById("gesture-face");
   const $haptics = document.getElementById("gesture-haptics");
   const $sound   = document.getElementById("gesture-sound");
+  const $consent = document.getElementById("gesture-allow-remote-runtime");
 
   if (!$canvas) {return;}                       // not on tools page
 
@@ -28,6 +29,7 @@
   let handLandmarker  = null;                 // MediaPipe instance
   let cameraStream    = null;                 // MediaStream
   let running         = false;                // detection loop active?
+  let starting        = false;                // model/camera startup in progress?
   let mode            = "particle";           // particle | gesture | premium | draw | fruit | detect | face | dance | 3d
   let lastGesture     = "none";               // recognised gesture name
   const lastGestureTime = 0;
@@ -484,36 +486,57 @@
   /* ====================================================================
    * 2. Camera Manager
    * ==================================================================== */
+  function hasRuntimeConsent() {
+    return !$consent || $consent.checked;
+  }
+
+  function updateStartButton() {
+    if ($start) {
+      $start.disabled = running || starting || !hasRuntimeConsent();
+    }
+  }
+
   async function startCamera() {
-    if (mode === "detect") {
-      if (!(await loadObjectDetector())) {return;}
-    } else if (mode === "face") {
-      if (!(await loadFaceApi())) {return;}
-      if (!(await loadMediaPipe())) {return;}
-    } else {
-      if (!(await loadMediaPipe())) {return;}
-    }
-    if (mode === "3d") {
-      if (!(await loadThree())) {return;}
-    }
-    try {
-      cameraStream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "user", width: { ideal: 640 }, height: { ideal: 480 } },
-      });
-    } catch (e) {
-      setStatus("error", "摄像头访问被拒绝");
+    if (running || starting) {return;}
+    if (!hasRuntimeConsent()) {
+      setStatus("error", "请先确认第三方视觉资源和本地处理说明");
       return;
     }
-    $video.srcObject = cameraStream;
-    await $video.play();
-    resizeCanvas();
-    $overlay.classList.add("is-hidden");
-    $start.disabled = true;
-    $stop.disabled  = false;
-    running = true;
-    setStatus("running", "检测中");
-    if (mode === "3d") {initThreeScene();}
-    requestAnimationFrame(loop);
+    starting = true;
+    updateStartButton();
+    try {
+      if (mode === "detect") {
+        if (!(await loadObjectDetector())) {return;}
+      } else if (mode === "face") {
+        if (!(await loadFaceApi())) {return;}
+        if (!(await loadMediaPipe())) {return;}
+      } else {
+        if (!(await loadMediaPipe())) {return;}
+      }
+      if (mode === "3d") {
+        if (!(await loadThree())) {return;}
+      }
+      try {
+        cameraStream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: "user", width: { ideal: 640 }, height: { ideal: 480 } },
+        });
+      } catch (e) {
+        setStatus("error", "摄像头访问被拒绝");
+        return;
+      }
+      $video.srcObject = cameraStream;
+      await $video.play();
+      resizeCanvas();
+      $overlay.classList.add("is-hidden");
+      $stop.disabled  = false;
+      running = true;
+      setStatus("running", "检测中");
+      if (mode === "3d") {initThreeScene();}
+      requestAnimationFrame(loop);
+    } finally {
+      starting = false;
+      updateStartButton();
+    }
   }
 
   function stopCamera() {
@@ -523,7 +546,7 @@
       cameraStream = null;
     }
     $video.srcObject = null;
-    $start.disabled = false;
+    updateStartButton();
     $stop.disabled  = true;
     $overlay.classList.remove("is-hidden");
     setStatus("ready", "就绪");
@@ -2435,6 +2458,22 @@
       }
     });
   }
+
+  if ($consent) {
+    $consent.addEventListener("change", function () {
+      if (!$consent.checked && running) {
+        stopCamera();
+      }
+      if ($consent.checked && !running) {
+        setStatus("ready", "就绪");
+      } else if (!$consent.checked && !running) {
+        setStatus("ready", "等待确认资源说明");
+      }
+      updateStartButton();
+    });
+    setStatus("ready", $consent.checked ? "就绪" : "等待确认资源说明");
+  }
+  updateStartButton();
 
   /* Responsive canvas resize */
   window.addEventListener("resize", function () {

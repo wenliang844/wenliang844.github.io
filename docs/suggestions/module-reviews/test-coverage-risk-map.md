@@ -2,7 +2,7 @@
 
 生成时间：2026-07-03  
 分析范围：`npm run test:coverage` 输出、Node 原生覆盖率、JSDOM 客户端脚本测试、relay 数据脚本测试与 CI 覆盖率门禁。  
-本轮验证：`npm run test:coverage`，769/769 通过；总体 line 94.44%、branch 78.33%、functions 91.84%。  
+本轮验证：`npm run test:coverage`，770/770 通过；总体 line 94.44%、branch 78.33%、functions 91.84%。
 约束说明：本轮仅新增 `/docs/suggestions/module-reviews/test-coverage-risk-map.md`，未修改源码、配置或测试。
 
 ## 总览
@@ -115,7 +115,7 @@ test("expanded tools page runs all new tool actions locally", { timeout: 5000 },
 
 - 📌 问题/建议标题：把覆盖率摘要保存为文档化 artifact 或 JSON
 - 📍 位置：`package.json:16-16`、`.github/workflows/ci.yml:44-45`、`tests/workflows.test.mjs:25-37`
-- 📝 当前状况描述：`npm run test:coverage` 会在控制台输出覆盖率表，但 CI 没有上传 artifact，也没有生成 JSON/Markdown 摘要。历史文档中已有 752/752、731/731 等旧数字，本轮已经达到 769/769；如果没有自动化记录，很难判断覆盖率变化来自新增测试、删除测试还是覆盖目标变化。
+- 📝 当前状况描述：`npm run test:coverage` 会在控制台输出覆盖率表，但 CI 没有上传 artifact，也没有生成 JSON/Markdown 摘要。历史文档中已有 752/752、731/731 等旧数字，本轮已经达到 770/770；如果没有自动化记录，很难判断覆盖率变化来自新增测试、删除测试还是覆盖目标变化。
 - ⚠️ 影响程度：低
 - 💡 建议方案（含伪代码或示例片段）：
 
@@ -168,4 +168,3 @@ test("tools page opens first panel without console errors", async ({ page }) => 
 3. 在 CI 中保存覆盖率摘要，避免测试数量和覆盖率历史只散落在人工报告里。
 4. 给工具箱慢测试设预算或拆分，配合 CI 去重降低反馈时间。
 5. 增加极小浏览器冒烟集，先覆盖工具箱和文章页。
-

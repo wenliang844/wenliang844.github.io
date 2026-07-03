@@ -10,10 +10,10 @@
 |------|------|
 | 当前分支 | `codex/autonomous-optimization` |
 | 工作区注意事项 | 本轮包含源码、测试与文档修复；生产验证脚本已修复大测试输出下的假失败 |
-| 质量门禁 | `npm run lint:check` 通过；`npm test` 765/765 通过 |
+| 质量门禁 | `npm run lint:check` 通过；`npm test` 771/771 通过 |
 | 生产验证 | `npm run validate:production` 34/34 通过 |
 | 依赖审计 | `npm audit --registry=https://registry.npmjs.org --audit-level=moderate` 0 漏洞 |
-| 覆盖率 | 总体 lines 94.43%、branches 78.33%、functions 91.84%，通过阈值 |
+| 覆盖率 | 总体 lines 94.44%、branches 78.33%、functions 91.84%，通过阈值 |
 | 本地服务冒烟 | `/`、`/tools/`、`/post/`、`/search-index.json` 均返回 200 |
 | 第 2 轮深挖 | `js/assistant.js`、`js/tools-core.js`、`tests/assistant*.mjs`、`tests/tools*.mjs` |
 | 第 2 轮行为探测 | Cron 无解表达式 `0 0 31 2 *` 约 127.57ms；普通表达式约 0.19-1.52ms |
@@ -28,7 +28,7 @@
 | S-11 | 高 | `assistant.js` 仍在前端运行时拼接并使用默认体验 API Key | [security-audit.md](security-audit.md#s-11-assistantjs-仍在前端运行时拼接并使用默认体验-api-key) |
 | S-14 | 中 | AI 助手对话和 LLM 上下文长期留存在 localStorage（核心风险已修复） | [security-audit.md](security-audit.md#s-14-已修复核心风险-ai-助手对话和-llm-上下文长期留存在-localstorage) |
 | S-12 | 中 | Mini API Tester 会把 Authorization 头和请求体持久化到 localStorage | [security-audit.md](security-audit.md#s-12-mini-api-tester-会把-authorization-头和请求体持久化到-localstorage) |
-| S-13 | 中 | 手势工具运行时加载 CDN 机器视觉脚本和模型，缺少完整供应链约束 | [security-audit.md](security-audit.md#s-13-手势工具运行时加载-cdn-机器视觉脚本和模型缺少完整供应链约束) |
+| S-13 | 中 | 手势工具运行时加载 CDN 机器视觉脚本和模型（核心确认已补，自托管/hash 清单待推进） | [security-audit.md](security-audit.md#s-13-已修复核心治理-手势工具运行时加载-cdn-机器视觉脚本和模型缺少完整供应链约束) |
 | B-13 | 中 | 生产验证脚本默认会覆盖根目录构建产物 | [bugs-and-risks.md](bugs-and-risks.md#b-13-生产验证脚本默认会覆盖根目录构建产物) |
 | B-14 | 中 | 工具箱按需脚本加载 Promise 过早 resolve，手势页存在初始化竞态（核心竞态已修复） | [bugs-and-risks.md](bugs-and-risks.md#b-14-已修复核心竞态-工具箱按需脚本加载-promise-过早-resolve手势页存在初始化竞态) |
 | B-15 | 中 | AI 助手模式偏好写入后不会被恢复 | [bugs-and-risks.md](bugs-and-risks.md#b-15-ai-助手模式偏好写入后不会被恢复) |
@@ -56,16 +56,21 @@
 - 已完成：MR-RT-05 为 API Tester 增加请求超时、响应大小预算和大响应跳过/截断反馈。
 - 已完成：MR-RT-01 将正则测试迁移到 Worker 优先执行，并增加 250ms 超时反馈。
 - 已完成：UX-12 / MR-AST-05 区分 AI 助手请求超时和用户手动停止文案，并补回归测试。
+- 已完成：S-13 / MR-TOOLS-01 / MR-VIS-01 为手势工具增加第三方视觉资源显式确认和启动门闩。
+- 已完成：S-15 / MR-CORE-02 删除 UUID 工具的 `Math.random()` 弱随机 fallback，缺少 Web Crypto 时明确失败。
+- 已完成：内容发现专题 1-4 修复博客年份分组计数、空分组隐藏、`?q=` 搜索直达和移动目录焦点恢复。
+- 已完成：内容发现专题 5 为搜索脚本加载失败增加按钮错误态、toast、日志和可重试路径。
+- 已完成：新增真实浏览器与视觉冒烟专题，记录 Playwright/HTTP smoke、响应式截图、权限 API 和 CI artifact 后续落地路径。
 
 ### 当前健康度修正
 
 | 维度 | 2026-06-18 | 2026-07-03 复查 | 说明 |
 |------|------------|------------------|------|
-| 安全性 | 3.5 / 5 | 3.5 / 5 | 前端默认体验 key 与 AI 对话保留核心风险已修复；手势供应链和 UUID 弱随机 fallback 仍需治理 |
+| 安全性 | 3.5 / 5 | 3.5 / 5 | 前端默认体验 key、AI 对话保留、手势第三方资源确认、UUID 弱随机 fallback 和普通随机数用途提示已修复；模型自托管/hash 清单仍需治理 |
 | 工程化 | 4.2 / 5 | 4.0 / 5 | assistant 默认 key、模式恢复、SSE 尾包、超时/停止语义、Cron 性能预算和生产验证缓冲已补回归；质量门禁写入副作用、通用 DOM 契约仍需推进 |
 | 性能 | 4.2 / 5 | 3.9 / 5 | 工具页首屏 DOM 已拆到按需挂载，Cron 不可能日期已短路；CSS 单包、工具页 JS 单包和更泛化稀疏表达式优化仍需治理 |
-| 用户体验 | 4.0 / 5 | 4.0 / 5 | AI 助手默认模式、隐私文案、超时反馈、编辑器标签和 QR 预览稳定性已处理；更细的错误国际化仍需推进 |
-| 综合 | 3.9 / 5 | 3.8 / 5 | 项目整体可稳定运行，剩余高优先级集中在工具 JS/CSS 拆包和供应链治理 |
+| 用户体验 | 4.0 / 5 | 4.0 / 5 | AI 助手默认模式、隐私文案、超时反馈、内容筛选状态、编辑器标签和 QR 预览稳定性已处理；更细的错误国际化仍需推进 |
+| 综合 | 3.9 / 5 | 3.8 / 5 | 项目整体可稳定运行，剩余高优先级集中在工具 JS/CSS 拆包、模型自托管和 hash 清单 |
 
 ---
 

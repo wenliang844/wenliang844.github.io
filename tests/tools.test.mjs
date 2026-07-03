@@ -161,6 +161,51 @@ async function loadToolsPage(options = {}) {
   };
 }
 
+async function loadGestureRuntime() {
+  const code = await readFile(join(ROOT, "js", "gesture.js"), "utf8");
+  const dom = new JSDOM(`<!doctype html><html><body>
+    <button id="gesture-start" type="button" disabled>start</button>
+    <button id="gesture-stop" type="button" disabled>stop</button>
+    <button id="gesture-clear" type="button">clear</button>
+    <input id="gesture-allow-remote-runtime" type="checkbox">
+    <input id="gesture-haptics" type="checkbox">
+    <input id="gesture-sound" type="checkbox">
+    <video id="gesture-video"></video>
+    <canvas id="gesture-canvas"></canvas>
+    <div id="gesture-overlay"></div>
+    <span id="gesture-status"></span>
+    <span id="gesture-label"></span>
+    <span id="gesture-fps"></span>
+    <span id="gesture-face"></span>
+    <section data-tool-panel="gesture"></section>
+  </body></html>`, {
+    pretendToBeVisual: true,
+    runScripts: "outside-only",
+    url: "https://wenliang844.github.io/tools/",
+  });
+  dom.window.HTMLCanvasElement.prototype.getContext = () => ({
+    clearRect() {},
+    setTransform() {},
+  });
+  let cameraRequests = 0;
+  Object.defineProperty(dom.window.navigator, "mediaDevices", {
+    configurable: true,
+    value: {
+      getUserMedia() {
+        cameraRequests += 1;
+        return Promise.reject(new Error("camera should not be requested"));
+      },
+    },
+  });
+  dom.window.eval(code);
+  return {
+    cameraRequests() {
+      return cameraRequests;
+    },
+    dom,
+  };
+}
+
 test("tools core formats and minifies JSON with clear errors", async () => {
   const tools = await loadToolsCore();
   const formatted = tools.formatJson('{"name":"CWL"}');
@@ -239,7 +284,7 @@ test("tools core reports blocked Base64 runtime API access clearly", async () =>
   assert.match(result.error, /不支持 atob/);
 });
 
-test("tools core UUID generation falls back when crypto methods fail", async () => {
+test("tools core UUID generation uses getRandomValues when randomUUID fails", async () => {
   const tools = await loadToolsCore({
     crypto: {
       randomUUID() {
@@ -254,13 +299,18 @@ test("tools core UUID generation falls back when crypto methods fail", async () 
     },
   });
 
-  assert.equal(tools.generateUuid(), "00010203-0405-4607-8809-0a0b0c0d0e0f");
+  const result = tools.generateUuid();
+  assert.equal(result.ok, true);
+  assert.equal(result.value, "00010203-0405-4607-8809-0a0b0c0d0e0f");
 });
 
-test("tools core UUID generation survives blocked crypto access", async () => {
+test("tools core UUID generation fails clearly when secure crypto is unavailable", async () => {
   const tools = await loadToolsCore({ cryptoThrows: true });
+  const result = tools.generateUuid();
 
-  assert.match(tools.generateUuid(), /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i);
+  assert.equal(result.ok, false);
+  assert.equal(result.code, "uuidCrypto");
+  assert.match(result.error, /安全随机数/);
 });
 
 test("tools core handles Base64, URL, timestamps, UUID and JWT", async () => {
@@ -299,7 +349,9 @@ test("tools core handles Base64, URL, timestamps, UUID and JWT", async () => {
   assert.equal(tools.dateToTimestamp("2026-02-30T00:00").ok, false);
   assert.equal(tools.dateToTimestamp("2026-06-18T24:00").ok, false);
   assert.equal(tools.dateToTimestamp("2026-06-18 00:00").ok, false);
-  assert.match(tools.generateUuid(), /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i);
+  const uuid = tools.generateUuid();
+  assert.equal(uuid.ok, true);
+  assert.match(uuid.value, /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i);
 
   const jwt = [
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9",
@@ -533,6 +585,8 @@ test("tools tabs expose selected state and support keyboard navigation", async (
     document.querySelector('[data-tool-tab="api"]').click();
     assert.equal(document.querySelector("#api-url").getAttribute("aria-label"), "URL");
     assert.equal(document.querySelector("#api-allow-risky-target").getAttribute("aria-label"), "允许本机/内网/非 HTTPS 请求");
+    document.querySelector('[data-tool-tab="random"]').click();
+    assert.match(document.querySelector("#tool-random .random-warning").textContent, /普通伪随机数/);
     document.querySelector('[data-tool-tab="cron"]').click();
     assert.equal(document.querySelector("#cron-minute-step").getAttribute("aria-label"), "分钟间隔");
     document.querySelector('[data-tool-tab="url"]').click();
@@ -552,6 +606,35 @@ test("tools tabs expose selected state and support keyboard navigation", async (
       dom.window.setTimeout(resolve, 0);
     });
     assert.ok(Array.from(document.querySelectorAll("script")).some((script) => script.getAttribute("src") === "/js/gesture.js"));
+  } finally {
+    dom.window.close();
+  }
+});
+
+test("gesture runtime gates camera start on supply-chain acknowledgement", async () => {
+  const { cameraRequests, dom } = await loadGestureRuntime();
+  const { document, Event } = dom.window;
+  try {
+    const start = document.querySelector("#gesture-start");
+    const consent = document.querySelector("#gesture-allow-remote-runtime");
+    const status = document.querySelector("#gesture-status");
+
+    assert.equal(start.disabled, true);
+    assert.equal(status.textContent, "等待确认资源说明");
+
+    start.dispatchEvent(new Event("click", { bubbles: true, cancelable: true }));
+    assert.equal(cameraRequests(), 0);
+    assert.equal(status.textContent, "请先确认第三方视觉资源和本地处理说明");
+
+    consent.checked = true;
+    consent.dispatchEvent(new Event("change", { bubbles: true }));
+    assert.equal(start.disabled, false);
+    assert.equal(status.textContent, "就绪");
+
+    consent.checked = false;
+    consent.dispatchEvent(new Event("change", { bubbles: true }));
+    assert.equal(start.disabled, true);
+    assert.equal(status.textContent, "等待确认资源说明");
   } finally {
     dom.window.close();
   }
@@ -1357,11 +1440,14 @@ test("tool success and copy statuses rerender after language changes", async () 
     ].join(".");
     document.querySelector("[data-jwt-decode]").click();
     assert.match(document.querySelector("#jwt-status").textContent, /JWT 已解码/);
+    document.querySelector('[data-tool-tab="random"]').click();
+    assert.match(document.querySelector("#tool-random .random-warning").textContent, /普通伪随机数/);
 
     document.querySelector(".lang-toggle").click();
 
     assert.equal(document.querySelector("#json-status").textContent, "Done");
     assert.equal(document.querySelector("#uuid-status").textContent, "Copied");
+    assert.match(document.querySelector("#tool-random .random-warning").textContent, /regular pseudo-random numbers/);
     assert.equal(
       document.querySelector("#jwt-status").textContent,
       "JWT decoded. The content has not been signature-verified; do not use it for security decisions.",
@@ -1470,6 +1556,35 @@ test("uuid placeholder is not copied and generated UUID survives i18n updates", 
     document.querySelector('[data-copy-target="uuid-output"]').click();
     await Promise.resolve();
     assert.equal(copiedText(), generated);
+  } finally {
+    dom.window.close();
+  }
+});
+
+test("uuid generator reports unavailable secure randomness without weak fallback", async () => {
+  const { dom } = await loadToolsPage({ i18n: true });
+  const { document } = dom.window;
+  try {
+    Object.defineProperty(dom.window, "crypto", {
+      configurable: true,
+      get() {
+        throw new Error("crypto blocked");
+      },
+    });
+
+    document.querySelector('[data-tool-tab="uuid"]').click();
+    document.querySelector("[data-uuid-generate]").click();
+
+    assert.equal(document.querySelector("#uuid-output").getAttribute("data-empty"), "true");
+    assert.match(document.querySelector("#uuid-output").textContent, /点击生成 UUID/);
+    assert.equal(document.querySelector("#uuid-status").classList.contains("is-error"), true);
+    assert.match(document.querySelector("#uuid-status").textContent, /安全随机数/);
+
+    document.querySelector(".lang-toggle").click();
+    assert.equal(
+      document.querySelector("#uuid-status").textContent,
+      "Secure random numbers are unavailable in this browser, so a safe UUID cannot be generated.",
+    );
   } finally {
     dom.window.close();
   }

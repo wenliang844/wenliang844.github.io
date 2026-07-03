@@ -25,7 +25,7 @@
 
 - **📍 位置**：`scripts/validate-production.mjs:16`, `scripts/validate-production.mjs:130-136`, `tests/workflows.test.mjs:103-108`
 - **✅ 修复状态**：为生产验证内部的 `node --test tests/*.test.mjs` 设置 `TEST_OUTPUT_MAX_BUFFER = 32 * 1024 * 1024`，并新增 workflow 静态回归断言，确保完整测试输出增长后不会再次触发默认 `execFile` 缓冲上限。
-- **🧪 验证**：`node --test tests/workflows.test.mjs` 5/5 通过；`npm run validate:production` 34/34 通过；`npm run test:coverage` 752/752 通过。
+- **🧪 验证**：`node --test tests/workflows.test.mjs` 5/5 通过；`npm run validate:production` 34/34 通过；`npm run test:coverage` 770/770 通过。
 - **📝 原状况描述**：完整测试套件本身通过，但 `validate:production` 在内部执行测试时使用 `execFile` 默认输出缓冲。测试数量和输出增长后，生产验证会把门禁误判为“测试执行失败”，造成部署前假红。
 - **⚠️ 影响程度**：中
 - **💡 建议方案**：保留专用输出缓冲；后续若测试输出继续膨胀，可进一步切换为 `spawn` 流式读取或使用低噪声 test reporter。

@@ -21,20 +21,21 @@
 - **📊 预期收益**：降低 ESLint 9 升级风险，让后续 lint 输出保持高信噪比。
 - **🔗 相关建议引用**：[CQ-11](code-quality.md#cq-11-eslint-当前仍有-77-个-warning集中在视觉交互大文件), [DE-12](devex-improvements.md#de-12-validate--precommit-同时包含自动修复和构建写入语义不够清晰)
 
-### 📌 TD-12: 随机数能力边界需要产品和测试共同收敛
+### 📌 TD-12 [已修复核心边界]: 随机数能力边界需要产品和测试共同收敛
 
-- **📍 位置**：`js/tools-core.js:204-228`, `js/tools-core.js:1275-1293`, `tests/tools.test.mjs:236-258`
-- **📝 当前状况描述**：UUID 生成器在 Web Crypto 不可用时退化到 `Math.random()`；随机数工具也使用 `Math.random()`，但 UI 和测试没有明确区分“安全随机”和“模拟/抽样随机”。这类边界如果只由代码 fallback 隐式表达，后续很容易被用户误用或被测试固化为错误安全承诺。
+- **📍 位置**：`js/tools-core.js:204-228`, `js/tools-core.js:1275-1293`, `src/templates/tools.mjs:747-750`, `tests/tools.test.mjs:236-258`
+- **✅ 修复状态**：UUID 生成器已不再退化到 `Math.random()`，Web Crypto 不可用时会返回 `uuidCrypto` 错误并由工具 UI 展示失败状态。随机数工具也已增加非加密用途提示，明确普通伪随机数只适合抽样、演示和快速选择，不应用作密码、令牌、验证码或安全凭据。
+- **📝 当前状况描述**：随机数工具仍使用 `Math.random()`，适合演示、抽样和轻量随机选择；当前 UI 已说明用途边界。后续若要支持安全随机整数，可新增 Web Crypto 模式，而不是改变现有普通随机工具语义。
 - **⚠️ 影响程度**：低
 - **💡 建议方案**：
   ```text
-  UUID：没有 Web Crypto 时失败或明确标记非安全。
-  随机数：文案标注“非加密随机，适合抽样/演示”。
+  UUID：没有 Web Crypto 时失败或明确标记非安全。（已完成失败路径）
+  随机数：文案标注“非加密随机，适合抽样/演示”。（已完成）
   密码：继续要求 Web Crypto，不提供弱随机 fallback。
   ```
-  测试层把 `cryptoThrows` 场景从“仍生成 UUID”改为“显示降级警告或失败 code”。
-- **📊 预期收益**：让工具箱的随机能力边界更透明，避免兼容性 fallback 演变成安全债务。
-- **🔗 相关建议引用**：[S-15](security-audit.md#s-15-uuid-工具在-web-crypto-不可用时退化到-mathrandom), [MR-CORE-02](module-reviews/tools-core.md#mr-core-02-uuid-生成器的弱随机-fallback-需要明确降级语义)
+  测试层已把 `cryptoThrows` 场景从“仍生成 UUID”改为“显示失败 code”，并覆盖随机数提示 DOM。
+- **📊 实际收益**：让工具箱的随机能力边界更透明，避免兼容性 fallback 或普通伪随机数演变成安全债务。
+- **🔗 相关建议引用**：[S-15](security-audit.md#s-15-已修复-uuid-工具在-web-crypto-不可用时退化到-mathrandom), [MR-CORE-02](module-reviews/tools-core.md#mr-core-02-已修复-uuid-生成器的弱随机-fallback-需要明确降级语义)
 
 ---
 

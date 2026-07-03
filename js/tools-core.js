@@ -205,9 +205,9 @@
     const crypto = getCrypto();
     if (crypto && typeof crypto.randomUUID === "function") {
       try {
-        return crypto.randomUUID();
+        return ok(crypto.randomUUID());
       } catch (error) {
-        // Fall back to getRandomValues or Math.random below.
+        // Fall back to getRandomValues below.
       }
     }
     const bytes = new Uint8Array(16);
@@ -221,22 +221,20 @@
       }
     }
     if (!filled) {
-      for (let i = 0; i < bytes.length; i += 1) {
-        bytes[i] = Math.floor(Math.random() * 256);
-      }
+      return fail("当前浏览器不支持安全随机数，无法生成安全 UUID", "uuidCrypto");
     }
     bytes[6] = (bytes[6] & 0x0f) | 0x40;
     bytes[8] = (bytes[8] & 0x3f) | 0x80;
     const hex = Array.from(bytes, function (byte) {
       return byte.toString(16).padStart(2, "0");
     }).join("");
-    return [
+    return ok([
       hex.slice(0, 8),
       hex.slice(8, 12),
       hex.slice(12, 16),
       hex.slice(16, 20),
       hex.slice(20),
-    ].join("-");
+    ].join("-"));
   }
 
   function normalizeTimestamp(value) {

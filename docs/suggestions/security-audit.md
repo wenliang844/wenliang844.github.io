@@ -50,9 +50,11 @@
 - **📊 预期收益**：降低本机浏览器、共享电脑、恶意扩展读取 API 凭据的风险，同时保留 API Tester 的便利性。
 - **🔗 相关建议引用**：[S-08](#s-08-localstorage-中存储反馈数据无加密), [F-11](new-features.md#f-11-为-api-tester-增加隐私模式和敏感信息脱敏保存)
 
-### 📌 S-13: 手势工具运行时加载 CDN 机器视觉脚本和模型，缺少完整供应链约束
+### 📌 S-13 [已修复核心治理]: 手势工具运行时加载 CDN 机器视觉脚本和模型，缺少完整供应链约束
 
 - **📍 位置**：`js/gesture.js:160-167`, `js/gesture.js:213-216`, `js/gesture.js:223-229`, `js/gesture.js:258-265`, `src/templates/layout.mjs:39-50`, `src/templates/tools.mjs:865-868`
+- **✅ 修复状态**：手势面板已在开启摄像头前增加第三方视觉运行时/模型下载确认，说明摄像头画面只在本机浏览器识别，但会从 jsDelivr 和 Google Storage 下载 MediaPipe、face-api、Three.js 与模型文件；未确认前“开启摄像头”保持禁用。`js/gesture.js` 同时增加 `starting` 门闩，避免模型加载或权限弹窗期间重复触发启动。
+- **🧪 回归测试**：`tests/templates.test.mjs` 覆盖供应链确认 DOM 契约；`tests/tools.test.mjs` 覆盖未确认时不会申请摄像头、勾选后按钮可用；浏览器烟测确认 `/tools/` 手势面板默认禁用、勾选启用、取消后再次禁用。
 - **📝 当前状况描述**：手势工具运行时从 `cdn.jsdelivr.net`、`storage.googleapis.com` 加载 MediaPipe、face-api、Three.js、WASM 和模型文件；CSP 也为工具页放开了 `script-src https://cdn.jsdelivr.net`、`connect-src https: http:` 与 `wasm-unsafe-eval`。虽然摄像头帧处理在浏览器端执行，但第三方脚本一旦被供应链污染，就具备读取页面状态和摄像头处理数据的能力。
 - **⚠️ 影响程度**：中
 - **💡 建议方案**：
@@ -63,8 +65,8 @@
   /models/efficientdet_lite0.tflite
   /js/vendor/three.module.js
   ```
-  将关键运行时和模型自托管、记录版本与 hash；如果继续使用 CDN，至少在 UI 中说明外部模型来源，并把 CSP 从全站宽泛 `connect-src https:` 收敛到必要域名。
-- **📊 预期收益**：减少第三方供应链风险，提升摄像头功能的隐私可信度，并让离线/弱网体验更可控。
+  将关键运行时和模型自托管、记录版本与 hash；如果继续使用 CDN，至少在 UI 中说明外部模型来源，并把 CSP 从全站宽泛 `connect-src https:` 收敛到必要域名。本轮已完成 UI 确认与启动门闩，后续继续推进自托管、hash 清单和 CSP 域名收敛。
+- **📊 实际收益**：减少隐私承诺与第三方资源加载之间的信息落差，防止用户未理解资源来源时直接授权摄像头，并降低重复启动带来的摄像头/模型加载风险。
 - **🔗 相关建议引用**：[S-06](#s-06-第三方脚本缺少-subresource-integrity-sri-校验), [P-14](performance-bottlenecks.md#p-14-手势工具首次启动依赖远程模型链路弱网下冷启动不可控)
 
 ### 📌 S-14 [已修复核心风险]: AI 助手对话和 LLM 上下文长期留存在 localStorage
@@ -91,9 +93,11 @@
 - **📊 实际收益**：降低共享设备、浏览器扩展或本机恶意软件读取历史对话的隐私风险，同时保留可选多轮上下文体验。
 - **🔗 相关建议引用**：[F-13](new-features.md#f-13-已完成核心能力-ai-助手增加隐私模式和对话保留策略), [MR-AST-04](module-reviews/assistant-deep-dive.md#mr-ast-04-已修复核心风险-对话持久化缺少生命周期和隐私控制)
 
-### 📌 S-15: UUID 工具在 Web Crypto 不可用时退化到 `Math.random()`
+### 📌 S-15 [已修复]: UUID 工具在 Web Crypto 不可用时退化到 `Math.random()`
 
 - **📍 位置**：`js/tools-core.js:204-228`, `tests/tools.test.mjs:236-258`
+- **✅ 修复状态**：`generateUuid()` 已改为只接受 `crypto.randomUUID()` 或 `crypto.getRandomValues()`；当安全随机数不可用时返回 `uuidCrypto` 错误，不再使用 `Math.random()` 生成看似合规但强度不足的 UUID。工具 UI 会展示错误状态而不是复制弱随机 UUID。
+- **🧪 回归测试**：`tests/tools.test.mjs` 覆盖 `randomUUID()` 失败时使用 `getRandomValues()`、Web Crypto 被阻断时返回 `uuidCrypto`、主工具 UI 通过 `runUuidGenerator()` 正确处理成功/失败结果。
 - **📝 当前状况描述**：`generateUuid()` 优先使用 `crypto.randomUUID()` 和 `crypto.getRandomValues()`，这是正确主路径；但当 crypto 访问失败时会使用 `Math.random()` 填充 UUID 字节。测试还断言“blocked crypto access”下仍应生成 UUID，等于把弱随机 fallback 固化为行为契约。对普通占位 ID 尚可，对用户认为“UUID 可用于安全 token”的场景会形成误导。
 - **⚠️ 影响程度**：低
 - **💡 建议方案**：
@@ -103,8 +107,8 @@
   }
   ```
   如果必须保留兼容 fallback，输出区应标记“非加密随机，仅用于临时标识”，并把复制按钮状态同步为警示。
-- **📊 预期收益**：避免工具输出被误用为邀请码、重置 token 或安全凭据，明确随机数强度边界。
-- **🔗 相关建议引用**：[TD-12](tech-debt.md#td-12-随机数能力边界需要产品和测试共同收敛), [MR-CORE-02](module-reviews/tools-core.md#mr-core-02-uuid-生成器的弱随机-fallback-需要明确降级语义)
+- **📊 实际收益**：避免工具输出被误用为邀请码、重置 token 或安全凭据，明确随机数强度边界。
+- **🔗 相关建议引用**：[TD-12](tech-debt.md#td-12-已修复核心边界-随机数能力边界需要产品和测试共同收敛), [MR-CORE-02](module-reviews/tools-core.md#mr-core-02-已修复-uuid-生成器的弱随机-fallback-需要明确降级语义)
 
 ---
 

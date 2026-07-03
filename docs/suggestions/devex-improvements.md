@@ -63,7 +63,7 @@
 
 - **📍 位置**：`scripts/validate-production.mjs:16`, `scripts/validate-production.mjs:130-136`, `tests/workflows.test.mjs:103-108`
 - **✅ 修复状态**：新增 `TEST_OUTPUT_MAX_BUFFER` 并传给生产验证内部的 `execFileAsync("node", ["--test", "tests/*.test.mjs"])`，同时新增 workflow 测试确认该保护存在。
-- **🧪 验证**：`node --test tests/workflows.test.mjs` 5/5 通过；`npm run validate:production` 34/34 通过；`npm run test:coverage` 752/752 通过。
+- **🧪 验证**：`node --test tests/workflows.test.mjs` 5/5 通过；`npm run validate:production` 34/34 通过；`npm run test:coverage` 770/770 通过。
 - **📝 原状况描述**：完整测试套件单独执行通过，但 `validate:production` 在收集测试输出时使用 Node 默认缓冲；当测试输出增长到当前规模时，门禁脚本会误报“测试执行失败”。
 - **⚠️ 影响程度**：中
 - **💡 建议方案**：短期保留 32MB 专用缓冲；中期可改为 `spawn` 流式读取测试摘要，进一步降低内存占用和输出耦合。

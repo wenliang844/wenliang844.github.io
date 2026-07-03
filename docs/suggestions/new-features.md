@@ -22,7 +22,7 @@
   ```
   当前已完成核心本地历史防护；后续可再加入一次性确认弹窗，说明哪些字段会持久化。
 - **📊 预期收益**：在保留调试效率的同时增强安全感，API Tester 可以更放心地承载真实开发调试场景。
-- **🔗 相关建议引用**：[S-12](security-audit.md#s-12-mini-api-tester-会把-authorization-头和请求体持久化到-localstorage), [UX-11](ux-improvements.md#ux-11-手势与-api-工具的隐私边界文案需要更精确)
+- **🔗 相关建议引用**：[S-12](security-audit.md#s-12-mini-api-tester-会把-authorization-头和请求体持久化到-localstorage), [UX-11](ux-improvements.md#ux-11-已修复核心问题-手势与-api-工具的隐私边界文案需要更精确)
 
 ### 📌 F-12: 手势工具增加模型缓存状态面板
 
@@ -39,7 +39,7 @@
   ```
   如果后续引入 Service Worker，可提供“预缓存手势模型”按钮。
 - **📊 预期收益**：让高阶交互功能从“炫技 demo”更接近可诊断、可重复使用的工具。
-- **🔗 相关建议引用**：[P-14](performance-bottlenecks.md#p-14-手势工具首次启动依赖远程模型链路弱网下冷启动不可控), [S-13](security-audit.md#s-13-手势工具运行时加载-cdn-机器视觉脚本和模型缺少完整供应链约束)
+- **🔗 相关建议引用**：[P-14](performance-bottlenecks.md#p-14-手势工具首次启动依赖远程模型链路弱网下冷启动不可控), [S-13](security-audit.md#s-13-已修复核心治理-手势工具运行时加载-cdn-机器视觉脚本和模型缺少完整供应链约束)
 
 ### 📌 F-13 [已完成核心能力]: AI 助手增加隐私模式和对话保留策略
 

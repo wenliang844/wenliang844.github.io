@@ -4,11 +4,13 @@
 
 ## 验证背景
 
-当前工作树已通过 `npm run lint:check`、`npm test` / 生产验证内部测试 752/752、`npm run test:coverage`、`npm run validate:production`、`npm audit --registry=https://registry.npmjs.org --audit-level=moderate` 和 `git diff --check`。以下建议不修改源码，只记录视觉交互脚本中仍值得治理的边界。
+当前工作树已通过 `npm run lint:check`、`npm test` / 生产验证内部测试 770/770、`npm run test:coverage`、`npm run validate:production`、`npm audit --registry=https://registry.npmjs.org --audit-level=moderate` 和 `git diff --check`。以下建议不修改源码，只记录视觉交互脚本中仍值得治理的边界。
 
-## 📌 MR-VIS-01: 手势摄像头启动缺少 `starting` 门闩，快速重复点击可能并发申请摄像头
+## 📌 MR-VIS-01 [已修复]: 手势摄像头启动缺少 `starting` 门闩，快速重复点击可能并发申请摄像头
 
 - **📍 位置**：`js/gesture.js:487-516`, `js/gesture.js:2344-2345`
+- **✅ 修复状态**：`startCamera()` 已增加 `starting` 状态；模型加载、3D 引擎加载、摄像头授权和视频播放期间开始按钮保持禁用，`running || starting` 时重复触发会直接返回。
+- **🧪 回归测试**：`tests/tools.test.mjs` 覆盖手势启动前确认门槛和按钮状态，避免未确认时进入摄像头申请路径。
 - **📝 当前状况描述**：`startCamera()` 只有在模型加载、`getUserMedia()` 和 `$video.play()` 成功之后才禁用开始按钮并设置 `running = true`。在模型加载或浏览器授权弹窗期间，用户可以重复点击“开启摄像头”，从而并发触发多次模型加载、摄像头授权和 `requestAnimationFrame(loop)`。
 - **⚠️ 影响程度**：中
 - **💡 建议方案**：
@@ -31,7 +33,7 @@
   }
   ```
   同时新增测试：连续触发两次 start click，断言 `getUserMedia` 只调用一次。
-- **📊 预期收益**：避免重复摄像头授权、重复检测循环和用户在弱网模型加载期间的误操作。
+- **📊 实际收益**：避免重复摄像头授权、重复检测循环和用户在弱网模型加载期间的误操作。
 - **🔗 相关建议引用**：[MR-TOOLS-04](tools-gesture-and-api.md#mr-tools-04-视觉交互脚本已成为代码质量热点), [DE-14](../devex-improvements.md#de-14-增加页面级-dom-契约审计防止-seo-a11y-回退)
 
 ## 📌 MR-VIS-02: 页面隐藏时手势工具仍保持摄像头流占用
@@ -50,7 +52,7 @@
   ```
   如果产品希望恢复时自动继续，应保存 `wasRunningBeforeHidden`，但恢复前仍建议让用户重新确认摄像头。
 - **📊 预期收益**：降低后台摄像头占用和用户信任风险，也减少隐藏标签页的 rAF/视频资源消耗。
-- **🔗 相关建议引用**：[S-13](../security-audit.md#s-13-手势工具运行时加载-cdn-机器视觉脚本和模型缺少完整供应链约束), [UX-11](../ux-improvements.md#ux-11-手势与-api-工具的隐私边界文案需要更精确)
+- **🔗 相关建议引用**：[S-13](../security-audit.md#s-13-已修复核心治理-手势工具运行时加载-cdn-机器视觉脚本和模型缺少完整供应链约束), [UX-11](../ux-improvements.md#ux-11-已修复核心问题-手势与-api-工具的隐私边界文案需要更精确)
 
 ## 📌 MR-VIS-03: Galaxy canvas 没有遵守 `prefers-reduced-motion`
 
