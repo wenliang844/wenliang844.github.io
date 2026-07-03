@@ -4,12 +4,12 @@ import { createServer } from "node:http";
 import { readFile, stat } from "node:fs/promises";
 import { extname, isAbsolute, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { MOBILE_SMOKE_ROUTES, SMOKE_ROUTES } from "../src/config.mjs";
+import { ERROR_SMOKE_ROUTES, MOBILE_SMOKE_ROUTES, SMOKE_ROUTES } from "../src/config.mjs";
 
 const ROOT = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const HOST = "127.0.0.1";
 const STRICT_CLIPBOARD_SMOKE = process.env.STRICT_CLIPBOARD_SMOKE === "1";
-const ROUTES = SMOKE_ROUTES;
+const ROUTES = [...SMOKE_ROUTES, ...ERROR_SMOKE_ROUTES];
 const VIEWPORTS = [
   { name: "desktop", width: 1366, height: 768, routes: ROUTES },
   { name: "mobile", width: 390, height: 844, routes: MOBILE_SMOKE_ROUTES },
@@ -204,6 +204,15 @@ async function smokeRoute(browser, baseUrl, viewport, route) {
     }
     await assertVisible(page.locator("main#main-content"), `${label} main`);
     await assertVisible(page.locator("main#main-content h1:visible").first(), `${label} h1`);
+    if (ERROR_SMOKE_ROUTES.includes(route)) {
+      const robotsMetaCount = await page.locator('meta[name="robots"][content="noindex,follow"]').count();
+      if (robotsMetaCount === 0) {
+        throw new Error(`${label} is missing noindex,follow robots meta`);
+      }
+      await assertVisible(page.locator(".nav-search-trigger"), `${label} search trigger`);
+      await assertVisible(page.locator(".subscribe-form"), `${label} subscribe form`);
+      await assertVisible(page.locator(".assistant-nav-trigger"), `${label} assistant trigger`);
+    }
     await assertNoHorizontalOverflow(page, label);
     if (errors.length > 0) {
       throw new Error(`${label} runtime errors:\n${errors.join("\n")}`);

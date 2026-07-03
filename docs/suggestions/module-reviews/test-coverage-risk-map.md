@@ -2,12 +2,12 @@
 
 生成时间：2026-07-03  
 分析范围：`npm run test:coverage` 输出、Node 原生覆盖率、JSDOM 客户端脚本测试、relay 数据脚本测试与 CI 覆盖率门禁。  
-本轮验证：`npm run test:coverage`，792/792 通过；总体 line 96.82%、branch 83.51%、functions 96.50%。
+本轮验证：`npm run test:coverage`，798/798 通过；总体 line 96.80%、branch 83.45%、functions 96.51%。
 约束说明：本轮仅新增 `/docs/suggestions/module-reviews/test-coverage-risk-map.md`，未修改源码、配置或测试。
 
 ## 总览
 
-测试体系总体很强，且覆盖率阈值已经进入 CI。但当前覆盖率报告主要覆盖被 Node 作为 ESM 模块导入的 `scripts/` 与 `src/`，大量真实浏览器运行的 `js/*.js` 是通过 JSDOM `eval()` 加载，行为测试很多，却没有进入文件级覆盖率表。因此“总体 96.82%”更像构建/模板层覆盖率，而不是全站客户端脚本覆盖率。后续应把覆盖率从全局指标升级为风险地图：关键发布脚本、数据同步脚本、浏览器交互脚本分别有自己的可见指标和门槛。
+测试体系总体很强，且覆盖率阈值已经进入 CI。但当前覆盖率报告主要覆盖被 Node 作为 ESM 模块导入的 `scripts/` 与 `src/`，大量真实浏览器运行的 `js/*.js` 是通过 JSDOM `eval()` 加载，行为测试很多，却没有进入文件级覆盖率表。因此“总体 96.80%”更像构建/模板层覆盖率，而不是全站客户端脚本覆盖率。后续应把覆盖率从全局指标升级为风险地图：关键发布脚本、数据同步脚本、浏览器交互脚本分别有自己的可见指标和门槛。
 
 严重程度分布：
 
@@ -45,7 +45,7 @@ function runClientScript(dom, file, code) {
 
 - 📌 问题/建议标题：为高风险脚本设置单文件或分组覆盖率阈值
 - 📍 位置：`package.json:16-16`、`scripts/parse-relay.mjs:1-593`、`scripts/update-commercial-relay.mjs:1-226`、`tests/relay.test.mjs:1-134`
-- ✅ 修复状态：新增 relay 异常矩阵和 Trust Center 模板/数据契约后，`parse-relay.mjs` 已提升到 line 89.21%、branch 69.90%、functions 91.80%；`update-commercial-relay.mjs` 已提升到 line 76.65%、branch 86.84%、functions 90.91%。全局覆盖率当前为 line 96.82%、branch 83.51%、functions 96.50%。
+- ✅ 修复状态：新增 relay 异常矩阵和 Trust Center 模板/数据契约后，`parse-relay.mjs` 已提升到 line 89.21%、branch 69.90%、functions 91.80%；`update-commercial-relay.mjs` 已提升到 line 76.65%、branch 86.84%、functions 90.91%。全局覆盖率当前为 line 96.80%、branch 83.45%、functions 96.51%。
 - 📝 剩余状况描述：`parse-relay.mjs` 分支覆盖距离 70% 预算只差 0.10 个百分点；`update-commercial-relay.mjs` 行覆盖仍低于 85%，未覆盖区域主要集中在主流程写文件、最低数量门禁和少量 URL/时间 fallback。两个脚本负责把外部 relay 数据清洗进公开 AI 排行榜，仍适合设置单文件或分组预算。
 - ⚠️ 影响程度：中
 - 💡 建议方案（含伪代码或示例片段）：
@@ -117,7 +117,7 @@ test("expanded tools page runs all new tool actions locally", { timeout: 5000 },
 
 - 📌 问题/建议标题：把覆盖率摘要保存为文档化 artifact 或 JSON
 - 📍 位置：`package.json:16-16`、`.github/workflows/ci.yml:44-45`、`tests/workflows.test.mjs:25-37`
-- 📝 当前状况描述：`npm run test:coverage` 会在控制台输出覆盖率表，但 CI 没有上传 artifact，也没有生成 Markdown 摘要。历史文档中已有 752/752、731/731、788/788、789/789 等旧数字，本轮已经达到 792/792，并通过 `quality:baseline` 写入 JSON 快照；如果没有自动化记录，很难判断覆盖率变化来自新增测试、删除测试还是覆盖目标变化。
+- 📝 当前状况描述：`npm run test:coverage` 会在控制台输出覆盖率表，但 CI 没有上传 artifact，也没有生成 Markdown 摘要。历史文档中已有 752/752、731/731、788/788、789/789、793/793、797/797 等旧数字，本轮已经达到 798/798，并通过 `quality:baseline` 写入 JSON 快照；如果没有自动化记录，很难判断覆盖率变化来自新增测试、删除测试还是覆盖目标变化。
 - ⚠️ 影响程度：低
 - 💡 建议方案（含伪代码或示例片段）：
 

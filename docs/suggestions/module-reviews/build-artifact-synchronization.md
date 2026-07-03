@@ -243,26 +243,27 @@ for (const html of committedHtmlFiles) {
 - `docs/suggestions/module-reviews/content-publishing-quality-gates.md`
 - `docs/suggestions/module-reviews/ci-release-automation-review.md`
 
-### 📌 MR-BUILD-SYNC-05：生产验证的临时构建只检查关键文件存在，尚未复用 HTTP smoke 路由契约
+### 📌 MR-BUILD-SYNC-05 [已修复]：生产验证的临时构建只检查关键文件存在，尚未复用 HTTP smoke 路由契约
 
 📍 位置（文件路径 + 行号范围）
 
-- `scripts/validate-production.mjs:226-261`
-- `scripts/http-smoke.mjs:1-120`
-- `tests/workflows.test.mjs:127-135`
-- `tests/integration.test.mjs:201-220`
+- `scripts/build.mjs`
+- `scripts/validate-production.mjs`
+- `scripts/http-smoke.mjs`
+- `tests/build.test.mjs`
+- `tests/workflows.test.mjs`
 
 📝 当前状况描述
 
-`validate-production.mjs` 会构建到 `temp/production-validate`，然后检查 `post/index.html`、`sitemap.xml`、`index.xml` 和 `search-index.json` 是否存在。CI 另外会在根目录 `npm run build` 后运行 HTTP smoke，覆盖 `/`、`/tools/`、`/ai/`、`/post/`、`/contact/` 和本地脚本。两者组合有效，但临时构建路径本身没有跑 HTTP smoke；如果未来希望 `validate:production` 独立作为部署前门禁，它还缺少路由层验证。
+`scripts/http-smoke.mjs` 已支持 `--root <dir>` 和 `SMOKE_ROOT`，默认仍检查仓库根目录。`scripts/build.mjs --out <dir>` 现在会复制部署所需的静态资产和手写页（`css/`、`js/`、`images/`、`webfonts/`、`data/`、`index.html`、`404.html`、About/Contact/Editor/Overleaf），再写入生成页、RSS、sitemap 和搜索索引。`validate-production.mjs` 在构建到 `temp/production-validate` 后，会对这个临时目录运行同一套 HTTP smoke，覆盖 `/`、`/post/`、`/tools/`、`/contact/`、`/ai/`、`/trust/` 和 `/404.html` 的可达性、H1/main、本地脚本与 404 恢复入口。
 
 ⚠️ 影响程度（高/中/低）
 
-低。
+已修复。
 
 💡 建议方案（含伪代码或示例片段）
 
-让 HTTP smoke 支持 `--root` 或 `SMOKE_ROOT`，生产验证在临时构建目录上复用同一套路由契约。
+已落地：HTTP smoke 支持 `--root` / `SMOKE_ROOT`，生产验证在临时构建目录上复用同一套路由契约。
 
 ```js
 // scripts/http-smoke.mjs
@@ -273,10 +274,7 @@ startStaticServer({ root });
 ```js
 // scripts/validate-production.mjs
 await execFileAsync("node", ["scripts/build.mjs", "--out", BUILD_CHECK_OUT], { cwd: ROOT });
-await execFileAsync("node", ["scripts/http-smoke.mjs"], {
-  cwd: ROOT,
-  env: { ...process.env, SMOKE_ROOT: BUILD_CHECK_DIR }
-});
+await execFileAsync("node", ["scripts/http-smoke.mjs", "--root", BUILD_CHECK_DIR], { cwd: ROOT });
 ```
 
 📊 预期收益
@@ -284,6 +282,11 @@ await execFileAsync("node", ["scripts/http-smoke.mjs"], {
 - `validate:production` 可以独立验证临时构建是否可被真实路由访问。
 - HTTP smoke 规则不需要在 CI 和生产验证中重复维护。
 - 避免只检查文件存在却漏掉路由、脚本、H1 或主内容结构问题。
+
+🧪 验证
+
+- `node --test tests/build.test.mjs tests/workflows.test.mjs`：12/12 通过。
+- `npm run validate:production`：35/35 通过，包含“临时构建 HTTP smoke 通过”。
 
 🔗 相关建议引用
 
@@ -344,4 +347,4 @@ for (const file of SIZE_TRACKED_OUTPUTS) {
 2. 中优先级：拆分会写文件的 `validate` 和纯只读的 `check` 命令命名。
 3. 中优先级：逐步把手写静态页纳入 `renderPage()` 统一模板，或补公共片段一致性测试。
 4. 低优先级：增加生成产物所有权 manifest，明确 generated/manual 文件边界。
-5. 低优先级：让生产验证临时构建复用 HTTP smoke，并输出产物体积摘要。
+5. 低优先级：输出临时构建产物体积摘要。

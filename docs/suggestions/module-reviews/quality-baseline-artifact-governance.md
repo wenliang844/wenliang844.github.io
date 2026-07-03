@@ -5,7 +5,7 @@
 ## 本轮验证
 
 - 只读读取 `scripts/write-quality-baseline.mjs`，确认脚本会顺序运行 lint、test、coverage、HTTP smoke、browser smoke 和 production validation，并新增 `--require-clean` 的 clean-commit 发布模式。
-- 只读读取 `docs/suggestions/evidence/current-quality-baseline.json`，当前 artifact 记录 `scope: "working-tree"`、`dirty: true`、792/792 通过、coverage line 96.82%、branch 83.51%、functions 96.50%。
+- 运行 `npm run quality:baseline` 刷新 `docs/suggestions/evidence/current-quality-baseline.json`，当前 artifact 记录 `scope: "working-tree"`、`dirty: true`、798/798 通过、coverage line 96.80%、branch 83.45%、functions 96.51%、HTTP smoke 7 条路由、production 35/35。
 - 只读读取 `tests/workflows.test.mjs`，当前测试主要通过源码正则断言脚本包含关键命令、coverage parser、dirty scope 和 untracked 文件记录。
 
 ## 结论摘要
@@ -114,7 +114,7 @@ import { parseCoverageOutput } from "../scripts/quality-baseline-core.mjs";
 
 test("coverage parser reads all files summary", () => {
   const parsed = parseCoverageOutput(fixtureCoverageOutput);
-  assert.deepEqual(parsed.coverage, { lines: 96.82, branches: 83.51, functions: 96.5 });
+  assert.deepEqual(parsed.coverage, { lines: 96.76, branches: 83.95, functions: 96.3 });
 });
 ```
 

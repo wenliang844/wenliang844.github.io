@@ -9,6 +9,26 @@ import { JSDOM } from "jsdom";
 
 const execFileAsync = promisify(execFile);
 const ROOT = join(import.meta.dirname, "..");
+const HAND_AUTHORED_SHELL_PAGES = [
+  "about/index.html",
+  "contact/index.html",
+  "editor/index.html",
+  "overleaf/index.html",
+  "404.html",
+];
+const REQUIRED_MORE_LINKS = ["/tools/", "/overleaf/", "/trust/"];
+const REQUIRED_FOOTER_LINKS = ["/trust/", "/contact/", "/sponsor/"];
+const REQUIRED_NAV_HREFS = [
+  "/post/",
+  "/ai/",
+  "/appreciation/",
+  "/tools/",
+  "/overleaf/",
+  "/trust/",
+  "/contact/",
+  "/sponsor/",
+];
+const REQUIRED_FOOTER_HREFS = ["/trust/", "/contact/", "/sponsor/"];
 
 async function htmlFiles() {
   const { stdout } = await execFileAsync("git", ["ls-files", "*.html"], { cwd: ROOT, windowsHide: true });
@@ -40,6 +60,14 @@ function describeButton(button) {
   const classes = button.className ? `.${String(button.className).trim().split(/\s+/).join(".")}` : "";
   const type = button.getAttribute("type") ? `[type="${button.getAttribute("type")}"]` : "";
   return `button${id}${classes}${type}`;
+}
+
+function hrefsIn(root) {
+  return Array.from(root.querySelectorAll("a[href]"), (link) => link.getAttribute("href"));
+}
+
+function missingHrefs(actual, required) {
+  return required.filter((href) => !actual.includes(href));
 }
 
 // ─── ARIA 属性测试 ─────────────────────────────────────────────────────────────
@@ -90,6 +118,16 @@ test("all HTML files have exactly one h1", async () => {
     }
   }
   assert.deepEqual(failures, []);
+});
+
+test("contact page h1 matches the contact route semantics", async () => {
+  const html = await readFile(join(ROOT, "contact", "index.html"), "utf8");
+  const dom = new JSDOM(html);
+  const h1 = dom.window.document.querySelector("main h1");
+
+  assert.equal(h1?.getAttribute("data-i18n"), "contact.h1");
+  assert.match(h1?.textContent || "", /联系/);
+  dom.window.close();
 });
 
 test("navigation has aria-label", async () => {
@@ -190,6 +228,40 @@ test("navigation items have data-i18n attributes", async () => {
   assert.deepEqual(failures, []);
 });
 
+test("navigation includes the required site-wide destinations", async () => {
+  const failures = [];
+  for (const file of await htmlFiles()) {
+    const html = await readFile(join(ROOT, file), "utf8");
+    const dom = new JSDOM(html);
+    const nav = dom.window.document.querySelector(".navigation-list");
+    if (nav) {
+      const missing = missingHrefs(hrefsIn(nav), REQUIRED_NAV_HREFS);
+      if (missing.length) {
+        failures.push(`${file}: navigation missing ${missing.join(", ")}`);
+      }
+    }
+    dom.window.close();
+  }
+  assert.deepEqual(failures, []);
+});
+
+test("hand-authored pages expose the shared more-menu routes", async () => {
+  const failures = [];
+  for (const file of HAND_AUTHORED_SHELL_PAGES) {
+    const html = await readFile(join(ROOT, file), "utf8");
+    const dom = new JSDOM(html);
+    const hrefs = [...dom.window.document.querySelectorAll(".nav-more-menu a")]
+      .map((link) => link.getAttribute("href"))
+      .filter(Boolean);
+    const missing = REQUIRED_MORE_LINKS.filter((href) => !hrefs.includes(href));
+    if (missing.length) {
+      failures.push(`${file}: missing more-menu links ${missing.join(", ")}`);
+    }
+    dom.window.close();
+  }
+  assert.deepEqual(failures, []);
+});
+
 test("footer has i18n attributes for translatable content", async () => {
   const failures = [];
   for (const file of await htmlFiles()) {
@@ -197,6 +269,26 @@ test("footer has i18n attributes for translatable content", async () => {
     if (html.includes('class="subscribe-title"') && !html.includes('data-i18n="subscribe.title"')) {
       failures.push(`${file}: subscribe title missing data-i18n`);
     }
+  }
+  assert.deepEqual(failures, []);
+});
+
+test("hand-authored pages expose the shared footer links", async () => {
+  const failures = [];
+  for (const file of HAND_AUTHORED_SHELL_PAGES) {
+    const html = await readFile(join(ROOT, file), "utf8");
+    const dom = new JSDOM(html);
+    const footerLinks = dom.window.document.querySelector(".footer-links");
+    const hrefs = [...dom.window.document.querySelectorAll(".footer-links a")]
+      .map((link) => link.getAttribute("href"))
+      .filter(Boolean);
+    const missing = REQUIRED_FOOTER_LINKS.filter((href) => !hrefs.includes(href));
+    if (!footerLinks) {
+      failures.push(`${file}: missing footer-links nav`);
+    } else if (missing.length) {
+      failures.push(`${file}: missing footer links ${missing.join(", ")}`);
+    }
+    dom.window.close();
   }
   assert.deepEqual(failures, []);
 });
@@ -218,6 +310,20 @@ test("all pages include the theme toggle button", async () => {
     const html = await readFile(join(ROOT, file), "utf8");
     if (!html.includes('class="theme-toggle"')) {
       failures.push(`${file}: missing theme toggle button`);
+    }
+  }
+  assert.deepEqual(failures, []);
+});
+
+test("all pages expose the web app manifest and theme color", async () => {
+  const failures = [];
+  for (const file of await htmlFiles()) {
+    const html = await readFile(join(ROOT, file), "utf8");
+    if (!html.includes('rel="manifest" href="/manifest.webmanifest"')) {
+      failures.push(`${file}: missing web app manifest link`);
+    }
+    if (!html.includes('name="theme-color" content="#0f172a"')) {
+      failures.push(`${file}: missing theme-color meta`);
     }
   }
   assert.deepEqual(failures, []);
@@ -249,6 +355,28 @@ test("all pages have sponsor CTA in footer", async () => {
     if (!html.includes('class="sponsor-mini"')) {
       failures.push(`${file}: missing sponsor mini CTA`);
     }
+  }
+  assert.deepEqual(failures, []);
+});
+
+test("footer includes the required site-wide explanation links", async () => {
+  const failures = [];
+  for (const file of await htmlFiles()) {
+    const html = await readFile(join(ROOT, file), "utf8");
+    const dom = new JSDOM(html);
+    const footer = dom.window.document.querySelector("footer.footer");
+    if (footer) {
+      const links = footer.querySelector(".footer-links");
+      if (!links) {
+        failures.push(`${file}: missing footer-links`);
+      } else {
+        const missing = missingHrefs(hrefsIn(links), REQUIRED_FOOTER_HREFS);
+        if (missing.length) {
+          failures.push(`${file}: footer-links missing ${missing.join(", ")}`);
+        }
+      }
+    }
+    dom.window.close();
   }
   assert.deepEqual(failures, []);
 });

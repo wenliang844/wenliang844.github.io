@@ -7,7 +7,7 @@
 //   node scripts/build.mjs            # 输出到项目根（覆盖现有产物）
 //   node scripts/build.mjs --out dist # 输出到 dist/（用于对齐验证）
 
-import { readdir, readFile, mkdir, writeFile } from "node:fs/promises";
+import { cp, readdir, readFile, mkdir, writeFile } from "node:fs/promises";
 import { dirname, isAbsolute, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { marked } from "marked";
@@ -33,6 +33,20 @@ const POST_SITEMAP_PRIORITY = "0.8";
 // 输出目录：--out <dir>，默认项目根。
 const outIdx = process.argv.indexOf("--out");
 const OUT_DIR = resolveOutDir(outIdx);
+const STATIC_DEPLOY_ASSETS = [
+  "css",
+  "data",
+  "images",
+  "js",
+  "webfonts",
+  "about",
+  "contact",
+  "editor",
+  "overleaf",
+  "404.html",
+  "index.html",
+  "manifest.webmanifest",
+];
 
 marked.setOptions({ gfm: true, breaks: false });
 
@@ -340,6 +354,19 @@ async function writeFileEnsured(relPath, content) {
   return full;
 }
 
+async function copyStaticDeployAssets() {
+  if (OUT_DIR === ROOT) {
+    return;
+  }
+
+  for (const asset of STATIC_DEPLOY_ASSETS) {
+    await cp(join(ROOT, asset), join(OUT_DIR, asset), {
+      recursive: true,
+      force: true,
+    });
+  }
+}
+
 // 去掉 HTML 标签，保留纯文本，供搜索索引全文检索。
 function stripHtml(html) {
   return html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
@@ -568,6 +595,7 @@ async function main() {
   }
 
   const stats = buildStats(posts);
+  await copyStaticDeployAssets();
 
   // 单篇页
   for (let i = 0; i < posts.length; i++) {

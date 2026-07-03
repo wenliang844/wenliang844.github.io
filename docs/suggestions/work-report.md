@@ -159,8 +159,8 @@
 | Markdown 输入可访问名称 | 独立编辑器与工具箱内嵌编辑器补 `.sr-only` label 和英文 i18n | 相关模板/CSS/i18n 测试 84/84 通过 |
 | QR 预览稳定性 | QR 结果图片补 `width` / `height` / `loading` / `decoding`，CSS 补 `aspect-ratio: 1` | `tests/templates-extended.test.mjs` / `tests/css.test.mjs` 通过 |
 | Cron 典型无解表达式 | 提前识别不可能日期，避免两年分钟粒度扫描，并保护 day-of-month/day-of-week OR 语义 | `tests/tools-core-deep.test.mjs` 新增 `<50ms` 性能预算和 OR 语义测试 |
-| 生产验证假失败 | 为 `validate-production.mjs` 内部测试执行设置专用输出缓冲，避免全量测试输出触发默认 `execFile` 上限 | `tests/workflows.test.mjs` 7/7 通过；`npm run validate:production` 34/34 通过 |
-| 生产验证只读化 | 构建检查改为 `node scripts/build.mjs --out temp/production-validate`，产物检查指向临时目录并在结束后清理 | `tests/workflows.test.mjs` 7/7 通过；`npm run validate:production` 34/34 通过；`temp/production-validate` 已清理 |
+| 生产验证假失败 | 为 `validate-production.mjs` 内部测试执行设置专用输出缓冲，避免全量测试输出触发默认 `execFile` 上限 | `tests/workflows.test.mjs` 通过；`npm run validate:production` 35/35 通过 |
+| 生产验证只读化 | 构建检查改为 `node scripts/build.mjs --out temp/production-validate`，产物检查指向临时目录并在结束后清理 | `tests/workflows.test.mjs` 通过；`npm run validate:production` 35/35 通过；`temp/production-validate` 已清理 |
 | Relay 数据同步边界 | 商业源 `isCurrent` 使用布尔清洗，自定义 header 非法 JSON 在请求前失败；SQL/CLI/多源异常矩阵补测试 | `tests/relay.test.mjs` 8/8 通过 |
 | 博客列表标题语义 | 文章目录标题改为 `.post-tree-title`，页面保留单一可见 `h1`，移动/桌面 browser smoke 均通过 | a11y/templates/css/browser smoke 通过 |
 
@@ -169,13 +169,15 @@
 | 命令 | 结果 |
 |------|------|
 | `npm run lint:check` | 通过，0 warnings |
-| `npm test` / 生产验证内部测试 | 792/792 通过 |
-| `npm run test:coverage` | 792/792 通过；line 96.82% / branch 83.51% / funcs 96.50% |
-| `npm run test:http-smoke` | 6/6 路由通过，覆盖 `/`、`/tools/`、`/ai/`、`/post/`、`/contact/`、`/trust/` |
-| `npm run test:browser-smoke` | 通过，覆盖桌面 6 个关键路径、移动端 4 个关键路径，以及 `/tools/` JSON/随机数/Galaxy Canvas/UUID Clipboard/手势确认门闩交互 |
-| `npm run validate:production` | 34/34 通过 |
+| `npm test` / 生产验证内部测试 | 798/798 通过 |
+| `npm run test:coverage` | 798/798 通过；line 96.80% / branch 83.45% / funcs 96.51% |
+| `npm run test:http-smoke` | 7/7 路由通过，覆盖 `/`、`/tools/`、`/ai/`、`/post/`、`/contact/`、`/trust/`、`/404.html` |
+| `npm run test:browser-smoke` | 通过，覆盖桌面 7 个关键路径、移动端 4 个关键路径，以及 `/tools/` JSON/随机数/Galaxy Canvas/UUID Clipboard/手势确认门闩交互 |
+| `npm run validate:production` | 35/35 通过，包含临时构建 HTTP smoke |
 | `npm audit --registry=https://registry.npmjs.org --audit-level=moderate` | 0 vulnerabilities |
 | `git diff --check` | 通过，仅 CRLF 工作区提示 |
+
+本轮补充：PWA-01 第一阶段已新增 `manifest.webmanifest`，全站 HTML 暴露 manifest/theme-color，HTTP smoke 会校验 manifest schema 和图标可达；Service Worker 与离线缓存仍等待缓存安全矩阵后推进。
 
 ### 发现的问题
 

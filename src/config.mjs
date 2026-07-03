@@ -37,6 +37,7 @@ export const STATIC_PAGES = [
 
 export const SMOKE_ROUTES = STATIC_PAGES.filter((page) => page.smoke).map((page) => page.path);
 export const MOBILE_SMOKE_ROUTES = STATIC_PAGES.filter((page) => page.mobileSmoke).map((page) => page.path);
+export const ERROR_SMOKE_ROUTES = ["/404.html"];
 
 // 全局搜索索引中额外包含的静态页（文章页由构建脚本动态生成）。
 export const SEARCH_PAGES = [

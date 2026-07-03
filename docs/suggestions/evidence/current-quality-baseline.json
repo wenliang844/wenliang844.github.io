@@ -1,20 +1,31 @@
 {
-  "generatedAt": "2026-07-03T21:11:36.622Z",
+  "generatedAt": "2026-07-03T22:02:32.852Z",
   "scope": "working-tree",
   "git": {
     "branch": "codex/autonomous-optimization",
-    "commit": "55f79b6",
+    "commit": "5f4def0",
     "dirty": true,
-    "untrackedFileCount": 0,
-    "untrackedFiles": [],
+    "untrackedFileCount": 1,
+    "untrackedFiles": [
+      "manifest.webmanifest"
+    ],
     "status": [
-      "M  docs/suggestions/README.md",
-      "M  docs/suggestions/current-worktree-verification-2026-07-03.md",
-      "M  docs/suggestions/evidence/current-quality-baseline.json",
-      "M  docs/suggestions/final-analysis-report-2026-07-03.md",
+      "MM 404.html",
+      "MM about/index.html",
+      " M ai/index.html",
+      " M appreciation/index.html",
+      " M categories/index.html",
+      "MM contact/index.html",
+      "MM docs/suggestions/README.md",
+      "MM docs/suggestions/current-worktree-verification-2026-07-03.md",
+      "MM docs/suggestions/evidence/current-quality-baseline.json",
+      "MM docs/suggestions/final-analysis-report-2026-07-03.md",
       "M  docs/suggestions/module-reviews/browser-visual-smoke-testing.md",
+      "M  docs/suggestions/module-reviews/build-artifact-synchronization.md",
+      "M  docs/suggestions/module-reviews/hand-authored-static-page-governance.md",
       "M  docs/suggestions/module-reviews/privacy-and-trust-center.md",
-      "M  docs/suggestions/module-reviews/quality-baseline-artifact-governance.md",
+      " M docs/suggestions/module-reviews/pwa-offline-cache-readiness.md",
+      "MM docs/suggestions/module-reviews/quality-baseline-artifact-governance.md",
       "M  docs/suggestions/module-reviews/relay-data-quality-and-sync.md",
       "M  docs/suggestions/module-reviews/seo-feed-and-structured-data.md",
       "M  docs/suggestions/module-reviews/suggestion-evidence-drift-audit.md",
@@ -23,15 +34,33 @@
       "M  docs/suggestions/module-reviews/trust-page-launch-readiness.md",
       "M  docs/suggestions/module-reviews/visual-interactions.md",
       "M  docs/suggestions/performance-bottlenecks.md",
-      "M  docs/suggestions/work-report.md",
-      "M  package.json",
+      "MM docs/suggestions/work-report.md",
+      "MM editor/index.html",
+      "MM index.html",
+      "MM overleaf/index.html",
+      " M post/activiti-workflow-engine/index.html",
+      " M post/codex-claude-vibe-coding/index.html",
+      " M post/finance-saas-backend/index.html",
+      " M post/index.html",
+      " M post/lowcode-schema-codegen/index.html",
+      " M post/manage-system/index.html",
+      " M post/rule-engine-alerts/index.html",
       "M  scripts/browser-smoke.mjs",
-      "M  scripts/http-smoke.mjs",
-      "A  scripts/quality-baseline-core.mjs",
-      "M  scripts/write-quality-baseline.mjs",
+      "MM scripts/build.mjs",
+      "MM scripts/http-smoke.mjs",
+      "M  scripts/validate-production.mjs",
+      " M sponsor/index.html",
       "M  src/config.mjs",
-      "A  tests/quality-baseline.test.mjs",
-      "M  tests/workflows.test.mjs"
+      " M src/templates/layout.mjs",
+      " M tags/index.html",
+      "MM tests/build.test.mjs",
+      "MM tests/i18n-a11y.test.mjs",
+      "M  tests/links.test.mjs",
+      " M tests/templates.test.mjs",
+      "MM tests/workflows.test.mjs",
+      " M tools/index.html",
+      " M trust/index.html",
+      "?? manifest.webmanifest"
     ]
   },
   "summary": {
@@ -42,14 +71,14 @@
       "failed": 0
     },
     "tests": {
-      "total": 792,
-      "passed": 792,
+      "total": 798,
+      "passed": 798,
       "failed": 0
     },
     "coverage": {
-      "lines": 96.82,
-      "branches": 83.51,
-      "functions": 96.5
+      "lines": 96.8,
+      "branches": 83.45,
+      "functions": 96.51
     }
   },
   "commands": [
@@ -58,7 +87,7 @@
       "command": "npm run lint:check",
       "purpose": "release-gate",
       "status": "pass",
-      "durationMs": 1419,
+      "durationMs": 1386,
       "warnings": 0
     },
     {
@@ -66,9 +95,9 @@
       "command": "npm test",
       "purpose": "release-gate",
       "status": "pass",
-      "durationMs": 13031,
-      "tests": 792,
-      "passed": 792,
+      "durationMs": 14284,
+      "tests": 798,
+      "passed": 798,
       "failed": 0
     },
     {
@@ -76,14 +105,14 @@
       "command": "npm run test:coverage",
       "purpose": "release-gate",
       "status": "pass",
-      "durationMs": 30112,
-      "tests": 792,
-      "passed": 792,
+      "durationMs": 32969,
+      "tests": 798,
+      "passed": 798,
       "failed": 0,
       "coverage": {
-        "lines": 96.82,
-        "branches": 83.51,
-        "functions": 96.5
+        "lines": 96.8,
+        "branches": 83.45,
+        "functions": 96.51
       }
     },
     {
@@ -91,15 +120,15 @@
       "command": "npm run test:http-smoke",
       "purpose": "release-gate",
       "status": "pass",
-      "durationMs": 497,
-      "routes": 6
+      "durationMs": 527,
+      "routes": 7
     },
     {
       "id": "browser-smoke",
       "command": "npm run test:browser-smoke",
       "purpose": "browser-smoke",
       "status": "pass",
-      "durationMs": 8044,
+      "durationMs": 8540,
       "passed": true
     },
     {
@@ -107,9 +136,9 @@
       "command": "npm run validate:production",
       "purpose": "release-gate",
       "status": "pass",
-      "durationMs": 15365,
+      "durationMs": 16995,
       "warnings": 0,
-      "passedChecks": 34,
+      "passedChecks": 35,
       "failedChecks": 0
     }
   ]

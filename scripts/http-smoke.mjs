@@ -2,21 +2,41 @@
 
 import { createServer } from "node:http";
 import { readFile, stat } from "node:fs/promises";
-import { extname, isAbsolute, join, relative, resolve } from "node:path";
+import { extname, isAbsolute, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { SMOKE_ROUTES as ROUTES } from "../src/config.mjs";
+import { ERROR_SMOKE_ROUTES, SMOKE_ROUTES } from "../src/config.mjs";
 
-const ROOT = resolve(fileURLToPath(new URL("..", import.meta.url)));
+const DEFAULT_ROOT = resolve(fileURLToPath(new URL("..", import.meta.url)));
+const ROOT = resolveSmokeRoot();
 const HOST = "127.0.0.1";
+const ROUTES = [...SMOKE_ROUTES, ...ERROR_SMOKE_ROUTES];
 const MIME_TYPES = new Map([
   [".css", "text/css; charset=utf-8"],
   [".html", "text/html; charset=utf-8"],
   [".js", "text/javascript; charset=utf-8"],
   [".json", "application/json; charset=utf-8"],
+  [".webmanifest", "application/manifest+json; charset=utf-8"],
   [".svg", "image/svg+xml"],
   [".txt", "text/plain; charset=utf-8"],
   [".xml", "application/xml; charset=utf-8"],
 ]);
+
+function resolveSmokeRoot() {
+  const rootIdx = process.argv.indexOf("--root");
+  if (rootIdx !== -1) {
+    const rootArg = process.argv[rootIdx + 1];
+    if (!rootArg || rootArg.startsWith("--")) {
+      throw new Error("Missing --root <dir> argument.");
+    }
+    return resolve(process.cwd(), rootArg);
+  }
+
+  if (process.env.SMOKE_ROOT) {
+    return resolve(process.cwd(), process.env.SMOKE_ROOT);
+  }
+
+  return DEFAULT_ROOT;
+}
 
 function resolveStaticPath(pathname) {
   let decoded;
@@ -114,6 +134,22 @@ async function smokeRoute(baseUrl, route) {
   if (!/<h1\b/i.test(html)) {
     throw new Error(`${route} is missing an h1`);
   }
+  if (!html.includes('rel="manifest" href="/manifest.webmanifest"')) {
+    throw new Error(`${route} is missing the web app manifest link`);
+  }
+  if (!html.includes('name="theme-color" content="#0f172a"')) {
+    throw new Error(`${route} is missing theme-color meta`);
+  }
+  if (ERROR_SMOKE_ROUTES.includes(route)) {
+    if (!/<meta\b[^>]*\bname=["']robots["'][^>]*\bcontent=["']noindex,follow["']/i.test(html)) {
+      throw new Error(`${route} is missing noindex,follow robots meta`);
+    }
+    for (const token of ['class="nav-search-trigger"', 'class="subscribe-form"', 'src="/js/assistant-loader.js"']) {
+      if (!html.includes(token)) {
+        throw new Error(`${route} is missing recovery surface token: ${token}`);
+      }
+    }
+  }
 
   const scripts = extractLocalScriptSources(html);
   if (scripts.length === 0) {
@@ -128,10 +164,40 @@ async function smokeRoute(baseUrl, route) {
   console.log(`✓ ${route} reachable (${scripts.length} script refs)`);
 }
 
+async function smokeManifest(baseUrl) {
+  const response = await fetch(`${baseUrl}/manifest.webmanifest`);
+  await assertOk(response, "/manifest.webmanifest");
+  const contentType = response.headers.get("content-type") || "";
+  if (!contentType.includes("application/manifest+json")) {
+    throw new Error(`/manifest.webmanifest returned unexpected content-type: ${contentType || "(missing)"}`);
+  }
+
+  const manifest = await response.json();
+  for (const key of ["name", "short_name", "start_url", "scope", "display", "theme_color", "icons"]) {
+    if (!(key in manifest)) {
+      throw new Error(`/manifest.webmanifest is missing ${key}`);
+    }
+  }
+  if (!Array.isArray(manifest.icons) || manifest.icons.length === 0) {
+    throw new Error("/manifest.webmanifest has no icons");
+  }
+
+  await Promise.all(manifest.icons.map(async (icon) => {
+    if (!icon.src?.startsWith("/")) {
+      throw new Error(`/manifest.webmanifest icon must use a root-relative src: ${icon.src || "(missing)"}`);
+    }
+    const iconResponse = await fetch(`${baseUrl}${icon.src}`, { method: "HEAD" });
+    await assertOk(iconResponse, `/manifest.webmanifest icon ${icon.src}`);
+  }));
+
+  console.log("✓ /manifest.webmanifest reachable");
+}
+
 async function main() {
   const { server, port } = await startServer();
   const baseUrl = `http://${HOST}:${port}`;
   try {
+    await smokeManifest(baseUrl);
     for (const route of ROUTES) {
       await smokeRoute(baseUrl, route);
     }

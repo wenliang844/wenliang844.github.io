@@ -9,7 +9,7 @@
 - `node --test tests/templates.test.mjs tests/templates-extended.test.mjs tests/i18n-deep.test.mjs tests/workflows.test.mjs`：64/64 通过。
 - `node --test tests/build.test.mjs`：3/3 通过，新增 `STATIC_PAGES` 已登记路径必须存在已提交 `index.html` 的只读门禁。
 - `node --test tests/workflows.test.mjs tests/build.test.mjs tests/templates-extended.test.mjs`：48/48 通过，新增 `SMOKE_ROUTES` / `MOBILE_SMOKE_ROUTES` 配置源守卫。
-- `npm run test:http-smoke`：6 个由 `STATIC_PAGES` 派生的路由全部通过，包含 `/trust/`。
+- `npm run test:http-smoke`：7 个路由全部通过，包含由 `STATIC_PAGES` 派生的 `/trust/` 和 `ERROR_SMOKE_ROUTES` 的 `/404.html`。
 - `npm run test:browser-smoke`：桌面与移动关键路由、`/trust/`、工具箱 JSON/Galaxy/UUID/Gesture 交互全部通过。
 - 复核 `src/config.mjs`、`src/templates/trust.mjs`、`src/trust-data.mjs`、`scripts/http-smoke.mjs`、`scripts/browser-smoke.mjs`、`tests/workflows.test.mjs`、`css/coder.css`。
 

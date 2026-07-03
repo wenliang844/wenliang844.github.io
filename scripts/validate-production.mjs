@@ -252,6 +252,13 @@ async function checkBuild() {
           fail(`输出文件缺失: ${output}`);
         }
       }
+
+      await execFileAsync('node', ['scripts/http-smoke.mjs', '--root', BUILD_CHECK_DIR], {
+        cwd: ROOT,
+        windowsHide: true,
+        maxBuffer: TEST_OUTPUT_MAX_BUFFER
+      });
+      pass('临时构建 HTTP smoke 通过');
     } else {
       fail('构建失败');
     }

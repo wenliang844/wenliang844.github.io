@@ -44,6 +44,10 @@ function escapeRegExp(value) {
   return String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
+function scriptSources(html) {
+  return Array.from(html.matchAll(/<script\b[^>]*\bsrc="([^"]+)"[^>]*>/g), (match) => match[1]);
+}
+
 test("committed HTML files do not contain broken root-relative links", async () => {
   const broken = [];
 
@@ -61,36 +65,25 @@ test("committed HTML files do not contain broken root-relative links", async () 
 });
 
 test("HTML files load common scripts in a consistent order", async () => {
-  const required = [
+  const requiredCoreScripts = [
     "/js/error-handler.js",
     "/js/utils.js",
     "/js/i18n.js",
     "/js/coder.js",
     "/js/search-loader.js",
+    "/js/subscribe.js",
+    "/js/assistant-loader.js",
   ];
   const failures = [];
 
   for (const file of await htmlFiles()) {
     const html = await readFile(join(ROOT, file), "utf8");
-    const positions = required.map((src) => html.indexOf(`src="${src}"`));
-    positions.forEach((pos, index) => {
-      if (pos === -1) {
-        failures.push(`${file}: missing ${required[index]}`);
-      }
-    });
-    for (let i = 1; i < positions.length; i += 1) {
-      if (positions[i - 1] !== -1 && positions[i] !== -1 && positions[i - 1] > positions[i]) {
-        failures.push(`${file}: ${required[i - 1]} must load before ${required[i]}`);
-      }
-    }
-    const subscribePos = html.indexOf('src="/js/subscribe.js"');
-    const loaderPos = html.indexOf('src="/js/assistant-loader.js"');
-    const runtimePos = html.indexOf('src="/js/assistant.js"');
-    const assistantPos = loaderPos === -1 ? runtimePos : loaderPos;
-    if (assistantPos === -1) {
-      failures.push(`${file}: missing assistant runtime or loader`);
-    } else if (subscribePos !== -1 && subscribePos > assistantPos) {
-      failures.push(`${file}: subscribe.js must load before assistant runtime or loader`);
+    const commonScripts = scriptSources(html).filter((src) => requiredCoreScripts.includes(src));
+    const missing = requiredCoreScripts.filter((src) => !commonScripts.includes(src));
+    if (missing.length) {
+      failures.push(`${file}: missing ${missing.join(", ")}`);
+    } else if (commonScripts.join("\n") !== requiredCoreScripts.join("\n")) {
+      failures.push(`${file}: common script order drifted (${commonScripts.join(" -> ")})`);
     }
     if (html.includes('class="navigation-list"') && !html.includes('class="nav-search-trigger"')) {
       failures.push(`${file}: missing global search trigger`);

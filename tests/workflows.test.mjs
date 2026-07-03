@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { parse } from "yaml";
-import { MOBILE_SMOKE_ROUTES, SMOKE_ROUTES, STATIC_PAGES } from "../src/config.mjs";
+import { ERROR_SMOKE_ROUTES, MOBILE_SMOKE_ROUTES, SMOKE_ROUTES, STATIC_PAGES } from "../src/config.mjs";
 
 const ROOT = join(import.meta.dirname, "..");
 
@@ -124,6 +124,8 @@ test("production validator builds into a temporary output directory", async () =
   assert.match(productionValidator, /BUILD_CHECK_OUT\s*=\s*'temp\/production-validate'/);
   assert.match(productionValidator, /\['scripts\/build\.mjs',\s*'--out',\s*BUILD_CHECK_OUT\]/);
   assert.match(productionValidator, /fileExists\(output,\s*BUILD_CHECK_DIR\)/);
+  assert.match(productionValidator, /\['scripts\/http-smoke\.mjs',\s*'--root',\s*BUILD_CHECK_DIR\]/);
+  assert.match(productionValidator, /临时构建 HTTP smoke 通过/);
   assert.match(productionValidator, /rm\(BUILD_CHECK_DIR,\s*\{\s*recursive:\s*true,\s*force:\s*true\s*\}\)/);
 });
 
@@ -132,10 +134,21 @@ test("HTTP smoke script covers critical public routes and local scripts", async 
   const staticRoutes = new Set(STATIC_PAGES.map((page) => page.path));
 
   assert.deepEqual(SMOKE_ROUTES, ["/", "/post/", "/tools/", "/contact/", "/ai/", "/trust/"]);
+  assert.deepEqual(ERROR_SMOKE_ROUTES, ["/404.html"]);
   assert.ok(SMOKE_ROUTES.every((route) => staticRoutes.has(route)), "smoke routes should come from STATIC_PAGES");
-  assert.match(smokeScript, /import\s+\{\s*SMOKE_ROUTES\s+as\s+ROUTES\s*\}\s+from\s+"..\/src\/config\.mjs"/);
+  assert.match(smokeScript, /import\s+\{\s*ERROR_SMOKE_ROUTES,\s*SMOKE_ROUTES\s*\}\s+from\s+"..\/src\/config\.mjs"/);
+  assert.match(smokeScript, /resolveSmokeRoot/);
+  assert.match(smokeScript, /process\.env\.SMOKE_ROOT/);
+  assert.match(smokeScript, /--root/);
+  assert.match(smokeScript, /application\/manifest\+json/);
+  assert.match(smokeScript, /smokeManifest/);
+  assert.match(smokeScript, /manifest\.webmanifest icon/);
+  assert.match(smokeScript, /rel="manifest" href="\/manifest\.webmanifest"/);
+  assert.match(smokeScript, /name="theme-color" content="#0f172a"/);
+  assert.match(smokeScript, /ROUTES\s*=\s*\[\.\.\.SMOKE_ROUTES,\s*\.\.\.ERROR_SMOKE_ROUTES\]/);
   assert.match(smokeScript, /main#main-content/);
   assert.match(smokeScript, /is missing an h1/);
+  assert.match(smokeScript, /noindex,follow/);
   assert.match(smokeScript, /extractLocalScriptSources/);
   assert.match(smokeScript, /method:\s*"HEAD"/);
 });
@@ -146,14 +159,17 @@ test("browser smoke script covers critical routes, viewports and tool interactio
 
   assert.deepEqual(SMOKE_ROUTES, ["/", "/post/", "/tools/", "/contact/", "/ai/", "/trust/"]);
   assert.deepEqual(MOBILE_SMOKE_ROUTES, ["/", "/post/", "/tools/", "/trust/"]);
+  assert.deepEqual(ERROR_SMOKE_ROUTES, ["/404.html"]);
   assert.ok(MOBILE_SMOKE_ROUTES.every((route) => staticRoutes.has(route)), "mobile smoke routes should come from STATIC_PAGES");
-  assert.match(smokeScript, /import\s+\{\s*MOBILE_SMOKE_ROUTES,\s*SMOKE_ROUTES\s*\}\s+from\s+"..\/src\/config\.mjs"/);
+  assert.match(smokeScript, /import\s+\{\s*ERROR_SMOKE_ROUTES,\s*MOBILE_SMOKE_ROUTES,\s*SMOKE_ROUTES\s*\}\s+from\s+"..\/src\/config\.mjs"/);
+  assert.match(smokeScript, /ROUTES\s*=\s*\[\.\.\.SMOKE_ROUTES,\s*\.\.\.ERROR_SMOKE_ROUTES\]/);
   assert.match(smokeScript, /name:\s*"desktop"/);
   assert.match(smokeScript, /name:\s*"mobile"/);
   assert.match(smokeScript, /page\.on\("console"/);
   assert.match(smokeScript, /page\.on\("pageerror"/);
   assert.match(smokeScript, /main#main-content/);
   assert.match(smokeScript, /h1:visible/);
+  assert.match(smokeScript, /noindex,follow/);
   assert.match(smokeScript, /assertNoHorizontalOverflow/);
   assert.match(smokeScript, /assertCanvasHasPixels/);
   assert.match(smokeScript, /data-json-action="format"/);

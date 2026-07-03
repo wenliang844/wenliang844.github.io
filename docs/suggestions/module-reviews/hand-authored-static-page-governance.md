@@ -4,21 +4,22 @@
 
 ## 本轮验证
 
-- 只读抽样 `about/`、`contact/`、`editor/`、`overleaf/`、`404.html` 的 HTML head、导航、脚本和页脚。
-- 只读运行 `node --test tests/i18n-a11y.test.mjs`：16/16 通过，说明现有测试能守住 lang、meta、H1 数量、导航 aria、skip link、交互标签、footer 订阅与 sponsor CTA 等基础线。
-- 只读比较 `src/templates/layout.mjs` 的公共导航/脚本/页脚与手写 HTML，确认存在公共外壳漂移。
+- 抽样 `about/`、`contact/`、`editor/`、`overleaf/`、`404.html` 的 HTML head、导航、脚本和页脚。
+- `node --test tests/i18n-a11y.test.mjs tests/links.test.mjs tests/workflows.test.mjs`：35/35 通过，覆盖全站导航 href、手写页 more-menu、footer links、公共脚本顺序和 smoke 配置契约。
+- `npm run test:http-smoke`：7/7 路由通过，包含 `/404.html` 的 `noindex,follow`、搜索、订阅和助手恢复入口检查。
+- `npm run test:browser-smoke`：通过，桌面视口覆盖 `/404.html`，移动视口继续覆盖核心页面，并保留 `/tools/` 真实交互 smoke。
 
 ## 结论摘要
 
-项目当前是混合静态架构：文章页、AI、工具、鉴赏、赞助、信任、标签、归档等由 `scripts/build.mjs` 生成；`about/`、`contact/`、`editor/`、`overleaf/`、`404.html` 等仍是手写 HTML。手写页的基础可访问性测试表现不错，但公共导航、脚本顺序、页脚链接和路由语义已经开始和 `renderPage()` 模板分叉。建议不要急着大规模重写页面，而是先建立“公共外壳 parity test”，再逐步把手写页迁移到模板或 partial 生成。
+项目当前仍是混合静态架构：文章页、AI、工具、鉴赏、赞助、信任、标签、归档等由 `scripts/build.mjs` 生成；`about/`、`contact/`、`editor/`、`overleaf/`、`404.html` 等仍是手写 HTML。本轮已先把导航、页脚、公共脚本顺序、联系页 H1 语义和 404 smoke 这些高漂移点收敛到测试契约里。剩余主要风险转向更深的公共 head/CSP/OG 复制维护，后续适合逐步迁移到模板或 partial 生成。
 
-## 📌 HSG-01：手写页导航缺少模板中的 `/trust/` 入口，隐私与信任页可发现性不一致
+## 📌 HSG-01 [已修复]：手写页导航缺少模板中的 `/trust/` 入口，隐私与信任页可发现性不一致
 
 - 📌 问题/建议标题：为手写页与 `renderPage()` 增加导航链接清单一致性测试
 - 📍 位置：`src/templates/layout.mjs:20-24`、`about/index.html:54-60`、`contact/index.html:55-61`、`editor/index.html:58-64`、`overleaf/index.html:55-61`、`404.html:55-61`
-- 📝 当前状况描述：公共模板的 `MORE_ITEMS` 包含 `/tools/`、`/overleaf/`、`/trust/` 三个入口；抽样手写页的 “更多” 菜单只有 `/tools/` 和 `/overleaf/`。因此从生成页能在更多菜单进入“隐私与信任”，但从 About、Contact、Editor、Overleaf、404 等手写页需要依赖 footer、搜索或其它入口。当前链接测试只验证已有 `href` 是否存在，不会发现“应该有但缺失”的导航项。
-- ⚠️ 影响程度：中
-- 💡 建议方案（含伪代码或示例片段）：把模板导航 href 集合导出或在测试中从生成页抽取基准，然后对所有 HTML 的 `.navigation-list` 进行集合比较。
+- 📝 当前状况描述：About、Contact、Editor、Overleaf 和 404 等手写页的“更多”菜单已补齐 `/trust/`，并新增 `hand-authored pages expose the shared more-menu routes` 回归测试，要求 `/tools/`、`/overleaf/`、`/trust/` 三个入口同时存在。
+- ⚠️ 影响程度：已修复。
+- 💡 建议方案（含伪代码或示例片段）：短期已用固定共享入口集合覆盖手写页；后续可以把模板导航 href 集合导出或在测试中从生成页抽取基准，然后对所有 HTML 的 `.navigation-list` 进行集合比较。
 
 ```js
 const requiredNavHrefs = ["/post/", "/ai/", "/appreciation/", "/tools/", "/overleaf/", "/trust/", "/contact/", "/sponsor/"];
@@ -31,13 +32,13 @@ for (const file of htmlFiles) {
 - 📊 预期收益：隐私、赞助、反馈等关键入口在所有页面保持一致，降低新增公共链接后只同步生成页的风险。
 - 🔗 相关建议引用：`module-reviews/route-registry-and-discovery-governance.md`、`module-reviews/privacy-and-trust-center.md`
 
-## 📌 HSG-02：手写页缺少模板页脚中的 `footer-links`，站点说明入口覆盖不完整
+## 📌 HSG-02 [已修复]：手写页缺少模板页脚中的 `footer-links`，站点说明入口覆盖不完整
 
 - 📌 问题/建议标题：将页脚 links 作为公共 chrome 契约，而不只测试订阅和 sponsor CTA
 - 📍 位置：`src/templates/layout.mjs:138-140`、`src/templates/layout.mjs:286-287`、`about/index.html:130-140`、`contact/index.html:134-140`、`editor/index.html:140-146`、`overleaf/index.html:133-139`、`404.html:94-100`、`tests/i18n-a11y.test.mjs:83-93`
-- 📝 当前状况描述：公共模板会渲染 `<nav class="footer-links">`，包含隐私与信任、联系反馈、赞助支持入口；抽样手写页没有 `footer-links`。`tests/i18n-a11y.test.mjs` 能验证 footer 有订阅表单和 sponsor CTA，但没有验证 `footer-links` 的存在及 href 集合。
-- ⚠️ 影响程度：中
-- 💡 建议方案（含伪代码或示例片段）：在可访问性测试中增加 footer links parity，或者把 footer partial 抽成构建时注入。
+- 📝 当前状况描述：手写页已补齐 `<nav class="footer-links">`，包含隐私与信任、联系反馈、赞助支持入口；`tests/i18n-a11y.test.mjs` 新增 `hand-authored pages expose the shared footer links`，验证 `footer-links` 存在且 href 集合完整。
+- ⚠️ 影响程度：已修复。
+- 💡 建议方案（含伪代码或示例片段）：短期已增加 footer links parity；中期仍建议把 footer partial 抽成构建时注入。
 
 ```js
 const requiredFooterLinks = ["/trust/", "/contact/", "/sponsor/"];
@@ -51,13 +52,13 @@ for (const file of await htmlFiles()) {
 - 📊 预期收益：站点说明、隐私和反馈路径在页面底部保持稳定，尤其有利于从工具页、简历页和 404 页回到可信说明。
 - 🔗 相关建议引用：`module-reviews/privacy-and-trust-center.md`、`module-reviews/i18n-and-accessibility.md`
 
-## 📌 HSG-03：公共脚本顺序在手写页和 `CORE_SCRIPTS` 之间不完全一致
+## 📌 HSG-03 [已修复]：公共脚本顺序在手写页和 `CORE_SCRIPTS` 之间不完全一致
 
 - 📌 问题/建议标题：统一公共脚本顺序，避免未来 runtime 依赖产生隐性差异
 - 📍 位置：`src/templates/layout.mjs:62-70`、`about/index.html:28-34`、`contact/index.html:28-35`、`editor/index.html:28-38`、`overleaf/index.html:28-35`、`404.html:30-36`、`tests/links.test.mjs:63-91`
-- 📝 当前状况描述：`CORE_SCRIPTS` 的顺序是 `error-handler -> utils -> i18n -> coder -> search-loader -> subscribe -> assistant-loader`。抽样手写页中，About/Contact/Editor/Overleaf 多数把 `subscribe.js` 放在 `search-loader.js` 前面，404 与模板一致。当前测试验证了部分脚本存在和若干前后关系，但没有要求手写页与模板的公共脚本序列完全一致。
-- ⚠️ 影响程度：低到中
-- 💡 建议方案（含伪代码或示例片段）：将公共脚本序列作为明确测试基准；页面专属脚本通过 `extraScriptsBeforeSearch` 或 `extraScriptsAfterCore` 明确声明插入位置。
+- 📝 当前状况描述：手写页已同步到 `error-handler -> utils -> i18n -> coder -> search-loader -> subscribe -> assistant-loader` 的公共脚本顺序；`tests/links.test.mjs` 现在会提取每个 HTML 的 script `src`，过滤公共脚本后与模板基准完全比较。页面专属脚本仍可存在，但不能打乱公共脚本子序列。
+- ⚠️ 影响程度：已修复。
+- 💡 建议方案（含伪代码或示例片段）：已将公共脚本序列作为明确测试基准；后续如需页面专属脚本插入公共脚本之间，应先在模板层设计显式插槽。
 
 ```js
 const CORE = ["/js/error-handler.js", "/js/utils.js", "/js/i18n.js", "/js/coder.js", "/js/search-loader.js", "/js/subscribe.js", "/js/assistant-loader.js"];
@@ -68,13 +69,13 @@ assert.deepEqual(scripts, CORE, `${file} core scripts drifted`);
 - 📊 预期收益：公共 runtime 的加载时序更可预期；未来搜索、订阅、助手或 i18n 之间出现依赖时，不会因为手写页脚本顺序不同而只在部分页面复现。
 - 🔗 相关建议引用：`module-reviews/client-javascript.md`、`module-reviews/runtime-observability-and-error-resilience.md`
 
-## 📌 HSG-04：`/contact/` 的唯一 H1 是“关于CWL”，路由语义与页面主标题不一致
+## 📌 HSG-04 [已修复]：`/contact/` 的唯一 H1 是“关于CWL”，路由语义与页面主标题不一致
 
 - 📌 问题/建议标题：为静态页增加 route-specific H1/metadata 语义校验
 - 📍 位置：`contact/index.html:7-13`、`contact/index.html:75-93`、`scripts/http-smoke.mjs:110-116`、`scripts/browser-smoke.mjs:205-206`、`tests/i18n-a11y.test.mjs:83-93`
-- 📝 当前状况描述：`/contact/` 的 `<title>`、canonical、OG 和 JSON-LD 都指向联系页，但 `main` 内唯一 H1 是 `data-i18n="about.h1"` 的“关于CWL”，真正的“联系”是 H2。现有 smoke 只检查存在 H1，i18n/a11y 测试只检查每页恰好一个 H1，因此不会发现路由语义和主标题不一致。
-- ⚠️ 影响程度：中
-- 💡 建议方案（含伪代码或示例片段）：在 route manifest 中声明期望 H1 或 `data-i18n` key，测试 title、canonical、H1、JSON-LD `@type/name` 是否同向。
+- 📝 当前状况描述：已将 `/contact/` 的唯一 H1 改为 `data-i18n="contact.h1"` 的“联系”，原作者简介标题降为 H2，并新增 `contact page h1 matches the contact route semantics` 回归测试。`/contact/` 的 `<title>`、canonical、OG、JSON-LD 和页面主标题现在同向。
+- ⚠️ 影响程度：已修复。
+- 💡 建议方案（含伪代码或示例片段）：短期已对 `/contact/` 增加 route-specific H1 测试；后续可在 route manifest 中声明期望 H1 或 `data-i18n` key，继续测试 title、canonical、H1、JSON-LD `@type/name` 是否同向。
 
 ```js
 const routeContracts = {
@@ -108,13 +109,13 @@ for (const file of handAuthoredPages) {
 - 📊 预期收益：公共安全策略、分享元信息、导航和页脚一次更新全站生效，同时保留手写页面的业务主体内容。
 - 🔗 相关建议引用：`module-reviews/build-artifact-synchronization.md`、`module-reviews/route-registry-and-discovery-governance.md`
 
-## 📌 HSG-06：404 页面未进入 smoke 路由，错误页交互入口只能依赖静态测试
+## 📌 HSG-06 [已修复]：404 页面未进入 smoke 路由，错误页交互入口只能依赖静态测试
 
 - 📌 问题/建议标题：为 404 增加专门的 noindex + search/subscribe/assistant 可用性 smoke
 - 📍 位置：`404.html:7-37`、`404.html:75-83`、`scripts/http-smoke.mjs:10`、`scripts/browser-smoke.mjs:11-14`
-- 📝 当前状况描述：404 页面具备 `noindex,follow`、canonical、结构化数据、搜索按钮、订阅和助手脚本。但 HTTP/browser smoke 只覆盖公共正常路由，没有专门请求一个不存在路径并断言 GitHub Pages 404 体验或本地静态服务器 404 回退。错误页往往是用户迷路时最需要搜索和返回入口的页面，值得拥有轻量冒烟。
-- ⚠️ 影响程度：低到中
-- 💡 建议方案（含伪代码或示例片段）：本地 smoke 可以直接请求 `/404.html`；部署后可额外检查不存在路径返回 404 页面内容。
+- 📝 当前状况描述：`src/config.mjs` 已新增 `ERROR_SMOKE_ROUTES = ["/404.html"]`，HTTP smoke 会合并正常路由和错误页路由，并断言 404 页包含 `noindex,follow`、全局搜索、订阅表单和助手入口；browser smoke 在桌面视口打开 `/404.html`，检查主内容、H1、无横向溢出、恢复入口和运行时错误。
+- ⚠️ 影响程度：已修复。
+- 💡 建议方案（含伪代码或示例片段）：本地 smoke 已直接请求 `/404.html`；部署后仍可额外检查真实不存在路径是否返回 GitHub Pages 404 页面内容。
 
 ```js
 await smokeRoute(baseUrl, "/404.html", {
@@ -129,14 +130,11 @@ await smokeRoute(baseUrl, "/404.html", {
 
 ## 建议优先级
 
-1. 中高优先级：补齐手写页导航和 footer links parity test，尤其是 `/trust/` 入口。
-2. 中优先级：修正 `/contact/` 的 H1 语义，并增加 route-specific H1/metadata 契约。
-3. 中优先级：把公共脚本顺序纳入 chrome parity，避免手写页和模板继续分叉。
-4. 中优先级：逐步把 About/Contact/Editor/Overleaf/404 迁移到模板输入，或至少增加 head/chrome snapshot。
-5. 低到中优先级：为 404 增加专门 smoke，覆盖错误页恢复路径。
+1. 中优先级：逐步把 About/Contact/Editor/Overleaf/404 迁移到模板输入，或至少增加 head/CSP/OG chrome snapshot。
+2. 低到中优先级：为真实不存在路径增加部署后 404 smoke，补齐 `/404.html` 静态文件以外的托管层验证。
 
 ## 本轮健康度评分
 
-- 手写静态页治理健康度：3.4 / 5
-- 当前强项：手写页基础可访问性测试通过，head 元信息、CSP、OG、JSON-LD 和公共脚本总体完整。
-- 主要扣分：公共 chrome 复制维护导致导航、footer、搜索提示和脚本顺序漂移；联系页主标题语义与路由目标不一致。
+- 手写静态页治理健康度：4.0 / 5
+- 当前强项：导航、footer links、公共脚本顺序、联系页 H1 语义和 404 恢复入口已有回归测试；HTTP/browser smoke 覆盖关键用户路径。
+- 主要扣分：手写页仍复制 head、CSP、OG/Twitter、resource hints 和部分结构化数据，公共 chrome 尚未完全由模板或 partial 生成。

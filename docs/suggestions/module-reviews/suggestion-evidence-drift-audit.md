@@ -6,14 +6,14 @@
 ## 本轮验证
 
 - `npm run lint:check`：通过，当前没有 ESLint warning 输出。
-- `npm test`：792/792 通过。
-- `npm run test:coverage`：792/792 通过；all files line 96.82%、branch 83.51%、funcs 96.50%。
-- 只读文档扫描发现建议库中同时存在多代测试数字，例如 731/731、742/742、752/752、769/769、773/773、788/788、789/789、792/792。
+- `npm test`：798/798 通过。
+- `npm run test:coverage`：798/798 通过；all files line 96.80%、branch 83.45%、funcs 96.51%。
+- 只读文档扫描发现建议库中同时存在多代测试数字，例如 731/731、742/742、752/752、769/769、773/773、788/788、789/789、793/793、797/797、798/798。
 - 本轮提交前测试曾依赖若干未跟踪文件：`src/page-assets.mjs`、`css/tools.css`、`css/trust.css`、`src/templates/trust.mjs`、`src/trust-data.mjs`、`trust/index.html`。这些资源已在 `1a9370d` 中进入 Git 跟踪集合，但该过程暴露出证据需要记录工作区范围。
 
 ## 结论摘要
 
-建议库已经记录了大量高质量证据，但证据本身开始出现“时间层”问题：早期审计的 731/731、77 warnings、94% coverage 是当时事实，后续 788/788、789/789、792/792、0 warnings、96.82% coverage 是各自时间点的当前事实。它们都真实，但如果缺少时间戳、commit、dirty-worktree 标记和机器可读快照，读者很难知道某个数字是历史基线、当前 HEAD，还是包含未跟踪文件的本地工作区结果。
+建议库已经记录了大量高质量证据，但证据本身开始出现“时间层”问题：早期审计的 731/731、77 warnings、94% coverage 是当时事实，后续 788/788、789/789、793/793、797/797、798/798、0 warnings、96.x coverage 是各自时间点的当前事实。它们都真实，但如果缺少时间戳、commit、dirty-worktree 标记和机器可读快照，读者很难知道某个数字是历史基线、当前 HEAD，还是包含未跟踪文件的本地工作区结果。
 
 ---
 
@@ -21,7 +21,7 @@
 
 - 📍 位置：`docs/suggestions/full-browser-audit-2026-07-03.md:30-36`、`docs/suggestions/full-browser-audit-2026-07-03.md:268-274`、`docs/suggestions/current-worktree-verification-2026-07-03.md:9-12`、`docs/suggestions/module-reviews/test-coverage-risk-map.md:4-10`
 - ✅ 已完成：新增 `scripts/write-quality-baseline.mjs`、`npm run quality:baseline` 和 `docs/suggestions/evidence/current-quality-baseline.json`，把命令结果、覆盖率、耗时和 git dirty 状态写成机器可读基线。
-- 📝 剩余状况描述：历史报告记录了 731/731、752 passed、line 94.27% 等当时基线；近期报告记录 788/788、789/789、792/792、line 96.82%。这些数字都可作为时间点证据。当前已具备 JSON 单一来源，但 README、健康评分、工作报告和模块评审仍是人工同步，后续应改为自动引用或由脚本更新。
+- 📝 剩余状况描述：历史报告记录了 731/731、752 passed、line 94.27% 等当时基线；近期报告记录 788/788、789/789、793/793、797/797、798/798、line 96.x%。这些数字都可作为时间点证据。当前已具备 JSON 单一来源，但 README、健康评分、工作报告和模块评审仍是人工同步，后续应改为自动引用或由脚本更新。
 - ⚠️ 影响程度：中
 - 💡 建议方案（含伪代码或示例片段）：让 README/健康评分从 `docs/suggestions/evidence/current-quality-baseline.json` 派生摘要；CI 可继续上传同一 JSON 作为 artifact。
 
@@ -37,7 +37,7 @@
       "command": "npm run test:coverage",
       "status": "pass",
       "passed": 786,
-      "coverage": { "lines": 96.82, "branches": 83.51, "functions": 96.50 }
+      "coverage": { "lines": 96.80, "branches": 83.45, "functions": 96.51 }
     }
   ]
 }
@@ -99,7 +99,7 @@ baseline.untrackedReferences = untrackedReferences;
 ## 📌 EVD-04：覆盖率报告只存在于控制台输出，缺少可追溯 artifact
 
 - 📍 位置：`package.json:18-18`、`.github/workflows/ci.yml:47-48`、`docs/suggestions/module-reviews/test-coverage-risk-map.md:118-137`
-- 📝 当前状况描述：`npm run test:coverage` 能输出完整覆盖率表，当前结果为 792/792、line 96.82%、branch 83.51%、funcs 96.50%，并已写入 `docs/suggestions/evidence/current-quality-baseline.json`。但 CI 仍未保存原始 coverage log 或 Markdown summary。历史文档只能复制关键行，导致覆盖率趋势散落在人工报告中，且难以比较 file-level 变化，例如 `update-commercial-relay.mjs` 当前 line 76.65%、`parse-relay.mjs` branch 69.90%。
+- 📝 当前状况描述：`npm run test:coverage` 能输出完整覆盖率表，当前结果为 798/798、line 96.80%、branch 83.45%、funcs 96.51%，并已写入 `docs/suggestions/evidence/current-quality-baseline.json`。但 CI 仍未保存原始 coverage log 或 Markdown summary。历史文档只能复制关键行，导致覆盖率趋势散落在人工报告中，且难以比较 file-level 变化，例如 `update-commercial-relay.mjs` 当前 line 76.65%、`parse-relay.mjs` branch 69.90%。
 - ⚠️ 影响程度：中
 - 💡 建议方案（含伪代码或示例片段）：在 CI 中保存原始 coverage log，并提取 all files 和低覆盖文件到 `$GITHUB_STEP_SUMMARY`。
 

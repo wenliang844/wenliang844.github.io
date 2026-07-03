@@ -4,25 +4,25 @@
 
 ## 本轮验证
 
-- `node scripts/http-smoke.mjs`：`/`、`/tools/`、`/ai/`、`/post/`、`/contact/`、`/trust/` 6 个在线路由全部可访问。
-- 只读扫描未发现 `manifest.webmanifest`、`manifest.json`、`service-worker.js`、`sw.js`、`navigator.serviceWorker` 或 `caches.open`。
+- `npm run test:http-smoke`：manifest 可读、图标可达，7 个路由全部可访问，包含 `/404.html` 错误页恢复入口。
+- 已新增 `manifest.webmanifest`，公共模板输出 `<link rel="manifest">` 和 `theme-color`，临时构建会复制 manifest；当前仍未发现 `service-worker.js`、`sw.js`、`navigator.serviceWorker` 或 `caches.open`。
 - 现有前端数据请求中，搜索索引使用 `fetch("/search-index.json", { cache: "no-cache" })`，中转站数据使用 `cache: "no-store"`；这说明不同数据源已经隐含了不同新鲜度诉求，但还没有集中缓存策略。
 
 ## 结论摘要
 
-当前站点是稳定的在线静态站，不是 PWA。`new-features.md` 已有“PWA 离线支持”的功能建议，本报告进一步拆成工程落地视角：哪些资源适合预缓存、哪些数据必须保持 network-first 或 no-store、Service Worker 不能拦截哪些用户敏感请求，以及如何把离线能力纳入现有 smoke 和发布验证。建议采用分阶段策略，先做安装清单和只读离线 fallback，再谨慎引入运行时缓存。
+当前站点已具备最小 Web App Manifest，可作为后续安装能力的基础，但还不是离线 PWA。`new-features.md` 已有“PWA 离线支持”的功能建议，本报告进一步拆成工程落地视角：哪些资源适合预缓存、哪些数据必须保持 network-first 或 no-store、Service Worker 不能拦截哪些用户敏感请求，以及如何把离线能力纳入现有 smoke 和发布验证。建议继续采用分阶段策略：manifest 已落地，下一步先做只读离线 fallback，再谨慎引入运行时缓存。
 
-## 📌 PWA-01：站点没有 Web App Manifest 和 Service Worker，移动端安装与离线阅读能力缺失
+## 📌 PWA-01 [部分修复]：站点已有 Web App Manifest，Service Worker 与离线阅读仍缺失
 
 - 📌 问题/建议标题：补最小 PWA 外壳，但先保持保守缓存范围
-- 📍 位置：`src/templates/layout.mjs:248-264`、仓库根目录缺少 `manifest.webmanifest` / `service-worker.js`、`docs/suggestions/new-features.md:205-233`
-- 📝 当前状况描述：公共模板 `<head>` 输出 favicon、资源 hint、CSS、脚本、SEO meta 和 JSON-LD，但没有 `<link rel="manifest">`，源码中也没有 Service Worker 注册逻辑。用户在移动端不能把站点作为可安装应用，也无法在网络中断时继续打开已读文章。功能建议 `F-07` 已提出 PWA 支持，但目前还停留在概念层。
+- 📍 位置：`src/templates/layout.mjs:248-264`、`manifest.webmanifest`、`scripts/build.mjs`、仓库根目录仍缺少 `service-worker.js`、`docs/suggestions/new-features.md:205-233`
+- 📝 当前状况描述：公共模板 `<head>` 已输出 favicon、manifest、theme-color、资源 hint、CSS、脚本、SEO meta 和 JSON-LD；`manifest.webmanifest` 描述站点名称、启动 URL、scope、standalone display、主题色和 favicon 图标，构建到临时目录时也会复制该文件。源码中仍没有 Service Worker 注册逻辑，用户在网络中断时还不能继续打开已读文章。
 - ⚠️ 影响程度：中
-- 💡 建议方案（含伪代码或示例片段）：第一阶段只加 manifest 和空壳注册，Service Worker 只处理导航 fallback 与少量稳定静态资源，不缓存用户请求和外部接口。
+- 💡 建议方案（含伪代码或示例片段）：manifest 已完成；下一阶段只加空壳注册与保守 Service Worker。Service Worker 只处理导航 fallback 与少量稳定静态资源，不缓存用户请求和外部接口。
 
 ```html
 <link rel="manifest" href="/manifest.webmanifest">
-<meta name="theme-color" content="#111827">
+<meta name="theme-color" content="#0f172a">
 <script>
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => navigator.serviceWorker.register("/service-worker.js"));
@@ -36,7 +36,7 @@ if ("serviceWorker" in navigator) {
   "short_name": "CWLBlog",
   "start_url": "/",
   "display": "standalone",
-  "icons": [{ "src": "/images/favicon.png", "sizes": "512x512", "type": "image/png" }]
+  "icons": [{ "src": "/images/favicon.png", "sizes": "32x32", "type": "image/png" }]
 }
 ```
 
@@ -160,13 +160,13 @@ await expect(page.locator("main#main-content")).toBeVisible();
 ## 建议优先级
 
 1. 高优先级：先定义缓存策略矩阵和禁止缓存范围，防止 Service Worker 扩大隐私风险。
-2. 中优先级：加入 manifest 与最小注册，先做安装能力和离线 fallback。
+2. 中优先级：加入最小 Service Worker 注册，先做离线 fallback，并保持 manifest 已有检查。
 3. 中优先级：从构建产物和 `PAGE_ASSETS` 派生预缓存清单，避免手写漂移。
 4. 中优先级：补 PWA smoke，验证 manifest、SW 注册、离线路由和缓存升级。
 5. 低优先级：再逐步做搜索索引 stale-while-revalidate、文章离线阅读和模型资源预缓存状态面板。
 
 ## 本轮健康度评分
 
-- PWA 就绪度：2.8 / 5
-- 当前强项：静态站在线 smoke 稳定、资源引用集中化正在推进、部分数据请求已显式声明 `no-cache` / `no-store`。
-- 主要扣分：无 manifest、无 Service Worker、无离线 fallback、无缓存策略矩阵、无 PWA 自动化测试。
+- PWA 就绪度：3.1 / 5
+- 当前强项：静态站在线 smoke 稳定，Web App Manifest 已落地并进入 HTTP smoke，资源引用集中化正在推进，部分数据请求已显式声明 `no-cache` / `no-store`。
+- 主要扣分：无 Service Worker、无离线 fallback、无缓存策略矩阵、无离线/PWA 浏览器自动化测试。

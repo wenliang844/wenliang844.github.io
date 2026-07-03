@@ -42,6 +42,8 @@ test("layout escapes title and metadata", () => {
   assert.match(html, /src="\/js\/assistant-loader\.js"/);
   assert.doesNotMatch(html, /src="\/js\/assistant\.js"/);
   assert.match(html, /http-equiv="Content-Security-Policy"/);
+  assert.match(html, /<link rel="manifest" href="\/manifest\.webmanifest">/);
+  assert.match(html, /<meta name="theme-color" content="#0f172a">/);
   assert.match(html, /object-src 'none'/);
   assert.match(html, /style-src 'self' 'unsafe-inline' https:\/\/giscus\.app/);
   assert.match(html, /frame-src https:\/\/giscus\.app/);

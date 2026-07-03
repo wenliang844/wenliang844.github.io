@@ -250,6 +250,8 @@ export function renderPage(opts) {
   <meta http-equiv="Content-Security-Policy" content="${escapeAttr(renderContentSecurityPolicy(connectSrc))}">
   <meta name="description" content="${escapeAttr(description)}">
   <link rel="icon" href="/images/favicon.png" type="image/png">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="theme-color" content="#0f172a">
 ${renderResourceHints()}
   <link rel="stylesheet" href="/css/fontawesome-all.min.css">
   <link rel="stylesheet" href="/css/coder.css">

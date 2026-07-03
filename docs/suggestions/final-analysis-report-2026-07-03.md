@@ -11,9 +11,9 @@
 | 建议库规模 | 66 个 `/docs/suggestions` 文档，其中 45 个模块专题 |
 | 当前工作树 | 存在本轮源码、测试和文档改动；质量基线以 dirty scope 记录当前证据范围 |
 | Lint | `npm run lint:check` 通过，0 warnings |
-| 单元/行为测试 | `npm test` 792/792 通过 |
-| 覆盖率 | `npm run test:coverage` 792/792 通过；line 96.82%、branch 83.51%、funcs 96.50% |
-| HTTP smoke | `node scripts/http-smoke.mjs` 6/6 路由通过 |
+| 单元/行为测试 | `npm test` 798/798 通过 |
+| 覆盖率 | `npm run test:coverage` 798/798 通过；line 96.80%、branch 83.45%、funcs 96.51% |
+| HTTP smoke | `node scripts/http-smoke.mjs` 7/7 路由通过 |
 | 生产/浏览器证据 | 外部质量基线记录显示 smoke、production gate 和 browser smoke 均通过；dirty scope 已记录 |
 
 ## 总体判断
@@ -29,7 +29,7 @@
 | 性能 | 3.9 / 5 | 路由级 CSS 预算和按需工具面板已推进；JS/CSS 包、模型冷启动、PWA 缓存策略仍是重点 |
 | SEO / 内容可信 | 4.0 / 5 | JSON-LD、canonical、sitemap、RSS 基础完整；lastmod、RSS auto-discovery、内容新鲜度可继续增强 |
 | UX / 可访问性 | 4.1 / 5 | 真实浏览器 smoke、按钮名称、编辑器标签、QR 稳定性已补；离线和错误态仍有提升空间 |
-| 工程化 | 4.2 / 5 | 788 项测试、覆盖率门禁、HTTP/browser smoke、生产验证均较强；证据 artifact 和 CI 体积仍需收敛 |
+| 工程化 | 4.2 / 5 | 797 项测试、覆盖率门禁、HTTP/browser smoke、生产验证均较强；证据 artifact 和 CI 体积仍需收敛 |
 | 可维护性 | 3.6 / 5 | 文档体系很丰富，但索引、状态、证据数字和“已修复”口径需要自动化 |
 
 ## 问题清单索引
@@ -67,7 +67,7 @@ assert.equal(baseline.git.dirty, false, "release baseline must be clean");
 
 - 📌 问题/建议标题：Service Worker 可能扩大 API key、API Tester 和动态数据缓存风险
 - 📍 位置：`src/templates/layout.mjs:248-264`、`js/search.js:207-224`、`js/relay.js:271-286`、`js/tools.js:1166-1180`、`js/assistant.js:600-633`
-- 📝 当前状况描述：站点目前没有 manifest 和 Service Worker；PWA 是明确的功能方向。但搜索索引、relay 数据、助手请求、API Tester 请求和表单提交具有不同的新鲜度与隐私边界，不能用同一个 cache-first 策略处理。
+- 📝 当前状况描述：站点已新增最小 `manifest.webmanifest` 并通过 HTTP smoke 验证，具备后续安装能力基础；但目前仍没有 Service Worker。PWA 是明确的功能方向，而搜索索引、relay 数据、助手请求、API Tester 请求和表单提交具有不同的新鲜度与隐私边界，不能用同一个 cache-first 策略处理。
 - ⚠️ 影响程度：高
 - 💡 建议方案（含伪代码或示例片段）：先写缓存策略矩阵，默认只缓存 same-origin GET 静态资源；非 GET、跨域、含 token/key/signature 查询串、助手/API Tester 请求全部 network-only。
 

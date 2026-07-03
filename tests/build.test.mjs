@@ -40,6 +40,11 @@ test("build writes the expected static artifacts", async () => {
     assert.match(stdout, /构建完成：6 篇文章/);
 
     const postsHtml = await readFile(join(outDir, "post", "index.html"), "utf8");
+    const homeHtml = await readFile(join(outDir, "index.html"), "utf8");
+    const notFoundHtml = await readFile(join(outDir, "404.html"), "utf8");
+    const contactHtml = await readFile(join(outDir, "contact", "index.html"), "utf8");
+    const coderCss = await readFile(join(outDir, "css", "coder.css"), "utf8");
+    const coderJs = await readFile(join(outDir, "js", "coder.js"), "utf8");
     const singlePostHtml = await readFile(join(outDir, "post", "manage-system", "index.html"), "utf8");
     const appreciationHtml = await readFile(join(outDir, "appreciation", "index.html"), "utf8");
     const trustHtml = await readFile(join(outDir, "trust", "index.html"), "utf8");
@@ -48,6 +53,7 @@ test("build writes the expected static artifacts", async () => {
     const sitemap = await readFile(join(outDir, "sitemap.xml"), "utf8");
     const robots = await readFile(join(outDir, "robots.txt"), "utf8");
     const rss = await readFile(join(outDir, "index.xml"), "utf8");
+    const webManifest = JSON.parse(await readFile(join(outDir, "manifest.webmanifest"), "utf8"));
     const searchIndex = JSON.parse(await readFile(join(outDir, "search-index.json"), "utf8"));
     const appreciationTexts = [
       "鉴赏",
@@ -107,6 +113,19 @@ test("build writes the expected static artifacts", async () => {
       "每个人都有漏洞,可以通过观察得到",
     ];
 
+    assert.match(homeHtml, /<main\b[^>]*\bid=["']main-content["']/i);
+    assert.match(notFoundHtml, /<meta name="robots" content="noindex,follow">/);
+    assert.match(contactHtml, /data-i18n="contact\.h1"/);
+    assert.match(coderCss, /\.navigation/);
+    assert.match(coderJs, /coderShowPost/);
+    assert.equal(webManifest.name, "CWLBlog");
+    assert.equal(webManifest.short_name, "CWLBlog");
+    assert.equal(webManifest.start_url, "/");
+    assert.equal(webManifest.scope, "/");
+    assert.equal(webManifest.display, "standalone");
+    assert.equal(webManifest.theme_color, "#0f172a");
+    assert.equal(webManifest.icons[0].src, "/images/favicon.png");
+    assert.equal(webManifest.icons[0].sizes, "32x32");
     assert.match(postsHtml, /class="post-tree"/);
     assert.match(postsHtml, /<link rel="canonical" href="https:\/\/wenliang844.github.io\/post\/">/);
     assert.match(postsHtml, /property="og:image" content="https:\/\/wenliang844.github.io\/images\/favicon.png"/);
