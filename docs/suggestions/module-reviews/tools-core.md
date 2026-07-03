@@ -5,16 +5,16 @@
 ## 📌 MR-CORE-01: Cron 解析器需要避免主线程百万次扫描
 
 - **📍 位置**：`js/tools-core.js:938-980`, `tests/tools-core-deep.test.mjs:258-266`
-- **📝 当前状况描述**：Cron 下一次执行时间通过逐分钟推进计算，最多扫描两年。第 2 轮只读探测显示，无解表达式 `0 0 31 2 *` 约 127.57ms，明显高于普通表达式。
+- **✅ 修复状态**：Cron 解析器已为“月份内不存在指定日期且星期字段为通配符”的表达式增加提前失败路径，`0 0 31 2 *` 不再进入两年逐分钟扫描；同时补测试确认 `0 0 31 2 mon` 仍保留日/周 OR 语义。
+- **🧪 验证**：`node --test tests/tools-core-deep.test.mjs tests/tools.test.mjs` 65/65 通过；Playwright mobile 烟测显示无解表达式约 0.7ms 返回错误态。
+- **📝 原状况描述**：Cron 下一次执行时间通过逐分钟推进计算，最多扫描两年。第 2 轮只读探测显示，无解表达式 `0 0 31 2 *` 约 127.57ms，明显高于普通表达式。
 - **⚠️ 影响程度**：中
-- **💡 建议方案**：
+- **💡 后续建议**：
   ```javascript
-  if (isImpossibleDayMonth(dayOfMonth.value, month.value)) {
-    return fail("日期字段永远无法匹配", "cronNoRuns");
-  }
+  cursor = jumpToNextAllowedMinuteOrHour(cursor);
   ```
   后续可以把逐分钟推进替换为按字段跳跃：分钟不匹配跳到下一合法分钟，小时不匹配跳到下一合法小时，日期不匹配跳到下一天零点。
-- **📊 预期收益**：缩短无解表达式反馈时间，避免工具页主线程被同步计算卡住。
+- **📊 实际收益**：缩短典型无解表达式反馈时间，避免工具页主线程被同步计算卡住。
 - **🔗 相关建议引用**：[P-16](../performance-bottlenecks.md#p-16-cron-无解表达式会在主线程同步扫描两年分钟粒度)
 
 ## 📌 MR-CORE-02: UUID 生成器的弱随机 fallback 需要明确降级语义

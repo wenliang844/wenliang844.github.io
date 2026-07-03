@@ -4,22 +4,22 @@
 
 ---
 
-## 2026-07-03 自主复查快照（第 3 轮更新）
+## 2026-07-03 自主复查快照（第 5 轮更新）
 
 | 项目 | 结果 |
 |------|------|
 | 当前分支 | `codex/autonomous-optimization` |
-| 工作区注意事项 | 多个源码/生成文件存在非本轮修改，已保留不触碰；本轮仅写入 `/docs/suggestions` |
-| 只读检查 | `npm run check:readonly` 通过，731/731 tests pass，ESLint 0 error / 77 warning |
-| 生产验证 | `npm run validate:production` 通过，但发现该脚本会写根目录构建产物 |
-| 依赖审计 | `npm audit --omit=dev --json` 0 漏洞 |
-| 覆盖率 | 总体 lines 94.32%、branches 76.28%、functions 91.70%，通过阈值 |
+| 工作区注意事项 | 本轮包含源码、测试与文档修复；生产验证脚本已修复大测试输出下的假失败 |
+| 质量门禁 | `npm run lint:check` 通过；`npm test` 752/752 通过 |
+| 生产验证 | `npm run validate:production` 34/34 通过 |
+| 依赖审计 | `npm audit --registry=https://registry.npmjs.org --audit-level=moderate` 0 漏洞 |
+| 覆盖率 | 总体 lines 94.41%、branches 78.30%、functions 91.81%，通过阈值 |
 | 本地服务冒烟 | `/`、`/tools/`、`/post/`、`/search-index.json` 均返回 200 |
 | 第 2 轮深挖 | `js/assistant.js`、`js/tools-core.js`、`tests/assistant*.mjs`、`tests/tools*.mjs` |
 | 第 2 轮行为探测 | Cron 无解表达式 `0 0 31 2 *` 约 127.57ms；普通表达式约 0.19-1.52ms |
 | 第 3 轮 DOM 审计 | 19 个非临时 HTML 页面；description/main/h1/skip link/OG image 全部具备 |
-| 第 3 轮新增例外 | 404 缺 JSON-LD；`markdown-input` 缺 label；`qr-image` 缺尺寸/加载属性 |
-| 第 3 轮资源测量 | `coder.css` 6,617 行；工具页初始 DOM 约 1,199 个元素、31 个工具面板 |
+| 第 3 轮新增例外 | 404 JSON-LD、`markdown-input` label、`qr-image` 尺寸/加载属性均已修复 |
+| 第 3-5 轮资源测量 | `coder.css` 6,637 行；工具页首屏约 310 个元素、1 个真实面板、30 个按需 template |
 
 ### 新增高优先级发现
 
@@ -30,32 +30,36 @@
 | S-12 | 中 | Mini API Tester 会把 Authorization 头和请求体持久化到 localStorage | [security-audit.md](security-audit.md#s-12-mini-api-tester-会把-authorization-头和请求体持久化到-localstorage) |
 | S-13 | 中 | 手势工具运行时加载 CDN 机器视觉脚本和模型，缺少完整供应链约束 | [security-audit.md](security-audit.md#s-13-手势工具运行时加载-cdn-机器视觉脚本和模型缺少完整供应链约束) |
 | B-13 | 中 | 生产验证脚本默认会覆盖根目录构建产物 | [bugs-and-risks.md](bugs-and-risks.md#b-13-生产验证脚本默认会覆盖根目录构建产物) |
-| B-14 | 中 | 工具箱按需脚本加载 Promise 过早 resolve，手势页存在初始化竞态 | [bugs-and-risks.md](bugs-and-risks.md#b-14-工具箱按需脚本加载-promise-过早-resolve手势页存在初始化竞态) |
+| B-14 | 中 | 工具箱按需脚本加载 Promise 过早 resolve，手势页存在初始化竞态（核心竞态已修复） | [bugs-and-risks.md](bugs-and-risks.md#b-14-已修复核心竞态-工具箱按需脚本加载-promise-过早-resolve手势页存在初始化竞态) |
 | B-15 | 中 | AI 助手模式偏好写入后不会被恢复 | [bugs-and-risks.md](bugs-and-risks.md#b-15-ai-助手模式偏好写入后不会被恢复) |
 | B-16 | 中 | AI 助手 SSE 流结束时可能丢失最后一个未闭合事件 | [bugs-and-risks.md](bugs-and-risks.md#b-16-ai-助手-sse-流结束时可能丢失最后一个未闭合事件) |
 | P-13 | 中 | 关键静态产物体积已经接近当前性能预算 | [performance-bottlenecks.md](performance-bottlenecks.md#p-13-关键静态产物体积已经接近当前性能预算) |
-| P-16 | 中 | Cron 无解表达式会在主线程同步扫描两年分钟粒度 | [performance-bottlenecks.md](performance-bottlenecks.md#p-16-cron-无解表达式会在主线程同步扫描两年分钟粒度) |
+| P-16 | 中 | Cron 无解表达式会在主线程同步扫描两年分钟粒度（主要慢路径已修复） | [performance-bottlenecks.md](performance-bottlenecks.md#p-16-cron-无解表达式会在主线程同步扫描两年分钟粒度) |
 | P-17 | 中 | 全站统一加载 `coder.css`，工具箱和助手样式成本扩散到所有页面 | [performance-bottlenecks.md](performance-bottlenecks.md#p-17-全站统一加载-codercss工具箱和助手样式成本扩散到所有页面) |
-| P-18 | 中 | 工具页首屏一次性解析 31 个工具面板 | [performance-bottlenecks.md](performance-bottlenecks.md#p-18-工具页首屏一次性解析-31-个工具面板) |
+| P-18 | 中 | 工具页首屏一次性解析 31 个工具面板（DOM 已部分修复） | [performance-bottlenecks.md](performance-bottlenecks.md#p-18-已部分修复-工具页首屏一次性解析-31-个工具面板) |
 | UX-13 | 中 | AI 助手默认模式与隐私文案需要重新对齐 | [ux-improvements.md](ux-improvements.md#ux-13-ai-助手默认模式与隐私文案需要重新对齐) |
-| UX-14 | 中 | Markdown 编辑器主输入框缺少可关联标签 | [ux-improvements.md](ux-improvements.md#ux-14-markdown-编辑器主输入框缺少可关联标签) |
 | CQ-12 | 中 | 安全回归测试只检查连续 key 字面量，无法识别拼接型密钥 | [code-quality.md](code-quality.md#cq-12-安全回归测试只检查连续-key-字面量无法识别拼接型密钥) |
 
 ### 已落地修复补充
 
 - 已完成：S-11 / CQ-12 移除 AI 助手前端默认体验 key 机制，并补“空 key 不请求、自填 key 才请求”的回归测试。
+- 已完成：UX-14 为独立编辑器和工具箱内嵌 Markdown 编辑器补充屏幕阅读器 label、英文 i18n 和 `.sr-only` 样式。
+- 已完成：UX-15 为 QR 结果图片补充 `width` / `height` / `loading` / `decoding`，并用 CSS `aspect-ratio` 稳定预览区域。
 - 已完成：B-15 / UX-13 助手默认进入本地站点模式，并恢复用户保存的 `site` / `llm` 模式偏好。
 - 已完成：B-16 / MR-AST-03 修复 SSE 流结束时未闭合最后事件被丢弃的问题。
+- 已完成：B-14 / MR-TOOLS-02 修复工具箱按需 runtime 脚本加载 Promise 过早 resolve 的核心竞态。
+- 已完成：P-16 / MR-CORE-01 为 Cron 不可能日期表达式增加短路和 `<50ms` 回归预算，保留 day-of-month/day-of-week OR 语义。
+- 已完成：B-17 / DE-15 为生产验证测试命令设置专用输出缓冲，避免 752 条测试输出导致 `validate:production` 假失败。
 
 ### 当前健康度修正
 
 | 维度 | 2026-06-18 | 2026-07-03 复查 | 说明 |
 |------|------------|------------------|------|
 | 安全性 | 3.5 / 5 | 3.3 / 5 | 前端默认体验 key 已移除；AI 对话持久化、手势供应链和 UUID 弱随机 fallback 仍需治理 |
-| 工程化 | 4.2 / 5 | 3.9 / 5 | assistant 默认 key、模式恢复和 SSE 尾包已补回归；质量门禁写入副作用、Cron/DOM 契约仍需推进 |
-| 性能 | 4.2 / 5 | 3.7 / 5 | CSS 单包 6,617 行，工具页首屏 DOM 较重，Cron 无解表达式存在主线程同步扫描 |
-| 用户体验 | 4.0 / 5 | 3.9 / 5 | AI 助手默认模式和隐私文案已对齐；超时反馈和编辑器标签仍需处理 |
-| 综合 | 3.9 / 5 | 3.6 / 5 | 项目整体可稳定运行，剩余高优先级集中在隐私保留、工具性能和供应链治理 |
+| 工程化 | 4.2 / 5 | 4.0 / 5 | assistant 默认 key、模式恢复、SSE 尾包、Cron 性能预算和生产验证缓冲已补回归；质量门禁写入副作用、通用 DOM 契约仍需推进 |
+| 性能 | 4.2 / 5 | 3.9 / 5 | 工具页首屏 DOM 已拆到按需挂载，Cron 不可能日期已短路；CSS 单包、工具页 JS 单包和更泛化稀疏表达式优化仍需治理 |
+| 用户体验 | 4.0 / 5 | 4.0 / 5 | AI 助手默认模式、隐私文案、编辑器标签和 QR 预览稳定性已处理；超时反馈仍需推进 |
+| 综合 | 3.9 / 5 | 3.7 / 5 | 项目整体可稳定运行，剩余高优先级集中在隐私保留、工具 JS/CSS 拆包和供应链治理 |
 
 ---
 
@@ -78,15 +82,15 @@
 
 | 优先级 | 类别 | 文档 | 发现数量 |
 |--------|------|------|----------|
-| 🔴 第一 | Bug 与风险 | [bugs-and-risks.md](bugs-and-risks.md) | 16（中 5 / 已修复 11） |
+| 🔴 第一 | Bug 与风险 | [bugs-and-risks.md](bugs-and-risks.md) | 17（中 5 / 已修复 12） |
 | 🔴 第一 | 安全审计 | [security-audit.md](security-audit.md) | 16（高 1 / 中 3 / 低 7 / 已修复 5） |
-| 🔴 第一 | 性能瓶颈 | [performance-bottlenecks.md](performance-bottlenecks.md) | 18（中 8 / 低 2 / 预防 1 / 部分 1 / 已修复 6） |
+| 🔴 第一 | 性能瓶颈 | [performance-bottlenecks.md](performance-bottlenecks.md) | 18（中 7 / 低 2 / 预防 1 / 部分 2 / 已修复 6） |
 | 🟡 第二 | 代码质量 | [code-quality.md](code-quality.md) | 12（中 3 / 低 3 / 已修复 6） |
 | 🟡 第二 | 架构评审 | [architecture-review.md](architecture-review.md) | 8（中 4 / 低 4） |
 | 🟡 第二 | 技术债务 | [tech-debt.md](tech-debt.md) | 12（中 2 / 低 8 / 已修复 2） |
 | 🟢 第三 | 新功能建议 | [new-features.md](new-features.md) | 13 |
-| 🟢 第三 | UX 优化 | [ux-improvements.md](ux-improvements.md) | 15（中 4 / 低 3 / 已修复 8） |
-| 🟢 第三 | 开发体验 | [devex-improvements.md](devex-improvements.md) | 14（中 3 / 低 4 / 部分 1 / 已修复 6） |
+| 🟢 第三 | UX 优化 | [ux-improvements.md](ux-improvements.md) | 15（中 3 / 低 2 / 已修复 10） |
+| 🟢 第三 | 开发体验 | [devex-improvements.md](devex-improvements.md) | 15（中 3 / 低 4 / 部分 1 / 已修复 7） |
 | 🔵 第四 | 模块分析-构建系统 | [module-reviews/build-system.md](module-reviews/build-system.md) | 5（低 2 / 已修复 3） |
 | 🔵 第四 | 模块分析-客户端JS | [module-reviews/client-javascript.md](module-reviews/client-javascript.md) | 5（低 3 / 已修复 2） |
 | 🔵 第四 | 模块分析-编辑器 | [module-reviews/editor.md](module-reviews/editor.md) | 6 |
@@ -98,8 +102,9 @@
 | 🔵 第四 | 工具箱手势与 API 测试器 | [module-reviews/tools-gesture-and-api.md](module-reviews/tools-gesture-and-api.md) | 5（中 3 / 低 2） |
 | 🔵 第四 | AI 助手深度分析 | [module-reviews/assistant-deep-dive.md](module-reviews/assistant-deep-dive.md) | 5（高 1 / 中 3 / 低 1） |
 | 🔵 第四 | tools-core 深度分析 | [module-reviews/tools-core.md](module-reviews/tools-core.md) | 5（中 1 / 低 4） |
+| 🔵 第四 | 视觉交互脚本深度分析 | [module-reviews/visual-interactions.md](module-reviews/visual-interactions.md) | 4（中 4） |
 | 🔵 第四 | 竞品分析 | [competitive-analysis.md](competitive-analysis.md) | 6 |
-| | **总计** | | **历史 141 条 + 复查新增/更新 50 条** |
+| | **总计** | | **历史 141 条 + 复查新增/更新 56 条** |
 
 ---
 
@@ -109,13 +114,14 @@
 
 | 编号 | 建议 | 来源 | 难度 |
 |------|------|------|------|
-| S-11 | 移除前端可还原体验 API key，改走服务端限额代理或用户自填 key | 安全 | ⭐⭐ |
-| B-15 | 修复 AI 助手模式偏好读取逻辑，默认回到站点模式 | Bug | ⭐ |
-| B-16 | 补齐 SSE 流结束 buffer flush，避免尾部 delta 丢失 | Bug | ⭐ |
+| ~~S-11~~ | ~~移除前端可还原体验 API key，改走服务端限额代理或用户自填 key~~ ✅ 已完成 | 安全 | ~~⭐⭐~~ |
+| ~~B-15~~ | ~~修复 AI 助手模式偏好读取逻辑，默认回到站点模式~~ ✅ 已完成 | Bug | ~~⭐~~ |
+| ~~B-16~~ | ~~补齐 SSE 流结束 buffer flush，避免尾部 delta 丢失~~ ✅ 已完成 | Bug | ~~⭐~~ |
 | S-14 | 为 AI 助手增加隐私模式、历史保留期限和清除全部对话入口 | 安全/功能 | ⭐⭐ |
-| P-16 | 优化 Cron 无解表达式，避免主线程百万次扫描 | 性能 | ⭐⭐ |
+| ~~P-16~~ | ~~优化 Cron 无解表达式，避免主线程百万次扫描~~ ✅ 主要慢路径已完成 | 性能 | ~~⭐⭐~~ |
 | P-17 | 拆分全站 CSS，将工具箱和助手样式移出 core 包 | 性能/架构 | ⭐⭐⭐ |
-| UX-14 | 给 Markdown 主输入框补充 label/aria 名称并纳入 DOM 审计 | UX | ⭐ |
+| ~~UX-14~~ | ~~给 Markdown 主输入框补充 label/aria 名称并纳入 DOM 审计~~ ✅ 已完成 | UX | ~~⭐~~ |
+| ~~UX-15~~ | ~~给 QR 结果图片补充尺寸和加载属性~~ ✅ 已完成 | UX | ~~⭐~~ |
 | ~~F-04~~ | ~~主题跟随系统~~ ✅ 已优化 | 功能 | ~~⭐~~ |
 
 已完成：S-00 移除前端硬编码 API key，并新增无 key 阻断和源码密钥扫描回归测试。
@@ -227,7 +233,8 @@ docs/
         ├── seo-analysis.md                 ← SEO 与可访问性专项分析
         ├── resource-analysis.md            ← 资源与内容深度分析
         ├── html-pages.md                   ← 手写 HTML 页面一致性分析
-        └── tools-gesture-and-api.md        ← 工具箱手势与 API 测试器复查
+        ├── tools-gesture-and-api.md        ← 工具箱手势与 API 测试器复查
+        └── visual-interactions.md          ← 视觉交互脚本深度分析
 ```
 
 ---

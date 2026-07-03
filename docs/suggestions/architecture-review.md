@@ -234,12 +234,12 @@
 ## 📌 AR-08: 工具箱和助手资源需要从全站核心层剥离
 
 - **📍 位置**：`src/templates/layout.mjs:225-226`, `css/coder.css:3910-6084`, `tools/index.html:89-1235`, `src/templates/tools.mjs:923-944`
-- **📝 当前状况描述**：工具箱、Markdown 编辑器、手势视觉工具和 AI 助手都已经从“页面小功能”增长为独立应用级界面，但样式仍塞在全站 `coder.css`，工具页 HTML 也一次性 SSR 所有 31 个工具面板。当前架构继续扩展时，首页/文章页会承担工具和助手的样式成本，工具页会承担所有工具 markup 的首屏解析成本。
+- **📝 当前状况描述**：工具箱、Markdown 编辑器、手势视觉工具和 AI 助手都已经从“页面小功能”增长为独立应用级界面；AI 助手核心和工具页非首屏面板已改为按需加载/挂载，但样式仍塞在全站 `coder.css`，工具页核心 JS 也仍一次性覆盖全部工具逻辑。当前架构继续扩展时，首页/文章页会承担工具和助手的样式成本，工具页会承担所有工具逻辑的首屏解析成本。
 - **⚠️ 影响程度**：中
 - **💡 建议方案**：
   ```text
   核心层：layout + nav + article + shared modal
-  应用层：tools shell + tool panel lazy mount
+  应用层：tools shell + tool panel lazy mount + tool logic chunks
   浮层层：assistant JS/CSS 按首次打开加载
   ```
   构建脚本可以先支持 `pageStyles` / `pageScripts` 数组，不必立即引入复杂 bundler。

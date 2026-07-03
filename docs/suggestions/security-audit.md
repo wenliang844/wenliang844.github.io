@@ -6,12 +6,14 @@
 
 ## 2026-07-03 复查补充
 
-> 复查时间：2026-07-03 22:40 +08:00 | 验证方式：`npm run check:readonly`、`npm run validate:production`、`npm audit --omit=dev --json`、`npm run test:coverage`、本地 HTTP 冒烟访问
+> 复查时间：2026-07-03 22:40 +08:00 | 验证方式：`npm run lint:check`、`npm run validate:production`、`npm audit --registry=https://registry.npmjs.org --audit-level=moderate`、`npm run test:coverage`、本地 HTTP 冒烟访问
 
-### 📌 S-11: `assistant.js` 仍在前端运行时拼接并使用默认体验 API Key
+### 📌 S-11 [已修复]: `assistant.js` 仍在前端运行时拼接并使用默认体验 API Key
 
 - **📍 位置**：`js/assistant.js:39-63`, `js/assistant.js:328-333`, `js/assistant.js:1439-1510`, `tests/assistant.test.mjs:401-433`, `tests/assistant.test.mjs:464-497`
-- **📝 当前状况描述**：当前源码中仍存在 `OPENAI_DEFAULT_API_KEY` 与 `LLM_EXPERIENCE_KEYS`，通过数组片段 `.join("")` 在运行时还原默认 key。`withEffectiveApiKey()` 在用户未填写 key 且 endpoint 为默认 preset 时自动注入该 key，测试也断言“uses the OpenAI experience key without showing or storing it”。这与本文件 S-00 中“已移除前端 demo key”的旧结论不一致。文档中不写出完整 key，但风险已经可以从源码行为确认。
+- **✅ 修复状态**：已删除前端默认 key 常量和 `LLM_EXPERIENCE_KEYS` 注入逻辑，`withEffectiveApiKey()` 只修剪用户自己输入的 key。默认 preset 留空时不再发起 `fetch`，会提示用户填写自己的 API key；助手默认进入本地站点模式。
+- **🧪 回归测试**：`tests/assistant.test.mjs` 覆盖默认 preset 空 key 不请求、用户自填 key 才请求、源码不得包含 `OPENAI_DEFAULT_API_KEY` / `LLM_EXPERIENCE_KEYS`；`tests/assistant-deep.test.mjs` 同步加强源码扫描。
+- **📝 原状况描述**：源码中曾存在 `OPENAI_DEFAULT_API_KEY` 与 `LLM_EXPERIENCE_KEYS`，通过数组片段 `.join("")` 在运行时还原默认 key。`withEffectiveApiKey()` 在用户未填写 key 且 endpoint 为默认 preset 时自动注入该 key，测试也断言“uses the OpenAI experience key without showing or storing it”。
 - **⚠️ 影响程度**：高
 - **💡 建议方案**：
   ```javascript

@@ -31,24 +31,19 @@
 
 ---
 
-## 📌 MR-TOOLS-02: 按需 runtime 加载没有等待脚本执行完成
+## 📌 MR-TOOLS-02 [已修复核心竞态]: 按需 runtime 加载没有等待脚本执行完成
 
-- **📍 位置**：`js/tools.js:68-92`, `js/tools.js:312-315`, `js/gesture.js:2339-2341`
-- **📝 当前状况描述**：`loadScript()` append `<script>` 后立即 resolve，导致工具面板可能在脚本尚未下载/执行时进入可交互状态。手势按钮的事件绑定位于 `gesture.js` 末尾，弱网下容易出现短暂“点了没反应”。
+- **📍 位置**：`js/tools.js:83-116`, `js/tools.js:521-523`, `js/gesture.js:2339-2341`
+- **✅ 修复状态**：`loadScript()` 已等待脚本 `load/error`，并复用同源脚本 Promise；Gesture runtime 按 `gesture-premium.js` → `gesture.js` 顺序加载。
+- **🧪 验证**：`node --test tests/tools.test.mjs` 35/35 通过。
+- **📝 原状况描述**：`loadScript()` append `<script>` 后立即 resolve，导致工具面板可能在脚本尚未下载/执行时进入可交互状态。手势按钮的事件绑定位于 `gesture.js` 末尾，弱网下容易出现短暂“点了没反应”。
 - **⚠️ 影响程度**：中
-- **💡 建议方案**：
+- **💡 后续建议**：
   ```javascript
-  loadedToolRuntimes[id] = Promise.all(
-    scripts.map((src) => new Promise((resolve, reject) => {
-      const script = document.createElement("script");
-      script.src = src;
-      script.onload = resolve;
-      script.onerror = reject;
-      document.head.appendChild(script);
-    }))
-  );
+  showRuntimeStatus(toolId, "loading");
+  showRuntimeStatus(toolId, "failed");
   ```
-- **📊 预期收益**：消除竞态，允许 UI 明确呈现“加载中/加载失败/可使用”状态。
+- **📊 实际收益**：核心加载竞态已消除；UI 仍可继续明确呈现“加载中/加载失败/可使用”状态。
 - **🔗 相关建议引用**：[B-14](../bugs-and-risks.md#b-14-工具箱按需脚本加载-promise-过早-resolve手势页存在初始化竞态)
 
 ---

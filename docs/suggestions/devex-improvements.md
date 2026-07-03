@@ -45,31 +45,37 @@
 ### 📌 DE-13: 为 AI 助手和 Cron 边界行为补充回归测试
 
 - **📍 位置**：`tests/assistant.test.mjs:1-562`, `tests/assistant-deep.test.mjs:1-335`, `tests/tools-core-deep.test.mjs:258-266`
-- **📝 当前状况描述**：测试覆盖率总体很高，但第 2 轮发现的边界点没有被测试锁住：`readMode()` 固定返回 LLM、SSE 流结束未处理剩余 buffer、AbortError 无法区分超时和手动停止、Cron 无解表达式耗时无预算断言。
+- **✅ 修复状态**：AI 助手默认站点模式、保存模式恢复、默认 preset 空 key 不请求、自填 key 才请求、SSE 尾部未闭合事件 flush 均已进入回归测试；生产验证输出缓冲和 Cron 无解表达式性能预算也已补护栏。AbortError 文案区分仍待推进。
+- **📝 当前状况描述**：测试覆盖率总体很高，但第 2 轮发现的部分边界曾缺少测试锁定：`readMode()` 固定返回 LLM、SSE 流结束未处理剩余 buffer、AbortError 无法区分超时和手动停止、Cron 无解表达式耗时无预算断言。
 - **⚠️ 影响程度**：中
 - **💡 建议方案**：
   ```javascript
-  test("assistant restores saved site mode", async () => {
-    localStorage.setItem("cwl.assistant.mode", "site");
-    await loadAssistant();
-    assert.equal(document.querySelector("[data-mode='site']").classList.contains("active"), true);
-  });
-
-  test("cron impossible date returns within budget", () => {
-    const started = performance.now();
-    const result = core.parseCronExpression("0 0 31 2 *", now);
-    assert.equal(result.code, "cronNoRuns");
-    assert.ok(performance.now() - started < 20);
+  test("assistant distinguishes timeout from manual stop", async () => {
+    // Mock AbortError from timeout and user stop separately.
+    // Assert the visible messages explain different causes.
   });
   ```
-  SSE 测试可用 mock ReadableStream 模拟最后一个事件不带尾随空行。
-- **📊 预期收益**：把已发现的复杂边界变成可自动阻断的回归条件，减少后续重构 assistant 和工具核心时的行为漂移。
+  已完成项继续保留在 assistant / tools-core 回归测试中，后续只补剩余 AbortError 语义。
+- **📊 实际收益**：已把 assistant 模式/安全、SSE 尾包、生产验证缓冲和 Cron 慢路径变成可自动阻断的回归条件；剩余 AbortError 文案区分可继续补齐。
 - **🔗 相关建议引用**：[B-15](bugs-and-risks.md#b-15-ai-助手模式偏好写入后不会被恢复), [B-16](bugs-and-risks.md#b-16-ai-助手-sse-流结束时可能丢失最后一个未闭合事件), [P-16](performance-bottlenecks.md#p-16-cron-无解表达式会在主线程同步扫描两年分钟粒度)
 
-### 📌 DE-14: 增加页面级 DOM 契约审计，防止 SEO/a11y 回退
+### 📌 DE-15 [已修复]: 生产验证测试输出缓冲不足导致门禁假失败
+
+- **📍 位置**：`scripts/validate-production.mjs:16`, `scripts/validate-production.mjs:130-136`, `tests/workflows.test.mjs:103-108`
+- **✅ 修复状态**：新增 `TEST_OUTPUT_MAX_BUFFER` 并传给生产验证内部的 `execFileAsync("node", ["--test", "tests/*.test.mjs"])`，同时新增 workflow 测试确认该保护存在。
+- **🧪 验证**：`node --test tests/workflows.test.mjs` 5/5 通过；`npm run validate:production` 34/34 通过；`npm run test:coverage` 752/752 通过。
+- **📝 原状况描述**：完整测试套件单独执行通过，但 `validate:production` 在收集测试输出时使用 Node 默认缓冲；当测试输出增长到当前规模时，门禁脚本会误报“测试执行失败”。
+- **⚠️ 影响程度**：中
+- **💡 建议方案**：短期保留 32MB 专用缓冲；中期可改为 `spawn` 流式读取测试摘要，进一步降低内存占用和输出耦合。
+- **📊 实际收益**：生产验证恢复为可靠质量门禁，避免自动化优化循环在假失败处停住。
+- **🔗 相关建议引用**：[B-17](bugs-and-risks.md#b-17-已修复-生产验证测试输出缓冲不足会误报失败)
+
+### 📌 DE-14 [已修复]: 增加页面级 DOM 契约审计，防止 SEO/a11y 回退
 
 - **📍 位置**：`tests/*.test.mjs`, `404.html:1-98`, `editor/index.html:117-119`, `tools/index.html:806-809`
-- **📝 当前状况描述**：第 3 轮临时 JSDOM 审计覆盖 19 个非临时 HTML 页面，确认 description、main、h1、skip link、OG image 整体良好；同时发现 404 缺 JSON-LD、`markdown-input` 缺 label、`qr-image` 缺尺寸/加载属性。这类问题适合变成持续测试，而不是靠人工巡检。
+- **✅ 修复状态**：页面级 SEO/a11y 契约已进入测试：HTML 页面基础结构、JSON-LD、CSP、Markdown 输入 label、QR 图片尺寸/加载属性均有回归覆盖；404 页也补充 JSON-LD 与 noindex。
+- **🧪 验证**：`node --test tests/build-extra.test.mjs tests/i18n-a11y.test.mjs tests/security-extended.test.mjs` 通过，`npm run check:readonly` 覆盖完整质量门。
+- **📝 原状况描述**：第 3 轮临时 JSDOM 审计覆盖 19 个非临时 HTML 页面，确认 description、main、h1、skip link、OG image 整体良好；同时发现 404 缺 JSON-LD、`markdown-input` 缺 label、`qr-image` 缺尺寸/加载属性。这类问题适合变成持续测试，而不是靠人工巡检。
 - **⚠️ 影响程度**：中
 - **💡 建议方案**：
   ```javascript
@@ -84,7 +90,6 @@
     }
   });
   ```
-  对 404 是否必须 JSON-LD 可作为白名单或单独断言，避免误报。
 - **📊 预期收益**：把页面级 SEO/a11y 质量从文档建议固化为自动门禁，减少手写 HTML 与生成页的漂移。
 - **🔗 相关建议引用**：[UX-14](ux-improvements.md#ux-14-markdown-编辑器主输入框缺少可关联标签), [UX-15](ux-improvements.md#ux-15-qr-结果图片缺少尺寸和加载属性生成后可能产生布局跳动), [SEO-07](module-reviews/seo-analysis.md#seo-07-404-页面缺少-json-ld-结构化数据)
 

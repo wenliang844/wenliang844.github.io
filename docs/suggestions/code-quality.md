@@ -23,10 +23,12 @@
 - **📊 预期收益**：降低视觉交互模块的维护噪音，让未来 lint warning 更能指向真实问题。
 - **🔗 相关建议引用**：[TD-11](tech-debt.md#td-11-eslint-8-迁移前应先清零当前-warning-债务), [MR-TOOLS-04](module-reviews/tools-gesture-and-api.md#mr-tools-04-视觉交互脚本已成为代码质量热点)
 
-### 📌 CQ-12: 安全回归测试只检查连续 key 字面量，无法识别拼接型密钥
+### 📌 CQ-12 [已修复]: 安全回归测试只检查连续 key 字面量，无法识别拼接型密钥
 
 - **📍 位置**：`tests/assistant.test.mjs:519-525`, `tests/assistant-deep.test.mjs:288-299`, `js/assistant.js:39-63`
-- **📝 当前状况描述**：测试断言源码不包含 `/sk-[A-Za-z0-9_-]{20,}/` 和 `/tp-[A-Za-z0-9_-]{20,}/`，但当前源码用数组片段 `.join("")` 还原 key，绕过了连续字面量扫描。测试还保留默认体验 key 的行为断言，导致安全目标和行为目标互相冲突。
+- **✅ 修复状态**：测试现在明确阻断 `OPENAI_DEFAULT_API_KEY` / `LLM_EXPERIENCE_KEYS` 等默认 key 机制，并用运行时断言保证默认 preset 空 key 不会调用 `fetch`；用户自填 key 才会请求。
+- **🧪 回归测试**：`tests/assistant.test.mjs` 与 `tests/assistant-deep.test.mjs` 均已加强源码扫描；`tests/assistant.test.mjs` 覆盖默认空 key 不请求和自填 key 请求。
+- **📝 原状况描述**：测试断言源码不包含 `/sk-[A-Za-z0-9_-]{20,}/` 和 `/tp-[A-Za-z0-9_-]{20,}/`，但源码用数组片段 `.join("")` 还原 key，绕过了连续字面量扫描。测试还保留默认体验 key 的行为断言，导致安全目标和行为目标互相冲突。
 - **⚠️ 影响程度**：中
 - **💡 建议方案**：
   ```javascript

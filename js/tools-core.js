@@ -929,6 +929,25 @@
     return dom && dow;
   }
 
+  function daysInMonth(year, month) {
+    return new Date(year, month, 0).getDate();
+  }
+
+  function hasPossibleDayOfMonth(dayOfMonth, month, startYear) {
+    for (const monthValue of month.values) {
+      const yearsToCheck = monthValue === 2 ? [startYear, startYear + 1, startYear + 2, startYear + 3] : [startYear];
+      for (const year of yearsToCheck) {
+        const maxDay = daysInMonth(year, monthValue);
+        for (const day of dayOfMonth.values) {
+          if (day <= maxDay) {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
+  }
+
   function formatLocalDateTime(date) {
     const pad = function (value) { return String(value).padStart(2, "0"); };
     return date.getFullYear() + "-" + pad(date.getMonth() + 1) + "-" + pad(date.getDate()) +
@@ -958,6 +977,9 @@
     const now = nowValue === undefined ? new Date() : new Date(nowValue);
     if (Number.isNaN(now.getTime())) {
       return fail("当前时间无效", "cronNow");
+    }
+    if (!dayOfMonth.value.wildcard && dayOfWeek.value.wildcard && !hasPossibleDayOfMonth(dayOfMonth.value, month.value, now.getFullYear())) {
+      return fail("日期字段永远无法匹配", "cronNoRuns");
     }
     const cursor = new Date(now.getTime() + 60000);
     cursor.setSeconds(0, 0);

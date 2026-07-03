@@ -67,7 +67,6 @@ test("HTML files load common scripts in a consistent order", async () => {
     "/js/i18n.js",
     "/js/coder.js",
     "/js/search-loader.js",
-    "/js/assistant.js",
   ];
   const failures = [];
 
@@ -83,6 +82,15 @@ test("HTML files load common scripts in a consistent order", async () => {
       if (positions[i - 1] !== -1 && positions[i] !== -1 && positions[i - 1] > positions[i]) {
         failures.push(`${file}: ${required[i - 1]} must load before ${required[i]}`);
       }
+    }
+    const subscribePos = html.indexOf('src="/js/subscribe.js"');
+    const loaderPos = html.indexOf('src="/js/assistant-loader.js"');
+    const runtimePos = html.indexOf('src="/js/assistant.js"');
+    const assistantPos = loaderPos === -1 ? runtimePos : loaderPos;
+    if (assistantPos === -1) {
+      failures.push(`${file}: missing assistant runtime or loader`);
+    } else if (subscribePos !== -1 && subscribePos > assistantPos) {
+      failures.push(`${file}: subscribe.js must load before assistant runtime or loader`);
     }
     if (html.includes('class="navigation-list"') && !html.includes('class="nav-search-trigger"')) {
       failures.push(`${file}: missing global search trigger`);

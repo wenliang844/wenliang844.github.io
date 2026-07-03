@@ -288,6 +288,9 @@ test("assistant panel hidden attribute is effective via CSS", async () => {
 test("assistant does not expose experience keys as contiguous literals", async () => {
   const code = await readFile(join(ROOT, "js", "assistant.js"), "utf8");
 
+  assert.doesNotMatch(code, /LLM_EXPERIENCE_KEYS/);
+  assert.doesNotMatch(code, /OPENAI_DEFAULT_API_KEY/);
+
   // The code should not contain raw API keys as string literals
   const lines = code.split("\n");
   for (const line of lines) {

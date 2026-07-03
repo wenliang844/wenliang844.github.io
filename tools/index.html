@@ -20,7 +20,7 @@
   <script src="/js/coder.js" defer></script>
   <script src="/js/search-loader.js" defer></script>
   <script src="/js/subscribe.js" defer></script>
-  <script src="/js/assistant.js" defer></script>
+  <script src="/js/assistant-loader.js" defer></script>
   <script src="/js/vendor/marked.min.js" defer></script>
   <script src="/js/vendor/purify.min.js" defer></script>
   <script src="/js/vendor/qrcode.min.js" defer></script>
@@ -299,6 +299,7 @@
           </div>
           <p class="tool-status" id="json-status" role="status" aria-live="polite"></p>
         </section>
+        <template data-tool-template="api">
         <section class="tool-panel" id="tool-api" data-tool-panel="api" role="tabpanel" aria-labelledby="tool-tab-api" tabindex="0" hidden>
           <header class="tool-panel-head">
             <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-paper-plane"></i></span>
@@ -358,6 +359,8 @@
           </div>
           <p class="tool-status" id="api-status" role="status" aria-live="polite"></p>
         </section>
+        </template>
+        <template data-tool-template="time">
         <section class="tool-panel" id="tool-time" data-tool-panel="time" role="tabpanel" aria-labelledby="tool-tab-time" tabindex="0" hidden>
           <header class="tool-panel-head">
             <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-clock"></i></span>
@@ -387,6 +390,8 @@
           </div>
           <p class="tool-status" id="time-status" role="status" aria-live="polite"></p>
         </section>
+        </template>
+        <template data-tool-template="base64">
         <section class="tool-panel" id="tool-base64" data-tool-panel="base64" role="tabpanel" aria-labelledby="tool-tab-base64" tabindex="0" hidden>
           <header class="tool-panel-head">
             <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-lock"></i></span>
@@ -410,6 +415,8 @@
           </div>
           <p class="tool-status" id="base64-status" role="status" aria-live="polite"></p>
         </section>
+        </template>
+        <template data-tool-template="url">
         <section class="tool-panel" id="tool-url" data-tool-panel="url" role="tabpanel" aria-labelledby="tool-tab-url" tabindex="0" hidden>
           <header class="tool-panel-head">
             <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-link"></i></span>
@@ -433,6 +440,8 @@
           </div>
           <p class="tool-status" id="url-status" role="status" aria-live="polite"></p>
         </section>
+        </template>
+        <template data-tool-template="uuid">
         <section class="tool-panel" id="tool-uuid" data-tool-panel="uuid" role="tabpanel" aria-labelledby="tool-tab-uuid" tabindex="0" hidden>
           <header class="tool-panel-head">
             <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-fingerprint"></i></span>
@@ -450,6 +459,8 @@
           </div>
           <p class="tool-status" id="uuid-status" role="status" aria-live="polite"></p>
         </section>
+        </template>
+        <template data-tool-template="jwt">
         <section class="tool-panel" id="tool-jwt" data-tool-panel="jwt" role="tabpanel" aria-labelledby="tool-tab-jwt" tabindex="0" hidden>
           <header class="tool-panel-head">
             <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-key"></i></span>
@@ -475,6 +486,8 @@
           </div>
           <p class="tool-status" id="jwt-status" role="status" aria-live="polite"></p>
         </section>
+        </template>
+        <template data-tool-template="hash">
         <section class="tool-panel" id="tool-hash" data-tool-panel="hash" role="tabpanel" aria-labelledby="tool-tab-hash" tabindex="0" hidden>
           <header class="tool-panel-head">
             <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-shield-alt"></i></span>
@@ -505,6 +518,8 @@
           </div>
           <p class="tool-status" id="hash-status" role="status" aria-live="polite"></p>
         </section>
+        </template>
+        <template data-tool-template="password">
         <section class="tool-panel" id="tool-password" data-tool-panel="password" role="tabpanel" aria-labelledby="tool-tab-password" tabindex="0" hidden>
           <header class="tool-panel-head">
             <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-user-lock"></i></span>
@@ -534,6 +549,8 @@
           </div>
           <p class="tool-status" id="password-status" role="status" aria-live="polite"></p>
         </section>
+        </template>
+        <template data-tool-template="color">
         <section class="tool-panel" id="tool-color" data-tool-panel="color" role="tabpanel" aria-labelledby="tool-tab-color" tabindex="0" hidden>
           <header class="tool-panel-head">
             <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-palette"></i></span>
@@ -564,6 +581,8 @@
           </div>
           <p class="tool-status" id="color-status" role="status" aria-live="polite"></p>
         </section>
+        </template>
+        <template data-tool-template="regex">
         <section class="tool-panel" id="tool-regex" data-tool-panel="regex" role="tabpanel" aria-labelledby="tool-tab-regex" tabindex="0" hidden>
           <header class="tool-panel-head">
             <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-search"></i></span>
@@ -591,6 +610,8 @@
           </div>
           <p class="tool-status" id="regex-status" role="status" aria-live="polite"></p>
         </section>
+        </template>
+        <template data-tool-template="markdown">
         <section class="tool-panel" id="tool-markdown" data-tool-panel="markdown" role="tabpanel" aria-labelledby="tool-tab-markdown" tabindex="0" hidden>
           <header class="tool-panel-head">
             <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-heading"></i></span>
@@ -633,6 +654,7 @@
             <div class="editor-layout">
               <section class="editor-pane">
                 <div class="pane-title"><span data-i18n="editor.pane.markdown">Markdown</span> <span class="editor-stats" id="editor-stats"></span></div>
+                <label class="sr-only" for="markdown-input" data-i18n="editor.input.label">Markdown 原文输入</label>
                 <textarea id="markdown-input" spellcheck="false"></textarea>
               </section>
               <section class="preview-pane">
@@ -643,6 +665,8 @@
             <p class="editor-note" data-i18n="editor.note" data-i18n-html>静态 GitHub Pages 不能直接写入仓库；导出的文件可放入当前静态站点生成流程的 <code>src/posts/</code>。提示：选中文字后点工具按钮可包裹格式，支持 Ctrl+B / Ctrl+I / Ctrl+K。</p>
           </div>
         </section>
+        </template>
+        <template data-tool-template="diff">
         <section class="tool-panel" id="tool-diff" data-tool-panel="diff" role="tabpanel" aria-labelledby="tool-tab-diff" tabindex="0" hidden>
           <header class="tool-panel-head">
             <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-not-equal"></i></span>
@@ -668,6 +692,8 @@
           </div>
           <p class="tool-status" id="diff-status" role="status" aria-live="polite"></p>
         </section>
+        </template>
+        <template data-tool-template="jsondiff">
         <section class="tool-panel" id="tool-jsondiff" data-tool-panel="jsondiff" role="tabpanel" aria-labelledby="tool-tab-jsondiff" tabindex="0" hidden>
           <header class="tool-panel-head">
             <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-code-branch"></i></span>
@@ -693,6 +719,8 @@
           </div>
           <p class="tool-status" id="jsondiff-status" role="status" aria-live="polite"></p>
         </section>
+        </template>
+        <template data-tool-template="case">
         <section class="tool-panel" id="tool-case" data-tool-panel="case" role="tabpanel" aria-labelledby="tool-tab-case" tabindex="0" hidden>
           <header class="tool-panel-head">
             <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-font"></i></span>
@@ -715,6 +743,8 @@
           </div>
           <p class="tool-status" id="case-status" role="status" aria-live="polite"></p>
         </section>
+        </template>
+        <template data-tool-template="html">
         <section class="tool-panel" id="tool-html" data-tool-panel="html" role="tabpanel" aria-labelledby="tool-tab-html" tabindex="0" hidden>
           <header class="tool-panel-head">
             <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-tags"></i></span>
@@ -738,6 +768,8 @@
           </div>
           <p class="tool-status" id="html-status" role="status" aria-live="polite"></p>
         </section>
+        </template>
+        <template data-tool-template="cron">
         <section class="tool-panel" id="tool-cron" data-tool-panel="cron" role="tabpanel" aria-labelledby="tool-tab-cron" tabindex="0" hidden>
           <header class="tool-panel-head">
             <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-calendar-alt"></i></span>
@@ -791,6 +823,8 @@
           </div>
           <p class="tool-status" id="cron-status" role="status" aria-live="polite"></p>
         </section>
+        </template>
+        <template data-tool-template="qr">
         <section class="tool-panel" id="tool-qr" data-tool-panel="qr" role="tabpanel" aria-labelledby="tool-tab-qr" tabindex="0" hidden>
           <header class="tool-panel-head">
             <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-qrcode"></i></span>
@@ -806,7 +840,7 @@
             <div class="tool-field">
               <span data-i18n="tools.label.preview">预览</span>
               <div class="qr-box">
-                <img id="qr-image" alt="QR code" hidden>
+                <img id="qr-image" alt="QR code" width="256" height="256" loading="lazy" decoding="async" hidden>
                 <span id="qr-empty" data-i18n="tools.qr.empty">等待生成二维码</span>
               </div>
             </div>
@@ -820,6 +854,8 @@
           </div>
           <p class="tool-status" id="qr-status" role="status" aria-live="polite"></p>
         </section>
+        </template>
+        <template data-tool-template="yaml">
         <section class="tool-panel" id="tool-yaml" data-tool-panel="yaml" role="tabpanel" aria-labelledby="tool-tab-yaml" tabindex="0" hidden>
           <header class="tool-panel-head">
             <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-project-diagram"></i></span>
@@ -843,6 +879,8 @@
           </div>
           <p class="tool-status" id="yaml-status" role="status" aria-live="polite"></p>
         </section>
+        </template>
+        <template data-tool-template="urlparse">
         <section class="tool-panel" id="tool-urlparse" data-tool-panel="urlparse" role="tabpanel" aria-labelledby="tool-tab-urlparse" tabindex="0" hidden>
           <header class="tool-panel-head">
             <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-sitemap"></i></span>
@@ -865,6 +903,8 @@
           </div>
           <p class="tool-status" id="urlparse-status" role="status" aria-live="polite"></p>
         </section>
+        </template>
+        <template data-tool-template="query">
         <section class="tool-panel" id="tool-query" data-tool-panel="query" role="tabpanel" aria-labelledby="tool-tab-query" tabindex="0" hidden>
           <header class="tool-panel-head">
             <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-list-ul"></i></span>
@@ -889,6 +929,8 @@ q=toolbox"></textarea>
           </div>
           <p class="tool-status" id="query-status" role="status" aria-live="polite"></p>
         </section>
+        </template>
+        <template data-tool-template="jsonpath">
         <section class="tool-panel" id="tool-jsonpath" data-tool-panel="jsonpath" role="tabpanel" aria-labelledby="tool-tab-jsonpath" tabindex="0" hidden>
           <header class="tool-panel-head">
             <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-filter"></i></span>
@@ -914,6 +956,8 @@ q=toolbox"></textarea>
           </div>
           <p class="tool-status" id="jsonpath-status" role="status" aria-live="polite"></p>
         </section>
+        </template>
+        <template data-tool-template="textstats">
         <section class="tool-panel" id="tool-textstats" data-tool-panel="textstats" role="tabpanel" aria-labelledby="tool-tab-textstats" tabindex="0" hidden>
           <header class="tool-panel-head">
             <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-chart-bar"></i></span>
@@ -936,6 +980,8 @@ q=toolbox"></textarea>
           </div>
           <p class="tool-status" id="textstats-status" role="status" aria-live="polite"></p>
         </section>
+        </template>
+        <template data-tool-template="cleantext">
         <section class="tool-panel" id="tool-cleantext" data-tool-panel="cleantext" role="tabpanel" aria-labelledby="tool-tab-cleantext" tabindex="0" hidden>
           <header class="tool-panel-head">
             <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-broom"></i></span>
@@ -962,6 +1008,8 @@ q=toolbox"></textarea>
           </div>
           <p class="tool-status" id="cleantext-status" role="status" aria-live="polite"></p>
         </section>
+        </template>
+        <template data-tool-template="unit">
         <section class="tool-panel" id="tool-unit" data-tool-panel="unit" role="tabpanel" aria-labelledby="tool-tab-unit" tabindex="0" hidden>
           <header class="tool-panel-head">
             <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-ruler-combined"></i></span>
@@ -994,6 +1042,8 @@ q=toolbox"></textarea>
           </div>
           <p class="tool-status" id="unit-status" role="status" aria-live="polite"></p>
         </section>
+        </template>
+        <template data-tool-template="cssunit">
         <section class="tool-panel" id="tool-cssunit" data-tool-panel="cssunit" role="tabpanel" aria-labelledby="tool-tab-cssunit" tabindex="0" hidden>
           <header class="tool-panel-head">
             <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-vector-square"></i></span>
@@ -1033,6 +1083,8 @@ q=toolbox"></textarea>
           </div>
           <p class="tool-status" id="cssunit-status" role="status" aria-live="polite"></p>
         </section>
+        </template>
+        <template data-tool-template="random">
         <section class="tool-panel" id="tool-random" data-tool-panel="random" role="tabpanel" aria-labelledby="tool-tab-random" tabindex="0" hidden>
           <header class="tool-panel-head">
             <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-dice"></i></span>
@@ -1062,6 +1114,8 @@ q=toolbox"></textarea>
           </div>
           <p class="tool-status" id="random-status" role="status" aria-live="polite"></p>
         </section>
+        </template>
+        <template data-tool-template="datediff">
         <section class="tool-panel" id="tool-datediff" data-tool-panel="datediff" role="tabpanel" aria-labelledby="tool-tab-datediff" tabindex="0" hidden>
           <header class="tool-panel-head">
             <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-hourglass-half"></i></span>
@@ -1087,6 +1141,8 @@ q=toolbox"></textarea>
           </div>
           <p class="tool-status" id="datediff-status" role="status" aria-live="polite"></p>
         </section>
+        </template>
+        <template data-tool-template="ua">
         <section class="tool-panel" id="tool-ua" data-tool-panel="ua" role="tabpanel" aria-labelledby="tool-tab-ua" tabindex="0" hidden>
           <header class="tool-panel-head">
             <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-desktop"></i></span>
@@ -1109,6 +1165,8 @@ q=toolbox"></textarea>
           </div>
           <p class="tool-status" id="ua-status" role="status" aria-live="polite"></p>
         </section>
+        </template>
+        <template data-tool-template="galaxy">
         <section class="tool-panel" id="tool-galaxy" data-tool-panel="galaxy" role="tabpanel" aria-labelledby="tool-tab-galaxy" tabindex="0" hidden>
           <header class="tool-panel-head">
             <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-meteor"></i></span>
@@ -1157,6 +1215,8 @@ q=toolbox"></textarea>
             <span class="galaxy-badge" id="galaxy-particles">0 星</span>
           </div>
         </section>
+        </template>
+        <template data-tool-template="gesture">
         <section class="tool-panel" id="tool-gesture" data-tool-panel="gesture" role="tabpanel" aria-labelledby="tool-tab-gesture" tabindex="0" hidden>
           <header class="tool-panel-head">
             <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-hand-sparkles"></i></span>
@@ -1238,6 +1298,7 @@ q=toolbox"></textarea>
             <span data-i18n="tools.gesture.privacy" data-i18n-en="All data is processed locally in your browser and is never uploaded to any server.">所有数据均在浏览器本地处理，不会上传到任何服务器。</span>
           </p>
         </section>
+        </template>
           </div>
         </div>
       </section>

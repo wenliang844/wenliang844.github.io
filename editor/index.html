@@ -35,7 +35,7 @@
   <script src="/js/vendor/highlight.min.js" defer></script>
   <script src="/js/editor.js" defer></script>
   <script src="/js/search-loader.js" defer></script>
-  <script src="/js/assistant.js" defer></script>
+  <script src="/js/assistant-loader.js" defer></script>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"CWLBlog Markdown 编辑器","description":"在线 Markdown 编辑器，实时预览与自动保存。","url":"https://wenliang844.github.io/editor/","applicationCategory":"DeveloperApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"isPartOf":{"@type":"WebSite","name":"CWLBlog","url":"https://wenliang844.github.io/"}}</script>
   <title>Markdown 编辑器 :: CWLBlog</title>
 </head>
@@ -116,6 +116,7 @@
         <div class="editor-layout">
           <section class="editor-pane">
             <div class="pane-title"><span data-i18n="editor.pane.markdown">Markdown</span> <span class="editor-stats" id="editor-stats"></span></div>
+            <label class="sr-only" for="markdown-input" data-i18n="editor.input.label">Markdown 原文输入</label>
             <textarea id="markdown-input" spellcheck="false"></textarea>
           </section>
           <section class="preview-pane">

@@ -74,7 +74,8 @@ test("overleaf.js preview renders resume sections with editable fields", async (
   const preview = document.getElementById("resume-preview");
 
   assert.ok(preview.innerHTML.length > 100, "preview should have content");
-  assert.ok(preview.querySelector("h1"), "preview should have name heading");
+  assert.equal(preview.querySelector("h1"), null, "preview should not add a document h1");
+  assert.ok(preview.querySelector(".latex-name[role='heading'][aria-level='2']"), "preview should have name heading");
   assert.ok(preview.querySelector(".latex-section"), "should have sections");
   assert.ok(preview.querySelector(".latex-entry"), "should have entries");
   assert.ok(preview.querySelector("[contenteditable='true']"), "should have editable fields");

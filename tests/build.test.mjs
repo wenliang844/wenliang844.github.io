@@ -117,7 +117,8 @@ test("build writes the expected static artifacts", async () => {
     assert.match(toolsHtml, /\/js\/vendor\/qrcode\.min\.js/);
     assert.match(toolsHtml, /\/js\/tools-core\.js/);
     assert.match(toolsHtml, /\/js\/tools\.js/);
-    assert.match(toolsHtml, /\/js\/assistant\.js/);
+    assert.match(toolsHtml, /\/js\/assistant-loader\.js/);
+    assert.doesNotMatch(toolsHtml, /\/js\/assistant\.js/);
     assert.match(aiHtml, /中转站排行榜/);
     assert.match(aiHtml, /<title>中转站排名 :: CWLBlog<\/title>/);
     assert.match(aiHtml, /<a class="active" href="\/ai\/" data-i18n="nav\.ai">AI中转站排名<\/a>/);

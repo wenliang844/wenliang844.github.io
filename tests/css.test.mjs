@@ -44,6 +44,17 @@ test("coder.css exposes skip link on keyboard focus", async () => {
   assert.match(focusRule[1], /outline:/);
 });
 
+test("coder.css contains reusable screen-reader-only utility", async () => {
+  const css = await readFile(join(ROOT, "css", "coder.css"), "utf8");
+  const rule = css.match(/\.sr-only\s*{([^}]*)}/s);
+
+  assert.ok(rule, "sr-only utility should exist");
+  assert.match(rule[1], /position:\s*absolute;/);
+  assert.match(rule[1], /width:\s*1px;/);
+  assert.match(rule[1], /height:\s*1px;/);
+  assert.match(rule[1], /clip:\s*rect\(0,\s*0,\s*0,\s*0\);/);
+});
+
 test("coder.css contains navigation selectors", async () => {
   const css = await readFile(join(ROOT, "css", "coder.css"), "utf8");
 
@@ -105,6 +116,14 @@ test("coder.css contains tools page selectors", async () => {
   assert.ok(css.includes(".tool-actions"), "should have tool-actions");
   assert.ok(css.includes(".tool-field"), "should have tool-field");
   assert.ok(css.includes(".tool-status"), "should have tool-status");
+});
+
+test("coder.css keeps QR preview square", async () => {
+  const css = await readFile(join(ROOT, "css", "coder.css"), "utf8");
+  const rule = css.match(/\.qr-box img\s*{([^}]*)}/s);
+
+  assert.ok(rule, "QR image rule should exist");
+  assert.match(rule[1], /aspect-ratio:\s*1;/);
 });
 
 test("coder.css contains AI navigation selectors", async () => {

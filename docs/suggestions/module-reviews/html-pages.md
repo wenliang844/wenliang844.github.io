@@ -107,10 +107,12 @@
 
 ---
 
-## 📌 MR-HTML-06: 页面级 DOM 审计显示手写页仍有少量例外
+## 📌 MR-HTML-06 [已修复]: 页面级 DOM 审计显示手写页仍有少量例外
 
 - **📍 位置**：`404.html:1-98`, `editor/index.html:117-119`, `tools/index.html:806-809`
-- **📝 当前状况描述**：第 3 轮 JSDOM 审计覆盖 19 个非临时 HTML 页面，所有页面都有 `meta description`、`main#main-content`、`h1`、skip link 和 OG image；例外包括：`404.html` 缺 JSON-LD，`editor/index.html` / `tools/index.html` 的 `textarea#markdown-input` 缺 label，`tools/index.html#qr-image` 缺尺寸和加载属性。
+- **✅ 修复状态**：原例外均已收敛：`markdown-input` 已补 label，`tools/index.html#qr-image` 已补尺寸/加载属性，`404.html` 已补 `WebPage` JSON-LD 与 `noindex,follow`。
+- **🧪 验证**：`tests/build-extra.test.mjs`、`tests/i18n-a11y.test.mjs`、`tests/templates-extended.test.mjs`、`tests/css.test.mjs` 已覆盖对应页面契约。
+- **📝 原状况描述**：第 3 轮 JSDOM 审计覆盖 19 个非临时 HTML 页面，所有页面都有 `meta description`、`main#main-content`、`h1`、skip link 和 OG image；例外包括 `markdown-input` 缺 label、`tools/index.html#qr-image` 缺尺寸/加载属性、`404.html` 缺 JSON-LD。
 - **⚠️ 影响程度**：低
 - **💡 建议方案**：
   ```text

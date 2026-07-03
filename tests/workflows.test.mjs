@@ -99,3 +99,10 @@ test("project changelog records dated release history", async () => {
   assert.match(changelog, /^### Security$/m);
   assert.match(productionValidator, /'CHANGELOG\.md'/);
 });
+
+test("production validator tolerates the full test suite output", async () => {
+  const productionValidator = await readFile(join(ROOT, "scripts", "validate-production.mjs"), "utf8");
+
+  assert.match(productionValidator, /TEST_OUTPUT_MAX_BUFFER/);
+  assert.match(productionValidator, /maxBuffer:\s*TEST_OUTPUT_MAX_BUFFER/);
+});

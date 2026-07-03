@@ -30,6 +30,8 @@ async function loadAssistant(options = {}) {
   if (options.fetch) {
     dom.window.fetch = options.fetch;
   }
+  dom.window.TextDecoder = TextDecoder;
+  dom.window.TextEncoder = TextEncoder;
   dom.window.localStorage.clear();
   dom.window.sessionStorage.clear();
   if (options.localStorage) {
@@ -72,8 +74,8 @@ test("assistant starts minimized, opens on demand, answers locally and escapes u
   assert.equal(panel.getAttribute("role"), "dialog");
   assert.equal(panel.getAttribute("aria-labelledby"), "assistant-title");
   assert.equal(panel.getAttribute("aria-describedby"), "assistant-privacy");
-  assert.equal(document.querySelector('[data-assistant-mode="llm"]').classList.contains("active"), true);
-  assert.equal(document.querySelector(".assistant-config").hidden, false);
+  assert.equal(document.querySelector('[data-assistant-mode="site"]').classList.contains("active"), true);
+  assert.equal(document.querySelector(".assistant-config").hidden, true);
   assert.equal(document.querySelector(".assistant-config-body").hidden, true);
   assert.equal(document.querySelector(".assistant-config-toggle").getAttribute("aria-expanded"), "false");
   assert.equal(document.querySelector(".assistant-format").value, "openai");
@@ -394,7 +396,31 @@ test("assistant config is collapsible and opacity is adjustable", async () => {
   assert.equal(localStorage.getItem("cwl.assistant.opacity"), "75");
 });
 
-test("assistant uses the OpenAI experience key without showing or storing it", async () => {
+test("assistant restores the saved mode and defaults to local site mode", async () => {
+  const defaultDom = await loadAssistant();
+  assert.equal(defaultDom.window.document.querySelector('[data-assistant-mode="site"]').classList.contains("active"), true);
+  defaultDom.window.close();
+
+  const llmDom = await loadAssistant({
+    localStorage: {
+      "cwl.assistant.mode": "llm",
+    },
+  });
+  assert.equal(llmDom.window.document.querySelector('[data-assistant-mode="llm"]').classList.contains("active"), true);
+  assert.equal(llmDom.window.document.querySelector(".assistant-config").hidden, false);
+  llmDom.window.close();
+
+  const siteDom = await loadAssistant({
+    localStorage: {
+      "cwl.assistant.mode": "site",
+    },
+  });
+  assert.equal(siteDom.window.document.querySelector('[data-assistant-mode="site"]').classList.contains("active"), true);
+  assert.equal(siteDom.window.document.querySelector(".assistant-config").hidden, true);
+  siteDom.window.close();
+});
+
+test("assistant requires a user API key for the default OpenAI preset", async () => {
   const calls = [];
   const dom = await loadAssistant({
     fetch: async (url, init) => {
@@ -425,10 +451,8 @@ test("assistant uses the OpenAI experience key without showing or storing it", a
 
   await wait();
 
-  assert.equal(calls.length, 1);
-  assert.equal(calls[0].url, "https://muyuan.do/v1/responses");
-  assert.match(calls[0].init.headers.Authorization, /^Bearer sk-[A-Za-z0-9_-]{20,}$/);
-  assert.match(document.querySelector(".assistant-messages").textContent, /pong/);
+  assert.equal(calls.length, 0);
+  assert.match(document.querySelector(".assistant-messages").textContent, /请先填写 API key/);
   assert.equal(JSON.parse(localStorage.getItem("cwl.assistant.llmConfig")).apiKey, "");
 });
 
@@ -451,6 +475,7 @@ test("assistant still requires an API key for custom OpenAI endpoints", async ()
   format.dispatchEvent(new Event("change", { bubbles: true }));
   document.querySelector(".assistant-endpoint").value = "https://relay.example/v1";
 
+  document.querySelector('[data-assistant-mode="llm"]').click();
   const input = document.querySelector(".assistant-input");
   input.value = "你好";
   document.querySelector(".assistant-form").dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
@@ -461,7 +486,42 @@ test("assistant still requires an API key for custom OpenAI endpoints", async ()
   assert.match(document.querySelector(".assistant-messages").textContent, /请先填写 API key/);
 });
 
-test("assistant defaults LLM mode to ChatGPT with a hidden experience key", async () => {
+test("assistant sends the default OpenAI preset with a user key and flushes final SSE data", async () => {
+  const calls = [];
+  const encoder = new TextEncoder();
+  const dom = await loadAssistant({
+    fetch: async (url, init) => {
+      calls.push({ url, init });
+      return {
+        ok: true,
+        status: 200,
+        body: new ReadableStream({
+          start(controller) {
+            controller.enqueue(encoder.encode('data: {"type":"response.output_text.delta","delta":"pong"}\n\n'));
+            controller.enqueue(encoder.encode('data: {"type":"response.output_text.delta","delta":"!"}'));
+            controller.close();
+          },
+        }),
+      };
+    },
+  });
+  const { document, Event } = dom.window;
+
+  document.querySelector('[data-assistant-mode="llm"]').click();
+  document.querySelector(".assistant-api-key").value = "sk-user-owned-key";
+  const input = document.querySelector(".assistant-input");
+  input.value = "你好";
+  document.querySelector(".assistant-form").dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+
+  await wait();
+
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].url, "https://muyuan.do/v1/responses");
+  assert.equal(calls[0].init.headers.Authorization, "Bearer sk-user-owned-key");
+  assert.match(document.querySelector(".assistant-messages").textContent, /pong!/);
+});
+
+test("assistant defaults to local site mode while keeping the OpenAI preset ready", async () => {
   const calls = [];
   const dom = await loadAssistant();
   const { document, Event } = dom.window;
@@ -475,8 +535,8 @@ test("assistant defaults LLM mode to ChatGPT with a hidden experience key", asyn
     };
   };
 
-  assert.equal(document.querySelector('[data-assistant-mode="llm"]').classList.contains("active"), true);
-  assert.equal(document.querySelector(".assistant-config").hidden, false);
+  assert.equal(document.querySelector('[data-assistant-mode="site"]').classList.contains("active"), true);
+  assert.equal(document.querySelector(".assistant-config").hidden, true);
   assert.equal(document.querySelector(".assistant-config-body").hidden, true);
   assert.equal(document.querySelector(".assistant-format").value, "openai");
   assert.equal(document.querySelector(".assistant-endpoint").value, "https://muyuan.do/v1/responses");
@@ -485,15 +545,48 @@ test("assistant defaults LLM mode to ChatGPT with a hidden experience key", asyn
   assert.equal(document.querySelector(".assistant-stream input").checked, true);
 
   const input = document.querySelector(".assistant-input");
-  input.value = "你好";
+  input.value = "工具箱在哪里";
   document.querySelector(".assistant-form").dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
 
   await wait();
 
-  assert.equal(calls.length, 1);
-  assert.equal(calls[0].url, "https://muyuan.do/v1/responses");
-  assert.match(calls[0].init.headers.Authorization, /^Bearer sk-[A-Za-z0-9_-]{20,}$/);
-  assert.match(document.querySelector(".assistant-messages").textContent, /pong/);
+  assert.equal(calls.length, 0);
+  assert.match(document.querySelector(".assistant-messages").textContent, /工具箱/);
+});
+
+test("assistant saved LLM config does not override explicit site mode", async () => {
+  const calls = [];
+  const dom = await loadAssistant({
+    fetch: async (url, init) => {
+      calls.push({ url, init });
+      return {
+        ok: true,
+        status: 200,
+        text: async () => JSON.stringify({ output_text: "pong" }),
+      };
+    },
+    localStorage: {
+      "cwl.assistant.llmConfig": JSON.stringify({
+        format: "openai",
+        endpoint: "https://relay.example/v1",
+        apiKey: "sk-user-owned-key",
+        model: "gpt-test",
+        stream: true,
+      }),
+      "cwl.assistant.mode": "site",
+    },
+  });
+  const { document, Event } = dom.window;
+
+  assert.equal(document.querySelector('[data-assistant-mode="site"]').classList.contains("active"), true);
+  const input = document.querySelector(".assistant-input");
+  input.value = "工具箱在哪里";
+  document.querySelector(".assistant-form").dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+
+  await wait();
+
+  assert.equal(calls.length, 0);
+  assert.match(document.querySelector(".assistant-messages").textContent, /工具箱/);
 });
 
 test("assistant migrates legacy default anthropic config to the new ChatGPT preset", async () => {
@@ -516,12 +609,16 @@ test("assistant migrates legacy default anthropic config to the new ChatGPT pres
   assert.equal(document.querySelector(".assistant-api-key").value, "");
 });
 
-test("assistant source does not expose experience keys as contiguous literals", async () => {
+test("assistant source does not include default experience key machinery", async () => {
   const code = await readFile(join(ROOT, "js", "assistant.js"), "utf8");
   assert.doesNotMatch(code, /LLM_DEMO_KEYS/);
+  assert.doesNotMatch(code, /LLM_EXPERIENCE_KEYS/);
+  assert.doesNotMatch(code, /OPENAI_DEFAULT_API_KEY/);
   assert.doesNotMatch(code, /sk-[A-Za-z0-9_-]{20,}/);
   assert.doesNotMatch(code, /tp-[A-Za-z0-9_-]{20,}/);
   assert.doesNotMatch(code, /留空使用内置体验 key/);
+  assert.doesNotMatch(code, /experience key/i);
+  assert.doesNotMatch(code, /内置体验 key/);
 });
 
 test("assistant supports fullscreen mode", async () => {

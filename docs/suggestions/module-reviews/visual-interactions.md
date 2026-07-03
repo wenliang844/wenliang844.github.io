@@ -4,7 +4,7 @@
 
 ## 验证背景
 
-当前工作树已通过 `npm run lint:check`、`npm test` 744/744、`npm run test:coverage`、`npm run validate:production`、`npm audit --registry=https://registry.npmjs.org --audit-level=moderate` 和 `git diff --check`。以下建议不修改源码，只记录视觉交互脚本中仍值得治理的边界。
+当前工作树已通过 `npm run lint:check`、`npm test` / 生产验证内部测试 752/752、`npm run test:coverage`、`npm run validate:production`、`npm audit --registry=https://registry.npmjs.org --audit-level=moderate` 和 `git diff --check`。以下建议不修改源码，只记录视觉交互脚本中仍值得治理的边界。
 
 ## 📌 MR-VIS-01: 手势摄像头启动缺少 `starting` 门闩，快速重复点击可能并发申请摄像头
 
@@ -73,28 +73,20 @@
   ```
   reduced-motion 下可绘制一帧静态星图，并显示“动画已按系统偏好暂停”的状态。
 - **📊 预期收益**：让高动态视觉工具符合用户系统偏好，减少眩晕和注意力负担。
-- **🔗 相关建议引用**：[UX-09](../ux-improvements.md#ux-09), [MR-CSS-07](css-analysis.md#mr-css-07-复查发现-css-单包已增长到-6617-行)
+- **🔗 相关建议引用**：[UX-09](../ux-improvements.md#ux-09), [MR-CSS-07](css-analysis.md#mr-css-07-复查发现-css-单包已增长到-6637-行)
 
-## 📌 MR-VIS-04: 工具 runtime 加载竞态仍存在于当前源码
+## 📌 MR-VIS-04 [已修复核心竞态]: 工具 runtime 加载竞态仍存在于当前源码
 
-- **📍 位置**：`js/tools.js:83-107`, `js/gesture.js:2344-2345`, `js/galaxy.js:772-773`
-- **📝 当前状况描述**：`loadScript()` 仍在 append `<script>` 后立即 `Promise.resolve()`，`loadToolRuntime()` 也把 runtime 标记为已加载。弱网下用户切到 Galaxy 或 Gesture 面板后，面板可能已经可交互，但 runtime 脚本还没有执行到事件绑定或 auto-start 逻辑。
+- **📍 位置**：`js/tools.js:83-116`, `js/gesture.js:2344-2345`, `js/galaxy.js:772-773`
+- **✅ 修复状态**：`loadScript()` 已等待 `load/error` 并缓存脚本 Promise；`loadToolRuntime()` 不再在 append 后立即标记完成，多脚本 runtime 按顺序加载。
+- **🧪 验证**：`node --test tests/tools.test.mjs` 35/35 通过，覆盖 Galaxy runtime 和 Gesture runtime 顺序注入。
+- **📝 原状况描述**：`loadScript()` 仍在 append `<script>` 后立即 `Promise.resolve()`，`loadToolRuntime()` 也把 runtime 标记为已加载。弱网下用户切到 Galaxy 或 Gesture 面板后，面板可能已经可交互，但 runtime 脚本还没有执行到事件绑定或 auto-start 逻辑。
 - **⚠️ 影响程度**：中
-- **💡 建议方案**：
+- **💡 后续建议**：
   ```javascript
-  function loadScript(src) {
-    return new Promise((resolve, reject) => {
-      const script = document.createElement("script");
-      script.src = src;
-      script.defer = true;
-      script.onload = resolve;
-      script.onerror = reject;
-      document.head.appendChild(script);
-    });
-  }
-
-  loadedToolRuntimes[id] = Promise.all(scripts.map(loadScript));
+  showRuntimeStatus(toolId, "loading");
+  showRuntimeStatus(toolId, "failed");
   ```
   工具切换时根据 Promise 状态展示加载中、失败重试或可交互。
-- **📊 预期收益**：消除视觉工具弱网启动时的“点击无响应”窗口，并给后续按需加载更多工具打基础。
+- **📊 实际收益**：消除视觉工具弱网启动时的主要加载竞态，并给后续按需加载更多工具打基础。
 - **🔗 相关建议引用**：[B-14](../bugs-and-risks.md#b-14-工具箱按需脚本加载-promise-过早-resolve手势页存在初始化竞态), [MR-TOOLS-02](tools-gesture-and-api.md#mr-tools-02-按需-runtime-加载没有等待脚本执行完成)

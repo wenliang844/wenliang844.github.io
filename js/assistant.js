@@ -33,10 +33,16 @@
   const DISMISS_KEY = "cwl.assistant.dismissed";
   const CONVERSATIONS_KEY = "cwl.assistant.conversations";
   const ACTIVE_CONVERSATION_KEY = "cwl.assistant.activeConversation";
+  const PRIVACY_MODE_KEY = "cwl.assistant.privacyMode";
+  const RETENTION_KEY = "cwl.assistant.retention";
   const DEFAULT_OPACITY = 100;
   const MAX_CONVERSATIONS = 20;
+  const DEFAULT_RETENTION = "30d";
+  const RETENTION_DAYS = {
+    "7d": 7,
+    "30d": 30,
+  };
   const REQUEST_TIMEOUT_MS = 60000;
-  const OPENAI_DEFAULT_API_KEY = ["sk", "-KsVG2X640CtGExXHyDSQApJPxrHMBb7xYa05PuaFKa6nS3Ij"].join("");
   const OPENAI_DEFAULT_ENDPOINT = "https://muyuan.do/v1/responses";
   const LEGACY_OPENAI_DEFAULT_ENDPOINT = "https://free.lyclaude.site/v1/responses";
   const LEGACY_OPENAI_FC_ENDPOINT = "https://a-ocnfniawgw.cn-shanghai.fcapp.run/v1";
@@ -56,10 +62,6 @@
       model: "mimo-v2.5-pro",
       stream: true,
     },
-  };
-  const LLM_EXPERIENCE_KEYS = {
-    openai: OPENAI_DEFAULT_API_KEY,
-    anthropic: ["tp", "-cm4es5h6ehs1m9p2i2su9894nuyiwh2nomdswvjfaix86pxr"].join(""),
   };
   function t(key, fallback) {
     return window.cwlT ? window.cwlT(key, fallback) : fallback;
@@ -138,6 +140,15 @@
   function storageSet(key, value) {
     try {
       window.localStorage.setItem(key, value);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  function storageRemove(key) {
+    try {
+      window.localStorage.removeItem(key);
       return true;
     } catch {
       return false;
@@ -229,7 +240,39 @@
     };
   }
 
+  function readPrivacyMode() {
+    return storageGet(PRIVACY_MODE_KEY) === "1";
+  }
+
+  function normalizeRetention(value) {
+    return value === "session" || value === "7d" || value === "30d" || value === "forever"
+      ? value
+      : DEFAULT_RETENTION;
+  }
+
+  function readRetention() {
+    return normalizeRetention(storageGet(RETENTION_KEY));
+  }
+
+  function retentionCutoff(retention) {
+    const days = RETENTION_DAYS[retention];
+    return days ? now() - days * 86400000 : null;
+  }
+
+  function pruneConversations(items, retention) {
+    const cutoff = retentionCutoff(retention);
+    return (items || []).filter(function (conversation) {
+      if (!cutoff) {
+        return true;
+      }
+      return Number(conversation.updatedAt || conversation.createdAt || 0) >= cutoff;
+    }).slice(0, MAX_CONVERSATIONS);
+  }
+
   function readConversations() {
+    if (readPrivacyMode() || readRetention() === "session") {
+      return [];
+    }
     const saved = storageGet(CONVERSATIONS_KEY);
     if (!saved) {
       return [];
@@ -239,7 +282,7 @@
       if (!Array.isArray(parsed)) {
         return [];
       }
-      return parsed.map(cleanConversation).filter(Boolean).slice(0, MAX_CONVERSATIONS);
+      return pruneConversations(parsed.map(cleanConversation).filter(Boolean), readRetention());
     } catch {
       return [];
     }
@@ -268,11 +311,6 @@
 
   function preset(format) {
     return Object.assign({}, LLM_PRESETS[normalizeFormat(format)]);
-  }
-
-  function isPresetEndpoint(format, endpoint) {
-    const base = preset(format);
-    return cleanEndpoint(endpoint) === cleanEndpoint(base.endpoint);
   }
 
   function readConfig() {
@@ -328,14 +366,12 @@
   function withEffectiveApiKey(config) {
     const clean = Object.assign({}, config);
     clean.apiKey = String(clean.apiKey || "").trim();
-    if (!clean.apiKey && isPresetEndpoint(clean.format, clean.endpoint)) {
-      clean.apiKey = LLM_EXPERIENCE_KEYS[normalizeFormat(clean.format)] || "";
-    }
     return clean;
   }
 
   function readMode() {
-    return "llm";
+    const saved = storageGet(MODE_KEY);
+    return saved === "llm" || saved === "site" ? saved : "site";
   }
 
   function readOpacity() {
@@ -612,39 +648,74 @@
     }
 
     const reader = response.body.getReader();
-    const decoder = new TextDecoder();
+    const decoder = typeof TextDecoder === "function" ? new TextDecoder() : null;
     let buffer = "";
     let result = "";
+
+    function decodeChunk(value, options) {
+      if (decoder) {
+        return decoder.decode(value, options);
+      }
+      if (!value) {
+        return "";
+      }
+      const bytes = value instanceof Uint8Array ? value : new Uint8Array(value);
+      let encoded = "";
+      bytes.forEach(function (byte) {
+        encoded += "%" + byte.toString(16).padStart(2, "0");
+      });
+      try {
+        return decodeURIComponent(encoded);
+      } catch {
+        return Array.from(bytes).map(function (byte) {
+          return String.fromCharCode(byte);
+        }).join("");
+      }
+    }
+
+    function consumeLine(line) {
+      const trimmed = line.trim();
+      if (!trimmed.startsWith("data:")) {
+        return;
+      }
+      const data = trimmed.slice(5).trim();
+      if (!data || data === "[DONE]") {
+        return;
+      }
+      try {
+        const delta = deltaFromSsePayload(JSON.parse(data));
+        if (delta) {
+          result += delta;
+          onDelta(delta);
+        }
+      } catch {
+        // Ignore malformed SSE heartbeat lines.
+      }
+    }
+
+    function consumeEvent(eventText) {
+      eventText.split(/\r?\n/).forEach(consumeLine);
+    }
+
+    function consumeBufferedEvents(flush) {
+      const events = buffer.split(/\r?\n\r?\n/);
+      buffer = events.pop() || "";
+      events.forEach(consumeEvent);
+      if (flush && buffer.trim()) {
+        consumeEvent(buffer);
+        buffer = "";
+      }
+    }
 
     for (;;) {
       const chunk = await reader.read();
       if (chunk.done) {
+        buffer += decodeChunk();
+        consumeBufferedEvents(true);
         break;
       }
-      buffer += decoder.decode(chunk.value, { stream: true });
-      const events = buffer.split("\n\n");
-      buffer = events.pop() || "";
-      events.forEach(function (eventText) {
-        eventText.split("\n").forEach(function (line) {
-          const trimmed = line.trim();
-          if (!trimmed.startsWith("data:")) {
-            return;
-          }
-          const data = trimmed.slice(5).trim();
-          if (!data || data === "[DONE]") {
-            return;
-          }
-          try {
-            const delta = deltaFromSsePayload(JSON.parse(data));
-            if (delta) {
-              result += delta;
-              onDelta(delta);
-            }
-          } catch {
-            // Ignore malformed SSE heartbeat lines.
-          }
-        });
-      });
+      buffer += decodeChunk(chunk.value, { stream: true });
+      consumeBufferedEvents(false);
     }
     return result;
   }
@@ -836,6 +907,8 @@
     let fullscreen = false;
     let configExpanded = false;
     let lastToggle = null;
+    let privacyMode = readPrivacyMode();
+    let retention = readRetention();
     let conversations = readConversations();
     if (!conversations.length) {
       conversations = [newConversation()];
@@ -992,6 +1065,34 @@
     opacityLabel.appendChild(opacityText);
     opacityLabel.appendChild(opacityControl);
 
+    const privacyControls = el("div", "assistant-privacy-controls");
+    const privacyModeLabel = el("label", "assistant-privacy-mode");
+    const privacyModeInput = el("input", "assistant-privacy-mode-input");
+    privacyModeInput.type = "checkbox";
+    privacyModeInput.checked = privacyMode;
+    privacyModeLabel.appendChild(privacyModeInput);
+    privacyModeLabel.appendChild(el("span", "", t("assistant.privacyMode", "隐私模式：不保存本轮对话")));
+    const retentionLabel = el("label", "assistant-retention");
+    retentionLabel.appendChild(el("span", "", t("assistant.retention", "历史保留")));
+    const retentionSelect = el("select", "assistant-retention-select");
+    [
+      ["session", t("assistant.retention.session", "仅本次会话")],
+      ["7d", t("assistant.retention.7d", "7 天")],
+      ["30d", t("assistant.retention.30d", "30 天")],
+      ["forever", t("assistant.retention.forever", "永久")],
+    ].forEach(function (item) {
+      const option = el("option", "", item[1]);
+      option.value = item[0];
+      retentionSelect.appendChild(option);
+    });
+    retentionSelect.value = retention;
+    const clearAllBtn = el("button", "assistant-clear-all", t("assistant.clearAll", "清空全部对话"));
+    clearAllBtn.type = "button";
+    privacyControls.appendChild(privacyModeLabel);
+    privacyControls.appendChild(retentionLabel);
+    retentionLabel.appendChild(retentionSelect);
+    privacyControls.appendChild(clearAllBtn);
+
     const configForm = el("form", "assistant-config");
     configForm.hidden = true;
     const formatLabel = el("label", "assistant-config-field");
@@ -1046,6 +1147,7 @@
     configActions.appendChild(configStatus);
 
     configBody.appendChild(opacityLabel);
+    configBody.appendChild(privacyControls);
     configForm.appendChild(formatLabel);
     configForm.appendChild(endpointLabel);
     configForm.appendChild(keyLabel);
@@ -1104,9 +1206,27 @@
     function saveConversations() {
       conversations = conversations.sort(function (a, b) {
         return b.updatedAt - a.updatedAt;
-      }).slice(0, MAX_CONVERSATIONS);
+      });
+      conversations = pruneConversations(conversations, retention);
+      if (privacyMode || retention === "session") {
+        storageRemove(CONVERSATIONS_KEY);
+        storageRemove(ACTIVE_CONVERSATION_KEY);
+        return;
+      }
       storageSet(CONVERSATIONS_KEY, JSON.stringify(conversations));
       storageSet(ACTIVE_CONVERSATION_KEY, activeConversationId);
+    }
+
+    function ensureConversationAvailable() {
+      if (!conversations.length) {
+        conversations = [newConversation()];
+        activeConversationId = conversations[0].id;
+      }
+      if (!conversations.some(function (conversation) {
+        return conversation.id === activeConversationId;
+      })) {
+        activeConversationId = conversations[0].id;
+      }
     }
 
     function conversationMeta(conversation) {
@@ -1118,6 +1238,7 @@
     }
 
     function renderHistory() {
+      ensureConversationAvailable();
       historyList.textContent = "";
       conversations.forEach(function (conversation) {
         const item = el("button", "assistant-history-item");
@@ -1135,6 +1256,7 @@
     }
 
     function renderMessages() {
+      ensureConversationAvailable();
       messages.textContent = "";
       activeConversation().messages.forEach(function (message) {
         addMessage(message.role, message.text, message.links, {
@@ -1226,6 +1348,51 @@
       storageSet(OPACITY_KEY, String(opacity));
     }
 
+    function setPrivacyMode(enabled) {
+      privacyMode = Boolean(enabled);
+      privacyModeInput.checked = privacyMode;
+      if (privacyMode) {
+        storageSet(PRIVACY_MODE_KEY, "1");
+        storageRemove(CONVERSATIONS_KEY);
+        storageRemove(ACTIVE_CONVERSATION_KEY);
+      } else {
+        storageSet(PRIVACY_MODE_KEY, "0");
+        saveConversations();
+      }
+      applyMode(mode);
+    }
+
+    function setRetention(nextRetention) {
+      retention = normalizeRetention(nextRetention);
+      retentionSelect.value = retention;
+      storageSet(RETENTION_KEY, retention);
+      conversations = pruneConversations(conversations, retention);
+      ensureConversationAvailable();
+      saveConversations();
+      renderHistory();
+      renderMessages();
+      applyMode(mode);
+    }
+
+    function clearAllConversations() {
+      if (activeController) {
+        activeController.abort();
+        activeController = null;
+        setGenerating(false);
+      }
+      conversations = [newConversation()];
+      activeConversationId = conversations[0].id;
+      storageRemove(CONVERSATIONS_KEY);
+      storageRemove(ACTIVE_CONVERSATION_KEY);
+      if (!privacyMode && retention !== "session") {
+        saveConversations();
+      }
+      renderHistory();
+      renderMessages();
+      input.value = "";
+      input.focus();
+    }
+
     function updateFullscreenButton() {
       [fullscreenBtn, sidebarFullscreen].forEach(function (btn) {
         btn.setAttribute("aria-pressed", String(fullscreen));
@@ -1286,6 +1453,27 @@
       configToggleText.textContent = t("assistant.config.toggle", "配置");
       opacityText.textContent = t("assistant.opacity", "透明度");
       opacityInput.setAttribute("aria-label", t("assistant.opacity", "透明度"));
+      const privacyModeText = privacyModeLabel.querySelector("span");
+      if (privacyModeText) {
+        privacyModeText.textContent = t("assistant.privacyMode", "隐私模式：不保存本轮对话");
+      }
+      const retentionText = retentionLabel.querySelector("span");
+      if (retentionText) {
+        retentionText.textContent = t("assistant.retention", "历史保留");
+      }
+      Array.from(retentionSelect.options).forEach(function (option) {
+        const labelMap = {
+          session: ["assistant.retention.session", "仅本次会话"],
+          "7d": ["assistant.retention.7d", "7 天"],
+          "30d": ["assistant.retention.30d", "30 天"],
+          forever: ["assistant.retention.forever", "永久"],
+        };
+        const entry = labelMap[option.value];
+        if (entry) {
+          option.textContent = t(entry[0], entry[1]);
+        }
+      });
+      clearAllBtn.textContent = t("assistant.clearAll", "清空全部对话");
       siteMode.textContent = t("assistant.mode.site", "站点助手");
       llmMode.textContent = t("assistant.mode.llm", "大模型");
       syncToggles(!panel.hidden);
@@ -1312,8 +1500,13 @@
       llmMode.setAttribute("aria-pressed", String(mode === "llm"));
       configForm.hidden = mode !== "llm";
       privacy.textContent = mode === "llm"
-        ? t("assistant.llmPrivacy", "大模型模式会请求你配置的中转站，API key 输入框默认留空；未填写时使用内置体验 key。")
+        ? t("assistant.llmPrivacy", "大模型模式会请求你配置的中转站；请填写你自己的 API key，密钥只保存在本机浏览器。")
         : t("assistant.privacy", "本地规则版，不会发送你的输入");
+      if (privacyMode || retention === "session") {
+        privacy.textContent += " " + t("assistant.privacyEphemeral", "当前对话不会保存到本机历史。");
+      } else if (retention !== "forever") {
+        privacy.textContent += " " + t("assistant.retentionNotice", "本机历史会按保留期限自动清理。");
+      }
       input.placeholder = mode === "llm"
         ? t("assistant.llmPlaceholder", "输入要发送给大模型的问题")
         : t("assistant.placeholder", "问站点导航或文章关键词");
@@ -1551,7 +1744,7 @@
       next.apiKey = keyInput.value;
       fillConfigFields(next);
       readConfigFromFields();
-      configStatus.textContent = "已切换预设，留空会使用体验 key";
+      configStatus.textContent = "已切换预设，请填写你自己的 API key";
     });
     configForm.addEventListener("submit", function (event) {
       event.preventDefault();
@@ -1565,6 +1758,13 @@
     opacityInput.addEventListener("input", function () {
       setOpacity(opacityInput.value);
     });
+    privacyModeInput.addEventListener("change", function () {
+      setPrivacyMode(privacyModeInput.checked);
+    });
+    retentionSelect.addEventListener("change", function () {
+      setRetention(retentionSelect.value);
+    });
+    clearAllBtn.addEventListener("click", clearAllConversations);
     newChatBtn.addEventListener("click", startNewConversation);
     historyList.addEventListener("click", function (event) {
       const item = event.target.closest("[data-assistant-chat-id]");

@@ -14,6 +14,7 @@
     gesture: ["/js/gesture-premium.js", "/js/gesture.js"],
   };
   const loadedToolRuntimes = Object.create(null);
+  const loadedRuntimeScripts = Object.create(null);
   const initialToolValues = Object.create(null);
 
   const t = window.CWLUtils.t;
@@ -41,6 +42,20 @@
     return el ? el.value : "";
   }
 
+  function previewHtml(html) {
+    const container = document.createElement("div");
+    container.innerHTML = html || "";
+    container.querySelectorAll("h1").forEach(function (heading) {
+      const replacement = document.createElement("div");
+      replacement.className = "preview-heading preview-heading-1";
+      replacement.setAttribute("role", "heading");
+      replacement.setAttribute("aria-level", "2");
+      replacement.innerHTML = heading.innerHTML;
+      heading.replaceWith(replacement);
+    });
+    return container.innerHTML;
+  }
+
   function checked(id) {
     const el = document.getElementById(id);
     return !!(el && el.checked);
@@ -60,6 +75,14 @@
     });
   }
 
+  function templateForPanel(id) {
+    return document.querySelector('template[data-tool-template="' + id + '"]');
+  }
+
+  function hasPanelSource(id, panels) {
+    return !!(panelFor(id, panels || toolPanels()) || templateForPanel(id));
+  }
+
   function scriptAlreadyPresent(src) {
     return Array.from(document.querySelectorAll("script")).some(function (script) {
       return script.getAttribute("src") === src;
@@ -67,18 +90,30 @@
   }
 
   function loadScript(src) {
-    if (scriptAlreadyPresent(src)) {
-      return Promise.resolve();
+    if (loadedRuntimeScripts[src]) {
+      return loadedRuntimeScripts[src];
     }
-    const script = document.createElement("script");
-    script.src = src;
-    script.defer = true;
-    script.async = false;
-    script.onerror = function () {
-      console.warn("Failed to load " + src);
-    };
-    document.head.appendChild(script);
-    return Promise.resolve();
+    if (scriptAlreadyPresent(src)) {
+      loadedRuntimeScripts[src] = Promise.resolve();
+      return loadedRuntimeScripts[src];
+    }
+    loadedRuntimeScripts[src] = new Promise(function (resolve, reject) {
+      const script = document.createElement("script");
+      script.src = src;
+      script.defer = true;
+      script.async = false;
+      script.onload = function () {
+        resolve();
+      };
+      script.onerror = function () {
+        const error = new Error("Failed to load " + src);
+        console.warn(error.message);
+        delete loadedRuntimeScripts[src];
+        reject(error);
+      };
+      document.head.appendChild(script);
+    });
+    return loadedRuntimeScripts[src];
   }
 
   function loadToolRuntime(id) {
@@ -87,8 +122,11 @@
       return Promise.resolve();
     }
     if (!loadedToolRuntimes[id]) {
-      scripts.forEach(loadScript);
-      loadedToolRuntimes[id] = Promise.resolve();
+      loadedToolRuntimes[id] = scripts.slice(1).reduce(function (chain, src) {
+        return chain.then(function () {
+          return loadScript(src);
+        });
+      }, loadScript(scripts[0]));
     }
     return loadedToolRuntimes[id];
   }
@@ -97,7 +135,7 @@
     const seen = Object.create(null);
     return Array.from(document.querySelectorAll(".tools-tabs [data-tool-tab]")).filter(function (tab) {
       const id = tab.getAttribute("data-tool-tab");
-      if (!panelFor(id, panels) || seen[id]) {
+      if (!hasPanelSource(id, panels) || seen[id]) {
         return false;
       }
       seen[id] = true;
@@ -181,8 +219,9 @@
     return title && id ? title.textContent.trim() + " " + id.replace(/-/g, " ") : "";
   }
 
-  function syncToolControlLabels() {
-    Array.from(document.querySelectorAll(".tools-page input, .tools-page textarea, .tools-page select")).forEach(function (control) {
+  function syncToolControlLabels(root) {
+    const scope = root || document;
+    Array.from(scope.querySelectorAll(".tools-page input, .tools-page textarea, .tools-page select, input, textarea, select")).forEach(function (control) {
       if (control.type === "hidden" || control.hasAttribute("aria-labelledby")) {
         return;
       }
@@ -199,47 +238,55 @@
     });
   }
 
+  function captureInitialToolValuesForPanel(panel) {
+    const id = panel.getAttribute("data-tool-panel");
+    initialToolValues[id] = toolControls(panel).map(function (control) {
+      return {
+        id: control.id,
+        element: control,
+        checked: control.checked,
+        value: control.value,
+      };
+    });
+  }
+
   function captureInitialToolValues() {
     toolPanels().forEach(function (panel) {
-      const id = panel.getAttribute("data-tool-panel");
-      initialToolValues[id] = toolControls(panel).map(function (control) {
-        return {
-          id: control.id,
-          element: control,
-          checked: control.checked,
-          value: control.value,
-        };
-      });
+      captureInitialToolValuesForPanel(panel);
     });
+  }
+
+  function installToolResetButton(panel) {
+    const id = panel.getAttribute("data-tool-panel");
+    const hasGeneratedState = id === "uuid";
+    if ((!toolControls(panel).length && !hasGeneratedState) || panel.querySelector("[data-tool-reset]")) {
+      return;
+    }
+    let actions = panel.querySelector(".tool-actions");
+    if (!actions) {
+      actions = document.createElement("div");
+      actions.className = "tool-actions";
+      panel.appendChild(actions);
+    }
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "tool-btn";
+    button.setAttribute("data-tool-reset", id);
+    const icon = document.createElement("i");
+    icon.className = "fas fa-eraser";
+    icon.setAttribute("aria-hidden", "true");
+    const label = document.createElement("span");
+    label.setAttribute("data-i18n", "tools.btn.reset");
+    label.textContent = t("tools.btn.reset", "重置");
+    button.appendChild(icon);
+    button.appendChild(document.createTextNode(" "));
+    button.appendChild(label);
+    actions.appendChild(button);
   }
 
   function installToolResetButtons() {
     toolPanels().forEach(function (panel) {
-      const id = panel.getAttribute("data-tool-panel");
-      const hasGeneratedState = id === "uuid";
-      if ((!toolControls(panel).length && !hasGeneratedState) || panel.querySelector("[data-tool-reset]")) {
-        return;
-      }
-      let actions = panel.querySelector(".tool-actions");
-      if (!actions) {
-        actions = document.createElement("div");
-        actions.className = "tool-actions";
-        panel.appendChild(actions);
-      }
-      const button = document.createElement("button");
-      button.type = "button";
-      button.className = "tool-btn";
-      button.setAttribute("data-tool-reset", id);
-      const icon = document.createElement("i");
-      icon.className = "fas fa-eraser";
-      icon.setAttribute("aria-hidden", "true");
-      const label = document.createElement("span");
-      label.setAttribute("data-i18n", "tools.btn.reset");
-      label.textContent = t("tools.btn.reset", "重置");
-      button.appendChild(icon);
-      button.appendChild(document.createTextNode(" "));
-      button.appendChild(label);
-      actions.appendChild(button);
+      installToolResetButton(panel);
     });
   }
 
@@ -400,13 +447,62 @@
     });
   }
 
+  function initializeToolPanel(panel) {
+    const id = panel && panel.getAttribute("data-tool-panel");
+    if (!id) {
+      return;
+    }
+    if (id === "api") {
+      renderApiHistory();
+      initRelayProviders();
+    }
+    if (id === "time") {
+      initTimeInput();
+      syncNowTimer();
+    }
+    if (id === "datediff") {
+      initDateDiffInputs();
+    }
+    if (id === "markdown" && window.CWLInitMarkdownEditor) {
+      window.CWLInitMarkdownEditor(panel);
+    }
+    installToolResetButton(panel);
+    syncToolControlLabels(panel);
+    captureInitialToolValuesForPanel(panel);
+    if (window.cwlLang && window.cwlLang() === "en" && window.cwlSetLang) {
+      window.cwlSetLang("en");
+    }
+  }
+
+  function hydrateToolPanel(id) {
+    const current = panelFor(id, toolPanels());
+    if (current) {
+      return current;
+    }
+    const template = templateForPanel(id);
+    const panelsRoot = document.querySelector(".tools-panels");
+    if (!template || !panelsRoot || !template.content) {
+      return null;
+    }
+    const fragment = template.content.cloneNode(true);
+    const panel = fragment.querySelector("[data-tool-panel]");
+    if (!panel) {
+      return null;
+    }
+    panel.hidden = true;
+    panelsRoot.appendChild(fragment);
+    template.remove();
+    initializeToolPanel(panel);
+    return panel;
+  }
+
   function switchTool(id, options) {
+    const selectedPanel = hydrateToolPanel(id);
     const panels = toolPanels();
     const tabs = toolTabs(panels);
     const selectedTab = tabs.find(function (tab) {
       return tab.getAttribute("data-tool-tab") === id;
     });
-    const selectedPanel = panelFor(id, panels);
 
     if (!selectedTab || !selectedPanel) {
       return false;
@@ -524,7 +620,7 @@
     const preview = document.getElementById("markdown-preview");
     if (result.ok) {
       if (preview) {
-        preview.innerHTML = result.value.html;
+        preview.innerHTML = previewHtml(result.value.html);
       }
       value("markdown-output", result.value.html);
       setStatusKey(

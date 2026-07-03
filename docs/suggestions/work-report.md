@@ -60,9 +60,9 @@
 |------|-----------|------|
 | AI 助手核心 | `js/assistant.js:31-1568` | 发现模式偏好不恢复、SSE 尾部事件可能丢失、超时/停止文案混淆、对话持久化缺少保留策略 |
 | AI 助手测试 | `tests/assistant.test.mjs`, `tests/assistant-deep.test.mjs` | 发现默认体验 key 行为被测试固化，但缺少模式恢复和 SSE 尾部事件测试 |
-| 工具核心库 | `js/tools-core.js:204-1293` | 发现 UUID 弱随机 fallback、Cron 无解表达式主线程同步扫描、随机数用途边界需标注 |
-| 工具核心测试 | `tests/tools.test.mjs`, `tests/tools-core-deep.test.mjs` | 现有测试覆盖格式正确性和无解表达式结果，但未约束性能预算和随机强度语义 |
-| 行为探测 | 直接调用 `CWLToolsCore.parseCronExpression()` | `0 0 31 2 *` 约 127.57ms；普通表达式约 0.19-1.52ms |
+| 工具核心库 | `js/tools-core.js:204-1293` | UUID 弱随机 fallback、随机数用途边界仍需标注；Cron 典型无解日期慢路径已短路 |
+| 工具核心测试 | `tests/tools.test.mjs`, `tests/tools-core-deep.test.mjs` | 已补 Cron 无解表达式性能预算和 OR 语义保护；随机强度语义仍需测试 |
+| 行为探测 | 直接调用 / 浏览器触发 `CWLToolsCore.parseCronExpression()` | 历史基线 `0 0 31 2 *` 约 127.57ms；当前 Playwright mobile 约 0.7ms |
 
 ### 发现的问题数量和等级分布
 
@@ -107,9 +107,9 @@
 |------|-----------|------|
 | CSS 资源结构 | `css/coder.css`, `src/templates/layout.mjs` | `coder.css` 6,617 行，全站统一加载；工具箱和助手样式成本扩散到所有页面 |
 | 工具页 DOM | `tools/index.html`, `src/templates/tools.mjs` | 初始 DOM 约 1,199 个元素，31 个工具面板中 30 个 hidden 但仍会被解析 |
-| 页面 SEO/a11y | 19 个非临时 HTML 页面 | description、main、h1、skip link、OG image 全部具备；404 缺 JSON-LD |
+| 页面 SEO/a11y | 19 个非临时 HTML 页面 | description、main、h1、skip link、OG image 全部具备；404 JSON-LD 后续修复轮已补齐 |
 | 编辑器无障碍 | `editor/index.html`, `tools/index.html`, `src/templates/tools.mjs` | `textarea#markdown-input` 缺 label/aria 名称 |
-| 图片稳定性 | `tools/index.html#qr-image`, `src/templates/tools.mjs:559` | 动态 QR 图片缺 width/height/loading/decoding |
+| 图片稳定性 | `tools/index.html#qr-image`, `src/templates/tools.mjs:559` | 已补 width/height/loading/decoding 与方形比例约束 |
 
 ### 发现的问题数量和等级分布
 
@@ -151,22 +151,63 @@
 
 | 项目 | 修复方案 | 验证 |
 |------|----------|------|
-| 前端默认体验 key | 删除 `OPENAI_DEFAULT_API_KEY` / `LLM_EXPERIENCE_KEYS` 与自动注入逻辑；默认 preset 空 key 不再请求 | `npm run test:assistant` 34/34 通过 |
+| 前端默认体验 key | 删除 `OPENAI_DEFAULT_API_KEY` / `LLM_EXPERIENCE_KEYS` 与自动注入逻辑；默认 preset 空 key 不再请求 | `npm run test:assistant` 35/35 通过 |
 | 默认模式与隐私边界 | `readMode()` 读取 `cwl.assistant.mode`，无偏好时默认 `site`；LLM 文案改为用户自填 key | `tests/assistant.test.mjs` 新增模式恢复断言 |
 | SSE 尾包丢失 | `postStream()` flush `TextDecoder` 并消费剩余 `buffer`，支持 CRLF 事件分隔 | 新增无尾随空行 SSE 流测试，消息完整包含尾部 delta |
 | 安全回归测试 | 源码扫描禁止默认 key 机制；运行时断言空 key 不调用 `fetch`，自填 key 才请求 | `tests/assistant.test.mjs` / `tests/assistant-deep.test.mjs` 通过 |
+| 助手运行时按需加载 | 公共页面改为先加载 `assistant-loader.js`，点击 AI 入口或 fullscreen 深链时再注入完整 `assistant.js` | `tests/assistant-loader.test.mjs` 与模板/链接/构建测试通过 |
+| Markdown 输入可访问名称 | 独立编辑器与工具箱内嵌编辑器补 `.sr-only` label 和英文 i18n | 相关模板/CSS/i18n 测试 84/84 通过 |
+| QR 预览稳定性 | QR 结果图片补 `width` / `height` / `loading` / `decoding`，CSS 补 `aspect-ratio: 1` | `tests/templates-extended.test.mjs` / `tests/css.test.mjs` 通过 |
+| Cron 典型无解表达式 | 提前识别不可能日期，避免两年分钟粒度扫描，并保护 day-of-month/day-of-week OR 语义 | `tests/tools-core-deep.test.mjs` 新增 `<50ms` 性能预算和 OR 语义测试 |
+| 生产验证假失败 | 为 `validate-production.mjs` 内部测试执行设置专用输出缓冲，避免 752 条测试输出触发默认 `execFile` 上限 | `tests/workflows.test.mjs` 5/5 通过；`npm run validate:production` 34/34 通过 |
+
+### 最新验证结果
+
+| 命令 | 结果 |
+|------|------|
+| `npm run lint:check` | 通过，0 warnings |
+| `npm test` / 生产验证内部测试 | 752/752 通过 |
+| `npm run test:coverage` | line 94.41% / branch 78.30% / funcs 91.81% |
+| `npm run validate:production` | 34/34 通过 |
+| `npm audit --registry=https://registry.npmjs.org --audit-level=moderate` | 0 vulnerabilities |
+| `git diff --check` | 通过，仅 CRLF 工作区提示 |
 
 ### 发现的问题
 
 - 默认体验 key 被测试固化，原测试只验证“不显示/不存储”，没有验证“前端根本不携带可还原 key”。
 - 助手模式保存和读取不对称，默认 LLM 与隐私最小外发原则冲突。
 - SSE 流结束时未处理最后一个未闭合事件，部分代理实现会导致回答尾部缺失。
+- Cron 典型无解日期表达式会触发同步百万级扫描，工具页输入反馈可能卡顿。
+- 生产验证脚本收集完整测试输出时缓冲不足，导致测试已通过但门禁误报失败。
 
 ### 下一步计划
 
 1. 继续处理 AI 助手对话保留策略：增加清空/隐私模式或保留期限。
-2. 修复工具箱 runtime 加载 Promise 过早 resolve 的弱网竞态。
-3. 推进 Cron 无解表达式性能预算和工具页首屏 DOM 拆分。
+2. 为工具箱 runtime 加载补充可见的加载中/失败重试状态。
+3. 推进工具页 JS/CSS 拆包复测和更泛化的 Cron 稀疏表达式字段跳跃优化。
+
+---
+
+## 2026-07-03 视觉交互脚本复查补充
+
+### 已完成内容
+
+| 模块 | 文件/范围 | 发现 |
+|------|-----------|------|
+| 手势摄像头 | `js/gesture.js` | 快速重复点击开始按钮时缺少 `starting` 门闩，可能并发申请摄像头 |
+| 后台资源 | `js/gesture.js` | 页面隐藏时仍保持摄像头流占用，隐私感知和电量成本偏高 |
+| Galaxy 动画 | `js/galaxy.js` | canvas 动画未遵守 `prefers-reduced-motion` |
+| 工具 runtime | `js/tools.js` | 核心脚本加载竞态已修复，仍可补充加载中/失败重试 UI |
+
+### 记录位置
+
+- `docs/suggestions/module-reviews/visual-interactions.md`
+
+### 下一步计划
+
+1. 为 Galaxy/手势按需加载补充加载中、失败重试和不可用状态提示。
+2. 给手势摄像头启动增加 `starting` 状态和重复点击回归测试。
+3. 为 Galaxy 增加 reduced-motion 静态模式。
 
 ---
 

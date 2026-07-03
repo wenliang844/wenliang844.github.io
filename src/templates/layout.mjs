@@ -56,7 +56,7 @@ const CORE_SCRIPTS = [
   "/js/coder.js",
   "/js/search-loader.js",
   "/js/subscribe.js",
-  "/js/assistant.js",
+  "/js/assistant-loader.js",
 ];
 
 // 渲染主导航；active 标记当前栏目。

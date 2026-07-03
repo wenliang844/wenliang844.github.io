@@ -44,10 +44,12 @@
 - **📊 预期收益**：让失败反馈更可诊断，减少用户对“停止/超时/网络失败”的困惑。
 - **🔗 相关建议引用**：[B-16](bugs-and-risks.md#b-16-ai-助手-sse-流结束时可能丢失最后一个未闭合事件), [MR-AST-05](module-reviews/assistant-deep-dive.md#mr-ast-05-请求取消语义需要区分用户停止与超时)
 
-### 📌 UX-13: AI 助手默认模式与隐私文案需要重新对齐
+### 📌 UX-13 [已修复核心问题]: AI 助手默认模式与隐私文案需要重新对齐
 
 - **📍 位置**：`js/assistant.js:337-339`, `js/assistant.js:1306-1316`, `js/assistant.js:1445-1450`
-- **📝 当前状况描述**：助手读取模式时固定回到 LLM，隐私文案仍说明“未填写时使用内置体验 key”。这与安全复查中“前端不应内置可还原 key”的目标冲突，也让用户在站点问答和大模型问答之间的切换成本变高。
+- **✅ 修复状态**：助手默认进入本地站点模式，刷新后会恢复用户保存的 `site` / `llm` 偏好；LLM 隐私文案已改为“请填写你自己的 API key，密钥只保存在本机浏览器”，不再暗示内置体验 key。
+- **🧪 回归测试**：`tests/assistant.test.mjs` 覆盖默认站点模式、模式恢复、空 key 不请求、用户自填 key 才请求。
+- **📝 原状况描述**：助手读取模式时固定回到 LLM，隐私文案仍说明“未填写时使用内置体验 key”。这与安全复查中“前端不应内置可还原 key”的目标冲突，也让用户在站点问答和大模型问答之间的切换成本变高。
 - **⚠️ 影响程度**：中
 - **💡 建议方案**：
   ```text
@@ -58,10 +60,12 @@
 - **📊 预期收益**：让默认体验符合最小外发原则，用户能清楚理解何时使用本地规则、何时调用外部模型。
 - **🔗 相关建议引用**：[B-15](bugs-and-risks.md#b-15-ai-助手模式偏好写入后不会被恢复), [S-11](security-audit.md#s-11-assistantjs-仍在前端运行时拼接并使用默认体验-api-key), [S-14](security-audit.md#s-14-ai-助手对话和-llm-上下文长期留存在-localstorage)
 
-### 📌 UX-14: Markdown 编辑器主输入框缺少可关联标签
+### 📌 UX-14 [已修复]: Markdown 编辑器主输入框缺少可关联标签
 
 - **📍 位置**：`editor/index.html:117-119`, `src/templates/tools.mjs:405-407`, `tools/index.html:634-636`
-- **📝 当前状况描述**：JSDOM 表单标签审计显示独立编辑器页和工具箱内嵌 Markdown 编辑器的 `textarea#markdown-input` 没有关联的 `<label for="markdown-input">`、`aria-label` 或 `aria-labelledby`。视觉上有编辑区上下文，但屏幕阅读器和表单导航无法稳定读出该输入区用途。
+- **✅ 修复状态**：独立编辑器页和工具箱内嵌 Markdown 编辑器均已增加 `<label class="sr-only" for="markdown-input" data-i18n="editor.input.label">Markdown 原文输入</label>`；`js/i18n.js` 已补英文文案，`css/coder.css` 已补 `.sr-only` 通用视觉隐藏工具类。
+- **🧪 验证**：`node --test tests/templates-extended.test.mjs tests/css.test.mjs tests/i18n-a11y.test.mjs` 通过；模板测试和静态 HTML 扫描确认 `/editor/`、`/tools/` 均输出关联 label。
+- **📝 原状况描述**：JSDOM 表单标签审计显示独立编辑器页和工具箱内嵌 Markdown 编辑器的 `textarea#markdown-input` 没有关联的 `<label for="markdown-input">`、`aria-label` 或 `aria-labelledby`。视觉上有编辑区上下文，但屏幕阅读器和表单导航无法稳定读出该输入区用途。
 - **⚠️ 影响程度**：中
 - **💡 建议方案**：
   ```html
@@ -72,10 +76,12 @@
 - **📊 预期收益**：提升编辑器键盘和辅助技术可用性，避免一个核心输入控件在自动化 a11y 审计中持续报错。
 - **🔗 相关建议引用**：[MR-EDITOR-06](module-reviews/editor.md#mr-editor-06-markdown-主输入框缺少可访问名称), [DE-14](devex-improvements.md#de-14-增加页面级-dom-契约审计防止-seo-a11y-回退)
 
-### 📌 UX-15: QR 结果图片缺少尺寸和加载属性，生成后可能产生布局跳动
+### 📌 UX-15 [已修复]: QR 结果图片缺少尺寸和加载属性，生成后可能产生布局跳动
 
 - **📍 位置**：`src/templates/tools.mjs:559`, `tools/index.html:806-809`
-- **📝 当前状况描述**：`img#qr-image` 有 `alt` 和 `hidden`，但没有 `width`、`height`、`loading`、`decoding`。当用户生成二维码后，图片从 hidden 状态显示，浏览器需要在 data URL 解码后才知道尺寸，预览区域可能出现轻微布局跳动。
+- **✅ 修复状态**：`img#qr-image` 已补 `width="256"`、`height="256"`、`loading="lazy"`、`decoding="async"`，CSS 增加 `.qr-box img { aspect-ratio: 1; }` 保持方形预留。
+- **🧪 验证**：`node --test tests/templates-extended.test.mjs tests/css.test.mjs tests/i18n-a11y.test.mjs` 通过；模板和 CSS 测试锁定尺寸/加载属性与方形比例。
+- **📝 原状况描述**：`img#qr-image` 有 `alt` 和 `hidden`，但没有 `width`、`height`、`loading`、`decoding`。当用户生成二维码后，图片从 hidden 状态显示，浏览器需要在 data URL 解码后才知道尺寸，预览区域可能出现轻微布局跳动。
 - **⚠️ 影响程度**：低
 - **💡 建议方案**：
   ```html

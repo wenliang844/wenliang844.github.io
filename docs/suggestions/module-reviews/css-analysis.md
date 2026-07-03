@@ -134,16 +134,16 @@
   - 头像悬停效果（`filter: saturate(1.08) brightness(1.04)`）
 
   在 iOS Safari 和低端 Android 设备上，多个 `backdrop-filter` 叠加会导致明显掉帧。
-- **🧪 回归测试**：`tests/css.test.mjs` 锁定移动端 blur 降级规则，`tests/performance.test.mjs` 继续约束 `coder.css` 不超过 118KB。
+- **🧪 回归测试**：`tests/css.test.mjs` 锁定移动端 blur 降级规则，`tests/performance.test.mjs` 继续约束 `coder.css` 不超过 140KB。
 - **📊 实际收益**：移动端减少背景模糊采样与合成压力；桌面端视觉保持不变，CSS 文件仍低于体积门禁。
 - **🔗 相关建议**：[P-01](../performance-bottlenecks.md#p-01), [MR-CSS-03](#mr-css-03)
 
 ---
 
-## 📌 MR-CSS-07: 复查发现 CSS 单包已增长到 6617 行
+## 📌 MR-CSS-07: 复查发现 CSS 单包已增长到 6637 行
 
-- **📍 位置**：`css/coder.css:1-6617`, `src/templates/layout.mjs:225-226`
-- **📝 当前状况描述**：历史模块概况记录为 4,655 行；第 3 轮复查时 `coder.css` 已达到 6,617 行。工具箱样式约从 `css/coder.css:3910` 开始，AI 助手样式约 `css/coder.css:4982-6084`，但 `layout.mjs` 仍对所有页面统一加载该 CSS。
+- **📍 位置**：`css/coder.css:1-6637`, `src/templates/layout.mjs:225-226`
+- **📝 当前状况描述**：历史模块概况记录为 4,655 行；第 5 轮复查时 `coder.css` 已达到 6,637 行。工具箱样式约从 `css/coder.css:3910` 开始，AI 助手样式约 `css/coder.css:4982-6084`，但 `layout.mjs` 仍对所有页面统一加载该 CSS。
 - **⚠️ 影响程度**：中
 - **💡 建议方案**：
   ```text

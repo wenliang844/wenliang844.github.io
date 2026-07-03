@@ -404,6 +404,7 @@ ${toolHeader(tool)}
             <div class="editor-layout">
               <section class="editor-pane">
                 <div class="pane-title"><span data-i18n="editor.pane.markdown">Markdown</span> <span class="editor-stats" id="editor-stats"></span></div>
+                <label class="sr-only" for="markdown-input" data-i18n="editor.input.label">Markdown 原文输入</label>
                 <textarea id="markdown-input" spellcheck="false"></textarea>
               </section>
               <section class="preview-pane">
@@ -556,7 +557,7 @@ ${toolHeader(tool)}
             <div class="tool-field">
               <span data-i18n="tools.label.preview">预览</span>
               <div class="qr-box">
-                <img id="qr-image" alt="QR code" hidden>
+                <img id="qr-image" alt="QR code" width="256" height="256" loading="lazy" decoding="async" hidden>
                 <span id="qr-empty" data-i18n="tools.qr.empty">等待生成二维码</span>
               </div>
             </div>
@@ -918,8 +919,113 @@ ${toolHeader(tool)}
         </section>`;
 }
 
+function renderToolPanel(id) {
+  if (id === "json") {
+    return renderJsonTool();
+  }
+  if (id === "api") {
+    return renderApiTool();
+  }
+  if (id === "time") {
+    return renderTimeTool();
+  }
+  if (id === "base64") {
+    return renderCodecTool(toolById("base64"), "base64-input", "base64-output", "base64-encode", "base64-decode", "输入要编码或解码的文本", "Text to encode or decode");
+  }
+  if (id === "url") {
+    return renderCodecTool(toolById("url"), "url-input", "url-output", "url-encode", "url-decode", "https://example.com/?q=中文", "https://example.com/?q=search");
+  }
+  if (id === "uuid") {
+    return renderUuidTool();
+  }
+  if (id === "jwt") {
+    return renderJwtTool();
+  }
+  if (id === "hash") {
+    return renderHashTool();
+  }
+  if (id === "password") {
+    return renderPasswordTool();
+  }
+  if (id === "color") {
+    return renderColorTool();
+  }
+  if (id === "regex") {
+    return renderRegexTool();
+  }
+  if (id === "markdown") {
+    return renderMarkdownTool();
+  }
+  if (id === "diff") {
+    return renderDiffTool();
+  }
+  if (id === "jsondiff") {
+    return renderJsonDiffTool();
+  }
+  if (id === "case") {
+    return renderCaseTool();
+  }
+  if (id === "html") {
+    return renderHtmlTool();
+  }
+  if (id === "cron") {
+    return renderCronTool();
+  }
+  if (id === "qr") {
+    return renderQrTool();
+  }
+  if (id === "yaml") {
+    return renderYamlTool();
+  }
+  if (id === "urlparse") {
+    return renderUrlParseTool();
+  }
+  if (id === "query") {
+    return renderQueryTool();
+  }
+  if (id === "jsonpath") {
+    return renderJsonPathTool();
+  }
+  if (id === "textstats") {
+    return renderTextStatsTool();
+  }
+  if (id === "cleantext") {
+    return renderCleanTextTool();
+  }
+  if (id === "unit") {
+    return renderUnitTool();
+  }
+  if (id === "cssunit") {
+    return renderCssUnitTool();
+  }
+  if (id === "random") {
+    return renderRandomTool();
+  }
+  if (id === "datediff") {
+    return renderDateDiffTool();
+  }
+  if (id === "ua") {
+    return renderUaTool();
+  }
+  if (id === "galaxy") {
+    return renderGalaxyTool();
+  }
+  if (id === "gesture") {
+    return renderGestureTool();
+  }
+  throw new Error(`Unknown tool panel: ${id}`);
+}
+
+function renderDeferredToolPanel(id) {
+  return `        <template data-tool-template="${id}">
+${renderToolPanel(id)}
+        </template>`;
+}
+
 export function renderToolsPage() {
   const description = "CWLBlog 在线工具箱：Mini Postman、JSON、时间戳、Base64、URL、UUID、JWT、哈希、密码、颜色、正则、Markdown 编辑器、Diff、Cron、二维码、YAML、URL 解析、文本处理和手势交互动画等开发工具。";
+  const eagerPanels = new Set(["json"]);
+  const panels = TOOLS.map((tool) => (eagerPanels.has(tool.id) ? renderToolPanel(tool.id) : renderDeferredToolPanel(tool.id))).join("\n");
   const main = `    <main id="main-content" class="content">
       <section class="tools-page container">
         <header class="tools-header">
@@ -932,37 +1038,7 @@ export function renderToolsPage() {
 ${TOOL_CATEGORIES.map(renderToolCategory).join("\n")}
           </nav>
           <div class="tools-panels">
-${renderJsonTool()}
-${renderApiTool()}
-${renderTimeTool()}
-${renderCodecTool(toolById("base64"), "base64-input", "base64-output", "base64-encode", "base64-decode", "输入要编码或解码的文本", "Text to encode or decode")}
-${renderCodecTool(toolById("url"), "url-input", "url-output", "url-encode", "url-decode", "https://example.com/?q=中文", "https://example.com/?q=search")}
-${renderUuidTool()}
-${renderJwtTool()}
-${renderHashTool()}
-${renderPasswordTool()}
-${renderColorTool()}
-${renderRegexTool()}
-${renderMarkdownTool()}
-${renderDiffTool()}
-${renderJsonDiffTool()}
-${renderCaseTool()}
-${renderHtmlTool()}
-${renderCronTool()}
-${renderQrTool()}
-${renderYamlTool()}
-${renderUrlParseTool()}
-${renderQueryTool()}
-${renderJsonPathTool()}
-${renderTextStatsTool()}
-${renderCleanTextTool()}
-${renderUnitTool()}
-${renderCssUnitTool()}
-${renderRandomTool()}
-${renderDateDiffTool()}
-${renderUaTool()}
-${renderGalaxyTool()}
-${renderGestureTool()}
+${panels}
           </div>
         </div>
       </section>

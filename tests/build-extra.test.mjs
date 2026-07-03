@@ -308,6 +308,7 @@ test("generated static pages include valid JSON-LD structured data", async () =>
 
 test("hand-written static pages include valid JSON-LD structured data", async () => {
   const pages = [
+    ["404.html", "WebPage"],
     ["about/index.html", "Person"],
     ["contact/index.html", "ContactPage"],
     ["editor/index.html", "WebApplication"],
@@ -320,6 +321,16 @@ test("hand-written static pages include valid JSON-LD structured data", async ()
     assert.equal(ld["@type"], type, `${page} should use ${type} JSON-LD`);
     assert.match(ld.url, /^https:\/\/wenliang844\.github\.io\//, `${page} should use absolute URL`);
   }
+});
+
+test("404 page declares noindex and structured data", async () => {
+  const html = await readFile(join(ROOT, "404.html"), "utf8");
+  const ld = extractJsonLd(html);
+
+  assert.match(html, /<meta name="robots" content="noindex,follow">/);
+  assert.equal(ld["@type"], "WebPage");
+  assert.equal(ld.url, "https://wenliang844.github.io/404.html");
+  assert.equal(ld.isPartOf["@type"], "WebSite");
 });
 
 // ─── 文章页 canonical 和 og 标签 ────────────────────────────────────────────

@@ -2,10 +2,12 @@
 
 > 分析时间：2026-07-03 23:20 +08:00 | 范围：`js/assistant.js`, `tests/assistant*.mjs`
 
-## 📌 MR-AST-01: 默认体验 key 仍是助手安全模型的中心风险
+## 📌 MR-AST-01 [已修复]: 默认体验 key 仍是助手安全模型的中心风险
 
 - **📍 位置**：`js/assistant.js:39-63`, `js/assistant.js:328-333`, `js/assistant.js:1314-1316`, `js/assistant.js:1445-1450`
-- **📝 当前状况描述**：助手会在用户未填写 key 且 endpoint 为默认 preset 时注入体验 key，隐私文案也写明“未填写时使用内置体验 key”。这让前端包承载了本应位于服务端的凭据分发责任。
+- **✅ 修复状态**：前端默认 key 常量和 `LLM_EXPERIENCE_KEYS` 已删除；默认 preset 空 key 不会调用 `fetch`，LLM 模式要求用户自填 key。隐私文案改为“请填写你自己的 API key，密钥只保存在本机浏览器”。
+- **🧪 回归测试**：`tests/assistant.test.mjs` 覆盖空 key 不请求、自填 key 请求、源码不得包含默认 key 机制；`tests/assistant-deep.test.mjs` 同步加强源码扫描。
+- **📝 原状况描述**：助手会在用户未填写 key 且 endpoint 为默认 preset 时注入体验 key，隐私文案也写明“未填写时使用内置体验 key”。这让前端包承载了本应位于服务端的凭据分发责任。
 - **⚠️ 影响程度**：高
 - **💡 建议方案**：
   ```javascript
@@ -17,10 +19,12 @@
 - **📊 预期收益**：消除前端可提取凭据，减少费用、封禁和滥用风险。
 - **🔗 相关建议引用**：[S-11](../security-audit.md#s-11-assistantjs-仍在前端运行时拼接并使用默认体验-api-key), [UX-13](../ux-improvements.md#ux-13-ai-助手默认模式与隐私文案需要重新对齐)
 
-## 📌 MR-AST-02: 模式偏好保存与读取不对称
+## 📌 MR-AST-02 [已修复]: 模式偏好保存与读取不对称
 
 - **📍 位置**：`js/assistant.js:31`, `js/assistant.js:337-339`, `js/assistant.js:1306-1309`
-- **📝 当前状况描述**：`applyMode()` 写入 `MODE_KEY`，但 `readMode()` 固定返回 `"llm"`。这会让刷新后的 UI 状态违背用户上一轮选择，也使“站点模式作为默认本地问答”的产品边界难以成立。
+- **✅ 修复状态**：`readMode()` 现在读取 `cwl.assistant.mode`，合法值为 `site` / `llm`；没有保存值时默认 `site`，与本地优先的隐私边界一致。
+- **🧪 回归测试**：`tests/assistant.test.mjs` 覆盖默认站点模式、保存 `llm` 后恢复、保存 `site` 后恢复。
+- **📝 原状况描述**：`applyMode()` 写入 `MODE_KEY`，但 `readMode()` 固定返回 `"llm"`。这会让刷新后的 UI 状态违背用户上一轮选择，也使“站点模式作为默认本地问答”的产品边界难以成立。
 - **⚠️ 影响程度**：中
 - **💡 建议方案**：
   ```javascript
@@ -31,10 +35,12 @@
 - **📊 预期收益**：提升助手状态可预测性，减少刷新后误触外部模型请求。
 - **🔗 相关建议引用**：[B-15](../bugs-and-risks.md#b-15-ai-助手模式偏好写入后不会被恢复)
 
-## 📌 MR-AST-03: SSE 解析缺少流结束收尾处理
+## 📌 MR-AST-03 [已修复]: SSE 解析缺少流结束收尾处理
 
 - **📍 位置**：`js/assistant.js:594-649`
-- **📝 当前状况描述**：流式响应按 `\n\n` 切分事件，未闭合的最后一段会留在 `buffer`。当 reader 返回 `done` 时函数直接返回 `result`，未处理的 `buffer` 和 TextDecoder flush 都会被丢弃。
+- **✅ 修复状态**：`postStream()` 已抽出事件消费 helper，支持 CRLF；reader 完成时会 flush `TextDecoder` 并消费剩余 `buffer`，未闭合的最后一个 `data:` 事件不会丢失。
+- **🧪 回归测试**：`tests/assistant.test.mjs` 模拟最后一个 SSE 事件没有尾随空行，断言最终消息完整包含尾部 delta。
+- **📝 原状况描述**：流式响应按 `\n\n` 切分事件，未闭合的最后一段会留在 `buffer`。当 reader 返回 `done` 时函数直接返回 `result`，未处理的 `buffer` 和 TextDecoder flush 都会被丢弃。
 - **⚠️ 影响程度**：中
 - **💡 建议方案**：
   ```javascript

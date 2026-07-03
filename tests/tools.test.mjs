@@ -486,22 +486,13 @@ test("tools tabs expose selected state and support keyboard navigation", async (
     assert.equal(document.querySelector('[data-tool-category="data"]').open, true);
     assert.equal(document.querySelector('[data-tool-category="frontend"]').open, true);
     assert.equal(document.querySelectorAll("[data-tool-tab]").length, 31);
+    assert.equal(document.querySelectorAll("[data-tool-panel]").length, 1);
+    assert.equal(document.querySelectorAll("template[data-tool-template]").length, 30);
     assert.ok(document.querySelector('[data-tool-tab="api"]'));
     assert.ok(document.querySelector('[data-tool-tab="jsondiff"]'));
     assert.ok(document.querySelector('[data-tool-tab="cssunit"]'));
     assert.ok(galaxyTab);
-    assert.equal(document.querySelector("#tool-galaxy .galaxy-canvas").id, "galaxy-canvas");
-    assert.equal(document.querySelector("#galaxy-theme [data-galaxy-theme].active").getAttribute("data-galaxy-theme"), "bluePurple");
-    assert.equal(document.querySelector("#galaxy-count [data-galaxy-count].active").getAttribute("data-galaxy-count"), "1000");
-    assert.equal(document.querySelector("#base64-input").getAttribute("data-i18n-ph"), "tools.base64.placeholder");
-    assert.equal(document.querySelector("#base64-input").getAttribute("data-i18n-en-ph"), "Text to encode or decode");
     assert.equal(document.querySelector("#json-input").getAttribute("aria-label"), "输入 JSON");
-    assert.equal(document.querySelector("#api-url").getAttribute("aria-label"), "URL");
-    assert.equal(document.querySelector("#cron-minute-step").getAttribute("aria-label"), "分钟间隔");
-    assert.equal(document.querySelector("#url-input").getAttribute("data-i18n-en-ph"), "https://example.com/?q=search");
-    assert.equal(document.querySelector("#html-input").getAttribute("data-i18n-ph"), "tools.html.placeholder");
-    assert.equal(document.querySelector("#tool-jwt .jwt-warning").getAttribute("data-i18n"), "tools.jwt.warning");
-    assert.match(document.querySelector("#tool-jwt .jwt-warning").textContent, /未经签名验证/);
     assert.equal(jsonTab.getAttribute("role"), "tab");
     assert.equal(document.querySelector("#tool-json").getAttribute("role"), "tabpanel");
     assert.equal(jsonTab.getAttribute("aria-selected"), "true");
@@ -511,6 +502,7 @@ test("tools tabs expose selected state and support keyboard navigation", async (
     assert.equal(yamlTab.getAttribute("aria-selected"), "true");
     assert.equal(document.querySelector("#tool-yaml").hidden, false);
     assert.equal(document.querySelector("#tool-json").hidden, true);
+    assert.equal(document.querySelectorAll("template[data-tool-template=\"yaml\"]").length, 0);
 
     yamlTab.dispatchEvent(new KeyboardEvent("keydown", { key: "End", bubbles: true, cancelable: true }));
     assert.equal(uaTab.getAttribute("aria-selected"), "true");
@@ -519,11 +511,37 @@ test("tools tabs expose selected state and support keyboard navigation", async (
     uaTab.dispatchEvent(new KeyboardEvent("keydown", { key: "Home", bubbles: true, cancelable: true }));
     assert.equal(galaxyTab.getAttribute("aria-selected"), "true");
     assert.equal(document.querySelector("#tool-galaxy").hidden, false);
+    assert.equal(document.querySelector("#tool-galaxy .galaxy-canvas").id, "galaxy-canvas");
+    assert.equal(document.querySelector("#galaxy-theme [data-galaxy-theme].active").getAttribute("data-galaxy-theme"), "bluePurple");
+    assert.equal(document.querySelector("#galaxy-count [data-galaxy-count].active").getAttribute("data-galaxy-count"), "1000");
     assert.equal(document.querySelector('[data-tool-category="visual"]').open, true);
-    assert.ok(Array.from(document.querySelectorAll("script")).some((script) => script.getAttribute("src") === "/js/galaxy.js"));
+    const galaxyScript = Array.from(document.querySelectorAll("script")).find((script) => script.getAttribute("src") === "/js/galaxy.js");
+    assert.ok(galaxyScript);
+    galaxyScript.dispatchEvent(new dom.window.Event("load"));
+
+    document.querySelector('[data-tool-tab="base64"]').click();
+    assert.equal(document.querySelector("#base64-input").getAttribute("data-i18n-ph"), "tools.base64.placeholder");
+    assert.equal(document.querySelector("#base64-input").getAttribute("data-i18n-en-ph"), "Text to encode or decode");
+    document.querySelector('[data-tool-tab="api"]').click();
+    assert.equal(document.querySelector("#api-url").getAttribute("aria-label"), "URL");
+    document.querySelector('[data-tool-tab="cron"]').click();
+    assert.equal(document.querySelector("#cron-minute-step").getAttribute("aria-label"), "分钟间隔");
+    document.querySelector('[data-tool-tab="url"]').click();
+    assert.equal(document.querySelector("#url-input").getAttribute("data-i18n-en-ph"), "https://example.com/?q=search");
+    document.querySelector('[data-tool-tab="html"]').click();
+    assert.equal(document.querySelector("#html-input").getAttribute("data-i18n-ph"), "tools.html.placeholder");
+    document.querySelector('[data-tool-tab="jwt"]').click();
+    assert.equal(document.querySelector("#tool-jwt .jwt-warning").getAttribute("data-i18n"), "tools.jwt.warning");
+    assert.match(document.querySelector("#tool-jwt .jwt-warning").textContent, /未经签名验证/);
 
     gestureTab.click();
-    assert.ok(Array.from(document.querySelectorAll("script")).some((script) => script.getAttribute("src") === "/js/gesture-premium.js"));
+    const premiumScript = Array.from(document.querySelectorAll("script")).find((script) => script.getAttribute("src") === "/js/gesture-premium.js");
+    assert.ok(premiumScript);
+    assert.equal(Array.from(document.querySelectorAll("script")).some((script) => script.getAttribute("src") === "/js/gesture.js"), false);
+    premiumScript.dispatchEvent(new dom.window.Event("load"));
+    await new Promise((resolve) => {
+      dom.window.setTimeout(resolve, 0);
+    });
     assert.ok(Array.from(document.querySelectorAll("script")).some((script) => script.getAttribute("src") === "/js/gesture.js"));
   } finally {
     dom.window.close();
@@ -595,6 +613,7 @@ test("tools page localizes English placeholders and dynamic statuses", async () 
   const { dom } = await loadToolsPage({ i18n: true });
   const { document } = dom.window;
   try {
+    document.querySelector('[data-tool-tab="base64"]').click();
     assert.equal(document.querySelector("#base64-input").getAttribute("placeholder"), "输入要编码或解码的文本");
 
     document.querySelector(".lang-toggle").click();
@@ -603,6 +622,7 @@ test("tools page localizes English placeholders and dynamic statuses", async () 
     assert.equal(document.querySelector(".tools-tabs").getAttribute("aria-label"), "Categorized tool list");
     assert.equal(document.querySelector('[data-tool-tab="galaxy"] span').textContent, "Galaxy");
     assert.equal(document.querySelector("#base64-input").getAttribute("placeholder"), "Text to encode or decode");
+    document.querySelector('[data-tool-tab="url"]').click();
     assert.equal(document.querySelector("#url-input").getAttribute("placeholder"), "https://example.com/?q=search");
     document.querySelector('[data-tool-tab="jwt"]').click();
     assert.match(document.querySelector("[data-jwt-decode]").textContent, /Decode JWT/);
@@ -655,6 +675,7 @@ test("expanded tools page runs all new tool actions locally", async () => {
     });
     dom.window.TextEncoder = globalThis.TextEncoder;
 
+    document.querySelector('[data-tool-tab="hash"]').click();
     document.querySelector("#hash-input").value = "hello";
     document.querySelector("[data-hash-generate]").click();
     await new Promise((resolve) => {
@@ -663,49 +684,59 @@ test("expanded tools page runs all new tool actions locally", async () => {
     assert.equal(document.querySelector("#hash-output").value, "cafe");
     assert.equal(document.querySelector("#hash-status").classList.contains("is-ok"), true);
 
+    document.querySelector('[data-tool-tab="password"]').click();
     document.querySelector("#password-length").value = "16";
     document.querySelector("[data-password-generate]").click();
     assert.equal(document.querySelector("#password-output").value.length, 16);
     assert.equal(document.querySelector("#password-status").classList.contains("is-ok"), true);
 
+    document.querySelector('[data-tool-tab="color"]').click();
     document.querySelector("#color-input").value = "#2563eb";
     document.querySelector("[data-color-convert]").click();
     assert.match(document.querySelector("#color-output").value, /HEX: #2563EB/);
     assert.equal(document.querySelector("#color-swatch").style.backgroundColor, "rgb(37, 99, 235)");
     assert.equal(document.querySelectorAll("#color-palette [data-color-value]").length, 7);
 
+    document.querySelector('[data-tool-tab="regex"]').click();
     document.querySelector("#regex-pattern").value = "(\\w+)@(example\\.com)";
     document.querySelector("#regex-flags").value = "gi";
     document.querySelector("#regex-input").value = "a@example.com";
     document.querySelector("[data-regex-test]").click();
     assert.match(document.querySelector("#regex-output").value, /Matches: 1/);
 
+    document.querySelector('[data-tool-tab="markdown"]').click();
     document.querySelector("#markdown-input").value = "# Title\n\n<script>alert(1)</script>";
     document.querySelector("#markdown-input").dispatchEvent(new dom.window.Event("input", { bubbles: true }));
     await new Promise((resolve) => {
       dom.window.setTimeout(resolve, 180);
     });
-    assert.match(document.querySelector("#markdown-preview").innerHTML, /<h1>Title<\/h1>/);
+    assert.equal(document.querySelector("#markdown-preview h1"), null);
+    assert.match(document.querySelector("#markdown-preview").innerHTML, /preview-heading-1/);
     assert.equal(document.querySelector("#markdown-preview script"), null);
 
+    document.querySelector('[data-tool-tab="diff"]').click();
     document.querySelector("#diff-left").value = "a\nb";
     document.querySelector("#diff-right").value = "a\nc";
     document.querySelector("[data-diff-run]").click();
     assert.match(document.querySelector("#diff-output").value, /\+ c/);
 
+    document.querySelector('[data-tool-tab="jsondiff"]').click();
     document.querySelector("#jsondiff-left").value = '{"score":97}';
     document.querySelector("#jsondiff-right").value = '{"score":100,"name":"CWL"}';
     document.querySelector('[data-tool-run="json-diff"]').click();
     assert.match(document.querySelector("#jsondiff-output").value, /\$\.score: 97 -> 100/);
 
+    document.querySelector('[data-tool-tab="case"]').click();
     document.querySelector("#case-input").value = "user profile id";
     document.querySelector("[data-case-convert]").click();
     assert.match(document.querySelector("#case-output").value, /camelCase: userProfileId/);
 
+    document.querySelector('[data-tool-tab="html"]').click();
     document.querySelector("#html-input").value = "<b>CWL & Codex</b>";
     document.querySelector('[data-codec-action="html-encode"]').click();
     assert.equal(document.querySelector("#html-output").value, "&lt;b&gt;CWL &amp; Codex&lt;/b&gt;");
 
+    document.querySelector('[data-tool-tab="cron"]').click();
     document.querySelector("#cron-input").value = "*/30 9-10 * * mon-fri";
     document.querySelector("[data-cron-parse]").click();
     assert.match(document.querySelector("#cron-output").value, /Next 5 runs:/);
@@ -717,12 +748,14 @@ test("expanded tools page runs all new tool actions locally", async () => {
     assert.equal(document.querySelector("#cron-input").value, "*/15 9-18 * * 1,2,3,4,5");
     assert.match(document.querySelector("#cron-output").value, /Next 5 runs:/);
 
+    document.querySelector('[data-tool-tab="qr"]').click();
     document.querySelector("#qr-input").value = "https://wenliang844.github.io/tools/";
     document.querySelector("[data-qr-generate]").click();
     assert.match(document.querySelector("#qr-output").value, /^data:image\/gif;base64,/);
     assert.equal(document.querySelector("#qr-image").hidden, false);
     assert.equal(document.querySelector("#qr-empty").hidden, true);
 
+    document.querySelector('[data-tool-tab="cssunit"]').click();
     document.querySelector("#cssunit-value").value = "16";
     document.querySelector("#cssunit-from").value = "px";
     document.querySelector('[data-tool-run="css-unit-convert"]').click();
@@ -769,10 +802,13 @@ test("mini API tester fills relay presets, sends requests and stores history", a
   });
   const { document } = dom.window;
   try {
+    document.querySelector('[data-tool-tab="api"]').click();
     await new Promise((resolve) => {
       dom.window.setTimeout(resolve, 0);
     });
-    document.querySelector('[data-tool-tab="api"]').click();
+    await new Promise((resolve) => {
+      dom.window.setTimeout(resolve, 0);
+    });
     assert.match(document.querySelector("#api-relay-select").textContent, /Relay One/);
 
     document.querySelector("[data-api-relay-fill]").click();

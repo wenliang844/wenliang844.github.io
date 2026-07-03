@@ -65,7 +65,8 @@ test("renderToolsPage has correct script references", () => {
   assert.match(html, /src="\/js\/tools-core\.js"/);
   assert.match(html, /src="\/js\/tools\.js"/);
   assert.match(html, /src="\/js\/editor\.js"/);
-  assert.match(html, /src="\/js\/assistant\.js"/);
+  assert.match(html, /src="\/js\/assistant-loader\.js"/);
+  assert.doesNotMatch(html, /src="\/js\/assistant\.js"/);
   assert.match(html, /src="\/js\/vendor\/marked\.min\.js"/);
   assert.match(html, /src="\/js\/vendor\/purify\.min\.js"/);
   assert.match(html, /src="\/js\/vendor\/highlight\.min\.js"/);
@@ -110,11 +111,17 @@ test("renderToolsPage embeds the Markdown editor panel", () => {
   const html = renderToolsPage();
   assert.match(html, /Markdown 编辑器/);
   assert.match(html, /id="post-title"/);
+  assert.match(html, /<label class="sr-only" for="markdown-input" data-i18n="editor\.input\.label">Markdown 原文输入<\/label>/);
   assert.match(html, /id="markdown-input"/);
   assert.match(html, /id="markdown-preview"/);
   assert.match(html, /data-action="download-md"/);
   assert.match(html, /data-md="bold"/);
   assert.doesNotMatch(html, /data-markdown-render/);
+});
+
+test("renderToolsPage reserves QR image dimensions", () => {
+  const html = renderToolsPage();
+  assert.match(html, /<img id="qr-image" alt="QR code" width="256" height="256" loading="lazy" decoding="async" hidden>/);
 });
 
 test("generated static templates include page-specific JSON-LD", () => {

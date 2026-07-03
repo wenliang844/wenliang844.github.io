@@ -261,9 +261,26 @@ test("tools-core parseCronExpression reports no future runs for impossible expre
 
   // Feb 31 can never match
   const now = new Date("2026-01-01T00:00:00").getTime();
+  const startedAt = performance.now();
   const result = core.parseCronExpression("0 0 31 2 *", now);
+  const elapsed = performance.now() - startedAt;
   assert.ok(!result.ok, "should fail for impossible date");
   assert.ok(result.error.includes("匹配") || result.error.includes("future"), "should mention no matching runs");
+  assert.ok(elapsed < 50, `impossible cron should short-circuit quickly, took ${elapsed.toFixed(2)}ms`);
+
+  dom.window.close();
+});
+
+test("tools-core parseCronExpression keeps OR semantics when day and weekday are both restricted", async () => {
+  const dom = createDom();
+  const core = await loadToolsCore(dom);
+
+  // Feb 31 is impossible, but Monday in February should still match because
+  // cron uses OR when both day fields are restricted.
+  const now = new Date("2026-01-01T00:00:00").getTime();
+  const result = core.parseCronExpression("0 0 31 2 mon", now);
+  assert.ok(result.ok, "should not reject impossible day-of-month when weekday can match");
+  assert.match(result.value, /2026-02-02 00:00/);
 
   dom.window.close();
 });

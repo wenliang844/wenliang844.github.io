@@ -21,34 +21,39 @@
 - **📊 预期收益**：避免本地验证污染工作区，减少生成文件意外混入业务提交的风险。
 - **🔗 相关建议引用**：[DE-11](devex-improvements.md#de-11-把生产验证改造成真正只读的质量门禁), [DE-05](devex-improvements.md#de-05)
 
-### 📌 B-14: 工具箱按需脚本加载 Promise 过早 resolve，手势页存在初始化竞态
+### 📌 B-17 [已修复]: 生产验证测试输出缓冲不足会误报失败
 
-- **📍 位置**：`js/tools.js:68-92`, `js/tools.js:312-315`, `js/tools.js:842-846`, `js/gesture.js:2339-2341`
-- **📝 当前状况描述**：`loadScript()` 创建 `<script>` 后立即 `return Promise.resolve()`，没有等待 `onload`。用户切换到 Galaxy/Gesture 面板后，面板已可交互，但 `gesture.js` 可能尚未执行到按钮事件绑定。极端弱网或 CDN 阻塞时，用户点击“开启摄像头”可能没有反应，且当前只在 console warn。
+- **📍 位置**：`scripts/validate-production.mjs:16`, `scripts/validate-production.mjs:130-136`, `tests/workflows.test.mjs:103-108`
+- **✅ 修复状态**：为生产验证内部的 `node --test tests/*.test.mjs` 设置 `TEST_OUTPUT_MAX_BUFFER = 32 * 1024 * 1024`，并新增 workflow 静态回归断言，确保完整测试输出增长后不会再次触发默认 `execFile` 缓冲上限。
+- **🧪 验证**：`node --test tests/workflows.test.mjs` 5/5 通过；`npm run validate:production` 34/34 通过；`npm run test:coverage` 752/752 通过。
+- **📝 原状况描述**：完整测试套件本身通过，但 `validate:production` 在内部执行测试时使用 `execFile` 默认输出缓冲。测试数量和输出增长后，生产验证会把门禁误判为“测试执行失败”，造成部署前假红。
 - **⚠️ 影响程度**：中
-- **💡 建议方案**：
-  ```javascript
-  function loadScript(src) {
-    return new Promise((resolve, reject) => {
-      const script = document.createElement("script");
-      script.src = src;
-      script.defer = true;
-      script.onload = resolve;
-      script.onerror = reject;
-      document.head.appendChild(script);
-    });
-  }
+- **💡 建议方案**：保留专用输出缓冲；后续若测试输出继续膨胀，可进一步切换为 `spawn` 流式读取或使用低噪声 test reporter。
+- **📊 实际收益**：生产质量门禁恢复稳定，避免自动化循环在已通过的测试套件上反复中断。
+- **🔗 相关建议引用**：[DE-15](devex-improvements.md#de-15-已修复-生产验证测试输出缓冲不足导致门禁假失败)
 
-  loadedToolRuntimes[id] = Promise.all(scripts.map(loadScript));
+### 📌 B-14 [已修复核心竞态]: 工具箱按需脚本加载 Promise 过早 resolve，手势页存在初始化竞态
+
+- **📍 位置**：`js/tools.js:83-116`, `js/tools.js:521-523`, `js/gesture.js:2339-2341`
+- **✅ 修复状态**：`loadScript()` 现在返回真实 `load/error` Promise，并缓存同源脚本 Promise；`loadToolRuntime()` 对多脚本 runtime 使用顺序链，手势工具会先等 `gesture-premium.js` 加载完成再插入 `gesture.js`。
+- **🧪 验证**：`node --test tests/tools.test.mjs` 35/35 通过，新增断言覆盖 Galaxy runtime 注入和 Gesture premium/runtime 顺序加载。
+- **📝 原状况描述**：`loadScript()` 创建 `<script>` 后立即 `return Promise.resolve()`，没有等待 `onload`。用户切换到 Galaxy/Gesture 面板后，面板已可交互，但 `gesture.js` 可能尚未执行到按钮事件绑定。
+- **⚠️ 影响程度**：中
+- **💡 后续建议**：
+  ```javascript
+  showRuntimeStatus("gesture", "loading");
+  showRuntimeStatus("gesture", "failed");
   ```
-  UI 层在 runtime 加载中禁用该面板关键按钮，失败时在 `tool-status` 中展示可恢复错误。
+  UI 层仍可在 runtime 加载中禁用该面板关键按钮，失败时在 `tool-status` 中展示可恢复错误。
 - **📊 预期收益**：消除弱网竞态，提升视觉/摄像头工具的可预期性和可诊断性。
 - **🔗 相关建议引用**：[MR-TOOLS-02](module-reviews/tools-gesture-and-api.md#mr-tools-02-按需-runtime-加载没有等待脚本执行完成), [P-14](performance-bottlenecks.md#p-14-手势工具首次启动依赖远程模型链路弱网下冷启动不可控)
 
-### 📌 B-15: AI 助手模式偏好写入后不会被恢复
+### 📌 B-15 [已修复]: AI 助手模式偏好写入后不会被恢复
 
 - **📍 位置**：`js/assistant.js:31`, `js/assistant.js:337-339`, `js/assistant.js:1306-1309`
-- **📝 当前状况描述**：`MODE_KEY` 已定义，`applyMode()` 也会把用户选择的 `site` / `llm` 写入 localStorage，但 `readMode()` 固定返回 `"llm"`。用户切到“站点模式”后刷新页面会重新回到大模型模式，保存逻辑与读取逻辑不对称。
+- **✅ 修复状态**：`readMode()` 现在会读取 `cwl.assistant.mode`，仅接受 `site` / `llm` 两个合法值；没有保存偏好时默认回到本地站点助手，避免新用户默认进入外部模型请求路径。
+- **🧪 回归测试**：`tests/assistant.test.mjs` 新增默认站点模式、保存 `llm` 后恢复、保存 `site` 后恢复的断言。
+- **📝 原状况描述**：`MODE_KEY` 已定义，`applyMode()` 也会把用户选择的 `site` / `llm` 写入 localStorage，但 `readMode()` 固定返回 `"llm"`。用户切到“站点模式”后刷新页面会重新回到大模型模式，保存逻辑与读取逻辑不对称。
 - **⚠️ 影响程度**：中
 - **💡 建议方案**：
   ```javascript
@@ -64,10 +69,12 @@
 - **📊 预期收益**：恢复用户偏好的一致性，减少刷新后误入大模型模式和误解隐私边界的概率。
 - **🔗 相关建议引用**：[MR-AST-02](module-reviews/assistant-deep-dive.md#mr-ast-02-模式偏好保存与读取不对称), [UX-13](ux-improvements.md#ux-13-ai-助手默认模式与隐私文案需要重新对齐)
 
-### 📌 B-16: AI 助手 SSE 流结束时可能丢失最后一个未闭合事件
+### 📌 B-16 [已修复]: AI 助手 SSE 流结束时可能丢失最后一个未闭合事件
 
 - **📍 位置**：`js/assistant.js:594-649`
-- **📝 当前状况描述**：`postStream()` 每次把 `buffer.split("\n\n")` 的最后一段留作未完成事件，但 `reader.read()` 返回 `done` 后直接 `break`，没有调用 `decoder.decode()` flush，也没有处理剩余 `buffer`。如果中转站最后一个 `data:` 事件没有以空行结尾，最后一段 delta 可能不会进入 `onDelta()`。
+- **✅ 修复状态**：`postStream()` 已抽出 `consumeLine()` / `consumeEvent()` / `consumeBufferedEvents()`，支持 `\n\n` 与 CRLF 分隔；reader 完成时会执行 `decoder.decode()` flush 并消费剩余 `buffer`。
+- **🧪 回归测试**：`tests/assistant.test.mjs` 使用用户自填 key 模拟最后一个 SSE `data:` 事件没有尾随空行，断言最终消息包含完整 `pong!`。
+- **📝 原状况描述**：`postStream()` 每次把 `buffer.split("\n\n")` 的最后一段留作未完成事件，但 `reader.read()` 返回 `done` 后直接 `break`，没有调用 `decoder.decode()` flush，也没有处理剩余 `buffer`。如果中转站最后一个 `data:` 事件没有以空行结尾，最后一段 delta 可能不会进入 `onDelta()`。
 - **⚠️ 影响程度**：中
 - **💡 建议方案**：
   ```javascript

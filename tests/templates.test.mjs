@@ -36,9 +36,11 @@ test("layout escapes title and metadata", () => {
   assert.match(html, /class="nav-search-trigger" type="button" aria-label="全局搜索（Ctrl\+K 或 \/）" title="全局搜索（Ctrl\+K 或 \/）" data-i18n-aria="nav.searchHint" data-i18n-title="nav.searchHint"/);
   assert.match(html, /class="nav-ai-experience assistant-nav-trigger" type="button" aria-label="打开 AI 助手" title="打开 AI 助手" data-assistant-toggle data-i18n-aria="assistant.open" data-i18n-title="assistant.open"/);
   assert.doesNotMatch(html, /href="\/\?assistant=fullscreen"/);
-  assert.match(html, /src="\/js\/assistant\.js"/);
+  assert.match(html, /src="\/js\/assistant-loader\.js"/);
+  assert.doesNotMatch(html, /src="\/js\/assistant\.js"/);
   assert.match(html, /http-equiv="Content-Security-Policy"/);
   assert.match(html, /object-src 'none'/);
+  assert.match(html, /style-src 'self' 'unsafe-inline' https:\/\/giscus\.app/);
   assert.match(html, /frame-src https:\/\/giscus\.app/);
   assert.match(html, /connect-src 'self' https:/);
   assert.match(html, /<link rel="preconnect" href="https:\/\/giscus\.app">/);
@@ -63,7 +65,7 @@ test("layout deduplicates core and page scripts", () => {
 
   assert.equal((html.match(/src="\/js\/utils\.js"/g) || []).length, 1);
   assert.equal((html.match(/src="\/js\/tools\.js"/g) || []).length, 1);
-  assert.match(html, /src="\/js\/assistant\.js"/);
+  assert.match(html, /src="\/js\/assistant-loader\.js"/);
 });
 
 test("post template escapes front matter text while preserving article HTML", () => {

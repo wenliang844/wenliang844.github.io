@@ -13,6 +13,7 @@ import { promisify } from 'node:util';
 const execFileAsync = promisify(execFile);
 const ROOT = process.cwd();
 const IS_WINDOWS = process.platform === 'win32';
+const TEST_OUTPUT_MAX_BUFFER = 32 * 1024 * 1024;
 
 const checks = {
   passed: [],
@@ -130,7 +131,8 @@ async function runTests() {
     const { stdout } = await execFileAsync('node', ['--test', 'tests/*.test.mjs'], {
       cwd: ROOT,
       windowsHide: true,
-      shell: true
+      shell: true,
+      maxBuffer: TEST_OUTPUT_MAX_BUFFER
     });
 
     if (stdout.includes('fail 0')) {
