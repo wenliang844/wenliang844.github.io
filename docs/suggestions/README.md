@@ -10,10 +10,10 @@
 |------|------|
 | 当前分支 | `codex/autonomous-optimization` |
 | 工作区注意事项 | 本轮包含源码、测试与文档修复；生产验证脚本已修复大测试输出假失败和根目录构建写入副作用 |
-| 质量门禁 | `npm run lint:check` 通过；`npm test` 773/773 通过；`npm run test:http-smoke` 5/5 路由通过 |
+| 质量门禁 | `npm run lint:check` 通过；`npm test` / `npm run test:coverage` 779/779 通过；`npm run test:http-smoke` 5/5 路由通过；`npm run test:browser-smoke` 通过 |
 | 生产验证 | `npm run validate:production` 34/34 通过 |
 | 依赖审计 | `npm audit --registry=https://registry.npmjs.org --audit-level=moderate` 0 漏洞 |
-| 覆盖率 | 总体 lines 94.44%、branches 78.33%、functions 91.84%，通过阈值 |
+| 覆盖率 | 总体 lines 96.48%、branches 83.73%、functions 96.13%，通过阈值 |
 | 本地服务冒烟 | `/`、`/tools/`、`/post/`、`/search-index.json` 均返回 200 |
 | 第 2 轮深挖 | `js/assistant.js`、`js/tools-core.js`、`tests/assistant*.mjs`、`tests/tools*.mjs` |
 | 第 2 轮行为探测 | Cron 无解表达式 `0 0 31 2 *` 约 127.57ms；普通表达式约 0.19-1.52ms |
@@ -62,6 +62,7 @@
 - 已完成：内容发现专题 1-4 修复博客年份分组计数、空分组隐藏、`?q=` 搜索直达和移动目录焦点恢复。
 - 已完成：内容发现专题 5 为搜索脚本加载失败增加按钮错误态、toast、日志和可重试路径。
 - 已完成：新增真实浏览器与视觉冒烟专题，记录 Playwright/HTTP smoke、响应式截图、权限 API 和 CI artifact 后续落地路径。
+- 已完成：新增 `test:browser-smoke`，用 Playwright Chromium 覆盖桌面关键路径、移动端关键路径和 `/tools/` 基础交互，并修复博客列表双 `h1` 语义问题。
 - 已完成：新增 `test:http-smoke`，把 `/`、`/tools/`、`/ai/`、`/post/`、`/contact/` 的 HTTP 可达性、H1/main 和本地脚本引用检查接入 CI。
 - 已完成：新增内容新鲜度与信任信号专题，记录 sitemap lastmod、文章最后更新、搜索新鲜度和反馈入口 6 项建议。
 - 已完成：修复按钮可访问名称测试的静态正则盲区，改用 JSDOM 解析真实按钮名称。

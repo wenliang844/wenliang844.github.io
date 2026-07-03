@@ -109,7 +109,7 @@ function sanitizeProvider(input) {
     successRate: cleanNumber(input.successRate),
     latencyMs: cleanNumber(input.latencyMs || input.responseTimeMs),
     failureSummary: cleanText(input.failureSummary || input.failure || input.error),
-    isCurrent: Boolean(input.isCurrent),
+    isCurrent: cleanBoolean(input.isCurrent),
     score: cleanScore(input.score),
     tags: cleanArray(input.tags, 6),
   };
@@ -129,8 +129,8 @@ function authHeaders() {
   return headers;
 }
 
-async function fetchOneSource(url) {
-  const response = await fetch(url, { headers: authHeaders() });
+async function fetchOneSource(url, headers) {
+  const response = await fetch(url, { headers });
   if (!response.ok) {
     console.warn(`⚠ 拉取失败 [${url}]: HTTP ${response.status}，跳过该源。`);
     return [];
@@ -150,7 +150,8 @@ export async function fetchCommercialProviders() {
   }
 
   const urls = rawSource.split(",").map((u) => u.trim()).filter(Boolean);
-  const results = await Promise.allSettled(urls.map(fetchOneSource));
+  const headers = authHeaders();
+  const results = await Promise.allSettled(urls.map((url) => fetchOneSource(url, headers)));
 
   const providers = [];
   for (let i = 0; i < results.length; i++) {

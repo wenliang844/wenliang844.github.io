@@ -2,12 +2,12 @@
 
 生成时间：2026-07-03  
 分析范围：`npm run test:coverage` 输出、Node 原生覆盖率、JSDOM 客户端脚本测试、relay 数据脚本测试与 CI 覆盖率门禁。  
-本轮验证：`npm run test:coverage`，773/773 通过；总体 line 94.39%、branch 78.12%、functions 91.84%。
+本轮验证：`npm run test:coverage`，779/779 通过；总体 line 96.48%、branch 83.73%、functions 96.13%。
 约束说明：本轮仅新增 `/docs/suggestions/module-reviews/test-coverage-risk-map.md`，未修改源码、配置或测试。
 
 ## 总览
 
-测试体系总体很强，且覆盖率阈值已经进入 CI。但当前覆盖率报告主要覆盖被 Node 作为 ESM 模块导入的 `scripts/` 与 `src/`，大量真实浏览器运行的 `js/*.js` 是通过 JSDOM `eval()` 加载，行为测试很多，却没有进入文件级覆盖率表。因此“总体 94.39%”更像构建/模板层覆盖率，而不是全站客户端脚本覆盖率。后续应把覆盖率从全局指标升级为风险地图：关键发布脚本、数据同步脚本、浏览器交互脚本分别有自己的可见指标和门槛。
+测试体系总体很强，且覆盖率阈值已经进入 CI。但当前覆盖率报告主要覆盖被 Node 作为 ESM 模块导入的 `scripts/` 与 `src/`，大量真实浏览器运行的 `js/*.js` 是通过 JSDOM `eval()` 加载，行为测试很多，却没有进入文件级覆盖率表。因此“总体 96.48%”更像构建/模板层覆盖率，而不是全站客户端脚本覆盖率。后续应把覆盖率从全局指标升级为风险地图：关键发布脚本、数据同步脚本、浏览器交互脚本分别有自己的可见指标和门槛。
 
 严重程度分布：
 
@@ -41,11 +41,12 @@ function runClientScript(dom, file, code) {
 - 📊 预期收益：让客户端交互脚本从“有行为测试但不可见”变成可量化覆盖率，便于发现某个浏览器模块测试不足。
 - 🔗 相关建议引用：`docs/suggestions/module-reviews/ci-release-automation-review.md` 的覆盖率 artifact 建议、`docs/suggestions/devex-improvements.md#de-02-部分修复-测试运行无-watch-模式下的增量反馈`。
 
-### 2. 全局覆盖率达标会掩盖关键数据脚本低覆盖
+### 2. [部分修复] 全局覆盖率达标会掩盖关键数据脚本低覆盖
 
 - 📌 问题/建议标题：为高风险脚本设置单文件或分组覆盖率阈值
 - 📍 位置：`package.json:16-16`、`scripts/parse-relay.mjs:1-593`、`scripts/update-commercial-relay.mjs:1-226`、`tests/relay.test.mjs:1-134`
-- 📝 当前状况描述：本轮整体 line 94.39%、branch 78.12%、functions 91.84%，满足 CI 阈值。但 `parse-relay.mjs` line 77.23%、branch 46.58%，`update-commercial-relay.mjs` line 68.14%、branch 64.91%。这两个脚本负责把外部 relay 数据清洗进公开 AI 排行榜，属于数据质量和敏感信息边界比较关键的路径。
+- ✅ 修复状态：新增 relay 异常矩阵后，`parse-relay.mjs` 已提升到 line 89.21%、branch 69.90%、functions 91.80%；`update-commercial-relay.mjs` 已提升到 line 76.65%、branch 86.84%、functions 90.91%。全局覆盖率提升到 line 96.48%、branch 83.73%、functions 96.13%。
+- 📝 剩余状况描述：`parse-relay.mjs` 分支覆盖距离 70% 预算只差 0.10 个百分点；`update-commercial-relay.mjs` 行覆盖仍低于 85%，未覆盖区域主要集中在主流程写文件、最低数量门禁和少量 URL/时间 fallback。两个脚本负责把外部 relay 数据清洗进公开 AI 排行榜，仍适合设置单文件或分组预算。
 - ⚠️ 影响程度：中
 - 💡 建议方案（含伪代码或示例片段）：
 
@@ -64,11 +65,12 @@ function runClientScript(dom, file, code) {
 - 📊 预期收益：避免全局高覆盖率掩盖关键脚本缺口，让公开数据同步链路有更明确的质量标准。
 - 🔗 相关建议引用：`docs/suggestions/performance-bottlenecks.md#p-15-测试覆盖率总体达标但-relay-同步脚本覆盖率明显低于整体水平`、`docs/suggestions/module-reviews/relay-data-quality-and-sync.md`。
 
-### 3. Relay 测试仍偏“成功路径 + 基础清洗”，异常分支覆盖不足
+### 3. [部分修复] Relay 测试仍偏“成功路径 + 基础清洗”，异常分支覆盖不足
 
 - 📌 问题/建议标题：为 relay 导入和商业同步补充异常矩阵
 - 📍 位置：`scripts/parse-relay.mjs:17-45`、`scripts/parse-relay.mjs:81-121`、`scripts/update-commercial-relay.mjs:118-128`、`scripts/update-commercial-relay.mjs:180-219`、`tests/relay.test.mjs:11-134`
-- 📝 当前状况描述：现有 relay 测试覆盖 SQL 导入敏感字段清洗、生成数据不含 secret marker、多个商业源合并和失败源跳过。但覆盖率显示许多异常分支仍未走到，例如 CLI 参数错误、`--out` 越界、畸形 SQL token、`RELAY_COMMERCIAL_HEADERS` 不是合法 JSON、`RELAY_COMMERCIAL_REQUIRED=1` 但缺少 source、最低数量门禁失败、主函数写文件失败等。
+- ✅ 修复状态：`tests/relay.test.mjs` 已从 3 个用例扩展到 8 个，新增覆盖 official provider 跳过、失败摘要、request log 兜底、CLI 缺参、`--out` 越界、可选/必需商业源缺失、认证 header 发送、商业字段清洗和非法 `RELAY_COMMERCIAL_HEADERS` 请求前失败。
+- 📝 剩余状况描述：最低数量门禁失败、主函数读写文件失败、批量 SQL `VALUES (...), (...)` 格式漂移和 per-source 认证隔离仍未完全覆盖。
 - ⚠️ 影响程度：中
 - 💡 建议方案（含伪代码或示例片段）：
 
@@ -115,7 +117,7 @@ test("expanded tools page runs all new tool actions locally", { timeout: 5000 },
 
 - 📌 问题/建议标题：把覆盖率摘要保存为文档化 artifact 或 JSON
 - 📍 位置：`package.json:16-16`、`.github/workflows/ci.yml:44-45`、`tests/workflows.test.mjs:25-37`
-- 📝 当前状况描述：`npm run test:coverage` 会在控制台输出覆盖率表，但 CI 没有上传 artifact，也没有生成 JSON/Markdown 摘要。历史文档中已有 752/752、731/731 等旧数字，本轮已经达到 773/773；如果没有自动化记录，很难判断覆盖率变化来自新增测试、删除测试还是覆盖目标变化。
+- 📝 当前状况描述：`npm run test:coverage` 会在控制台输出覆盖率表，但 CI 没有上传 artifact，也没有生成 JSON/Markdown 摘要。历史文档中已有 752/752、731/731 等旧数字，本轮已经达到 779/779；如果没有自动化记录，很难判断覆盖率变化来自新增测试、删除测试还是覆盖目标变化。
 - ⚠️ 影响程度：低
 - 💡 建议方案（含伪代码或示例片段）：
 
@@ -164,7 +166,7 @@ test("tools page opens first panel without console errors", async ({ page }) => 
 ## 后续优先级
 
 1. 先让 `js/*.js` 客户端脚本进入文件级覆盖率报告，明确真实覆盖基线。
-2. 为 `parse-relay.mjs` 和 `update-commercial-relay.mjs` 补异常矩阵，再设置分组覆盖率预算。
+2. 继续补 `update-commercial-relay.mjs` 主流程和 `parse-relay.mjs` 格式漂移测试，再设置分组覆盖率预算。
 3. 在 CI 中保存覆盖率摘要，避免测试数量和覆盖率历史只散落在人工报告里。
 4. 给工具箱慢测试设预算或拆分，配合 CI 去重降低反馈时间。
 5. 增加极小浏览器冒烟集，先覆盖工具箱和文章页。

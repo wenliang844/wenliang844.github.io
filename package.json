@@ -13,6 +13,7 @@
     "test:assistant": "node --test tests/assistant.test.mjs tests/assistant-enter.test.mjs tests/assistant-tools-page.test.mjs",
     "test:toolbox": "node --test tests/assistant.test.mjs tests/assistant-enter.test.mjs tests/assistant-tools-page.test.mjs tests/tools.test.mjs",
     "test:tools": "node --test tests/tools.test.mjs",
+    "test:browser-smoke": "npx --yes --package=playwright node scripts/browser-smoke.mjs",
     "test:http-smoke": "node scripts/http-smoke.mjs",
     "test:coverage": "node --test --experimental-test-coverage --test-coverage-lines=90 --test-coverage-branches=70 --test-coverage-functions=85 tests/*.test.mjs",
     "test:watch": "node --test --watch tests/*.test.mjs",

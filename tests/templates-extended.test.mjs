@@ -449,7 +449,11 @@ test("renderPostList groups posts by year with correct counts", () => {
   const html = renderPostList(posts, stats);
 
   assert.match(html, /class="post-tree"/);
+  assert.match(html, /class="post-mobile-heading"/);
+  assert.match(html, /class="post-tree-title"/);
+  assert.match(html, /id="post-mobile-title"/);
   assert.match(html, /class="post-detail"/);
+  assert.equal((html.match(/<h1\b/g) || []).length, 1);
   assert.match(html, /2024/);
   assert.match(html, /2023/);
   assert.match(html, /3/); // count

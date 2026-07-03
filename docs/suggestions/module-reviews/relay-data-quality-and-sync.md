@@ -2,11 +2,11 @@
 
 > 分析时间：2026-07-04 01:48 +08:00  
 > 分析范围：`data/relay-providers.json`, `scripts/parse-relay.mjs`, `scripts/update-commercial-relay.mjs`, `.github/workflows/relay-commercial-sync.yml`, `js/relay.js`, `js/tools.js`, `src/templates/relay.mjs`, `src/templates/tools.mjs`  
-> 验证命令：`node --test tests/relay.test.mjs tests/assistant-loader.test.mjs tests/tools.test.mjs`，41/41 通过
+> 验证命令：`node --test tests/relay.test.mjs`，8/8 通过；`npm run test:coverage`，779/779 通过
 
 ## 本轮结论
 
-Relay 数据链路已经具备基本脱敏能力：SQL 导入测试会确认 `settings_config`、API key、token、账号 ID 和 URL query 不进入公开 JSON；商业站同步也有多源合并和失败源跳过测试。当前主要风险不在“是否泄漏密钥”，而在“公开榜单数据是否足够适合被 API Tester 直接使用”：商业站条目很多是官网/控制台地址，LinuxDo 条目存在重复 endpoint，前端会把 down/unknown 条目一起展示和填入，商业同步在部分源失败时会直接用剩余源覆盖旧数据。
+Relay 数据链路已经具备基本脱敏能力：SQL 导入测试会确认 `settings_config`、API key、token、账号 ID 和 URL query 不进入公开 JSON；商业站同步也有多源合并和失败源跳过测试。本轮又补充了 official 跳过、失败摘要、CLI 参数保护、缺源配置、认证 header、非法 header JSON 和字段清洗测试，并修复 `isCurrent: "false"` 被误判为当前可用的问题。剩余主要风险不在“是否泄漏密钥”，而在“公开榜单数据是否足够适合被 API Tester 直接使用”：商业站条目很多是官网/控制台地址，LinuxDo 条目存在重复 endpoint，前端会把 down/unknown 条目一起展示和填入，商业同步在部分源失败时会直接用剩余源覆盖旧数据。
 
 本轮数据探针：
 
@@ -71,10 +71,11 @@ Relay 数据链路已经具备基本脱敏能力：SQL 导入测试会确认 `se
 
 ---
 
-## 📌 MR-RELAY-04: 商业同步部分失败时会用剩余源覆盖旧数据
+## 📌 MR-RELAY-04 [部分修复]: 商业同步部分失败时会用剩余源覆盖旧数据
 
 - **📍 位置**：`scripts/update-commercial-relay.mjs:142-168`, `scripts/update-commercial-relay.mjs:179-217`, `tests/relay.test.mjs:67-121`, `.github/workflows/relay-commercial-sync.yml:33-61`
-- **📝 当前状况描述**：`fetchCommercialProviders()` 使用 `Promise.allSettled()`，失败源只记录 warning，成功源合并后去重；主流程只检查总数不低于 `RELAY_COMMERCIAL_MIN_COUNT`。如果一个关键商业源失败，而另一个次要源仍返回 1 条以上，脚本会通过并覆盖 `data.commercialProviders`。这对“跳过坏源继续同步”是友好的，但对公开榜单来说可能把完整商业站列表替换成残缺列表。
+- **✅ 修复状态**：非法 `RELAY_COMMERCIAL_HEADERS` 现在会在发起请求前失败，不再被 `Promise.allSettled()` 吃成“所有源 0 条”；缺少必需源和商业字段清洗也已进入测试。
+- **📝 剩余状况描述**：`fetchCommercialProviders()` 仍使用 `Promise.allSettled()`，单个源 HTTP 失败只记录 warning，成功源合并后去重；主流程只检查总数不低于 `RELAY_COMMERCIAL_MIN_COUNT`。如果一个关键商业源失败，而另一个次要源仍返回 1 条以上，脚本仍可能通过并覆盖 `data.commercialProviders`。
 - **⚠️ 影响程度**：中
 - **💡 建议方案**：记录每个源的成功/失败和条数，设置 `minSuccessfulSources` 或“低于上次数量的一定比例时保留旧数据”。GitHub Actions 可输出 diff 摘要并阻止大幅缩水的自动提交。
   ```javascript

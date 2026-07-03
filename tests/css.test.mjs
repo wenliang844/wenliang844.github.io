@@ -96,10 +96,12 @@ test("coder.css contains blog tree selectors", async () => {
 
   assert.ok(css.includes(".blog-layout"), "should have blog-layout");
   assert.ok(css.includes(".post-tree"), "should have post-tree");
+  assert.ok(css.includes(".post-tree-title"), "post tree should use a non-h1 title selector");
   assert.ok(css.includes(".post-tree-link"), "should have post-tree-link");
   assert.ok(/\.post-tree\s*{[^}]*position:\s*sticky;/s.test(css), "post-tree should be sticky on desktop");
   assert.ok(css.includes(".post-tree-fab-icon"), "mobile post tree toggle should have an icon selector");
   assert.ok(css.includes(".post-tree-collapse"), "mobile floating post tree should have an internal collapse button");
+  assert.ok(css.includes(".post-mobile-heading"), "mobile post list should expose a visible heading outside the floating tree");
   assert.ok(css.includes(".post-detail"), "should have post-detail");
   assert.ok(css.includes(".tree-group"), "should have tree-group");
 });

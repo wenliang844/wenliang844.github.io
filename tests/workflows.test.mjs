@@ -25,6 +25,7 @@ test("CI workflow runs quality gates without write permissions", async () => {
     packageJson.scripts["test:coverage"],
     "node --test --experimental-test-coverage --test-coverage-lines=90 --test-coverage-branches=70 --test-coverage-functions=85 tests/*.test.mjs",
   );
+  assert.equal(packageJson.scripts["test:browser-smoke"], "npx --yes --package=playwright node scripts/browser-smoke.mjs");
   assert.equal(packageJson.scripts["test:http-smoke"], "node scripts/http-smoke.mjs");
 
   [
@@ -131,4 +132,19 @@ test("HTTP smoke script covers critical public routes and local scripts", async 
   assert.match(smokeScript, /is missing an h1/);
   assert.match(smokeScript, /extractLocalScriptSources/);
   assert.match(smokeScript, /method:\s*"HEAD"/);
+});
+
+test("browser smoke script covers critical routes, viewports and tool interactions", async () => {
+  const smokeScript = await readFile(join(ROOT, "scripts", "browser-smoke.mjs"), "utf8");
+
+  assert.match(smokeScript, /ROUTES\s*=\s*\["\/",\s*"\/tools\/",\s*"\/ai\/",\s*"\/post\/",\s*"\/contact\/"\]/);
+  assert.match(smokeScript, /name:\s*"desktop"/);
+  assert.match(smokeScript, /name:\s*"mobile"/);
+  assert.match(smokeScript, /page\.on\("console"/);
+  assert.match(smokeScript, /page\.on\("pageerror"/);
+  assert.match(smokeScript, /main#main-content/);
+  assert.match(smokeScript, /h1:visible/);
+  assert.match(smokeScript, /assertNoHorizontalOverflow/);
+  assert.match(smokeScript, /data-json-action="format"/);
+  assert.match(smokeScript, /random-warning/);
 });

@@ -6,17 +6,18 @@
 
 - 本地只读静态服务：`/`、`/tools/`、`/ai/`、`/post/`、`/contact/` 均返回 200。
 - 页面抽样结果：`/tools/` 约 104900 字符、15 个脚本引用，是当前最需要真实浏览器冒烟覆盖的页面。
-- 自动化测试：`npm run test:http-smoke` 5/5 路由通过；`node --test tests/workflows.test.mjs`，7/7 通过；`npm run test:coverage`，773/773 通过。
-- 约束说明：本轮仅新增 `/docs/suggestions/module-reviews/browser-visual-smoke-testing.md`，未修改源码、配置或测试。
+- 自动化测试：`npm run test:http-smoke` 5/5 路由通过；`npm run test:browser-smoke` 覆盖桌面 5 个关键路径、移动端 3 个关键路径和 `/tools/` JSON/随机数交互；`node --test tests/workflows.test.mjs`，8/8 通过；`npm run test:coverage`，779/779 通过。
+- 实际发现并修复：真实浏览器 mobile `/post/` 冒烟暴露首个 `h1` 位于默认隐藏的浮动文章目录内，随后静态 a11y 门禁发现 `post/index.html` 存在双 `h1`；已将目录标题改为 `.post-tree-title`，页面保留单一可见 `h1`。
+- 约束说明：真实浏览器 smoke 已作为 `npm run test:browser-smoke` 固化，暂未接入主 CI；待稳定运行一段时间后再考虑 nightly 或单独可选 job。
 
 ## 总览
 
-当前测试体系对静态结构、模板输出、JSDOM 行为和 CI 工作流都有较强覆盖，但还没有一条“启动静态站点 -> 用真实浏览器打开关键页面 -> 检查控制台错误、视口溢出、焦点路径、Canvas/Clipboard/摄像头降级、截图证据”的自动化链路。对于这个项目，风险主要集中在工具箱、AI 中转站、文章阅读页和各类浮层交互：这些模块大量依赖真实浏览器布局、权限、媒体设备、Canvas/WebGL、Clipboard 和滚动 API，JSDOM 测试很难发现视觉错位、焦点逃逸、权限提示、真实 CSS 断点和控制台运行时错误。
+当前测试体系对静态结构、模板输出、JSDOM 行为和 CI 工作流都有较强覆盖；本轮已经补上一条最小真实浏览器 smoke：“启动静态站点 -> 用 Chromium/Edge 打开关键页面 -> 检查控制台错误、页面错误、同源 4xx/失败请求、可见 main/H1、响应式横向溢出和工具箱核心交互”。剩余风险主要集中在截图证据、焦点路径、Canvas/Clipboard/摄像头降级和 CI artifact：这些模块大量依赖真实浏览器布局、权限、媒体设备、Canvas/WebGL、Clipboard 和滚动 API，JSDOM 测试仍很难完整发现视觉错位、焦点逃逸、权限提示和真实 CSS 断点问题。
 
 严重程度分布：
 
-- 高：1
-- 中：4
+- 高：0
+- 中：5
 - 低：1
 
 ## 本轮观察记录
@@ -31,21 +32,20 @@
 
 ## 建议清单
 
-### 1. CI 缺少真实浏览器冒烟测试，复杂前端交互仍可能带错发布
+### 1. [已部分落地] 真实浏览器冒烟测试已固化，CI 门禁仍待稳定后接入
 
 - 📌 问题/建议标题：增加最小 Playwright/浏览器冒烟门禁
-- 📍 位置：`package.json:12-22`、`.github/workflows/ci.yml:27-48`、`tests/workflows.test.mjs:30-37`
-- 📝 当前状况描述：`package.json` 当前质量脚本覆盖 `node --test`、覆盖率、生产校验和本地静态服务；CI 质量门禁依次运行 `npm ci`、`lint:check`、`npm test`、`validate:posts`、`build`、`validate:production`、`test:coverage` 和 `npm audit`。这些步骤能验证源码和静态结构，但没有真实浏览器打开页面，也没有收集控制台错误、页面错误、响应式溢出、焦点顺序或截图证据。本轮本地 HTTP 冒烟只能证明页面返回 200，不能证明用户真实点击和渲染正常。
-- ⚠️ 影响程度：高
+- 📍 位置：`package.json:12-22`、`scripts/browser-smoke.mjs`、`tests/workflows.test.mjs:30-150`、`.github/workflows/ci.yml:27-48`
+- ✅ 落地状态：新增 `scripts/browser-smoke.mjs` 和 `npm run test:browser-smoke`，脚本会启动本地静态服务，用 Playwright Chromium 打开 `/`、`/tools/`、`/ai/`、`/post/`、`/contact/` 桌面视口，以及 `/`、`/tools/`、`/post/` 移动视口；同时检查 `main#main-content`、可见 H1、横向溢出、控制台错误、页面错误、同源 4xx/失败请求，并覆盖 `/tools/` JSON 格式化和随机数安全提示。
+- 🧪 回归测试：`tests/workflows.test.mjs` 已加入脚本契约断言，覆盖关键路由、桌面/移动视口、运行时错误收集、横向溢出检查和工具交互选择器。真实浏览器运行曾发现 mobile `/post/` H1 检测落到隐藏目录标题；静态门禁进一步发现双 `h1`，现已通过单一可见 `h1` 和 `.post-tree-title` 修复。
+- 📝 剩余状况描述：CI 当前仍只运行 HTTP smoke，尚未把 Playwright smoke 放进主质量门禁。保守原因是 GitHub runner 需要安装浏览器依赖，运行时间和偶发资源加载噪声都高于 Node/JSDOM 测试；更适合先作为本地发布前检查或 nightly/可选 job。
+- ⚠️ 影响程度：中
 - 💡 建议方案（含伪代码或示例片段）：
 
 ```json
 {
   "scripts": {
-    "test:browser": "playwright test tests/browser-smoke.spec.mjs"
-  },
-  "devDependencies": {
-    "@playwright/test": "^1.55.0"
+    "test:browser-smoke": "npx --yes --package=playwright node scripts/browser-smoke.mjs"
   }
 }
 ```
@@ -67,9 +67,9 @@ for (const path of ["/", "/tools/", "/ai/", "/post/", "/contact/"]) {
 }
 ```
 
-CI 中可先只跑 Chromium 和 5 个关键路径，失败时上传 screenshot/trace；稳定后再扩展到移动端视口和交互流程。
+CI 中可先把现有 `test:browser-smoke` 放入可选 job 或 nightly，只跑 Chromium 和 5 个关键路径；稳定后再扩展截图、trace、焦点路径和更多工具交互。
 
-- 📊 预期收益：把“页面能构建”升级为“关键页面能在真实浏览器中打开并可交互”，降低 CSS、运行时脚本和权限 API 回归漏发概率。
+- 📊 实际收益：已经把“页面能构建”升级为“关键页面能在真实浏览器中打开并完成基础交互”，并真实拦截了移动端 `/post/` 可见标题缺失。
 - 🔗 相关建议引用：`docs/suggestions/module-reviews/test-coverage-risk-map.md`、`docs/suggestions/module-reviews/ci-release-automation-review.md`、`docs/suggestions/devex-improvements.md`。
 
 ### 2. [已修复] 按钮可访问名称测试存在静态正则盲区
@@ -112,11 +112,12 @@ for (const button of dom.window.document.querySelectorAll("button")) {
 - 📊 实际收益：避免“测试通过但检查逻辑空转”，更早发现图标按钮、动态按钮和多语言切换后的可访问名称缺失。
 - 🔗 相关建议引用：`docs/suggestions/module-reviews/i18n-and-accessibility.md`、`docs/suggestions/ux-improvements.md`、`docs/suggestions/full-browser-audit-2026-07-03.md`。
 
-### 3. 性能测试偏静态文件检查，缺少视口溢出和视觉回归信号
+### 3. [已部分落地] 性能测试偏静态文件检查，截图基线仍待补充
 
 - 📌 问题/建议标题：为关键页面增加响应式布局和截图 smoke
 - 📍 位置：`tests/performance.test.mjs:19-90`、`tests/performance.test.mjs:145-183`、`package.json:21-22`
-- 📝 当前状况描述：性能测试目前主要检查 HTML/JS/CSS 文件大小、资源引用存在、favicon、重复脚本、搜索索引和 RSS 大小。这些门槛很有价值，但不能发现移动端横向滚动、浮层遮挡正文、固定按钮与安全区重叠、打印样式破版、CSS 加载成功但特定断点布局错位等真实渲染问题。本轮 `/tools/` 页面体积和脚本数最高，且包含多工具分区、Canvas、API 调试、Markdown 编辑等复杂 UI，是视觉冒烟优先级最高的路径。
+- ✅ 落地状态：`scripts/browser-smoke.mjs` 已在桌面和移动视口检查关键路径横向溢出，覆盖 `/tools/` 桌面交互和移动端页面可见 H1。
+- 📝 剩余状况描述：性能测试目前主要检查 HTML/JS/CSS 文件大小、资源引用存在、favicon、重复脚本、搜索索引和 RSS 大小。真实浏览器 smoke 已补上低噪声的 overflow 信号，但仍没有截图基线、打印预览、固定按钮安全区和浮层遮挡证据。本轮 `/tools/` 页面体积和脚本数最高，且包含多工具分区、Canvas、API 调试、Markdown 编辑等复杂 UI，仍是视觉截图和交互扩展优先级最高的路径。
 - ⚠️ 影响程度：中
 - 💡 建议方案（含伪代码或示例片段）：
 
@@ -145,7 +146,7 @@ for (const viewport of viewports) {
 
 截图可以先只在本地或 nightly job 运行，主 CI 先保留 overflow、H1、核心控件可见性等低噪声断言。
 
-- 📊 预期收益：让响应式、固定浮层、导航、工具箱密集界面的视觉问题在合并前暴露，而不是依赖人工打开页面后发现。
+- 📊 实际收益：移动端文章列表标题缺失和关键路径横向溢出已进入可重复检查；截图和 trace 证据仍是下一步收益点。
 - 🔗 相关建议引用：`docs/suggestions/module-reviews/layout-responsive-print-review.md`、`docs/suggestions/performance-bottlenecks.md`、`docs/suggestions/module-reviews/product-info-pages-and-rankings.md`。
 
 ### 4. 工具箱真实浏览器 API 面积大，JSDOM mock 难覆盖权限和降级行为
@@ -237,7 +238,7 @@ for (const route of routes) {
 
 1. 已修复 `tests/i18n-a11y.test.mjs` 的按钮可访问名称检查，让现有 Node 测试变得真实有效。
 2. 已增加 `test:http-smoke`，把本轮 5 个关键路径的 200/H1/脚本检查固化。
-3. 引入最小 Playwright Chromium smoke，只覆盖 `/`、`/tools/`、`/ai/`、`/post/`、`/contact/`。
-4. 为 `/tools/` 增加移动端和桌面端横向溢出检查。
+3. 已引入最小 Playwright Chromium smoke，覆盖 `/`、`/tools/`、`/ai/`、`/post/`、`/contact/` 桌面路径和移动端 `/`、`/tools/`、`/post/`。
+4. 已为关键路径增加移动端和桌面端横向溢出检查；后续可扩展截图基线。
 5. 对工具箱 Canvas、Clipboard、摄像头权限失败路径补充真实浏览器测试。
 6. 浏览器测试稳定后再加入截图基线和失败 artifact。
