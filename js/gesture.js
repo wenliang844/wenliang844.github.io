@@ -13,6 +13,8 @@
   const $label   = document.getElementById("gesture-label");
   const $fps     = document.getElementById("gesture-fps");
   const $face    = document.getElementById("gesture-face");
+  const $haptics = document.getElementById("gesture-haptics");
+  const $sound   = document.getElementById("gesture-sound");
 
   if (!$canvas) return;                       // not on tools page
 
@@ -24,7 +26,7 @@
   let handLandmarker  = null;                 // MediaPipe instance
   let cameraStream    = null;                 // MediaStream
   let running         = false;                // detection loop active?
-  let mode            = "particle";           // particle | gesture | draw | fruit | detect | face | dance | 3d
+  let mode            = "particle";           // particle | gesture | premium | draw | fruit | detect | face | dance | 3d
   let lastGesture     = "none";               // recognised gesture name
   let lastGestureTime = 0;
   let swipeHistory    = [];                   // palm centre history for swipe
@@ -145,6 +147,10 @@
   var GRID_W = 100, GRID_H = 75;      /* downsample resolution */
   captureCanvas.width  = GRID_W;
   captureCanvas.height = GRID_H;
+
+  /* ---- Premium interaction state ---- */
+  var premiumHaptics = !$haptics || $haptics.checked;
+  var premiumSound   = !!($sound && $sound.checked);
 
   /* ====================================================================
    * 1. MediaPipe CDN Loader
@@ -525,6 +531,7 @@
       $face.classList.remove("is-active");
     }
     lastFaceResults = [];
+    resetPremiumState();
     cleanupThreeScene();
   }
 
@@ -758,6 +765,12 @@
         setLabel("3D 重建");
         return;
       }
+      if (mode === "premium") {
+        setLabel("高阶动效");
+        animatePremium(null, "none", []);
+        drawFaceOverlay();
+        return;
+      }
       setLabel("未检测到手部");
       if (mode === "draw") {
         ctx.drawImage(drawCanvas, 0, 0, $canvas.width, $canvas.height,
@@ -781,6 +794,7 @@
     switch (mode) {
       case "particle":  animateParticle(lm, gesture); break;
       case "gesture":   animateGesture(lm, gesture);  break;
+      case "premium":   animatePremium(lm, gesture, result.landmarks); break;
       case "draw":      animateDraw(lm, gesture);      break;
       case "fruit":     animateFruit(lm, gesture);     break;
       case "face":      animateFace();                 break;
@@ -1246,7 +1260,54 @@
   }
 
   /* ====================================================================
-   * 9b. Fruit Ninja Mode
+   * 9b. Premium Kinetic Mode
+   * ==================================================================== */
+  function premiumEnv() {
+    return {
+      canvas: $canvas,
+      ctx: ctx,
+      toX: toX,
+      toY: toY,
+      dist: dist,
+      roundRect: roundRect,
+      drawHandSkeleton: drawHandSkeleton,
+      spawnParticle: spawnParticle,
+      updateParticles: updateParticles,
+      rippleAt: rippleAt,
+      haptics: premiumHaptics,
+      sound: premiumSound,
+    };
+  }
+
+  function premiumApi() {
+    return window.CWLGesturePremium;
+  }
+
+  function resetPremiumState() {
+    var api = premiumApi();
+    if (api && typeof api.reset === "function") {
+      api.reset();
+    }
+  }
+
+  function premiumFeedback(kind) {
+    var api = premiumApi();
+    if (api && typeof api.feedback === "function") {
+      api.feedback(premiumEnv(), kind);
+    }
+  }
+
+  function animatePremium(lm, gesture, hands) {
+    var api = premiumApi();
+    if (api && typeof api.animate === "function") {
+      api.animate(premiumEnv(), lm, gesture, hands || []);
+      return;
+    }
+    setLabel("高阶动效未加载");
+    updateParticles();
+  }
+  /* ====================================================================
+   * 9c. Fruit Ninja Mode
    * ==================================================================== */
   function fruitCW() { return $canvas.width / (window.devicePixelRatio || 1); }
   function fruitCH() { return $canvas.height / (window.devicePixelRatio || 1); }
@@ -2287,6 +2348,7 @@
     lastFaceResults = [];
     revealProgress = 0;
     prev3D = null;
+    resetPremiumState();
     if ($face) {
       $face.textContent = "";
       $face.classList.remove("is-active");
@@ -2303,6 +2365,7 @@
     if (!btn) return;
     var m = btn.dataset.mode;
     if (!m || m === mode) return;
+    var prevMode = mode;
     mode = m;
     document.querySelectorAll(".gesture-mode-btn").forEach(function (b) {
       b.classList.toggle("active", b.dataset.mode === m);
@@ -2328,6 +2391,7 @@
     /* reset 3D state */
     revealProgress = 0;
     prev3D = null;
+    resetPremiumState();
     /* lazy-load models when switching modes while running */
     if (m === "detect" && running && !objectDetector) {
       loadObjectDetector();
@@ -2342,10 +2406,28 @@
     if (m === "3d" && running) {
       loadThree().then(initThreeScene);
     }
-    if (mode === "3d" && m !== "3d") {
+    if (prevMode === "3d" && m !== "3d") {
       cleanupThreeScene();
     }
   });
+
+  if ($haptics) {
+    $haptics.addEventListener("change", function () {
+      premiumHaptics = $haptics.checked;
+      if (premiumHaptics) {
+        premiumFeedback("toggle");
+      }
+    });
+  }
+
+  if ($sound) {
+    $sound.addEventListener("change", function () {
+      premiumSound = $sound.checked;
+      if (premiumSound) {
+        premiumFeedback("toggle");
+      }
+    });
+  }
 
   /* Responsive canvas resize */
   window.addEventListener("resize", function () {

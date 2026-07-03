@@ -4154,15 +4154,16 @@ body.search-open .search-modal .search-modal-card,
 
 .gesture-modes {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.35rem;
   margin-bottom: 0.75rem;
 }
 
 .gesture-mode-btn {
-  flex: 1;
+  flex: 1 1 8.5rem;
   padding: 0.55rem 0.75rem;
   border: 1px solid var(--border);
-  border-radius: 0.6rem;
+  border-radius: 0.5rem;
   background: var(--surface);
   color: var(--text-muted);
   font-size: 0.85rem;
@@ -4182,6 +4183,56 @@ body.search-open .search-modal .search-modal-card,
 .gesture-mode-btn.active {
   background: var(--accent-soft);
   border-color: var(--accent);
+  color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-soft);
+}
+
+.gesture-feedback-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: -0.25rem 0 0.75rem;
+}
+
+.gesture-toggle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.15rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.gesture-toggle input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.gesture-toggle > span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  min-width: 5.4rem;
+  padding: 0.45rem 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-weight: 700;
+  transition: background 180ms ease, border-color 180ms ease, color 180ms ease, box-shadow 180ms ease;
+}
+
+.gesture-toggle input:focus-visible + span {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.gesture-toggle input:checked + span {
+  border-color: var(--accent);
+  background: var(--accent-soft);
   color: var(--accent);
   box-shadow: 0 0 0 2px var(--accent-soft);
 }

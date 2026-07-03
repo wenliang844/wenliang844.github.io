@@ -811,6 +811,9 @@ ${toolHeader(tool)}
             <button class="gesture-mode-btn" data-mode="gesture" type="button">
               <i class="fas fa-hand-peace" aria-hidden="true"></i> <span data-i18n="tools.gesture.modeGesture" data-i18n-en="Gestures">手势识别</span>
             </button>
+            <button class="gesture-mode-btn" data-mode="premium" type="button">
+              <i class="fas fa-magic" aria-hidden="true"></i> <span data-i18n="tools.gesture.modePremium" data-i18n-en="Kinetic">高阶动效</span>
+            </button>
             <button class="gesture-mode-btn" data-mode="draw" type="button">
               <i class="fas fa-paint-brush" aria-hidden="true"></i> <span data-i18n="tools.gesture.modeDraw" data-i18n-en="Drawing">指尖绘画</span>
             </button>
@@ -831,6 +834,16 @@ ${toolHeader(tool)}
             <button class="gesture-submode-btn" data-submode="mesh" type="button">
               <i class="fas fa-draw-polygon" aria-hidden="true"></i> <span data-i18n="tools.gesture.subMesh" data-i18n-en="Mesh">网格</span>
             </button>
+          </div>
+          <div class="gesture-feedback-controls">
+            <label class="gesture-toggle">
+              <input id="gesture-haptics" type="checkbox" checked>
+              <span><i class="fas fa-adjust" aria-hidden="true"></i> <span data-i18n="tools.gesture.haptics" data-i18n-en="Haptics">触觉</span></span>
+            </label>
+            <label class="gesture-toggle">
+              <input id="gesture-sound" type="checkbox">
+              <span><i class="fas fa-rss" aria-hidden="true"></i> <span data-i18n="tools.gesture.sound" data-i18n-en="Sound">音效</span></span>
+            </label>
           </div>
           <div class="gesture-viewport">
             <video id="gesture-video" class="gesture-video" autoplay playsinline muted></video>
@@ -911,7 +924,7 @@ ${renderGestureTool()}
     descriptionEn: "CWLBlog online toolbox: Mini Postman, JSON, timestamps, Base64, URL, UUID, JWT, hashes, passwords, colors, regex, Markdown editor, diff, cron, QR, YAML, URL parsing, text tools and gesture animation.",
     active: "tools",
     page: "tools",
-    scripts: ["/js/vendor/marked.min.js", "/js/vendor/purify.min.js", "/js/vendor/qrcode.min.js", "/js/vendor/highlight.min.js", "/js/tools-core.js", "/js/tools.js", "/js/editor.js", "/js/gesture.js"],
+    scripts: ["/js/vendor/marked.min.js", "/js/vendor/purify.min.js", "/js/vendor/qrcode.min.js", "/js/vendor/highlight.min.js", "/js/tools-core.js", "/js/tools.js", "/js/editor.js", "/js/gesture-premium.js", "/js/gesture.js"],
     jsonLd: buildPageJsonLd({
       type: "WebApplication",
       name: "CWLBlog 在线工具箱",
