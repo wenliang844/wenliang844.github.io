@@ -496,6 +496,42 @@
     }
   }
 
+  function describeCameraError(error) {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      return "当前浏览器不支持摄像头，或页面不是 HTTPS/localhost";
+    }
+    if (!window.isSecureContext) {
+      return "请使用 HTTPS 或 localhost 打开页面后再启用摄像头";
+    }
+    switch (error && error.name) {
+      case "NotAllowedError":
+      case "SecurityError":
+        return "摄像头权限被拒绝，请在地址栏允许摄像头后刷新页面";
+      case "NotFoundError":
+      case "DevicesNotFoundError":
+        return "未找到可用摄像头，请连接设备或检查系统隐私设置";
+      case "NotReadableError":
+      case "TrackStartError":
+        return "摄像头被占用或被系统阻止，请关闭其他占用摄像头的应用";
+      case "OverconstrainedError":
+      case "ConstraintNotSatisfiedError":
+        return "当前摄像头不支持请求参数，请切换摄像头或降低分辨率";
+      default:
+        return "摄像头启动失败，请检查浏览器权限和系统摄像头设置";
+    }
+  }
+
+  async function requestCamera(preferredVideo) {
+    try {
+      return await navigator.mediaDevices.getUserMedia({ video: preferredVideo });
+    } catch (error) {
+      if (error && (error.name === "OverconstrainedError" || error.name === "ConstraintNotSatisfiedError")) {
+        return navigator.mediaDevices.getUserMedia({ video: true });
+      }
+      throw error;
+    }
+  }
+
   async function startCamera() {
     if (running || starting) {return;}
     if (!hasRuntimeConsent()) {
@@ -518,11 +554,10 @@
       }
       setStatus("loading", "初始化摄像头…");
       try {
-        cameraStream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: "user", width: { ideal: 640 }, height: { ideal: 480 } },
-        });
+        cameraStream = await requestCamera({ facingMode: "user", width: { ideal: 640 }, height: { ideal: 480 } });
       } catch (e) {
-        setStatus("error", "摄像头访问被拒绝");
+        setStatus("error", describeCameraError(e));
+        console.error("[gesture] camera start failed", e);
         return;
       }
       $video.srcObject = cameraStream;

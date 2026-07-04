@@ -651,7 +651,8 @@ test("gesture runtime releases camera when the page is hidden", async () => {
 test("gesture startup reports camera initialization and video stream phases", async () => {
   const code = await readFile(join(ROOT, "js", "gesture.js"), "utf8");
 
-  assert.match(code, /setStatus\("loading", "初始化摄像头…"\);\s*try \{\s*cameraStream = await navigator\.mediaDevices\.getUserMedia/);
+  assert.match(code, /setStatus\("loading", "初始化摄像头…"\);\s*try \{\s*cameraStream = await requestCamera/);
+  assert.match(code, /setStatus\("error", describeCameraError\(e\)\);/);
   assert.match(code, /\$video\.srcObject = cameraStream;\s*setStatus\("loading", "启动视频流…"\);\s*await \$video\.play\(\);/);
 });
 
