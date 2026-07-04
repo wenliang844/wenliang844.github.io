@@ -18,6 +18,7 @@ jobs:
       RELAY_COMMERCIAL_SOURCE_NAME: ${{ vars.RELAY_COMMERCIAL_SOURCE_NAME }}
       RELAY_COMMERCIAL_REQUIRED: "1"
       RELAY_COMMERCIAL_MIN_COUNT: "1"
+      RELAY_COMMERCIAL_MIN_SUCCESSFUL_SOURCES: "1"
     steps:
       - name: Checkout
         uses: actions/checkout@v5

@@ -55,6 +55,12 @@ function wait(ms = 20) {
   });
 }
 
+function trustAssistantEndpoint(document) {
+  const trust = document.querySelector(".assistant-endpoint-trust-input");
+  assert.ok(trust, "assistant should expose endpoint trust confirmation");
+  trust.checked = true;
+}
+
 test("assistant starts minimized, opens on demand, answers locally and escapes user input", async () => {
   const dom = await loadAssistant();
   const { document, KeyboardEvent, Event } = dom.window;
@@ -363,6 +369,8 @@ test("assistant can render English labels through the i18n bridge", async () => 
       "assistant.retention": "Retention",
       "assistant.retention.30d": "30 days",
       "assistant.clearAll": "Clear all",
+      "assistant.rememberKey": "Remember key",
+      "assistant.endpoint.confirm": "Trust endpoint",
     },
   });
   const { document } = dom.window;
@@ -375,6 +383,8 @@ test("assistant can render English labels through the i18n bridge", async () => 
   assert.equal(document.querySelector(".assistant-retention > span").textContent, "Retention");
   assert.equal(document.querySelector('.assistant-retention-select option[value="30d"]').textContent, "30 days");
   assert.equal(document.querySelector(".assistant-clear-all").textContent, "Clear all");
+  assert.equal(document.querySelector(".assistant-remember-key span").textContent, "Remember key");
+  assert.equal(document.querySelector(".assistant-endpoint-trust span").textContent, "Trust endpoint");
   assert.equal(document.querySelector(".assistant-fab").getAttribute("aria-label"), "Open AI assistant");
 });
 
@@ -548,6 +558,7 @@ test("assistant requires a user API key for the default OpenAI preset", async ()
   assert.equal(calls.length, 0);
   assert.match(document.querySelector(".assistant-messages").textContent, /请先填写 API key/);
   assert.equal(JSON.parse(localStorage.getItem("cwl.assistant.llmConfig")).apiKey, "");
+  assert.equal(JSON.parse(localStorage.getItem("cwl.assistant.llmConfig")).rememberApiKey, false);
 });
 
 test("assistant still requires an API key for custom OpenAI endpoints", async () => {
@@ -580,6 +591,64 @@ test("assistant still requires an API key for custom OpenAI endpoints", async ()
   assert.match(document.querySelector(".assistant-messages").textContent, /请先填写 API key/);
 });
 
+test("assistant does not persist API keys unless the user opts in", async () => {
+  const dom = await loadAssistant();
+  const { document, Event, localStorage } = dom.window;
+
+  document.querySelector(".assistant-api-key").value = "sk-session-only-key";
+  document.querySelector(".assistant-config").dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+
+  let saved = JSON.parse(localStorage.getItem("cwl.assistant.llmConfig"));
+  assert.equal(saved.apiKey, "");
+  assert.equal(saved.rememberApiKey, false);
+  assert.match(document.querySelector(".assistant-config-status").textContent, /未持久保存/);
+
+  document.querySelector(".assistant-remember-key-input").checked = true;
+  document.querySelector(".assistant-api-key").value = "sk-remembered-key";
+  document.querySelector(".assistant-config").dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+
+  saved = JSON.parse(localStorage.getItem("cwl.assistant.llmConfig"));
+  assert.equal(saved.apiKey, "sk-remembered-key");
+  assert.equal(saved.rememberApiKey, true);
+  assert.match(document.querySelector(".assistant-config-status").textContent, /已保存配置和 API key/);
+});
+
+test("assistant requires endpoint trust before sending an API key", async () => {
+  const calls = [];
+  const dom = await loadAssistant({
+    fetch: async (url, init) => {
+      calls.push({ url, init });
+      return {
+        ok: true,
+        status: 200,
+        text: async () => JSON.stringify({ output_text: "pong" }),
+      };
+    },
+  });
+  const { document, Event } = dom.window;
+
+  document.querySelector('[data-assistant-mode="llm"]').click();
+  document.querySelector(".assistant-api-key").value = "sk-user-owned-key";
+  assert.match(document.querySelector(".assistant-endpoint-summary").textContent, /HTTPS:\/\/muyuan\.do\/v1\/responses/);
+
+  const input = document.querySelector(".assistant-input");
+  input.value = "你好";
+  document.querySelector(".assistant-form").dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+
+  await wait();
+
+  assert.equal(calls.length, 0);
+  assert.match(document.querySelector(".assistant-messages").textContent, /确认请求地址可信/);
+  assert.match(document.querySelector(".assistant-config-status").textContent, /确认请求地址可信/);
+
+  trustAssistantEndpoint(document);
+  document.querySelector(".assistant-form").dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+  await wait();
+
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].init.headers.Authorization, "Bearer sk-user-owned-key");
+});
+
 test("assistant sends the default OpenAI preset with a user key and flushes final SSE data", async () => {
   const calls = [];
   const encoder = new TextEncoder();
@@ -603,6 +672,7 @@ test("assistant sends the default OpenAI preset with a user key and flushes fina
 
   document.querySelector('[data-assistant-mode="llm"]').click();
   document.querySelector(".assistant-api-key").value = "sk-user-owned-key";
+  trustAssistantEndpoint(document);
   const input = document.querySelector(".assistant-input");
   input.value = "你好";
   document.querySelector(".assistant-form").dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
@@ -633,6 +703,7 @@ test("assistant distinguishes request timeout from manual stop", async () => {
 
   document.querySelector('[data-assistant-mode="llm"]').click();
   document.querySelector(".assistant-api-key").value = "sk-user-owned-key";
+  trustAssistantEndpoint(document);
   const input = document.querySelector(".assistant-input");
   input.value = "你好";
   document.querySelector(".assistant-form").dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
@@ -660,6 +731,7 @@ test("assistant reports manual generation stop without using timeout copy", asyn
 
   document.querySelector('[data-assistant-mode="llm"]').click();
   document.querySelector(".assistant-api-key").value = "sk-user-owned-key";
+  trustAssistantEndpoint(document);
   const input = document.querySelector(".assistant-input");
   const form = document.querySelector(".assistant-form");
   input.value = "你好";
@@ -857,6 +929,7 @@ test("assistant sends OpenAI-compatible chat completion requests", async () => {
   format.dispatchEvent(new Event("change", { bubbles: true }));
   document.querySelector(".assistant-endpoint").value = "https://relay.example/v1";
   document.querySelector(".assistant-api-key").value = "local-test-key";
+  trustAssistantEndpoint(document);
   document.querySelector(".assistant-model").value = "gpt-test";
   const input = document.querySelector(".assistant-input");
   input.value = "你好";
@@ -899,6 +972,7 @@ test("assistant retries Codex-style OpenAI responses requests", async () => {
   format.value = "openai";
   format.dispatchEvent(new Event("change", { bubbles: true }));
   document.querySelector(".assistant-api-key").value = "local-test-key";
+  trustAssistantEndpoint(document);
   document.querySelector(".assistant-model").value = "gpt-test";
   const input = document.querySelector(".assistant-input");
   input.value = "你好";
@@ -941,6 +1015,7 @@ test("assistant sends Anthropic-compatible messages requests", async () => {
   format.dispatchEvent(new Event("change", { bubbles: true }));
   document.querySelector(".assistant-endpoint").value = "https://claude.example/anthropic";
   document.querySelector(".assistant-api-key").value = "local-claude-key";
+  trustAssistantEndpoint(document);
   document.querySelector(".assistant-model").value = "claude-test";
   const input = document.querySelector(".assistant-input");
   input.value = "你好";
@@ -959,6 +1034,6 @@ test("assistant sends Anthropic-compatible messages requests", async () => {
 });
 
 test("assistant panel keeps the hidden attribute effective in CSS", async () => {
-  const css = await readFile(join(ROOT, "css", "coder.css"), "utf8");
+  const css = await readFile(join(ROOT, "css", "assistant.css"), "utf8");
   assert.match(css, /\.assistant-panel\[hidden\]\s*{\s*display:\s*none;/);
 });

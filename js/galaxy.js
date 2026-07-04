@@ -14,6 +14,9 @@
   const $fps      = document.getElementById('galaxy-fps')
   const $pcount   = document.getElementById('galaxy-particles')
   const $panel    = document.getElementById('tool-galaxy')
+  const reduceMotionQuery = typeof window.matchMedia === 'function'
+    ? window.matchMedia('(prefers-reduced-motion: reduce)')
+    : null
 
   const ctx = $canvas.getContext('2d')
 
@@ -103,6 +106,14 @@
   function randHue(lo, hi) {
     if (hi >= lo) {return rand(lo, hi)}
     return lo + Math.random() * ((hi + 360) - lo) % 360
+  }
+
+  function prefersReducedMotion() {
+    return !!(reduceMotionQuery && reduceMotionQuery.matches)
+  }
+
+  function isPanelVisible() {
+    return !$panel || !$panel.hidden
   }
 
   /* ---- Resize ---- */
@@ -608,9 +619,7 @@
   /* ============================================================
      MAIN LOOP
      ============================================================ */
-  function frame(ts) {
-    if (!running) {return}
-    rafId = requestAnimationFrame(frame)
+  function render(ts) {
     time = ts / 1000
 
     /* FPS */
@@ -652,9 +661,27 @@
     if ($pcount) {$pcount.textContent = (stars.length + particles.length) + ' 星'}
   }
 
+  function frame(ts) {
+    if (!running) {return}
+    rafId = requestAnimationFrame(frame)
+    render(ts)
+  }
+
   /* ---- Start / Stop ---- */
+  function drawStaticFrame() {
+    stop()
+    resize()
+    ensureParticles()
+    render((window.performance && window.performance.now) ? window.performance.now() : 0)
+    if ($fps) {$fps.textContent = '动画已按系统偏好暂停'}
+  }
+
   function start() {
     if (running) {return}
+    if (prefersReducedMotion()) {
+      drawStaticFrame()
+      return
+    }
     running = true
     resize()
     ensureParticles()
@@ -669,6 +696,16 @@
   function rebuild() {
     particles = []
     ensureParticles()
+    if (prefersReducedMotion() && isPanelVisible()) {drawStaticFrame()}
+  }
+
+  function handleReducedMotionChange() {
+    if (!isPanelVisible()) {return}
+    if (prefersReducedMotion()) {
+      drawStaticFrame()
+    } else {
+      start()
+    }
   }
 
   /* ---- Event bindings ---- */
@@ -689,6 +726,7 @@
       for (let i = 0; i < particles.length; i++) {
         particles[i].hue = randHue(theme.starHueLo, theme.starHueHi)
       }
+      if (prefersReducedMotion() && isPanelVisible()) {drawStaticFrame()}
     })
   }
 
@@ -750,26 +788,38 @@
   let resizeTimer = null
   window.addEventListener('resize', function () {
     clearTimeout(resizeTimer)
-    resizeTimer = setTimeout(resize, 150)
+    resizeTimer = setTimeout(function () {
+      if (prefersReducedMotion() && isPanelVisible()) {drawStaticFrame(); return}
+      resize()
+    }, 150)
   })
 
   /* Pause when tab hidden */
   if ($panel) {
     new MutationObserver(function () {
       if ($panel.hidden) { stop(); return }
+      if (prefersReducedMotion()) { drawStaticFrame(); return }
       requestAnimationFrame(function () { resize(); start() })
     }).observe($panel, { attributes: true, attributeFilter: ['hidden'] })
   }
 
   document.addEventListener('visibilitychange', function () {
     if (document.hidden) {stop()}
-    else if ($panel && !$panel.hidden) {start()}
+    else if (isPanelVisible()) {start()}
   })
 
   window.addEventListener('beforeunload', stop)
 
+  if (reduceMotionQuery) {
+    if (typeof reduceMotionQuery.addEventListener === 'function') {
+      reduceMotionQuery.addEventListener('change', handleReducedMotionChange)
+    } else if (typeof reduceMotionQuery.addListener === 'function') {
+      reduceMotionQuery.addListener(handleReducedMotionChange)
+    }
+  }
+
   /* ---- Auto-start ---- */
-  if (!$panel || !$panel.hidden) {
+  if (isPanelVisible()) {
     start()
   }
 })()

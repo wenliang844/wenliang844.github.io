@@ -73,9 +73,24 @@
       });
       const titleEl = link.querySelector(".tree-title");
       const summaryEl = panel ? panel.querySelector(".article-summary") : null;
+      const contentEl = panel ? panel.querySelector(".article-content") : null;
+      const headingEls = panel ? Array.from(panel.querySelectorAll(".article-content h2, .article-content h3")) : [];
       const title = titleEl ? titleEl.textContent : "";
       const summary = summaryEl ? summaryEl.textContent : "";
-      const haystack = (title + " " + summary + " " + tags.join(" ") + " " + tagLabels.join(" ")).toLowerCase();
+      const body = contentEl ? contentEl.textContent : "";
+      const headings = headingEls.map(function (heading) {
+        return heading.textContent || "";
+      }).join(" ");
+      const slug = panel ? panel.getAttribute("data-post-slug") || "" : "";
+      const haystack = [
+        title,
+        summary,
+        headings,
+        body,
+        slug,
+        tags.join(" "),
+        tagLabels.join(" "),
+      ].join(" ").toLowerCase();
       return { link: link, li: li, panel: panel, tags: tags, tagLabels: tagLabels, haystack: haystack };
     });
     itemsReady = true;

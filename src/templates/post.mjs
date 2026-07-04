@@ -11,6 +11,12 @@ function i18nText(key, zh, en, extra = "") {
   return `data-i18n="${key}" data-i18n-en="${escapeAttr(en || zh)}"${extra ? ` ${extra}` : ""}`;
 }
 
+const POST_STATUS_LABELS = {
+  maintained: { zh: "持续维护", en: "Maintained" },
+  historical: { zh: "历史项目复盘", en: "Historical retrospective" },
+  archived: { zh: "归档内容", en: "Archived content" },
+};
+
 function tagEn(post, tag, index) {
   return (post.tagsEn && post.tagsEn[index]) || tag;
 }
@@ -21,6 +27,38 @@ function tagEn(post, tag, index) {
 function renderReadingTime(post) {
   const minutes = post.readMinutes || 1;
   return `<span class="reading-time"><i class="fas fa-clock" aria-hidden="true"></i> <span data-i18n="dyn.readingPrefix">约</span> ${minutes} <span data-i18n="dyn.readingSuffix">分钟</span></span>`;
+}
+
+function renderUpdatedTime(post) {
+  if (!post.modified || post.modified === post.date) {
+    return "";
+  }
+  const updated = longDate(post.modified);
+  return `
+              <span>·</span>
+              <time class="updated-time" datetime="${isoDate(post.modified)}" data-i18n="post.meta.updated" data-i18n-en="${escapeAttr(`Updated ${updated}`)}">更新于 ${escapeHtml(updated)}</time>`;
+}
+
+function renderContentNote(post, indent) {
+  if (!post.status && !post.reviewed && !post.contextNote) {
+    return "";
+  }
+  const status = POST_STATUS_LABELS[post.status] || null;
+  const zhParts = [];
+  const enParts = [];
+  if (status) {
+    zhParts.push(`本文状态：${status.zh}。`);
+    enParts.push(`Status: ${status.en}.`);
+  }
+  if (post.reviewed) {
+    zhParts.push(`最后复核于 ${isoDate(post.reviewed)}。`);
+    enParts.push(`Reviewed ${longDate(post.reviewed)}.`);
+  }
+  if (post.contextNote) {
+    zhParts.push(post.contextNote);
+    enParts.push(post.contextNoteEn || post.contextNote);
+  }
+  return `${indent}<aside class="content-note" role="note" data-i18n="post.${post.slug}.contentNote" data-i18n-en="${escapeAttr(enParts.join(" "))}">${escapeHtml(zhParts.join(" "))}</aside>`;
 }
 
 // 列表页面板用：tags 渲染为 span，由 blog.js 接管就地筛选（span 之间不留空白）。
@@ -90,6 +128,15 @@ function renderShare(post) {
             </div>`;
 }
 
+function renderMaintenance(post) {
+  const sourceUrl = `https://github.com/wenliang844/wenliang844.github.io/blob/master/src/posts/${post.slug}.md`;
+  const feedbackUrl = `/contact/?topic=post&slug=${encodeURIComponent(post.slug)}#feedback-title`;
+  return `            <nav class="post-maintenance" aria-label="内容维护" data-i18n-aria="post.maintenance.aria">
+              <a href="${sourceUrl}" target="_blank" rel="noopener noreferrer" data-i18n="post.maintenance.source" data-i18n-html data-i18n-en-html="<i class=&quot;fas fa-code-branch&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt; Source"><i class="fas fa-code-branch" aria-hidden="true"></i> 查看源码</a>
+              <a href="${feedbackUrl}" data-i18n="post.maintenance.feedback" data-i18n-html data-i18n-en-html="<i class=&quot;fas fa-comment-dots&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt; Report issue"><i class="fas fa-comment-dots" aria-hidden="true"></i> 反馈本文问题</a>
+            </nav>`;
+}
+
 // 渲染文章目录
 function renderToc(toc, tocEn) {
   if (!toc || toc.length === 0) return "";
@@ -152,13 +199,18 @@ function renderNextPopup(next, prev) {
 function renderRelated(related) {
   if (!related || related.length === 0) return "";
   const cards = related
-    .map((post) => `        <li>
+    .map((post) => {
+      const reason = post.relatedReason
+        ? `            <span class="related-reason" ${i18nText(`post.related.${post.slug}.reason`, post.relatedReason, post.relatedReasonEn || post.relatedReason)}>${escapeHtml(post.relatedReason)}</span>\n`
+        : "";
+      return `        <li>
           <a class="related-card" href="/post/${post.slug}/">
             <span class="related-eyebrow">${escapeHtml(post.eyebrow)}</span>
             <span class="related-title" ${i18nText(`post.${post.slug}.shortTitle`, post.shortTitle, enValue(post, "shortTitle"))}>${escapeHtml(post.shortTitle)}</span>
-            <time datetime="${isoDate(post.date)}">${isoDate(post.date)}</time>
+${reason}            <time datetime="${isoDate(post.date)}">${isoDate(post.date)}</time>
           </a>
-        </li>`)
+        </li>`;
+    })
     .join("\n");
   return `      <nav class="post-related" aria-label="相关文章" data-i18n-aria="post.related.aria">
         <h2 class="post-related-title" data-i18n="post.related.title" data-i18n-en="Related posts">相关文章</h2>
@@ -239,15 +291,18 @@ export function renderPostPage(post, nav) {
               <span>·</span>
               <a href="/post/#${post.slug}" data-i18n="post.meta.posts" data-i18n-en="Posts">文章</a>
               <span>·</span>
-              ${renderReadingTime(post)}
+              ${renderReadingTime(post)}${renderUpdatedTime(post)}
             </div>
             <p class="article-summary" ${i18nText(`post.${post.slug}.summary`, post.summary, enValue(post, "summary"))}>${escapeHtml(post.summary)}</p>
             <div class="post-tags">
               ${renderTagLinks(post)}
             </div>
+            <p class="post-offline-status" data-pwa-article-status role="status" aria-live="polite" hidden></p>
           </header>
+${renderContentNote(post, "          ")}
 ${renderI18nContent(post, "          ")}
 ${renderShare(post)}
+${renderMaintenance(post)}
         </article>
 ${tocHtml}
       </div>
@@ -272,6 +327,7 @@ ${renderNextPopup(nav.next, nav.prev)}
     page: "posts",
     scripts,
     jsonLd: buildArticleJsonLd(post),
+    resourceHintCapabilities: ["comments"],
     og: {
       type: "article",
       title: post.shortTitle,
@@ -335,13 +391,14 @@ function renderArticlePanel(post, isFirst) {
               <div class="article-meta">
                 <time datetime="${isoDate(post.date)}">${longDate(post.date)}</time>
                 <span>·</span>
-                ${renderReadingTime(post)}
+                ${renderReadingTime(post)}${renderUpdatedTime(post)}
               </div>
               <p class="article-summary" ${i18nText(`post.${post.slug}.summary`, post.summary, enValue(post, "summary"))}>${escapeHtml(post.summary)}</p>
               <div class="post-tags">
                 ${renderTags(post)}
               </div>
             </header>
+${renderContentNote(post, "            ")}
 ${renderI18nContent(post, "            ", { headingIdPrefix: `post-${post.slug}` })}
 ${renderShare(post)}
           </article>`;
@@ -417,6 +474,11 @@ ${panels}
     page: "posts",
     scripts: ["/js/blog.js", "/js/vendor/qrcode.min.js", "/js/share.js", "/js/giscus.js"],
     jsonLd: buildPostListJsonLd(posts, description),
+    resourceHintCapabilities: ["comments"],
+    feeds: [
+      { href: "/index.xml", title: "CWLBlog RSS" },
+      { href: "/post/index.xml", title: "CWLBlog Posts RSS" },
+    ],
     og: { type: "website", title: "Posts", description, path: "/post/" },
     main,
   });

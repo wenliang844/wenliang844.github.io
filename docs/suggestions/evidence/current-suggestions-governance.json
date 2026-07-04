@@ -1,0 +1,825 @@
+{
+  "schemaVersion": 2,
+  "source": "scripts/check-suggestions-index.mjs",
+  "budget": {
+    "incompleteSuggestionItems": 82,
+    "missingFieldCounts": {
+      "title": 0,
+      "location": 6,
+      "description": 51,
+      "impact": 56,
+      "solution": 55,
+      "benefit": 15,
+      "links": 30
+    }
+  },
+  "markdownFiles": 70,
+  "markdownFilesWithSuggestions": 44,
+  "moduleReviewFiles": 48,
+  "suggestionItems": 350,
+  "completeSuggestionItems": 268,
+  "incompleteSuggestionItems": 82,
+  "statusCounts": {
+    "fixed": 122,
+    "partial": 58,
+    "open": 170
+  },
+  "missingFieldCounts": {
+    "title": 0,
+    "location": 6,
+    "description": 51,
+    "impact": 56,
+    "solution": 55,
+    "benefit": 15,
+    "links": 30
+  },
+  "incompleteItems": [
+    {
+      "file": "bugs-and-risks.md",
+      "line": 106,
+      "title": "B-01 [已修复]: coder.js 中 draw() 递归动画无法停止，离开页面持续消耗资源",
+      "missingFields": [
+        "description",
+        "impact",
+        "solution"
+      ]
+    },
+    {
+      "file": "bugs-and-risks.md",
+      "line": 116,
+      "title": "B-02 [已修复]: coder.js 粒子数组 splice 在遍历中执行，可能导致跳过元素",
+      "missingFields": [
+        "description",
+        "impact",
+        "solution"
+      ]
+    },
+    {
+      "file": "bugs-and-risks.md",
+      "line": 126,
+      "title": "B-03 [已修复]: search.js 中 list.innerHTML = \"\" 后紧跟 innerHTML = 赋值，混合使用 DOM API",
+      "missingFields": [
+        "description",
+        "impact",
+        "solution"
+      ]
+    },
+    {
+      "file": "bugs-and-risks.md",
+      "line": 136,
+      "title": "B-04 [已修复]: giscus.js 中 thread.innerHTML = placeholder() 使用 innerHTML 注入含  标签的文本",
+      "missingFields": [
+        "description",
+        "impact",
+        "solution"
+      ]
+    },
+    {
+      "file": "bugs-and-risks.md",
+      "line": 146,
+      "title": "B-05 [已修复]: coder.js 中 readingMinutes 与 build.mjs 中重复定义，行为可能漂移",
+      "missingFields": [
+        "description",
+        "impact",
+        "solution"
+      ]
+    },
+    {
+      "file": "bugs-and-risks.md",
+      "line": 156,
+      "title": "B-06 [已修复]: extractToc() 和 renderContent() 中标题 ID 生成逻辑重复，且不处理重复标题",
+      "missingFields": [
+        "description",
+        "impact",
+        "solution"
+      ]
+    },
+    {
+      "file": "bugs-and-risks.md",
+      "line": 166,
+      "title": "B-07 [已修复]: coder.js 的 buildToc() 与构建脚本的 extractToc() 双重生成 TOC",
+      "missingFields": [
+        "description",
+        "impact",
+        "solution"
+      ]
+    },
+    {
+      "file": "bugs-and-risks.md",
+      "line": 187,
+      "title": "B-09 [已修复]: performance-monitor.js 使用已废弃的 performance.timing API",
+      "missingFields": [
+        "description",
+        "impact",
+        "solution"
+      ]
+    },
+    {
+      "file": "bugs-and-risks.md",
+      "line": 197,
+      "title": "B-10 [已修复]: feedback.js 中 formatTime 使用 isNaN(date.getTime()) 但未用 Number.isNaN",
+      "missingFields": [
+        "description",
+        "impact",
+        "solution"
+      ]
+    },
+    {
+      "file": "bugs-and-risks.md",
+      "line": 207,
+      "title": "B-11 [已修复]: coder.js 中 window.pageYOffset 已废弃",
+      "missingFields": [
+        "description",
+        "impact",
+        "solution"
+      ]
+    },
+    {
+      "file": "bugs-and-risks.md",
+      "line": 217,
+      "title": "B-12 [已修复]: blog.js 中 editing() 函数与 search.js、search-loader.js 重复定义",
+      "missingFields": [
+        "description",
+        "impact",
+        "solution"
+      ]
+    },
+    {
+      "file": "code-quality.md",
+      "line": 44,
+      "title": "CQ-01 [已修复]: editing() 函数在 3 个文件中重复定义",
+      "missingFields": [
+        "description",
+        "impact",
+        "solution"
+      ]
+    },
+    {
+      "file": "code-quality.md",
+      "line": 54,
+      "title": "CQ-02 [已修复]: copyText 函数在 3 个文件中重复实现",
+      "missingFields": [
+        "description",
+        "impact",
+        "solution"
+      ]
+    },
+    {
+      "file": "code-quality.md",
+      "line": 64,
+      "title": "CQ-03 [已修复]: escapeHtml 在 3 个上下文中独立实现",
+      "missingFields": [
+        "description",
+        "impact",
+        "solution"
+      ]
+    },
+    {
+      "file": "code-quality.md",
+      "line": 74,
+      "title": "CQ-04 [已修复]: t() i18n 辅助函数在多个文件中各自定义",
+      "missingFields": [
+        "description",
+        "impact",
+        "solution"
+      ]
+    },
+    {
+      "file": "code-quality.md",
+      "line": 136,
+      "title": "CQ-07 [已修复]: 大量使用 Array.prototype.slice.call() 转换 NodeList",
+      "missingFields": [
+        "description",
+        "impact",
+        "solution"
+      ]
+    },
+    {
+      "file": "code-quality.md",
+      "line": 191,
+      "title": "CQ-10 [已修复]: 构建脚本中 renderContent() 执行两次正则替换",
+      "missingFields": [
+        "description",
+        "impact",
+        "solution"
+      ]
+    },
+    {
+      "file": "competitive-analysis.md",
+      "line": 236,
+      "title": "COMP-01: 项目独特优势 — 全栈内置",
+      "missingFields": [
+        "location",
+        "impact",
+        "benefit",
+        "links"
+      ]
+    },
+    {
+      "file": "competitive-analysis.md",
+      "line": 254,
+      "title": "COMP-02: 可借鉴 — Hugo PaperMod 的代码高亮方案",
+      "missingFields": [
+        "location",
+        "impact",
+        "benefit",
+        "links"
+      ]
+    },
+    {
+      "file": "competitive-analysis.md",
+      "line": 273,
+      "title": "COMP-03: 可借鉴 — Astro 的内容集合（Content Collections）",
+      "missingFields": [
+        "location",
+        "impact",
+        "benefit",
+        "links"
+      ]
+    },
+    {
+      "file": "competitive-analysis.md",
+      "line": 301,
+      "title": "COMP-04: 可借鉴 — Pagefind 的搜索方案",
+      "missingFields": [
+        "location",
+        "impact",
+        "benefit",
+        "links"
+      ]
+    },
+    {
+      "file": "competitive-analysis.md",
+      "line": 318,
+      "title": "COMP-05: 可借鉴 — Vercel 的 OG Image Generation",
+      "missingFields": [
+        "location",
+        "impact",
+        "benefit",
+        "links"
+      ]
+    },
+    {
+      "file": "competitive-analysis.md",
+      "line": 332,
+      "title": "COMP-06: 可借鉴 — Docusaurus 的版本化文档",
+      "missingFields": [
+        "location",
+        "impact",
+        "benefit",
+        "links"
+      ]
+    },
+    {
+      "file": "devex-improvements.md",
+      "line": 100,
+      "title": "DE-01 [已修复]: 无自动化 CI/CD 流程",
+      "missingFields": [
+        "description",
+        "impact",
+        "solution"
+      ]
+    },
+    {
+      "file": "devex-improvements.md",
+      "line": 136,
+      "title": "DE-03 [已修复]: 无依赖安全审计和更新检查",
+      "missingFields": [
+        "description",
+        "impact",
+        "solution"
+      ]
+    },
+    {
+      "file": "devex-improvements.md",
+      "line": 246,
+      "title": "DE-08 [已修复]: Markdown 文章缺少 front-matter 校验工具",
+      "missingFields": [
+        "description",
+        "impact",
+        "solution"
+      ]
+    },
+    {
+      "file": "devex-improvements.md",
+      "line": 256,
+      "title": "DE-09 [已修复]: 建议添加 package.json 的 engines 字段",
+      "missingFields": [
+        "description",
+        "impact",
+        "solution"
+      ]
+    },
+    {
+      "file": "devex-improvements.md",
+      "line": 266,
+      "title": "DE-10 [已修复]: 添加 CHANGELOG.md",
+      "missingFields": [
+        "description",
+        "impact",
+        "solution"
+      ]
+    },
+    {
+      "file": "module-reviews/build-system.md",
+      "line": 69,
+      "title": "MR-BUILD-02 [已修复]: RSS 生成逻辑重复 3 次",
+      "missingFields": [
+        "description",
+        "impact",
+        "solution"
+      ]
+    },
+    {
+      "file": "module-reviews/build-system.md",
+      "line": 103,
+      "title": "MR-BUILD-05 [已修复]: renderPage() 的 scripts 数组与 allScripts 合并逻辑不直观",
+      "missingFields": [
+        "description",
+        "impact",
+        "solution"
+      ]
+    },
+    {
+      "file": "module-reviews/client-javascript.md",
+      "line": 108,
+      "title": "MR-JS-04 [已修复]: blog.js 中 buildItems() 被调用两次",
+      "missingFields": [
+        "solution"
+      ]
+    },
+    {
+      "file": "module-reviews/client-javascript.md",
+      "line": 120,
+      "title": "MR-JS-05 [已修复]: giscus.js 中 MutationObserver 在 unload 时断开，但现代浏览器推荐 pagehide",
+      "missingFields": [
+        "solution"
+      ]
+    },
+    {
+      "file": "module-reviews/css-analysis.md",
+      "line": 27,
+      "title": "MR-CSS-01: CSS 文件过大（4655 行），建议按组件拆分",
+      "missingFields": [
+        "benefit",
+        "links"
+      ]
+    },
+    {
+      "file": "module-reviews/css-analysis.md",
+      "line": 55,
+      "title": "MR-CSS-02: :root 和 body.colorscheme-dark 变量定义可能不完整",
+      "missingFields": [
+        "benefit",
+        "links"
+      ]
+    },
+    {
+      "file": "module-reviews/css-analysis.md",
+      "line": 81,
+      "title": "MR-CSS-04: cursor-glow 和 cursor-canvas 资源占用",
+      "missingFields": [
+        "links"
+      ]
+    },
+    {
+      "file": "module-reviews/css-analysis.md",
+      "line": 96,
+      "title": "MR-CSS-05: 模态框 z-index 层级管理",
+      "missingFields": [
+        "benefit",
+        "links"
+      ]
+    },
+    {
+      "file": "module-reviews/css-analysis.md",
+      "line": 121,
+      "title": "MR-CSS-06 [已修复]: 过度使用 backdrop-filter 和 filter: blur()，移动端性能隐患",
+      "missingFields": [
+        "impact",
+        "solution"
+      ]
+    },
+    {
+      "file": "module-reviews/css-resource-ownership-and-page-styles.md",
+      "line": 55,
+      "title": "CSS-OWN-02 [已修复]：测试会读取未跟踪 CSS，本地通过不等于干净部署可用",
+      "missingFields": [
+        "description"
+      ]
+    },
+    {
+      "file": "module-reviews/css-resource-ownership-and-page-styles.md",
+      "line": 158,
+      "title": "CSS-OWN-05 [已修复]：性能预算仍以 coder.css 原始体积为主，无法衡量路由级收益",
+      "missingFields": [
+        "description"
+      ]
+    },
+    {
+      "file": "module-reviews/css-resource-ownership-and-page-styles.md",
+      "line": 184,
+      "title": "CSS-OWN-06 [已修复]：生产验证脚本只列核心文件，未覆盖页面级 CSS 与生成页面资源",
+      "missingFields": [
+        "description"
+      ]
+    },
+    {
+      "file": "module-reviews/css-resource-ownership-and-page-styles.md",
+      "line": 207,
+      "title": "CSS-OWN-07 [已修复]：AI 助手浮层样式仍随 core CSS 全站解析",
+      "missingFields": [
+        "description",
+        "impact",
+        "solution"
+      ]
+    },
+    {
+      "file": "module-reviews/css-resource-ownership-and-page-styles.md",
+      "line": 217,
+      "title": "CSS-OWN-08 [已修复]：工具页 shell/面板基础样式仍随 core CSS 全站解析",
+      "missingFields": [
+        "description",
+        "impact",
+        "solution"
+      ]
+    },
+    {
+      "file": "module-reviews/editor.md",
+      "line": 24,
+      "title": "MR-EDITOR-01 [已修复]: escapeHtml 重复定义（第 4 次）",
+      "missingFields": [
+        "description",
+        "impact",
+        "solution",
+        "links"
+      ]
+    },
+    {
+      "file": "module-reviews/editor.md",
+      "line": 32,
+      "title": "MR-EDITOR-02 [已修复]: copyHtml 使用内联 clipboard fallback",
+      "missingFields": [
+        "description",
+        "impact",
+        "solution",
+        "links"
+      ]
+    },
+    {
+      "file": "module-reviews/editor.md",
+      "line": 41,
+      "title": "MR-EDITOR-03 [已修复]: marked.setOptions 使用已废弃的 highlight 回调",
+      "missingFields": [
+        "description",
+        "impact",
+        "solution"
+      ]
+    },
+    {
+      "file": "module-reviews/editor.md",
+      "line": 51,
+      "title": "MR-EDITOR-04 [已修复]: readingMinutes 第 3 次重复定义",
+      "missingFields": [
+        "description",
+        "impact",
+        "solution",
+        "links"
+      ]
+    },
+    {
+      "file": "module-reviews/editor.md",
+      "line": 60,
+      "title": "MR-EDITOR-05 [已修复]: 导出的 Markdown 缺少必填字段",
+      "missingFields": [
+        "description",
+        "impact",
+        "solution"
+      ]
+    },
+    {
+      "file": "module-reviews/html-pages.md",
+      "line": 44,
+      "title": "MR-HTML-02: 手写页面与生成页面的导航高亮方式不一致",
+      "missingFields": [
+        "links"
+      ]
+    },
+    {
+      "file": "module-reviews/html-pages.md",
+      "line": 58,
+      "title": "MR-HTML-03: 手写页面缺少  标签",
+      "missingFields": [
+        "links"
+      ]
+    },
+    {
+      "file": "module-reviews/html-pages.md",
+      "line": 73,
+      "title": "MR-HTML-04: 404.html 的 meta description 过于简短",
+      "missingFields": [
+        "links"
+      ]
+    },
+    {
+      "file": "module-reviews/overleaf.md",
+      "line": 26,
+      "title": "MR-OVERLEAF-01: 模块过大（833 行），建议拆分",
+      "missingFields": [
+        "benefit",
+        "links"
+      ]
+    },
+    {
+      "file": "module-reviews/overleaf.md",
+      "line": 39,
+      "title": "MR-OVERLEAF-02: escapeHtml 第 5 次重复定义",
+      "missingFields": [
+        "benefit",
+        "links"
+      ]
+    },
+    {
+      "file": "module-reviews/overleaf.md",
+      "line": 48,
+      "title": "MR-OVERLEAF-03: LaTeX 解析器使用简单正则，可能误解析嵌套花括号",
+      "missingFields": [
+        "links"
+      ]
+    },
+    {
+      "file": "module-reviews/overleaf.md",
+      "line": 66,
+      "title": "MR-OVERLEAF-04: linkScroll 与 editor.js 的实现重复",
+      "missingFields": [
+        "benefit",
+        "links"
+      ]
+    },
+    {
+      "file": "module-reviews/overleaf.md",
+      "line": 75,
+      "title": "MR-OVERLEAF-05: 默认简历数据硬编码个人信息",
+      "missingFields": [
+        "benefit",
+        "links"
+      ]
+    },
+    {
+      "file": "module-reviews/resource-analysis.md",
+      "line": 41,
+      "title": "RES-01: highlight.min.js（121KB）仅编辑器页面使用，但占用 vendor 目录空间",
+      "missingFields": [
+        "links"
+      ]
+    },
+    {
+      "file": "module-reviews/resource-analysis.md",
+      "line": 55,
+      "title": "RES-02 [已修复]: 所有文章无图片，image sitemap 和 JSON-LD image 字段为空",
+      "missingFields": [
+        "description",
+        "impact",
+        "solution"
+      ]
+    },
+    {
+      "file": "module-reviews/resource-analysis.md",
+      "line": 66,
+      "title": "RES-03: 文章内容质量分析",
+      "missingFields": [
+        "links"
+      ]
+    },
+    {
+      "file": "module-reviews/resource-analysis.md",
+      "line": 91,
+      "title": "RES-04: 项目总大小 48MB，nodemodules 占大头",
+      "missingFields": [
+        "benefit",
+        "links"
+      ]
+    },
+    {
+      "file": "module-reviews/resource-analysis.md",
+      "line": 105,
+      "title": "RES-05: HTML 页面共 19 个（含生成页），结构一致",
+      "missingFields": [
+        "benefit",
+        "links"
+      ]
+    },
+    {
+      "file": "module-reviews/seo-analysis.md",
+      "line": 27,
+      "title": "SEO-01 [已修复]: 首页缺少 JSON-LD 结构化数据",
+      "missingFields": [
+        "description",
+        "impact",
+        "solution"
+      ]
+    },
+    {
+      "file": "module-reviews/seo-analysis.md",
+      "line": 37,
+      "title": "SEO-02 [已修复]: 静态页面缺少 JSON-LD",
+      "missingFields": [
+        "description",
+        "impact",
+        "solution",
+        "links"
+      ]
+    },
+    {
+      "file": "module-reviews/seo-analysis.md",
+      "line": 46,
+      "title": "SEO-03 [已修复]: sitemap.xml 中 priority 值设置",
+      "missingFields": [
+        "description",
+        "impact",
+        "solution",
+        "links"
+      ]
+    },
+    {
+      "file": "module-reviews/seo-analysis.md",
+      "line": 55,
+      "title": "SEO-04: 手写 HTML 页面缺少 lang 属性的一致性",
+      "missingFields": [
+        "links"
+      ]
+    },
+    {
+      "file": "module-reviews/seo-analysis.md",
+      "line": 65,
+      "title": "SEO-05 [已修复]: 文章页的 datePublished 和 dateModified 相同",
+      "missingFields": [
+        "description",
+        "impact",
+        "solution",
+        "links"
+      ]
+    },
+    {
+      "file": "module-reviews/seo-analysis.md",
+      "line": 74,
+      "title": "SEO-06: 图片缺少 alt 属性的自动化检查",
+      "missingFields": [
+        "links"
+      ]
+    },
+    {
+      "file": "new-features.md",
+      "line": 152,
+      "title": "F-04 [已修复]: 暗色/亮色主题跟随系统",
+      "missingFields": [
+        "description",
+        "impact",
+        "solution"
+      ]
+    },
+    {
+      "file": "performance-bottlenecks.md",
+      "line": 113,
+      "title": "P-01 [已修复]: 粒子动画 requestAnimationFrame 持续运行，无空闲停止机制",
+      "missingFields": [
+        "description",
+        "impact",
+        "solution"
+      ]
+    },
+    {
+      "file": "performance-bottlenecks.md",
+      "line": 193,
+      "title": "P-06 [已修复]: Fuse.js 搜索在首次打开时才加载，冷启动延迟明显",
+      "missingFields": [
+        "impact",
+        "solution"
+      ]
+    },
+    {
+      "file": "performance-bottlenecks.md",
+      "line": 232,
+      "title": "P-08 [已修复]: coder.js 滚动事件已节流但 resize 事件未节流",
+      "missingFields": [
+        "description",
+        "impact",
+        "solution"
+      ]
+    },
+    {
+      "file": "performance-bottlenecks.md",
+      "line": 242,
+      "title": "P-09 [已修复]: coder.js 中 shadowBlur 每帧重置，GPU 开销大",
+      "missingFields": [
+        "description",
+        "impact",
+        "solution"
+      ]
+    },
+    {
+      "file": "performance-bottlenecks.md",
+      "line": 252,
+      "title": "P-10 [已修复]: 无资源预加载提示（preconnect / prefetch）",
+      "missingFields": [
+        "description",
+        "impact",
+        "solution"
+      ]
+    },
+    {
+      "file": "performance-bottlenecks.md",
+      "line": 293,
+      "title": "P-12 [已修复]: backdrop-filter 过度使用，移动端 GPU 压力大",
+      "missingFields": [
+        "impact",
+        "solution"
+      ]
+    },
+    {
+      "file": "security-audit.md",
+      "line": 170,
+      "title": "S-02 [已修复]: share.js 二维码弹窗中 t() 返回值直接拼接 HTML 字符串",
+      "missingFields": [
+        "description",
+        "impact",
+        "solution"
+      ]
+    },
+    {
+      "file": "security-audit.md",
+      "line": 213,
+      "title": "S-05 [已修复]: 缺少 Content Security Policy (CSP) 头",
+      "missingFields": [
+        "description",
+        "solution"
+      ]
+    },
+    {
+      "file": "security-audit.md",
+      "line": 298,
+      "title": "S-10 [已修复]: tools-core.js 中 JWT 解码不校验签名",
+      "missingFields": [
+        "solution"
+      ]
+    },
+    {
+      "file": "ux-improvements.md",
+      "line": 111,
+      "title": "UX-01 [已修复]: 移动端导航菜单无遮罩层，点击外部区域无法关闭",
+      "missingFields": [
+        "description",
+        "impact",
+        "solution"
+      ]
+    },
+    {
+      "file": "ux-improvements.md",
+      "line": 121,
+      "title": "UX-02 [已修复]: 搜索结果无键盘快捷键提示，首次使用学习成本高",
+      "missingFields": [
+        "description",
+        "impact",
+        "solution"
+      ]
+    },
+    {
+      "file": "ux-improvements.md",
+      "line": 167,
+      "title": "UX-04 [已修复]: 阅读进度条在非文章页面仍显示",
+      "missingFields": [
+        "description",
+        "impact",
+        "solution"
+      ]
+    },
+    {
+      "file": "ux-improvements.md",
+      "line": 177,
+      "title": "UX-05 [已修复]: 订阅表单无输入验证视觉反馈",
+      "missingFields": [
+        "description",
+        "impact",
+        "solution"
+      ]
+    },
+    {
+      "file": "ux-improvements.md",
+      "line": 265,
+      "title": "UX-09 [已修复]: 无障碍（Accessibility）改进清单",
+      "missingFields": [
+        "solution"
+      ]
+    },
+    {
+      "file": "ux-improvements.md",
+      "line": 285,
+      "title": "UX-10 [已修复]: 返回顶部按钮在页面刚加载时短暂可见",
+      "missingFields": [
+        "description",
+        "impact",
+        "solution"
+      ]
+    }
+  ]
+}

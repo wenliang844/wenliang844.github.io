@@ -123,7 +123,7 @@
   - 非装饰图片必须有 alt、width、height
   ```
 - **📊 预期收益**：用自动化守住手写页和生成页的一致性，避免后续单页改动带来隐性 a11y/SEO 回退。
-- **🔗 相关建议引用**：[DE-14](../devex-improvements.md#de-14-增加页面级-dom-契约审计防止-seo-a11y-回退), [UX-14](../ux-improvements.md#ux-14-markdown-编辑器主输入框缺少可关联标签), [SEO-07](seo-analysis.md#seo-07-404-页面缺少-json-ld-结构化数据)
+- **🔗 相关建议引用**：[DE-14](../devex-improvements.md#de-14), [UX-14](../ux-improvements.md#ux-14-markdown-编辑器主输入框缺少可关联标签), [SEO-07](seo-analysis.md#seo-07-404-页面缺少-json-ld-结构化数据)
 
 ---
 

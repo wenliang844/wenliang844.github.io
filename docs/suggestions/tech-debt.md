@@ -19,7 +19,7 @@
   ```
   迁移期间保持 Node engines `20 || >=22`，避免工具链版本不一致。
 - **📊 预期收益**：降低 ESLint 9 升级风险，让后续 lint 输出保持高信噪比。
-- **🔗 相关建议引用**：[CQ-11](code-quality.md#cq-11-eslint-当前仍有-77-个-warning集中在视觉交互大文件), [DE-12](devex-improvements.md#de-12-validate--precommit-同时包含自动修复和构建写入语义不够清晰)
+- **🔗 相关建议引用**：[CQ-11](code-quality.md#cq-11-eslint-当前仍有-77-个-warning集中在视觉交互大文件), [DE-12](devex-improvements.md#de-12)
 
 ### 📌 TD-12 [已修复核心边界]: 随机数能力边界需要产品和测试共同收敛
 

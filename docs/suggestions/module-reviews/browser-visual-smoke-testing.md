@@ -6,9 +6,9 @@
 
 - 本地只读静态服务：`/`、`/tools/`、`/ai/`、`/post/`、`/contact/`、`/trust/` 均返回 200。
 - 页面抽样结果：`/tools/` 约 104900 字符、15 个脚本引用，是当前最需要真实浏览器冒烟覆盖的页面。
-- 自动化测试：`npm run test:http-smoke` 7/7 路由通过；`npm run test:browser-smoke` 覆盖桌面 7 个路径（含 `ERROR_SMOKE_ROUTES` 的 `/404.html`）、移动端 4 个关键路径和 `/tools/` JSON/随机数、Galaxy Canvas、UUID Clipboard、手势远程运行时确认门闩；`node --test tests/workflows.test.mjs` 通过；`npm run test:coverage`，798/798 通过。
+- 自动化测试：`npm run test:http-smoke` 7/7 路由通过；`npm run test:browser-smoke` 覆盖桌面 7 个路径（含 `ERROR_SMOKE_ROUTES` 的 `/404.html`）、移动端 4 个关键路径和 `/tools/` JSON/随机数、Galaxy Canvas、UUID Clipboard、手势远程运行时确认门闩；失败时会写入 `temp/browser-smoke/*.png|*.html|*.json` 证据；`node --test tests/workflows.test.mjs` 通过；`npm run test:coverage`，798/798 通过。
 - 实际发现并修复：真实浏览器 mobile `/post/` 冒烟暴露首个 `h1` 位于默认隐藏的浮动文章目录内，随后静态 a11y 门禁发现 `post/index.html` 存在双 `h1`；已将目录标题改为 `.post-tree-title`，页面保留单一可见 `h1`。
-- 约束说明：真实浏览器 smoke 已作为 `npm run test:browser-smoke` 固化，暂未接入主 CI；待稳定运行一段时间后再考虑 nightly 或单独可选 job。
+- 约束说明：真实浏览器 smoke 已作为 `npm run test:browser-smoke` 固化，并接入主 CI；失败时 CI 会上传 `temp/browser-smoke/` 证据目录。
 
 ## 总览
 
@@ -210,17 +210,19 @@ for (const route of SMOKE_ROUTES) {
 - 📊 实际收益：把本轮人工验证沉淀为可重复门禁，优先拦截最基础的站点可达性问题。
 - 🔗 相关建议引用：`docs/suggestions/module-reviews/ci-release-automation-review.md`、`docs/suggestions/module-reviews/search-and-seo-pipeline.md`。
 
-### 6. 浏览器测试失败时缺少可追溯证据设计
+### 6. [已修复第二阶段] 浏览器测试失败时缺少可追溯证据设计
 
 - 📌 问题/建议标题：为 screenshot、trace、console log 预留 CI artifact
-- 📍 位置：`.github/workflows/ci.yml:27-48`、`tests/workflows.test.mjs:30-37`
-- 📝 当前状况描述：当前 CI 主要输出命令日志；如果后续加入浏览器测试，单纯失败日志很难解释视觉错位、焦点逃逸、浮层遮挡或动画空白。没有 artifact 约定时，失败后开发者需要本地复现，排查成本会明显高于单元测试。
+- 📍 位置：`scripts/browser-smoke.mjs`、`tests/workflows.test.mjs`、`.github/workflows/ci.yml:27-48`
+- ✅ 修复状态：`scripts/browser-smoke.mjs` 已新增 `saveFailureArtifact()`，每个路由和交互用例在失败且页面关闭前保存完整页面截图、当前 DOM HTML 和 JSON 元数据；默认输出到 `temp/browser-smoke/`，也可通过 `BROWSER_SMOKE_ARTIFACT_DIR` 指定目录。JSON 元数据记录 label、URL、捕获时间、失败错误和已收集 runtime errors。
+- 🧪 回归测试：`node --test tests/workflows.test.mjs` 已约束 artifact 目录环境变量、截图、HTML、JSON 元数据和失败日志提示；`npm run test:browser-smoke` 通过，确认正常通过路径不会受失败证据层影响。
+- 📝 剩余状况描述：CI 现在会运行 Playwright browser smoke，并在失败时用 `actions/upload-artifact@v5` 上传 `temp/browser-smoke/`。Trace/video 仍未启用，先保留低成本、低噪声的 screenshot/DOM/metadata 证据。
 - ⚠️ 影响程度：低
 - 💡 建议方案（含伪代码或示例片段）：
 
 ```yaml
-- name: Run browser smoke
-  run: npm run test:browser
+- name: Browser smoke test
+  run: npm run test:browser-smoke
 
 - name: Upload browser artifacts
   if: failure()
@@ -228,13 +230,12 @@ for (const route of SMOKE_ROUTES) {
   with:
     name: browser-smoke-artifacts
     path: |
-      test-results/
-      playwright-report/
+      temp/browser-smoke/
 ```
 
-同时在测试中收集 `console` 和 `pageerror`，失败信息中附带路径、视口和浏览器名称。
+当前第二阶段已经在测试中收集 `console`、`pageerror`、同源 HTTP 错误和失败请求，并在失败信息中附带路径/视口/交互名称；CI 失败 artifact 上传已接入主 workflow。
 
-- 📊 预期收益：让浏览器回归具备截图和 trace 证据，减少“CI 红了但看不出来哪里坏”的排查时间。
+- 📊 实际收益：本地或 CI 中的浏览器回归失败后可以直接查看截图、DOM 和元数据，减少“只看到一行错误但不知道页面长什么样”的排查时间。
 - 🔗 相关建议引用：`docs/suggestions/module-reviews/ci-release-automation-review.md`、`docs/suggestions/devex-improvements.md`。
 
 ## 建议落地顺序
@@ -244,4 +245,4 @@ for (const route of SMOKE_ROUTES) {
 3. 已引入最小 Playwright Chromium smoke，覆盖 `/`、`/tools/`、`/ai/`、`/post/`、`/contact/`、`/trust/` 桌面路径和移动端 `/`、`/tools/`、`/post/`、`/trust/`。
 4. 已为关键路径增加移动端和桌面端横向溢出检查；后续可扩展截图基线。
 5. 已对工具箱 Galaxy Canvas、Clipboard 和摄像头启动确认门闩补充真实浏览器测试；摄像头授权失败和外部模型加载路径留作下一步。
-6. 浏览器测试稳定后再加入截图基线和失败 artifact。
+6. 已为浏览器测试失败补充 screenshot、DOM 和 JSON 元数据 artifact，并在 CI 失败时上传 `temp/browser-smoke/`；后续可按需扩展 trace/video。

@@ -421,6 +421,24 @@ test("coder.js auto theme follows system preference until user chooses a theme",
   dom.window.close();
 });
 
+test("coder.js dispatches theme change details for integrations", async () => {
+  const dom = buildDom(`<!doctype html><html lang="zh-CN"><body class="colorscheme-dark">
+    <button class="theme-toggle" type="button"></button>
+  </body></html>`);
+  const events = [];
+  dom.window.document.addEventListener("cwl:themechange", function (event) {
+    events.push(event.detail);
+  });
+
+  await loadCoder(dom);
+  dom.window.document.querySelector(".theme-toggle").click();
+
+  assert.ok(events.length >= 2, "initial apply and click should dispatch theme events");
+  assert.equal(events.at(-1).mode, "light");
+  assert.equal(events.at(-1).actualTheme, "light");
+  dom.window.close();
+});
+
 test("coder.js keeps theme icon inside the bundled Font Awesome subset", async () => {
   const code = await readFile(join(ROOT, "js", "coder.js"), "utf8");
 

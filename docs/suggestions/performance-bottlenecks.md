@@ -8,8 +8,8 @@
 
 ### 📌 P-13: 关键静态产物体积已经接近当前性能预算
 
-- **📍 位置**：`css/coder.css:1-6637`, `tools/index.html:1-1308`, `post/index.html:1-1283`, `js/gesture.js:1-2470`, `js/assistant.js:1-1686`
-- **📝 当前状况描述**：最新文件体积扫描显示：`css/coder.css` 129,973 bytes、`css/tools.css` 12,287 bytes、`css/trust.css` 854 bytes、`tools/index.html` 110,158 bytes、`post/index.html` 110,800 bytes、`js/gesture.js` 91,424 bytes、`js/assistant.js` 68,881 bytes。核心 CSS 已通过页面级拆分回到 140 KiB 预算内；工具箱和博客列表 HTML 仍超过 100KB，随着工具和文章继续增加，首屏解析成本仍需继续控制。
+- **📍 位置**：`css/coder.css:1-4783`, `css/tools.css:1-1169`, `css/assistant.css:1-887`, `tools/index.html:1-1308`, `post/index.html:1-1283`, `js/gesture.js:1-2470`, `js/assistant.js:1-1686`
+- **📝 当前状况描述**：最新文件体积扫描显示：`css/coder.css` 103,446 bytes、`css/tools.css` 21,902 bytes、`css/assistant.css` 18,392 bytes、`css/trust.css` 854 bytes、`tools/index.html` 110,158 bytes、`post/index.html` 110,800 bytes、`js/gesture.js` 91,424 bytes、`js/assistant.js` 68,881 bytes。核心 CSS 已通过页面级拆分、工具基础样式迁移和助手样式懒加载继续压缩到 140 KiB 预算内；工具箱和博客列表 HTML 仍超过 100KB，随着工具和文章继续增加，首屏解析成本仍需继续控制。
 - **⚠️ 影响程度**：中
 - **💡 建议方案**：
   ```text
@@ -20,9 +20,11 @@
 - **📊 预期收益**：控制解析与样式计算成本，避免个人站点功能持续扩张后首屏退化。
 - **🔗 相关建议引用**：[P-02](#p-02), [P-03](#p-03), [P-07](#p-07)
 
-### 📌 P-14: 手势工具首次启动依赖远程模型链路，弱网下冷启动不可控
+### 📌 P-14 [已部分修复]: 手势工具首次启动依赖远程模型链路，弱网下冷启动不可控
 
 - **📍 位置**：`js/gesture.js:160-167`, `js/gesture.js:169-207`, `js/gesture.js:213-252`, `js/gesture.js:258-265`, `src/templates/tools.mjs:793-870`
+- **✅ 第一阶段修复状态**：`startCamera()` 已在模型加载后继续区分“初始化摄像头…”和“启动视频流…”两个阶段；模型下载、摄像头授权和视频播放不再共用模糊状态。
+- **🧪 回归测试**：`tests/tools.test.mjs` 覆盖手势启动链路必须在 `getUserMedia()` 前提示摄像头初始化、在 `$video.play()` 前提示视频流启动。
 - **📝 当前状况描述**：点击手势工具后，MediaPipe vision bundle、WASM、hand landmarker、object detector、face-api 模型、Three.js 均按需远程加载。当前 UI 只有“加载模型...”这类状态，没有资源大小、失败重试、预热、缓存策略或离线提示。弱网下用户可能在摄像头授权前后等待较久，且失败原因不可见。
 - **⚠️ 影响程度**：中
 - **💡 建议方案**：
@@ -74,11 +76,11 @@
 - **📊 实际收益**：典型无解日期表达式即时失败，避免工具箱交互被同步循环阻塞；更稀疏但可匹配的表达式仍可继续用字段跳跃优化。
 - **🔗 相关建议引用**：[MR-CORE-01](module-reviews/tools-core.md#mr-core-01-cron-解析器需要避免主线程百万次扫描), [DE-13](devex-improvements.md#de-13-为-ai-助手和-cron-边界行为补充回归测试)
 
-### 📌 P-17 [部分修复]: 全站统一加载 `coder.css`，工具箱和助手样式成本扩散到所有页面
+### 📌 P-17 [已修复核心]: 全站统一加载 `coder.css`，工具箱和助手样式成本扩散到所有页面
 
-- **📍 位置**：`src/templates/layout.mjs:225-226`, `css/coder.css:3910-4898`, `css/coder.css:4982-6084`, `css/coder.css:6260-6543`
-- **✅ 已完成**：公共布局模板支持页面级 `styles` 注入；`src/page-assets.mjs` 集中声明 `/tools/` 与 `/trust/` 样式；工具页手势、Galaxy、对象/视觉 API 等重型样式已迁入 `css/tools.css`，信任页增量样式迁入 `css/trust.css`。`tests/performance.test.mjs` 新增 `/`、`/tools/`、`/trust/` 路由级 CSS raw/gzip 预算，避免只看单个文件体积。
-- **📝 剩余状况描述**：`coder.css` 已回落到 6,130 行 / 129,973 bytes，但工具箱基础选择器、AI 助手浮层和部分共享组件仍在全站 core CSS 中；普通文章页、404、关于页仍会解析一部分只在工具页或助手面板中使用的规则。
+- **📍 位置**：`src/templates/layout.mjs:225-226`, `js/assistant-loader.js`, `css/coder.css`, `css/tools.css`, `css/assistant.css`
+- **✅ 已完成**：公共布局模板支持页面级 `styles` 注入；`src/page-assets.mjs` 集中声明 `/tools/` 与 `/trust/` 样式；工具页 shell、tab、面板、字段、输出、QR/时间/UUID 预览和移动端工具页适配已迁入 `css/tools.css`，信任页增量样式迁入 `css/trust.css`。AI 助手浮层、消息、配置和移动端适配样式已迁入 `css/assistant.css`，由 `js/assistant-loader.js` 在首次点击 AI 入口或 fullscreen 深链时按需注入，并纳入 PWA 预缓存。`tests/performance.test.mjs` 新增 `/`、`/tools/`、`/trust/` 路由级 CSS raw/gzip 预算，避免只看单个文件体积。
+- **📝 剩余状况描述**：`coder.css` 已回落到 4,783 行 / 103,446 bytes，普通页面不再解析工具箱基础面板样式和助手浮层样式。后续 CSS 方向主要是继续梳理更细的共享组件归属，例如编辑器工具按钮、AI 导航页卡片和少量全站复用组件，而非工具页大块样式。
 - **⚠️ 影响程度**：中
 - **💡 建议方案**：
   ```text
@@ -86,8 +88,8 @@
   css/tools.css      — 工具箱、编辑器嵌入、视觉工具
   css/assistant.css  — AI 助手浮层
   ```
-  构建层可先不引入打包器，只在 `renderPage()` 中按页面类型输出额外 `<link>`；AI 助手样式也可在助手首次打开时按需加载。
-- **📊 实际收益**：非工具页核心 CSS 回到 140KB 预算内，工具页和信任页具备页面级样式入口；后续继续拆助手样式和工具基础样式时已有 manifest 与路由级预算护栏。
+  构建层可先不引入打包器，只在 `renderPage()` 中按页面类型输出额外 `<link>`；AI 助手样式已由助手加载器按需加载。
+- **📊 实际收益**：非工具页核心 CSS 继续缩小，普通页面不再解析助手面板的 18KB 级样式，也不再解析约 9KB 的工具箱基础面板样式；工具页、信任页和助手均有明确资源入口，后续继续拆 JS 或模型资源时已有 manifest、PWA 预缓存和路由级预算护栏。
 - **🔗 相关建议引用**：[MR-CSS-07](module-reviews/css-analysis.md#mr-css-07-复查发现-css-单包已增长到-6637-行), [AR-08](architecture-review.md#ar-08-工具箱和助手资源需要从全站核心层剥离)
 
 ### 📌 P-18: 工具页首屏一次性解析 31 个工具面板

@@ -11,7 +11,7 @@ import { renderTrustPage } from "../src/templates/trust.mjs";
 import { renderPostPage, renderPostList } from "../src/templates/post.mjs";
 import { renderTagsPage } from "../src/templates/tags.mjs";
 import { STATIC_PAGES, SEARCH_PAGES } from "../src/config.mjs";
-import { PAGE_ASSETS } from "../src/page-assets.mjs";
+import { PAGE_ASSETS, pageAssetUrls } from "../src/page-assets.mjs";
 import { LOCAL_DATA_ITEMS, THIRD_PARTY_SERVICES } from "../src/trust-data.mjs";
 
 function extractJsonLd(html) {
@@ -32,6 +32,18 @@ test("page asset manifest stays aligned with rendered templates", () => {
       assert.match(rendered[route], new RegExp(`href="${href.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}"`));
     }
   }
+
+  assert.deepEqual(pageAssetUrls(), ["/css/tools.css", "/css/trust.css"]);
+  assert.deepEqual(
+    pageAssetUrls({
+      "/demo/": {
+        styles: ["/css/demo.css"],
+        scripts: ["/js/demo.js", "/js/demo.js"],
+        assets: ["/images/demo.png"],
+      },
+    }),
+    ["/css/demo.css", "/js/demo.js", "/images/demo.png"],
+  );
 });
 
 // ─── Tools 页面测试 ────────────────────────────────────────────────────────────
@@ -100,6 +112,7 @@ test("renderToolsPage has OG meta tags", () => {
   assert.match(html, /property="og:title"/);
   assert.match(html, /property="og:description"/);
   assert.match(html, /href="https:\/\/wenliang844\.github\.io\/tools\/"/);
+  assert.match(html, /rel="alternate" type="application\/rss\+xml" title="CWLBlog RSS" href="\/index\.xml"/);
 });
 
 test("renderToolsPage has tool navigation tabs with aria attributes", () => {
@@ -298,6 +311,7 @@ test("renderCategoriesPage has i18n attributes", () => {
   const html = renderCategoriesPage(posts, stats);
   assert.match(html, /data-i18n="categories\.title"/);
   assert.match(html, /data-i18n="categories\.lead"/);
+  assert.match(html, /rel="alternate" type="application\/rss\+xml" title="CWLBlog Time Archive RSS" href="\/categories\/index\.xml"/);
 });
 
 // ─── Appreciation 页面测试 ─────────────────────────────────────────────────────
@@ -382,6 +396,8 @@ test("renderPostPage includes all required SEO elements", () => {
     title: "Test Post", titleEn: "Test Post EN",
     shortTitle: "Test", shortTitleEn: "Test EN",
     slug: "test-post", date: "2024-06-15", modified: "2024-06-20",
+    status: "historical", reviewed: "2024-06-21",
+    contextNote: "本文是历史项目复盘。", contextNoteEn: "This is a historical retrospective.",
     eyebrow: "项目", summary: "Summary", summaryEn: "Summary EN",
     description: "Description", descriptionEn: "Description EN",
     tags: ["Java"], tagsEn: ["Java"],
@@ -406,6 +422,17 @@ test("renderPostPage includes all required SEO elements", () => {
 
   // 结构
   assert.match(html, /class="article-header"/);
+  assert.match(html, /class="updated-time"/);
+  assert.match(html, /datetime="2024-06-20"/);
+  assert.match(html, /更新于 June 20, 2024/);
+  assert.match(html, /data-i18n-en="Updated June 20, 2024"/);
+  assert.match(html, /class="content-note"/);
+  assert.match(html, /本文状态：历史项目复盘。/);
+  assert.match(html, /最后复核于 2024-06-21。/);
+  assert.match(html, /This is a historical retrospective\./);
+  assert.match(html, /class="post-maintenance"/);
+  assert.match(html, /href="https:\/\/github\.com\/wenliang844\/wenliang844\.github\.io\/blob\/master\/src\/posts\/test-post\.md"/);
+  assert.match(html, /href="\/contact\/\?topic=post&amp;slug=test-post#feedback-title"|href="\/contact\/\?topic=post&slug=test-post#feedback-title"/);
   assert.match(html, /class="article-content"/);
   assert.match(html, /class="post-tags"/);
   assert.match(html, /class="post-share"/);
@@ -503,6 +530,7 @@ test("renderPostList groups posts by year with correct counts", () => {
   assert.match(html, /class="post-tree"/);
   assert.match(html, /class="post-mobile-heading"/);
   assert.match(html, /class="post-tree-title"/);
+  assert.match(html, /<p class="post-tree-title"/);
   assert.match(html, /id="post-mobile-title"/);
   assert.match(html, /class="post-detail"/);
   assert.equal((html.match(/<h1\b/g) || []).length, 1);
@@ -537,6 +565,7 @@ test("renderPostList renders search input and tag filter", () => {
 
   assert.match(html, /id="post-search-input"/);
   assert.match(html, /id="tag-filter"/);
+  assert.match(html, /rel="alternate" type="application\/rss\+xml" title="CWLBlog Posts RSS" href="\/post\/index\.xml"/);
 });
 
 test("renderPostList prefixes repeated article heading ids per post", () => {

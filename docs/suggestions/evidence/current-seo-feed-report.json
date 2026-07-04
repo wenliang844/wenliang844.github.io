@@ -1,0 +1,610 @@
+{
+  "generatedAt": "2026-07-04T00:53:55.408Z",
+  "summary": {
+    "status": "pass",
+    "htmlFiles": 21,
+    "indexablePages": 19,
+    "sitemapUrls": 19,
+    "rssFeeds": 3,
+    "rssItemsPerFeed": 6,
+    "feedAlternates": 21,
+    "jsonLdBlocks": 20,
+    "violations": 0
+  },
+  "sitemap": {
+    "urlCount": 19,
+    "missingExpected": [],
+    "missingLastmod": [],
+    "imageUrlCount": 6
+  },
+  "feeds": [
+    {
+      "path": "index.xml",
+      "title": "CWLBlog",
+      "itemCount": 6,
+      "bytes": 3009,
+      "selfHref": "https://wenliang844.github.io/index.xml",
+      "violations": []
+    },
+    {
+      "path": "post/index.xml",
+      "title": "Posts on CWLBlog",
+      "itemCount": 6,
+      "bytes": 3037,
+      "selfHref": "https://wenliang844.github.io/post/index.xml",
+      "violations": []
+    },
+    {
+      "path": "categories/index.xml",
+      "title": "Time Archive on CWLBlog",
+      "itemCount": 6,
+      "bytes": 3063,
+      "selfHref": "https://wenliang844.github.io/categories/index.xml",
+      "violations": []
+    }
+  ],
+  "html": [
+    {
+      "file": "404.html",
+      "route": "/404.html",
+      "noindex": true,
+      "canonical": "https://wenliang844.github.io/404.html",
+      "canonicalExpected": "https://wenliang844.github.io/404.html",
+      "og": {
+        "title": "404 页面未找到",
+        "description": "页面不存在或已经移动，可返回 CWLBlog 首页、文章列表或使用全站搜索继续浏览。",
+        "url": "https://wenliang844.github.io/404.html",
+        "image": "https://wenliang844.github.io/images/favicon.png",
+        "twitterCard": "summary_large_image"
+      },
+      "feedAlternates": [],
+      "expectedFeeds": [],
+      "jsonLdTypes": [
+        "WebPage"
+      ],
+      "violations": []
+    },
+    {
+      "file": "about/index.html",
+      "route": "/about/",
+      "noindex": false,
+      "canonical": "https://wenliang844.github.io/about/",
+      "canonicalExpected": "https://wenliang844.github.io/about/",
+      "og": {
+        "title": "关于 CWL :: CWLBlog",
+        "description": "关于 CWL、技术栈、项目经历与博客内容。",
+        "url": "https://wenliang844.github.io/about/",
+        "image": "https://wenliang844.github.io/images/favicon.png",
+        "twitterCard": "summary_large_image"
+      },
+      "feedAlternates": [
+        {
+          "href": "https://wenliang844.github.io/index.xml",
+          "title": "CWLBlog RSS"
+        }
+      ],
+      "expectedFeeds": [
+        "https://wenliang844.github.io/index.xml"
+      ],
+      "jsonLdTypes": [
+        "Person"
+      ],
+      "violations": []
+    },
+    {
+      "file": "ai/index.html",
+      "route": "/ai/",
+      "noindex": false,
+      "canonical": "https://wenliang844.github.io/ai/",
+      "canonicalExpected": "https://wenliang844.github.io/ai/",
+      "og": {
+        "title": "中转站排名 :: CWLBlog",
+        "description": "中转站排行榜与常用 AI 网站导航，支持快速查找和对比。",
+        "url": "https://wenliang844.github.io/ai/",
+        "image": "https://wenliang844.github.io/images/favicon.png",
+        "twitterCard": "summary_large_image"
+      },
+      "feedAlternates": [
+        {
+          "href": "https://wenliang844.github.io/index.xml",
+          "title": "CWLBlog RSS"
+        }
+      ],
+      "expectedFeeds": [
+        "https://wenliang844.github.io/index.xml"
+      ],
+      "jsonLdTypes": [
+        "CollectionPage"
+      ],
+      "violations": []
+    },
+    {
+      "file": "appreciation/index.html",
+      "route": "/appreciation/",
+      "noindex": false,
+      "canonical": "https://wenliang844.github.io/appreciation/",
+      "canonicalExpected": "https://wenliang844.github.io/appreciation/",
+      "og": {
+        "title": "鉴赏 :: CWLBlog",
+        "description": "个人鉴赏榜单：科技、影视、娱乐项目、食物、顿悟与座右铭排行榜。",
+        "url": "https://wenliang844.github.io/appreciation/",
+        "image": "https://wenliang844.github.io/images/favicon.png",
+        "twitterCard": "summary_large_image"
+      },
+      "feedAlternates": [
+        {
+          "href": "https://wenliang844.github.io/index.xml",
+          "title": "CWLBlog RSS"
+        }
+      ],
+      "expectedFeeds": [
+        "https://wenliang844.github.io/index.xml"
+      ],
+      "jsonLdTypes": [
+        "CollectionPage"
+      ],
+      "violations": []
+    },
+    {
+      "file": "categories/index.html",
+      "route": "/categories/",
+      "noindex": false,
+      "canonical": "https://wenliang844.github.io/categories/",
+      "canonicalExpected": "https://wenliang844.github.io/categories/",
+      "og": {
+        "title": "Time Archive",
+        "description": "按年份整理 CWLBlog 的项目复盘，覆盖 AI Coding、低代码、工作流、SaaS 后台、智能分析预警与规则引擎。",
+        "url": "https://wenliang844.github.io/categories/",
+        "image": "https://wenliang844.github.io/images/favicon.png",
+        "twitterCard": "summary_large_image"
+      },
+      "feedAlternates": [
+        {
+          "href": "https://wenliang844.github.io/index.xml",
+          "title": "CWLBlog RSS"
+        },
+        {
+          "href": "https://wenliang844.github.io/categories/index.xml",
+          "title": "CWLBlog Time Archive RSS"
+        }
+      ],
+      "expectedFeeds": [
+        "https://wenliang844.github.io/index.xml",
+        "https://wenliang844.github.io/categories/index.xml"
+      ],
+      "jsonLdTypes": [
+        "CollectionPage"
+      ],
+      "violations": []
+    },
+    {
+      "file": "contact/index.html",
+      "route": "/contact/",
+      "noindex": false,
+      "canonical": "https://wenliang844.github.io/contact/",
+      "canonicalExpected": "https://wenliang844.github.io/contact/",
+      "og": {
+        "title": "联系 :: CWLBlog",
+        "description": "关于 CWL、联系方式与留言反馈。",
+        "url": "https://wenliang844.github.io/contact/",
+        "image": "https://wenliang844.github.io/images/favicon.png",
+        "twitterCard": "summary_large_image"
+      },
+      "feedAlternates": [
+        {
+          "href": "https://wenliang844.github.io/index.xml",
+          "title": "CWLBlog RSS"
+        }
+      ],
+      "expectedFeeds": [
+        "https://wenliang844.github.io/index.xml"
+      ],
+      "jsonLdTypes": [
+        "ContactPage"
+      ],
+      "violations": []
+    },
+    {
+      "file": "editor/index.html",
+      "route": "/editor/",
+      "noindex": false,
+      "canonical": "https://wenliang844.github.io/editor/",
+      "canonicalExpected": "https://wenliang844.github.io/editor/",
+      "og": {
+        "title": "Markdown 编辑器 :: CWLBlog",
+        "description": "在线 Markdown 编辑器，实时预览与自动保存。",
+        "url": "https://wenliang844.github.io/editor/",
+        "image": "https://wenliang844.github.io/images/favicon.png",
+        "twitterCard": "summary_large_image"
+      },
+      "feedAlternates": [
+        {
+          "href": "https://wenliang844.github.io/index.xml",
+          "title": "CWLBlog RSS"
+        }
+      ],
+      "expectedFeeds": [
+        "https://wenliang844.github.io/index.xml"
+      ],
+      "jsonLdTypes": [
+        "WebApplication"
+      ],
+      "violations": []
+    },
+    {
+      "file": "index.html",
+      "route": "/",
+      "noindex": false,
+      "canonical": "https://wenliang844.github.io/",
+      "canonicalExpected": "https://wenliang844.github.io/",
+      "og": {
+        "title": "CWLBlog",
+        "description": "CWL · AI 全栈工程师的个人博客，记录 AI 协作开发（Claude / Codex）、Java、Spring 与工程实践。",
+        "url": "https://wenliang844.github.io/",
+        "image": "https://wenliang844.github.io/images/favicon.png",
+        "twitterCard": "summary_large_image"
+      },
+      "feedAlternates": [
+        {
+          "href": "https://wenliang844.github.io/index.xml",
+          "title": "CWLBlog RSS"
+        }
+      ],
+      "expectedFeeds": [
+        "https://wenliang844.github.io/index.xml"
+      ],
+      "jsonLdTypes": [
+        "WebSite"
+      ],
+      "violations": []
+    },
+    {
+      "file": "offline.html",
+      "route": "/offline.html",
+      "noindex": true,
+      "canonical": "",
+      "canonicalExpected": "https://wenliang844.github.io/offline.html",
+      "og": {
+        "title": "",
+        "description": "",
+        "url": "",
+        "image": "",
+        "twitterCard": ""
+      },
+      "feedAlternates": [],
+      "expectedFeeds": [],
+      "jsonLdTypes": [],
+      "violations": []
+    },
+    {
+      "file": "overleaf/index.html",
+      "route": "/overleaf/",
+      "noindex": false,
+      "canonical": "https://wenliang844.github.io/overleaf/",
+      "canonicalExpected": "https://wenliang844.github.io/overleaf/",
+      "og": {
+        "title": "Overleaf 简历 :: CWLBlog",
+        "description": "Overleaf 风格简历模板，支持 LaTeX、Markdown、moderncv、HTML 源码与预览双向编辑、PDF 下载。",
+        "url": "https://wenliang844.github.io/overleaf/",
+        "image": "https://wenliang844.github.io/images/favicon.png",
+        "twitterCard": "summary_large_image"
+      },
+      "feedAlternates": [
+        {
+          "href": "https://wenliang844.github.io/index.xml",
+          "title": "CWLBlog RSS"
+        }
+      ],
+      "expectedFeeds": [
+        "https://wenliang844.github.io/index.xml"
+      ],
+      "jsonLdTypes": [
+        "WebApplication"
+      ],
+      "violations": []
+    },
+    {
+      "file": "post/activiti-workflow-engine/index.html",
+      "route": "/post/activiti-workflow-engine/",
+      "noindex": false,
+      "canonical": "https://wenliang844.github.io/post/activiti-workflow-engine/",
+      "canonicalExpected": "https://wenliang844.github.io/post/activiti-workflow-engine/",
+      "og": {
+        "title": "Activiti BPM 引擎实践",
+        "description": "基于 Activiti 7 的企业级工作流与 BPM 流程引擎实践。",
+        "url": "https://wenliang844.github.io/post/activiti-workflow-engine/",
+        "image": "https://wenliang844.github.io/images/posts/activiti-workflow-engine.png",
+        "twitterCard": "summary_large_image"
+      },
+      "feedAlternates": [
+        {
+          "href": "https://wenliang844.github.io/index.xml",
+          "title": "CWLBlog RSS"
+        }
+      ],
+      "expectedFeeds": [
+        "https://wenliang844.github.io/index.xml"
+      ],
+      "jsonLdTypes": [
+        "Article"
+      ],
+      "violations": []
+    },
+    {
+      "file": "post/codex-claude-vibe-coding/index.html",
+      "route": "/post/codex-claude-vibe-coding/",
+      "noindex": false,
+      "canonical": "https://wenliang844.github.io/post/codex-claude-vibe-coding/",
+      "canonicalExpected": "https://wenliang844.github.io/post/codex-claude-vibe-coding/",
+      "og": {
+        "title": "Codex 与 Claude 的 Vibe Coding",
+        "description": "Codex 和 Claude 协作进行 Vibe Coding 的实践方法：需求澄清、方案探索、代码落地、测试验证与迭代节奏。",
+        "url": "https://wenliang844.github.io/post/codex-claude-vibe-coding/",
+        "image": "https://wenliang844.github.io/images/posts/codex-claude-vibe-coding.png",
+        "twitterCard": "summary_large_image"
+      },
+      "feedAlternates": [
+        {
+          "href": "https://wenliang844.github.io/index.xml",
+          "title": "CWLBlog RSS"
+        }
+      ],
+      "expectedFeeds": [
+        "https://wenliang844.github.io/index.xml"
+      ],
+      "jsonLdTypes": [
+        "Article"
+      ],
+      "violations": []
+    },
+    {
+      "file": "post/finance-saas-backend/index.html",
+      "route": "/post/finance-saas-backend/",
+      "noindex": false,
+      "canonical": "https://wenliang844.github.io/post/finance-saas-backend/",
+      "canonicalExpected": "https://wenliang844.github.io/post/finance-saas-backend/",
+      "og": {
+        "title": "企顾 SaaS 多模块平台",
+        "description": "企顾 SaaS 中客户数据、财税报表、通知中心和 Elasticsearch 搜索能力的多模块后端实践。",
+        "url": "https://wenliang844.github.io/post/finance-saas-backend/",
+        "image": "https://wenliang844.github.io/images/posts/finance-saas-backend.png",
+        "twitterCard": "summary_large_image"
+      },
+      "feedAlternates": [
+        {
+          "href": "https://wenliang844.github.io/index.xml",
+          "title": "CWLBlog RSS"
+        }
+      ],
+      "expectedFeeds": [
+        "https://wenliang844.github.io/index.xml"
+      ],
+      "jsonLdTypes": [
+        "Article"
+      ],
+      "violations": []
+    },
+    {
+      "file": "post/index.html",
+      "route": "/post/",
+      "noindex": false,
+      "canonical": "https://wenliang844.github.io/post/",
+      "canonicalExpected": "https://wenliang844.github.io/post/",
+      "og": {
+        "title": "Posts",
+        "description": "按时间线整理项目复盘：覆盖 Codex 与 Claude 协作、低代码引擎、Activiti 工作流、企顾 SaaS、智能分析预警平台与规则引擎告警闭环。",
+        "url": "https://wenliang844.github.io/post/",
+        "image": "https://wenliang844.github.io/images/favicon.png",
+        "twitterCard": "summary_large_image"
+      },
+      "feedAlternates": [
+        {
+          "href": "https://wenliang844.github.io/index.xml",
+          "title": "CWLBlog RSS"
+        },
+        {
+          "href": "https://wenliang844.github.io/post/index.xml",
+          "title": "CWLBlog Posts RSS"
+        }
+      ],
+      "expectedFeeds": [
+        "https://wenliang844.github.io/index.xml",
+        "https://wenliang844.github.io/post/index.xml"
+      ],
+      "jsonLdTypes": [
+        "CollectionPage"
+      ],
+      "violations": []
+    },
+    {
+      "file": "post/lowcode-schema-codegen/index.html",
+      "route": "/post/lowcode-schema-codegen/",
+      "noindex": false,
+      "canonical": "https://wenliang844.github.io/post/lowcode-schema-codegen/",
+      "canonicalExpected": "https://wenliang844.github.io/post/lowcode-schema-codegen/",
+      "og": {
+        "title": "LowCode Engine 实践",
+        "description": "企业级中后台低代码引擎在 Schema、物料、渲染和出码链路上的实践复盘。",
+        "url": "https://wenliang844.github.io/post/lowcode-schema-codegen/",
+        "image": "https://wenliang844.github.io/images/posts/lowcode-schema-codegen.png",
+        "twitterCard": "summary_large_image"
+      },
+      "feedAlternates": [
+        {
+          "href": "https://wenliang844.github.io/index.xml",
+          "title": "CWLBlog RSS"
+        }
+      ],
+      "expectedFeeds": [
+        "https://wenliang844.github.io/index.xml"
+      ],
+      "jsonLdTypes": [
+        "Article"
+      ],
+      "violations": []
+    },
+    {
+      "file": "post/manage-system/index.html",
+      "route": "/post/manage-system/",
+      "noindex": false,
+      "canonical": "https://wenliang844.github.io/post/manage-system/",
+      "canonicalExpected": "https://wenliang844.github.io/post/manage-system/",
+      "og": {
+        "title": "智能分析预警平台重构",
+        "description": "智能分析预警平台从视频采集到业务告警闭环的后端重构实践。",
+        "url": "https://wenliang844.github.io/post/manage-system/",
+        "image": "https://wenliang844.github.io/images/posts/manage-system.png",
+        "twitterCard": "summary_large_image"
+      },
+      "feedAlternates": [
+        {
+          "href": "https://wenliang844.github.io/index.xml",
+          "title": "CWLBlog RSS"
+        }
+      ],
+      "expectedFeeds": [
+        "https://wenliang844.github.io/index.xml"
+      ],
+      "jsonLdTypes": [
+        "Article"
+      ],
+      "violations": []
+    },
+    {
+      "file": "post/rule-engine-alerts/index.html",
+      "route": "/post/rule-engine-alerts/",
+      "noindex": false,
+      "canonical": "https://wenliang844.github.io/post/rule-engine-alerts/",
+      "canonicalExpected": "https://wenliang844.github.io/post/rule-engine-alerts/",
+      "og": {
+        "title": "规则引擎与告警闭环",
+        "description": "智能分析预警平台中规则引擎、标准事实和业务告警闭环的后端实践。",
+        "url": "https://wenliang844.github.io/post/rule-engine-alerts/",
+        "image": "https://wenliang844.github.io/images/posts/rule-engine-alerts.png",
+        "twitterCard": "summary_large_image"
+      },
+      "feedAlternates": [
+        {
+          "href": "https://wenliang844.github.io/index.xml",
+          "title": "CWLBlog RSS"
+        }
+      ],
+      "expectedFeeds": [
+        "https://wenliang844.github.io/index.xml"
+      ],
+      "jsonLdTypes": [
+        "Article"
+      ],
+      "violations": []
+    },
+    {
+      "file": "sponsor/index.html",
+      "route": "/sponsor/",
+      "noindex": false,
+      "canonical": "https://wenliang844.github.io/sponsor/",
+      "canonicalExpected": "https://wenliang844.github.io/sponsor/",
+      "og": {
+        "title": "Sponsor CWLBlog",
+        "description": "Support this independent developer project via Afdian, PayPal or domestic scan payments.",
+        "url": "https://wenliang844.github.io/sponsor/",
+        "image": "https://wenliang844.github.io/images/favicon.png",
+        "twitterCard": "summary_large_image"
+      },
+      "feedAlternates": [
+        {
+          "href": "https://wenliang844.github.io/index.xml",
+          "title": "CWLBlog RSS"
+        }
+      ],
+      "expectedFeeds": [
+        "https://wenliang844.github.io/index.xml"
+      ],
+      "jsonLdTypes": [
+        "WebPage"
+      ],
+      "violations": []
+    },
+    {
+      "file": "tags/index.html",
+      "route": "/tags/",
+      "noindex": false,
+      "canonical": "https://wenliang844.github.io/tags/",
+      "canonicalExpected": "https://wenliang844.github.io/tags/",
+      "og": {
+        "title": "Tags",
+        "description": "博客标签：按技术主题浏览CWL的项目复盘与工程实践文章。",
+        "url": "https://wenliang844.github.io/tags/",
+        "image": "https://wenliang844.github.io/images/favicon.png",
+        "twitterCard": "summary_large_image"
+      },
+      "feedAlternates": [
+        {
+          "href": "https://wenliang844.github.io/index.xml",
+          "title": "CWLBlog RSS"
+        }
+      ],
+      "expectedFeeds": [
+        "https://wenliang844.github.io/index.xml"
+      ],
+      "jsonLdTypes": [
+        "CollectionPage"
+      ],
+      "violations": []
+    },
+    {
+      "file": "tools/index.html",
+      "route": "/tools/",
+      "noindex": false,
+      "canonical": "https://wenliang844.github.io/tools/",
+      "canonicalExpected": "https://wenliang844.github.io/tools/",
+      "og": {
+        "title": "在线工具箱 :: CWLBlog",
+        "description": "Mini Postman、JSON、时间戳、编码、哈希、密码、颜色、正则、Markdown 编辑器、Diff、Cron、二维码、YAML、URL 解析与文本处理等常用开发工具。",
+        "url": "https://wenliang844.github.io/tools/",
+        "image": "https://wenliang844.github.io/images/favicon.png",
+        "twitterCard": "summary_large_image"
+      },
+      "feedAlternates": [
+        {
+          "href": "https://wenliang844.github.io/index.xml",
+          "title": "CWLBlog RSS"
+        }
+      ],
+      "expectedFeeds": [
+        "https://wenliang844.github.io/index.xml"
+      ],
+      "jsonLdTypes": [
+        "WebApplication"
+      ],
+      "violations": []
+    },
+    {
+      "file": "trust/index.html",
+      "route": "/trust/",
+      "noindex": false,
+      "canonical": "https://wenliang844.github.io/trust/",
+      "canonicalExpected": "https://wenliang844.github.io/trust/",
+      "og": {
+        "title": "隐私与信任 :: CWLBlog",
+        "description": "本站本机数据、第三方服务、AI 助手、工具箱、订阅、评论和反馈的数据流说明。",
+        "url": "https://wenliang844.github.io/trust/",
+        "image": "https://wenliang844.github.io/images/favicon.png",
+        "twitterCard": "summary_large_image"
+      },
+      "feedAlternates": [
+        {
+          "href": "https://wenliang844.github.io/index.xml",
+          "title": "CWLBlog RSS"
+        }
+      ],
+      "expectedFeeds": [
+        "https://wenliang844.github.io/index.xml"
+      ],
+      "jsonLdTypes": [
+        "WebPage"
+      ],
+      "violations": []
+    }
+  ],
+  "violations": []
+}

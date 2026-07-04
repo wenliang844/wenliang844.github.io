@@ -1,5 +1,7 @@
 (function () {
+  const STYLE_HREF = "/css/assistant.css";
   const RUNTIME_SRC = "/js/assistant.js";
+  let stylePromise = null;
   let runtimePromise = null;
 
   function hasStartupIntent() {
@@ -17,10 +19,37 @@
     return !!document.querySelector(".assistant-widget");
   }
 
+  function existingStyle() {
+    return Array.from(document.querySelectorAll('link[rel="stylesheet"]')).find(function (link) {
+      return link.getAttribute("href") === STYLE_HREF;
+    });
+  }
+
   function existingRuntimeScript() {
     return Array.from(document.querySelectorAll("script")).find(function (script) {
       return script.getAttribute("src") === RUNTIME_SRC;
     });
+  }
+
+  function loadStyle() {
+    if (stylePromise) {
+      return stylePromise;
+    }
+    if (existingStyle()) {
+      stylePromise = Promise.resolve();
+      return stylePromise;
+    }
+
+    stylePromise = new Promise(function (resolve, reject) {
+      const link = document.createElement("link");
+      link.rel = "stylesheet";
+      link.href = STYLE_HREF;
+      link.dataset.assistantStyle = "true";
+      link.onload = resolve;
+      link.onerror = reject;
+      document.head.appendChild(link);
+    });
+    return stylePromise;
   }
 
   function loadRuntime() {
@@ -31,16 +60,18 @@
       return runtimePromise;
     }
 
+    const styleReady = loadStyle();
     const existing = existingRuntimeScript();
     if (existing) {
-      runtimePromise = new Promise(function (resolve, reject) {
+      const scriptReady = new Promise(function (resolve, reject) {
         existing.addEventListener("load", resolve, { once: true });
         existing.addEventListener("error", reject, { once: true });
       });
+      runtimePromise = Promise.all([styleReady, scriptReady]).then(function () {});
       return runtimePromise;
     }
 
-    runtimePromise = new Promise(function (resolve, reject) {
+    const scriptReady = new Promise(function (resolve, reject) {
       const script = document.createElement("script");
       script.src = RUNTIME_SRC;
       script.defer = true;
@@ -49,6 +80,7 @@
       script.onerror = reject;
       document.head.appendChild(script);
     });
+    runtimePromise = Promise.all([styleReady, scriptReady]).then(function () {});
     return runtimePromise;
   }
 

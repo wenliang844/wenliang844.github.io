@@ -640,6 +640,21 @@ test("gesture runtime gates camera start on supply-chain acknowledgement", async
   }
 });
 
+test("gesture runtime releases camera when the page is hidden", async () => {
+  const code = await readFile(join(ROOT, "js", "gesture.js"), "utf8");
+
+  assert.match(code, /document\.addEventListener\("visibilitychange", function \(\) \{/);
+  assert.match(code, /if \(document\.hidden && running\) \{\s*stopCamera\(\);\s*setStatus\("ready", "页面已隐藏，摄像头已关闭"\);/);
+  assert.doesNotMatch(code, /pause detection but keep stream alive/);
+});
+
+test("gesture startup reports camera initialization and video stream phases", async () => {
+  const code = await readFile(join(ROOT, "js", "gesture.js"), "utf8");
+
+  assert.match(code, /setStatus\("loading", "初始化摄像头…"\);\s*try \{\s*cameraStream = await navigator\.mediaDevices\.getUserMedia/);
+  assert.match(code, /\$video\.srcObject = cameraStream;\s*setStatus\("loading", "启动视频流…"\);\s*await \$video\.play\(\);/);
+});
+
 test("tools page ignores delegated events from non-element targets", async () => {
   const { dom } = await loadToolsPage();
   const { document, Event, KeyboardEvent } = dom.window;

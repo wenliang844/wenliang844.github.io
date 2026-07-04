@@ -28,14 +28,21 @@ export const SPONSOR_LINKS = {
   paypal: "https://PayPal.Me/chenwenliang4212",
 };
 
-const RESOURCE_HINTS = [
-  { rel: "preconnect", href: "https://giscus.app" },
+const BASE_RESOURCE_HINTS = [
   { rel: "dns-prefetch", href: "https://giscus.app" },
-  { rel: "preconnect", href: "https://buttondown.com" },
   { rel: "dns-prefetch", href: "https://buttondown.com" },
   { rel: "dns-prefetch", href: "https://www.ifdian.net" },
   { rel: "dns-prefetch", href: "https://paypal.me" },
 ];
+
+const CAPABILITY_RESOURCE_HINTS = {
+  comments: [
+    { rel: "preconnect", href: "https://giscus.app" },
+  ],
+  subscribe: [
+    { rel: "preconnect", href: "https://buttondown.com" },
+  ],
+};
 
 const DEFAULT_CONNECT_SRC = "'self' https:";
 
@@ -59,7 +66,7 @@ function renderContentSecurityPolicy(connectSrc = DEFAULT_CONNECT_SRC) {
   );
 }
 
-const CORE_SCRIPTS = [
+export const CORE_SCRIPTS = [
   "/js/error-handler.js",
   "/js/utils.js",
   "/js/i18n.js",
@@ -67,6 +74,11 @@ const CORE_SCRIPTS = [
   "/js/search-loader.js",
   "/js/subscribe.js",
   "/js/assistant-loader.js",
+  "/js/pwa-register.js",
+];
+
+const DEFAULT_FEEDS = [
+  { href: "/index.xml", title: "CWLBlog RSS" },
 ];
 
 // 渲染主导航；active 标记当前栏目。
@@ -119,9 +131,26 @@ function renderStyles(styles) {
     .join("\n");
 }
 
-function renderResourceHints() {
-  return RESOURCE_HINTS
+function renderResourceHints(capabilities = []) {
+  const hints = [...BASE_RESOURCE_HINTS];
+  for (const capability of capabilities) {
+    hints.push(...(CAPABILITY_RESOURCE_HINTS[capability] || []));
+  }
+  const seen = new Set();
+  return hints
+    .filter(({ rel, href }) => {
+      const key = `${rel}:${href}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    })
     .map(({ rel, href }) => `  <link rel="${rel}" href="${escapeAttr(href)}">`)
+    .join("\n");
+}
+
+function renderFeedLinks(feeds = DEFAULT_FEEDS) {
+  return feeds
+    .map((feed) => `  <link rel="alternate" type="application/rss+xml" title="${escapeAttr(feed.title)}" href="${escapeAttr(feed.href)}">`)
     .join("\n");
 }
 
@@ -210,6 +239,8 @@ export function buildPageJsonLd({ type = "WebPage", name, description, path, ...
  * @param {string} opts.main         <main> 内部 HTML
  * @param {object} [opts.og]         OG/Twitter 卡片数据 { title, description, path, type? }；省略则不输出
  * @param {string} [opts.connectSrc] 页面级 CSP connect-src 值；工具页可显式放宽调试请求
+ * @param {string[]} [opts.resourceHintCapabilities] 页面高概率第三方能力（如 comments/subscribe）
+ * @param {{href: string, title: string}[]} [opts.feeds] 页面可发现 RSS feed，默认全站 feed
  */
 export function renderPage(opts) {
   const {
@@ -226,6 +257,8 @@ export function renderPage(opts) {
     og,
     jsonLd,
     connectSrc = DEFAULT_CONNECT_SRC,
+    resourceHintCapabilities = [],
+    feeds = DEFAULT_FEEDS,
   } = opts;
 
   const allScripts = [...new Set([...CORE_SCRIPTS, ...scripts])];
@@ -252,7 +285,8 @@ export function renderPage(opts) {
   <link rel="icon" href="/images/favicon.png" type="image/png">
   <link rel="manifest" href="/manifest.webmanifest">
   <meta name="theme-color" content="#0f172a">
-${renderResourceHints()}
+${renderResourceHints(resourceHintCapabilities)}
+${renderFeedLinks(feeds)}
   <link rel="stylesheet" href="/css/fontawesome-all.min.css">
   <link rel="stylesheet" href="/css/coder.css">
 ${renderStyles(pageStyles)}

@@ -1,7 +1,7 @@
 // Deep test: build.mjs 辅助函数 — collectTags, stripHtml, extractToc, tidyHtml, absoluteUrl, buildSearchIndex i18n
 import test from "node:test";
 import assert from "node:assert/strict";
-import { normalizeDate, validateSlug, validatePost, tidyHtml, renderContent, readingMinutes, relatedPosts } from "../scripts/build.mjs";
+import { normalizeDate, normalizeReviewedDate, normalizePostStatus, validateSlug, validatePost, tidyHtml, renderContent, readingMinutes, relatedPosts, extractSearchSections, buildSitemap, buildRssItems } from "../scripts/build.mjs";
 import { readFile, mkdir, mkdtemp, rm } from "node:fs/promises";
 import { join } from "node:path";
 import { execFile } from "node:child_process";
@@ -61,6 +61,17 @@ test("build sitemap includes image:image entries for posts with images", async (
   }
 });
 
+test("build sitemap uses modified date for post lastmod", () => {
+  const sitemap = buildSitemap([
+    { slug: "test-post", date: "2024-06-15", modified: "2024-06-20", images: [] },
+  ]);
+
+  assert.match(
+    sitemap,
+    /<loc>https:\/\/wenliang844\.github\.io\/post\/test-post\/<\/loc><lastmod>2024-06-20T09:30:00\+08:00<\/lastmod>/,
+  );
+});
+
 // ─── search-index.json 国际化 ──────────────────────────────────────────────
 
 test("search index includes i18n metadata for posts", async () => {
@@ -74,11 +85,20 @@ test("search index includes i18n metadata for posts", async () => {
     // 每个 post 应有 i18n.en
     const posts = index.filter(item => item.type === "post");
     for (const p of posts) {
+      assert.ok(p.modified >= p.date, `post ${p.slug} should expose normalized modified date`);
+      assert.equal(p.freshness, p.modified !== p.date ? "updated" : "published", `post ${p.slug} should expose freshness`);
       assert.ok(p.i18n, `post ${p.slug} should have i18n`);
       assert.ok(p.i18n.en, `post ${p.slug} should have i18n.en`);
       assert.ok(typeof p.i18n.en.title === "string", `post ${p.slug} should have en title`);
       assert.ok(p.i18n.en.title.length > 0, `post ${p.slug} en title should not be empty`);
       assert.ok(Array.isArray(p.i18n.en.tags), `post ${p.slug} should have en tags array`);
+    }
+
+    const sections = index.filter(item => item.type === "post-section");
+    assert.ok(sections.length > 0, "search index should include post sections");
+    for (const section of sections) {
+      assert.ok(section.modified >= section.date, `section ${section.path} should expose normalized modified date`);
+      assert.equal(section.freshness, section.modified !== section.date ? "updated" : "published", `section ${section.path} should expose freshness`);
     }
 
     // 每个 page 应有 i18n.en
@@ -105,6 +125,63 @@ test("search index paths use forward slashes only", async () => {
     for (const item of index) {
       assert.ok(!item.path.includes("\\"), `path should not contain backslash: ${item.path}`);
       assert.ok(item.path.startsWith("/"), `path should start with /: ${item.path}`);
+    }
+  } finally {
+    await rm(outDir, { recursive: true, force: true });
+  }
+});
+
+test("search index covers long-tail post keywords while staying lightweight", async () => {
+  const tempRoot = join(ROOT, "temp");
+  await mkdir(tempRoot, { recursive: true });
+  const outDir = await mkdtemp(join(tempRoot, "cwlblog-search-quality-"));
+  try {
+    await runBuild(["--out", outDir]);
+    const raw = await readFile(join(outDir, "search-index.json"), "utf8");
+    const index = JSON.parse(raw);
+    const text = JSON.stringify(index);
+
+    assert.ok(raw.length < 125_000, `search-index.json should stay under 125KB after section indexing, got ${raw.length} bytes`);
+    for (const term of ["ESClient", "Web Worker", "Galaxy", "Maven", "BPMN"]) {
+      assert.match(text, new RegExp(term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")), `search index should include ${term}`);
+    }
+
+    const posts = index.filter((item) => item.type === "post");
+    const sections = index.filter((item) => item.type === "post-section");
+    const pageSections = index.filter((item) => item.type === "page-section");
+    assert.ok(posts.every((post) => post.body.length <= 3200), "post bodies should keep the configured search budget");
+    assert.ok(posts.some((post) => post.body.length > 600), "post bodies should no longer all be clipped at 600 chars");
+    assert.ok(sections.length >= posts.length, "search index should include article section entries");
+    assert.ok(sections.every((section) => section.path.includes("#toc-")), "section entries should deep-link to heading anchors");
+    assert.ok(sections.every((section) => section.sectionTitle && section.body.length <= 560), "section entries should include bounded bodies and titles");
+    assert.ok(sections.some((section) => /Galaxy|Maven|BPMN|Web Worker|ESClient/i.test(section.body)), "section entries should explain long-tail body matches");
+    assert.ok(pageSections.length >= 10, "search index should include static page section entries");
+    assert.ok(pageSections.every((section) => section.sectionTitle && section.path.includes("#")), "page sections should include heading context and anchors");
+    assert.ok(pageSections.every((section) => !("searchSections" in section)), "page section config should not leak into the search index");
+    assert.ok(pageSections.every((section) => !section.body || section.body.length <= 72), "page section bodies should stay tiny");
+    assert.ok(pageSections.some((section) => section.path === "/tools/#tool-tab-cron" && /Cron/.test(section.sectionTitle)), "tool sections should deep-link to Cron");
+    assert.ok(pageSections.some((section) => section.path === "/trust/#trust-services-title" && /外部服务/.test(section.sectionTitle)), "trust sections should deep-link to services");
+    assert.ok(pageSections.some((section) => section.path === "/ai/#nav" && /AI/.test(section.sectionTitle)), "AI sections should deep-link to navigation");
+
+    const htmlBySlug = new Map();
+    for (const section of sections) {
+      const match = section.path.match(/^\/post\/([^/]+)\/#(.+)$/);
+      assert.ok(match, `section path should target a post heading: ${section.path}`);
+      const [, slug, id] = match;
+      if (!htmlBySlug.has(slug)) {
+        htmlBySlug.set(slug, await readFile(join(outDir, "post", slug, "index.html"), "utf8"));
+      }
+      assert.ok(htmlBySlug.get(slug).includes(`id="${id}"`), `${section.path} should exist in the generated article`);
+    }
+
+    const staticHtmlByPath = new Map();
+    for (const section of pageSections) {
+      const [pagePath, id] = section.path.split("#");
+      const htmlPath = pagePath === "/" ? "index.html" : `${pagePath.replace(/^\/|\/$/g, "")}/index.html`;
+      if (!staticHtmlByPath.has(pagePath)) {
+        staticHtmlByPath.set(pagePath, await readFile(join(outDir, ...htmlPath.split("/")), "utf8"));
+      }
+      assert.ok(staticHtmlByPath.get(pagePath).includes(`id="${id}"`), `${section.path} should exist in the generated static page`);
     }
   } finally {
     await rm(outDir, { recursive: true, force: true });
@@ -177,6 +254,28 @@ test("RSS variants share one channel renderer", async () => {
   assert.equal((source.match(/<generator>Cwl static build<\/generator>/g) || []).length, 1);
 });
 
+test("RSS items use modified date only for explicit major updates", () => {
+  const normal = buildRssItems([{
+    shortTitle: "Normal update",
+    slug: "normal-update",
+    date: "2024-01-01",
+    modified: "2024-06-20",
+    majorUpdate: false,
+    description: "Normal description",
+  }]);
+  const major = buildRssItems([{
+    shortTitle: "Major update",
+    slug: "major-update",
+    date: "2024-01-01",
+    modified: "2024-06-20",
+    majorUpdate: true,
+    description: "Major description",
+  }]);
+
+  assert.match(normal, /<pubDate>Mon, 01 Jan 2024 09:30:00 \+0800<\/pubDate>/);
+  assert.match(major, /<pubDate>Thu, 20 Jun 2024 09:30:00 \+0800<\/pubDate>/);
+});
+
 test("tidyHtml preserves blank lines inside protected HTML blocks", () => {
   const rawHtml = `<section>Before</section>
 
@@ -221,6 +320,28 @@ After`;
   assert.match(html, /<h2 id="toc-1-section">Section<\/h2>/);
 });
 
+test("extractSearchSections returns heading anchors and bounded section bodies", () => {
+  const { html } = renderContent(`## Alpha Section
+
+This section mentions Galaxy and workers.
+
+### Nested Topic
+
+Nested body talks about Maven and BPMN.`);
+  const sections = extractSearchSections(html);
+
+  assert.equal(sections.length, 2);
+  assert.deepEqual(
+    sections.map((section) => [section.level, section.id, section.title]),
+    [
+      [2, "toc-1-alpha-section", "Alpha Section"],
+      [3, "toc-1-nested-topic", "Nested Topic"],
+    ],
+  );
+  assert.match(sections[0].body, /Galaxy/);
+  assert.ok(sections.every((section) => section.body.length <= 560), "section bodies should be bounded");
+});
+
 // ─── robots.txt 内容验证 ────────────────────────────────────────────────────
 
 test("robots.txt allows key paths and references sitemap", async () => {
@@ -236,7 +357,11 @@ test("robots.txt allows key paths and references sitemap", async () => {
     assert.match(robots, /Allow: \/tags\//);
     assert.match(robots, /Allow: \/categories\//);
     assert.match(robots, /Allow: \/ai\//);
-    assert.match(robots, /Disallow: \/js\/vendor\//);
+    assert.match(robots, /Allow: \/js\//);
+    assert.match(robots, /Allow: \/css\//);
+    assert.match(robots, /Allow: \/webfonts\//);
+    assert.doesNotMatch(robots, /Disallow: \/js\/vendor\//);
+    assert.doesNotMatch(robots, /Disallow: \/css\/fontawesome\//);
     assert.match(robots, /Sitemap: https:\/\/wenliang844\.github\.io\/sitemap\.xml/);
   } finally {
     await rm(outDir, { recursive: true, force: true });
@@ -414,6 +539,15 @@ test("normalizeDate handles Invalid Date object", () => {
   assert.throws(() => normalizeDate(new Date("invalid")), /Invalid date value/);
 });
 
+test("post status metadata validates reviewed date and enum values", () => {
+  assert.equal(normalizeReviewedDate("2024-06-20", "2024-06-15"), "2024-06-20");
+  assert.equal(normalizeReviewedDate("", "2024-06-15"), "");
+  assert.equal(normalizePostStatus("historical"), "historical");
+  assert.equal(normalizePostStatus(""), "");
+  assert.throws(() => normalizeReviewedDate("2024-06-01", "2024-06-15", "post.md"), /before published date/);
+  assert.throws(() => normalizePostStatus("draft", "post.md"), /Invalid status/);
+});
+
 test("normalizeDate rejects empty string", () => {
   assert.throws(() => normalizeDate(""), /Invalid date format/);
 });
@@ -489,6 +623,28 @@ test("relatedPosts prefers posts with more shared tags", () => {
   const result = relatedPosts(post, allPosts, 2);
   assert.equal(result[0].slug, "c", "post with 2 shared tags should rank first");
   assert.equal(result[1].slug, "b", "post with 1 shared tag should rank second");
+});
+
+test("relatedPosts uses English tags and series signals with reasons", () => {
+  const post = {
+    slug: "a",
+    tags: ["规则"],
+    tagsEn: ["Rule Engine"],
+    series: "智能分析",
+    seriesEn: "Intelligent Analysis",
+  };
+  const allPosts = [
+    { slug: "a", tags: ["规则"], tagsEn: ["Rule Engine"], series: "智能分析", seriesEn: "Intelligent Analysis" },
+    { slug: "b", tags: ["告警"], tagsEn: ["Alert System"], series: "智能分析", seriesEn: "Intelligent Analysis", date: "2024-01-01" },
+    { slug: "c", tags: ["引擎"], tagsEn: ["Rule Engine"], date: "2024-06-01" },
+  ];
+
+  const result = relatedPosts(post, allPosts, 2);
+  assert.equal(result[0].slug, "b", "same series should outrank English tag overlap");
+  assert.match(result[0].relatedReason, /同属系列/);
+  assert.match(result[0].relatedReasonEn, /Same series/);
+  assert.equal(result[1].slug, "c");
+  assert.match(result[1].relatedReasonEn, /Shared tags: Rule Engine/);
 });
 
 // ─── readingMinutes 混合中英文 ──────────────────────────────────────────────

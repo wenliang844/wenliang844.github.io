@@ -14,7 +14,7 @@
 - `js/vendor/*`
 - `images/**/*`
 
-本轮只做只读分析与文档写入，未修改任何站点代码或配置。验证记录：`node --test tests/performance.test.mjs tests/security-extended.test.mjs tests/links.test.mjs` 通过，33 项测试全部成功。
+本轮最初只做只读分析与文档写入；后续已推进 MR-ASSET-01，新增 `data/vendor-manifest.json`、`scripts/check-vendor-manifest.mjs`、`npm run check:vendor` 和 `tests/vendor-manifest.test.mjs`，并接入 `check:readonly`、CI 与质量基线。随后推进 MR-ASSET-07，把手势工具远程 MediaPipe、face-api、Three.js、WASM 和模型 URL 纳入同一份 manifest，并由 `check:vendor` 与单测校验 `js/gesture.js` 的远程运行时均被记录；第二阶段又在手势工具确认区展示 7 个远程视觉资源治理状态，并由模板测试、CSS 测试、vendor manifest 测试和 browser smoke 保护；推进 MR-ASSET-06，将全站 HTML 图片属性纳入生产验证；推进 MR-ASSET-03，让 robots 允许公开 JS/CSS/webfonts 渲染资源；推进 MR-ASSET-02，将第三方 `preconnect` 改为页面能力与用户动作触发；推进 MR-ASSET-05，为首页、文章页和工具页增加路由级 raw/gzip 总预算与 JS 子预算；并新增 `src/pwa-precache.mjs` 与 `npm run check:pwa-precache`，把 19 个 PWA app-shell 预缓存 URL、Font Awesome 字体引用、2 个页面级资源、按需助手 CSS 和 Service Worker 清单一致性纳入只读门禁。验证记录：`npm run check:vendor` 通过；`node --test tests/vendor-manifest.test.mjs` 4/4 通过；`npm run check:pwa-precache` 通过；`node --test tests/quality-baseline.test.mjs tests/workflows.test.mjs` 25/25 通过；`npm run validate:production` 75/75 通过；`node --test tests/build-extra.test.mjs tests/build.test.mjs` 38/38 通过；`node --test tests/performance.test.mjs tests/templates.test.mjs tests/css.test.mjs tests/vendor-manifest.test.mjs` 71/71 通过；`npm run test:browser-smoke` 通过；`npm run check:generated` 通过。
 
 当前资产基线：
 
@@ -23,28 +23,28 @@
 - `css/coder.css` 当前约 137 KB，低于现有 140 KB 阈值。
 - 最大文章图片约 149 KB，所有 `images/posts/*.png` 均低于 200 KB。
 
-## 📌 MR-ASSET-01：本地 vendor 文件缺少可审计的来源、版本和哈希清单
+## 📌 MR-ASSET-01 [已修复]：本地 vendor 文件缺少可审计的来源、版本和哈希清单
 
 📍 位置（文件路径 + 行号范围）
 
-- `js/vendor/marked.min.js:1-3`
-- `js/vendor/purify.min.js:1-2`
-- `js/vendor/highlight.min.js:1-3`
-- `tests/performance.test.mjs:228-249`
+- `data/vendor-manifest.json`
+- `scripts/check-vendor-manifest.mjs`
+- `tests/vendor-manifest.test.mjs`
+- `.github/workflows/ci.yml`
 - `package.json:31-31`
 - `package-lock.json:1253-1262`
 
 📝 当前状况描述
 
-测试会确认 vendor 文件存在，HTML 也避免直接从第三方 CDN 加载核心脚本，这是好的。但仓库没有独立记录 vendor 文件的来源 URL、许可证、版本、下载日期和 SHA-256。部分文件头部带版本信息，例如 DOMPurify 3.1.6、Highlight.js 11.9.0；同时构建期 npm 依赖 `marked` 是 18.0.5，而浏览器工具箱本地 vendor 是 `marked v12.0.2`。同名库双版本会让 Markdown 行为、安全修复节奏和升级路径分叉。
+测试会确认 vendor 文件存在，HTML 也避免直接从第三方 CDN 加载核心脚本，这是好的。此前仓库没有独立记录 vendor 文件的来源 URL、许可证、版本和 SHA-256；当前已新增 `data/vendor-manifest.json`，记录 5 个本地 vendor 文件的来源、许可证、浏览器版本、字节数和 SHA-256，并对 `marked` 明确记录浏览器期 `12.0.2` 与构建期 `18.0.5` 的版本差异。`qrcode.min.js` 没有版本 banner，清单中保留 `browserVersion: null` 和说明，避免编造版本号。`npm run check:vendor` 会校验 manifest 与 `js/vendor/*.js` 文件集合、大小和哈希完全一致。
 
 ⚠️ 影响程度（高/中/低）
 
-中。当前不代表文件已被篡改，但后续升级、漏洞响应和供应链审计缺少可自动比对的依据。
+中。核心风险已收敛：当前 vendor 文件具备可自动比对的哈希清单。剩余治理点是后续升级时补充下载日期、发布包签名或上游 npm tarball 对照。
 
 💡 建议方案（含伪代码或示例片段）
 
-新增 vendor manifest，记录每个文件的版本、来源和哈希，并在 CI 中校验当前文件哈希是否匹配。可把构建期和浏览器期同名库纳入同一份清单，明确是否允许版本差异。
+已新增 vendor manifest，记录每个文件的版本、来源和哈希，并在 CI 中校验当前文件哈希是否匹配。构建期和浏览器期同名库 `marked` 已纳入同一份清单，明确版本差异。
 
 ```json
 {
@@ -79,41 +79,74 @@ test("vendor files match recorded SHA-256 manifest", async () => {
 - `security-audit.md` 中关于供应链风险的建议。
 - `devex-improvements.md` 中关于 CI 校验和依赖治理的建议。
 
-## 📌 MR-ASSET-02：第三方资源提示在所有页面无条件输出
+## 📌 MR-ASSET-07 [已修复第二阶段]：远程视觉运行时和模型资源缺少 manifest 治理
 
 📍 位置（文件路径 + 行号范围）
 
-- `src/templates/layout.mjs:30-37`
-- `src/templates/layout.mjs:216-227`
-- `tests/templates.test.mjs:46-51`
+- `data/vendor-manifest.json`
+- `scripts/check-vendor-manifest.mjs`
+- `src/templates/tools.mjs`
+- `css/tools.css`
+- `scripts/browser-smoke.mjs`
+- `tests/vendor-manifest.test.mjs`
+- `js/gesture.js`
 
 📝 当前状况描述
 
-公共模板会在所有生成页输出 Giscus、Buttondown、爱发电和 PayPal 的 `preconnect`/`dns-prefetch`。这些 hint 能改善真实使用时的连接延迟，但也会让普通页面在用户未打开评论、未订阅、未点击赞助前就暴露第三方域名解析或连接意图。尤其 `preconnect` 比 `dns-prefetch` 更重，适合高概率即将使用的资源，而不是所有页面的默认成本。
+手势工具仍按需从 jsDelivr 和 Google Storage 加载 MediaPipe、face-api、Three.js、WASM 和视觉模型。第一阶段已把 7 个远程运行时/模型 URL 纳入 `data/vendor-manifest.json` 的 `remoteResources`：记录资源类型、包名、版本/路径、供应商、触发条件、是否要求用户确认、当前 pinning 状态和后续本地化计划。第二阶段已把这份治理状态产品化到手势工具确认区：7 个资源逐项展示为“版本锁定”“上游 latest”或“待自托管”，并在用户勾选第三方资源确认前可见。`npm run check:vendor` 会校验远程资源字段、HTTPS、唯一性、显式确认与 `upstream-latest` 风险说明；`tests/vendor-manifest.test.mjs` 会从真实 `js/gesture.js` 抽取远程 URL，并要求 manifest 完整覆盖；`scripts/browser-smoke.mjs` 会在 `/tools/` 真实浏览器交互中断言资源状态列表存在、7 项渲染且 3 项处于 watch 状态。
 
 ⚠️ 影响程度（高/中/低）
 
-低到中。当前资源提示数量不大，但会增加首屏网络噪声和轻微隐私暴露，页面越多越值得收敛。
+中。前两阶段把“远程加载了什么”和“哪些资源仍未自托管”变成可审计、可见、可测试的契约；剩余风险是 MediaPipe 模型仍使用 upstream `latest` 路径，尚未自托管和 hash pin。
 
 💡 建议方案（含伪代码或示例片段）
 
-把 `RESOURCE_HINTS` 改为按页面能力生成：文章页或文章列表页保留 Giscus hint；所有页可保留低成本 `dns-prefetch`，但 `preconnect` 仅在高概率交互页面或用户触发前插入。
+已落地 manifest、用户可见状态和测试覆盖。下一阶段应把 `hand_landmarker.task`、`efficientdet_lite0.tflite`、face-api 模型和关键 WASM 资源下载到本地，记录 SHA-256，并把手势工具 CSP 收敛到自托管资源。
 
 ```js
-function resourceHintsForPage(page) {
-  const hints = [
-    { rel: "dns-prefetch", href: "https://buttondown.com" },
-    { rel: "dns-prefetch", href: "https://www.ifdian.net" },
-    { rel: "dns-prefetch", href: "https://paypal.me" },
-  ];
-  if (page === "posts") {
-    hints.push(
-      { rel: "preconnect", href: "https://giscus.app" },
-      { rel: "dns-prefetch", href: "https://giscus.app" },
-    );
-  }
-  return hints;
-}
+const gestureUrls = extractRemoteUrls(await readFile("js/gesture.js", "utf8"));
+assert.deepEqual(manifest.remoteResources.map((item) => item.url).sort(), gestureUrls);
+```
+
+📊 实际收益
+
+- 手势工具远程依赖有了可 review、可 CI 阻断的清单。
+- `latest` 模型路径被显式标记为后续自托管/hash pin 工作，不再埋在源码常量里，也会显示在手势工具确认区。
+- 供应链治理范围从本地 vendor 扩展到按需远程 runtime。
+
+🔗 相关建议引用
+
+- `security-audit.md` 中 S-13 手势工具供应链风险。
+- `performance-bottlenecks.md` 中 P-14 手势工具远程模型冷启动风险。
+
+## 📌 MR-ASSET-02 [已修复]：第三方资源提示在所有页面无条件输出
+
+📍 位置（文件路径 + 行号范围）
+
+- `src/templates/layout.mjs`
+- `src/templates/post.mjs`
+- `js/subscribe.js`
+- `tests/templates.test.mjs`
+- `tests/performance.test.mjs`
+- `tests/share-subscribe-feedback-deep.test.mjs`
+
+📝 当前状况描述
+
+公共模板现在默认只输出低成本 `dns-prefetch`：Giscus、Buttondown、爱发电和 PayPal 域名仍可被浏览器预解析。较重的 `preconnect` 已改为按页面能力或用户动作触发：文章页和文章列表页通过 `resourceHintCapabilities: ["comments"]` 保留 `https://giscus.app` 预连接；Buttondown 预连接不再静态写入 HTML，而是在订阅邮箱获得焦点、订阅弹窗打开或提交前由 `js/subscribe.js` 动态插入一次。
+
+⚠️ 影响程度（高/中/低）
+
+低到中。核心风险已收敛：普通页面不再无条件预连第三方域名；评论页仍保留高概率评论加载的预热收益。
+
+💡 建议方案（含伪代码或示例片段）
+
+已把资源提示改为按页面能力生成：全站保留低成本 DNS hint，评论页保留 Giscus preconnect，订阅 preconnect 延迟到用户意图出现后插入。测试会扫描已提交 HTML，要求 `giscus.app` preconnect 只出现在加载 `/js/giscus.js` 的页面，并禁止提交的 HTML 静态包含 Buttondown preconnect。
+
+```js
+const CAPABILITY_RESOURCE_HINTS = {
+  comments: [{ rel: "preconnect", href: "https://giscus.app" }],
+  subscribe: [{ rel: "preconnect", href: "https://buttondown.com" }],
+};
 ```
 
 📊 预期收益
@@ -127,24 +160,25 @@ function resourceHintsForPage(page) {
 - `performance-bottlenecks.md` 中关于资源加载策略的建议。
 - `module-reviews/user-data-entrypoints.md` 中关于第三方外连边界的建议。
 
-## 📌 MR-ASSET-03：`robots.txt` 屏蔽本地 JS vendor 目录，可能削弱渲染型抓取
+## 📌 MR-ASSET-03 [已修复]：`robots.txt` 屏蔽本地 JS vendor 目录，可能削弱渲染型抓取
 
 📍 位置（文件路径 + 行号范围）
 
-- `scripts/build.mjs:446-461`
+- `scripts/build.mjs`
+- `robots.txt`
 - `tests/build-extra.test.mjs:232-240`
 
 📝 当前状况描述
 
-`robots.txt` 当前允许站点主体路径，但显式 `Disallow: /js/vendor/`。这会阻止遵守 robots 的爬虫抓取本地 vendor 资源。对纯静态文章内容影响有限，但现代搜索引擎会进行渲染型抓取；如果未来页面的关键内容或结构化交互依赖 vendor 脚本，屏蔽这些资源会降低抓取器还原页面状态的能力。测试目前还固定断言该 Disallow 存在。
+`robots.txt` 当前允许站点主体路径，并已移除 `Disallow: /js/vendor/` 和 `Disallow: /css/fontawesome/`。构建脚本现在显式输出 `Allow: /js/`、`Allow: /css/` 和 `Allow: /webfonts/`，避免遵守 robots 的渲染型爬虫被本地运行时脚本、CSS 或字体资源挡住。测试也已改为断言公开渲染资源不被屏蔽。
 
 ⚠️ 影响程度（高/中/低）
 
-低到中。当前大部分内容是静态 HTML，不是即时故障；长期看不建议为了“节省抓取”屏蔽公共渲染资源。
+低到中。核心风险已收敛：公开渲染资源不再被 robots 屏蔽。
 
 💡 建议方案（含伪代码或示例片段）
 
-默认不要屏蔽公开渲染资源，只屏蔽确实不希望抓取的私有或无意义路径。若担心 crawl budget，可通过 sitemap 和合理链接结构引导，而不是禁止 JS/CSS。
+已默认不屏蔽公开渲染资源，只通过 sitemap 和合理链接结构引导抓取。
 
 ```txt
 User-agent: *
@@ -225,26 +259,26 @@ assert.doesNotMatch(robots, /Disallow:\s*\/js\/vendor\//);
 - `performance-bottlenecks.md` 中关于图片优化的建议。
 - `module-reviews/search-and-seo-pipeline.md` 中关于 image sitemap 的建议。
 
-## 📌 MR-ASSET-05：性能预算以原始单文件大小为主，缺少路由级和压缩后预算
+## 📌 MR-ASSET-05 [已修复]：性能预算以原始单文件大小为主，缺少路由级和压缩后预算
 
 📍 位置（文件路径 + 行号范围）
 
-- `tests/performance.test.mjs:19-50`
-- `tests/performance.test.mjs:222-249`
-- `src/templates/post.mjs:263-264`
-- `src/templates/post.mjs:407-414`
+- `tests/performance.test.mjs`
+- `index.html`
+- `post/rule-engine-alerts/index.html`
+- `tools/index.html`
 
 📝 当前状况描述
 
-性能测试已经覆盖 HTML、非 vendor JS、CSS、搜索索引、sitemap、RSS 和 vendor 文件存在性，当前 33 项资源相关测试通过。但预算主要以“单个原始文件大小”为单位，没有计算每个路由实际会加载的总 JS/CSS、gzip/brotli 后大小、图片总量、第三方 hint 数量或按页面类型区分的预算。比如文章页会加载 core scripts、`qrcode.min.js`、`share.js`、`giscus.js`、`toc.js`，工具页会加载更重的 vendor 组合；单文件都达标时，路由总成本仍可能慢慢膨胀。
+性能测试已经覆盖 HTML、非 vendor JS、CSS、搜索索引、sitemap、RSS、vendor 文件存在性、CSS 路由预算和关键路由真实资源预算。新增 `routeBudget()` 会解析 HTML 的本地 CSS/JS/图片引用，统计 HTML 与资源的 raw/gzip 总量，并对首页、文章页和工具页设置总预算、JS 子预算和本地资源数量预算。当前基线约为：首页 260 KB raw / 61 KB gzip，文章页 305 KB / 79 KB，工具页 668 KB / 171 KB。
 
 ⚠️ 影响程度（高/中/低）
 
-中。现有体积仍可控，但增长趋势需要更接近用户真实加载路径的预算。
+中。核心风险已收敛：关键路由整体变重会被 `tests/performance.test.mjs` 直接拦截。后续可继续扩展到图片变体、字体间接引用和 brotli 预算。
 
 💡 建议方案（含伪代码或示例片段）
 
-新增 route budget 测试：解析 HTML 中的 CSS/JS/image 引用，按页面类型统计原始大小和 gzip 大小。对首页、文章页、工具页分别设置预算。
+已新增 route budget 测试：解析 HTML 中的 CSS/JS/image 引用，按页面类型统计原始大小和 gzip 大小。对首页、文章页、工具页分别设置预算，并单独限制 JS raw/gzip 体积。
 
 ```js
 async function routeBudget(htmlFile) {
@@ -255,9 +289,10 @@ async function routeBudget(htmlFile) {
   return { rawBytes, gzipBytes, assets };
 }
 
-test("tools route stays within route-level JS budget", async () => {
+test("route asset budgets cover real HTML CSS JS and image references", async () => {
   const budget = await routeBudget("tools/index.html");
-  assert.ok(budget.gzipBytes < 260 * 1024);
+  assert.ok(budget.total.gzipBytes < 178 * 1024);
+  assert.ok(budget.js.gzipBytes < 132 * 1024);
 });
 ```
 
@@ -272,11 +307,12 @@ test("tools route stays within route-level JS budget", async () => {
 - `performance-bottlenecks.md` 中关于资源体积预算的建议。
 - `devex-improvements.md` 中关于 CI 性能门禁的建议。
 
-## 📌 MR-ASSET-06：生产验证只检查图片 alt，未覆盖尺寸、懒加载和解码策略
+## 📌 MR-ASSET-06 [已修复]：生产验证只检查图片 alt，未覆盖尺寸、懒加载和解码策略
 
 📍 位置（文件路径 + 行号范围）
 
-- `scripts/validate-production.mjs:320-349`
+- `scripts/validate-production.mjs`
+- `tests/workflows.test.mjs`
 - `scripts/build.mjs:176-201`
 - `tests/build-deep.test.mjs:209-225`
 - `src/templates/sponsor.mjs:64-68`
@@ -284,15 +320,15 @@ test("tools route stays within route-level JS budget", async () => {
 
 📝 当前状况描述
 
-构建脚本会为 Markdown 正文图片补 `loading="lazy"` 和 `decoding="async"`，赞助二维码和工具箱 QR 图片也已经有宽高与加载属性。生产验证脚本目前只检查 HTML 图片是否有 `alt`，没有统一检查 `width`/`height`、`loading`、`decoding` 或首图 `fetchpriority`。这会让未来新增手写页面或模板图片时，可能绕过布局稳定性和加载策略检查。
+构建脚本会为 Markdown 正文图片补 `loading="lazy"` 和 `decoding="async"`，赞助二维码和工具箱 QR 图片也已经有宽高与加载属性。此前生产验证脚本只检查首页和文章列表图片是否有 `alt`；当前已扩展为递归扫描 20 个已提交 HTML 页面，检查图片 `alt`、非 SVG/非隐藏图片 `width`/`height`、显式 `loading` 策略和 `decoding="async"`。允许 `fetchpriority="high"` 作为首屏关键图的显式加载策略入口。
 
 ⚠️ 影响程度（高/中/低）
 
-低到中。现有关键图片已有不少保护，但验证脚本覆盖面偏窄。
+低到中。核心风险已收敛：现有关键图片和后续新增 HTML 图片都会被生产验证统一检查。
 
 💡 建议方案（含伪代码或示例片段）
 
-扩展生产验证：对非 SVG、非隐藏占位图要求宽高；对正文和非首屏图片要求 `loading="lazy"` 与 `decoding="async"`；允许首屏关键图显式使用 `fetchpriority="high"`。
+已扩展生产验证：对非 SVG、非隐藏占位图要求宽高；对图片要求显式 `loading` 策略与 `decoding="async"`；允许首屏关键图显式使用 `fetchpriority="high"`。
 
 ```js
 for (const img of imgs) {
@@ -313,4 +349,3 @@ for (const img of imgs) {
 
 - `ux-improvements.md` 中关于布局稳定性的建议。
 - `devex-improvements.md` 中关于生产验证扩展的建议。
-

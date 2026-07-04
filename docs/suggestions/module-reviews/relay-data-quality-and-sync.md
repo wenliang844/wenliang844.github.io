@@ -71,11 +71,12 @@ Relay 数据链路已经具备基本脱敏能力：SQL 导入测试会确认 `se
 
 ---
 
-## 📌 MR-RELAY-04 [部分修复]: 商业同步部分失败时会用剩余源覆盖旧数据
+## 📌 MR-RELAY-04 [已修复第一阶段]: 商业同步部分失败时会用剩余源覆盖旧数据
 
 - **📍 位置**：`scripts/update-commercial-relay.mjs:142-168`, `scripts/update-commercial-relay.mjs:179-217`, `tests/relay.test.mjs:67-121`, `.github/workflows/relay-commercial-sync.yml:33-61`
-- **✅ 修复状态**：非法 `RELAY_COMMERCIAL_HEADERS` 现在会在发起请求前失败，不再被 `Promise.allSettled()` 吃成“所有源 0 条”；缺少必需源和商业字段清洗也已进入测试。
-- **📝 剩余状况描述**：`fetchCommercialProviders()` 仍使用 `Promise.allSettled()`，单个源 HTTP 失败只记录 warning，成功源合并后去重；主流程只检查总数不低于 `RELAY_COMMERCIAL_MIN_COUNT`。如果一个关键商业源失败，而另一个次要源仍返回 1 条以上，脚本仍可能通过并覆盖 `data.commercialProviders`。
+- **✅ 修复状态**：非法 `RELAY_COMMERCIAL_HEADERS` 现在会在发起请求前失败，不再被 `Promise.allSettled()` 吃成“所有源 0 条”；缺少必需源和商业字段清洗也已进入测试。本轮新增源策略解析，支持 `required:https://...` / `optional:https://...` 前缀，或使用 `RELAY_COMMERCIAL_REQUIRED=1` 将所有配置源视为必需源。HTTP 失败现在会进入 rejected 分支：可选源仍跳过，必需源失败会阻断同步。新增 `RELAY_COMMERCIAL_MIN_SUCCESSFUL_SOURCES`，workflow 设为 `1`，防止所有源失败或成功源数量低于预期时继续发布。
+- **🧪 回归测试**：`tests/relay.test.mjs` 覆盖必需源 HTTP 失败会抛错、可选源失败仍跳过、成功源数量低于 `RELAY_COMMERCIAL_MIN_SUCCESSFUL_SOURCES` 会失败。
+- **📝 剩余状况描述**：第一阶段已经能区分关键源和可选源，也能阻止成功源数量不足。后续仍可扩展“低于上一次商业条目数量一定比例时保留旧数据”，进一步防止外部源返回过少但仍满足最低数量的情况。
 - **⚠️ 影响程度**：中
 - **💡 建议方案**：记录每个源的成功/失败和条数，设置 `minSuccessfulSources` 或“低于上次数量的一定比例时保留旧数据”。GitHub Actions 可输出 diff 摘要并阻止大幅缩水的自动提交。
   ```javascript
@@ -88,10 +89,12 @@ Relay 数据链路已经具备基本脱敏能力：SQL 导入测试会确认 `se
 
 ---
 
-## 📌 MR-RELAY-05: 同一组认证 Header 会发送到所有商业数据源
+## 📌 MR-RELAY-05 [已修复]: 同一组认证 Header 会发送到所有商业数据源
 
 - **📍 位置**：`scripts/update-commercial-relay.mjs:118-139`, `scripts/update-commercial-relay.mjs:142-153`, `.github/workflows/relay-commercial-sync.yml:16-18`
-- **📝 当前状况描述**：`RELAY_COMMERCIAL_SOURCE_URL` 支持逗号分隔多个 URL，`authHeaders()` 会把同一个 `RELAY_COMMERCIAL_TOKEN` 和 `RELAY_COMMERCIAL_HEADERS` 附加到每个源请求。若未来配置多个不同域名的数据源，同一个 bearer token 或自定义 header 会被发送到所有源。当前 tests 覆盖多源跳过失败，但没有覆盖“多源 + 认证头”的信任边界。
+- **✅ 修复状态**：`fetchCommercialProviders()` 会在发起请求前检查源 origin 和认证 header；只要存在 `RELAY_COMMERCIAL_TOKEN` 或自定义 `RELAY_COMMERCIAL_HEADERS`，多源同步必须全部属于同一 origin，否则直接失败，不会发出任何请求。
+- **🧪 回归测试**：`tests/relay.test.mjs` 新增 “rejects shared auth headers across multiple origins”，确认配置认证头并指向多个 origin 时 `fetch` 不会被调用。
+- **📝 原状况描述**：`RELAY_COMMERCIAL_SOURCE_URL` 支持逗号分隔多个 URL，`authHeaders()` 会把同一个 `RELAY_COMMERCIAL_TOKEN` 和 `RELAY_COMMERCIAL_HEADERS` 附加到每个源请求。若未来配置多个不同域名的数据源，同一个 bearer token 或自定义 header 会被发送到所有源。此前 tests 覆盖多源跳过失败，但没有覆盖“多源 + 认证头”的信任边界。
 - **⚠️ 影响程度**：中
 - **💡 建议方案**：当存在认证 header 时限制单一 origin，或把配置改成结构化数组，每个 source 单独声明 URL 和认证信息。至少在多 origin + token 时直接失败。
   ```javascript
@@ -100,7 +103,7 @@ Relay 数据链路已经具备基本脱敏能力：SQL 导入测试会确认 `se
     throw new Error("多源同步不能复用同一认证 Header，请改用 per-source 配置。");
   }
   ```
-- **📊 预期收益**：降低外部源配置失误导致同步 token 泄露到非预期域名的风险。
+- **📊 实际收益**：降低外部源配置失误导致同步 token 泄露到非预期域名的风险。
 - **🔗 相关建议引用**：[security-audit.md](../security-audit.md), [assistant-loader-and-llm-runtime.md](assistant-loader-and-llm-runtime.md)
 
 ---
@@ -123,6 +126,6 @@ Relay 数据链路已经具备基本脱敏能力：SQL 导入测试会确认 `se
 
 | 优先级 | 建议 |
 |--------|------|
-| P1 | MR-RELAY-01 区分官网与 API endpoint；MR-RELAY-05 多源认证 Header 隔离 |
-| P2 | MR-RELAY-02 API Tester 默认过滤可用条目；MR-RELAY-04 部分失败时保留旧数据 |
+| P1 | MR-RELAY-01 区分官网与 API endpoint |
+| P2 | MR-RELAY-02 API Tester 默认过滤可用条目；MR-RELAY-04 后续增加与上次数据量对比 |
 | P3 | MR-RELAY-03 重复 endpoint 合并；MR-RELAY-06 SQL 结构漂移告警 |

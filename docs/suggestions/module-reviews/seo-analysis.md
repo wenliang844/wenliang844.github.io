@@ -107,7 +107,7 @@
   </script>
   ```
 - **📊 预期收益**：提升手写页面结构化数据一致性，减少 SEO 审计中的单点例外。
-- **🔗 相关建议引用**：[DE-14](../devex-improvements.md#de-14-增加页面级-dom-契约审计防止-seo-a11y-回退), [MR-HTML-06](html-pages.md#mr-html-06-页面级-dom-审计显示手写页仍有少量例外)
+- **🔗 相关建议引用**：[DE-14](../devex-improvements.md#de-14), [MR-HTML-06](html-pages.md#mr-html-06-页面级-dom-审计显示手写页仍有少量例外)
 
 ---
 

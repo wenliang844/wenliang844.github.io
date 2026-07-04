@@ -15,14 +15,26 @@ const WEEKDAYS_SHORT = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const FIXED_TIME = "09:30:00";
 const FIXED_TZ = "+0800";
 
-function parts(dateStr) {
-  const [y, m, d] = dateStr.split("-").map((n) => parseInt(n, 10));
-  return { y, m, d };
+function parts(value) {
+  const dateStr = String(value);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+    throw new Error(`Invalid date "${dateStr}". Expected YYYY-MM-DD.`);
+  }
+  const [y, m, d] = dateStr.split("-").map((n) => Number.parseInt(n, 10));
+  const date = new Date(Date.UTC(y, m - 1, d));
+  if (
+    date.getUTCFullYear() !== y ||
+    date.getUTCMonth() !== m - 1 ||
+    date.getUTCDate() !== d
+  ) {
+    throw new Error(`Invalid date "${dateStr}". Impossible calendar date.`);
+  }
+  return { y, m, d, dateStr };
 }
 
 // "2026-06-16" → 原值，用于 <time datetime> 和 tree 显示。
 export function isoDate(dateStr) {
-  return dateStr;
+  return parts(dateStr).dateStr;
 }
 
 // "2026-06-16" → "June 16, 2026"，用于 article-meta。
@@ -41,7 +53,7 @@ export function rfc822(dateStr) {
 
 // "2026-06-16" → "2026-06-16T09:30:00+08:00"，用于 sitemap lastmod。
 export function sitemapDate(dateStr) {
-  return `${dateStr}T${FIXED_TIME}+08:00`;
+  return `${parts(dateStr).dateStr}T${FIXED_TIME}+08:00`;
 }
 
 // HTML 属性值转义，用于把标题等文本安全放进 data-* / value 等属性。

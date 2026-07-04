@@ -96,6 +96,29 @@ function toolHeader(tool) {
           </header>`;
 }
 
+const GESTURE_RESOURCE_STATUS = [
+  { name: "MediaPipe 视觉运行时", nameEn: "MediaPipe vision runtime", status: "版本锁定", statusEn: "Version locked", state: "locked" },
+  { name: "MediaPipe WASM 基础包", nameEn: "MediaPipe WASM base", status: "版本锁定", statusEn: "Version locked", state: "locked" },
+  { name: "手部识别模型", nameEn: "Hand landmark model", status: "上游 latest", statusEn: "Upstream latest", state: "watch" },
+  { name: "物体检测模型", nameEn: "Object detector model", status: "上游 latest", statusEn: "Upstream latest", state: "watch" },
+  { name: "face-api 运行时", nameEn: "face-api runtime", status: "版本锁定", statusEn: "Version locked", state: "locked" },
+  { name: "face-api 模型包", nameEn: "face-api model pack", status: "待自托管", statusEn: "Self-hosting planned", state: "watch" },
+  { name: "Three.js 3D 运行时", nameEn: "Three.js 3D runtime", status: "版本锁定", statusEn: "Version locked", state: "locked" },
+];
+
+function renderGestureResourceStatus() {
+  const items = GESTURE_RESOURCE_STATUS.map((item) => `              <li class="gesture-resource-item" data-resource-status="${item.state}">
+                <span data-i18n="tools.gesture.resource.${attr(item.state)}.${attr(item.nameEn.replace(/[^a-z0-9]+/gi, "-").toLowerCase())}" data-i18n-en="${attr(item.nameEn)}">${item.name}</span>
+                <strong data-i18n="tools.gesture.resource.status.${attr(item.state)}" data-i18n-en="${attr(item.statusEn)}">${item.status}</strong>
+              </li>`).join("\n");
+  return `            <div class="gesture-resource-status" aria-label="视觉资源治理状态" data-i18n-aria="tools.gesture.resourceStatus" data-i18n-en-aria="Visual resource governance status">
+              <p data-i18n="tools.gesture.resourceSummary" data-i18n-en="Resource status: versioned runtime URLs are locked; upstream latest model paths are still planned for self-hosting and hash pinning.">资源状态：运行时 URL 已按版本锁定；latest 模型路径仍计划自托管并记录哈希。</p>
+              <ul class="gesture-resource-list">
+${items}
+              </ul>
+            </div>`;
+}
+
 function renderJsonTool() {
   const tool = toolById("json");
   return `        <section ${panelAttrs(tool, true)}>
@@ -820,6 +843,7 @@ ${toolHeader(tool)}
               <span><i class="fas fa-shield-alt" aria-hidden="true"></i> <span data-i18n="tools.gesture.consent" data-i18n-en="I understand the visual runtime and models are downloaded from third-party CDNs.">我了解视觉运行时和模型会从第三方 CDN 下载</span></span>
             </label>
             <p data-i18n="tools.gesture.supplyChain" data-i18n-en="The camera stream stays in this browser for recognition. Starting the tool may download MediaPipe, face-api, Three.js and model files from jsDelivr and Google Storage.">摄像头画面只在本机浏览器识别；启动时可能从 jsDelivr 和 Google Storage 下载 MediaPipe、face-api、Three.js 与模型文件。</p>
+${renderGestureResourceStatus()}
           </div>
           <div class="gesture-modes" role="radiogroup" data-i18n-aria="tools.gesture.modeGroup" data-i18n-en-aria="Animation mode">
             <button class="gesture-mode-btn active" data-mode="particle" type="button">

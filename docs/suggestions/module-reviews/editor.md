@@ -83,7 +83,7 @@
   ```
   工具箱内嵌编辑器与独立编辑器页应共享同一段 markup，避免修一处漏一处。
 - **📊 预期收益**：提升编辑器无障碍质量，并降低手写页与工具模板之间的维护漂移。
-- **🔗 相关建议引用**：[UX-14](../ux-improvements.md#ux-14-markdown-编辑器主输入框缺少可关联标签), [DE-14](../devex-improvements.md#de-14-增加页面级-dom-契约审计防止-seo-a11y-回退)
+- **🔗 相关建议引用**：[UX-14](../ux-improvements.md#ux-14-markdown-编辑器主输入框缺少可关联标签), [DE-14](../devex-improvements.md#de-14)
 
 ---
 

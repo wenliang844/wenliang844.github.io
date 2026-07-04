@@ -1,17 +1,18 @@
 # CSS 资源归属与页面级样式评审
 
 分析日期：2026-07-03
-分析范围：公共布局模板、工具箱/信任页页面级 CSS、样式测试、链接完整性测试、生产验证脚本、当前生成产物。
+分析范围：公共布局模板、工具箱/信任页页面级 CSS、AI 助手懒加载 CSS、样式测试、链接完整性测试、生产验证脚本、当前生成产物。
 
 ## 本轮验证
 
-- `node --test tests/css.test.mjs tests/templates.test.mjs tests/templates-extended.test.mjs tests/performance.test.mjs tests/build.test.mjs tests/workflows.test.mjs`：111/111 通过。
-- `npm run lint:check`、`npm run test:http-smoke`、`npm run test:browser-smoke`、`npm run test:coverage`、`npm run validate:production` 和 `git diff --check` 均已通过。
-- 当前 `src/templates/tools.mjs` 与 `src/templates/trust.mjs` 已通过 `styles` 注入页面级 CSS，`tools/index.html` 引用 `/css/tools.css`，`trust/index.html` 引用 `/css/trust.css`；本轮提交需同时纳入这两个 CSS 文件和新信任页源文件。
+- `node --test tests/css.test.mjs tests/performance.test.mjs tests/templates-extended.test.mjs tests/pwa-precache.test.mjs tests/workflows.test.mjs`：113/113 通过。
+- `node --test tests/service-worker-generation.test.mjs tests/pwa-precache.test.mjs`：8/8 通过。
+- `npm run lint:check`、`npm run check:pwa-precache`、`npm run check:service-worker` 和 `node --test tests/performance.test.mjs` 均已通过。
+- 当前 `src/templates/tools.mjs` 与 `src/templates/trust.mjs` 已通过 `styles` 注入页面级 CSS，`tools/index.html` 引用 `/css/tools.css`，`trust/index.html` 引用 `/css/trust.css`；工具页 shell/面板基础样式已迁入 `/css/tools.css`；AI 助手面板样式迁入 `/css/assistant.css`，由 `js/assistant-loader.js` 首次打开时注入。
 
 ## 结论摘要
 
-项目正在从“所有样式集中在 `css/coder.css`”过渡到“公共 CSS + 页面级 CSS”。这个方向对性能和维护性都有价值，本轮已经完成工具页/信任页的首批页面级样式落地，新增 `src/page-assets.mjs` 统一声明页面级 CSS，用路由级 raw/gzip CSS 预算衡量实际加载成本，并补充“本地 CSS/JS 引用必须被 Git 跟踪”的发布护栏。剩余主要是更清晰的选择器归属边界。
+项目正在从“所有样式集中在 `css/coder.css`”过渡到“公共 CSS + 页面级 CSS + 交互按需 CSS”。这个方向对性能和维护性都有价值，本轮已经完成工具页/信任页的页面级样式落地，把工具页 shell/面板基础样式迁入 `css/tools.css`，并把 AI 助手浮层样式拆到按需加载的 `css/assistant.css`。`src/page-assets.mjs`、PWA 预缓存、路由级 raw/gzip CSS 预算、“本地 CSS/JS 引用必须被 Git 跟踪”和“生产验证扫描 HTML + PAGE_ASSETS 本地资源”的发布护栏已经覆盖主要拆包路径。剩余主要是更细的共享组件归属边界。
 
 ---
 
@@ -19,7 +20,7 @@
 
 - 📍 位置：`src/templates/layout.mjs:116-119`、`src/templates/layout.mjs:254-256`、`src/templates/tools.mjs:1058-1067`、`src/templates/trust.mjs:136-145`、`tools/index.html:15-16`、`trust/index.html:15-16`
 - ✅ 修复状态：公共模板已经提供 `renderStyles(styles)`，并在全站固定加载 `/css/fontawesome-all.min.css` 与 `/css/coder.css` 后追加页面级样式。新增 `src/page-assets.mjs` 作为页面级资源清单，工具箱和信任页模板通过 `stylesForRoute("/tools/")` / `stylesForRoute("/trust/")` 读取样式；当前生成产物中 `tools/index.html` 和 `trust/index.html` 均已引用对应页面级 CSS，`tests/templates-extended.test.mjs` 会校验 manifest 与模板输出一致。
-- 📝 剩余状况描述：生产验证脚本还未直接从 manifest 收集资源，但性能测试已覆盖已提交 HTML 的本地 CSS/JS 引用存在性和 Git 跟踪状态。
+- 📝 当前状况描述：生产验证脚本已直接从 HTML 和 `pageAssetUrls()` 收集本地 CSS/JS 资源并检查存在性；性能测试仍覆盖已提交 HTML 的本地 CSS/JS 引用存在性和 Git 跟踪状态。
 - ⚠️ 影响程度：高
 - 💡 建议方案（含伪代码或示例片段）：为每个路由建立资源 manifest，并让模板、构建产物校验、链接测试和生产验证都从同一份 manifest 派生。
 
@@ -81,10 +82,11 @@ test("referenced CSS files are committed", async () => {
 
 ---
 
-## 📌 CSS-OWN-03：`coder.css` 与页面级 CSS 的选择器边界尚未清晰，存在重复归属风险
+## 📌 CSS-OWN-03 [已修复核心]：`coder.css` 与页面级 CSS 的选择器边界仍需继续收紧
 
-- 📍 位置：`css/coder.css:3932-4228`、`css/coder.css:5678-5678`、`css/tools.css:1-60`、`css/tools.css:595-622`、`css/trust.css:1-5`
-- 📝 当前状况描述：`css/tools.css` 已承载手势、星河和对象捕获等工具箱专属样式，但 `css/coder.css` 中仍保留 `.tools-page`、`.tool-btn` 等大量工具箱基础选择器。`css/trust.css` 也开始承载信任页专属规则，同时 `css/coder.css` 中仍出现信任页移动端规则。半拆分状态容易让后续修改者不确定某个选择器应该改全局文件还是页面文件，最终形成重复规则或覆盖顺序依赖。
+- 📍 位置：`css/coder.css`、`css/tools.css`、`css/trust.css`、`css/assistant.css`
+- ✅ 修复状态：`css/tools.css` 已承载工具页 shell、tab、面板、字段、输出、QR/时间/UUID 预览、手势、星河和对象捕获等工具箱专属样式；`css/trust.css` 承载信任页专属规则；`css/assistant.css` 承载助手浮层和消息面板规则。`css/coder.css` 保留 reset/token、导航、布局、文章、编辑器工具按钮等全站或跨页面共享规则。
+- 📝 剩余状况描述：核心工具页大块选择器边界已清晰；后续仍可继续审查更细的共享组件，例如编辑器嵌入、AI 导航页工具卡和少量按钮变体，避免未来新增页面时重新把页面专属规则写回 core。
 - ⚠️ 影响程度：中
 - 💡 建议方案（含伪代码或示例片段）：把 CSS 拆分定义成三层归属，并用注释或 manifest 记录迁移状态。
 
@@ -101,6 +103,10 @@ css/tools.css
 css/trust.css
   - only /trust/ cards, service facts, report CTA
   - selectors should be rooted under .trust-page or .trust-*
+
+css/assistant.css
+  - only lazy-loaded assistant widget, panel, messages and settings
+  - injected by js/assistant-loader.js, not referenced from the base HTML
 ```
 
 ```css
@@ -111,7 +117,7 @@ css/trust.css
 .trust-page .trust-service-facts { ... }
 ```
 
-- 📊 预期收益：减少选择器冲突和重复维护，也让后续按路由预算、按路由截图回归更容易落地。
+- 📊 实际收益：`coder.css` 回落到 103,446 bytes / 4,783 行；`tools.css` 扩展到 21,902 bytes / 1,169 行但只在 `/tools/` 加载。普通页面不再解析工具箱 shell 和面板基础样式，路由级 CSS 预算仍保持通过。
 - 🔗 相关建议引用：`docs/suggestions/module-reviews/css-analysis.md`、`docs/suggestions/module-reviews/static-assets-and-third-party-resources.md`
 
 ---
@@ -175,22 +181,20 @@ for (const [route, budget] of Object.entries(CSS_BUDGETS)) {
 
 ---
 
-## 📌 CSS-OWN-06：生产验证脚本只列核心文件，未覆盖页面级 CSS 与生成页面资源
+## 📌 CSS-OWN-06 [已修复]：生产验证脚本只列核心文件，未覆盖页面级 CSS 与生成页面资源
 
 - 📍 位置：`scripts/validate-production.mjs:50-62`、`tests/performance.test.mjs:54-65`
-- 📝 当前状况描述：生产验证脚本的 required 文件包含 `css/coder.css`、`index.html`、`robots.txt` 等核心资产，但没有覆盖 `css/tools.css`、`css/trust.css` 这类页面级资源。链接测试虽然会扫描 HTML 中的 CSS 引用，但它读取的是当前文件系统；如果生成产物未引用页面级 CSS，或者未跟踪文件只存在本地，生产验证并不能形成完整闭环。
+- ✅ 修复状态：`validate:production` 新增 `checkLocalResourceReferences()`，递归扫描所有 HTML 中的本地 CSS/JS 引用是否存在，并额外读取 `pageAssetUrls()` 检查 `PAGE_ASSETS` 派生资源。当前生产验证会检查 21 个 HTML 页面和 2 个 manifest 资源；`tests/workflows.test.mjs` 已锁定该检查。
 - ⚠️ 影响程度：中
-- 💡 建议方案（含伪代码或示例片段）：生产验证不应手写页面级资源列表，而应从渲染后的 HTML 或 `PAGE_ASSETS` manifest 收集资源，再同时校验“存在、被引用、被 Git 跟踪”。
+- 💡 已采用方案：生产验证从渲染后的 HTML 和 `PAGE_ASSETS` manifest 收集资源，校验文件存在；Git 跟踪状态仍由 `tests/performance.test.mjs` 的发布护栏覆盖。
 
 ```js
 async function checkPageAssets() {
   const htmlFiles = await committedHtmlFiles();
   const referenced = await collectCssAndJsRefs(htmlFiles);
-  const tracked = await gitTrackedFiles();
 
   for (const asset of referenced) {
     assert.ok(await fileExists(asset), `missing referenced asset: ${asset}`);
-    assert.ok(tracked.has(asset), `asset is not committed: ${asset}`);
   }
 }
 ```
@@ -200,13 +204,35 @@ async function checkPageAssets() {
 
 ---
 
+## 📌 CSS-OWN-07 [已修复]：AI 助手浮层样式仍随 core CSS 全站解析
+
+- 📍 位置：`css/coder.css`、`css/assistant.css`、`js/assistant-loader.js`、`src/pwa-precache.mjs`
+- ✅ 修复状态：助手浮层、消息列表、配置面板、隐私控件和移动端适配规则已迁入 `css/assistant.css`；`coder.css` 只保留导航 AI 按钮的基础入口样式。`assistant-loader.js` 在首次点击 `[data-assistant-toggle]` 或 `?assistant=fullscreen` 深链时注入 `<link rel="stylesheet" href="/css/assistant.css">` 和 `/js/assistant.js`，并在样式与脚本都完成后重放首次点击。
+- 🧪 验证：`tests/assistant-loader.test.mjs` 覆盖默认不加载 CSS/JS、首次点击注入样式与运行时并重放、fullscreen 深链主动加载；`tests/css.test.mjs` 锁定 `coder.css` 不再包含助手面板/消息/隐私样式；`check:pwa-precache` 现在覆盖 19 个预缓存 URL，其中包括 `/css/assistant.css`。
+- 📊 实际收益：普通页面首屏不再解析约 18KB 的助手面板样式，`coder.css` 回落到 112,956 bytes / 5,311 行；离线打开助手时新样式也能由 Service Worker 预缓存提供。
+- 🔗 相关建议引用：`docs/suggestions/performance-bottlenecks.md#-p-17-已修复核心-全站统一加载-codercss工具箱和助手样式成本扩散到所有页面`、`docs/suggestions/module-reviews/pwa-offline-cache-readiness.md`
+
+---
+
+## 📌 CSS-OWN-08 [已修复]：工具页 shell/面板基础样式仍随 core CSS 全站解析
+
+- 📍 位置：`css/coder.css`、`css/tools.css`、`tests/css.test.mjs`、`tests/performance.test.mjs`
+- ✅ 修复状态：`.tools-page`、`.tools-shell`、`.tools-tabs`、`.tool-tab`、`.tool-panel`、`.tool-field`、`.tool-output`、`.tool-actions`、QR/时间/UUID 预览和移动端工具页布局规则已从 `css/coder.css` 迁入 `css/tools.css`。`coder.css` 只保留编辑器工具栏仍会用到的 `.tool-btn` / `.tool-sep` 基础样式。
+- 🧪 验证：`tests/css.test.mjs` 锁定 `coder.css` 不再包含工具页 shell/面板/字段样式，并确认 `tools.css` 包含工具页 shell、浏览器 API 工具和移动端规则；`tests/performance.test.mjs` 路由级 CSS raw/gzip 预算通过。
+- 📊 实际收益：`coder.css` 从 112,956 bytes 降到 103,446 bytes；非工具页无需解析工具箱基础面板规则，工具页自身仍通过 `/css/tools.css` 获得完整样式。
+- 🔗 相关建议引用：`docs/suggestions/performance-bottlenecks.md#-p-17-已修复核心-全站统一加载-codercss工具箱和助手样式成本扩散到所有页面`
+
+---
+
 ## 优先级待办
 
-1. 中优先级：明确 `coder.css`、`tools.css`、`trust.css` 的选择器归属边界，逐步移除重复规则。
-2. 中优先级：继续将 AI 助手浮层样式和工具页基础样式从 core CSS 中拆出。
-3. 中优先级：让生产验证脚本也从 `PAGE_ASSETS` 或 HTML 扫描中收集页面级资源。
+1. 中优先级：继续审查更细的共享组件归属，避免新增页面把专属规则写回 core。
+2. 中优先级：推进工具页 JS 单包和模型资源加载体验治理。
+3. 已完成：让生产验证脚本从 `PAGE_ASSETS` 和 HTML 扫描中收集页面级资源。
+4. 已完成：将 AI 助手浮层样式从 core CSS 中拆到按需加载 CSS。
+5. 已完成：将工具页 shell/面板基础样式从 core CSS 中拆到页面级 CSS。
 
 ## 本轮健康度评分
 
-CSS 资源治理健康度：4.0 / 5。
-优势是模板、资源 manifest、生成产物和测试已经覆盖工具页/信任页页面级 CSS，并且有路由级 raw/gzip 预算和 Git 跟踪校验；风险在于选择器归属边界和生产验证脚本的资源收集仍需继续收紧。
+CSS 资源治理健康度：4.3 / 5。
+优势是模板、资源 manifest、生成产物、测试、PWA 预缓存和生产验证已经覆盖工具页/信任页页面级 CSS 与助手按需 CSS，并且有路由级 raw/gzip 预算、Git 跟踪校验和本地资源存在性校验；主要风险转为更细的共享组件归属、工具页 JS 单包和模型资源加载体验。

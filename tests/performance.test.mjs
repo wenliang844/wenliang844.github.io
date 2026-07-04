@@ -145,12 +145,10 @@ test("all HTML files reference the favicon", async () => {
   assert.deepEqual(missing, [], "HTML files missing favicon reference");
 });
 
-test("committed HTML files include third-party resource hints", async () => {
+test("committed HTML files include low-cost third-party DNS resource hints", async () => {
   const files = await htmlFiles();
   const hints = [
-    '<link rel="preconnect" href="https://giscus.app">',
     '<link rel="dns-prefetch" href="https://giscus.app">',
-    '<link rel="preconnect" href="https://buttondown.com">',
     '<link rel="dns-prefetch" href="https://buttondown.com">',
     '<link rel="dns-prefetch" href="https://www.ifdian.net">',
     '<link rel="dns-prefetch" href="https://paypal.me">',
@@ -166,7 +164,28 @@ test("committed HTML files include third-party resource hints", async () => {
     }
   }
 
-  assert.deepEqual(missing, [], "HTML files missing third-party resource hints");
+  assert.deepEqual(missing, [], "HTML files missing low-cost third-party DNS hints");
+});
+
+test("committed HTML files scope heavier third-party preconnect hints", async () => {
+  const files = await htmlFiles();
+  const violations = [];
+
+  for (const file of files) {
+    const html = await readFile(join(ROOT, file), "utf8");
+    const hasGiscusPreconnect = html.includes('<link rel="preconnect" href="https://giscus.app">');
+    const loadsGiscus = html.includes('src="/js/giscus.js"');
+    const hasButtondownPreconnect = html.includes('<link rel="preconnect" href="https://buttondown.com">');
+
+    if (hasGiscusPreconnect !== loadsGiscus) {
+      violations.push(`${file}: giscus preconnect should match giscus script usage`);
+    }
+    if (hasButtondownPreconnect) {
+      violations.push(`${file}: buttondown preconnect should be inserted only after user intent`);
+    }
+  }
+
+  assert.deepEqual(violations, [], "HTML files with unscoped third-party preconnect hints");
 });
 
 test("favicon file exists", async () => {
@@ -267,6 +286,45 @@ function cssRefsFromHtml(html) {
   return [...html.matchAll(/href="([^"]+\.css)"/g)].map((match) => match[1]);
 }
 
+function routeAssetType(assetPath) {
+  if (/\.css$/i.test(assetPath)) return "css";
+  if (/\.js$/i.test(assetPath)) return "js";
+  if (/\.(?:png|jpe?g|webp|avif|gif|svg)$/i.test(assetPath)) return "image";
+  return "other";
+}
+
+function localRouteAssetRefs(html) {
+  const refs = [...html.matchAll(/(?:href|src)="([^"]+)"/g)]
+    .map((match) => localAssetPath(match[1]))
+    .filter((assetPath) => /\.(?:css|js|png|jpe?g|webp|avif|gif|svg)$/i.test(assetPath));
+  return [...new Set(refs)];
+}
+
+async function routeBudget(htmlFile) {
+  const html = await readFile(join(ROOT, htmlFile), "utf8");
+  const htmlBytes = Buffer.from(html);
+  const budget = {
+    html: { rawBytes: htmlBytes.length, gzipBytes: gzipSync(htmlBytes).length },
+    css: { rawBytes: 0, gzipBytes: 0 },
+    js: { rawBytes: 0, gzipBytes: 0 },
+    image: { rawBytes: 0, gzipBytes: 0 },
+    other: { rawBytes: 0, gzipBytes: 0 },
+    total: { rawBytes: htmlBytes.length, gzipBytes: gzipSync(htmlBytes).length },
+    assets: localRouteAssetRefs(html),
+  };
+
+  for (const assetPath of budget.assets) {
+    const asset = await readFile(join(ROOT, assetPath));
+    const type = routeAssetType(assetPath);
+    budget[type].rawBytes += asset.length;
+    budget[type].gzipBytes += gzipSync(asset).length;
+    budget.total.rawBytes += asset.length;
+    budget.total.gzipBytes += gzipSync(asset).length;
+  }
+
+  return budget;
+}
+
 test("route CSS budgets reflect page-level stylesheet split", async () => {
   const routes = {
     "/": { html: "index.html", rawKb: 132, gzipKb: 24, styles: [] },
@@ -292,6 +350,49 @@ test("route CSS budgets reflect page-level stylesheet split", async () => {
     const gzipKb = gzipBytes / 1024;
     assert.ok(rawKb <= budget.rawKb, `${route} CSS raw size is ${rawKb.toFixed(1)}KB, exceeds ${budget.rawKb}KB`);
     assert.ok(gzipKb <= budget.gzipKb, `${route} CSS gzip size is ${gzipKb.toFixed(1)}KB, exceeds ${budget.gzipKb}KB`);
+  }
+});
+
+test("route asset budgets cover real HTML CSS JS and image references", async () => {
+  const routes = {
+    "/": {
+      html: "index.html",
+      totalRawKb: 270,
+      totalGzipKb: 65,
+      jsRawKb: 112,
+      jsGzipKb: 34,
+      maxAssets: 11,
+    },
+    "/post/rule-engine-alerts/": {
+      html: "post/rule-engine-alerts/index.html",
+      totalRawKb: 315,
+      totalGzipKb: 82,
+      jsRawKb: 150,
+      jsGzipKb: 48,
+      maxAssets: 16,
+    },
+    "/tools/": {
+      html: "tools/index.html",
+      totalRawKb: 690,
+      totalGzipKb: 178,
+      jsRawKb: 430,
+      jsGzipKb: 132,
+      maxAssets: 19,
+    },
+  };
+
+  for (const [route, expected] of Object.entries(routes)) {
+    const budget = await routeBudget(expected.html);
+    const totalRawKb = budget.total.rawBytes / 1024;
+    const totalGzipKb = budget.total.gzipBytes / 1024;
+    const jsRawKb = budget.js.rawBytes / 1024;
+    const jsGzipKb = budget.js.gzipBytes / 1024;
+
+    assert.ok(budget.assets.length <= expected.maxAssets, `${route} references ${budget.assets.length} local assets, exceeds ${expected.maxAssets}`);
+    assert.ok(totalRawKb <= expected.totalRawKb, `${route} route raw size is ${totalRawKb.toFixed(1)}KB, exceeds ${expected.totalRawKb}KB`);
+    assert.ok(totalGzipKb <= expected.totalGzipKb, `${route} route gzip size is ${totalGzipKb.toFixed(1)}KB, exceeds ${expected.totalGzipKb}KB`);
+    assert.ok(jsRawKb <= expected.jsRawKb, `${route} JS raw size is ${jsRawKb.toFixed(1)}KB, exceeds ${expected.jsRawKb}KB`);
+    assert.ok(jsGzipKb <= expected.jsGzipKb, `${route} JS gzip size is ${jsGzipKb.toFixed(1)}KB, exceeds ${expected.jsGzipKb}KB`);
   }
 });
 

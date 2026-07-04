@@ -1,0 +1,146 @@
+{
+  "schemaVersion": 1,
+  "files": [
+    {
+      "path": "js/vendor/fuse.min.js",
+      "name": "Fuse.js",
+      "packageName": "fuse.js",
+      "browserVersion": "7.0.0",
+      "license": "Apache-2.0",
+      "source": "https://github.com/krisk/Fuse",
+      "bytes": 23858,
+      "sha256": "45e63f251ede6cc94ad590ab6f61db10ea80359ea0e08c0149ded6d596b54a00"
+    },
+    {
+      "path": "js/vendor/highlight.min.js",
+      "name": "Highlight.js",
+      "packageName": "highlight.js",
+      "browserVersion": "11.9.0",
+      "license": "BSD-3-Clause",
+      "source": "https://github.com/highlightjs/highlight.js",
+      "bytes": 121727,
+      "sha256": "837a6fa5b0c736b52bbde2b2b6190f305da3fc9ed41681db5321507057b5c846"
+    },
+    {
+      "path": "js/vendor/marked.min.js",
+      "name": "marked",
+      "packageName": "marked",
+      "browserVersion": "12.0.2",
+      "nodePackageVersion": "18.0.5",
+      "license": "MIT",
+      "source": "https://github.com/markedjs/marked",
+      "bytes": 35479,
+      "sha256": "15fabce5b65898b32b03f5ed25e9f891a729ad4c0d6d877110a7744aa847a894"
+    },
+    {
+      "path": "js/vendor/purify.min.js",
+      "name": "DOMPurify",
+      "packageName": "dompurify",
+      "browserVersion": "3.1.6",
+      "license": "Apache-2.0 OR MPL-2.0",
+      "source": "https://github.com/cure53/DOMPurify",
+      "bytes": 21496,
+      "sha256": "c0845096a7c4a6741f362ac506c94c1c7d27dc603bcc1bf64a587f76f2dbe3a1"
+    },
+    {
+      "path": "js/vendor/qrcode.min.js",
+      "name": "qrcode-generator",
+      "packageName": "qrcode-generator",
+      "browserVersion": null,
+      "notes": "The vendored file does not include a version banner; hash pinning is the current source of truth.",
+      "license": "MIT",
+      "source": "https://github.com/kazuhikoarase/qrcode-generator",
+      "bytes": 20433,
+      "sha256": "d8ce08e2791106683ec56b46a04d3634e7454980972abb77b1cc8c955bfcc7d4"
+    }
+  ],
+  "remoteResources": [
+    {
+      "id": "gesture-mediapipe-vision",
+      "url": "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.18/vision_bundle.mjs",
+      "type": "module-script",
+      "packageName": "@mediapipe/tasks-vision",
+      "version": "0.10.18",
+      "provider": "jsDelivr",
+      "trigger": "tools gesture start after explicit acknowledgement",
+      "userConsentRequired": true,
+      "pinning": "versioned-url",
+      "localFallbackPlanned": true
+    },
+    {
+      "id": "gesture-mediapipe-wasm",
+      "url": "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.18/wasm",
+      "type": "wasm-base",
+      "packageName": "@mediapipe/tasks-vision",
+      "version": "0.10.18",
+      "provider": "jsDelivr",
+      "trigger": "tools gesture start after explicit acknowledgement",
+      "userConsentRequired": true,
+      "pinning": "versioned-url",
+      "localFallbackPlanned": true
+    },
+    {
+      "id": "gesture-hand-landmarker-model",
+      "url": "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/latest/hand_landmarker.task",
+      "type": "model",
+      "packageName": "mediapipe-models/hand_landmarker",
+      "version": "float16/latest",
+      "provider": "Google Cloud Storage",
+      "trigger": "tools gesture start after explicit acknowledgement",
+      "userConsentRequired": true,
+      "pinning": "upstream-latest",
+      "localFallbackPlanned": true,
+      "notes": "Uses upstream latest model path; self-hosted hash-pinned model remains the target state."
+    },
+    {
+      "id": "gesture-object-detector-model",
+      "url": "https://storage.googleapis.com/mediapipe-models/object_detector/efficientdet_lite0/float16/latest/efficientdet_lite0.tflite",
+      "type": "model",
+      "packageName": "mediapipe-models/efficientdet_lite0",
+      "version": "float16/latest",
+      "provider": "Google Cloud Storage",
+      "trigger": "tools gesture start after explicit acknowledgement",
+      "userConsentRequired": true,
+      "pinning": "upstream-latest",
+      "localFallbackPlanned": true,
+      "notes": "Uses upstream latest model path; self-hosted hash-pinned model remains the target state."
+    },
+    {
+      "id": "gesture-face-api-runtime",
+      "url": "https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js",
+      "type": "script",
+      "packageName": "face-api.js",
+      "version": "0.22.2",
+      "provider": "jsDelivr",
+      "trigger": "tools gesture face mode after explicit acknowledgement",
+      "userConsentRequired": true,
+      "pinning": "versioned-url",
+      "localFallbackPlanned": true
+    },
+    {
+      "id": "gesture-face-api-models",
+      "url": "https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/",
+      "type": "model-base",
+      "packageName": "@vladmandic/face-api",
+      "version": "model",
+      "provider": "jsDelivr",
+      "trigger": "tools gesture face mode after explicit acknowledgement",
+      "userConsentRequired": true,
+      "pinning": "package-model-path",
+      "localFallbackPlanned": true,
+      "notes": "Base path loads multiple face-api model assets; self-hosted hash-pinned model files remain the target state."
+    },
+    {
+      "id": "gesture-three-runtime",
+      "url": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+      "type": "module-script",
+      "packageName": "three",
+      "version": "0.170.0",
+      "provider": "jsDelivr",
+      "trigger": "tools gesture 3D/object overlay after explicit acknowledgement",
+      "userConsentRequired": true,
+      "pinning": "versioned-url",
+      "localFallbackPlanned": true
+    }
+  ]
+}

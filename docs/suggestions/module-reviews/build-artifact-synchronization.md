@@ -25,27 +25,27 @@
 
 ## 建议清单
 
-### 📌 MR-BUILD-SYNC-01：增加只读构建产物漂移检查，比较临时构建输出与已提交产物
+### 📌 MR-BUILD-SYNC-01 [已修复]：增加只读构建产物漂移检查，比较临时构建输出与已提交产物
 
 📍 位置（文件路径 + 行号范围）
 
-- `scripts/build.mjs:1-8`
-- `scripts/build.mjs:568-610`
-- `package.json:10-28`
-- `tests/build.test.mjs:18-36`
-- `tests/workflows.test.mjs:31-43`
+- `scripts/check-generated-drift.mjs`
+- `scripts/build.mjs`
+- `package.json`
+- `.github/workflows/ci.yml`
+- `tests/workflows.test.mjs`
 
 📝 当前状况描述
 
-`scripts/build.mjs` 默认输出到项目根，会覆盖生成产物；`--out` 模式可输出到临时目录。构建测试会在临时目录验证内容存在和基本结构，CI 会运行 `npm run build` 后再做 HTTP smoke。但目前缺少一个只读 diff 门禁：先 `node scripts/build.mjs --out temp/generated-check`，再把临时输出与仓库根目录中已提交的生成产物逐文件比较。如果模板改了但生成 HTML 没更新，或者生成 HTML 被手工改了，现有测试不一定直接暴露。
+已新增 `scripts/check-generated-drift.mjs` 和 `npm run check:generated`。脚本只写入 `temp/generated-drift-check`，运行 `scripts/build.mjs --out` 生成临时站点子集，再递归比较临时输出和仓库根目录的对应文件；发现缺失或字节不一致时会提示运行 `npm run build` 并提交更新产物。`check:generated` 还会运行 `scripts/check-generated-artifact-manifest.mjs`，校验生成/手写产物所有权清单；`check:pwa-precache` 也会复用该清单，要求离线预缓存 URL 有明确归属。`check:readonly` 已纳入 `check:generated`，CI 也在 `npm run build` 覆盖根目录产物前运行它，避免后续 build 掩盖漂移。
 
 ⚠️ 影响程度（高/中/低）
 
-中。
+已修复。
 
 💡 建议方案（含伪代码或示例片段）
 
-新增 `scripts/check-generated-drift.mjs`，只写入临时目录，比较后删除临时目录。CI 和本地只读检查运行它，而不是直接依赖根目录 build 的副作用。
+已落地：`scripts/check-generated-drift.mjs` 只写入临时目录，比较后删除临时目录。CI 和本地只读检查运行它，而不是直接依赖根目录 build 的副作用。
 
 ```js
 const GENERATED_OUTPUTS = [
@@ -80,6 +80,13 @@ for (const file of GENERATED_OUTPUTS) {
 - 防止评审看到的 HTML 与模板源码不一致。
 - 让 `check:readonly` 真正覆盖“构建可复现”和“产物已同步”两件事。
 
+🧪 验证
+
+- `npm run check:generated`：通过，比较 83 个文件，并校验生成产物所有权 manifest。
+- `npm run check:pwa-precache`：通过，19 个预缓存 URL 均可归属到 generated/manual/copied asset 清单，生成物所有权缺口 0。
+- `npm run check:readonly`：通过，包含 lint、全量测试、文章校验和生成产物漂移检查。
+- `node --test tests/workflows.test.mjs tests/build.test.mjs`：13/13 通过。
+
 🔗 相关建议引用
 
 - `docs/suggestions/module-reviews/ci-release-automation-review.md`
@@ -97,7 +104,7 @@ for (const file of GENERATED_OUTPUTS) {
 
 📝 当前状况描述
 
-`lint` 当前会执行 `eslint js/*.js --fix`，`validate` 会运行 `npm run lint` 和 `npm run build`，`precommit` 又指向 `npm run validate`。这些命令适合“修复并生成”，但不适合作为只读审计或 CI 前的安全检查。项目已经有 `check:readonly`，但它不包含构建漂移检查；生产验证脚本虽然使用临时目录构建，但只验证输出存在，不比较根目录产物。
+`lint` 当前会执行 `eslint js/*.js --fix`，`validate` 会运行 `npm run lint` 和 `npm run build`，`precommit` 又指向 `npm run validate`。这些命令适合“修复并生成”，但不适合作为只读审计或 CI 前的安全检查。项目已有 `check:readonly`，且现在已包含生成产物漂移检查；剩余可优化点是进一步把 `format` / `check` 命名边界做得更显式。
 
 ⚠️ 影响程度（高/中/低）
 
@@ -190,26 +197,26 @@ for (const html of committedHtmlFiles) {
 - `docs/suggestions/full-browser-audit-2026-07-03.md`
 - `docs/suggestions/module-reviews/privacy-and-trust-center.md`
 
-### 📌 MR-BUILD-SYNC-04：生成产物缺少所有权清单，评审时不容易判断哪些文件应手改
+### 📌 MR-BUILD-SYNC-04 [已修复]：生成产物缺少所有权清单，评审时不容易判断哪些文件应手改
 
 📍 位置（文件路径 + 行号范围）
 
-- `scripts/build.mjs:568-610`
-- `tests/integration.test.mjs:18-76`
-- `tests/build.test.mjs:18-36`
-- `git ls-files "*.html"` 当前列出 19 个已提交 HTML 文件
+- `data/generated-artifact-manifest.json`
+- `scripts/check-generated-artifact-manifest.mjs`
+- `tests/generated-artifact-manifest.test.mjs`
+- `tests/workflows.test.mjs`
 
 📝 当前状况描述
 
-项目把生成产物提交到仓库，这是 GitHub Pages 静态部署中常见且可接受的方式。但仓库没有一个集中说明“哪些文件由 build 生成、哪些文件允许手写维护、哪些源文件会影响哪些产物”的 manifest。对于评审者或后续自动化来说，`post/index.html`、`tools/index.html`、`sponsor/index.html` 与 `contact/index.html` 看起来都只是普通 HTML，容易出现直接手改生成产物、忘记回写模板的情况。
+已新增 `data/generated-artifact-manifest.json`，集中说明“哪些文件由 build 生成、哪些文件允许手写维护、哪些源文件会影响哪些产物”。manifest 覆盖动态文章页、静态生成页、RSS/sitemap/search/service-worker 产物、手写 HTML 页（含 PWA `offline.html`）、手写静态文件（含 `manifest.webmanifest`）和复制的静态资源目录。`scripts/check-generated-artifact-manifest.mjs` 会从 `scripts/build.mjs` 解析静态 `writeFileEnsured()` 输出，从 `src/posts/*.md` 派生动态文章页，并扫描所有已提交 HTML，要求每个 HTML 都归类为 generated 或 manual；它还导出路径归属判断，供 PWA 预缓存检查复用。
 
 ⚠️ 影响程度（高/中/低）
 
-低。
+已修复。
 
 💡 建议方案（含伪代码或示例片段）
 
-新增生成产物清单，供文档、漂移检查和 PR 模板引用。
+已落地生成产物清单，供文档、漂移检查和 PR 模板引用。
 
 ```json
 {
@@ -231,7 +238,13 @@ for (const html of committedHtmlFiles) {
 }
 ```
 
-📊 预期收益
+🧪 验证
+
+- `node scripts/check-generated-artifact-manifest.mjs`：通过，覆盖 build 输出、手写 HTML 页、手写静态文件和复制静态资源目录。
+- `npm run check:generated`：通过，先比较 83 个临时构建输出文件，再校验 manifest。
+- `node --test tests/generated-artifact-manifest.test.mjs tests/workflows.test.mjs`：当前聚焦测试通过，并覆盖 PWA 预缓存资源所有权归属。
+
+📊 实际收益
 
 - 让代码评审能快速识别“应该改源码还是产物”。
 - 漂移检查可以复用同一份清单，不必在脚本里维护重复数组。
@@ -343,8 +356,8 @@ for (const file of SIZE_TRACKED_OUTPUTS) {
 
 ## 下一步优先级
 
-1. 中优先级：新增只读生成产物漂移检查，并接入 `check:readonly` / CI。
+1. 中优先级：进一步明确 `format` / `check` 命名边界，减少会写文件命令和只读门禁混用。
 2. 中优先级：拆分会写文件的 `validate` 和纯只读的 `check` 命令命名。
 3. 中优先级：逐步把手写静态页纳入 `renderPage()` 统一模板，或补公共片段一致性测试。
-4. 低优先级：增加生成产物所有权 manifest，明确 generated/manual 文件边界。
+4. 低优先级：把生成产物所有权 manifest 摘要接入 PR 模板或发布说明。
 5. 低优先级：输出临时构建产物体积摘要。

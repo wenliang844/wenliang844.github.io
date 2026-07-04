@@ -4,21 +4,23 @@
 
 ## 本轮验证
 
-- `node --test tests/format.test.mjs tests/build-extended.test.mjs tests/coder.test.mjs tests/editor.test.mjs tests/utils.test.mjs tests/utils-deep.test.mjs`：128/128 通过。
-- 只读扫描确认：构建端阅读时间已从 `src/lib/reading.mjs` 复用，浏览器端 `CWLUtils.readingMinutes` 仍保留一份手写实现；日期/RSS/sitemap 工具依赖上游 `normalizeDate()` 保证合法输入。
+- `node --test tests/format.test.mjs tests/utils-deep.test.mjs tests/build-extended.test.mjs`：78/78 通过。
+- 本轮已落地第一阶段：`format.mjs` 对 `YYYY-MM-DD` 做严格格式与日历合法性校验；`tests/utils-deep.test.mjs` 用同一组 fixture 对比 Node 共享 helper 与 JSDOM `CWLUtils` 的 `readingMinutes()` / `escapeHtml()` 输出。
+- `node --test tests/format.test.mjs tests/build-extended.test.mjs tests/coder.test.mjs tests/editor.test.mjs tests/utils.test.mjs tests/utils-deep.test.mjs`：131/131 通过。
+- 只读扫描确认：构建端阅读时间已从 `src/lib/reading.mjs` 复用，浏览器端 `CWLUtils.readingMinutes` 仍保留一份手写实现；日期/RSS/sitemap 工具现在已具备本地非法日期断言，不再只依赖上游 `normalizeDate()`。
 - 当前工作树在本轮文档写入前已有外部脏文件：`docs/suggestions/module-reviews/css-resource-ownership-and-page-styles.md`、`tests/performance.test.mjs`。本报告不依赖也不修改这些文件。
 
 ## 结论摘要
 
 共享格式化和阅读指标模块整体质量稳定，测试覆盖了主要正常路径和 XSS 转义基础行为。剩余风险不是“立即会坏”的单点问题，而是契约隐性较强：日期工具默认收到合法 `YYYY-MM-DD`，阅读时间在 Node 与浏览器各维护一份同算法，RSS/sitemap 使用固定发布时间，HTML/XML/属性转义分布在多个运行时。随着站点继续增加新页面、英文内容和发布自动化，建议把这些隐性约定升级为可验证的契约。
 
-## 📌 FMT-01：日期格式化 helper 缺少输入边界保护，未来直接复用时可能输出无效日期
+## 📌 FMT-01 [已修复第一阶段]：日期格式化 helper 缺少输入边界保护，未来直接复用时可能输出无效日期
 
 - 📌 问题/建议标题：为 `format.mjs` 增加显式日期契约或复用 `normalizeDate()`
-- 📍 位置：`src/lib/format.mjs:14-45`、`scripts/build.mjs:39-64`、`tests/format.test.mjs:13-59`
-- 📝 当前状况描述：`longDate()`、`rfc822()` 和 `sitemapDate()` 都假设输入已经是合法 `YYYY-MM-DD`。当前主构建路径先通过 `normalizeDate()` 和 `normalizeModifiedDate()`，因此文章日期是安全的；但 `format.mjs` 自身没有校验，测试也只覆盖合法日期。未来如果静态页 manifest、手写模板或新脚本直接调用 `sitemapDate("2026-13-99")`，可能生成 `2026-13-99T09:30:00+08:00`、`undefined 99, 2026` 或 RSS weekday 与真实日期不一致的产物。
+- 📍 位置：`src/lib/format.mjs:14-85`、`scripts/build.mjs:39-64`、`tests/format.test.mjs:13-72`
+- 📝 当前状况描述：第一阶段已修复。`format.mjs` 的日期解析会先要求 `YYYY-MM-DD`，再用 UTC round-trip 校验真实日历日期；`isoDate()`、`longDate()`、`rfc822()`、`sitemapDate()` 都复用该校验。`tests/format.test.mjs` 已覆盖空字符串、非补零格式、非法月份、2 月 30 日和普通非日期字符串。
 - ⚠️ 影响程度：中
-- 💡 建议方案（含伪代码或示例片段）：把日期归一化能力下沉到共享模块，或至少暴露一个轻量断言函数供格式化 helper 复用。
+- 💡 建议方案（含伪代码或示例片段）：已落地轻量断言函数供格式化 helper 复用，保留合法输入的输出不变。
 
 ```js
 function assertIsoDate(value, source = "date") {
@@ -39,7 +41,7 @@ export function sitemapDate(dateStr) {
 }
 ```
 
-- 📊 预期收益：减少共享工具被新调用方误用的概率，让非法日期在构建期失败，而不是进入 RSS、sitemap、JSON-LD 或页面元信息。
+- 📊 实际收益：减少共享工具被新调用方误用的概率，让非法日期在构建期失败，而不是进入 RSS、sitemap、JSON-LD 或页面元信息。
 - 🔗 相关建议引用：`docs/suggestions/module-reviews/content-freshness-and-trust-signals.md`、`docs/suggestions/module-reviews/seo-feed-and-structured-data.md`
 
 ## 📌 FMT-02：RSS、sitemap 和 lastBuildDate 使用固定 09:30 +0800，发布时刻语义不够透明
@@ -65,13 +67,13 @@ function sitemapDate(dateStr, options = SITE) {
 - 📊 预期收益：保留稳定输出，同时让“为什么是 09:30 +0800”成为可维护配置；后续支持 `publishedAt`、`modifiedAt` 或发布审计报告时不用重写所有格式化调用。
 - 🔗 相关建议引用：`docs/suggestions/module-reviews/content-freshness-and-trust-signals.md`、`docs/suggestions/module-reviews/suggestion-evidence-drift-audit.md`
 
-## 📌 FMT-03：阅读时间算法在构建端和浏览器端重复维护，缺少跨运行时同源契约
+## 📌 FMT-03 [已修复第一阶段]：阅读时间算法在构建端和浏览器端重复维护，缺少跨运行时同源契约
 
 - 📌 问题/建议标题：为 Node 共享实现和 `CWLUtils.readingMinutes` 增加同算法快照测试
 - 📍 位置：`src/lib/reading.mjs:1-12`、`js/utils.js:198-214`、`tests/build-extended.test.mjs:153-185`、`tests/utils.test.mjs:109-119`
-- 📝 当前状况描述：构建端 `readMinutes` 使用 `src/lib/reading.mjs`，并且 `scripts/build.mjs` 已 re-export 共享 helper；浏览器端 `CWLUtils.readingMinutes` 仍手写同一套算法。现有测试分别验证两边能工作，但没有用同一组 fixture 断言 Node 与浏览器输出完全一致。未来如果一边调整中文速度、英文词速、标点处理或 emoji/代码块计数，文章 SSR 的阅读时间和语言切换后的动态阅读时间可能出现细微不一致。
+- 📝 当前状况描述：第一阶段已修复。`tests/utils-deep.test.mjs` 加载真实 `js/utils.js` 到 JSDOM，用同一组空文本、纯标点、中文、英文、中英混合和代码样式文本 fixture，对比浏览器端 `CWLUtils.readingMinutes()` 与 `src/lib/reading.mjs` 输出一致。该文件也新增 `CWLUtils.escapeHtml()` 与服务端 `escapeHtml()` 的同 fixture 对照，覆盖纯文本、空值、数字、布尔值、中文混合和 XSS 片段。
 - ⚠️ 影响程度：中
-- 💡 建议方案（含伪代码或示例片段）：新增共享 fixture，Node 直接调用 `readingMinutes()`，JSDOM 加载 `js/utils.js` 后调用 `window.CWLUtils.readingMinutes()`，逐项比较。
+- 💡 建议方案（含伪代码或示例片段）：已新增共享 fixture，Node 直接调用 `readingMinutes()`，JSDOM 加载 `js/utils.js` 后调用 `window.CWLUtils.readingMinutes()`，逐项比较。
 
 ```js
 const cases = [
@@ -87,7 +89,7 @@ for (const [text, expected] of cases) {
 }
 ```
 
-- 📊 预期收益：保证 SSR、文章列表、编辑器统计和语言切换后的动态文案使用同一阅读时间语义，避免用户看到同一篇文章在不同入口显示不同分钟数。
+- 📊 实际收益：保证 SSR、文章列表、编辑器统计和语言切换后的动态文案使用同一阅读时间语义，避免用户看到同一篇文章在不同入口显示不同分钟数。
 - 🔗 相关建议引用：`docs/suggestions/module-reviews/core-reading-interactions.md`、`docs/suggestions/module-reviews/test-coverage-risk-map.md`
 
 ## 📌 FMT-04：阅读时间输入口径在 SSR 与客户端更新之间不完全一致
@@ -152,11 +154,11 @@ function extractReadableText(html) {
 
 ## 建议优先级
 
-1. 中优先级：先补 `format.mjs` 非法日期测试和输入断言，防止共享 helper 被新路径误用。
-2. 中优先级：增加 Node/browser 阅读时间同源 fixture，锁住 SSR 与客户端动态更新的一致性。
-3. 中优先级：建立转义上下文矩阵，把模板输出安全从“经验判断”升级为可检查规则。
-4. 低优先级：把固定发布时间变为显式配置，为后续定时发布或重大更新 feed 留出口。
-5. 低优先级：统一可读文本抽取规则，再考虑 DOM/token 级文本抽取器。
+1. 中优先级：建立转义上下文矩阵，把模板输出安全从“经验判断”升级为可检查规则。
+2. 低优先级：把固定发布时间变为显式配置，为后续定时发布或重大更新 feed 留出口。
+3. 低优先级：统一可读文本抽取规则，再考虑 DOM/token 级文本抽取器。
+4. 已完成：补 `format.mjs` 非法日期测试和输入断言，防止共享 helper 被新路径误用。
+5. 已完成：增加 Node/browser 阅读时间同源 fixture，锁住 SSR 与客户端动态更新的一致性。
 
 ## 本轮健康度评分
 

@@ -22,11 +22,11 @@
 
 ## 建议清单
 
-### 1. README 索引与实际文档规模开始出现人工维护压力
+### 1. [已修复第五阶段] README 索引与实际文档规模开始出现人工维护压力
 
 - 📌 问题/建议标题：为建议库建立自动索引数据源
-- 📍 位置：`docs/suggestions/README.md:96-124`、`docs/suggestions/work-report.md:222-237`、`docs/suggestions/module-reviews/:1-32`
-- 📝 当前状况描述：当前建议库已有 50 个 Markdown、32 个模块评审。README 需要手工维护文档清单、发现数量、优先级、健康评分和待办列表；工作报告也在追加新增文档。随着每轮新增模块评审，README 很容易漏掉新文档或数量不一致。例如近期新增的覆盖率、浏览器 smoke、内容新鲜度、竞争分析等都需要人工同步到多个位置。这个维护成本会随着文档数量线性增长。
+- 📍 位置：`scripts/check-suggestions-index.mjs`、`docs/suggestions/README.md`、`package.json`、`.github/workflows/ci.yml`
+- 📝 当前状况描述：第五阶段已修复 README 模块专题覆盖、Markdown 内链漂移、治理统计漂移和新增建议字段债务增长问题。`npm run generate:suggestions-index` 会从 `docs/suggestions/module-reviews/*.md` 的首个标题生成 README 模块索引，并生成 `docs/suggestions/evidence/current-suggestions-governance.json`；报告包含 82 条待补建议和各缺失字段数量的预算上限。`npm run check:suggestions-index` 会校验生成片段、文件链接、heading anchors、治理统计和预算均未漂移。当前统计覆盖 70 个 Markdown、349 条建议、267 条字段完整、82 条待补，状态 fixed 119 / partial 56 / open 174。该检查已接入 `check:readonly`、CI 和 `quality:baseline` 命令表。剩余工作是分批补齐历史建议字段、逐步下调预算，并把状态统计摘要展示得更易读。
 - ⚠️ 影响程度：中
 - 💡 建议方案（含伪代码或示例片段）：
 
@@ -56,14 +56,14 @@ const rows = docs
 
 短期不必立刻重写所有旧文档，可先从新增文档开始带元数据。
 
-- 📊 预期收益：README 从“手写快照”升级为“生成索引”，减少漏项、重复统计和人工同步成本。
+- 📊 实际收益：README 漏掉新增模块专题、生成片段手工漂移、相对文件断链、heading anchor 漂移、治理统计漂移或新增不完整建议都会被 CI 阻断，建议库索引从手写清单推进到可生成、可校验、可量化契约。
 - 🔗 相关建议引用：`docs/suggestions/hourly-report-2026-07-03-04.md`、`docs/suggestions/competitive-analysis.md`、`docs/suggestions/module-reviews/content-freshness-and-trust-signals.md`。
 
 ### 2. 建议字段格式在历史文档中不完全一致
 
 - 📌 问题/建议标题：建立建议字段完整性检查
 - 📍 位置：`docs/suggestions/competitive-analysis.md:19-212`、`docs/suggestions/bugs-and-risks.md:9-233`、`docs/suggestions/module-reviews/seo-analysis.md:1-140`
-- 📝 当前状况描述：用户要求每条建议包含 📌、📍、📝、⚠️、💡、📊、🔗。新近模块评审基本按这个结构编写，但历史文档存在不同格式：有些“已修复”条目缺少影响程度或方案，有些老模块评审统计中 📌 数量多于 📍/⚠️/💡/🔗 数量。盘点显示这不是内容缺失一定严重，而是格式演进后没有统一校验。后续如果要自动生成优先级列表或健康评分，字段不一致会让解析不稳定。
+- 📝 当前状况描述：用户要求每条建议包含 📌、📍、📝、⚠️、💡、📊、🔗。第一阶段统计已落地：当前 349 条建议中 267 条字段完整、82 条待补；缺失字段主要集中在 description 51、impact 56、solution 55、links 30。新近模块评审基本按这个结构编写，但历史文档存在不同格式：有些“已修复”条目缺少影响程度或方案，有些老模块评审统计中 📌 数量多于 📍/⚠️/💡/🔗 数量。后续如果要自动生成优先级列表或健康评分，字段不一致会让解析不稳定。
 - ⚠️ 影响程度：中
 - 💡 建议方案（含伪代码或示例片段）：
 
@@ -83,11 +83,11 @@ for (const item of parseSuggestionItems(markdown)) {
 - 📊 预期收益：保证新建议可被机器读取，后续生成待办、优先级和健康评分时不需要人工猜字段。
 - 🔗 相关建议引用：`docs/suggestions/module-reviews/test-coverage-risk-map.md`、`docs/suggestions/module-reviews/browser-visual-smoke-testing.md`、`docs/suggestions/devex-improvements.md`。
 
-### 3. 建议库已经出现相对链接断链
+### 3. [已修复第二阶段] 建议库已经出现相对链接断链
 
 - 📌 问题/建议标题：为 `/docs/suggestions` 增加 Markdown 内链检查
 - 📍 位置：`docs/suggestions/module-reviews/resource-analysis.md:37-37`、`docs/suggestions/module-reviews/resource-analysis.md:120-120`
-- 📝 当前状况描述：只读链接检查发现 1 个文件级断链：`docs/suggestions/module-reviews/resource-analysis.md:37` 中的 `[P-04](performance-bottlenecks.md#p-04)` 位于 `module-reviews/` 目录内，会被解析到不存在的 `docs/suggestions/module-reviews/performance-bottlenecks.md`；同文件后文 `../performance-bottlenecks.md#p-04` 才是正确相对路径。这类断链在 Markdown 渲染器中通常不会报错，但会降低建议之间的可追踪性。
+- 📝 当前状况描述：第二阶段已修复。只读链接检查先发现 1 个文件级断链：`docs/suggestions/module-reviews/resource-analysis.md:37` 中的 P-04 链接位于 `module-reviews/` 目录内，却曾指向同目录下不存在的 `performance-bottlenecks.md`；当前已修正为 `../performance-bottlenecks.md#p-04`。本轮继续把检查扩展到 heading anchor，修复 P-18、DE-14、UX-12、DE-12 等历史锚点漂移，并新增 `tests/suggestions-index.test.mjs` 锁定短 ID 和去状态标题锚点约定。
 - ⚠️ 影响程度：低
 - 💡 建议方案（含伪代码或示例片段）：
 
@@ -101,7 +101,7 @@ for (const link of markdownLinks(file)) {
 
 可以先只检查文件是否存在，后续再扩展到 heading anchor 是否存在。
 
-- 📊 预期收益：防止模块评审之间的证据链断裂，提升最终总览和阅读体验。
+- 📊 实际收益：防止模块评审之间的证据链断裂，标题或状态文案变化后能及时发现断锚，提升最终总览和阅读体验。
 - 🔗 相关建议引用：`docs/suggestions/module-reviews/resource-analysis.md`、`docs/suggestions/performance-bottlenecks.md#p-04`。
 
 ### 4. 健康评分在不同文件中存在多处手写口径

@@ -29,6 +29,7 @@ const BLOG_HTML = `<!doctype html><html lang="zh-CN"><body class="colorscheme-da
       <span data-tag="Java">Java</span>
       <span data-tag="Spring">Spring</span>
     </div>
+    <div class="article-content"><h2>流程运行时</h2><p>BPMN Runtime API and workflow tasks.</p></div>
   </div>
   <div class="blog-article" id="post-b" data-post-slug="finance-saas-backend">
     <div class="article-summary">金融 SaaS 后端实践</div>
@@ -36,6 +37,7 @@ const BLOG_HTML = `<!doctype html><html lang="zh-CN"><body class="colorscheme-da
       <span data-tag="Java">Java</span>
       <span data-tag="ES">ElasticSearch</span>
     </div>
+    <div class="article-content"><h2>搜索模块</h2><p>业务模块自动装配 ESClient、Searcher 和 Indexer。</p></div>
   </div>
   <div class="blog-article" id="post-c" data-post-slug="lowcode-schema-codegen">
     <div class="article-summary">低代码 Schema 与代码生成</div>
@@ -43,6 +45,7 @@ const BLOG_HTML = `<!doctype html><html lang="zh-CN"><body class="colorscheme-da
       <span data-tag="TypeScript">TypeScript</span>
       <span data-tag="React">React</span>
     </div>
+    <div class="article-content"><h2>浏览器生成</h2><p>使用 Web Worker 执行前端代码生成。</p></div>
   </div>
 </body></html>`;
 
@@ -69,14 +72,17 @@ const BLOG_GROUPED_HTML = `<!doctype html><html lang="zh-CN"><body class="colors
   <div class="blog-article active" id="post-a" data-post-slug="activiti-workflow-engine">
     <div class="article-summary">Activiti 工作流引擎项目复盘</div>
     <div class="post-tags"><span data-tag="Java">Java</span><span data-tag="Spring">Spring</span></div>
+    <div class="article-content"><h2>流程运行时</h2><p>BPMN Runtime API and workflow tasks.</p></div>
   </div>
   <div class="blog-article" id="post-b" data-post-slug="finance-saas-backend">
     <div class="article-summary">金融 SaaS 后端实践</div>
     <div class="post-tags"><span data-tag="Java">Java</span><span data-tag="ES">ElasticSearch</span></div>
+    <div class="article-content"><h2>搜索模块</h2><p>业务模块自动装配 ESClient、Searcher 和 Indexer。</p></div>
   </div>
   <div class="blog-article" id="post-c" data-post-slug="lowcode-schema-codegen">
     <div class="article-summary">低代码 Schema 与代码生成</div>
     <div class="post-tags"><span data-tag="TypeScript">TypeScript</span><span data-tag="React">React</span></div>
+    <div class="article-content"><h2>浏览器生成</h2><p>使用 Web Worker 执行前端代码生成。</p></div>
   </div>
 </body></html>`;
 
@@ -180,6 +186,39 @@ test("blog.js updates year group counts and hides empty groups after filtering",
   assert.equal(group2023.querySelector(".tree-count").textContent, "1");
   assert.equal(group2023.hidden, false, "matching year group should remain visible");
   assert.equal(document.querySelector(".tree-empty").hidden, true);
+  dom.window.close();
+});
+
+test("blog.js search input matches article body and section text", async () => {
+  const dom = new JSDOM(BLOG_GROUPED_HTML, {
+    runScripts: "outside-only",
+    url: "https://wenliang844.github.io/post/",
+  });
+  await loadBlog(dom);
+  const { document } = dom.window;
+
+  const searchInput = document.getElementById("post-search-input");
+  searchInput.value = "ESClient";
+  searchInput.dispatchEvent(new dom.window.Event("input"));
+
+  await new Promise((r) => dom.window.setTimeout(r, 300));
+
+  const postA = document.querySelector('[data-post-target="post-a"]').closest("li");
+  const postB = document.querySelector('[data-post-target="post-b"]').closest("li");
+  const postC = document.querySelector('[data-post-target="post-c"]').closest("li");
+  assert.equal(postA.hidden, true, "non-matching article in same year should be hidden");
+  assert.equal(postB.hidden, false, "article body match should remain visible");
+  assert.equal(postC.hidden, true, "non-matching year article should be hidden");
+  assert.equal(document.querySelector('[data-year="2024"] .tree-count').textContent, "1");
+  assert.equal(document.querySelector('[data-year="2023"]').hidden, true);
+  assert.equal(document.querySelector(".tree-empty").hidden, true);
+
+  searchInput.value = "Web Worker";
+  searchInput.dispatchEvent(new dom.window.Event("input"));
+  await new Promise((r) => dom.window.setTimeout(r, 300));
+
+  assert.equal(document.querySelector('[data-post-target="post-c"]').closest("li").hidden, false, "section body phrase should be searchable");
+  assert.equal(document.querySelector('[data-year="2023"] .tree-count').textContent, "1");
   dom.window.close();
 });
 

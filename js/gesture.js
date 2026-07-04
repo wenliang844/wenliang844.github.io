@@ -516,6 +516,7 @@
       if (mode === "3d") {
         if (!(await loadThree())) {return;}
       }
+      setStatus("loading", "初始化摄像头…");
       try {
         cameraStream = await navigator.mediaDevices.getUserMedia({
           video: { facingMode: "user", width: { ideal: 640 }, height: { ideal: 480 } },
@@ -525,6 +526,7 @@
         return;
       }
       $video.srcObject = cameraStream;
+      setStatus("loading", "启动视频流…");
       await $video.play();
       resizeCanvas();
       $overlay.classList.add("is-hidden");
@@ -2484,7 +2486,8 @@
   window.addEventListener("beforeunload", stopCamera);
   document.addEventListener("visibilitychange", function () {
     if (document.hidden && running) {
-      /* pause detection but keep stream alive */
+      stopCamera();
+      setStatus("ready", "页面已隐藏，摄像头已关闭");
     }
   });
 

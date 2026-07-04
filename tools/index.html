@@ -8,12 +8,11 @@
   <link rel="icon" href="/images/favicon.png" type="image/png">
   <link rel="manifest" href="/manifest.webmanifest">
   <meta name="theme-color" content="#0f172a">
-  <link rel="preconnect" href="https://giscus.app">
   <link rel="dns-prefetch" href="https://giscus.app">
-  <link rel="preconnect" href="https://buttondown.com">
   <link rel="dns-prefetch" href="https://buttondown.com">
   <link rel="dns-prefetch" href="https://www.ifdian.net">
   <link rel="dns-prefetch" href="https://paypal.me">
+  <link rel="alternate" type="application/rss+xml" title="CWLBlog RSS" href="/index.xml">
   <link rel="stylesheet" href="/css/fontawesome-all.min.css">
   <link rel="stylesheet" href="/css/coder.css">
   <link rel="stylesheet" href="/css/tools.css">
@@ -24,6 +23,7 @@
   <script src="/js/search-loader.js" defer></script>
   <script src="/js/subscribe.js" defer></script>
   <script src="/js/assistant-loader.js" defer></script>
+  <script src="/js/pwa-register.js" defer></script>
   <script src="/js/vendor/marked.min.js" defer></script>
   <script src="/js/vendor/purify.min.js" defer></script>
   <script src="/js/vendor/qrcode.min.js" defer></script>
@@ -1250,6 +1250,39 @@ q=toolbox"></textarea>
               <span><i class="fas fa-shield-alt" aria-hidden="true"></i> <span data-i18n="tools.gesture.consent" data-i18n-en="I understand the visual runtime and models are downloaded from third-party CDNs.">我了解视觉运行时和模型会从第三方 CDN 下载</span></span>
             </label>
             <p data-i18n="tools.gesture.supplyChain" data-i18n-en="The camera stream stays in this browser for recognition. Starting the tool may download MediaPipe, face-api, Three.js and model files from jsDelivr and Google Storage.">摄像头画面只在本机浏览器识别；启动时可能从 jsDelivr 和 Google Storage 下载 MediaPipe、face-api、Three.js 与模型文件。</p>
+            <div class="gesture-resource-status" aria-label="视觉资源治理状态" data-i18n-aria="tools.gesture.resourceStatus" data-i18n-en-aria="Visual resource governance status">
+              <p data-i18n="tools.gesture.resourceSummary" data-i18n-en="Resource status: versioned runtime URLs are locked; upstream latest model paths are still planned for self-hosting and hash pinning.">资源状态：运行时 URL 已按版本锁定；latest 模型路径仍计划自托管并记录哈希。</p>
+              <ul class="gesture-resource-list">
+              <li class="gesture-resource-item" data-resource-status="locked">
+                <span data-i18n="tools.gesture.resource.locked.mediapipe-vision-runtime" data-i18n-en="MediaPipe vision runtime">MediaPipe 视觉运行时</span>
+                <strong data-i18n="tools.gesture.resource.status.locked" data-i18n-en="Version locked">版本锁定</strong>
+              </li>
+              <li class="gesture-resource-item" data-resource-status="locked">
+                <span data-i18n="tools.gesture.resource.locked.mediapipe-wasm-base" data-i18n-en="MediaPipe WASM base">MediaPipe WASM 基础包</span>
+                <strong data-i18n="tools.gesture.resource.status.locked" data-i18n-en="Version locked">版本锁定</strong>
+              </li>
+              <li class="gesture-resource-item" data-resource-status="watch">
+                <span data-i18n="tools.gesture.resource.watch.hand-landmark-model" data-i18n-en="Hand landmark model">手部识别模型</span>
+                <strong data-i18n="tools.gesture.resource.status.watch" data-i18n-en="Upstream latest">上游 latest</strong>
+              </li>
+              <li class="gesture-resource-item" data-resource-status="watch">
+                <span data-i18n="tools.gesture.resource.watch.object-detector-model" data-i18n-en="Object detector model">物体检测模型</span>
+                <strong data-i18n="tools.gesture.resource.status.watch" data-i18n-en="Upstream latest">上游 latest</strong>
+              </li>
+              <li class="gesture-resource-item" data-resource-status="locked">
+                <span data-i18n="tools.gesture.resource.locked.face-api-runtime" data-i18n-en="face-api runtime">face-api 运行时</span>
+                <strong data-i18n="tools.gesture.resource.status.locked" data-i18n-en="Version locked">版本锁定</strong>
+              </li>
+              <li class="gesture-resource-item" data-resource-status="watch">
+                <span data-i18n="tools.gesture.resource.watch.face-api-model-pack" data-i18n-en="face-api model pack">face-api 模型包</span>
+                <strong data-i18n="tools.gesture.resource.status.watch" data-i18n-en="Self-hosting planned">待自托管</strong>
+              </li>
+              <li class="gesture-resource-item" data-resource-status="locked">
+                <span data-i18n="tools.gesture.resource.locked.three-js-3d-runtime" data-i18n-en="Three.js 3D runtime">Three.js 3D 运行时</span>
+                <strong data-i18n="tools.gesture.resource.status.locked" data-i18n-en="Version locked">版本锁定</strong>
+              </li>
+              </ul>
+            </div>
           </div>
           <div class="gesture-modes" role="radiogroup" data-i18n-aria="tools.gesture.modeGroup" data-i18n-en-aria="Animation mode">
             <button class="gesture-mode-btn active" data-mode="particle" type="button">

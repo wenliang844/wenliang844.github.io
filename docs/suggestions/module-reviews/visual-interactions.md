@@ -34,11 +34,13 @@
   ```
   同时新增测试：连续触发两次 start click，断言 `getUserMedia` 只调用一次。
 - **📊 实际收益**：避免重复摄像头授权、重复检测循环和用户在弱网模型加载期间的误操作。
-- **🔗 相关建议引用**：[MR-TOOLS-04](tools-gesture-and-api.md#mr-tools-04-视觉交互脚本已成为代码质量热点), [DE-14](../devex-improvements.md#de-14-增加页面级-dom-契约审计防止-seo-a11y-回退)
+- **🔗 相关建议引用**：[MR-TOOLS-04](tools-gesture-and-api.md#mr-tools-04-视觉交互脚本已成为代码质量热点), [DE-14](../devex-improvements.md#de-14)
 
-## 📌 MR-VIS-02: 页面隐藏时手势工具仍保持摄像头流占用
+## 📌 MR-VIS-02 [已修复]: 页面隐藏时手势工具仍保持摄像头流占用
 
 - **📍 位置**：`js/gesture.js:519-539`, `js/gesture.js:565-590`, `js/gesture.js:2444-2450`
+- **✅ 修复状态**：`visibilitychange` 在页面隐藏且手势工具运行中时会调用 `stopCamera()`，释放摄像头 track、清空视频引用并提示“页面已隐藏，摄像头已关闭”。
+- **🧪 回归测试**：`tests/tools.test.mjs` 增加源码级回归断言，确保隐藏页面分支释放摄像头且不再保留旧的 keep-stream 注释。
 - **📝 当前状况描述**：`visibilitychange` 中的注释写着“pause detection but keep stream alive”，实际没有暂停或释放动作。`loop()` 在 `document.hidden` 时跳过检测，但仍继续安排下一帧；摄像头 track 也继续保持打开。对摄像头工具来说，后台标签页继续占用摄像头会增加隐私感知风险和电量消耗。
 - **⚠️ 影响程度**：中
 - **💡 建议方案**：
@@ -54,9 +56,11 @@
 - **📊 预期收益**：降低后台摄像头占用和用户信任风险，也减少隐藏标签页的 rAF/视频资源消耗。
 - **🔗 相关建议引用**：[S-13](../security-audit.md#s-13-已修复核心治理-手势工具运行时加载-cdn-机器视觉脚本和模型缺少完整供应链约束), [UX-11](../ux-improvements.md#ux-11-已修复核心问题-手势与-api-工具的隐私边界文案需要更精确)
 
-## 📌 MR-VIS-03: Galaxy canvas 没有遵守 `prefers-reduced-motion`
+## 📌 MR-VIS-03 [已修复]: Galaxy canvas 没有遵守 `prefers-reduced-motion`
 
 - **📍 位置**：`js/galaxy.js:655-667`, `js/galaxy.js:756-773`, `css/coder.css:6598-6610`
+- **✅ 修复状态**：`js/galaxy.js` 已接入 `(prefers-reduced-motion: reduce)`；减少动态偏好下只绘制一帧静态星图，不持续排队 rAF，并在偏好恢复、面板显示或页面恢复时按可见性重新启动动画。
+- **🧪 回归测试**：`tests/js-behavior.test.mjs` 覆盖 reduced-motion 下不触发 `requestAnimationFrame`、仍绘制静态 canvas，并在偏好切回非 reduce 时重新启动动画循环。
 - **📝 当前状况描述**：CSS 已有 `prefers-reduced-motion: reduce`，但只覆盖部分 CSS 动画和 reveal 过渡。Galaxy 的星河 canvas 在面板可见时仍会 `start()` 并持续 rAF；页面从后台恢复时也会自动 `start()`。对选择减少动态效果的用户，canvas 粒子、星云和流星仍会持续运动。
 - **⚠️ 影响程度**：中
 - **💡 建议方案**：

@@ -54,6 +54,7 @@
       format: "openai",
       endpoint: OPENAI_DEFAULT_ENDPOINT,
       apiKey: "",
+      rememberApiKey: false,
       model: "gpt-5.5",
       stream: true,
     },
@@ -61,16 +62,21 @@
       format: "anthropic",
       endpoint: LEGACY_ANTHROPIC_DEFAULT_ENDPOINT,
       apiKey: "",
+      rememberApiKey: false,
       model: "mimo-v2.5-pro",
       stream: true,
     },
   };
-  function t(key, fallback) {
-    return window.cwlT ? window.cwlT(key, fallback) : fallback;
-  }
-
   function isEnglish() {
     return window.cwlLang && window.cwlLang() === "en";
+  }
+
+  function t(key, fallback, fallbackEn) {
+    const value = window.cwlT ? window.cwlT(key, fallback) : fallback;
+    if (fallbackEn && isEnglish() && value === fallback) {
+      return fallbackEn;
+    }
+    return value;
   }
 
   function label(item) {
@@ -327,6 +333,7 @@
       const base = preset(format);
       const endpoint = String(parsed.endpoint || base.endpoint);
       const apiKey = String(parsed.apiKey || "");
+      const rememberApiKey = typeof parsed.rememberApiKey === "boolean" ? parsed.rememberApiKey : Boolean(apiKey);
       const model = String(parsed.model || base.model);
       const migrateLegacyAnthropicDefault =
         format === "anthropic" &&
@@ -345,6 +352,7 @@
         format: format,
         endpoint: endpoint,
         apiKey: apiKey,
+        rememberApiKey: rememberApiKey,
         model: model,
         stream: typeof parsed.stream === "boolean" ? parsed.stream : base.stream,
       };
@@ -354,15 +362,18 @@
   }
 
   function saveConfig(config) {
+    const apiKey = String(config.apiKey || "").trim();
+    const rememberApiKey = Boolean(config.rememberApiKey);
     const clean = {
       format: normalizeFormat(config.format),
       endpoint: String(config.endpoint || "").trim(),
-      apiKey: String(config.apiKey || ""),
+      apiKey: rememberApiKey ? apiKey : "",
+      rememberApiKey: rememberApiKey,
       model: String(config.model || "").trim(),
       stream: Boolean(config.stream),
     };
     storageSet(STORAGE_KEY, JSON.stringify(clean));
-    return clean;
+    return Object.assign({}, clean, { apiKey: apiKey });
   }
 
   function withEffectiveApiKey(config) {
@@ -498,6 +509,36 @@
 
   function cleanEndpoint(endpoint) {
     return String(endpoint || "").trim().replace(/\/+$/, "");
+  }
+
+  function endpointDetails(endpoint) {
+    const value = String(endpoint || "").trim();
+    if (!value) {
+      return null;
+    }
+    try {
+      const url = new URL(value);
+      return {
+        href: url.href,
+        protocol: url.protocol.replace(/:$/, "").toUpperCase(),
+        host: url.host,
+        path: url.pathname + url.search,
+        secure: url.protocol === "https:",
+      };
+    } catch {
+      return null;
+    }
+  }
+
+  function endpointTrustText(endpoint) {
+    const details = endpointDetails(endpoint);
+    if (!details) {
+      return t("assistant.endpoint.invalid", "请输入完整的 http(s) 请求地址。", "Enter a full http(s) URL.");
+    }
+    const path = details.path || "/";
+    return t("assistant.endpoint.summary", "请求将发送到", "Requests go to") + " " +
+      details.protocol + "://" + details.host + path +
+      (details.secure ? "" : " " + t("assistant.endpoint.insecure", "当前不是 HTTPS，请只用于可信本机代理或测试环境。", "Not HTTPS; use only for trusted local/test endpoints."));
   }
 
   function openAiChatEndpoint(endpoint) {
@@ -1143,19 +1184,32 @@
     formatLabel.appendChild(formatSelect);
 
     const endpointLabel = el("label", "assistant-config-field");
+    endpointLabel.classList.add("assistant-endpoint-field");
     endpointLabel.appendChild(el("span", "", "请求地址"));
     const endpointInput = el("input", "assistant-endpoint");
     endpointInput.type = "url";
     endpointInput.autocomplete = "off";
     endpointLabel.appendChild(endpointInput);
+    const endpointTrust = el("p", "assistant-endpoint-summary");
+    const endpointTrustLabel = el("label", "assistant-endpoint-trust");
+    const endpointTrustInput = el("input", "assistant-endpoint-trust-input");
+    endpointTrustInput.type = "checkbox";
+    endpointTrustLabel.appendChild(endpointTrustInput);
+    endpointTrustLabel.appendChild(el("span", "", t("assistant.endpoint.confirm", "我确认这个请求地址可信", "Trust this endpoint")));
 
     const keyLabel = el("label", "assistant-config-field");
+    keyLabel.classList.add("assistant-key-field");
     keyLabel.appendChild(el("span", "", "API key"));
     const keyInput = el("input", "assistant-api-key");
     keyInput.type = "password";
     keyInput.autocomplete = "off";
     keyInput.placeholder = "请输入你自己的 API key";
     keyLabel.appendChild(keyInput);
+    const rememberKeyLabel = el("label", "assistant-remember-key");
+    const rememberKeyInput = el("input", "assistant-remember-key-input");
+    rememberKeyInput.type = "checkbox";
+    rememberKeyLabel.appendChild(rememberKeyInput);
+    rememberKeyLabel.appendChild(el("span", "", t("assistant.rememberKey", "记住 API key（仅保存在本机浏览器）", "Remember API key (this browser)")));
 
     const modelLabel = el("label", "assistant-config-field");
     modelLabel.appendChild(el("span", "", "模型名"));
@@ -1184,7 +1238,10 @@
     configBody.appendChild(privacyControls);
     configForm.appendChild(formatLabel);
     configForm.appendChild(endpointLabel);
+    configForm.appendChild(endpointTrust);
+    configForm.appendChild(endpointTrustLabel);
     configForm.appendChild(keyLabel);
+    configForm.appendChild(rememberKeyLabel);
     configForm.appendChild(modelLabel);
     configForm.appendChild(streamLabel);
     configForm.appendChild(configActions);
@@ -1347,6 +1404,7 @@
         format: formatSelect.value,
         endpoint: endpointInput.value,
         apiKey: keyInput.value,
+        rememberApiKey: rememberKeyInput.checked,
         model: modelInput.value,
         stream: streamInput.checked,
       });
@@ -1356,8 +1414,39 @@
       formatSelect.value = normalizeFormat(config.format);
       endpointInput.value = config.endpoint || "";
       keyInput.value = config.apiKey || "";
+      rememberKeyInput.checked = Boolean(config.rememberApiKey);
       modelInput.value = config.model || "";
       streamInput.checked = Boolean(config.stream);
+      updateEndpointTrustSummary();
+    }
+
+    function updateEndpointTrustSummary(options) {
+      endpointTrust.textContent = endpointTrustText(endpointInput.value);
+      if (!options || options.resetTrust !== false) {
+        endpointTrustInput.checked = false;
+      }
+    }
+
+    function requireEndpointTrust(config, options) {
+      const details = endpointDetails(config.endpoint);
+      const target = options && options.statusTarget;
+      if (!details) {
+        const message = t("assistant.endpoint.invalid", "请输入完整的 http(s) 请求地址。", "Enter a full http(s) URL.");
+        if (target) {
+          target.textContent = message;
+        }
+        endpointInput.focus();
+        return false;
+      }
+      if (!endpointTrustInput.checked) {
+        const message = t("assistant.endpoint.required", "请先确认请求地址可信，再发送 API key。", "Confirm the endpoint before sending your key.");
+        if (target) {
+          target.textContent = message;
+        }
+        endpointTrustInput.focus();
+        return false;
+      }
+      return true;
     }
 
     function setGenerating(generating) {
@@ -1508,6 +1597,15 @@
         }
       });
       clearAllBtn.textContent = t("assistant.clearAll", "清空全部对话");
+      const endpointTrustTextNode = endpointTrustLabel.querySelector("span");
+      if (endpointTrustTextNode) {
+        endpointTrustTextNode.textContent = t("assistant.endpoint.confirm", "我确认这个请求地址可信", "Trust this endpoint");
+      }
+      const rememberKeyText = rememberKeyLabel.querySelector("span");
+      if (rememberKeyText) {
+        rememberKeyText.textContent = t("assistant.rememberKey", "记住 API key（仅保存在本机浏览器）", "Remember API key (this browser)");
+      }
+      updateEndpointTrustSummary({ resetTrust: false });
       siteMode.textContent = t("assistant.mode.site", "站点助手");
       llmMode.textContent = t("assistant.mode.llm", "大模型");
       syncToggles(!panel.hidden);
@@ -1671,10 +1769,14 @@
       }
       const config = withEffectiveApiKey(readConfigFromFields());
       if (!config.apiKey) {
-        addMessage("bot", "请先填写 API key。密钥只会保存在本机浏览器 localStorage。", [
+        addMessage("bot", t("assistant.keyRequired", "请先填写 API key。默认不会保存；如需长期保留，请勾选“记住 API key”。", "Enter an API key. It is saved only if Remember API key is on."), [
           { title: "打开中转站排行榜", url: "/ai/#relay" },
         ]);
         keyInput.focus();
+        return;
+      }
+      if (!requireEndpointTrust(config, { statusTarget: configStatus })) {
+        addMessage("bot", t("assistant.endpoint.required", "请先确认请求地址可信，再发送 API key。", "Confirm the endpoint before sending your key."));
         return;
       }
 
@@ -1716,8 +1818,11 @@
     async function testConnection() {
       const config = withEffectiveApiKey(readConfigFromFields());
       if (!config.apiKey) {
-        configStatus.textContent = "请先填写 API key";
+        configStatus.textContent = t("assistant.keyRequiredShort", "请先填写 API key", "Enter API key");
         keyInput.focus();
+        return;
+      }
+      if (!requireEndpointTrust(config, { statusTarget: configStatus })) {
         return;
       }
       const previousStream = config.stream;
@@ -1776,14 +1881,20 @@
     formatSelect.addEventListener("change", function () {
       const next = preset(formatSelect.value);
       next.apiKey = keyInput.value;
+      next.rememberApiKey = rememberKeyInput.checked;
       fillConfigFields(next);
       readConfigFromFields();
-      configStatus.textContent = "已切换预设，请填写你自己的 API key";
+      configStatus.textContent = t("assistant.presetChanged", "已切换预设，请填写你自己的 API key", "Preset changed. Enter your API key.");
+    });
+    endpointInput.addEventListener("input", function () {
+      updateEndpointTrustSummary();
     });
     configForm.addEventListener("submit", function (event) {
       event.preventDefault();
       readConfigFromFields();
-      configStatus.textContent = "已保存到本机浏览器";
+      configStatus.textContent = rememberKeyInput.checked
+        ? t("assistant.configSavedWithKey", "已保存配置和 API key 到本机浏览器", "Settings and key saved")
+        : t("assistant.configSavedWithoutKey", "已保存配置；API key 未持久保存", "Settings saved; key not stored");
     });
     testConfigBtn.addEventListener("click", testConnection);
     configToggle.addEventListener("click", function () {

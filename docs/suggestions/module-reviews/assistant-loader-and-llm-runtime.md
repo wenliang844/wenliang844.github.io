@@ -6,7 +6,7 @@
 
 ## 总览
 
-AI 助手当前已经完成几个关键安全修复：前端默认体验 key 已移除，默认进入站点助手模式，模型输出用 `textContent` 渲染，SSE 尾部 flush 和 OpenAI Responses fallback 也有回归测试。本轮重点关注加载器发布一致性、用户自填 API key 的生命周期、默认中转站信任边界、LLM 配置 i18n、加载失败反馈和测试可靠性。
+AI 助手当前已经完成几个关键安全修复：前端默认体验 key 已移除，默认进入站点助手模式，模型输出用 `textContent` 渲染，SSE 尾部 flush 和 OpenAI Responses fallback 也有回归测试。用户自填 API key 的第一阶段边界也已收紧：默认不持久化 key，发送/测试前需要确认实际 endpoint。剩余重点是长回复存储预算、LLM 配置 i18n、加载失败反馈和测试可靠性。
 
 ## 建议清单
 
@@ -38,11 +38,13 @@ function assertTrackedByGit(path) {
 - 📊 预期收益：降低“模板已发布、运行时漏发”的前端入口故障；对之后的懒加载脚本也形成通用发布检查。
 - 🔗 相关建议引用：`docs/suggestions/module-reviews/static-assets-and-third-party-resources.md` 中“Vendor files lack manifest/hash/source audit”。
 
-### 2. 默认中转站与任意 HTTPS endpoint 的信任边界仍需显式化
+### 2. [已修复第一阶段] 默认中转站与任意 HTTPS endpoint 的信任边界仍需显式化
 
 - 📌 问题/建议标题：用户 API key 会被发送到预置或自填 endpoint，但 UI 缺少域名确认/信任提示
-- 📍 位置：`js/assistant.js:39-58`、`js/assistant.js:449-489`、`js/assistant.js:780-838`、`src/templates/layout.mjs:39-49`
-- 📝 当前状况描述：默认 OpenAI-compatible preset 指向 `https://muyuan.do/v1/responses`，Anthropic 旧 preset 仍在迁移逻辑中出现；自定义 endpoint 只做字符串 trim 和路径拼接。CSP 使用 `connect-src 'self' https: http:` 以兼容自定义请求和 API Tester 本机/内网调试，这意味着一旦用户填入 API key，前端可以把 key 发往任意 HTTPS 域名。当前隐私文案说明“请求你配置的中转站”，但没有在发送前突出显示实际 host、协议和路径，也没有“首次信任此 endpoint”的确认。
+- 📍 位置：`js/assistant.js`、`css/assistant.css`、`tests/assistant.test.mjs`
+- ✅ 修复状态：助手配置区已新增 endpoint 摘要和确认框，实时展示协议、host 与 path；`askLlm()` 和 `testConnection()` 在发送 API key 前都会要求用户勾选“我确认这个请求地址可信”。非完整 http(s) URL 会阻断请求，非 HTTPS endpoint 会在摘要中提示只适合可信本机代理或测试环境。
+- 🧪 回归测试：`tests/assistant.test.mjs` 新增 “requires endpoint trust before sending an API key”，确认未勾选时 `fetch` 不会发起，勾选后才携带用户 key 请求；`tests/css.test.mjs` 锁定 endpoint summary/trust 控件样式。
+- 📝 原状况描述：默认 OpenAI-compatible preset 指向 `https://muyuan.do/v1/responses`，Anthropic 旧 preset 仍在迁移逻辑中出现；自定义 endpoint 只做字符串 trim 和路径拼接。CSP 使用 `connect-src 'self' https: http:` 以兼容自定义请求和 API Tester 本机/内网调试，这意味着一旦用户填入 API key，前端可以把 key 发往任意 HTTPS 域名。此前隐私文案说明“请求你配置的中转站”，但没有在发送前突出显示实际 host、协议和路径，也没有“信任此 endpoint”的确认。
 - ⚠️ 影响程度：高
 - 💡 建议方案（含伪代码或示例片段）：
 
@@ -68,14 +70,16 @@ function confirmEndpointTrust(url) {
 
 默认 preset 也建议展示“将请求到 muyuan.do”的明确提示；更稳妥的长期方案是把公共体验或推荐 relay 迁到服务端代理，前端只保存用户显式选择。
 
-- 📊 预期收益：让用户在提交 key 前理解真实数据流，降低钓鱼式 endpoint、误填代理地址和第三方 relay 信任不透明带来的凭据风险。
+- 📊 实际收益：用户在提交 key 前能看到真实数据流，降低钓鱼式 endpoint、误填代理地址和第三方 relay 信任不透明带来的凭据风险。
 - 🔗 相关建议引用：`docs/suggestions/security-audit.md#s-14-已修复核心风险-ai-助手对话和-llm-上下文长期留存在-localstorage`、`docs/suggestions/module-reviews/user-data-entrypoints.md#mr-data-06全站-csp-的-connect-src-https-对普通页面过宽`。
 
-### 3. API key 默认长期保存在 `localStorage`
+### 3. [已修复第一阶段] API key 默认长期保存在 `localStorage`
 
 - 📌 问题/建议标题：缺少“仅本次会话使用 key”或“记住 key”显式选择
-- 📍 位置：`js/assistant.js:125-140`、`js/assistant.js:268-315`、`js/assistant.js:1212-1220`、`js/assistant.js:1462-1475`、`js/assistant.js:1579-1583`
-- 📝 当前状况描述：配置保存逻辑会把 `format`、`endpoint`、`apiKey`、`model`、`stream` 一起写入 `cwl.assistant.llmConfig`。输入框使用 `type="password"` 和 `autocomplete="off"` 是好的，但只要用户保存或触发读取字段，就可能把 key 持久化到浏览器本地。对于共享电脑、浏览器扩展或后续 XSS 风险，长期 localStorage key 是更敏感的资产。
+- 📍 位置：`js/assistant.js`、`css/assistant.css`、`tests/assistant.test.mjs`
+- ✅ 修复状态：配置区已新增“记住 API key（仅保存在本机浏览器）”复选框，默认关闭。`saveConfig()` 会把 `apiKey` 写入当前调用返回值供本次请求使用，但只有用户勾选 remember 时才持久化到 `cwl.assistant.llmConfig`；旧版已经保存过 key 的配置会自动视为 `rememberApiKey: true`，避免升级后突然丢失用户显式保存过的配置。
+- 🧪 回归测试：`tests/assistant.test.mjs` 新增 “does not persist API keys unless the user opts in”，覆盖未勾选保存时 localStorage 中 `apiKey` 为空、勾选后才保存 key；原有空 key 不请求、用户自填 key 才请求和源码密钥扫描测试继续保留。
+- 📝 原状况描述：配置保存逻辑会把 `format`、`endpoint`、`apiKey`、`model`、`stream` 一起写入 `cwl.assistant.llmConfig`。输入框使用 `type="password"` 和 `autocomplete="off"` 是好的，但只要用户保存或触发读取字段，就可能把 key 持久化到浏览器本地。对于共享电脑、浏览器扩展或后续 XSS 风险，长期 localStorage key 是更敏感的资产。
 - ⚠️ 影响程度：高
 - 💡 建议方案（含伪代码或示例片段）：
 
@@ -101,7 +105,7 @@ function withEffectiveApiKey(config) {
 
 UI 层增加“记住 API key”复选框，默认关闭；再提供“一键清除本机 key 和对话”的按钮。
 
-- 📊 预期收益：保留便捷配置，同时让默认隐私边界更安全；用户可以临时试用 LLM 模式而不把 key 长期留在浏览器。
+- 📊 实际收益：保留便捷配置，同时让默认隐私边界更安全；用户可以临时试用 LLM 模式而不把 key 长期留在浏览器。
 - 🔗 相关建议引用：`docs/suggestions/module-reviews/assistant-deep-dive.md#mr-ast-04-已修复核心风险-对话持久化缺少生命周期和隐私控制`、`docs/suggestions/security-audit.md#s-14-已修复核心风险-ai-助手对话和-llm-上下文长期留存在-localstorage`。
 
 ### 4. 对话条数有限，但单条内容和写入失败没有用户反馈
@@ -219,11 +223,11 @@ test("legacy endpoint migration updates the real endpoint input", async () => {
 ## 测试补强建议
 
 - loader：增加 script error、重复 script、runtime 初始化失败、用户可见状态测试。
-- LLM 配置：增加 endpoint host 确认、非 HTTPS 拒绝、remember key 默认关闭测试。
+- LLM 配置：endpoint host 确认和 remember key 默认关闭已补；后续可继续增加非 HTTPS 本机代理说明和更多错误态英文测试。
 - i18n：覆盖 LLM 配置区、状态区和错误提示的英文模式。
 - 存储：模拟 localStorage quota failure，断言 UI 提示；模拟超长模型回复，断言本地截断。
 - 测试整理：移除 `assistant-deep.test.mjs` 中旧 `.ai-*` fixture，统一用真实 `.assistant-*` DOM。
 
 ## 本轮结论
 
-助手主路径已经比早期版本安全很多：无内置前端 key、默认本地模式、输出安全渲染、请求和 SSE 行为有覆盖。下一步最值得做的是把“用户自填 key”当作高敏资产处理：默认不长期保存、发送前确认 endpoint、失败时给可见反馈，并清理掉旧 fixture 测试带来的覆盖噪声。
+助手主路径已经比早期版本安全很多：无内置前端 key、默认本地模式、输出安全渲染、请求和 SSE 行为有覆盖。用户自填 key 的核心边界也已推进到“默认不长期保存、发送前确认 endpoint”。下一步最值得做的是继续补失败时可见反馈、LLM 配置/错误态英文覆盖，并清理掉旧 fixture 测试带来的覆盖噪声。

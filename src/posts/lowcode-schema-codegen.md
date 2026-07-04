@@ -5,6 +5,11 @@ shortTitle: "LowCode Engine 实践"
 shortTitleEn: "LowCode Engine Practice"
 slug: "lowcode-schema-codegen"
 date: 2022-02-01
+modified: 2026-07-04
+status: historical
+reviewed: 2026-07-04
+contextNote: "本文是历史项目复盘，已按 2026 年视角补充内容维护状态。"
+contextNoteEn: "This is a historical project retrospective, with maintenance status reviewed from a 2026 perspective."
 eyebrow: "LowCode"
 summary: "从低代码协议、设计器内核、物料体系、渲染器到出码工具链，梳理企业级中后台低代码平台底座。"
 summaryEn: "A low-code platform foundation covering protocol design, designer core, materials, renderers and code generation tooling."

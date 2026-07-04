@@ -24,11 +24,18 @@ import { renderSponsorPage } from "../src/templates/sponsor.mjs";
 import { renderTrustPage } from "../src/templates/trust.mjs";
 import { escapeXml, rfc822, sitemapDate } from "../src/lib/format.mjs";
 import { readingMinutes } from "../src/lib/reading.mjs";
+import { renderServiceWorker } from "../src/service-worker-template.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, "..");
 const POSTS_DIR = join(ROOT, "src", "posts");
 const POST_SITEMAP_PRIORITY = "0.8";
+const SEARCH_BODY_LIMIT = 3200;
+const SEARCH_SECTION_BODY_LIMIT = 560;
+const SEARCH_PAGE_SECTION_BODY_LIMIT = 72;
+const SEARCH_MAX_SECTIONS_PER_POST = 24;
+const SEARCH_SECTION_MIN_TEXT = 20;
+const POST_STATUS_VALUES = new Set(["maintained", "historical", "archived"]);
 
 // 输出目录：--out <dir>，默认项目根。
 const outIdx = process.argv.indexOf("--out");
@@ -46,6 +53,7 @@ const STATIC_DEPLOY_ASSETS = [
   "404.html",
   "index.html",
   "manifest.webmanifest",
+  "offline.html",
 ];
 
 marked.setOptions({ gfm: true, breaks: false });
@@ -85,6 +93,28 @@ export function normalizeModifiedDate(modified, date, filename = "post") {
     throw new Error(`Invalid modified date in ${filename}: "${normalized}" is before published date "${published}".`);
   }
   return normalized;
+}
+
+export function normalizeReviewedDate(reviewed, date, filename = "post") {
+  if (!reviewed) {
+    return "";
+  }
+  const published = normalizeDate(date);
+  const normalized = normalizeDate(reviewed);
+  if (normalized < published) {
+    throw new Error(`Invalid reviewed date in ${filename}: "${normalized}" is before published date "${published}".`);
+  }
+  return normalized;
+}
+
+export function normalizePostStatus(status, filename = "post") {
+  if (!status) {
+    return "";
+  }
+  if (typeof status !== "string" || !POST_STATUS_VALUES.has(status)) {
+    throw new Error(`Invalid status in ${filename}: expected one of ${[...POST_STATUS_VALUES].join(", ")}.`);
+  }
+  return status;
 }
 
 export function normalizeCover(cover, filename = "post") {
@@ -303,6 +333,8 @@ async function loadPosts() {
 
       const date = normalizeDate(data.date);
       const modified = normalizeModifiedDate(data.modified, date, file);
+      const reviewed = normalizeReviewedDate(data.reviewed, date, file);
+      const status = normalizePostStatus(data.status, file);
       const cover = normalizeCover(data.cover, file);
       const contentImages = extractImages(contentResult.html);
       const images = cover
@@ -317,6 +349,11 @@ async function loadPosts() {
         slug,
         date,
         modified,
+        majorUpdate: data.majorUpdate === true,
+        status,
+        reviewed,
+        contextNote: typeof data.contextNote === "string" ? data.contextNote : "",
+        contextNoteEn: typeof data.contextNoteEn === "string" ? data.contextNoteEn : "",
         cover,
         eyebrow: data.eyebrow || "项目",
         summary: data.summary,
@@ -325,6 +362,12 @@ async function loadPosts() {
         descriptionEn: data.descriptionEn,
         tags: Array.isArray(data.tags) ? data.tags : [],
         tagsEn: Array.isArray(data.tagsEn) ? data.tagsEn : (Array.isArray(data.tags) ? data.tags : []),
+        series: typeof data.series === "string" ? data.series : "",
+        seriesEn: typeof data.seriesEn === "string" ? data.seriesEn : "",
+        domains: Array.isArray(data.domains) ? data.domains : [],
+        domainsEn: Array.isArray(data.domainsEn) ? data.domainsEn : [],
+        stack: Array.isArray(data.stack) ? data.stack : [],
+        stackEn: Array.isArray(data.stackEn) ? data.stackEn : [],
         contentHtml: contentResult.html,
         contentHtmlEn: contentEnResult ? contentEnResult.html : "",
         toc: contentResult.toc,
@@ -374,6 +417,58 @@ function stripHtml(html) {
 
 export { readingMinutes };
 
+function decodeHtmlEntities(text) {
+  const entities = {
+    amp: "&",
+    gt: ">",
+    lt: "<",
+    quot: '"',
+    "#39": "'",
+  };
+  return String(text || "").replace(/&(#\d+|#x[\da-f]+|[a-z]+);/gi, (match, entity) => {
+    const key = entity.toLowerCase();
+    if (key.startsWith("#x")) {
+      return String.fromCodePoint(Number.parseInt(key.slice(2), 16));
+    }
+    if (key.startsWith("#")) {
+      return String.fromCodePoint(Number.parseInt(key.slice(1), 10));
+    }
+    return entities[key] || match;
+  });
+}
+
+function plainHeadingText(html) {
+  return decodeHtmlEntities(stripHtml(html));
+}
+
+export function extractSearchSections(html, limit = SEARCH_MAX_SECTIONS_PER_POST) {
+  const headings = [...String(html || "").matchAll(/<h([2-3])\s+id="([^"]+)"[^>]*>([\s\S]*?)<\/h\1>/gi)]
+    .map((match) => ({
+      level: Number.parseInt(match[1], 10),
+      id: match[2],
+      title: plainHeadingText(match[3]),
+      start: match.index,
+      end: match.index + match[0].length,
+    }));
+
+  return headings
+    .map((heading, index) => {
+      const next = headings[index + 1];
+      const sectionHtml = String(html || "").slice(heading.end, next ? next.start : undefined);
+      const text = stripHtml(sectionHtml);
+      const body = `${heading.title} ${text}`.replace(/\s+/g, " ").trim();
+      return {
+        level: heading.level,
+        id: heading.id,
+        title: heading.title,
+        body: body.slice(0, SEARCH_SECTION_BODY_LIMIT),
+        textLength: body.length,
+      };
+    })
+    .filter((section) => section.title && section.textLength >= SEARCH_SECTION_MIN_TEXT)
+    .slice(0, limit);
+}
+
 // 把文章内图片 src 解析为绝对 URL：协议开头原样返回，
 // 根相对（/ 开头）拼 baseURL，其余按文章目录 /post/<slug>/ 解析。
 function absoluteUrl(src, slug) {
@@ -393,54 +488,270 @@ function extractImages(html) {
   return urls;
 }
 
-// 基于标签重叠为文章挑选相关文章：先按共同标签数降序，
-// 同数按日期更新优先；取前 limit 篇。
+function cleanFeature(value) {
+  return String(value || "").trim();
+}
+
+function featureList(values) {
+  return (Array.isArray(values) ? values : [values])
+    .map(cleanFeature)
+    .filter(Boolean);
+}
+
+function overlapValues(left, right) {
+  const rightSet = new Set(featureList(right).map((value) => value.toLowerCase()));
+  const seen = new Set();
+  return featureList(left).filter((value) => {
+    const key = value.toLowerCase();
+    if (!rightSet.has(key) || seen.has(key)) {
+      return false;
+    }
+    seen.add(key);
+    return true;
+  });
+}
+
+function firstOverlap(left, right) {
+  return overlapValues(left, right)[0] || "";
+}
+
+function joinReasonValues(values, max = 2, separator = "、") {
+  return values.slice(0, max).join(separator);
+}
+
+function relatedFeatures(post) {
+  return {
+    tags: featureList(post.tags),
+    tagsEn: featureList(post.tagsEn),
+    series: featureList(post.series),
+    seriesEn: featureList(post.seriesEn),
+    domains: featureList(post.domains),
+    domainsEn: featureList(post.domainsEn),
+    stack: featureList(post.stack),
+    stackEn: featureList(post.stackEn),
+    eyebrow: featureList(post.eyebrow),
+  };
+}
+
+function relatedReason(current, candidate, matches) {
+  if (matches.tags.length) {
+    return {
+      reason: `共同标签：${joinReasonValues(matches.tags)}`,
+      reasonEn: `Shared tags: ${joinReasonValues(matches.tagsEn.length ? matches.tagsEn : matches.tags, 2, ", ")}`,
+    };
+  }
+  if (matches.series) {
+    return {
+      reason: `同属系列：${matches.series}`,
+      reasonEn: `Same series: ${matches.seriesEn || matches.series}`,
+    };
+  }
+  if (matches.domains.length) {
+    return {
+      reason: `共同领域：${joinReasonValues(matches.domains)}`,
+      reasonEn: `Shared domain: ${joinReasonValues(matches.domainsEn.length ? matches.domainsEn : matches.domains, 2, ", ")}`,
+    };
+  }
+  if (matches.stack.length) {
+    return {
+      reason: `共同技术栈：${joinReasonValues(matches.stack)}`,
+      reasonEn: `Shared stack: ${joinReasonValues(matches.stackEn.length ? matches.stackEn : matches.stack, 2, ", ")}`,
+    };
+  }
+  if (matches.eyebrow) {
+    return {
+      reason: `同属主题：${matches.eyebrow}`,
+      reasonEn: `Same topic: ${candidate.eyebrowEn || current.eyebrowEn || matches.eyebrow}`,
+    };
+  }
+  if (matches.tagsEn.length) {
+    return {
+      reason: `共同英文标签：${joinReasonValues(matches.tagsEn)}`,
+      reasonEn: `Shared tags: ${joinReasonValues(matches.tagsEn, 2, ", ")}`,
+    };
+  }
+  return { reason: "主题相关", reasonEn: "Related topic" };
+}
+
+function relatedScore(current, candidate) {
+  const currentFeatures = relatedFeatures(current);
+  const candidateFeatures = relatedFeatures(candidate);
+  const matches = {
+    tags: overlapValues(currentFeatures.tags, candidateFeatures.tags),
+    tagsEn: overlapValues(currentFeatures.tagsEn, candidateFeatures.tagsEn),
+    series: firstOverlap(currentFeatures.series, candidateFeatures.series),
+    seriesEn: firstOverlap(currentFeatures.seriesEn, candidateFeatures.seriesEn),
+    domains: overlapValues(currentFeatures.domains, candidateFeatures.domains),
+    domainsEn: overlapValues(currentFeatures.domainsEn, candidateFeatures.domainsEn),
+    stack: overlapValues(currentFeatures.stack, candidateFeatures.stack),
+    stackEn: overlapValues(currentFeatures.stackEn, candidateFeatures.stackEn),
+    eyebrow: firstOverlap(currentFeatures.eyebrow, candidateFeatures.eyebrow),
+  };
+  const score =
+    matches.tags.length * 4 +
+    matches.tagsEn.length * 3 +
+    (matches.series ? 6 : 0) +
+    matches.domains.length * 3 +
+    matches.stack.length * 2 +
+    (matches.eyebrow ? 2 : 0);
+  return {
+    score,
+    matches,
+    ...relatedReason(current, candidate, matches),
+  };
+}
+
+// 基于标签、系列、领域、技术栈和主题信号挑选相关文章：
+// 先按综合分降序，同分按日期更新优先；取前 limit 篇。
 export function relatedPosts(post, posts, limit = 3) {
-  const tags = new Set(post.tags);
-  if (tags.size === 0) return [];
   return posts
     .filter((p) => p.slug !== post.slug)
-    .map((p) => ({ post: p, shared: p.tags.filter((tag) => tags.has(tag)).length }))
-    .filter((entry) => entry.shared > 0)
-    .sort((a, b) => b.shared - a.shared || (a.post.date < b.post.date ? 1 : -1))
+    .map((p) => ({ post: p, related: relatedScore(post, p) }))
+    .filter((entry) => entry.related.score > 0)
+    .sort((a, b) => {
+      if (b.related.score !== a.related.score) {
+        return b.related.score - a.related.score;
+      }
+      return String(a.post.date || "") < String(b.post.date || "") ? 1 : -1;
+    })
     .slice(0, limit)
-    .map((entry) => entry.post);
+    .map((entry) => ({
+      ...entry.post,
+      relatedScore: entry.related.score,
+      relatedReason: entry.related.reason,
+      relatedReasonEn: entry.related.reasonEn,
+    }));
 }
 
 function localizedPost(post) {
+  const bodyHtml = post.contentHtmlEn || post.contentHtml;
   return {
     title: post.titleEn || post.title,
     shortTitle: post.shortTitleEn || post.shortTitle,
     summary: post.summaryEn || post.summary,
     tags: post.tagsEn || post.tags,
-    body: stripHtml(post.contentHtmlEn || post.contentHtml).slice(0, 600),
+    body: stripHtml(bodyHtml).slice(0, SEARCH_BODY_LIMIT),
   };
+}
+
+function localizedSection(post, section, index) {
+  const fallback = {
+    sectionTitle: section.title,
+    path: `/post/${post.slug}/#${section.id}`,
+    body: section.body,
+  };
+  const enSections = post.contentHtmlEn ? extractSearchSections(post.contentHtmlEn) : [];
+  const enSection = enSections[index];
+  if (!enSection) {
+    return fallback;
+  }
+  return {
+    sectionTitle: enSection.title,
+    path: `/post/${post.slug}/#${enSection.id}`,
+    body: enSection.body,
+  };
+}
+
+function buildPostSearchEntry(post) {
+  const modified = post.modified || post.date;
+  return {
+    type: "post",
+    title: post.title,
+    shortTitle: post.shortTitle,
+    summary: post.summary,
+    date: post.date,
+    modified,
+    freshness: modified !== post.date ? "updated" : "published",
+    tags: post.tags,
+    path: `/post/${post.slug}/`,
+    slug: post.slug,
+    body: stripHtml(post.contentHtml).slice(0, SEARCH_BODY_LIMIT),
+    i18n: {
+      en: localizedPost(post),
+    },
+  };
+}
+
+function buildPostSectionSearchEntries(post) {
+  const modified = post.modified || post.date;
+  return extractSearchSections(post.contentHtml).map((section, index) => ({
+    type: "post-section",
+    title: post.title,
+    shortTitle: post.shortTitle,
+    sectionTitle: section.title,
+    summary: `${post.shortTitle} / ${section.title}`,
+    date: post.date,
+    modified,
+    freshness: modified !== post.date ? "updated" : "published",
+    tags: post.tags,
+    path: `/post/${post.slug}/#${section.id}`,
+    slug: post.slug,
+    sectionId: section.id,
+    body: section.body,
+    i18n: {
+      en: {
+        title: post.titleEn || post.title,
+        shortTitle: post.shortTitleEn || post.shortTitle,
+        summary: post.summaryEn || post.summary,
+        tags: post.tagsEn || post.tags,
+        ...localizedSection(post, section, index),
+      },
+    },
+  }));
+}
+
+function buildPageSearchEntry(page) {
+  const { searchSections, ...entry } = page;
+  return { type: "page", ...entry };
+}
+
+function buildPageSectionSearchEntries(page) {
+  return (page.searchSections || []).map((section) => {
+    const tags = section.tags || page.tags || [];
+    const enPage = page.i18n && page.i18n.en ? page.i18n.en : {};
+    const enSection = section.i18n && section.i18n.en ? section.i18n.en : {};
+    const body = (section.body || section.summary || "").slice(0, SEARCH_PAGE_SECTION_BODY_LIMIT);
+    return {
+      type: "page-section",
+      title: page.title,
+      sectionTitle: section.title,
+      summary: section.summary || section.title,
+      tags,
+      path: section.path || page.path,
+      body,
+      i18n: {
+        en: {
+          title: enPage.title || page.title,
+          sectionTitle: enSection.title || section.title,
+          summary: enSection.summary || enSection.title || section.summary || section.title,
+          tags: enSection.tags || enPage.tags || tags,
+          path: enSection.path || section.path || page.path,
+        },
+      },
+    };
+  });
 }
 
 // 生成搜索索引 JSON（文章 + 静态页），供全局模糊搜索使用。
 function buildSearchIndex(posts) {
+  const postEntries = posts.flatMap((post) => [
+    buildPostSearchEntry(post),
+    ...buildPostSectionSearchEntries(post),
+  ]);
+  const pageEntries = SEARCH_PAGES.flatMap((page) => [
+    buildPageSearchEntry(page),
+    ...buildPageSectionSearchEntries(page),
+  ]);
+
   return JSON.stringify(
-    posts.map((p) => ({
-      type: "post",
-      title: p.title,
-      shortTitle: p.shortTitle,
-      summary: p.summary,
-      date: p.date,
-      tags: p.tags,
-      path: `/post/${p.slug}/`,
-      slug: p.slug,
-      body: stripHtml(p.contentHtml).slice(0, 600),
-      i18n: {
-        en: localizedPost(p),
-      },
-    })).concat(SEARCH_PAGES.map((p) => ({ type: "page", ...p }))),
+    postEntries.concat(pageEntries),
     null,
     0,
   );
 }
 
 // sitemap.xml：静态页 + 文章页（插入到 /post/ 之后），对齐现有顺序。
-function buildSitemap(posts) {
+export function buildSitemap(posts) {
   const siteLastmod = sitemapDate(posts[0].date);
   const rows = [];
 
@@ -459,7 +770,7 @@ function buildSitemap(posts) {
           .map((src) => `<image:image><image:loc>${escapeXml(absoluteUrl(src, post.slug))}</image:loc></image:image>`)
           .join("");
         rows.push(
-          `  <url><loc>${loc}</loc><lastmod>${sitemapDate(post.date)}</lastmod><priority>${POST_SITEMAP_PRIORITY}</priority>${images}</url>`,
+          `  <url><loc>${loc}</loc><lastmod>${sitemapDate(post.modified || post.date)}</lastmod><priority>${POST_SITEMAP_PRIORITY}</priority>${images}</url>`,
         );
       }
     }
@@ -482,9 +793,10 @@ Allow: /categories/
 Allow: /ai/
 Allow: /trust/
 
-# 排除资源文件夹
-Disallow: /js/vendor/
-Disallow: /css/fontawesome/
+# 公开渲染资源
+Allow: /js/
+Allow: /css/
+Allow: /webfonts/
 
 # Sitemap
 Sitemap: ${SITE.baseURL}/sitemap.xml`;
@@ -510,14 +822,15 @@ function collectTags(posts) {
 }
 
 // index.xml：RSS 2.0，对齐现有结构。
-function buildRssItems(posts) {
+export function buildRssItems(posts) {
   return posts
     .map((post) => {
       const url = `${SITE.baseURL}/post/${post.slug}/`;
+      const feedDate = post.majorUpdate && post.modified ? post.modified : post.date;
       return `    <item>
       <title>${escapeXml(post.shortTitle)}</title>
       <link>${escapeXml(url)}</link>
-      <pubDate>${rfc822(post.date)}</pubDate>
+      <pubDate>${rfc822(feedDate)}</pubDate>
       <guid>${escapeXml(url)}</guid>
       <description>${escapeXml(post.description)}</description>
     </item>`;
@@ -641,6 +954,9 @@ async function main() {
 
   // 搜索索引
   await writeFileEnsured("search-index.json", buildSearchIndex(posts) + "\n");
+
+  // Service Worker 由源契约生成，避免手写产物与 PWA 策略漂移。
+  await writeFileEnsured("service-worker.js", renderServiceWorker() + "\n");
 
   console.log(`✓ 构建完成：${posts.length} 篇文章 → ${OUT_DIR}`);
   for (const p of posts) console.log(`  - post/${p.slug}/`);

@@ -13,6 +13,7 @@ const execFileAsync = promisify(execFile);
 const COMMERCIAL_ENV_KEYS = [
   "RELAY_COMMERCIAL_SOURCE_URL",
   "RELAY_COMMERCIAL_REQUIRED",
+  "RELAY_COMMERCIAL_MIN_SUCCESSFUL_SOURCES",
   "RELAY_COMMERCIAL_TOKEN",
   "RELAY_COMMERCIAL_HEADERS",
 ];
@@ -318,5 +319,99 @@ test("commercial relay sync merges multiple sources and skips failed sources", a
     } else {
       process.env.RELAY_COMMERCIAL_REQUIRED = originalRequired;
     }
+  }
+});
+
+test("commercial relay sync fails when a required source fails", async () => {
+  const originalFetch = globalThis.fetch;
+  const originalLog = console.log;
+  const originalWarn = console.warn;
+
+  console.log = () => {};
+  console.warn = () => {};
+  globalThis.fetch = async (url) => {
+    if (String(url).includes("required.example")) {
+      return { ok: false, status: 502, json: async () => ({}) };
+    }
+    return {
+      ok: true,
+      json: async () => [{ name: "Optional Relay", endpoint: "https://relay.example/v1", score: 90 }],
+    };
+  };
+
+  try {
+    await assert.rejects(
+      withCommercialEnv(
+        {
+          RELAY_COMMERCIAL_SOURCE_URL: "required:https://required.example/data, optional:https://optional.example/data",
+        },
+        () => fetchCommercialProviders(),
+      ),
+      /必需数据源同步失败.*required\.example.*HTTP 502/,
+    );
+  } finally {
+    console.log = originalLog;
+    console.warn = originalWarn;
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test("commercial relay sync rejects shared auth headers across multiple origins", async () => {
+  const originalFetch = globalThis.fetch;
+  let fetched = false;
+  globalThis.fetch = async () => {
+    fetched = true;
+    return { ok: true, json: async () => [] };
+  };
+
+  try {
+    await assert.rejects(
+      withCommercialEnv(
+        {
+          RELAY_COMMERCIAL_SOURCE_URL: "https://one.example/data, https://two.example/data",
+          RELAY_COMMERCIAL_TOKEN: "token-123",
+        },
+        () => fetchCommercialProviders(),
+      ),
+      /认证 Header.*同一 origin/,
+    );
+    assert.equal(fetched, false);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test("commercial relay sync enforces minimum successful sources", async () => {
+  const originalFetch = globalThis.fetch;
+  const originalLog = console.log;
+  const originalWarn = console.warn;
+
+  console.log = () => {};
+  console.warn = () => {};
+  globalThis.fetch = async (url) => {
+    if (String(url).includes("down.example")) {
+      return { ok: false, status: 503, json: async () => ({}) };
+    }
+    return {
+      ok: true,
+      json: async () => [{ name: "Healthy Relay", endpoint: "https://relay.example/v1", score: 90 }],
+    };
+  };
+
+  try {
+    await assert.rejects(
+      withCommercialEnv(
+        {
+          RELAY_COMMERCIAL_SOURCE_URL: "https://one.example/data, https://down.example/data",
+          RELAY_COMMERCIAL_MIN_SUCCESSFUL_SOURCES: "2",
+        },
+        () => fetchCommercialProviders(),
+      ),
+      /成功数据源数量 1 小于最低要求 2/,
+    );
+  } finally {
+    console.log = originalLog;
+    console.warn = originalWarn;
+    globalThis.fetch = originalFetch;
   }
 });

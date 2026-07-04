@@ -1,6 +1,7 @@
 # SEO、Feed 与结构化数据专题分析
 
 生成时间：2026-07-03
+更新日期：2026-07-04
 
 分析范围：`sitemap.xml`、`robots.txt`、全站 RSS、博客目录 RSS、时间归档 RSS、canonical / Open Graph / Twitter Card、JSON-LD、SEO/feed 相关测试。
 
@@ -9,13 +10,14 @@
 - `node --test tests/build.test.mjs tests/build-extra.test.mjs tests/integration.test.mjs tests/format.test.mjs tests/performance.test.mjs`：82/82 通过。
 - 扩展组合验证已修复此前 `renderTrustPage()` class 字面量断言脆弱问题；当前聚焦模板/构建/性能/工作流测试通过，完整 `npm run test:coverage` 798/798 通过。
 - 只读扫描当前 `sitemap.xml`、`index.xml`、`robots.txt`、构建脚本和 SEO 相关模板。
-- 本轮只新增 `/docs/suggestions/module-reviews/seo-feed-and-structured-data.md`。
+- 新增 `scripts/check-seo-feed.mjs`、`npm run check:seo-feed` 和 `npm run seo:report`，把 sitemap、RSS、canonical、OG/Twitter、JSON-LD 和 feed discovery 统一成可执行报告。
+- 当前 SEO/feed report：21 个 HTML、19 个 indexable 页面、19 个 sitemap URL、3 个 RSS feed、每个 feed 6 个 item、21 个 feed alternate、20 个 JSON-LD block、0 违规。
 
 ## 总览
 
 当前 SEO 基础覆盖面较完整：构建脚本生成 sitemap、robots、全站 RSS、博客 RSS、时间归档 RSS、搜索索引；生成页和手写页都具备 JSON-LD；模板统一输出 canonical、OG 和 Twitter Card；测试覆盖了 sitemap 关键路径、image sitemap、RSS 基础结构、JSON-LD schema.org 上下文、404 noindex、canonical 和 OG 标签。
 
-剩余优化点主要是“信号精度”和“订阅可发现性”。sitemap 中所有 `withDate` 静态页共用最新文章日期，RSS item 只输出最小字段，HTML 头部没有 RSS `rel="alternate"` 自动发现，Article JSON-LD 的 `headline` 使用短标题而不是完整标题。对个人博客来说这些不是致命问题，但它们会影响搜索引擎、RSS 阅读器、社交分享和后续多语言内容的长期质量。
+剩余优化点主要是“信号精度”和“内容丰富度”。sitemap 中所有 `withDate` 静态页仍共用最新文章日期，RSS item 仍只输出最小字段，Article JSON-LD 的 `headline` 使用短标题而不是完整标题。HTML 头部缺少 RSS 自动发现的问题已修复，统一 SEO/feed 质量报告也已接入门禁。
 
 严重程度分布：
 
@@ -67,7 +69,7 @@ if (page.withDate) row += `<lastmod>${sitemapDate(date)}</lastmod>`;
 - `/docs/suggestions/module-reviews/content-freshness-and-trust-signals.md`
 - `/docs/suggestions/module-reviews/build-artifact-synchronization.md`
 
-### 📌 MR-SEO-FEED-02：HTML 头部缺少 RSS `rel="alternate"`，阅读器不易自动发现订阅源
+### 📌 MR-SEO-FEED-02 [已修复]：HTML 头部缺少 RSS `rel="alternate"`，阅读器不易自动发现订阅源
 
 📍 位置（文件路径 + 行号范围）
 
@@ -79,7 +81,7 @@ if (page.withDate) row += `<lastmod>${sitemapDate(date)}</lastmod>`;
 
 📝 当前状况描述
 
-构建脚本已经生成全站、博客目录和时间归档三个 RSS feed，每个 RSS 内也有 `atom:link rel="self"`。但 HTML 页面头部没有 `<link rel="alternate" type="application/rss+xml">`，扫描 `index.html`、`post/index.html`、`categories/index.html` 和 `src/templates` 未发现 `application/rss+xml`。这意味着浏览器扩展、RSS 阅读器和一些爬虫无法从页面自动发现订阅入口，只能靠用户猜测 `/index.xml` 或站内链接。
+构建脚本已经生成全站、博客目录和时间归档三个 RSS feed，每个 RSS 内也有 `atom:link rel="self"`。当前已在公共模板输出默认 `/index.xml`，文章列表页额外输出 `/post/index.xml`，时间归档页额外输出 `/categories/index.xml`；手写页 `/`、`/about/`、`/contact/`、`/editor/`、`/overleaf/` 也已补全站 RSS 自动发现。`npm run check:seo-feed` 会阻断 indexable 页面缺少预期 feed alternate 的回归。
 
 ⚠️ 影响程度（高/中/低）
 
@@ -345,7 +347,7 @@ assert.equal(canonical.href, "https://wenliang844.github.io/trust/");
 - `/docs/suggestions/module-reviews/test-coverage-risk-map.md`
 - `/docs/suggestions/module-reviews/trust-page-launch-readiness.md`
 
-### 📌 MR-SEO-FEED-08：Feed、sitemap 与结构化数据缺少统一质量报告
+### 📌 MR-SEO-FEED-08 [已修复第一阶段]：Feed、sitemap 与结构化数据缺少统一质量报告
 
 📍 位置（文件路径 + 行号范围）
 
@@ -357,7 +359,7 @@ assert.equal(canonical.href, "https://wenliang844.github.io/trust/");
 
 📝 当前状况描述
 
-项目已经有多个测试分散检查 SEO 产物：sitemap 大小、RSS 大小、JSON-LD 基础结构、canonical 和 OG 标签。但没有一份构建后的 SEO/feed 质量报告，汇总 sitemap URL 数量、缺失 lastmod 的页面、RSS item 数、feed 大小、每类 JSON-LD 数量、缺少 `og:image` 的页面、缺少 alternate feed 的页面等。现在信息分散在测试输出和文件内容里，评审时不容易快速判断“本次发布 SEO 信号有没有退化”。
+项目已经有多个测试分散检查 SEO 产物：sitemap 大小、RSS 大小、JSON-LD 基础结构、canonical 和 OG 标签。当前已新增 `scripts/check-seo-feed.mjs`，能汇总 sitemap URL 数量、缺失 lastmod 的页面、RSS item 数、feed 大小、每页 canonical/OG/Twitter/JSON-LD、缺少 alternate feed 的页面等，并通过 `npm run seo:report` 写入 `docs/suggestions/evidence/current-seo-feed-report.json`。
 
 ⚠️ 影响程度（高/中/低）
 
@@ -396,10 +398,10 @@ console.table(report.feeds);
 ## 建议优先级
 
 1. 中优先级：为静态页 sitemap 增加页面级 `lastmod`，避免统一使用最新文章日期。
-2. 中优先级：在 HTML 头部输出 RSS `rel="alternate"`，让阅读器自动发现订阅源。
+2. 已完成：在 HTML 头部输出 RSS `rel="alternate"`，让阅读器自动发现订阅源。
 3. 中优先级：增强 RSS item，加入 category、封面和可控正文摘要。
 4. 中优先级：明确英文内容的 SEO 策略，决定是否生成 `/en/` 与 `hreflang`。
 5. 中优先级：把模板/SEO 测试从精确正则逐步迁移到 DOM 解析。
 6. 低优先级：让 Article JSON-LD 的 `headline` 使用完整标题。
 7. 低优先级：复核 robots 对 vendor JS/CSS 的屏蔽策略。
-8. 低优先级：生成 SEO/feed 质量报告，支持发布评审和健康度评分。
+8. 已完成第一阶段：生成 SEO/feed 质量报告，支持发布评审和健康度评分。

@@ -1,5 +1,5 @@
 import { execFile } from "node:child_process";
-import { mkdir, mkdtemp, readFile, rm } from "node:fs/promises";
+import { access, mkdir, mkdtemp, readFile, rm } from "node:fs/promises";
 import { join } from "node:path";
 import { promisify } from "node:util";
 import test from "node:test";
@@ -42,9 +42,12 @@ test("build writes the expected static artifacts", async () => {
     const postsHtml = await readFile(join(outDir, "post", "index.html"), "utf8");
     const homeHtml = await readFile(join(outDir, "index.html"), "utf8");
     const notFoundHtml = await readFile(join(outDir, "404.html"), "utf8");
+    const offlineHtml = await readFile(join(outDir, "offline.html"), "utf8");
     const contactHtml = await readFile(join(outDir, "contact", "index.html"), "utf8");
     const coderCss = await readFile(join(outDir, "css", "coder.css"), "utf8");
     const coderJs = await readFile(join(outDir, "js", "coder.js"), "utf8");
+    const pwaRegisterJs = await readFile(join(outDir, "js", "pwa-register.js"), "utf8");
+    const serviceWorkerJs = await readFile(join(outDir, "service-worker.js"), "utf8");
     const singlePostHtml = await readFile(join(outDir, "post", "manage-system", "index.html"), "utf8");
     const appreciationHtml = await readFile(join(outDir, "appreciation", "index.html"), "utf8");
     const trustHtml = await readFile(join(outDir, "trust", "index.html"), "utf8");
@@ -115,9 +118,14 @@ test("build writes the expected static artifacts", async () => {
 
     assert.match(homeHtml, /<main\b[^>]*\bid=["']main-content["']/i);
     assert.match(notFoundHtml, /<meta name="robots" content="noindex,follow">/);
+    assert.match(offlineHtml, /<meta name="robots" content="noindex,follow">/);
+    assert.match(offlineHtml, /当前处于离线模式/);
     assert.match(contactHtml, /data-i18n="contact\.h1"/);
     assert.match(coderCss, /\.navigation/);
     assert.match(coderJs, /coderShowPost/);
+    assert.match(pwaRegisterJs, /sw\.register\("\/service-worker\.js"\)/);
+    assert.match(serviceWorkerJs, /OFFLINE_URL = "\/offline\.html"/);
+    assert.match(serviceWorkerJs, /SENSITIVE_QUERY_RE/);
     assert.equal(webManifest.name, "CWLBlog");
     assert.equal(webManifest.short_name, "CWLBlog");
     assert.equal(webManifest.start_url, "/");
@@ -156,6 +164,7 @@ test("build writes the expected static artifacts", async () => {
     assert.match(toolsHtml, /\/js\/tools-core\.js/);
     assert.match(toolsHtml, /\/js\/tools\.js/);
     assert.match(toolsHtml, /\/js\/assistant-loader\.js/);
+    assert.match(toolsHtml, /\/js\/pwa-register\.js/);
     assert.doesNotMatch(toolsHtml, /\/js\/assistant\.js/);
     assert.match(aiHtml, /中转站排行榜/);
     assert.match(aiHtml, /<title>中转站排名 :: CWLBlog<\/title>/);
@@ -207,5 +216,19 @@ test("registered static pages have committed index artifacts", async () => {
 
     const html = await readFile(indexPathForRoute(ROOT, page.path), "utf8");
     assert.match(html, /<main\b[^>]*\bid=["']main-content["']/i, `${page.path} should have main#main-content`);
+  }
+});
+
+test("temporary build output covers every registered static page", async () => {
+  const tempRoot = join(ROOT, "temp");
+  await mkdir(tempRoot, { recursive: true });
+  const outDir = await mkdtemp(join(tempRoot, "cwlblog-static-routes-"));
+  try {
+    await runBuild(["--out", outDir]);
+    for (const page of STATIC_PAGES) {
+      await access(indexPathForRoute(outDir, page.path));
+    }
+  } finally {
+    await rm(outDir, { recursive: true, force: true });
   }
 });

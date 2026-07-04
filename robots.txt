@@ -8,9 +8,10 @@ Allow: /categories/
 Allow: /ai/
 Allow: /trust/
 
-# 排除资源文件夹
-Disallow: /js/vendor/
-Disallow: /css/fontawesome/
+# 公开渲染资源
+Allow: /js/
+Allow: /css/
+Allow: /webfonts/
 
 # Sitemap
 Sitemap: https://wenliang844.github.io/sitemap.xml

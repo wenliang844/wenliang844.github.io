@@ -4,9 +4,13 @@ import { join } from "node:path";
 import { promisify } from "node:util";
 import test from "node:test";
 import assert from "node:assert/strict";
+import { SEARCH_PAGES } from "../src/config.mjs";
 
 const ROOT = join(import.meta.dirname, "..");
 const execFileAsync = promisify(execFile);
+const SEARCH_HASH_ROUTE_CONTRACTS = new Map([
+  ["/ai/#nav", { target: "ai/index.html", panelToken: 'data-ai-panel="nav"', script: "/js/ai-tabs.js" }],
+]);
 
 function targetForHref(href) {
   if (!href.startsWith("/") || href.startsWith("//")) {
@@ -161,6 +165,53 @@ test("root-relative anchor links point to existing targets", async () => {
       if (!pattern.test(targetHtml)) {
         failures.push(`${file}: ${href} -> ${target}#${anchor}`);
       }
+    }
+  }
+
+  assert.deepEqual(failures, []);
+});
+
+test("search index page paths resolve to usable pages and hash routes", async () => {
+  const failures = [];
+  const cache = new Map();
+
+  for (const page of SEARCH_PAGES) {
+    const target = targetForHref(page.path);
+    if (!target) {
+      failures.push(`${page.path}: search path must be root-relative`);
+      continue;
+    }
+    if (!(await exists(target))) {
+      failures.push(`${page.path}: missing target ${target}`);
+      continue;
+    }
+
+    const hashIndex = page.path.indexOf("#");
+    if (hashIndex === -1) {
+      continue;
+    }
+
+    let targetHtml = cache.get(target);
+    if (!targetHtml) {
+      targetHtml = await readFile(join(ROOT, target), "utf8");
+      cache.set(target, targetHtml);
+    }
+
+    const contract = SEARCH_HASH_ROUTE_CONTRACTS.get(page.path);
+    if (contract) {
+      if (!targetHtml.includes(contract.panelToken)) {
+        failures.push(`${page.path}: missing hash route panel ${contract.panelToken}`);
+      }
+      if (!scriptSources(targetHtml).includes(contract.script)) {
+        failures.push(`${page.path}: missing hash route script ${contract.script}`);
+      }
+      continue;
+    }
+
+    const anchor = decodeURIComponent(page.path.slice(hashIndex + 1));
+    const pattern = new RegExp(`\\b(?:id|name)="${escapeRegExp(anchor)}"`);
+    if (!pattern.test(targetHtml)) {
+      failures.push(`${page.path}: missing anchor target #${anchor}`);
     }
   }
 

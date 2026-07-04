@@ -11,8 +11,8 @@
 ### 📌 S-11 [已修复]: `assistant.js` 仍在前端运行时拼接并使用默认体验 API Key
 
 - **📍 位置**：`js/assistant.js:39-63`, `js/assistant.js:328-333`, `js/assistant.js:1439-1510`, `tests/assistant.test.mjs:401-433`, `tests/assistant.test.mjs:464-497`
-- **✅ 修复状态**：已删除前端默认 key 常量和 `LLM_EXPERIENCE_KEYS` 注入逻辑，`withEffectiveApiKey()` 只修剪用户自己输入的 key。默认 preset 留空时不再发起 `fetch`，会提示用户填写自己的 API key；助手默认进入本地站点模式。
-- **🧪 回归测试**：`tests/assistant.test.mjs` 覆盖默认 preset 空 key 不请求、用户自填 key 才请求、源码不得包含 `OPENAI_DEFAULT_API_KEY` / `LLM_EXPERIENCE_KEYS`；`tests/assistant-deep.test.mjs` 同步加强源码扫描。
+- **✅ 修复状态**：已删除前端默认 key 常量和 `LLM_EXPERIENCE_KEYS` 注入逻辑，`withEffectiveApiKey()` 只修剪用户自己输入的 key。默认 preset 留空时不再发起 `fetch`，会提示用户填写自己的 API key；助手默认进入本地站点模式。后续又补充 endpoint 信任确认和“记住 API key”显式选择，默认不会把用户 key 持久化到 localStorage。
+- **🧪 回归测试**：`tests/assistant.test.mjs` 覆盖默认 preset 空 key 不请求、用户自填 key 才请求、未确认 endpoint 时不发送 key、未勾选 remember 时不持久化 key、源码不得包含 `OPENAI_DEFAULT_API_KEY` / `LLM_EXPERIENCE_KEYS`；`tests/assistant-deep.test.mjs` 同步加强源码扫描。
 - **📝 原状况描述**：源码中曾存在 `OPENAI_DEFAULT_API_KEY` 与 `LLM_EXPERIENCE_KEYS`，通过数组片段 `.join("")` 在运行时还原默认 key。`withEffectiveApiKey()` 在用户未填写 key 且 endpoint 为默认 preset 时自动注入该 key，测试也断言“uses the OpenAI experience key without showing or storing it”。
 - **⚠️ 影响程度**：高
 - **💡 建议方案**：
@@ -53,8 +53,8 @@
 ### 📌 S-13 [已修复核心治理]: 手势工具运行时加载 CDN 机器视觉脚本和模型，缺少完整供应链约束
 
 - **📍 位置**：`js/gesture.js:160-167`, `js/gesture.js:213-216`, `js/gesture.js:223-229`, `js/gesture.js:258-265`, `src/templates/layout.mjs:39-50`, `src/templates/tools.mjs:865-868`
-- **✅ 修复状态**：手势面板已在开启摄像头前增加第三方视觉运行时/模型下载确认，说明摄像头画面只在本机浏览器识别，但会从 jsDelivr 和 Google Storage 下载 MediaPipe、face-api、Three.js 与模型文件；未确认前“开启摄像头”保持禁用。`js/gesture.js` 同时增加 `starting` 门闩，避免模型加载或权限弹窗期间重复触发启动。
-- **🧪 回归测试**：`tests/templates.test.mjs` 覆盖供应链确认 DOM 契约；`tests/tools.test.mjs` 覆盖未确认时不会申请摄像头、勾选后按钮可用；浏览器烟测确认 `/tools/` 手势面板默认禁用、勾选启用、取消后再次禁用。
+- **✅ 修复状态**：手势面板已在开启摄像头前增加第三方视觉运行时/模型下载确认，说明摄像头画面只在本机浏览器识别，但会从 jsDelivr 和 Google Storage 下载 MediaPipe、face-api、Three.js 与模型文件；未确认前“开启摄像头”保持禁用。`js/gesture.js` 同时增加 `starting` 门闩，避免模型加载或权限弹窗期间重复触发启动。本轮进一步把 7 个远程视觉运行时、WASM 和模型 URL 纳入 `data/vendor-manifest.json` 的 `remoteResources`，记录类型、版本/路径、供应商、触发条件、用户确认要求、pinning 状态和本地化计划；手势确认区会展示版本锁定、upstream latest 和待自托管状态；`check:vendor`、单测与 browser smoke 会校验 `js/gesture.js` 中的远程 URL 被完整记录且状态可见。
+- **🧪 回归测试**：`tests/templates.test.mjs` 覆盖供应链确认 DOM 契约；`tests/tools.test.mjs` 覆盖未确认时不会申请摄像头、勾选后按钮可用；`tests/vendor-manifest.test.mjs` 覆盖手势远程 runtime manifest；浏览器烟测确认 `/tools/` 手势面板默认禁用、勾选启用、取消后再次禁用。
 - **📝 当前状况描述**：手势工具运行时从 `cdn.jsdelivr.net`、`storage.googleapis.com` 加载 MediaPipe、face-api、Three.js、WASM 和模型文件；CSP 也为工具页放开了 `script-src https://cdn.jsdelivr.net`、`connect-src https: http:` 与 `wasm-unsafe-eval`。虽然摄像头帧处理在浏览器端执行，但第三方脚本一旦被供应链污染，就具备读取页面状态和摄像头处理数据的能力。
 - **⚠️ 影响程度**：中
 - **💡 建议方案**：
@@ -65,8 +65,8 @@
   /models/efficientdet_lite0.tflite
   /js/vendor/three.module.js
   ```
-  将关键运行时和模型自托管、记录版本与 hash；如果继续使用 CDN，至少在 UI 中说明外部模型来源，并把 CSP 从全站宽泛 `connect-src https:` 收敛到必要域名。本轮已完成 UI 确认与启动门闩，后续继续推进自托管、hash 清单和 CSP 域名收敛。
-- **📊 实际收益**：减少隐私承诺与第三方资源加载之间的信息落差，防止用户未理解资源来源时直接授权摄像头，并降低重复启动带来的摄像头/模型加载风险。
+  将关键运行时和模型自托管、记录版本与 hash；如果继续使用 CDN，至少在 UI 中说明外部模型来源，并把 CSP 从全站宽泛 `connect-src https:` 收敛到必要域名。本轮已完成 UI 确认、启动门闩、远程资源 manifest 和资源治理状态可视化，后续继续推进自托管、hash pin 和 CSP 域名收敛。
+- **📊 实际收益**：减少隐私承诺与第三方资源加载之间的信息落差，防止用户未理解资源来源时直接授权摄像头；用户现在还能在授权前看到哪些资源已经版本锁定、哪些仍待自托管，同时降低重复启动带来的摄像头/模型加载风险。
 - **🔗 相关建议引用**：[S-06](#s-06-第三方脚本缺少-subresource-integrity-sri-校验), [P-14](performance-bottlenecks.md#p-14-手势工具首次启动依赖远程模型链路弱网下冷启动不可控)
 
 ### 📌 S-14 [已修复核心风险]: AI 助手对话和 LLM 上下文长期留存在 localStorage

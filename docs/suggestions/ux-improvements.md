@@ -6,6 +6,17 @@
 
 ## 2026-07-03 复查补充
 
+### 📌 UX-16 [已修复]: 全局搜索缺少索引缓存/离线可用状态
+
+- **📍 位置**：`js/search.js`、`css/coder.css`、`js/i18n.js`、`scripts/browser-smoke.mjs`
+- **✅ 修复状态**：全局搜索弹窗新增 `.search-modal-status` 状态条，使用 `role="status"` / `aria-live="polite"` 展示搜索索引待加载、加载中、已就绪、离线可搜索、离线未加载和索引异常状态；中英文文案均已覆盖。
+- **🧪 回归测试**：`tests/search-behavior.test.mjs` 覆盖离线未缓存、英文离线状态、索引异常、成功加载和加载后离线仍可搜索；`npm run test:browser-smoke` 会断言真实浏览器搜索弹窗进入索引 ready 状态。
+- **📝 原状况描述**：搜索弹窗能在失败时提示“离线且索引未缓存”或“索引异常”，但用户在正常打开时看不到索引是否已加载，也无法区分“离线不可用”和“索引已在本次会话加载、离线仍可搜索”。
+- **⚠️ 影响程度**：中
+- **💡 建议方案**：在搜索输入区下方增加轻量状态条，不新增操作说明，只显示当前索引状态；加载成功后根据 `navigator.onLine` 切换为“搜索索引已就绪”或“离线可搜索，索引已加载”。
+- **📊 实际收益**：减少离线/弱网场景下的困惑，让搜索可用性与 PWA 缓存边界更透明。
+- **🔗 相关建议引用**：[PWA-04](module-reviews/pwa-offline-cache-readiness.md#pwa-04-已修复第四阶段离线用户体验已覆盖反馈保存导航-fallback搜索索引错误态和缓存状态)
+
 ### 📌 UX-11 [已修复核心问题]: 手势与 API 工具的隐私边界文案需要更精确
 
 - **📍 位置**：`src/templates/tools.mjs:123-170`, `src/templates/tools.mjs:793-870`, `src/templates/tools.mjs:923-926`, `tools/index.html:307-356`, `tools/index.html:1233-1235`
@@ -78,7 +89,7 @@
   ```
   如果不想新增可见文案，也可使用 `aria-label="Markdown 原文输入"` 并接入 `data-i18n-aria`。
 - **📊 预期收益**：提升编辑器键盘和辅助技术可用性，避免一个核心输入控件在自动化 a11y 审计中持续报错。
-- **🔗 相关建议引用**：[MR-EDITOR-06](module-reviews/editor.md#mr-editor-06-markdown-主输入框缺少可访问名称), [DE-14](devex-improvements.md#de-14-增加页面级-dom-契约审计防止-seo-a11y-回退)
+- **🔗 相关建议引用**：[MR-EDITOR-06](module-reviews/editor.md#mr-editor-06-markdown-主输入框缺少可访问名称), [DE-14](devex-improvements.md#de-14)
 
 ### 📌 UX-15 [已修复]: QR 结果图片缺少尺寸和加载属性，生成后可能产生布局跳动
 
@@ -93,7 +104,7 @@
   ```
   CSS 中给 `.tool-preview` 或 QR 容器预留固定 `min-height`，生成失败时也保持布局稳定。
 - **📊 预期收益**：减少二维码生成瞬间的布局抖动，让工具输出区更稳定。
-- **🔗 相关建议引用**：[P-11](performance-bottlenecks.md#p-11), [DE-14](devex-improvements.md#de-14-增加页面级-dom-契约审计防止-seo-a11y-回退)
+- **🔗 相关建议引用**：[P-11](performance-bottlenecks.md#p-11), [DE-14](devex-improvements.md#de-14)
 
 ---
 

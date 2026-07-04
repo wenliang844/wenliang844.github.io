@@ -4,12 +4,13 @@ import { createServer } from "node:http";
 import { readFile, stat } from "node:fs/promises";
 import { extname, isAbsolute, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { ERROR_SMOKE_ROUTES, SMOKE_ROUTES } from "../src/config.mjs";
+import { ERROR_SMOKE_ROUTES, FULL_SMOKE_ROUTES, SMOKE_ROUTES } from "../src/config.mjs";
 
 const DEFAULT_ROOT = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const ROOT = resolveSmokeRoot();
 const HOST = "127.0.0.1";
-const ROUTES = [...SMOKE_ROUTES, ...ERROR_SMOKE_ROUTES];
+const SMOKE_SCOPE = resolveSmokeScope();
+const ROUTES = routesForScope(SMOKE_SCOPE);
 const MIME_TYPES = new Map([
   [".css", "text/css; charset=utf-8"],
   [".html", "text/html; charset=utf-8"],
@@ -36,6 +37,23 @@ function resolveSmokeRoot() {
   }
 
   return DEFAULT_ROOT;
+}
+
+function resolveSmokeScope() {
+  const scopeIdx = process.argv.indexOf("--scope");
+  const scope = scopeIdx === -1 ? process.env.SMOKE_SCOPE || "critical" : process.argv[scopeIdx + 1];
+  if (!scope || scope.startsWith("--")) {
+    throw new Error("Missing --scope <critical|full> argument.");
+  }
+  if (!["critical", "full"].includes(scope)) {
+    throw new Error(`Unsupported smoke scope: ${scope}`);
+  }
+  return scope;
+}
+
+function routesForScope(scope) {
+  const routes = scope === "full" ? FULL_SMOKE_ROUTES : SMOKE_ROUTES;
+  return [...routes, ...ERROR_SMOKE_ROUTES];
 }
 
 function resolveStaticPath(pathname) {
@@ -193,15 +211,36 @@ async function smokeManifest(baseUrl) {
   console.log("✓ /manifest.webmanifest reachable");
 }
 
+async function smokePwaArtifacts(baseUrl) {
+  const offlineResponse = await fetch(`${baseUrl}/offline.html`);
+  await assertOk(offlineResponse, "/offline.html");
+  const offlineHtml = await offlineResponse.text();
+  if (!/<main\b[^>]*\bid=["']main-content["']/i.test(offlineHtml) || !/<h1\b/i.test(offlineHtml)) {
+    throw new Error("/offline.html is missing the fallback document structure");
+  }
+  if (!/<meta\b[^>]*\bname=["']robots["'][^>]*\bcontent=["']noindex,follow["']/i.test(offlineHtml)) {
+    throw new Error("/offline.html should be noindex,follow");
+  }
+
+  const serviceWorkerResponse = await fetch(`${baseUrl}/service-worker.js`, { method: "HEAD" });
+  await assertOk(serviceWorkerResponse, "/service-worker.js");
+
+  const registerResponse = await fetch(`${baseUrl}/js/pwa-register.js`, { method: "HEAD" });
+  await assertOk(registerResponse, "/js/pwa-register.js");
+
+  console.log("✓ PWA offline and service worker artifacts reachable");
+}
+
 async function main() {
   const { server, port } = await startServer();
   const baseUrl = `http://${HOST}:${port}`;
   try {
     await smokeManifest(baseUrl);
+    await smokePwaArtifacts(baseUrl);
     for (const route of ROUTES) {
       await smokeRoute(baseUrl, route);
     }
-    console.log(`HTTP smoke passed for ${ROUTES.length} route(s).`);
+    console.log(`HTTP smoke (${SMOKE_SCOPE}) passed for ${ROUTES.length} route(s).`);
   } finally {
     await new Promise((resolveClose, rejectClose) => {
       server.close((error) => (error ? rejectClose(error) : resolveClose()));

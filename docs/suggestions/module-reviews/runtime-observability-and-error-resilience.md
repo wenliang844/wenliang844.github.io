@@ -71,7 +71,7 @@
   }
   ```
 - **📊 预期收益**：让异步失败日志更接近真实原因，减少排查网络、存储、解析错误时的上下文丢失。
-- **🔗 相关建议引用**：[UX-12](../ux-improvements.md#ux-12-ai-助手超时与手动停止使用同一种提示), [assistant-deep-dive.md](assistant-deep-dive.md) 中关于网络错误可诊断性的建议。
+- **🔗 相关建议引用**：[UX-12](../ux-improvements.md#ux-12), [assistant-deep-dive.md](assistant-deep-dive.md) 中关于网络错误可诊断性的建议。
 
 ---
 

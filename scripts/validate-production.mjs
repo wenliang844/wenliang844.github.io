@@ -5,10 +5,11 @@
  * 在部署前运行此脚本以确保项目符合生产级标准
  */
 
-import { readFile, access, rm } from 'node:fs/promises';
-import { join } from 'node:path';
+import { readFile, access, readdir, rm } from 'node:fs/promises';
+import { join, relative } from 'node:path';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
+import { pageAssetUrls } from '../src/page-assets.mjs';
 
 const execFileAsync = promisify(execFile);
 const ROOT = process.cwd();
@@ -44,6 +45,112 @@ async function fileExists(path, baseDir = ROOT) {
     return true;
   } catch {
     return false;
+  }
+}
+
+async function listHtmlFiles(dir = ROOT) {
+  const entries = await readdir(dir, { withFileTypes: true });
+  const files = [];
+  for (const entry of entries) {
+    if (entry.name === '.git' || entry.name === 'node_modules' || entry.name === 'temp') {
+      continue;
+    }
+
+    const absolutePath = join(dir, entry.name);
+    if (entry.isDirectory()) {
+      files.push(...await listHtmlFiles(absolutePath));
+    } else if (entry.isFile() && entry.name.endsWith('.html')) {
+      files.push(relative(ROOT, absolutePath).replace(/\\/g, '/'));
+    }
+  }
+  return files.sort();
+}
+
+function getHtmlAttr(tag, attr) {
+  const pattern = new RegExp(`\\s${attr}(?:\\s*=\\s*(?:"([^"]*)"|'([^']*)'|([^\\s"'=<>` + "`" + `]+)))?`, 'i');
+  const match = tag.match(pattern);
+  if (!match) {
+    return null;
+  }
+  return match[1] ?? match[2] ?? match[3] ?? '';
+}
+
+function hasHtmlAttr(tag, attr) {
+  return getHtmlAttr(tag, attr) !== null;
+}
+
+function isSvgImage(src) {
+  return /\.svg(?:[?#]|$)/i.test(src) || /^data:image\/svg\+xml/i.test(src);
+}
+
+function isHiddenImage(tag) {
+  return hasHtmlAttr(tag, 'hidden') || /style=["'][^"']*display\s*:\s*none/i.test(tag);
+}
+
+function localAssetPath(ref) {
+  if (/^(?:https?:)?\/\//i.test(ref) || ref.startsWith('data:')) {
+    return '';
+  }
+  return ref.replace(/[?#].*$/, '').replace(/^\//, '');
+}
+
+function imagePolicyViolations(file, img) {
+  const violations = [];
+  const src = getHtmlAttr(img, 'src') || '';
+  const hidden = isHiddenImage(img);
+  const svg = isSvgImage(src);
+  const loading = getHtmlAttr(img, 'loading');
+  const decoding = getHtmlAttr(img, 'decoding');
+  const fetchpriority = getHtmlAttr(img, 'fetchpriority');
+
+  if (!hasHtmlAttr(img, 'alt')) {
+    violations.push(`${file}: image missing alt: ${img}`);
+  }
+  if (!svg && !hidden && (!hasHtmlAttr(img, 'width') || !hasHtmlAttr(img, 'height'))) {
+    violations.push(`${file}: image missing width/height: ${img}`);
+  }
+  if (!hidden && fetchpriority !== 'high' && loading !== 'lazy' && loading !== 'eager') {
+    violations.push(`${file}: image missing explicit loading strategy: ${img}`);
+  }
+  if (!hidden && decoding !== 'async') {
+    violations.push(`${file}: image missing decoding="async": ${img}`);
+  }
+  return violations;
+}
+
+async function checkLocalResourceReferences() {
+  console.log('\n🧩 检查本地 CSS/JS 资源引用...');
+
+  const htmlFiles = await listHtmlFiles();
+  const missing = [];
+
+  for (const file of htmlFiles) {
+    const html = await readFile(join(ROOT, file), 'utf8');
+    const refs = [
+      ...html.matchAll(/href="([^"]+\.(?:css|js)(?:[?#][^"]*)?)"/g),
+      ...html.matchAll(/src="([^"]+\.(?:css|js)(?:[?#][^"]*)?)"/g),
+    ];
+
+    for (const match of refs) {
+      const assetPath = localAssetPath(match[1]);
+      if (assetPath && !(await fileExists(assetPath))) {
+        missing.push(`${file}: ${match[1]}`);
+      }
+    }
+  }
+
+  const manifestAssets = pageAssetUrls().filter((url) => /\.(?:css|js)(?:[?#]|$)/i.test(url));
+  for (const url of manifestAssets) {
+    const assetPath = localAssetPath(url);
+    if (assetPath && !(await fileExists(assetPath))) {
+      missing.push(`PAGE_ASSETS: ${url}`);
+    }
+  }
+
+  if (missing.length > 0) {
+    fail(`本地 CSS/JS 资源缺失:\n${missing.map(item => `  - ${item}`).join('\n')}`);
+  } else {
+    pass(`本地 CSS/JS 资源完整：${htmlFiles.length} 个页面和 ${manifestAssets.length} 个 manifest 资源已检查`);
   }
 }
 
@@ -330,10 +437,8 @@ async function checkCodeQuality() {
 async function checkAccessibility() {
   console.log('\n♿ 检查可访问性特性...');
 
-  const htmlFiles = ['index.html'];
-  if (await fileExists('post/index.html')) {
-    htmlFiles.push('post/index.html');
-  }
+  const htmlFiles = await listHtmlFiles();
+  const imageViolations = [];
 
   for (const file of htmlFiles) {
     if (await fileExists(file)) {
@@ -353,15 +458,16 @@ async function checkAccessibility() {
         warn(`${file}: 建议添加 ARIA 属性`);
       }
 
-      // 检查 alt 属性
+      // 检查图片可访问性、布局稳定性和加载策略
       const imgs = content.match(/<img[^>]*>/g) || [];
-      const imgsWithoutAlt = imgs.filter(img => !img.includes('alt='));
-      if (imgsWithoutAlt.length > 0) {
-        warn(`${file}: ${imgsWithoutAlt.length} 个图片缺少 alt 属性`);
-      } else if (imgs.length > 0) {
-        pass(`${file}: 所有图片都有 alt 属性`);
-      }
+      imgs.forEach(img => imageViolations.push(...imagePolicyViolations(file, img)));
     }
+  }
+
+  if (imageViolations.length > 0) {
+    fail(`图片属性检查失败:\n${imageViolations.map(item => `  - ${item}`).join('\n')}`);
+  } else {
+    pass(`HTML 图片属性完整：${htmlFiles.length} 个页面已检查`);
   }
 }
 
@@ -406,6 +512,7 @@ async function main() {
   await runTests();
   await checkDependencies();
   await checkBuild();
+  await checkLocalResourceReferences();
   await checkPerformanceFeatures();
   await checkCodeQuality();
   await checkAccessibility();

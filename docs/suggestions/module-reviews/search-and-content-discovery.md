@@ -6,16 +6,18 @@
 
 本轮验证：
 
-- `node --test tests/search-loader-behavior.test.mjs tests/blog.test.mjs tests/security.test.mjs tests/build.test.mjs tests/build-extra.test.mjs tests/templates-extended.test.mjs`：107/107 通过。
-- 抽样当前 `search-index.json`：18 条记录，其中 6 篇文章、12 个页面；文件约 27KB；6 篇文章 `body` 均截断为 600 字。
-- 抽样关键词：`ESClient`、`Web Worker`、`Rete` 在源文章中存在，但当前搜索索引没有命中；`BPMN`、`Maven` 可命中。
+- `node --test tests/blog.test.mjs tests/workflows.test.mjs tests/search-behavior.test.mjs tests/build-extra.test.mjs tests/js-behavior.test.mjs`：113/113 通过。
+- `node --test tests/search-behavior.test.mjs tests/js-behavior.test.mjs tests/workflows.test.mjs`：58/58 通过。
+- `npm run test:browser-smoke`：通过，真实浏览器覆盖搜索结果命中原因、`BPMN` 文章章节跳转、`Cron` 工具箱章节跳转、相关文章推荐原因和 `/post/` 正文长尾词过滤。
+- 抽样当前 `search-index.json`：80 条记录，其中 6 篇文章、51 个文章章节、11 个静态页章节、12 个页面；文件 120,551 bytes（约 117.7KiB）；文章 `body` 预算为 3200 字，文章章节 `body` 预算为 560 字，静态页章节 `body` 预算为 72 字。
+- 抽样关键词：`ESClient`、`Web Worker`、`Galaxy`、`BPMN`、`Maven`、`Cron` 均已进入搜索索引，并由回归测试锁定；文章章节路径均校验能在生成文章页找到对应 `#toc-*` heading，静态页章节路径均校验能在生成静态页找到对应锚点；文章列表页本地搜索也已能匹配正文和章节文本。
 - 本轮只新增 `/docs/suggestions/module-reviews/search-and-content-discovery.md`。
 
 ## 总览
 
 项目的内容发现基础很扎实：全局搜索通过 `search-loader.js` 懒加载，不阻塞首屏；`search.js` 使用 Fuse.js，支持中英文 i18n、键盘快捷键、ARIA combobox、结果高亮和加载失败降级；文章列表页有本地搜索、标签筛选、URL 同步、移动端目录浮层和 J/K 快捷键；标签页与时间归档页也都有结构化数据。
 
-主要可优化点集中在“召回率”和“解释力”。当前搜索索引为了轻量，只保留文章正文前 600 字，静态页面只有摘要和标签；文章列表页的本地搜索也只看标题、摘要和标签。这样对当前 6 篇文章和少量页面已经可用，但随着长文、工具页、Trust Center、AI 榜单和商业化内容变多，用户会遇到“明明页面里有这个词，全局搜索搜不到”的情况。下一步建议是在体积预算内引入分块索引、页面正文摘要、统一搜索口径和更清晰的匹配解释。
+主要可优化点集中在“召回率”和“解释力”。当前文章搜索索引已经把正文预算从 600 字提升到 3200 字，并新增 `post-section` 章节条目，让正文命中可以显示具体章节并跳转到文章 heading；结果摘要也会优先显示包含查询词的字段。静态页面已完成第一阶段显式章节索引，覆盖工具箱、Trust Center 和 AI 页面内的高价值功能区；文章列表页本地搜索也已纳入文章正文、章节标题和 slug，让 `ESClient`、`Web Worker` 等全局搜索长尾词在 `/post/` 内保持可发现。Fuse matches 命中解释也已完成第一阶段，结果会显示“命中正文/命中章节/Matched body”等字段原因，并优先用匹配字段生成片段。相关文章评分信号已完成第一阶段，从单一中文标签重叠扩展为中文标签、英文标签、系列、领域、技术栈和主题信号，并在卡片中显示推荐原因。
 
 严重程度分布：
 
@@ -25,7 +27,7 @@
 
 ## 建议清单
 
-### 📌 MR-DISCOVERY-01：搜索索引正文固定截断 600 字，长文深处关键词不可发现
+### 📌 MR-DISCOVERY-01 [已修复第二阶段]：搜索索引正文固定截断 600 字，长文深处关键词不可发现
 
 📍 位置（文件路径 + 行号范围）
 
@@ -37,7 +39,7 @@
 
 📝 当前状况描述
 
-构建脚本把文章 HTML 去标签后写入 `search-index.json`，但 `body` 固定 `slice(0, 600)`。当前索引中 6 篇文章的 `bodyLen` 都是 600，说明所有文章正文都被截断。抽样发现 `ESClient`、`Web Worker` 等正文中真实存在的技术词没有进入搜索索引，用户全局搜索这些词时无法找到对应文章。这个选择能保持索引约 27KB，很轻，但随着长文变多，召回率会明显下降。
+构建脚本此前把文章 HTML 去标签后写入 `search-index.json`，但 `body` 固定 `slice(0, 600)`。当前已新增 `SEARCH_BODY_LIMIT = 3200`、`extractSearchSections()` 和显式静态页 `searchSections` 展开，根索引 120,551 bytes（约 117.7KiB），低于 125KB 质量预算；索引包含 6 篇文章、51 个文章章节、11 个静态页章节和 12 个页面。`ESClient`、`Web Worker`、`Galaxy`、`Maven`、`BPMN`、`Cron` 均已进入索引并由 `tests/build-extra.test.mjs` 回归保护，章节路径也会校验到生成页面的真实锚点。
 
 ⚠️ 影响程度（高/中/低）
 
@@ -45,7 +47,7 @@
 
 💡 建议方案（含伪代码或示例片段）
 
-把“单篇 600 字”升级为“标题/摘要/标签 + 关键段落分块”。可以按标题附近、代码块前后、关键词密度或固定窗口提取 2-4 个短 chunk，并记录 `section`，仍然控制总大小。
+第一阶段已把“单篇 600 字”升级为“单篇 3200 字预算”，第二阶段已进一步生成“标题/摘要/标签 + H2/H3 章节条目”：每个章节记录 `sectionTitle`、560 字正文片段和 `#toc-*` 路径，搜索弹窗会显示章节标题并跳转到具体 heading。
 
 ```js
 function buildBodyChunks(post, maxChunks = 4) {
@@ -64,7 +66,7 @@ function buildBodyChunks(post, maxChunks = 4) {
   type: "post",
   title: post.title,
   summary: post.summary,
-  body: stripHtml(post.contentHtml).slice(0, 600),
+  body: stripHtml(post.contentHtml).slice(0, SEARCH_BODY_LIMIT),
   chunks: buildBodyChunks(post)
 }
 ```
@@ -82,7 +84,7 @@ function buildBodyChunks(post, maxChunks = 4) {
 - `/docs/suggestions/performance-bottlenecks.md`
 - `/docs/suggestions/module-reviews/content-freshness-and-trust-signals.md`
 
-### 📌 MR-DISCOVERY-02：静态页面只索引摘要和标签，工具箱与信任页的细粒度内容不可搜索
+### 📌 MR-DISCOVERY-02 [已修复第一阶段]：静态页面只索引摘要和标签，工具箱与信任页的细粒度内容不可搜索
 
 📍 位置（文件路径 + 行号范围）
 
@@ -94,7 +96,7 @@ function buildBodyChunks(post, maxChunks = 4) {
 
 📝 当前状况描述
 
-`SEARCH_PAGES` 为静态页提供标题、摘要、路径、标签和英文 i18n，这是轻量且可控的做法；测试也覆盖了 `/tools/`、`/ai/`、`/trust/` 等页面是否进入索引。但静态页面的页面内功能项不会自动进入索引。例如工具箱有 31 个工具，信任页列出 Buttondown、Giscus、Web3Forms、本地数据和第三方服务；当前能搜到这些内容主要取决于摘要和 tags 是否手工覆盖。页面内容越复杂，手工摘要越难长期保持完整。
+`SEARCH_PAGES` 为静态页提供标题、摘要、路径、标签和英文 i18n，这是轻量且可控的做法；当前第一阶段已增加可选 `searchSections`，生成 `page-section` 条目。索引已覆盖 `/tools/#tool-tab-json`、`/tools/#tool-tab-api`、`/tools/#tool-tab-cron`、`/tools/#tool-tab-jsonpath`、`/tools/#tool-tab-markdown`、`/tools/#tool-tab-galaxy`、`/trust/#trust-local-title`、`/trust/#trust-services-title`、`/trust/#trust-security-title`、`/ai/#relay` 和 `/ai/#nav`。工具箱 hash 深链接会自动激活对应工具面板，避免用户落到页面后还要重新找工具。
 
 ⚠️ 影响程度（高/中/低）
 
@@ -102,7 +104,7 @@ function buildBodyChunks(post, maxChunks = 4) {
 
 💡 建议方案（含伪代码或示例片段）
 
-为静态页面增加可选 `searchSections`，或者从已生成 HTML 的 `<main>` 中提取受控文本。对工具箱、信任页这类信息密集页面，建议使用显式章节清单，避免索引掉按钮噪音。
+第一阶段已采用显式 `searchSections` 清单，避免从工具页按钮和模板噪音中自动提取。后续可继续补更多高价值工具或把页面章节清单拆到独立数据文件。
 
 ```js
 export const SEARCH_PAGES = [
@@ -130,7 +132,7 @@ export const SEARCH_PAGES = [
 - `/docs/suggestions/module-reviews/trust-page-launch-readiness.md`
 - `/docs/suggestions/module-reviews/product-info-pages-and-rankings.md`
 
-### 📌 MR-DISCOVERY-03：文章列表页本地搜索与全局搜索口径不一致
+### 📌 MR-DISCOVERY-03 [已修复第一阶段]：文章列表页本地搜索与全局搜索口径不一致
 
 📍 位置（文件路径 + 行号范围）
 
@@ -142,7 +144,7 @@ export const SEARCH_PAGES = [
 
 📝 当前状况描述
 
-全局搜索使用 Fuse.js，并检索标题、短标题、标签、摘要、正文和路径；文章列表页的本地搜索只构建标题、摘要、标签和标签展示文案的 `haystack`，不看正文，也不复用 Fuse 权重或搜索索引。结果是 `/post/` 页面内搜索与全站搜索的召回口径不同：用户在全局搜索里能找到的词，进入文章页列表后可能搜不到；反过来，本地搜索的 URL 参数 `?q=` 也不能复用全局搜索结果的分词和评分。
+全局搜索使用 Fuse.js，并检索标题、短标题、标签、摘要、正文和路径；文章列表页此前只构建标题、摘要、标签和标签展示文案的 `haystack`，不看正文，导致用户在全局搜索里能找到的正文长尾词，进入 `/post/` 页面后可能搜不到。当前第一阶段已把文章正文、H2/H3 章节标题和 slug 纳入本地 haystack，保留现有 `?q=` URL 同步、标签筛选、分组计数和 J/K 导航行为。
 
 ⚠️ 影响程度（高/中/低）
 
@@ -150,26 +152,22 @@ export const SEARCH_PAGES = [
 
 💡 建议方案（含伪代码或示例片段）
 
-让文章列表页复用同一个轻量搜索数据：可以在构建时给每个 `article` 输出 `data-search-body` 的短文本，也可以让 `blog.js` 懒加载 `search-index.json` 后筛选 `type === "post"`。
+第一阶段已利用 `/post/` 页面现有 DOM 内容，不增加额外请求：`blog.js` 在构建本地 item cache 时读取 `.article-content`、章节标题和 `data-post-slug`，并与标题、摘要、标签一起组成 haystack。后续如果文章数量显著增长，再考虑懒加载 `search-index.json` 或构建期输出短文本。
 
 ```js
-async function loadPostSearchData() {
-  const index = await fetch("/search-index.json").then((r) => r.json());
-  return index.filter((item) => item.type === "post");
-}
-
-function matchesPost(item, query, tag) {
-  const target = [item.title, item.summary, item.body, item.tags.join(" ")].join(" ").toLowerCase();
-  return (!query || target.includes(query)) && (!tag || item.tags.includes(tag));
-}
+const body = contentEl ? contentEl.textContent : "";
+const headings = headingEls.map((heading) => heading.textContent || "").join(" ");
+const haystack = [title, summary, headings, body, slug, tags.join(" "), tagLabels.join(" ")]
+  .join(" ")
+  .toLowerCase();
 ```
 
-如果担心额外请求，可以只在用户输入超过 2 个字符时加载。
+`tests/blog.test.mjs` 已覆盖 `ESClient` 和 `Web Worker` 正文/章节词过滤；`scripts/browser-smoke.mjs` 也会在真实浏览器中访问 `/post/`、输入这些长尾词并确认 URL 同步和文章列表过滤生效。
 
 📊 预期收益
 
-- 全局搜索和文章页搜索对用户表现一致。
-- 文章列表页能匹配正文摘要或后续 chunk。
+- 全局搜索和文章页搜索对用户表现更一致。
+- 文章列表页能匹配正文、章节标题和 slug 中的长尾词。
 - 后续只需维护一套搜索质量测试。
 
 🔗 相关建议引用
@@ -177,7 +175,7 @@ function matchesPost(item, query, tag) {
 - `/docs/suggestions/module-reviews/build-artifact-synchronization.md`
 - `/docs/suggestions/devex-improvements.md`
 
-### 📌 MR-DISCOVERY-04：搜索结果使用 Fuse matches，但渲染解释仍以原始 query 为主
+### 📌 MR-DISCOVERY-04 [已修复第一阶段]：搜索结果使用 Fuse matches，但渲染解释仍以原始 query 为主
 
 📍 位置（文件路径 + 行号范围）
 
@@ -188,7 +186,7 @@ function matchesPost(item, query, tag) {
 
 📝 当前状况描述
 
-Fuse 配置开启了 `includeMatches: true`，但结果渲染没有使用 `r.matches` 的字段和范围信息，而是用原始 query 对标题、标签和摘要做简单正则高亮。对于模糊匹配、大小写差异、英文/中文混合、命中 tags 而 snippet 来自 summary 的场景，用户可能看不到“为什么这条结果排在前面”。现有安全测试已经保证高亮用 DOM 节点构造，这是很好的基础，但解释力还可以增强。
+Fuse 配置开启了 `includeMatches: true`。当前第一阶段已开始消费 `r.matches`：搜索结果顶部会显示命中字段原因，例如“命中正文”“命中章节”或英文模式的 “Matched section”；摘要片段也优先来自实际匹配字段，并使用 Fuse 返回的范围信息高亮。没有 matches 的测试/降级路径会回退到精确字段扫描，继续保证结果可解释。
 
 ⚠️ 影响程度（高/中/低）
 
@@ -196,7 +194,7 @@ Fuse 配置开启了 `includeMatches: true`，但结果渲染没有使用 `r.mat
 
 💡 建议方案（含伪代码或示例片段）
 
-基于 `r.matches` 展示命中字段徽标，并优先选中命中字段生成 snippet。
+第一阶段已基于 `r.matches` 展示命中字段徽标，并优先选中命中字段生成 snippet；后续可继续把字段原因纳入搜索排序调参面板或埋点分析。
 
 ```js
 function bestMatch(result) {
@@ -215,7 +213,7 @@ appendHighlightedRanges(snippetDiv, sourceText, match?.indices || []);
 📊 预期收益
 
 - 用户能理解结果排序，减少“搜索看起来随机”的感觉。
-- 模糊匹配和标签命中更容易被看见。
+- 正文、章节、标签和路径命中更容易被看见。
 - 为未来搜索质量调参提供可观察反馈。
 
 🔗 相关建议引用
@@ -223,7 +221,7 @@ appendHighlightedRanges(snippetDiv, sourceText, match?.indices || []);
 - `/docs/suggestions/ux-improvements.md`
 - `/docs/suggestions/module-reviews/i18n-and-accessibility.md`
 
-### 📌 MR-DISCOVERY-05：相关文章只按中文标签重叠，缺少系列、主题和英文标签辅助信号
+### 📌 MR-DISCOVERY-05 [已修复第一阶段]：相关文章只按中文标签重叠，缺少系列、主题和英文标签辅助信号
 
 📍 位置（文件路径 + 行号范围）
 
@@ -234,7 +232,7 @@ appendHighlightedRanges(snippetDiv, sourceText, match?.indices || []);
 
 📝 当前状况描述
 
-`relatedPosts()` 只用 `post.tags` 的精确重叠计分，再按日期排序。测试覆盖了共享标签数、日期排序、空 tags 和不变性，说明算法稳定。但当前文章有中英文 tags、项目系列、技术栈、场景和年份等多维信号。只靠中文 tags 会让一些语义接近但标签不同的文章无法互相推荐，也无法解释“为什么推荐”。英文模式下页面展示英文标签，但推荐算法仍基于中文 tags。
+`relatedPosts()` 当前第一阶段已从只用 `post.tags` 精确重叠，扩展为综合中文标签、英文标签、可选 `series/domains/stack` front matter 和 `eyebrow` 主题信号计分；仍保留“共同标签优先、同分按日期更新优先”的既有直觉。返回结果会带上 `relatedReason` / `relatedReasonEn`，模板在相关文章卡片中展示“共同标签：Java、Spring Boot”或 “Shared tags: Java, Spring Boot” 等原因。
 
 ⚠️ 影响程度（高/中/低）
 
@@ -242,14 +240,14 @@ appendHighlightedRanges(snippetDiv, sourceText, match?.indices || []);
 
 💡 建议方案（含伪代码或示例片段）
 
-扩展 front matter 或构建阶段派生推荐特征：`series`、`domain`、`stack`、`tagsEn`、`year`，并在推荐卡片里显示共同原因。
+第一阶段已兼容可选 front matter：`series`、`seriesEn`、`domains`、`domainsEn`、`stack`、`stackEn`，并在构建阶段派生推荐原因。后续可以继续为现有文章补充更细的系列/领域/技术栈元数据。
 
 ```js
 function relatedScore(current, candidate) {
-  const zhTags = overlap(current.tags, candidate.tags) * 3;
-  const enTags = overlap(current.tagsEn, candidate.tagsEn) * 2;
-  const sameSeries = current.series && current.series === candidate.series ? 5 : 0;
-  const sameDomain = overlap(current.domains || [], candidate.domains || []) * 2;
+  const zhTags = overlap(current.tags, candidate.tags) * 4;
+  const enTags = overlap(current.tagsEn, candidate.tagsEn) * 3;
+  const sameSeries = current.series && current.series === candidate.series ? 6 : 0;
+  const sameDomain = overlap(current.domains || [], candidate.domains || []) * 3;
   return zhTags + enTags + sameSeries + sameDomain;
 }
 ```
@@ -260,7 +258,7 @@ function relatedScore(current, candidate) {
 
 - 推荐从“标签碰巧相同”升级为“主题相关”。
 - 英文模式和中文模式下推荐质量更一致。
-- 相关文章卡片更有解释力，能提高继续阅读率。
+- 相关文章卡片会直接展示推荐原因，能提高继续阅读的确定感。
 
 🔗 相关建议引用
 
@@ -278,7 +276,7 @@ function relatedScore(current, candidate) {
 
 📝 当前状况描述
 
-测试已经确认搜索索引包含 6 篇文章、关键静态页、i18n 元数据和正斜杠路径。但没有锁定索引体积预算、每篇文章 body/chunk 长度、关键关键词召回、页面项目数量、空 body 比例或路径可访问性。现在 `search-index.json` 约 27KB，很轻；后续如果增加 chunk，需要防止索引突然膨胀，也要防止为了控体积又把关键术语裁掉。
+测试已经确认搜索索引包含 6 篇文章、51 个文章章节、11 个静态页章节、关键静态页、i18n 元数据和正斜杠路径。当前质量预算要求索引体积 < 125KB、每篇文章 body <= 3200、文章章节 body <= 560、静态页章节 body <= 72、至少存在 >600 字正文，并锁定 `ESClient`、`Web Worker`、`Galaxy`、`Maven`、`BPMN`、`Cron` 这些抽样关键词。章节路径也会逐一读取生成页面，确认文章 `#toc-*` 和静态页 hash anchor 真实存在。
 
 ⚠️ 影响程度（高/中/低）
 
@@ -286,14 +284,14 @@ function relatedScore(current, candidate) {
 
 💡 建议方案（含伪代码或示例片段）
 
-新增 `tests/search-index-quality.test.mjs`，把大小预算和抽样召回同时纳入。
+第一阶段已在 `tests/build-extra.test.mjs` 中把大小预算和抽样召回纳入；后续可拆出独立 `tests/search-index-quality.test.mjs` 承载更多页面章节质量断言。
 
 ```js
 const raw = await readFile(join(outDir, "search-index.json"));
-assert.ok(raw.byteLength < 120_000, "search index should stay lightweight");
+assert.ok(raw.byteLength < 125_000, "search index should stay lightweight");
 
 const index = JSON.parse(raw);
-for (const term of ["ESClient", "Web Worker", "Buttondown", "Galaxy"]) {
+for (const term of ["ESClient", "Web Worker", "Galaxy", "Maven", "BPMN"]) {
   assert.ok(
     index.some((item) => JSON.stringify(item).toLowerCase().includes(term.toLowerCase())),
     `${term} should be discoverable`,
@@ -408,11 +406,11 @@ for (const tag of topTags) {
 
 ## 建议优先级
 
-1. 中优先级：为长文引入分块索引，避免 600 字截断导致关键术语不可发现。
-2. 中优先级：为工具箱、信任页等静态页面增加章节级搜索数据。
-3. 中优先级：统一全局搜索和文章列表页搜索口径。
-4. 中优先级：扩展相关文章评分信号，加入系列、英文标签和推荐原因。
-5. 中优先级：建立搜索索引质量预算与关键词召回测试。
-6. 低优先级：使用 Fuse matches 提升结果解释力。
+1. 已完成第二阶段：为文章引入章节/分块索引，让正文命中能显示具体章节并跳转到 `#toc-*`。
+2. 已完成第一阶段：为工具箱、信任页和 AI 页增加静态页面章节级搜索数据，并让工具箱 hash 自动激活对应面板。
+3. 已完成第一阶段：文章列表页本地搜索纳入正文、章节标题和 slug，真实浏览器 smoke 覆盖 `ESClient` / `Web Worker` 长尾词过滤。
+4. 已完成第一阶段：扩展相关文章评分信号，加入系列、英文标签、领域/技术栈和推荐原因。
+5. 已完成第二阶段：建立搜索索引体积预算、关键词召回测试、章节数量/长度/锚点质量断言和 browser smoke 章节搜索交互。
+6. 已完成第一阶段：使用 Fuse matches 提升结果解释力，结果展示命中字段原因并基于匹配字段生成片段。
 7. 低优先级：把搜索弹窗壳层改为 DOM builder，统一安全渲染风格。
 8. 低优先级：为高频标签生成可索引的静态标签详情页。

@@ -40,6 +40,7 @@ test("layout escapes title and metadata", () => {
   assert.match(html, /class="nav-ai-experience assistant-nav-trigger" type="button" aria-label="打开 AI 助手" title="打开 AI 助手" data-assistant-toggle data-i18n-aria="assistant.open" data-i18n-title="assistant.open"/);
   assert.doesNotMatch(html, /href="\/\?assistant=fullscreen"/);
   assert.match(html, /src="\/js\/assistant-loader\.js"/);
+  assert.match(html, /src="\/js\/pwa-register\.js"/);
   assert.doesNotMatch(html, /src="\/js\/assistant\.js"/);
   assert.match(html, /http-equiv="Content-Security-Policy"/);
   assert.match(html, /<link rel="manifest" href="\/manifest\.webmanifest">/);
@@ -49,13 +50,30 @@ test("layout escapes title and metadata", () => {
   assert.match(html, /frame-src https:\/\/giscus\.app/);
   assert.match(html, /connect-src 'self' https:/);
   assert.doesNotMatch(html, /connect-src 'self' https: http:/);
-  assert.match(html, /<link rel="preconnect" href="https:\/\/giscus\.app">/);
   assert.match(html, /<link rel="dns-prefetch" href="https:\/\/giscus\.app">/);
-  assert.match(html, /<link rel="preconnect" href="https:\/\/buttondown\.com">/);
   assert.match(html, /<link rel="dns-prefetch" href="https:\/\/buttondown\.com">/);
   assert.match(html, /<link rel="dns-prefetch" href="https:\/\/www\.ifdian\.net">/);
   assert.match(html, /<link rel="dns-prefetch" href="https:\/\/paypal\.me">/);
+  assert.doesNotMatch(html, /<link rel="preconnect" href="https:\/\/giscus\.app">/);
+  assert.doesNotMatch(html, /<link rel="preconnect" href="https:\/\/buttondown\.com">/);
   assert.match(html, /<label class="menu-overlay" for="menu-toggle" aria-hidden="true"><\/label>/);
+});
+
+test("layout scopes heavier third-party preconnects to page capabilities", () => {
+  const html = renderPage({
+    title: "Comments",
+    description: "Comments test",
+    active: "",
+    scripts: [],
+    bodyClass: "colorscheme-dark",
+    page: "",
+    main: "<main></main>",
+    resourceHintCapabilities: ["comments", "subscribe", "comments"],
+  });
+
+  assert.equal((html.match(/<link rel="preconnect" href="https:\/\/giscus\.app">/g) || []).length, 1);
+  assert.equal((html.match(/<link rel="preconnect" href="https:\/\/buttondown\.com">/g) || []).length, 1);
+  assert.equal((html.match(/<link rel="dns-prefetch" href="https:\/\/giscus\.app">/g) || []).length, 1);
 });
 
 test("tools page widens connect-src only for explicit API tester targets", () => {
@@ -73,6 +91,12 @@ test("tools page requires gesture supply-chain acknowledgement before camera sta
   assert.match(html, /data-i18n="tools\.gesture\.consent"/);
   assert.match(html, /jsDelivr 和 Google Storage/);
   assert.match(html, /data-i18n-en="The camera stream stays in this browser for recognition\./);
+  assert.match(html, /class="gesture-resource-status"/);
+  assert.equal((html.match(/class="gesture-resource-item"/g) || []).length, 7);
+  assert.equal((html.match(/data-resource-status="locked"/g) || []).length, 4);
+  assert.equal((html.match(/data-resource-status="watch"/g) || []).length, 3);
+  assert.match(html, /latest 模型路径仍计划自托管并记录哈希/);
+  assert.match(html, /data-i18n-en="Upstream latest"/);
 });
 
 test("tools page labels random generator as non-security randomness", () => {
@@ -173,6 +197,8 @@ test("post template renders next popup, related posts, bilingual body and JSON-L
     slug: "related-post",
     date: "2025-01-01",
     eyebrow: "Related",
+    relatedReason: "共同标签：Java",
+    relatedReasonEn: "Shared tags: Java",
   }];
 
   const html = renderPostPage(post, { prev, next, related });
@@ -185,6 +211,11 @@ test("post template renders next popup, related posts, bilingual body and JSON-L
   assert.match(html, /href="\/post\/next-post\/"/);
   assert.match(html, /class="post-related"/);
   assert.match(html, /href="\/post\/related-post\/"/);
+  assert.match(html, /data-pwa-article-status/);
+  assert.match(html, /class="post-offline-status"/);
+  assert.match(html, /class="related-reason"/);
+  assert.match(html, /共同标签：Java/);
+  assert.match(html, /data-i18n-en="Shared tags: Java"/);
   assert.match(html, /data-i18n-lang="en" hidden/);
   assert.match(html, /<script type="application\/ld\+json">/);
   assert.match(html, /property="og:image" content="https:\/\/wenliang844\.github\.io\/images\/posts\/current-post\.png"/);

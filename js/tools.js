@@ -566,6 +566,32 @@
     return switchTool(tabs[nextIndex].getAttribute("data-tool-tab"), { focus: true });
   }
 
+  function toolIdFromHash() {
+    let hash = window.location.hash || "";
+    try {
+      hash = decodeURIComponent(hash);
+    } catch {
+      hash = "";
+    }
+    hash = hash.replace(/^#/, "");
+    const match = hash.match(/^tool(?:-tab)?-([a-z0-9-]+)$/);
+    if (!match || !hasPanelSource(match[1])) {
+      return "";
+    }
+    return match[1];
+  }
+
+  function activateToolFromHash() {
+    const id = toolIdFromHash();
+    if (!id || !switchTool(id)) {
+      return;
+    }
+    const tab = document.getElementById("tool-tab-" + id);
+    if (tab && tab.scrollIntoView) {
+      tab.scrollIntoView({ block: "nearest" });
+    }
+  }
+
   function setGeneratedUuid(uuid) {
     const output = document.getElementById("uuid-output");
     if (!output) {
@@ -1564,6 +1590,8 @@
   installToolResetButtons();
   syncToolControlLabels();
   minimizeAssistantAfterInit();
+  activateToolFromHash();
+  window.addEventListener("hashchange", activateToolFromHash);
   document.addEventListener("visibilitychange", syncNowTimer);
   document.addEventListener("cwl:langchange", function () {
     updateNow();

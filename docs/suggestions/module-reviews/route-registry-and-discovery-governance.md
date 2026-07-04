@@ -4,8 +4,12 @@
 
 ## 本轮验证
 
-- 只读运行 `node scripts/http-smoke.mjs`：6 个关键路由通过，分别为 `/`、`/tools/`、`/ai/`、`/post/`、`/contact/`、`/trust/`。
+- 只读运行 `node scripts/http-smoke.mjs`：关键路由通过，分别为 `/`、`/tools/`、`/ai/`、`/post/`、`/contact/`、`/trust/` 和 `/404.html`。
+- 新增 `npm run test:http-smoke:full` 与 `npm run test:browser-smoke:full`，通过 `--scope full` 覆盖 `STATIC_PAGES` 全量静态页；本轮验证 HTTP full 14 条路由通过，browser full 桌面 14 条、移动 13 条静态页和 `/tools/` 交互通过。
+- `tests/links.test.mjs` 新增搜索索引路径反查，确认 `SEARCH_PAGES` 的页面目标存在，并验证 `/ai/#nav` 这类 hash route 具备对应 Tab 面板和 `ai-tabs.js` 脚本契约。
+- `tests/build.test.mjs` 新增临时构建 route-to-output 完整性检查，确认 `STATIC_PAGES` 中每个静态路由都会出现在 `build --out` 产物中。
 - 只读运行 `node --test tests/links.test.mjs tests/workflows.test.mjs`：14/14 通过，覆盖 HTML 链接、公共脚本顺序、CI workflow、HTTP/browser smoke 脚本存在性等静态契约。
+- 只读运行 `node --test tests/build.test.mjs`：4/4 通过，覆盖构建基础产物、输出目录安全、已提交静态页和临时构建静态页完整性。
 - 只读检查 `src/config.mjs`、`scripts/build.mjs`、`src/page-assets.mjs`、`scripts/http-smoke.mjs` 和 `scripts/browser-smoke.mjs`，确认当前公共页面路由在多个清单中分散维护。
 
 ## 结论摘要
@@ -39,11 +43,11 @@ export const PUBLIC_ROUTES = [
 - 📊 预期收益：新增页面时只补一份契约，构建、搜索、SEO、导航、测试和性能预算自动同步，降低“页面上线但不可发现”的风险。
 - 🔗 相关建议引用：`module-reviews/search-and-seo-pipeline.md`、`module-reviews/build-artifact-synchronization.md`、`module-reviews/suggestions-knowledge-base-governance.md`
 
-## 📌 RRG-02：HTTP/browser smoke 只覆盖 6 个关键路由，未覆盖完整静态页清单
+## 📌 RRG-02 [部分修复]：HTTP/browser smoke 只覆盖关键路由，未覆盖完整静态页清单
 
 - 📌 问题/建议标题：从路由 manifest 派生 smoke 分层，区分 critical 与 full route checks
-- 📍 位置：`src/config.mjs:22-36`、`scripts/http-smoke.mjs:10`、`scripts/browser-smoke.mjs:11-14`、`tests/workflows.test.mjs:131-145`
-- 📝 当前状况描述：`STATIC_PAGES` 包含 13 个静态页面路径，而 HTTP smoke 和 browser smoke 的核心路由只有 6 个。当前选择适合快速验证首页、工具、AI、博客、反馈和信任页，但 `/editor/`、`/overleaf/`、`/appreciation/`、`/sponsor/`、`/categories/`、`/tags/` 没有进入 smoke。`tests/workflows.test.mjs` 还用正则固定断言这 6 个路由，等于把“子集覆盖”固化成了脚本契约。
+- 📍 位置：`src/config.mjs`、`scripts/http-smoke.mjs`、`scripts/browser-smoke.mjs`、`package.json`、`tests/workflows.test.mjs`
+- 📝 当前状况描述：`STATIC_PAGES` 包含 13 个静态页面路径；当前已新增 `FULL_SMOKE_ROUTES` 和 `--scope critical|full`，默认 smoke 继续快速覆盖核心路由，full smoke 覆盖 `/about/`、`/editor/`、`/overleaf/`、`/appreciation/`、`/sponsor/`、`/categories/`、`/tags/` 等完整静态页。剩余问题是 full scope 尚未接入 nightly/release workflow，仍需后续根据 CI 时长预算决定触发策略。
 - ⚠️ 影响程度：中
 - 💡 建议方案（含伪代码或示例片段）：保留 fast smoke，但增加 full smoke 模式；CI pull request 跑 critical，夜间或 release 跑 full。
 
@@ -60,11 +64,11 @@ for (const route of routeSet) {
 - 📊 预期收益：保留快速反馈，同时让低频页面也能在发布前获得 `main#main-content`、`h1`、脚本可达性、移动端溢出等基础保障。
 - 🔗 相关建议引用：`module-reviews/browser-visual-smoke-testing.md`、`module-reviews/test-coverage-risk-map.md`
 
-## 📌 RRG-03：搜索索引中的 hash route 依赖 JS tab 逻辑，缺少搜索索引路径反查验证
+## 📌 RRG-03 [已修复]：搜索索引中的 hash route 依赖 JS tab 逻辑，缺少搜索索引路径反查验证
 
 - 📌 问题/建议标题：为 search-index 页面路径增加 URL/anchor/hash-route 校验
-- 📍 位置：`src/config.mjs:61-65`、`src/templates/ai.mjs:266-278`、`js/ai-tabs.js:27-48`、`tests/build.test.mjs:162-171`、`tests/links.test.mjs:138-170`
-- 📝 当前状况描述：`SEARCH_PAGES` 包含 `/ai/#nav`，它不是普通 DOM anchor，而是由 `js/ai-tabs.js` 根据 `#nav` 激活 `data-ai-panel="nav"`。`tests/build.test.mjs` 只断言搜索索引里存在 `/ai/#nav`，`tests/links.test.mjs` 只扫描 HTML 中的 `href="#..."` 并检查目标 id/name。换句话说，搜索索引里的 hash route 没有被统一反查：如果未来 `#nav` 改名或 tab 逻辑失效，搜索结果可能仍生成成功，但点击后不能打开正确内容。
+- 📍 位置：`src/config.mjs`、`src/templates/ai.mjs`、`js/ai-tabs.js`、`tests/links.test.mjs`
+- 📝 当前状况描述：`SEARCH_PAGES` 包含 `/ai/#nav`，它不是普通 DOM anchor，而是由 `js/ai-tabs.js` 根据 `#nav` 激活 `data-ai-panel="nav"`。当前已新增 `search index page paths resolve to usable pages and hash routes` 测试：普通搜索路径必须指向已提交页面；普通 hash 必须存在 id/name；`/ai/#nav` 必须在目标页包含 `data-ai-panel="nav"` 和 `/js/ai-tabs.js`。后续新增 hash route 时只需补充 `SEARCH_HASH_ROUTE_CONTRACTS`。
 - ⚠️ 影响程度：中
 - 💡 建议方案（含伪代码或示例片段）：把搜索索引的页面路径纳入链接测试。普通 hash 检查 DOM id/name；声明为 hash route 的路径检查对应 JS 契约或面板 id。
 
@@ -132,20 +136,18 @@ function buildRobots(routes) {
 - 📊 预期收益：SEO 运维文案和真实 sitemap 保持一致，减少后续排查收录问题时的误判。
 - 🔗 相关建议引用：`module-reviews/seo-feed-and-structured-data.md`、`module-reviews/search-and-seo-pipeline.md`
 
-## 📌 RRG-06：构建输出列表写在脚本流程里，路由可达性与产物新鲜度仍依赖人工记忆
+## 📌 RRG-06 [已修复]：构建输出列表写在脚本流程里，路由可达性与产物新鲜度仍依赖人工记忆
 
 - 📌 问题/建议标题：为构建产物增加 route-to-output 完整性检查
-- 📍 位置：`scripts/build.mjs:580-615`、`src/config.mjs:22-36`、`tests/links.test.mjs:47-60`
-- 📝 当前状况描述：`scripts/build.mjs` 明确写出文章页、列表页、标签页、归档页、AI、工具、鉴赏、赞助、信任、sitemap、RSS 和搜索索引的输出。`tests/links.test.mjs` 会检查已提交 HTML 内部的链接是否存在，但它不直接验证 `STATIC_PAGES` 中每个页面是否有对应构建输出，也不验证构建脚本是否覆盖某个新 route。新增静态页时，如果只加入 sitemap 而忘记 `writeFileEnsured()`，可能要等链接或 smoke 间接碰到才暴露。
-- ⚠️ 影响程度：中
-- 💡 建议方案（含伪代码或示例片段）：测试 `PUBLIC_ROUTES` 中声明了 `output` 的页面，构建到临时目录后逐一检查文件存在，并反查 sitemap/search 是否按字段生成。
+- 📍 位置：`scripts/build.mjs`、`src/config.mjs`、`tests/build.test.mjs`
+- 📝 当前状况描述：`scripts/build.mjs` 明确写出文章页、列表页、标签页、归档页、AI、工具、鉴赏、赞助、信任、sitemap、RSS 和搜索索引的输出。当前已新增 `temporary build output covers every registered static page` 测试：构建到临时目录后，从 `STATIC_PAGES` 推导每个路由的 `index.html` 产物路径并逐一 `access()` 检查。既有 `registered static pages have committed index artifacts` 继续保护已提交产物，新测试保护源码构建输出覆盖。
+- ⚠️ 影响程度：中。核心风险已收敛：新增静态 route 如果没有被构建脚本输出，会在构建测试阶段失败。
+- 💡 建议方案（含伪代码或示例片段）：已先用 `STATIC_PAGES` 建立 route-to-output 完整性检查；未来抽象 `PUBLIC_ROUTES` 后可沿用同一模式，并继续反查 sitemap/search 是否按字段生成。
 
 ```js
-await execFile("node", ["scripts/build.mjs", "--out", "temp/routes-check"]);
-for (const route of PUBLIC_ROUTES) {
-  if (route.output) {
-    await access(join(ROOT, "temp/routes-check", route.output));
-  }
+await runBuild(["--out", outDir]);
+for (const page of STATIC_PAGES) {
+  await access(indexPathForRoute(outDir, page.path));
 }
 ```
 

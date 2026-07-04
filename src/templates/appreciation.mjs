@@ -148,7 +148,7 @@ const BOARDS = [
 
 function renderItem(item, boardIndex, itemIndex) {
   const key = `appr.b${boardIndex}.i${itemIndex}`;
-  const nameEnAttr = item.nameEn ? ` data-i18n-en="${escapeAttr(item.nameEn)}"` : "";
+  const nameEnAttr = ` data-i18n-en="${escapeAttr(item.nameEn || item.name)}"`;
   const lines = [
     `            <li class="rank-item">`,
     `              <span class="rank-num" aria-hidden="true">${itemIndex + 1}</span>`,
