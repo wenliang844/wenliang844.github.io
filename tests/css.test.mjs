@@ -99,10 +99,14 @@ test("coder.css contains blog tree selectors", async () => {
   assert.ok(css.includes(".post-tree-title"), "post tree should use a non-h1 title selector");
   assert.ok(css.includes(".post-tree-link"), "should have post-tree-link");
   assert.ok(/\.post-tree\s*{[^}]*position:\s*sticky;/s.test(css), "post-tree should be sticky on desktop");
+  assert.ok(/\.post-tree\s*{[^}]*grid-row:\s*1;/s.test(css), "post-tree should start in the first desktop row");
   assert.ok(css.includes(".post-tree-fab-icon"), "mobile post tree toggle should have an icon selector");
   assert.ok(css.includes(".post-tree-collapse"), "mobile floating post tree should have an internal collapse button");
-  assert.ok(css.includes(".post-mobile-heading"), "mobile post list should expose a visible heading outside the floating tree");
+  assert.ok(css.includes(".post-mobile-heading"), "post list should expose a mobile heading outside the floating tree");
+  assert.ok(/\.post-mobile-heading\s*{[^}]*display:\s*none;/s.test(css), "post list mobile heading should be hidden on desktop");
+  assert.ok(/@media\s*\(max-width:\s*768px\)\s*{[\s\S]*?\.post-mobile-heading\s*{[^}]*display:\s*block;/s.test(css), "post list mobile heading should show on mobile");
   assert.ok(css.includes(".post-detail"), "should have post-detail");
+  assert.ok(/\.post-detail\s*{[^}]*grid-row:\s*1;/s.test(css), "post detail should align with the desktop tree");
   assert.ok(css.includes(".tree-group"), "should have tree-group");
 });
 
