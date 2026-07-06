@@ -1,0 +1,139 @@
+{
+  "schemaVersion": 1,
+  "description": "Ownership map for committed files that are produced or copied by the static build.",
+  "generated": {
+    "dynamicPostPages": {
+      "source": "src/posts/*.md",
+      "outputPattern": "post/{slug}/index.html",
+      "owner": "scripts/build.mjs"
+    },
+    "exactOutputs": [
+      {
+        "path": "post/index.html",
+        "sources": ["src/templates/post.mjs", "src/posts/*.md"],
+        "owner": "scripts/build.mjs"
+      },
+      {
+        "path": "tags/index.html",
+        "sources": ["src/templates/tags.mjs", "src/posts/*.md"],
+        "owner": "scripts/build.mjs"
+      },
+      {
+        "path": "categories/index.html",
+        "sources": ["src/templates/categories.mjs", "src/posts/*.md"],
+        "owner": "scripts/build.mjs"
+      },
+      {
+        "path": "ai/index.html",
+        "sources": ["src/templates/ai.mjs", "src/templates/layout.mjs", "data/relay-providers.json"],
+        "owner": "scripts/build.mjs"
+      },
+      {
+        "path": "tools/index.html",
+        "sources": ["src/templates/tools.mjs", "src/templates/layout.mjs"],
+        "owner": "scripts/build.mjs"
+      },
+      {
+        "path": "appreciation/index.html",
+        "sources": ["src/templates/appreciation.mjs", "src/templates/layout.mjs"],
+        "owner": "scripts/build.mjs"
+      },
+      {
+        "path": "sponsor/index.html",
+        "sources": ["src/templates/sponsor.mjs", "src/templates/layout.mjs"],
+        "owner": "scripts/build.mjs"
+      },
+      {
+        "path": "trust/index.html",
+        "sources": ["src/templates/trust.mjs", "src/trust-data.mjs", "src/templates/layout.mjs"],
+        "owner": "scripts/build.mjs"
+      },
+      {
+        "path": "sitemap.xml",
+        "sources": ["scripts/build.mjs", "src/config.mjs", "src/posts/*.md"],
+        "owner": "scripts/build.mjs"
+      },
+      {
+        "path": "robots.txt",
+        "sources": ["scripts/build.mjs", "src/config.mjs"],
+        "owner": "scripts/build.mjs"
+      },
+      {
+        "path": "index.xml",
+        "sources": ["scripts/build.mjs", "src/posts/*.md"],
+        "owner": "scripts/build.mjs"
+      },
+      {
+        "path": "post/index.xml",
+        "sources": ["scripts/build.mjs", "src/posts/*.md"],
+        "owner": "scripts/build.mjs"
+      },
+      {
+        "path": "categories/index.xml",
+        "sources": ["scripts/build.mjs", "src/posts/*.md"],
+        "owner": "scripts/build.mjs"
+      },
+      {
+        "path": "search-index.json",
+        "sources": ["scripts/build.mjs", "src/config.mjs", "src/posts/*.md"],
+        "owner": "scripts/build.mjs"
+      },
+      {
+        "path": "service-worker.js",
+        "sources": ["src/service-worker-template.mjs", "src/pwa-precache.mjs", "src/pwa-cache-policy.mjs"],
+        "owner": "scripts/build.mjs"
+      }
+    ]
+  },
+  "manualHtmlPages": [
+    {
+      "path": "index.html",
+      "owner": "manual-static-page",
+      "notes": "Hand-maintained home page copied into build --out output."
+    },
+    {
+      "path": "404.html",
+      "owner": "manual-static-page",
+      "notes": "Hand-maintained error page copied into build --out output."
+    },
+    {
+      "path": "offline.html",
+      "owner": "manual-static-page",
+      "notes": "Hand-maintained PWA offline fallback page copied into build --out output."
+    },
+    {
+      "path": "about/index.html",
+      "owner": "manual-static-page",
+      "notes": "Hand-maintained profile page copied into build --out output."
+    },
+    {
+      "path": "contact/index.html",
+      "owner": "manual-static-page",
+      "notes": "Hand-maintained contact page copied into build --out output."
+    },
+    {
+      "path": "editor/index.html",
+      "owner": "manual-static-page",
+      "notes": "Hand-maintained standalone editor page copied into build --out output."
+    },
+    {
+      "path": "overleaf/index.html",
+      "owner": "manual-static-page",
+      "notes": "Hand-maintained resume editor page copied into build --out output."
+    }
+  ],
+  "manualStaticFiles": [
+    {
+      "path": "manifest.webmanifest",
+      "owner": "manual-pwa-metadata",
+      "notes": "Hand-maintained web app manifest copied into build --out output and precached by the Service Worker."
+    }
+  ],
+  "copiedAssetDirectories": [
+    "css",
+    "data",
+    "images",
+    "js",
+    "webfonts"
+  ]
+}

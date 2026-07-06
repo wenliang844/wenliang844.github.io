@@ -6,8 +6,52 @@
     return Boolean(window.CWLUtils && window.CWLUtils.isEditing && window.CWLUtils.isEditing());
   }
 
+  function t(key, fallback) {
+    return window.CWLUtils && window.CWLUtils.t ? window.CWLUtils.t(key, fallback) : fallback;
+  }
+
+  function rememberTriggerLabel(trigger) {
+    if (!trigger.hasAttribute("data-search-original-label")) {
+      trigger.dataset.searchOriginalLabel = trigger.getAttribute("aria-label") || "";
+    }
+    if (!trigger.hasAttribute("data-search-original-title")) {
+      trigger.dataset.searchOriginalTitle = trigger.getAttribute("title") || "";
+    }
+  }
+
+  function clearSearchLoadFailure() {
+    document.querySelectorAll(".nav-search-trigger.is-error").forEach(function (trigger) {
+      trigger.classList.remove("is-error");
+      if (trigger.hasAttribute("data-search-original-label")) {
+        trigger.setAttribute("aria-label", trigger.dataset.searchOriginalLabel);
+      }
+      if (trigger.hasAttribute("data-search-original-title")) {
+        trigger.setAttribute("title", trigger.dataset.searchOriginalTitle);
+      }
+    });
+  }
+
+  function reportSearchLoadFailure(error) {
+    const message = t("dyn.search.bundleLoadFail", "搜索加载失败，请稍后重试。");
+    document.querySelectorAll(".nav-search-trigger").forEach(function (trigger) {
+      rememberTriggerLabel(trigger);
+      trigger.classList.add("is-error");
+      trigger.setAttribute("aria-label", message);
+      trigger.setAttribute("title", message);
+    });
+    if (window.CWLLogger && typeof window.CWLLogger.warn === "function") {
+      window.CWLLogger.warn("search", "Search bundle failed to load", {
+        message: error && error.message ? error.message : String(error || ""),
+      });
+    }
+    if (window.CWLErrorHandler && typeof window.CWLErrorHandler.showUserMessage === "function") {
+      window.CWLErrorHandler.showUserMessage(message);
+    }
+  }
+
   function loadSearch(openAfterLoad) {
     if (window.cwlOpenSearch) {
+      clearSearchLoadFailure();
       if (openAfterLoad) {
         window.cwlOpenSearch();
       }
@@ -21,6 +65,7 @@
         script.src = "/js/search.js";
         script.defer = true;
         script.onload = function () {
+          clearSearchLoadFailure();
           if (queuedOpen && window.cwlOpenSearch) {
             window.cwlOpenSearch();
           } else if (window.cwlPreloadSearch) {
@@ -32,6 +77,9 @@
         script.onerror = function () {
           queuedOpen = false;
           task = null;
+          if (script.parentNode) {
+            script.parentNode.removeChild(script);
+          }
           reject(new Error("Search script failed"));
         };
         document.head.appendChild(script);
@@ -61,7 +109,7 @@
       return;
     }
     event.preventDefault();
-    loadSearch(true);
+    loadSearch(true).catch(reportSearchLoadFailure);
   });
 
   document.addEventListener("keydown", function (event) {
@@ -71,7 +119,7 @@
     }
     if (event.key === "/" || ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k")) {
       event.preventDefault();
-      loadSearch(true);
+      loadSearch(true).catch(reportSearchLoadFailure);
     }
   });
 

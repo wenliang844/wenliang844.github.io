@@ -116,6 +116,22 @@ test("feedback.js clears message invalid state while typing", async () => {
   dom.window.close();
 });
 
+test("feedback.js pre-fills article context from post query params", async () => {
+  const dom = new JSDOM(FEEDBACK_HTML, {
+    runScripts: "outside-only",
+    url: "https://wenliang844.github.io/contact/?topic=post&slug=rule-engine-alerts#feedback-title",
+  });
+  await loadFeedback(dom);
+  const { document } = dom.window;
+
+  assert.equal(
+    document.getElementById("fb-message").value,
+    "关于文章 /post/rule-engine-alerts/ 的反馈：\n\n",
+  );
+  assert.match(document.getElementById("feedback-status").textContent, /文章链接|Article context/);
+  dom.window.close();
+});
+
 // ─── Anonymous submission ─────────────────────────────────────────────────
 
 test("feedback.js allows submission without name", async () => {

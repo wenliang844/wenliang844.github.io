@@ -6,9 +6,22 @@
 
 ## 2026-07-03 复查补充
 
-### 📌 UX-11: 手势与 API 工具的隐私边界文案需要更精确
+### 📌 UX-16 [已修复]: 全局搜索缺少索引缓存/离线可用状态
+
+- **📍 位置**：`js/search.js`、`css/coder.css`、`js/i18n.js`、`scripts/browser-smoke.mjs`
+- **✅ 修复状态**：全局搜索弹窗新增 `.search-modal-status` 状态条，使用 `role="status"` / `aria-live="polite"` 展示搜索索引待加载、加载中、已就绪、离线可搜索、离线未加载和索引异常状态；中英文文案均已覆盖。
+- **🧪 回归测试**：`tests/search-behavior.test.mjs` 覆盖离线未缓存、英文离线状态、索引异常、成功加载和加载后离线仍可搜索；`npm run test:browser-smoke` 会断言真实浏览器搜索弹窗进入索引 ready 状态。
+- **📝 原状况描述**：搜索弹窗能在失败时提示“离线且索引未缓存”或“索引异常”，但用户在正常打开时看不到索引是否已加载，也无法区分“离线不可用”和“索引已在本次会话加载、离线仍可搜索”。
+- **⚠️ 影响程度**：中
+- **💡 建议方案**：在搜索输入区下方增加轻量状态条，不新增操作说明，只显示当前索引状态；加载成功后根据 `navigator.onLine` 切换为“搜索索引已就绪”或“离线可搜索，索引已加载”。
+- **📊 实际收益**：减少离线/弱网场景下的困惑，让搜索可用性与 PWA 缓存边界更透明。
+- **🔗 相关建议引用**：[PWA-04](module-reviews/pwa-offline-cache-readiness.md#pwa-04-已修复第四阶段离线用户体验已覆盖反馈保存导航-fallback搜索索引错误态和缓存状态)
+
+### 📌 UX-11 [已修复核心问题]: 手势与 API 工具的隐私边界文案需要更精确
 
 - **📍 位置**：`src/templates/tools.mjs:123-170`, `src/templates/tools.mjs:793-870`, `src/templates/tools.mjs:923-926`, `tools/index.html:307-356`, `tools/index.html:1233-1235`
+- **✅ 修复状态**：API Tester 已默认脱敏敏感历史、请求体需显式保存，并对本机/内网/非 HTTPS 目标要求用户显式允许；手势工具已在摄像头启动前展示第三方运行时/模型来源和本地处理边界，未确认前不可开启摄像头。
+- **🧪 回归测试**：`tests/tools.test.mjs` 覆盖 API Tester 敏感历史、风险目标 opt-in、手势确认门槛；`tests/templates.test.mjs` 覆盖工具页 DOM 契约。
 - **📝 当前状况描述**：工具箱 lead 文案写“其余工具全部在浏览器本地运行”，手势面板写“所有数据均在浏览器本地处理，不会上传到任何服务器”。但手势工具会加载第三方 CDN 脚本/模型，API Tester 会发送用户填写的 URL/Header/Body，并保存历史。当前文案没有明确区分“本地处理”“外部资源加载”“用户主动发送请求”“本地持久化历史”这四个边界。
 - **⚠️ 影响程度**：中
 - **💡 建议方案**：
@@ -17,12 +30,14 @@
   API Tester：请求会直接发送到你填写的目标 URL；保存历史前会自动隐藏 Authorization 等敏感头。
   ```
   在 API Tester header 区附近增加小型隐私提示和“不要保存敏感 header”的状态反馈；手势面板在开启摄像头前展示模型来源和本地处理说明。
-- **📊 预期收益**：让用户在摄像头授权和 API key 输入前理解真实数据流，减少误用与信任落差。
-- **🔗 相关建议引用**：[S-12](security-audit.md#s-12-mini-api-tester-会把-authorization-头和请求体持久化到-localstorage), [S-13](security-audit.md#s-13-手势工具运行时加载-cdn-机器视觉脚本和模型缺少完整供应链约束)
+- **📊 实际收益**：让用户在摄像头授权和 API key 输入前理解真实数据流，减少误用与信任落差。
+- **🔗 相关建议引用**：[S-12](security-audit.md#s-12-mini-api-tester-会把-authorization-头和请求体持久化到-localstorage), [S-13](security-audit.md#s-13-已修复核心治理-手势工具运行时加载-cdn-机器视觉脚本和模型缺少完整供应链约束)
 
-### 📌 UX-12: AI 助手超时和用户手动停止使用同一错误文案
+### 📌 UX-12 [已修复]: AI 助手超时和用户手动停止使用同一错误文案
 
 - **📍 位置**：`js/assistant.js:652-668`, `js/assistant.js:670-687`, `js/assistant.js:1461-1481`
+- **✅ 修复状态**：`withTimeout()` 现在为超时取消附带 `TimeoutError`，并保留 `timedOut` 标记兜底；`normalizeLlmError()` 会把请求超时显示为“请求超时，请稍后重试或切换中转站。”，用户手动停止仍显示“已停止生成。”。
+- **🧪 回归测试**：`tests/assistant.test.mjs` 新增超时与手动停止两条用例，分别模拟 timeout abort 和用户二次提交 stop，确认界面文案不会混淆。
 - **📝 当前状况描述**：`withTimeout()` 超时会调用 `controller.abort()`，用户点击停止也会触发 abort；`normalizeLlmError()` 对所有 `AbortError` 都返回“已停止生成。”。当请求实际因 60 秒超时或网络中断被取消时，用户会误以为自己手动停止了生成，无法判断是否应重试、切换中转站或缩短提示词。
 - **⚠️ 影响程度**：低
 - **💡 建议方案**：
@@ -41,13 +56,15 @@
   }
   ```
   如果目标浏览器不支持 abort reason，可在闭包中维护 `didTimeout` 标志。
-- **📊 预期收益**：让失败反馈更可诊断，减少用户对“停止/超时/网络失败”的困惑。
+- **📊 实际收益**：让失败反馈更可诊断，减少用户对“停止/超时/网络失败”的困惑。
 - **🔗 相关建议引用**：[B-16](bugs-and-risks.md#b-16-ai-助手-sse-流结束时可能丢失最后一个未闭合事件), [MR-AST-05](module-reviews/assistant-deep-dive.md#mr-ast-05-请求取消语义需要区分用户停止与超时)
 
-### 📌 UX-13: AI 助手默认模式与隐私文案需要重新对齐
+### 📌 UX-13 [已修复核心问题]: AI 助手默认模式与隐私文案需要重新对齐
 
 - **📍 位置**：`js/assistant.js:337-339`, `js/assistant.js:1306-1316`, `js/assistant.js:1445-1450`
-- **📝 当前状况描述**：助手读取模式时固定回到 LLM，隐私文案仍说明“未填写时使用内置体验 key”。这与安全复查中“前端不应内置可还原 key”的目标冲突，也让用户在站点问答和大模型问答之间的切换成本变高。
+- **✅ 修复状态**：助手默认进入本地站点模式，刷新后会恢复用户保存的 `site` / `llm` 偏好；LLM 隐私文案已改为“请填写你自己的 API key，密钥只保存在本机浏览器”，不再暗示内置体验 key。
+- **🧪 回归测试**：`tests/assistant.test.mjs` 覆盖默认站点模式、模式恢复、空 key 不请求、用户自填 key 才请求。
+- **📝 原状况描述**：助手读取模式时固定回到 LLM，隐私文案仍说明“未填写时使用内置体验 key”。这与安全复查中“前端不应内置可还原 key”的目标冲突，也让用户在站点问答和大模型问答之间的切换成本变高。
 - **⚠️ 影响程度**：中
 - **💡 建议方案**：
   ```text
@@ -56,12 +73,14 @@
   ```
   在首次开启 LLM 时展示一次性确认：请求会发送到配置的 endpoint，本地会保存最近对话上下文，可在设置中关闭保存。
 - **📊 预期收益**：让默认体验符合最小外发原则，用户能清楚理解何时使用本地规则、何时调用外部模型。
-- **🔗 相关建议引用**：[B-15](bugs-and-risks.md#b-15-ai-助手模式偏好写入后不会被恢复), [S-11](security-audit.md#s-11-assistantjs-仍在前端运行时拼接并使用默认体验-api-key), [S-14](security-audit.md#s-14-ai-助手对话和-llm-上下文长期留存在-localstorage)
+- **🔗 相关建议引用**：[B-15](bugs-and-risks.md#b-15-ai-助手模式偏好写入后不会被恢复), [S-11](security-audit.md#s-11-assistantjs-仍在前端运行时拼接并使用默认体验-api-key), [S-14](security-audit.md#s-14-已修复核心风险-ai-助手对话和-llm-上下文长期留存在-localstorage)
 
-### 📌 UX-14: Markdown 编辑器主输入框缺少可关联标签
+### 📌 UX-14 [已修复]: Markdown 编辑器主输入框缺少可关联标签
 
 - **📍 位置**：`editor/index.html:117-119`, `src/templates/tools.mjs:405-407`, `tools/index.html:634-636`
-- **📝 当前状况描述**：JSDOM 表单标签审计显示独立编辑器页和工具箱内嵌 Markdown 编辑器的 `textarea#markdown-input` 没有关联的 `<label for="markdown-input">`、`aria-label` 或 `aria-labelledby`。视觉上有编辑区上下文，但屏幕阅读器和表单导航无法稳定读出该输入区用途。
+- **✅ 修复状态**：独立编辑器页和工具箱内嵌 Markdown 编辑器均已增加 `<label class="sr-only" for="markdown-input" data-i18n="editor.input.label">Markdown 原文输入</label>`；`js/i18n.js` 已补英文文案，`css/coder.css` 已补 `.sr-only` 通用视觉隐藏工具类。
+- **🧪 验证**：`node --test tests/templates-extended.test.mjs tests/css.test.mjs tests/i18n-a11y.test.mjs` 通过；模板测试和静态 HTML 扫描确认 `/editor/`、`/tools/` 均输出关联 label。
+- **📝 原状况描述**：JSDOM 表单标签审计显示独立编辑器页和工具箱内嵌 Markdown 编辑器的 `textarea#markdown-input` 没有关联的 `<label for="markdown-input">`、`aria-label` 或 `aria-labelledby`。视觉上有编辑区上下文，但屏幕阅读器和表单导航无法稳定读出该输入区用途。
 - **⚠️ 影响程度**：中
 - **💡 建议方案**：
   ```html
@@ -70,12 +89,14 @@
   ```
   如果不想新增可见文案，也可使用 `aria-label="Markdown 原文输入"` 并接入 `data-i18n-aria`。
 - **📊 预期收益**：提升编辑器键盘和辅助技术可用性，避免一个核心输入控件在自动化 a11y 审计中持续报错。
-- **🔗 相关建议引用**：[MR-EDITOR-06](module-reviews/editor.md#mr-editor-06-markdown-主输入框缺少可访问名称), [DE-14](devex-improvements.md#de-14-增加页面级-dom-契约审计防止-seo-a11y-回退)
+- **🔗 相关建议引用**：[MR-EDITOR-06](module-reviews/editor.md#mr-editor-06-markdown-主输入框缺少可访问名称), [DE-14](devex-improvements.md#de-14)
 
-### 📌 UX-15: QR 结果图片缺少尺寸和加载属性，生成后可能产生布局跳动
+### 📌 UX-15 [已修复]: QR 结果图片缺少尺寸和加载属性，生成后可能产生布局跳动
 
 - **📍 位置**：`src/templates/tools.mjs:559`, `tools/index.html:806-809`
-- **📝 当前状况描述**：`img#qr-image` 有 `alt` 和 `hidden`，但没有 `width`、`height`、`loading`、`decoding`。当用户生成二维码后，图片从 hidden 状态显示，浏览器需要在 data URL 解码后才知道尺寸，预览区域可能出现轻微布局跳动。
+- **✅ 修复状态**：`img#qr-image` 已补 `width="256"`、`height="256"`、`loading="lazy"`、`decoding="async"`，CSS 增加 `.qr-box img { aspect-ratio: 1; }` 保持方形预留。
+- **🧪 验证**：`node --test tests/templates-extended.test.mjs tests/css.test.mjs tests/i18n-a11y.test.mjs` 通过；模板和 CSS 测试锁定尺寸/加载属性与方形比例。
+- **📝 原状况描述**：`img#qr-image` 有 `alt` 和 `hidden`，但没有 `width`、`height`、`loading`、`decoding`。当用户生成二维码后，图片从 hidden 状态显示，浏览器需要在 data URL 解码后才知道尺寸，预览区域可能出现轻微布局跳动。
 - **⚠️ 影响程度**：低
 - **💡 建议方案**：
   ```html
@@ -83,7 +104,7 @@
   ```
   CSS 中给 `.tool-preview` 或 QR 容器预留固定 `min-height`，生成失败时也保持布局稳定。
 - **📊 预期收益**：减少二维码生成瞬间的布局抖动，让工具输出区更稳定。
-- **🔗 相关建议引用**：[P-11](performance-bottlenecks.md#p-11), [DE-14](devex-improvements.md#de-14-增加页面级-dom-契约审计防止-seo-a11y-回退)
+- **🔗 相关建议引用**：[P-11](performance-bottlenecks.md#p-11), [DE-14](devex-improvements.md#de-14)
 
 ---
 

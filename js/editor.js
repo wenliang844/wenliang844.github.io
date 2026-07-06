@@ -1,18 +1,24 @@
 (function () {
   const storageKey = "wenliang-markdown-editor";
-  const titleInput = document.getElementById("post-title");
-  const shortTitleInput = document.getElementById("post-short-title");
-  const slugInput = document.getElementById("post-slug");
-  const dateInput = document.getElementById("post-date");
-  const summaryInput = document.getElementById("post-summary");
-  const descriptionInput = document.getElementById("post-description");
-  const markdownInput = document.getElementById("markdown-input");
-  const preview = document.getElementById("markdown-preview");
-  const statsEl = document.getElementById("editor-stats");
+  function initMarkdownEditor(root) {
+  const scope = root || document;
+  const titleInput = scope.querySelector("#post-title");
+  const shortTitleInput = scope.querySelector("#post-short-title");
+  const slugInput = scope.querySelector("#post-slug");
+  const dateInput = scope.querySelector("#post-date");
+  const summaryInput = scope.querySelector("#post-summary");
+  const descriptionInput = scope.querySelector("#post-description");
+  const markdownInput = scope.querySelector("#markdown-input");
+  const preview = scope.querySelector("#markdown-preview");
+  const statsEl = scope.querySelector("#editor-stats");
 
   if (!titleInput || !shortTitleInput || !slugInput || !dateInput || !summaryInput || !descriptionInput || !markdownInput || !preview) {
-    return;
+    return false;
   }
+  if (markdownInput.dataset.cwlEditorReady === "true") {
+    return true;
+  }
+  markdownInput.dataset.cwlEditorReady = "true";
 
   const sampleMarkdownZh = [
     "# 新文章标题",
@@ -97,6 +103,20 @@
     return html;
   }
 
+  function renderPreviewMarkdown(markdown) {
+    const container = document.createElement("div");
+    container.innerHTML = renderMarkdown(markdown);
+    container.querySelectorAll("h1").forEach(function (heading) {
+      const replacement = document.createElement("div");
+      replacement.className = "preview-heading preview-heading-1";
+      replacement.setAttribute("role", "heading");
+      replacement.setAttribute("aria-level", "2");
+      replacement.innerHTML = heading.innerHTML;
+      heading.replaceWith(replacement);
+    });
+    return container.innerHTML;
+  }
+
   function yamlString(value) {
     const normalized = (value || "")
       .replace(/\r?\n/g, " ")
@@ -163,7 +183,7 @@
   }
 
   function render() {
-    preview.innerHTML = renderMarkdown(markdownInput.value);
+    preview.innerHTML = renderPreviewMarkdown(markdownInput.value);
     // Highlight rendered code blocks after marked has produced the preview.
     if (window.hljs) {
       preview.querySelectorAll("pre code").forEach(function (block) {
@@ -291,7 +311,7 @@
     render();
   }
 
-  document.querySelectorAll(".tool-btn[data-md]").forEach(function (button) {
+  scope.querySelectorAll(".tool-btn[data-md]").forEach(function (button) {
     button.addEventListener("click", function () {
       applyFormat(button.getAttribute("data-md"));
     });
@@ -354,7 +374,7 @@
   markdownInput.addEventListener("input", debouncedRender);
 
   function copyHtml(button) {
-    const html = preview.innerHTML;
+    const html = renderMarkdown(markdownInput.value);
     const done = function (ok) {
       const original = button.innerHTML;
       button.innerHTML = ok
@@ -365,7 +385,7 @@
     Promise.resolve(window.CWLUtils.copyText(html)).then(done, function () { done(false); });
   }
 
-  document.querySelectorAll("[data-action]").forEach(function (button) {
+  scope.querySelectorAll("[data-action]").forEach(function (button) {
     button.addEventListener("click", function () {
       const action = button.getAttribute("data-action");
       const slug = slugify(slugInput.value || titleInput.value);
@@ -401,7 +421,7 @@
       }
 
       if (action === "download-html") {
-        download(slug + ".html", preview.innerHTML + "\n", "text/html;charset=utf-8");
+        download(slug + ".html", renderMarkdown(markdownInput.value) + "\n", "text/html;charset=utf-8");
       }
     });
   });
@@ -409,4 +429,9 @@
   loadState();
   render();
   document.addEventListener("cwl:langchange", updateStats);
+  return true;
+  }
+
+  window.CWLInitMarkdownEditor = initMarkdownEditor;
+  initMarkdownEditor();
 })();

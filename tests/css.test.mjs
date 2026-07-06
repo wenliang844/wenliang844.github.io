@@ -44,6 +44,17 @@ test("coder.css exposes skip link on keyboard focus", async () => {
   assert.match(focusRule[1], /outline:/);
 });
 
+test("coder.css contains reusable screen-reader-only utility", async () => {
+  const css = await readFile(join(ROOT, "css", "coder.css"), "utf8");
+  const rule = css.match(/\.sr-only\s*{([^}]*)}/s);
+
+  assert.ok(rule, "sr-only utility should exist");
+  assert.match(rule[1], /position:\s*absolute;/);
+  assert.match(rule[1], /width:\s*1px;/);
+  assert.match(rule[1], /height:\s*1px;/);
+  assert.match(rule[1], /clip:\s*rect\(0,\s*0,\s*0,\s*0\);/);
+});
+
 test("coder.css contains navigation selectors", async () => {
   const css = await readFile(join(ROOT, "css", "coder.css"), "utf8");
 
@@ -85,16 +96,34 @@ test("coder.css contains blog tree selectors", async () => {
 
   assert.ok(css.includes(".blog-layout"), "should have blog-layout");
   assert.ok(css.includes(".post-tree"), "should have post-tree");
+  assert.ok(css.includes(".post-tree-title"), "post tree should expose a desktop title selector");
   assert.ok(css.includes(".post-tree-link"), "should have post-tree-link");
   assert.ok(/\.post-tree\s*{[^}]*position:\s*sticky;/s.test(css), "post-tree should be sticky on desktop");
+  assert.ok(/\.post-tree\s*{[^}]*grid-row:\s*1\s*\/\s*span\s*2;/s.test(css), "post-tree should span the desktop heading and detail rows");
   assert.ok(css.includes(".post-tree-fab-icon"), "mobile post tree toggle should have an icon selector");
   assert.ok(css.includes(".post-tree-collapse"), "mobile floating post tree should have an internal collapse button");
+  assert.ok(css.includes(".post-mobile-heading"), "post list should expose a mobile heading outside the floating tree");
+  assert.ok(/\.post-mobile-heading\s*{[^}]*display:\s*block;/s.test(css), "post list h1 should be visible on desktop");
+  assert.ok(/\.post-mobile-heading\s*{[^}]*grid-column:\s*2;/s.test(css), "post list h1 should sit in the desktop content column");
+  assert.ok(/@media\s*\(max-width:\s*768px\)\s*{[\s\S]*?\.post-mobile-heading\s*{[^}]*display:\s*block;/s.test(css), "post list mobile heading should show on mobile");
   assert.ok(css.includes(".post-detail"), "should have post-detail");
+  assert.ok(/\.post-detail\s*{[^}]*grid-row:\s*2;/s.test(css), "post detail should sit below the visible page h1 on desktop");
   assert.ok(css.includes(".tree-group"), "should have tree-group");
 });
 
-test("coder.css contains tools page selectors", async () => {
+test("coder.css keeps shared editor toolbar button selectors", async () => {
   const css = await readFile(join(ROOT, "css", "coder.css"), "utf8");
+
+  assert.ok(css.includes(".editor-toolbar"), "should have editor-toolbar");
+  assert.ok(css.includes(".tool-btn"), "should keep shared editor tool button styles");
+  assert.ok(css.includes(".tool-sep"), "should keep shared editor toolbar separators");
+  assert.ok(!css.includes(".tools-page"), "tools page shell styles should be page-level CSS");
+  assert.ok(!css.includes(".tool-panel"), "tool panel styles should be page-level CSS");
+  assert.ok(!css.includes(".tool-field"), "tool field styles should be page-level CSS");
+});
+
+test("tools.css contains tools page shell and browser API selectors", async () => {
+  const css = await readFile(join(ROOT, "css", "tools.css"), "utf8");
 
   assert.ok(css.includes(".tools-page"), "should have tools-page");
   assert.ok(css.includes(".tools-shell"), "should have tools-shell");
@@ -105,6 +134,25 @@ test("coder.css contains tools page selectors", async () => {
   assert.ok(css.includes(".tool-actions"), "should have tool-actions");
   assert.ok(css.includes(".tool-field"), "should have tool-field");
   assert.ok(css.includes(".tool-status"), "should have tool-status");
+  assert.ok(css.includes(".qr-box img"), "should keep QR preview dimensions");
+  assert.match(css, /@media\s*\(max-width:\s*768px\)\s*{[\s\S]*?\.tools-shell\s*{[^}]*grid-template-columns:\s*1fr;/);
+  assert.ok(css.includes(".gesture-controls"), "should have gesture controls");
+  assert.ok(css.includes(".gesture-supply-chain"), "should have gesture supply-chain notice");
+  assert.ok(css.includes(".gesture-resource-status"), "should have gesture resource status summary");
+  assert.ok(css.includes(".gesture-resource-item"), "should have gesture resource item styles");
+  assert.ok(css.includes('.gesture-resource-item[data-resource-status="watch"]'), "should distinguish watched remote model resources");
+  assert.ok(css.includes(".gesture-viewport"), "should have gesture viewport");
+  assert.ok(css.includes(".galaxy-controls"), "should have galaxy controls");
+  assert.ok(css.includes(".galaxy-canvas"), "should have galaxy canvas");
+  assert.ok(css.includes(".obj-capture-row"), "should have object capture styles");
+});
+
+test("tools.css keeps QR preview square", async () => {
+  const css = await readFile(join(ROOT, "css", "tools.css"), "utf8");
+  const rule = css.match(/\.qr-box img\s*{([^}]*)}/s);
+
+  assert.ok(rule, "QR image rule should exist");
+  assert.match(rule[1], /aspect-ratio:\s*1;/);
 });
 
 test("coder.css contains AI navigation selectors", async () => {
@@ -147,11 +195,37 @@ test("coder.css contains sponsor page selectors", async () => {
   assert.ok(css.includes(".sponsor-pay-btn"), "should have sponsor-pay-btn");
 });
 
-test("coder.css contains assistant selectors", async () => {
+test("trust.css contains trust center selectors", async () => {
+  const css = await readFile(join(ROOT, "css", "trust.css"), "utf8");
+
+  assert.ok(css.includes(".trust-page"), "should have trust-page");
+  assert.ok(css.includes(".trust-stats"), "should have trust-stats");
+  assert.ok(css.includes(".trust-card-grid"), "should have trust-card-grid");
+  assert.ok(css.includes(".trust-service-list"), "should have trust-service-list");
+  assert.ok(css.includes(".trust-service-facts"), "should have trust-service-facts");
+  assert.ok(css.includes(".trust-report-link"), "should have trust-report-link");
+  assert.match(css, /@media\s*\(\s*max-width:\s*768px\s*\)\s*{[\s\S]*?\.trust-stats,[\s\S]*?\.trust-card-grid,[\s\S]*?\.trust-columns,[\s\S]*?\.trust-service-facts\s*{[^}]*grid-template-columns:\s*1fr;/);
+});
+
+test("coder.css exposes footer trust links", async () => {
   const css = await readFile(join(ROOT, "css", "coder.css"), "utf8");
 
-  assert.ok(css.includes(".assistant-fab"), "should have assistant-fab");
+  assert.ok(css.includes(".footer-links"), "should expose footer trust links");
+});
+
+test("coder.css keeps only the assistant navigation entrypoint", async () => {
+  const css = await readFile(join(ROOT, "css", "coder.css"), "utf8");
+
   assert.ok(css.includes(".assistant-nav-trigger"), "should have assistant nav trigger");
+  assert.ok(!css.includes(".assistant-panel"), "assistant panel styles should be lazy-loaded");
+  assert.ok(!css.includes(".assistant-message"), "assistant message styles should be lazy-loaded");
+  assert.ok(!css.includes(".assistant-privacy-controls"), "assistant privacy styles should be lazy-loaded");
+});
+
+test("assistant.css contains lazy-loaded assistant selectors", async () => {
+  const css = await readFile(join(ROOT, "css", "assistant.css"), "utf8");
+
+  assert.ok(css.includes(".assistant-fab"), "should have assistant-fab");
   assert.ok(css.includes(".assistant-panel"), "should have assistant-panel");
   assert.ok(css.includes(".assistant-panel[hidden]"), "should have assistant-panel[hidden]");
   assert.ok(css.includes(".assistant-widget.fullscreen"), "should have assistant fullscreen state");
@@ -162,6 +236,16 @@ test("coder.css contains assistant selectors", async () => {
   assert.ok(css.includes(".assistant-relay-cta"), "should have assistant relay CTA");
   assert.ok(css.includes(".assistant-message"), "should have assistant-message");
   assert.ok(css.includes(".assistant-input"), "should have assistant-input");
+  assert.ok(css.includes(".assistant-privacy-controls"), "should have assistant privacy controls");
+  assert.ok(css.includes(".assistant-privacy-mode-input"), "should have assistant privacy mode input");
+  assert.ok(css.includes(".assistant-retention-select"), "should have assistant retention select");
+  assert.ok(css.includes(".assistant-clear-all"), "should have assistant clear-all control");
+  assert.ok(css.includes(".assistant-endpoint-summary"), "should have assistant endpoint summary");
+  assert.ok(css.includes(".assistant-endpoint-trust-input"), "should have assistant endpoint trust input");
+  assert.ok(css.includes(".assistant-remember-key-input"), "should have assistant remember-key input");
+  assert.ok(css.includes(".assistant-key-field"), "should not rely on nth-child for API key layout");
+  assert.match(css, /\.assistant-privacy-controls\s*{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)\s*minmax\(9rem,\s*0\.7fr\)\s*auto;/s);
+  assert.match(css, /@media\s*\(max-width:\s*768px\)\s*{[\s\S]*?\.assistant-privacy-controls\s*{[^}]*grid-template-columns:\s*1fr;/);
 });
 
 test("coder.css contains search selectors", async () => {
@@ -169,6 +253,8 @@ test("coder.css contains search selectors", async () => {
 
   assert.ok(css.includes(".search-modal"), "should have search-modal");
   assert.ok(css.includes(".search-modal-input"), "should have search-modal-input");
+  assert.ok(css.includes(".search-modal-status"), "should have search-modal-status");
+  assert.ok(css.includes('.search-modal-status[data-state="offline-ready"]'), "should style offline-ready search status");
   assert.ok(css.includes(".search-modal-results"), "should have search-modal-results");
 });
 
@@ -191,6 +277,8 @@ test("coder.css contains share selectors", async () => {
   assert.ok(css.includes(".post-share"), "should have post-share");
   assert.ok(css.includes(".share-btn"), "should have share-btn");
   assert.ok(css.includes(".share-label"), "should have share-label");
+  assert.ok(css.includes(".post-maintenance"), "should have post-maintenance");
+  assert.ok(css.includes(".content-note"), "should have content-note");
 });
 
 test("coder.css makes the share bar compact on narrow screens", async () => {
@@ -222,6 +310,8 @@ test("coder.css contains related posts selectors", async () => {
   assert.ok(css.includes(".post-related"), "should have post-related");
   assert.ok(css.includes(".related-card"), "should have related-card");
   assert.ok(css.includes(".related-list"), "should have related-list");
+  assert.ok(css.includes(".related-reason"), "should have related reason badges");
+  assert.ok(css.includes(".post-offline-status"), "should have article offline status");
 });
 
 test("coder.css contains TOC selectors", async () => {

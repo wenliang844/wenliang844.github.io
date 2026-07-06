@@ -20,6 +20,7 @@ const NAV_ITEMS = [
 const MORE_ITEMS = [
   { href: "/tools/", label: "工具箱", key: "tools", i18n: "nav.tools" },
   { href: "/overleaf/", label: "简历模版", key: "overleaf", i18n: "nav.overleaf" },
+  { href: "/trust/", label: "隐私与信任", key: "trust", i18n: "nav.trust" },
 ];
 
 export const SPONSOR_LINKS = {
@@ -27,14 +28,23 @@ export const SPONSOR_LINKS = {
   paypal: "https://PayPal.Me/chenwenliang4212",
 };
 
-const RESOURCE_HINTS = [
-  { rel: "preconnect", href: "https://giscus.app" },
+const BASE_RESOURCE_HINTS = [
   { rel: "dns-prefetch", href: "https://giscus.app" },
-  { rel: "preconnect", href: "https://buttondown.com" },
   { rel: "dns-prefetch", href: "https://buttondown.com" },
   { rel: "dns-prefetch", href: "https://www.ifdian.net" },
   { rel: "dns-prefetch", href: "https://paypal.me" },
 ];
+
+const CAPABILITY_RESOURCE_HINTS = {
+  comments: [
+    { rel: "preconnect", href: "https://giscus.app" },
+  ],
+  subscribe: [
+    { rel: "preconnect", href: "https://buttondown.com" },
+  ],
+};
+
+const DEFAULT_CONNECT_SRC = "'self' https:";
 
 const CONTENT_SECURITY_POLICY = [
   "default-src 'self'",
@@ -44,19 +54,31 @@ const CONTENT_SECURITY_POLICY = [
   "style-src 'self' 'unsafe-inline' https://giscus.app",
   "img-src 'self' data: https:",
   "font-src 'self' data:",
-  "connect-src 'self' https:",
+  `connect-src ${DEFAULT_CONNECT_SRC}`,
   "frame-src https://giscus.app",
   "form-action 'self' https://buttondown.com https://api.web3forms.com",
 ].join("; ");
 
-const CORE_SCRIPTS = [
+function renderContentSecurityPolicy(connectSrc = DEFAULT_CONNECT_SRC) {
+  return CONTENT_SECURITY_POLICY.replace(
+    `connect-src ${DEFAULT_CONNECT_SRC}`,
+    `connect-src ${connectSrc}`,
+  );
+}
+
+export const CORE_SCRIPTS = [
   "/js/error-handler.js",
   "/js/utils.js",
   "/js/i18n.js",
   "/js/coder.js",
   "/js/search-loader.js",
   "/js/subscribe.js",
-  "/js/assistant.js",
+  "/js/assistant-loader.js",
+  "/js/pwa-register.js",
+];
+
+const DEFAULT_FEEDS = [
+  { href: "/index.xml", title: "CWLBlog RSS" },
 ];
 
 // 渲染主导航；active 标记当前栏目。
@@ -103,9 +125,32 @@ function renderScripts(scripts) {
     .join("\n");
 }
 
-function renderResourceHints() {
-  return RESOURCE_HINTS
+function renderStyles(styles) {
+  return styles
+    .map((href) => `  <link rel="stylesheet" href="${escapeAttr(href)}">`)
+    .join("\n");
+}
+
+function renderResourceHints(capabilities = []) {
+  const hints = [...BASE_RESOURCE_HINTS];
+  for (const capability of capabilities) {
+    hints.push(...(CAPABILITY_RESOURCE_HINTS[capability] || []));
+  }
+  const seen = new Set();
+  return hints
+    .filter(({ rel, href }) => {
+      const key = `${rel}:${href}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    })
     .map(({ rel, href }) => `  <link rel="${rel}" href="${escapeAttr(href)}">`)
+    .join("\n");
+}
+
+function renderFeedLinks(feeds = DEFAULT_FEEDS) {
+  return feeds
+    .map((feed) => `  <link rel="alternate" type="application/rss+xml" title="${escapeAttr(feed.title)}" href="${escapeAttr(feed.href)}">`)
     .join("\n");
 }
 
@@ -117,6 +162,14 @@ function renderSponsorFooterCta() {
             <a class="sponsor-mini-btn sponsor-mini-secondary" href="${SPONSOR_LINKS.paypal}" target="_blank" rel="noopener noreferrer" data-i18n="sponsorMini.paypal">💳 PayPal 支持</a>
           </div>
         </div>`;
+}
+
+function renderFooterLinks() {
+  return `        <nav class="footer-links" aria-label="站点说明" data-i18n-aria="footer.links.aria">
+          <a href="/trust/" data-i18n="footer.trust">隐私与信任</a>
+          <a href="/contact/" data-i18n="footer.contact">联系反馈</a>
+          <a href="/sponsor/" data-i18n="footer.sponsor">赞助支持</a>
+        </nav>`;
 }
 
 /**
@@ -180,10 +233,14 @@ export function buildPageJsonLd({ type = "WebPage", name, description, path, ...
  * @param {string} [opts.descriptionEn] 英文 meta description
  * @param {string} opts.active       导航高亮 key（blog/editor/contact 或 ""）
  * @param {string[]} opts.scripts    额外 defer 脚本（coder.js 已默认包含）
+ * @param {string[]} [opts.styles]   额外页面级样式（全站 core CSS 已默认包含）
  * @param {string} opts.bodyClass    body 额外 class，默认 colorscheme-light
  * @param {string} opts.page         用于 i18n head 切换（如 "home"/"posts"/"tags"），对应 head.title.* / head.desc.* 键
  * @param {string} opts.main         <main> 内部 HTML
  * @param {object} [opts.og]         OG/Twitter 卡片数据 { title, description, path, type? }；省略则不输出
+ * @param {string} [opts.connectSrc] 页面级 CSP connect-src 值；工具页可显式放宽调试请求
+ * @param {string[]} [opts.resourceHintCapabilities] 页面高概率第三方能力（如 comments/subscribe）
+ * @param {{href: string, title: string}[]} [opts.feeds] 页面可发现 RSS feed，默认全站 feed
  */
 export function renderPage(opts) {
   const {
@@ -193,14 +250,19 @@ export function renderPage(opts) {
     descriptionEn = "",
     active = "",
     scripts = [],
+    styles = [],
     bodyClass = "colorscheme-dark",
     page = "",
     main,
     og,
     jsonLd,
+    connectSrc = DEFAULT_CONNECT_SRC,
+    resourceHintCapabilities = [],
+    feeds = DEFAULT_FEEDS,
   } = opts;
 
   const allScripts = [...new Set([...CORE_SCRIPTS, ...scripts])];
+  const pageStyles = [...new Set(styles)];
   const meta = renderMeta(og);
   // JSON-LD 结构化数据：转义 "<" 防止 </script> 提前闭合脚本块。
   const jsonLdTag = jsonLd
@@ -218,12 +280,16 @@ export function renderPage(opts) {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta http-equiv="Content-Security-Policy" content="${escapeAttr(CONTENT_SECURITY_POLICY)}">
+  <meta http-equiv="Content-Security-Policy" content="${escapeAttr(renderContentSecurityPolicy(connectSrc))}">
   <meta name="description" content="${escapeAttr(description)}">
   <link rel="icon" href="/images/favicon.png" type="image/png">
-${renderResourceHints()}
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="theme-color" content="#0f172a">
+${renderResourceHints(resourceHintCapabilities)}
+${renderFeedLinks(feeds)}
   <link rel="stylesheet" href="/css/fontawesome-all.min.css">
   <link rel="stylesheet" href="/css/coder.css">
+${renderStyles(pageStyles)}
 ${renderScripts(allScripts)}${meta ? "\n" + meta : ""}${jsonLdTag}
   <title>${escapeHtml(title)}</title>
 </head>
@@ -253,6 +319,7 @@ ${main}
           <p class="subscribe-status" role="status" aria-live="polite"></p>
         </div>
 ${renderSponsorFooterCta()}
+${renderFooterLinks()}
         <p data-i18n="footer.text">© 2021 - 2026 CWL · Powered by Cwl · Theme inspired by Coder</p>
       </section>
     </footer>

@@ -249,13 +249,54 @@ test("search-loader.js skips idle preload without nav-search-trigger", async () 
 
 // ─── 脚本加载失败 ──────────────────────────────────────────────────────────────
 
-test("search-loader.js handles script load failure by checking source pattern", async () => {
-  const code = await readFile(join(ROOT, "js", "search-loader.js"), "utf8");
+test("search-loader.js reports script load failure and allows retry", async () => {
+  const dom = new JSDOM(buildSearchLoaderHtml(), {
+    runScripts: "outside-only",
+    url: "https://example.com/",
+    pretendToBeVisual: true,
+  });
+  let logged = null;
+  let toast = "";
+  let opened = false;
+  dom.window.CWLLogger = {
+    warn(category, message, data) {
+      logged = { category, message, data };
+    },
+  };
+  dom.window.CWLErrorHandler = {
+    showUserMessage(message) {
+      toast = message;
+    },
+  };
 
-  // Verify the source has an onerror handler that resets task
-  assert.ok(code.includes("onerror"), "should have onerror handler");
-  assert.ok(code.includes("task = null"), "should reset task on error");
-  assert.ok(code.includes("reject"), "should reject the promise on error");
+  await loadSearchLoader(dom);
+  const { document } = dom.window;
+  const trigger = document.querySelector(".nav-search-trigger");
+
+  trigger.click();
+  const failedScript = document.querySelector('script[src="/js/search.js"]');
+  assert.ok(failedScript, "first click should append search script");
+  failedScript.dispatchEvent(new dom.window.Event("error"));
+  await new Promise((r) => dom.window.setTimeout(r, 0));
+
+  assert.equal(document.querySelector('script[src="/js/search.js"]'), null, "failed script should be removed");
+  assert.equal(trigger.classList.contains("is-error"), true);
+  assert.match(trigger.getAttribute("aria-label"), /搜索加载失败|Search is temporarily unavailable/);
+  assert.match(toast, /搜索加载失败|Search is temporarily unavailable/);
+  assert.equal(logged.category, "search");
+  assert.equal(logged.message, "Search bundle failed to load");
+
+  trigger.click();
+  const retryScript = document.querySelector('script[src="/js/search.js"]');
+  assert.ok(retryScript, "retry should append a fresh search script");
+  dom.window.cwlOpenSearch = function () { opened = true; };
+  retryScript.dispatchEvent(new dom.window.Event("load"));
+  await new Promise((r) => dom.window.setTimeout(r, 0));
+
+  assert.equal(opened, true, "retry should open search after load");
+  assert.equal(trigger.classList.contains("is-error"), false);
+  assert.equal(trigger.getAttribute("aria-label"), "Search");
+  dom.window.close();
 });
 
 // ─── cwlPreloadSearch 回退 ─────────────────────────────────────────────────────

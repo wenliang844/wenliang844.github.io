@@ -6,21 +6,26 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://giscus.app https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://giscus.app; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https:; frame-src https://giscus.app; form-action 'self' https://buttondown.com https://api.web3forms.com">
   <meta name="description" content="按时间线整理项目复盘：覆盖 Codex 与 Claude 协作、低代码引擎、Activiti 工作流、企顾 SaaS、智能分析预警平台与规则引擎告警闭环。">
   <link rel="icon" href="/images/favicon.png" type="image/png">
-  <link rel="preconnect" href="https://giscus.app">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="theme-color" content="#0f172a">
   <link rel="dns-prefetch" href="https://giscus.app">
-  <link rel="preconnect" href="https://buttondown.com">
   <link rel="dns-prefetch" href="https://buttondown.com">
   <link rel="dns-prefetch" href="https://www.ifdian.net">
   <link rel="dns-prefetch" href="https://paypal.me">
+  <link rel="preconnect" href="https://giscus.app">
+  <link rel="alternate" type="application/rss+xml" title="CWLBlog RSS" href="/index.xml">
+  <link rel="alternate" type="application/rss+xml" title="CWLBlog Posts RSS" href="/post/index.xml">
   <link rel="stylesheet" href="/css/fontawesome-all.min.css">
   <link rel="stylesheet" href="/css/coder.css">
+
   <script src="/js/error-handler.js" defer></script>
   <script src="/js/utils.js" defer></script>
   <script src="/js/i18n.js" defer></script>
   <script src="/js/coder.js" defer></script>
   <script src="/js/search-loader.js" defer></script>
   <script src="/js/subscribe.js" defer></script>
-  <script src="/js/assistant.js" defer></script>
+  <script src="/js/assistant-loader.js" defer></script>
+  <script src="/js/pwa-register.js" defer></script>
   <script src="/js/blog.js" defer></script>
   <script src="/js/vendor/qrcode.min.js" defer></script>
   <script src="/js/share.js" defer></script>
@@ -61,6 +66,7 @@
                 <ul class="nav-more-menu">
               <li><a href="/tools/" data-i18n="nav.tools">工具箱</a></li>
               <li><a href="/overleaf/" data-i18n="nav.overleaf">简历模版</a></li>
+              <li><a href="/trust/" data-i18n="nav.trust">隐私与信任</a></li>
                 </ul>
               </details>
             </li>
@@ -77,10 +83,15 @@
     </header>
     <main id="main-content" class="content">
       <section class="blog-layout container" aria-label="Blog">
+        <header class="post-mobile-heading" aria-labelledby="post-mobile-title">
+          <span class="eyebrow">2022-2026 Timeline</span>
+          <h1 id="post-mobile-title" data-i18n="post.list.title" data-i18n-en="Posts">文章</h1>
+          <p class="lead" data-i18n="post.tree.lead">按时间线整理 AI Coding、低代码、工作流、SaaS 后台与智能分析预警相关实践，重点记录系统边界、数据流转、规则运行时和平台化落地。</p>
+        </header>
         <aside class="post-tree" aria-label="文章目录" data-i18n-aria="post.tree.aria">
           <div class="post-tree-header">
             <span class="eyebrow">2022-2026 Timeline</span>
-            <h1 data-i18n="post.list.title" data-i18n-en="Posts">文章</h1>
+            <p class="post-tree-title" data-i18n="post.list.title" data-i18n-en="Posts">文章</p>
             <p class="lead" data-i18n="post.tree.lead">按时间线整理 AI Coding、低代码、工作流、SaaS 后台与智能分析预警相关实践，重点记录系统边界、数据流转、规则运行时和平台化落地。</p>
           </div>
           <div class="timeline-stats" aria-label="内容概览" data-i18n-aria="post.stats.aria">
@@ -190,6 +201,7 @@
                 <span data-tag="规则引擎" data-i18n="post.rule-engine-alerts.tag.0" data-i18n-en="Rule Engine">规则引擎</span><span data-tag="告警系统" data-i18n="post.rule-engine-alerts.tag.1" data-i18n-en="Alert System">告警系统</span><span data-tag="视频分析" data-i18n="post.rule-engine-alerts.tag.2" data-i18n-en="Video Analysis">视频分析</span><span data-tag="RabbitMQ" data-i18n="post.rule-engine-alerts.tag.3" data-i18n-en="RabbitMQ">RabbitMQ</span><span data-tag="Redis" data-i18n="post.rule-engine-alerts.tag.4" data-i18n-en="Redis">Redis</span>
               </div>
             </header>
+
             <div class="article-content">
           <h2 id="post-rule-engine-alerts-toc-1-一-项目概述">一、项目概述</h2>
           <p><code>znfx-backend-restruct</code> 是一个面向重点场所智能视频分析预警的后端重构项目。项目从 <code>QtCollection</code>、<code>intelligent-analysis</code>、<code>wsdc-znfx-intelligentAnalysis</code>、<code>wsdc-znfx-web</code> 等多个历史工程中演进而来，目标是把原本分散的采集、算法、规则、告警和业务展示能力，收敛成一条职责清晰、可独立构建、可独立部署、可持续演进的后端主链路。</p>
@@ -317,6 +329,7 @@
                 <span data-tag="Codex" data-i18n="post.codex-claude-vibe-coding.tag.0" data-i18n-en="Codex">Codex</span><span data-tag="Claude" data-i18n="post.codex-claude-vibe-coding.tag.1" data-i18n-en="Claude">Claude</span><span data-tag="AI Coding" data-i18n="post.codex-claude-vibe-coding.tag.2" data-i18n-en="AI Coding">AI Coding</span><span data-tag="Vibe Coding" data-i18n="post.codex-claude-vibe-coding.tag.3" data-i18n-en="Vibe Coding">Vibe Coding</span><span data-tag="工程效率" data-i18n="post.codex-claude-vibe-coding.tag.4" data-i18n-en="Engineering Efficiency">工程效率</span>
               </div>
             </header>
+
             <div class="article-content">
           <h2 id="post-codex-claude-vibe-coding-toc-1-一-为什么是-codex-claude">一、为什么是 Codex + Claude</h2>
           <p>Vibe Coding 最迷人的地方，是它把编程从「先写完整规格，再机械实现」变成了「带着感觉快速逼近系统形状」。但真正落到项目里，只有感觉是不够的。代码需要能运行，设计需要能收敛，边界需要被照亮，测试也需要把风险关进笼子里。</p>
@@ -444,6 +457,7 @@
                 <span data-tag="Java" data-i18n="post.manage-system.tag.0" data-i18n-en="Java">Java</span><span data-tag="Spring Boot" data-i18n="post.manage-system.tag.1" data-i18n-en="Spring Boot">Spring Boot</span><span data-tag="视频分析" data-i18n="post.manage-system.tag.2" data-i18n-en="Video Analysis">视频分析</span><span data-tag="规则引擎" data-i18n="post.manage-system.tag.3" data-i18n-en="Rule Engine">规则引擎</span><span data-tag="ONNX Runtime" data-i18n="post.manage-system.tag.4" data-i18n-en="ONNX Runtime">ONNX Runtime</span>
               </div>
             </header>
+
             <div class="article-content">
           <h2 id="post-manage-system-toc-1-一-项目概述">一、项目概述</h2>
           <p><code>znfx-backend-restruct</code> 是一个面向重点场所智能视频分析预警的后端重构项目。项目从 <code>QtCollection</code>、<code>intelligent-analysis</code>、<code>wsdc-znfx-intelligentAnalysis</code>、<code>wsdc-znfx-web</code> 等多个历史工程中演进而来，目标是把原本分散的采集、算法、规则、告警和业务展示能力，收敛成一条职责清晰、可独立构建、可独立部署、可持续演进的后端主链路。</p>
@@ -565,12 +579,15 @@
                 <time datetime="2023-08-18">August 18, 2023</time>
                 <span>·</span>
                 <span class="reading-time"><i class="fas fa-clock" aria-hidden="true"></i> <span data-i18n="dyn.readingPrefix">约</span> 5 <span data-i18n="dyn.readingSuffix">分钟</span></span>
+              <span>·</span>
+              <time class="updated-time" datetime="2026-07-04" data-i18n="post.meta.updated" data-i18n-en="Updated July 4, 2026">更新于 July 4, 2026</time>
               </div>
               <p class="article-summary" data-i18n="post.finance-saas-backend.summary" data-i18n-en="A backend platform retrospective covering customer data assets, finance reports, notification delivery and search for enterprise-service SaaS.">围绕客户数据资产、财税报表处理、通知触达和搜索检索，复盘企业服务 SaaS 多模块后端平台建设。</p>
               <div class="post-tags">
                 <span data-tag="Java" data-i18n="post.finance-saas-backend.tag.0" data-i18n-en="Java">Java</span><span data-tag="Spring Boot" data-i18n="post.finance-saas-backend.tag.1" data-i18n-en="Spring Boot">Spring Boot</span><span data-tag="Dubbo" data-i18n="post.finance-saas-backend.tag.2" data-i18n-en="Dubbo">Dubbo</span><span data-tag="RocketMQ" data-i18n="post.finance-saas-backend.tag.3" data-i18n-en="RocketMQ">RocketMQ</span><span data-tag="Elasticsearch" data-i18n="post.finance-saas-backend.tag.4" data-i18n-en="Elasticsearch">Elasticsearch</span>
               </div>
             </header>
+            <aside class="content-note" role="note" data-i18n="post.finance-saas-backend.contentNote" data-i18n-en="Status: Historical retrospective. Reviewed July 4, 2026. This is a historical project retrospective; the platform capabilities and maintenance status were reviewed from a 2026 perspective.">本文状态：历史项目复盘。 最后复核于 2026-07-04。 本文是历史项目复盘，平台能力和维护状态已按 2026 年视角复核。</aside>
             <div class="article-content">
           <h2 id="post-finance-saas-backend-toc-1-1-项目概述">1. 项目概述</h2>
           <p>企顾 SaaS 多模块平台面向企业服务场景，围绕「客户数据资产、财税报表处理、通知触达、搜索检索」四类高频能力构建统一的业务中台。项目采用 Java 8 + Spring Boot 2.4.1 技术体系，并结合 Dubbo、RocketMQ、Redis/Redisson、JetCache、Elasticsearch、MyBatis、Druid、Nacos 等组件，形成可独立演进、可复用、可扩展的多模块微服务架构。</p>
@@ -694,12 +711,15 @@
                 <time datetime="2022-02-09">February 9, 2022</time>
                 <span>·</span>
                 <span class="reading-time"><i class="fas fa-clock" aria-hidden="true"></i> <span data-i18n="dyn.readingPrefix">约</span> 7 <span data-i18n="dyn.readingSuffix">分钟</span></span>
+              <span>·</span>
+              <time class="updated-time" datetime="2026-07-04" data-i18n="post.meta.updated" data-i18n-en="Updated July 4, 2026">更新于 July 4, 2026</time>
               </div>
               <p class="article-summary" data-i18n="post.activiti-workflow-engine.summary" data-i18n-en="Engineering notes on enterprise workflow infrastructure around Activiti 7, BPMN 2.0, runtime APIs and Spring Boot auto-configuration.">围绕 Activiti 7、BPMN 2.0、运行时 API 和 Spring Boot 自动装配，梳理企业审批流与流程基础设施的工程实践。</p>
               <div class="post-tags">
                 <span data-tag="Java" data-i18n="post.activiti-workflow-engine.tag.0" data-i18n-en="Java">Java</span><span data-tag="Spring Boot" data-i18n="post.activiti-workflow-engine.tag.1" data-i18n-en="Spring Boot">Spring Boot</span><span data-tag="Activiti 7" data-i18n="post.activiti-workflow-engine.tag.2" data-i18n-en="Activiti 7">Activiti 7</span><span data-tag="BPMN 2.0" data-i18n="post.activiti-workflow-engine.tag.3" data-i18n-en="BPMN 2.0">BPMN 2.0</span><span data-tag="工作流" data-i18n="post.activiti-workflow-engine.tag.4" data-i18n-en="Workflow">工作流</span>
               </div>
             </header>
+            <aside class="content-note" role="note" data-i18n="post.activiti-workflow-engine.contentNote" data-i18n-en="Status: Historical retrospective. Reviewed July 4, 2026. This is a historical project retrospective; the workflow-engine context and maintenance status were reviewed from a 2026 perspective.">本文状态：历史项目复盘。 最后复核于 2026-07-04。 本文是历史项目复盘，流程引擎背景和维护状态已按 2026 年视角复核。</aside>
             <div class="article-content">
           <h2 id="post-activiti-workflow-engine-toc-1-项目概述">项目概述</h2>
           <p>Terminus Activiti 是一个基于 Activiti 7.1.0-SNAPSHOT 的企业级工作流与 BPM（Business Process Management）项目。项目以 BPMN 2.0 流程引擎为核心，围绕流程定义、流程实例、人工任务、变量管理、事件监听、异步作业、连接器扩展和 Spring Boot 自动装配构建了一套可嵌入业务系统、可扩展到微服务架构的流程基础设施。</p>
@@ -845,12 +865,15 @@
                 <time datetime="2022-02-01">February 1, 2022</time>
                 <span>·</span>
                 <span class="reading-time"><i class="fas fa-clock" aria-hidden="true"></i> <span data-i18n="dyn.readingPrefix">约</span> 7 <span data-i18n="dyn.readingSuffix">分钟</span></span>
+              <span>·</span>
+              <time class="updated-time" datetime="2026-07-04" data-i18n="post.meta.updated" data-i18n-en="Updated July 4, 2026">更新于 July 4, 2026</time>
               </div>
               <p class="article-summary" data-i18n="post.lowcode-schema-codegen.summary" data-i18n-en="A low-code platform foundation covering protocol design, designer core, materials, renderers and code generation tooling.">从低代码协议、设计器内核、物料体系、渲染器到出码工具链，梳理企业级中后台低代码平台底座。</p>
               <div class="post-tags">
                 <span data-tag="TypeScript" data-i18n="post.lowcode-schema-codegen.tag.0" data-i18n-en="TypeScript">TypeScript</span><span data-tag="React" data-i18n="post.lowcode-schema-codegen.tag.1" data-i18n-en="React">React</span><span data-tag="低代码" data-i18n="post.lowcode-schema-codegen.tag.2" data-i18n-en="Low-Code">低代码</span><span data-tag="Schema" data-i18n="post.lowcode-schema-codegen.tag.3" data-i18n-en="Schema">Schema</span><span data-tag="代码生成" data-i18n="post.lowcode-schema-codegen.tag.4" data-i18n-en="Code Generation">代码生成</span>
               </div>
             </header>
+            <aside class="content-note" role="note" data-i18n="post.lowcode-schema-codegen.contentNote" data-i18n-en="Status: Historical retrospective. Reviewed July 4, 2026. This is a historical project retrospective, with maintenance status reviewed from a 2026 perspective.">本文状态：历史项目复盘。 最后复核于 2026-07-04。 本文是历史项目复盘，已按 2026 年视角补充内容维护状态。</aside>
             <div class="article-content">
           <h2 id="post-lowcode-schema-codegen-toc-1-一-项目概述">一、项目概述</h2>
           <p>Terminus LowCode Engine 是一套面向企业级中后台场景的低代码技术体系，核心目标是通过统一的低代码协议、可扩展的设计器内核、物料体系、渲染器和出码工具链，帮助业务团队快速搭建页面、沉淀组件资产，并将低代码编排结果转化为可运行、可维护、可交付的前端工程。</p>
@@ -964,6 +987,11 @@
             <a class="sponsor-mini-btn sponsor-mini-secondary" href="https://PayPal.Me/chenwenliang4212" target="_blank" rel="noopener noreferrer" data-i18n="sponsorMini.paypal">💳 PayPal 支持</a>
           </div>
         </div>
+        <nav class="footer-links" aria-label="站点说明" data-i18n-aria="footer.links.aria">
+          <a href="/trust/" data-i18n="footer.trust">隐私与信任</a>
+          <a href="/contact/" data-i18n="footer.contact">联系反馈</a>
+          <a href="/sponsor/" data-i18n="footer.sponsor">赞助支持</a>
+        </nav>
         <p data-i18n="footer.text">© 2021 - 2026 CWL · Powered by Cwl · Theme inspired by Coder</p>
       </section>
     </footer>

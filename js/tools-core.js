@@ -205,9 +205,9 @@
     const crypto = getCrypto();
     if (crypto && typeof crypto.randomUUID === "function") {
       try {
-        return crypto.randomUUID();
+        return ok(crypto.randomUUID());
       } catch (error) {
-        // Fall back to getRandomValues or Math.random below.
+        // Fall back to getRandomValues below.
       }
     }
     const bytes = new Uint8Array(16);
@@ -221,22 +221,20 @@
       }
     }
     if (!filled) {
-      for (let i = 0; i < bytes.length; i += 1) {
-        bytes[i] = Math.floor(Math.random() * 256);
-      }
+      return fail("当前浏览器不支持安全随机数，无法生成安全 UUID", "uuidCrypto");
     }
     bytes[6] = (bytes[6] & 0x0f) | 0x40;
     bytes[8] = (bytes[8] & 0x3f) | 0x80;
     const hex = Array.from(bytes, function (byte) {
       return byte.toString(16).padStart(2, "0");
     }).join("");
-    return [
+    return ok([
       hex.slice(0, 8),
       hex.slice(8, 12),
       hex.slice(12, 16),
       hex.slice(16, 20),
       hex.slice(20),
-    ].join("-");
+    ].join("-"));
   }
 
   function normalizeTimestamp(value) {
@@ -929,6 +927,25 @@
     return dom && dow;
   }
 
+  function daysInMonth(year, month) {
+    return new Date(year, month, 0).getDate();
+  }
+
+  function hasPossibleDayOfMonth(dayOfMonth, month, startYear) {
+    for (const monthValue of month.values) {
+      const yearsToCheck = monthValue === 2 ? [startYear, startYear + 1, startYear + 2, startYear + 3] : [startYear];
+      for (const year of yearsToCheck) {
+        const maxDay = daysInMonth(year, monthValue);
+        for (const day of dayOfMonth.values) {
+          if (day <= maxDay) {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
+  }
+
   function formatLocalDateTime(date) {
     const pad = function (value) { return String(value).padStart(2, "0"); };
     return date.getFullYear() + "-" + pad(date.getMonth() + 1) + "-" + pad(date.getDate()) +
@@ -958,6 +975,9 @@
     const now = nowValue === undefined ? new Date() : new Date(nowValue);
     if (Number.isNaN(now.getTime())) {
       return fail("当前时间无效", "cronNow");
+    }
+    if (!dayOfMonth.value.wildcard && dayOfWeek.value.wildcard && !hasPossibleDayOfMonth(dayOfMonth.value, month.value, now.getFullYear())) {
+      return fail("日期字段永远无法匹配", "cronNoRuns");
     }
     const cursor = new Date(now.getTime() + 60000);
     cursor.setSeconds(0, 0);
@@ -1152,16 +1172,25 @@
     if (!/^\$/.test(rawPath)) {
       return fail("JSONPath 需要以 $ 开头", "jsonPath");
     }
-    const tokens = rawPath.match(/(?:\.[A-Za-z_$][\w$-]*)|(?:\[['"][^'"]+['"]\])|(?:\[\d+\])/g) || [];
+    const tokenPattern = /(?:\.([A-Za-z_$][\w$-]*))|(?:\[['"]([^'"]+)['"]\])|(?:\[(\d+)\])/g;
     let cursor = parsed.value;
-    for (const token of tokens) {
-      const key = token.charAt(0) === "."
-        ? token.slice(1)
-        : token.replace(/^\[['"]?/, "").replace(/['"]?\]$/, "");
-      cursor = cursor && cursor[key];
-      if (cursor === undefined) {
+    let index = 1;
+    while (index < rawPath.length) {
+      tokenPattern.lastIndex = index;
+      const match = tokenPattern.exec(rawPath);
+      if (!match || match.index !== index) {
+        return fail("JSONPath 包含暂不支持的语法片段", "jsonPathSyntax");
+      }
+      const key = match[1] !== undefined ? match[1] : match[2] !== undefined ? match[2] : match[3];
+      if (
+        cursor === null ||
+        cursor === undefined ||
+        !Object.prototype.hasOwnProperty.call(Object(cursor), key)
+      ) {
         return fail("路径没有匹配到值", "jsonPath");
       }
+      cursor = cursor[key];
+      index = tokenPattern.lastIndex;
     }
     return ok(JSON.stringify(cursor, null, 2));
   }

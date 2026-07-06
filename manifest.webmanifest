@@ -1,0 +1,19 @@
+{
+  "name": "CWLBlog",
+  "short_name": "CWLBlog",
+  "description": "CWL 的技术博客、开发工具箱、AI 导航和项目复盘。",
+  "lang": "zh-CN",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "icons": [
+    {
+      "src": "/images/favicon.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    }
+  ],
+  "categories": ["developer", "productivity", "education"]
+}

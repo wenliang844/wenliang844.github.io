@@ -95,6 +95,10 @@ ${groups}
         })),
       },
     }),
+    feeds: [
+      { href: "/index.xml", title: "CWLBlog RSS" },
+      { href: "/categories/index.xml", title: "CWLBlog Time Archive RSS" },
+    ],
     og: { type: "website", title: "Time Archive", description, path: "/categories/" },
     main,
   });

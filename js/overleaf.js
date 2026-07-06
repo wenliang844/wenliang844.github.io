@@ -787,7 +787,7 @@
 
     preview.innerHTML =
       '<header class="latex-resume-head">' +
-      '<h1>' + editable("name", model.name) + "</h1>" +
+      '<div class="latex-name" role="heading" aria-level="2">' + editable("name", model.name) + "</div>" +
       '<p class="latex-role">' + editable("role", model.role) + "</p>" +
       '<p class="latex-contact">' + editableContact(model.contact) + "</p>" +
       "</header>" +

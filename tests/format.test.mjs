@@ -10,6 +10,21 @@ test("isoDate returns the input string unchanged", () => {
   assert.equal(isoDate("2000-01-01"), "2000-01-01");
 });
 
+test("date formatters reject malformed and impossible dates", () => {
+  const invalidDates = ["", "2024-6-1", "2026-13-99", "2024-02-30", "not-a-date"];
+  const formatters = [isoDate, longDate, rfc822, sitemapDate];
+
+  for (const formatter of formatters) {
+    for (const invalidDate of invalidDates) {
+      assert.throws(
+        () => formatter(invalidDate),
+        /Invalid date/,
+        `${formatter.name} should reject ${JSON.stringify(invalidDate)}`,
+      );
+    }
+  }
+});
+
 // ─── longDate ──────────────────────────────────────────────────────────────────
 
 test("longDate formats dates correctly", () => {

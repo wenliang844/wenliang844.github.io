@@ -7,14 +7,44 @@ import { renderAiPage } from "../src/templates/ai.mjs";
 import { renderCategoriesPage } from "../src/templates/categories.mjs";
 import { renderAppreciationPage } from "../src/templates/appreciation.mjs";
 import { renderSponsorPage } from "../src/templates/sponsor.mjs";
+import { renderTrustPage } from "../src/templates/trust.mjs";
 import { renderPostPage, renderPostList } from "../src/templates/post.mjs";
 import { renderTagsPage } from "../src/templates/tags.mjs";
+import { STATIC_PAGES, SEARCH_PAGES } from "../src/config.mjs";
+import { PAGE_ASSETS, pageAssetUrls } from "../src/page-assets.mjs";
+import { LOCAL_DATA_ITEMS, THIRD_PARTY_SERVICES } from "../src/trust-data.mjs";
 
 function extractJsonLd(html) {
   const match = html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/);
   assert.ok(match, "page should include JSON-LD");
   return JSON.parse(match[1]);
 }
+
+test("page asset manifest stays aligned with rendered templates", () => {
+  const rendered = {
+    "/tools/": renderToolsPage(),
+    "/trust/": renderTrustPage(),
+  };
+
+  for (const [route, assets] of Object.entries(PAGE_ASSETS)) {
+    assert.ok(rendered[route], `${route} should have a rendered template fixture`);
+    for (const href of assets.styles) {
+      assert.match(rendered[route], new RegExp(`href="${href.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}"`));
+    }
+  }
+
+  assert.deepEqual(pageAssetUrls(), ["/css/tools.css", "/css/trust.css"]);
+  assert.deepEqual(
+    pageAssetUrls({
+      "/demo/": {
+        styles: ["/css/demo.css"],
+        scripts: ["/js/demo.js", "/js/demo.js"],
+        assets: ["/images/demo.png"],
+      },
+    }),
+    ["/css/demo.css", "/js/demo.js", "/images/demo.png"],
+  );
+});
 
 // ─── Tools 页面测试 ────────────────────────────────────────────────────────────
 
@@ -65,7 +95,9 @@ test("renderToolsPage has correct script references", () => {
   assert.match(html, /src="\/js\/tools-core\.js"/);
   assert.match(html, /src="\/js\/tools\.js"/);
   assert.match(html, /src="\/js\/editor\.js"/);
-  assert.match(html, /src="\/js\/assistant\.js"/);
+  assert.match(html, /src="\/js\/assistant-loader\.js"/);
+  assert.doesNotMatch(html, /src="\/js\/assistant\.js"/);
+  assert.match(html, /href="\/css\/tools\.css"/);
   assert.match(html, /src="\/js\/vendor\/marked\.min\.js"/);
   assert.match(html, /src="\/js\/vendor\/purify\.min\.js"/);
   assert.match(html, /src="\/js\/vendor\/highlight\.min\.js"/);
@@ -80,6 +112,7 @@ test("renderToolsPage has OG meta tags", () => {
   assert.match(html, /property="og:title"/);
   assert.match(html, /property="og:description"/);
   assert.match(html, /href="https:\/\/wenliang844\.github\.io\/tools\/"/);
+  assert.match(html, /rel="alternate" type="application\/rss\+xml" title="CWLBlog RSS" href="\/index\.xml"/);
 });
 
 test("renderToolsPage has tool navigation tabs with aria attributes", () => {
@@ -110,11 +143,17 @@ test("renderToolsPage embeds the Markdown editor panel", () => {
   const html = renderToolsPage();
   assert.match(html, /Markdown 编辑器/);
   assert.match(html, /id="post-title"/);
+  assert.match(html, /<label class="sr-only" for="markdown-input" data-i18n="editor\.input\.label">Markdown 原文输入<\/label>/);
   assert.match(html, /id="markdown-input"/);
   assert.match(html, /id="markdown-preview"/);
   assert.match(html, /data-action="download-md"/);
   assert.match(html, /data-md="bold"/);
   assert.doesNotMatch(html, /data-markdown-render/);
+});
+
+test("renderToolsPage reserves QR image dimensions", () => {
+  const html = renderToolsPage();
+  assert.match(html, /<img id="qr-image" alt="QR code" width="256" height="256" loading="lazy" decoding="async" hidden>/);
 });
 
 test("generated static templates include page-specific JSON-LD", () => {
@@ -154,6 +193,39 @@ test("generated static templates include page-specific JSON-LD", () => {
   const sponsorLd = extractJsonLd(renderSponsorPage());
   assert.equal(sponsorLd["@type"], "WebPage");
   assert.equal(sponsorLd.potentialAction[0]["@type"], "DonateAction");
+
+  const trustLd = extractJsonLd(renderTrustPage());
+  assert.equal(trustLd["@type"], "WebPage");
+  assert.equal(trustLd.mainEntity.numberOfItems, THIRD_PARTY_SERVICES.length);
+});
+
+test("renderTrustPage exposes local data, third-party services and user controls", () => {
+  const html = renderTrustPage();
+
+  assert.match(html, /<title>隐私与信任 :: CWLBlog<\/title>/);
+  assert.match(html, /id="trust-title"/);
+  assert.match(html, /data-i18n-page="trust"/);
+  assert.match(html, /href="\/css\/trust\.css"/);
+  assert.match(html, /href="https:\/\/wenliang844\.github\.io\/trust\/"/);
+  assert.match(html, /class="[^"]*\btrust-stats\b[^"]*"/);
+  assert.match(html, /class="[^"]*\btrust-service-list\b[^"]*"/);
+  assert.match(html, /class="trust-report-link" href="\/contact\/"/);
+  for (const item of LOCAL_DATA_ITEMS) {
+    assert.match(html, new RegExp(item.title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+    assert.match(html, new RegExp(item.storage.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  }
+  for (const service of THIRD_PARTY_SERVICES) {
+    assert.match(html, new RegExp(service.host.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  }
+});
+
+test("privacy trust page is discoverable from static page and search config", () => {
+  assert.ok(STATIC_PAGES.some((page) => page.path === "/trust/" && page.withDate && page.priority === "0.5"));
+  const searchPage = SEARCH_PAGES.find((page) => page.path === "/trust/");
+  assert.ok(searchPage, "trust page should be searchable");
+  assert.ok(searchPage.tags.includes("隐私"));
+  assert.ok(searchPage.tags.includes("第三方服务"));
+  assert.equal(searchPage.i18n.en.title, "Privacy & Trust");
 });
 
 // ─── AI 导航页面测试 ───────────────────────────────────────────────────────────
@@ -239,6 +311,7 @@ test("renderCategoriesPage has i18n attributes", () => {
   const html = renderCategoriesPage(posts, stats);
   assert.match(html, /data-i18n="categories\.title"/);
   assert.match(html, /data-i18n="categories\.lead"/);
+  assert.match(html, /rel="alternate" type="application\/rss\+xml" title="CWLBlog Time Archive RSS" href="\/categories\/index\.xml"/);
 });
 
 // ─── Appreciation 页面测试 ─────────────────────────────────────────────────────
@@ -323,6 +396,8 @@ test("renderPostPage includes all required SEO elements", () => {
     title: "Test Post", titleEn: "Test Post EN",
     shortTitle: "Test", shortTitleEn: "Test EN",
     slug: "test-post", date: "2024-06-15", modified: "2024-06-20",
+    status: "historical", reviewed: "2024-06-21",
+    contextNote: "本文是历史项目复盘。", contextNoteEn: "This is a historical retrospective.",
     eyebrow: "项目", summary: "Summary", summaryEn: "Summary EN",
     description: "Description", descriptionEn: "Description EN",
     tags: ["Java"], tagsEn: ["Java"],
@@ -347,6 +422,17 @@ test("renderPostPage includes all required SEO elements", () => {
 
   // 结构
   assert.match(html, /class="article-header"/);
+  assert.match(html, /class="updated-time"/);
+  assert.match(html, /datetime="2024-06-20"/);
+  assert.match(html, /更新于 June 20, 2024/);
+  assert.match(html, /data-i18n-en="Updated June 20, 2024"/);
+  assert.match(html, /class="content-note"/);
+  assert.match(html, /本文状态：历史项目复盘。/);
+  assert.match(html, /最后复核于 2024-06-21。/);
+  assert.match(html, /This is a historical retrospective\./);
+  assert.match(html, /class="post-maintenance"/);
+  assert.match(html, /href="https:\/\/github\.com\/wenliang844\/wenliang844\.github\.io\/blob\/master\/src\/posts\/test-post\.md"/);
+  assert.match(html, /href="\/contact\/\?topic=post&amp;slug=test-post#feedback-title"|href="\/contact\/\?topic=post&slug=test-post#feedback-title"/);
   assert.match(html, /class="article-content"/);
   assert.match(html, /class="post-tags"/);
   assert.match(html, /class="post-share"/);
@@ -442,7 +528,12 @@ test("renderPostList groups posts by year with correct counts", () => {
   const html = renderPostList(posts, stats);
 
   assert.match(html, /class="post-tree"/);
+  assert.match(html, /class="post-mobile-heading"/);
+  assert.match(html, /class="post-tree-title"/);
+  assert.match(html, /<p class="post-tree-title"/);
+  assert.match(html, /id="post-mobile-title"/);
   assert.match(html, /class="post-detail"/);
+  assert.equal((html.match(/<h1\b/g) || []).length, 1);
   assert.match(html, /2024/);
   assert.match(html, /2023/);
   assert.match(html, /3/); // count
@@ -474,6 +565,7 @@ test("renderPostList renders search input and tag filter", () => {
 
   assert.match(html, /id="post-search-input"/);
   assert.match(html, /id="tag-filter"/);
+  assert.match(html, /rel="alternate" type="application\/rss\+xml" title="CWLBlog Posts RSS" href="\/post\/index\.xml"/);
 });
 
 test("renderPostList prefixes repeated article heading ids per post", () => {

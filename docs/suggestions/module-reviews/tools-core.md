@@ -5,21 +5,23 @@
 ## 📌 MR-CORE-01: Cron 解析器需要避免主线程百万次扫描
 
 - **📍 位置**：`js/tools-core.js:938-980`, `tests/tools-core-deep.test.mjs:258-266`
-- **📝 当前状况描述**：Cron 下一次执行时间通过逐分钟推进计算，最多扫描两年。第 2 轮只读探测显示，无解表达式 `0 0 31 2 *` 约 127.57ms，明显高于普通表达式。
+- **✅ 修复状态**：Cron 解析器已为“月份内不存在指定日期且星期字段为通配符”的表达式增加提前失败路径，`0 0 31 2 *` 不再进入两年逐分钟扫描；同时补测试确认 `0 0 31 2 mon` 仍保留日/周 OR 语义。
+- **🧪 验证**：`node --test tests/tools-core-deep.test.mjs tests/tools.test.mjs` 65/65 通过；Playwright mobile 烟测显示无解表达式约 0.7ms 返回错误态。
+- **📝 原状况描述**：Cron 下一次执行时间通过逐分钟推进计算，最多扫描两年。第 2 轮只读探测显示，无解表达式 `0 0 31 2 *` 约 127.57ms，明显高于普通表达式。
 - **⚠️ 影响程度**：中
-- **💡 建议方案**：
+- **💡 后续建议**：
   ```javascript
-  if (isImpossibleDayMonth(dayOfMonth.value, month.value)) {
-    return fail("日期字段永远无法匹配", "cronNoRuns");
-  }
+  cursor = jumpToNextAllowedMinuteOrHour(cursor);
   ```
   后续可以把逐分钟推进替换为按字段跳跃：分钟不匹配跳到下一合法分钟，小时不匹配跳到下一合法小时，日期不匹配跳到下一天零点。
-- **📊 预期收益**：缩短无解表达式反馈时间，避免工具页主线程被同步计算卡住。
+- **📊 实际收益**：缩短典型无解表达式反馈时间，避免工具页主线程被同步计算卡住。
 - **🔗 相关建议引用**：[P-16](../performance-bottlenecks.md#p-16-cron-无解表达式会在主线程同步扫描两年分钟粒度)
 
-## 📌 MR-CORE-02: UUID 生成器的弱随机 fallback 需要明确降级语义
+## 📌 MR-CORE-02 [已修复]: UUID 生成器的弱随机 fallback 需要明确降级语义
 
 - **📍 位置**：`js/tools-core.js:204-228`, `tests/tools.test.mjs:236-258`
+- **✅ 修复状态**：UUID 生成器已删除 `Math.random()` fallback；缺少 Web Crypto 安全随机数时返回 `uuidCrypto` 失败结果，UI 展示错误状态。`randomUUID()` 抛错时仍可安全降级到 `getRandomValues()`。
+- **🧪 回归测试**：`tests/tools.test.mjs` 覆盖 `randomUUID()` 失败后的 `getRandomValues()` 路径、Web Crypto 不可用的失败 code，以及工具 UI 的 UUID 生成状态。
 - **📝 当前状况描述**：UUID 主路径优先使用 Web Crypto，但 crypto 不可用时仍用 `Math.random()` 生成符合格式的 UUID。格式正确不等于随机强度足够，当前 UI 和测试没有把这一区别暴露给用户。
 - **⚠️ 影响程度**：低
 - **💡 建议方案**：
@@ -29,12 +31,14 @@
   }
   ```
   如果兼容旧环境更重要，则输出结果旁增加“非安全随机”状态，并禁止把它作为安全 token 的示例。
-- **📊 预期收益**：减少安全场景误用，保持密码生成器和 UUID 生成器的随机数策略一致。
-- **🔗 相关建议引用**：[S-15](../security-audit.md#s-15-uuid-工具在-web-crypto-不可用时退化到-mathrandom), [TD-12](../tech-debt.md#td-12-随机数能力边界需要产品和测试共同收敛)
+- **📊 实际收益**：减少安全场景误用，保持密码生成器和 UUID 生成器的随机数策略一致。
+- **🔗 相关建议引用**：[S-15](../security-audit.md#s-15-已修复-uuid-工具在-web-crypto-不可用时退化到-mathrandom), [TD-12](../tech-debt.md#td-12-已修复核心边界-随机数能力边界需要产品和测试共同收敛)
 
-## 📌 MR-CORE-03: 随机数工具应标注非加密用途
+## 📌 MR-CORE-03 [已修复核心提示]: 随机数工具应标注非加密用途
 
 - **📍 位置**：`js/tools-core.js:1275-1293`, `src/templates/tools.mjs:650-705`
+- **✅ 修复状态**：随机数工具面板已新增 `tool-note random-warning` 提示，说明结果来自普通伪随机数，只适合抽样、演示和快速选择，不应用作密码、令牌、验证码或安全凭据；对应中英文文案和 DOM 测试已补齐。
+- **🧪 回归测试**：`tests/templates.test.mjs` 覆盖提示 DOM 和中英文文案；`tests/tools.test.mjs` 覆盖中文默认态、英文切换后的动态文案，以及浏览器冒烟验证。
 - **📝 当前状况描述**：随机数生成器使用 `Math.random()`，适合抽样、演示和轻量随机选择；但如果用户把它理解成安全随机，可能会用于抽奖防刷、验证码或 token 场景。
 - **⚠️ 影响程度**：低
 - **💡 建议方案**：
@@ -42,8 +46,8 @@
   随机数工具提示：使用浏览器普通伪随机数，适合演示和抽样；安全 token 请使用密码生成器。
   ```
   也可以增加一个“安全随机整数”模式，在 Web Crypto 可用时通过 `crypto.getRandomValues()` 生成。
-- **📊 预期收益**：降低误用成本，同时给高级用户清晰的能力升级路径。
-- **🔗 相关建议引用**：[TD-12](../tech-debt.md#td-12-随机数能力边界需要产品和测试共同收敛)
+- **📊 实际收益**：降低误用成本，同时给高级用户清晰的能力升级路径；后续如有需要可新增 Web Crypto 安全随机整数模式。
+- **🔗 相关建议引用**：[TD-12](../tech-debt.md#td-12-已修复核心边界-随机数能力边界需要产品和测试共同收敛)
 
 ## 📌 MR-CORE-04: 轻量 YAML 转换器需要明确支持范围
 

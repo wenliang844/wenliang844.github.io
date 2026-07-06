@@ -5,6 +5,11 @@ shortTitle: "企顾 SaaS 多模块平台"
 shortTitleEn: "Qigu SaaS Platform"
 slug: "finance-saas-backend"
 date: 2023-08-18
+modified: 2026-07-04
+status: historical
+reviewed: 2026-07-04
+contextNote: "本文是历史项目复盘，平台能力和维护状态已按 2026 年视角复核。"
+contextNoteEn: "This is a historical project retrospective; the platform capabilities and maintenance status were reviewed from a 2026 perspective."
 eyebrow: "SaaS Backend"
 summary: "围绕客户数据资产、财税报表处理、通知触达和搜索检索，复盘企业服务 SaaS 多模块后端平台建设。"
 summaryEn: "A backend platform retrospective covering customer data assets, finance reports, notification delivery and search for enterprise-service SaaS."

@@ -312,14 +312,12 @@ test("editor.js preview updates when markdown input changes", async () => {
   // Wait for debounce (editor uses 150ms debounce)
   await new Promise((r) => dom.window.setTimeout(r, 300));
 
-  // Preview uses marked if available, otherwise falls back to <pre> with escaping
   const html = preview.innerHTML;
-  if (html.includes("<h1")) {
-    // marked was available
-    assert.ok(html.includes("<h1"), "preview should contain h1");
+  if (html.includes("preview-heading-1")) {
+    assert.equal(preview.querySelector("h1"), null, "preview should not add a document h1");
+    assert.ok(preview.querySelector('[role="heading"][aria-level="2"]'), "preview should expose a demoted heading");
     assert.ok(html.includes("<strong>bold</strong>"), "preview should contain bold");
   } else {
-    // Fallback: text rendered inside <pre> with escaped HTML
     assert.ok(html.includes("Hello"), "preview should contain the text");
     assert.ok(html.length > 10, "preview should have rendered content");
   }
@@ -474,12 +472,12 @@ test("editor.js delegates HTML copy fallback to CWLUtils.copyText", async () => 
     copied.push(text);
     return true;
   };
-  document.getElementById("markdown-preview").innerHTML = "<p>Rendered</p>";
+  document.getElementById("markdown-input").value = "# Rendered";
 
   document.querySelector('[data-action="copy-html"]').click();
   await Promise.resolve();
 
-  assert.deepEqual(copied, ["<p>Rendered</p>"]);
+  assert.match(copied[0], /<h1>Rendered<\/h1>|# Rendered/);
   dom.window.close();
 });
 

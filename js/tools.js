@@ -8,12 +8,16 @@
   const timeResults = {};
   let nowTimer = null;
   const API_HISTORY_KEY = "cwl.tools.apiHistory";
+  const API_REQUEST_TIMEOUT_MS = 15000;
+  const API_RESPONSE_CHAR_LIMIT = 500000;
+  const REGEX_WORKER_TIMEOUT_MS = 250;
   let relayProviders = [];
   const TOOL_RUNTIME_SCRIPTS = {
     galaxy: ["/js/galaxy.js"],
     gesture: ["/js/gesture-premium.js", "/js/gesture.js"],
   };
   const loadedToolRuntimes = Object.create(null);
+  const loadedRuntimeScripts = Object.create(null);
   const initialToolValues = Object.create(null);
 
   const t = window.CWLUtils.t;
@@ -41,6 +45,20 @@
     return el ? el.value : "";
   }
 
+  function previewHtml(html) {
+    const container = document.createElement("div");
+    container.innerHTML = html || "";
+    container.querySelectorAll("h1").forEach(function (heading) {
+      const replacement = document.createElement("div");
+      replacement.className = "preview-heading preview-heading-1";
+      replacement.setAttribute("role", "heading");
+      replacement.setAttribute("aria-level", "2");
+      replacement.innerHTML = heading.innerHTML;
+      heading.replaceWith(replacement);
+    });
+    return container.innerHTML;
+  }
+
   function checked(id) {
     const el = document.getElementById(id);
     return !!(el && el.checked);
@@ -60,6 +78,14 @@
     });
   }
 
+  function templateForPanel(id) {
+    return document.querySelector('template[data-tool-template="' + id + '"]');
+  }
+
+  function hasPanelSource(id, panels) {
+    return !!(panelFor(id, panels || toolPanels()) || templateForPanel(id));
+  }
+
   function scriptAlreadyPresent(src) {
     return Array.from(document.querySelectorAll("script")).some(function (script) {
       return script.getAttribute("src") === src;
@@ -67,18 +93,30 @@
   }
 
   function loadScript(src) {
-    if (scriptAlreadyPresent(src)) {
-      return Promise.resolve();
+    if (loadedRuntimeScripts[src]) {
+      return loadedRuntimeScripts[src];
     }
-    const script = document.createElement("script");
-    script.src = src;
-    script.defer = true;
-    script.async = false;
-    script.onerror = function () {
-      console.warn("Failed to load " + src);
-    };
-    document.head.appendChild(script);
-    return Promise.resolve();
+    if (scriptAlreadyPresent(src)) {
+      loadedRuntimeScripts[src] = Promise.resolve();
+      return loadedRuntimeScripts[src];
+    }
+    loadedRuntimeScripts[src] = new Promise(function (resolve, reject) {
+      const script = document.createElement("script");
+      script.src = src;
+      script.defer = true;
+      script.async = false;
+      script.onload = function () {
+        resolve();
+      };
+      script.onerror = function () {
+        const error = new Error("Failed to load " + src);
+        console.warn(error.message);
+        delete loadedRuntimeScripts[src];
+        reject(error);
+      };
+      document.head.appendChild(script);
+    });
+    return loadedRuntimeScripts[src];
   }
 
   function loadToolRuntime(id) {
@@ -87,8 +125,11 @@
       return Promise.resolve();
     }
     if (!loadedToolRuntimes[id]) {
-      scripts.forEach(loadScript);
-      loadedToolRuntimes[id] = Promise.resolve();
+      loadedToolRuntimes[id] = scripts.slice(1).reduce(function (chain, src) {
+        return chain.then(function () {
+          return loadScript(src);
+        });
+      }, loadScript(scripts[0]));
     }
     return loadedToolRuntimes[id];
   }
@@ -97,7 +138,7 @@
     const seen = Object.create(null);
     return Array.from(document.querySelectorAll(".tools-tabs [data-tool-tab]")).filter(function (tab) {
       const id = tab.getAttribute("data-tool-tab");
-      if (!panelFor(id, panels) || seen[id]) {
+      if (!hasPanelSource(id, panels) || seen[id]) {
         return false;
       }
       seen[id] = true;
@@ -181,8 +222,9 @@
     return title && id ? title.textContent.trim() + " " + id.replace(/-/g, " ") : "";
   }
 
-  function syncToolControlLabels() {
-    Array.from(document.querySelectorAll(".tools-page input, .tools-page textarea, .tools-page select")).forEach(function (control) {
+  function syncToolControlLabels(root) {
+    const scope = root || document;
+    Array.from(scope.querySelectorAll(".tools-page input, .tools-page textarea, .tools-page select, input, textarea, select")).forEach(function (control) {
       if (control.type === "hidden" || control.hasAttribute("aria-labelledby")) {
         return;
       }
@@ -199,47 +241,55 @@
     });
   }
 
+  function captureInitialToolValuesForPanel(panel) {
+    const id = panel.getAttribute("data-tool-panel");
+    initialToolValues[id] = toolControls(panel).map(function (control) {
+      return {
+        id: control.id,
+        element: control,
+        checked: control.checked,
+        value: control.value,
+      };
+    });
+  }
+
   function captureInitialToolValues() {
     toolPanels().forEach(function (panel) {
-      const id = panel.getAttribute("data-tool-panel");
-      initialToolValues[id] = toolControls(panel).map(function (control) {
-        return {
-          id: control.id,
-          element: control,
-          checked: control.checked,
-          value: control.value,
-        };
-      });
+      captureInitialToolValuesForPanel(panel);
     });
+  }
+
+  function installToolResetButton(panel) {
+    const id = panel.getAttribute("data-tool-panel");
+    const hasGeneratedState = id === "uuid";
+    if ((!toolControls(panel).length && !hasGeneratedState) || panel.querySelector("[data-tool-reset]")) {
+      return;
+    }
+    let actions = panel.querySelector(".tool-actions");
+    if (!actions) {
+      actions = document.createElement("div");
+      actions.className = "tool-actions";
+      panel.appendChild(actions);
+    }
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "tool-btn";
+    button.setAttribute("data-tool-reset", id);
+    const icon = document.createElement("i");
+    icon.className = "fas fa-eraser";
+    icon.setAttribute("aria-hidden", "true");
+    const label = document.createElement("span");
+    label.setAttribute("data-i18n", "tools.btn.reset");
+    label.textContent = t("tools.btn.reset", "重置");
+    button.appendChild(icon);
+    button.appendChild(document.createTextNode(" "));
+    button.appendChild(label);
+    actions.appendChild(button);
   }
 
   function installToolResetButtons() {
     toolPanels().forEach(function (panel) {
-      const id = panel.getAttribute("data-tool-panel");
-      const hasGeneratedState = id === "uuid";
-      if ((!toolControls(panel).length && !hasGeneratedState) || panel.querySelector("[data-tool-reset]")) {
-        return;
-      }
-      let actions = panel.querySelector(".tool-actions");
-      if (!actions) {
-        actions = document.createElement("div");
-        actions.className = "tool-actions";
-        panel.appendChild(actions);
-      }
-      const button = document.createElement("button");
-      button.type = "button";
-      button.className = "tool-btn";
-      button.setAttribute("data-tool-reset", id);
-      const icon = document.createElement("i");
-      icon.className = "fas fa-eraser";
-      icon.setAttribute("aria-hidden", "true");
-      const label = document.createElement("span");
-      label.setAttribute("data-i18n", "tools.btn.reset");
-      label.textContent = t("tools.btn.reset", "重置");
-      button.appendChild(icon);
-      button.appendChild(document.createTextNode(" "));
-      button.appendChild(label);
-      actions.appendChild(button);
+      installToolResetButton(panel);
     });
   }
 
@@ -400,13 +450,62 @@
     });
   }
 
+  function initializeToolPanel(panel) {
+    const id = panel && panel.getAttribute("data-tool-panel");
+    if (!id) {
+      return;
+    }
+    if (id === "api") {
+      renderApiHistory();
+      initRelayProviders();
+    }
+    if (id === "time") {
+      initTimeInput();
+      syncNowTimer();
+    }
+    if (id === "datediff") {
+      initDateDiffInputs();
+    }
+    if (id === "markdown" && window.CWLInitMarkdownEditor) {
+      window.CWLInitMarkdownEditor(panel);
+    }
+    installToolResetButton(panel);
+    syncToolControlLabels(panel);
+    captureInitialToolValuesForPanel(panel);
+    if (window.cwlLang && window.cwlLang() === "en" && window.cwlSetLang) {
+      window.cwlSetLang("en");
+    }
+  }
+
+  function hydrateToolPanel(id) {
+    const current = panelFor(id, toolPanels());
+    if (current) {
+      return current;
+    }
+    const template = templateForPanel(id);
+    const panelsRoot = document.querySelector(".tools-panels");
+    if (!template || !panelsRoot || !template.content) {
+      return null;
+    }
+    const fragment = template.content.cloneNode(true);
+    const panel = fragment.querySelector("[data-tool-panel]");
+    if (!panel) {
+      return null;
+    }
+    panel.hidden = true;
+    panelsRoot.appendChild(fragment);
+    template.remove();
+    initializeToolPanel(panel);
+    return panel;
+  }
+
   function switchTool(id, options) {
+    const selectedPanel = hydrateToolPanel(id);
     const panels = toolPanels();
     const tabs = toolTabs(panels);
     const selectedTab = tabs.find(function (tab) {
       return tab.getAttribute("data-tool-tab") === id;
     });
-    const selectedPanel = panelFor(id, panels);
 
     if (!selectedTab || !selectedPanel) {
       return false;
@@ -467,6 +566,32 @@
     return switchTool(tabs[nextIndex].getAttribute("data-tool-tab"), { focus: true });
   }
 
+  function toolIdFromHash() {
+    let hash = window.location.hash || "";
+    try {
+      hash = decodeURIComponent(hash);
+    } catch {
+      hash = "";
+    }
+    hash = hash.replace(/^#/, "");
+    const match = hash.match(/^tool(?:-tab)?-([a-z0-9-]+)$/);
+    if (!match || !hasPanelSource(match[1])) {
+      return "";
+    }
+    return match[1];
+  }
+
+  function activateToolFromHash() {
+    const id = toolIdFromHash();
+    if (!id || !switchTool(id)) {
+      return;
+    }
+    const tab = document.getElementById("tool-tab-" + id);
+    if (tab && tab.scrollIntoView) {
+      tab.scrollIntoView({ block: "nearest" });
+    }
+  }
+
   function setGeneratedUuid(uuid) {
     const output = document.getElementById("uuid-output");
     if (!output) {
@@ -475,6 +600,16 @@
     output.textContent = uuid;
     output.removeAttribute("data-empty");
     output.removeAttribute("data-i18n");
+  }
+
+  function runUuidGenerator() {
+    const result = core.generateUuid();
+    if (result.ok) {
+      setGeneratedUuid(result.value);
+      setStatusKey("uuid-status", "tools.status.uuid", "UUID 已生成", "ok");
+    } else {
+      setStatusError("uuid-status", result);
+    }
   }
 
   function setPasswordResult(result) {
@@ -524,7 +659,7 @@
     const preview = document.getElementById("markdown-preview");
     if (result.ok) {
       if (preview) {
-        preview.innerHTML = result.value.html;
+        preview.innerHTML = previewHtml(result.value.html);
       }
       value("markdown-output", result.value.html);
       setStatusKey(
@@ -568,6 +703,50 @@
     }
   }
 
+  function runRegexTest(pattern, flags, input, onDone) {
+    if (typeof window.Worker !== "function") {
+      onDone(core.testRegex(pattern, flags, input));
+      return;
+    }
+
+    let worker;
+    try {
+      worker = new window.Worker("/js/regex-worker.js");
+    } catch (_error) {
+      onDone(core.testRegex(pattern, flags, input));
+      return;
+    }
+
+    let finished = false;
+    function finish(result) {
+      if (finished) {return;}
+      finished = true;
+      window.clearTimeout(timeoutId);
+      try { worker.terminate(); } catch (_error) { /* ignore worker cleanup failures */ }
+      onDone(result);
+    }
+
+    let timeoutId = 0;
+    timeoutId = window.setTimeout(function () {
+      finish({
+        ok: false,
+        error: "正则执行超时，请简化表达式或缩短测试文本",
+        code: "regexTimeout",
+      });
+    }, REGEX_WORKER_TIMEOUT_MS);
+
+    worker.onmessage = function (event) {
+      const result = event.data && typeof event.data === "object"
+        ? event.data
+        : { ok: false, error: "正则 Worker 返回结果无效", code: "regexWorker" };
+      finish(result);
+    };
+    worker.onerror = function () {
+      finish({ ok: false, error: "正则 Worker 执行失败", code: "regexWorker" });
+    };
+    worker.postMessage({ pattern: pattern, flags: flags, input: input });
+  }
+
   function renderColorPalette(colors) {
     const palette = document.getElementById("color-palette");
     if (!palette) {
@@ -598,9 +777,11 @@
 
   function setApiHistory(items) {
     try {
-      window.localStorage.setItem(API_HISTORY_KEY, JSON.stringify(items.slice(0, 20)));
+      const next = JSON.stringify(items.slice(0, 20));
+      window.localStorage.setItem(API_HISTORY_KEY, next);
+      return window.localStorage.getItem(API_HISTORY_KEY) === next;
     } catch (_error) {
-      // Ignore storage quota or privacy-mode failures.
+      return false;
     }
   }
 
@@ -707,7 +888,10 @@
       return !(item.method === historyItem.method && item.url === historyItem.url && item.headers === historyItem.headers && item.body === historyItem.body);
     });
     history.unshift(historyItem);
-    setApiHistory(history);
+    if (!setApiHistory(history)) {
+      setStatusError("api-status", { ok: false, error: "请求未保存：浏览器阻止了本地历史写入", code: "apiHistorySave" });
+      return false;
+    }
     renderApiHistory();
     setStatusKey("api-status", "tools.status.savedSafe", "请求已安全保存", "ok");
     return true;
@@ -756,13 +940,79 @@
     return headers;
   }
 
+  function apiTargetRisk(url) {
+    const parsed = new URL(url);
+    const host = parsed.hostname.toLowerCase().replace(/^\[|\]$/g, "");
+    if (
+      host === "localhost" ||
+      host === "::1" ||
+      host === "0.0.0.0" ||
+      /^127\./.test(host) ||
+      host.endsWith(".local")
+    ) {
+      return "local";
+    }
+    if (
+      /^10\./.test(host) ||
+      /^192\.168\./.test(host) ||
+      /^172\.(1[6-9]|2\d|3[0-1])\./.test(host) ||
+      /^169\.254\./.test(host) ||
+      /^f[cd][0-9a-f]{2}:/i.test(host) ||
+      /^fe80:/i.test(host)
+    ) {
+      return "private";
+    }
+    return parsed.protocol === "http:" ? "insecure" : "";
+  }
+
   function formatApiBody(body) {
-    if (body.length > 500000) {return body;} /* skip pretty-print for large responses */
+    if (body.length > API_RESPONSE_CHAR_LIMIT) {return body;} /* skip pretty-print for large responses */
     try {
       return JSON.stringify(JSON.parse(body), null, 2);
     } catch (_error) {
       return body;
     }
+  }
+
+  function apiHeaderValue(headers, name) {
+    if (!headers || typeof headers.get !== "function") {
+      return "";
+    }
+    return headers.get(name) || headers.get(name.toLowerCase()) || "";
+  }
+
+  function readApiResponseBody(response) {
+    const contentLength = Number(apiHeaderValue(response.headers, "content-length"));
+    if (Number.isFinite(contentLength) && contentLength > API_RESPONSE_CHAR_LIMIT) {
+      return Promise.resolve({
+        body: "",
+        skipped: true,
+        truncated: true,
+        size: contentLength,
+      });
+    }
+    return response.text().then(function (body) {
+      if (body.length <= API_RESPONSE_CHAR_LIMIT) {
+        return { body: body, skipped: false, truncated: false, size: body.length };
+      }
+      return {
+        body: body.slice(0, API_RESPONSE_CHAR_LIMIT),
+        skipped: false,
+        truncated: true,
+        size: body.length,
+      };
+    });
+  }
+
+  function apiBodyOutput(data) {
+    if (data.skipped) {
+      return "响应正文超过 " + API_RESPONSE_CHAR_LIMIT + " 字符，已跳过读取。";
+    }
+    const body = formatApiBody(data.body);
+    if (!data.truncated) {
+      return body;
+    }
+    return body + "\n\n[响应已截断，仅显示前 " + API_RESPONSE_CHAR_LIMIT + " 字符]";
   }
 
   function sendApiRequest() {
@@ -776,6 +1026,10 @@
       const parsed = new URL(request.url);
       if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
         setStatusError("api-status", { ok: false, error: "仅支持 http:// 和 https:// 协议", code: "apiScheme" });
+        return;
+      }
+      if (apiTargetRisk(request.url) && !checked("api-allow-risky-target")) {
+        setStatusError("api-status", { ok: false, error: "目标是本机、内网或非 HTTPS 地址，请先勾选允许后再发送", code: "apiRiskyTarget" });
         return;
       }
     } catch (_e) {
@@ -797,15 +1051,21 @@
     const startedAt = Date.now();
     /* Cancel previous in-flight request */
     if (apiAbortController) { try { apiAbortController.abort(); } catch (_e) { /* */ } }
-    apiAbortController = new AbortController();
-    const init = { method: method, headers: headers, signal: apiAbortController.signal };
+    const requestController = new AbortController();
+    apiAbortController = requestController;
+    let timeoutFired = false;
+    const timeoutId = window.setTimeout(function () {
+      timeoutFired = true;
+      requestController.abort();
+    }, API_REQUEST_TIMEOUT_MS);
+    const init = { method: method, headers: headers, signal: requestController.signal };
     if (method !== "GET" && method !== "HEAD" && request.body) {
       init.body = request.body;
     }
     value("api-response", "");
     setStatusKey("api-status", "tools.status.processing", "处理中", "");
     window.fetch(request.url, init).then(function (response) {
-      return response.text().then(function (body) {
+      return readApiResponseBody(response).then(function (bodyData) {
         const headerLines = [];
         if (response.headers && typeof response.headers.forEach === "function") {
           response.headers.forEach(function (headerValue, key) {
@@ -821,15 +1081,31 @@
           headerLines.length ? headerLines.join("\n") : "(none)",
           "",
           "Body:",
-          formatApiBody(body),
+          apiBodyOutput(bodyData),
         ].join("\n"));
-        saveApiRequest();
-        setStatusKey("api-status", "tools.status.sentSafe", "请求完成，历史已脱敏保存", response.ok ? "ok" : "error");
+        const saved = saveApiRequest();
+        if (saved) {
+          setStatusKey(
+            "api-status",
+            bodyData.truncated ? "tools.status.responseTruncated" : "tools.status.sentSafe",
+            bodyData.truncated ? "请求完成，响应过大已限制显示，历史已脱敏保存" : "请求完成，历史已脱敏保存",
+            response.ok && !bodyData.truncated ? "ok" : "error",
+          );
+        } else {
+          setStatusError("api-status", { ok: false, error: "请求完成，但浏览器阻止了本地历史写入", code: "apiHistorySave" });
+        }
       });
     }).catch(function (error) {
+      if (error.name === "AbortError" && timeoutFired) {
+        value("api-response", "请求超时: " + API_REQUEST_TIMEOUT_MS + " ms");
+        setStatusError("api-status", { ok: false, error: "请求超时，请检查目标服务或缩小响应内容", code: "apiTimeout" });
+        return;
+      }
       if (error.name === "AbortError") {return;}
       value("api-response", "请求失败: " + error.message);
       setStatusError("api-status", { ok: false, error: "请求失败：" + error.message, code: "apiRequest" });
+    }).finally(function () {
+      window.clearTimeout(timeoutId);
     });
   }
 
@@ -1050,9 +1326,12 @@
     }
 
     if (closest(event.target, "[data-api-clear-history]")) {
-      setApiHistory([]);
-      renderApiHistory();
-      setStatusKey("api-status", "tools.status.cleared", "历史已清空", "ok");
+      if (setApiHistory([])) {
+        renderApiHistory();
+        setStatusKey("api-status", "tools.status.cleared", "历史已清空", "ok");
+      } else {
+        setStatusError("api-status", { ok: false, error: "历史清空失败：浏览器阻止了本地历史写入", code: "apiHistorySave" });
+      }
       return;
     }
 
@@ -1112,8 +1391,7 @@
     }
 
     if (closest(event.target, "[data-uuid-generate]")) {
-      setGeneratedUuid(core.generateUuid());
-      setStatusKey("uuid-status", "tools.status.uuid", "UUID 已生成", "ok");
+      runUuidGenerator();
       return;
     }
 
@@ -1163,11 +1441,10 @@
     }
 
     if (closest(event.target, "[data-regex-test]")) {
-      applyResult(
-        core.testRegex(inputValue("regex-pattern"), inputValue("regex-flags"), inputValue("regex-input")),
-        "regex-output",
-        "regex-status",
-      );
+      setStatusKey("regex-status", "tools.status.processing", "处理中", "");
+      runRegexTest(inputValue("regex-pattern"), inputValue("regex-flags"), inputValue("regex-input"), function (result) {
+        applyResult(result, "regex-output", "regex-status");
+      });
       return;
     }
 
@@ -1313,6 +1590,8 @@
   installToolResetButtons();
   syncToolControlLabels();
   minimizeAssistantAfterInit();
+  activateToolFromHash();
+  window.addEventListener("hashchange", activateToolFromHash);
   document.addEventListener("visibilitychange", syncNowTimer);
   document.addEventListener("cwl:langchange", function () {
     updateNow();

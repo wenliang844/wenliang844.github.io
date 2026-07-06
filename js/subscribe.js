@@ -14,6 +14,16 @@
   const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   const t = window.CWLUtils.t;
+  let buttondownPreconnected = false;
+
+  function preconnectButtondown() {
+    if (buttondownPreconnected || !document.head) {return;}
+    buttondownPreconnected = true;
+    const link = document.createElement("link");
+    link.rel = "preconnect";
+    link.href = "https://buttondown.com";
+    document.head.appendChild(link);
+  }
 
   function setInputInvalid(input, invalid) {
     if (!input) {return;}
@@ -31,6 +41,7 @@
     }
 
     setInputInvalid(input, false);
+    preconnectButtondown();
     if (btn) {btn.disabled = true;}
     setStatus(t("subscribe.sending", "提交中…"));
 
@@ -74,6 +85,7 @@
       showFooterDisabled();
       document.addEventListener("cwl:langchange", showFooterDisabled);
     } else if (footerForm && footerInput) {
+      footerInput.addEventListener("focus", preconnectButtondown, { once: true });
       footerInput.addEventListener("input", function () {
         setInputInvalid(footerInput, false);
       });
@@ -138,6 +150,7 @@
   }
 
   function openModal() {
+    preconnectButtondown();
     lastActive = document.activeElement;
     oldOverflow = document.body.style.overflow;
     overlay.classList.add("open");

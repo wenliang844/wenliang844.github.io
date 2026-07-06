@@ -1,9 +1,6 @@
 (function () {
   const body = document.body;
 
-  /* ----------------------------------------------------------------------
-   * Color scheme toggle
-   * -------------------------------------------------------------------- */
   const STORAGE_KEY_THEME = "coder-color-scheme";
   const THEME_MODES = ["auto", "light", "dark"];
   let stored = null;
@@ -44,6 +41,7 @@
     body.classList.toggle("colorscheme-dark", actualTheme === "dark");
     body.classList.toggle("colorscheme-light", actualTheme === "light");
     updateThemeButtons(actualTheme);
+    document.dispatchEvent(new CustomEvent("cwl:themechange", { detail: { mode: themeMode, actualTheme } }));
   }
 
   function saveThemeMode(mode) {
@@ -87,9 +85,6 @@
     }
   }
 
-  /* ----------------------------------------------------------------------
-   * Blog list: switch between inline article panels
-   * -------------------------------------------------------------------- */
   const postLinks = Array.from(document.querySelectorAll(".post-tree-link[data-post-target]"));
   const postPanels = Array.from(document.querySelectorAll(".blog-article[id]"));
 
@@ -141,19 +136,12 @@
     }
   }
 
-  // Expose so other scripts (search/tag filter) can drive panel switching.
   window.coderShowPost = showPost;
 
-  /* ----------------------------------------------------------------------
-   * Reading progress bar & scroll handling with throttle
-   * -------------------------------------------------------------------- */
   const progress = document.createElement("div");
   progress.className = "read-progress";
   body.appendChild(progress);
 
-  /* ----------------------------------------------------------------------
-   * Back-to-top button
-   * -------------------------------------------------------------------- */
   const existingToTop = document.querySelector(".to-top");
   const toTop = existingToTop || document.createElement("button");
   toTop.classList.add("to-top");
@@ -174,12 +162,11 @@
     toTop.setAttribute("aria-label", t("dyn.totop", "返回顶部"));
   }
 
-  // 常量定义，避免魔法数字
   const SCROLL_CONSTANTS = {
-    BACK_TO_TOP_THRESHOLD: 420,    // 显示返回顶部按钮的滚动距离
-    TOC_OFFSET: 125,                // TOC 激活偏移量
-    SCROLL_THROTTLE: 100,           // 滚动事件节流时间（毫秒）
-    RESIZE_THROTTLE: 200            // resize 事件节流时间（毫秒）
+    BACK_TO_TOP_THRESHOLD: 420,
+    TOC_OFFSET: 125,
+    SCROLL_THROTTLE: 100,
+    RESIZE_THROTTLE: 200
   };
   const READING_RESUME_MAX_AGE = 14 * 24 * 60 * 60 * 1000;
   const READING_RESUME_MIN_RATIO = 0.08;

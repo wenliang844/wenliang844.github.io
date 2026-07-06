@@ -117,6 +117,22 @@
     messageInput.setAttribute("aria-invalid", invalid ? "true" : "false");
   }
 
+  function prefillFromQuery() {
+    if (!window.URLSearchParams || !window.location || messageInput.value.trim()) {
+      return;
+    }
+    const params = new URLSearchParams(window.location.search || "");
+    if (params.get("topic") !== "post") {
+      return;
+    }
+    const slug = String(params.get("slug") || "").trim();
+    if (!/^[a-z0-9_-]{1,100}$/i.test(slug)) {
+      return;
+    }
+    messageInput.value = "关于文章 /post/" + slug + "/ 的反馈：\n\n";
+    setStatus(t("contact.fb.prefilled", "已带入文章链接，请补充你发现的问题。"));
+  }
+
   listEl.addEventListener("click", function (event) {
     const clearAll = event.target && event.target.closest("[data-clear-all]");
     if (clearAll) {
@@ -198,5 +214,6 @@
 
   document.addEventListener("cwl:langchange", render);
   setMessageInvalid(false);
+  prefillFromQuery();
   render();
 })();

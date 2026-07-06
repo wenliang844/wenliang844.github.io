@@ -133,6 +133,12 @@ async function loadToolsPage(options = {}) {
   if (options.fetch) {
     dom.window.fetch = options.fetch;
   }
+  if (Object.prototype.hasOwnProperty.call(options, "Worker")) {
+    Object.defineProperty(dom.window, "Worker", {
+      configurable: true,
+      value: options.Worker,
+    });
+  }
   dom.window.eval(toolsCode);
   dom.window.eval(editorCode);
   return {
@@ -152,6 +158,51 @@ async function loadToolsPage(options = {}) {
     timerCalls() {
       return timerCalls.slice();
     },
+  };
+}
+
+async function loadGestureRuntime() {
+  const code = await readFile(join(ROOT, "js", "gesture.js"), "utf8");
+  const dom = new JSDOM(`<!doctype html><html><body>
+    <button id="gesture-start" type="button" disabled>start</button>
+    <button id="gesture-stop" type="button" disabled>stop</button>
+    <button id="gesture-clear" type="button">clear</button>
+    <input id="gesture-allow-remote-runtime" type="checkbox">
+    <input id="gesture-haptics" type="checkbox">
+    <input id="gesture-sound" type="checkbox">
+    <video id="gesture-video"></video>
+    <canvas id="gesture-canvas"></canvas>
+    <div id="gesture-overlay"></div>
+    <span id="gesture-status"></span>
+    <span id="gesture-label"></span>
+    <span id="gesture-fps"></span>
+    <span id="gesture-face"></span>
+    <section data-tool-panel="gesture"></section>
+  </body></html>`, {
+    pretendToBeVisual: true,
+    runScripts: "outside-only",
+    url: "https://wenliang844.github.io/tools/",
+  });
+  dom.window.HTMLCanvasElement.prototype.getContext = () => ({
+    clearRect() {},
+    setTransform() {},
+  });
+  let cameraRequests = 0;
+  Object.defineProperty(dom.window.navigator, "mediaDevices", {
+    configurable: true,
+    value: {
+      getUserMedia() {
+        cameraRequests += 1;
+        return Promise.reject(new Error("camera should not be requested"));
+      },
+    },
+  });
+  dom.window.eval(code);
+  return {
+    cameraRequests() {
+      return cameraRequests;
+    },
+    dom,
   };
 }
 
@@ -233,7 +284,7 @@ test("tools core reports blocked Base64 runtime API access clearly", async () =>
   assert.match(result.error, /不支持 atob/);
 });
 
-test("tools core UUID generation falls back when crypto methods fail", async () => {
+test("tools core UUID generation uses getRandomValues when randomUUID fails", async () => {
   const tools = await loadToolsCore({
     crypto: {
       randomUUID() {
@@ -248,13 +299,18 @@ test("tools core UUID generation falls back when crypto methods fail", async () 
     },
   });
 
-  assert.equal(tools.generateUuid(), "00010203-0405-4607-8809-0a0b0c0d0e0f");
+  const result = tools.generateUuid();
+  assert.equal(result.ok, true);
+  assert.equal(result.value, "00010203-0405-4607-8809-0a0b0c0d0e0f");
 });
 
-test("tools core UUID generation survives blocked crypto access", async () => {
+test("tools core UUID generation fails clearly when secure crypto is unavailable", async () => {
   const tools = await loadToolsCore({ cryptoThrows: true });
+  const result = tools.generateUuid();
 
-  assert.match(tools.generateUuid(), /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i);
+  assert.equal(result.ok, false);
+  assert.equal(result.code, "uuidCrypto");
+  assert.match(result.error, /安全随机数/);
 });
 
 test("tools core handles Base64, URL, timestamps, UUID and JWT", async () => {
@@ -293,7 +349,9 @@ test("tools core handles Base64, URL, timestamps, UUID and JWT", async () => {
   assert.equal(tools.dateToTimestamp("2026-02-30T00:00").ok, false);
   assert.equal(tools.dateToTimestamp("2026-06-18T24:00").ok, false);
   assert.equal(tools.dateToTimestamp("2026-06-18 00:00").ok, false);
-  assert.match(tools.generateUuid(), /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i);
+  const uuid = tools.generateUuid();
+  assert.equal(uuid.ok, true);
+  assert.match(uuid.value, /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i);
 
   const jwt = [
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9",
@@ -430,6 +488,8 @@ test("tools core handles the expanded toolbox utilities", async () => {
   const jsonPath = tools.queryJsonPath('{"users":[{"name":"CWL"}]}', "$.users[0].name");
   assert.equal(jsonPath.value, '"CWL"');
   assert.equal(tools.queryJsonPath("{}", "users").code, "jsonPath");
+  assert.equal(tools.queryJsonPath('{"deep":{"value":1}}', "$.deep.value trailing").code, "jsonPathSyntax");
+  assert.equal(tools.queryJsonPath('{"deep":{"value":0}}', "$.deep.value").value, "0");
 
   assert.match(tools.textStats("Hello 世界\nCodex").value, /Lines: 2/);
   assert.equal(tools.cleanText(" b \n\na\n b ", { trim: true, removeEmpty: true, removeDupes: true, sort: true }).value, "a\nb");
@@ -486,22 +546,13 @@ test("tools tabs expose selected state and support keyboard navigation", async (
     assert.equal(document.querySelector('[data-tool-category="data"]').open, true);
     assert.equal(document.querySelector('[data-tool-category="frontend"]').open, true);
     assert.equal(document.querySelectorAll("[data-tool-tab]").length, 31);
+    assert.equal(document.querySelectorAll("[data-tool-panel]").length, 1);
+    assert.equal(document.querySelectorAll("template[data-tool-template]").length, 30);
     assert.ok(document.querySelector('[data-tool-tab="api"]'));
     assert.ok(document.querySelector('[data-tool-tab="jsondiff"]'));
     assert.ok(document.querySelector('[data-tool-tab="cssunit"]'));
     assert.ok(galaxyTab);
-    assert.equal(document.querySelector("#tool-galaxy .galaxy-canvas").id, "galaxy-canvas");
-    assert.equal(document.querySelector("#galaxy-theme [data-galaxy-theme].active").getAttribute("data-galaxy-theme"), "bluePurple");
-    assert.equal(document.querySelector("#galaxy-count [data-galaxy-count].active").getAttribute("data-galaxy-count"), "1000");
-    assert.equal(document.querySelector("#base64-input").getAttribute("data-i18n-ph"), "tools.base64.placeholder");
-    assert.equal(document.querySelector("#base64-input").getAttribute("data-i18n-en-ph"), "Text to encode or decode");
     assert.equal(document.querySelector("#json-input").getAttribute("aria-label"), "输入 JSON");
-    assert.equal(document.querySelector("#api-url").getAttribute("aria-label"), "URL");
-    assert.equal(document.querySelector("#cron-minute-step").getAttribute("aria-label"), "分钟间隔");
-    assert.equal(document.querySelector("#url-input").getAttribute("data-i18n-en-ph"), "https://example.com/?q=search");
-    assert.equal(document.querySelector("#html-input").getAttribute("data-i18n-ph"), "tools.html.placeholder");
-    assert.equal(document.querySelector("#tool-jwt .jwt-warning").getAttribute("data-i18n"), "tools.jwt.warning");
-    assert.match(document.querySelector("#tool-jwt .jwt-warning").textContent, /未经签名验证/);
     assert.equal(jsonTab.getAttribute("role"), "tab");
     assert.equal(document.querySelector("#tool-json").getAttribute("role"), "tabpanel");
     assert.equal(jsonTab.getAttribute("aria-selected"), "true");
@@ -511,6 +562,7 @@ test("tools tabs expose selected state and support keyboard navigation", async (
     assert.equal(yamlTab.getAttribute("aria-selected"), "true");
     assert.equal(document.querySelector("#tool-yaml").hidden, false);
     assert.equal(document.querySelector("#tool-json").hidden, true);
+    assert.equal(document.querySelectorAll("template[data-tool-template=\"yaml\"]").length, 0);
 
     yamlTab.dispatchEvent(new KeyboardEvent("keydown", { key: "End", bubbles: true, cancelable: true }));
     assert.equal(uaTab.getAttribute("aria-selected"), "true");
@@ -519,15 +571,89 @@ test("tools tabs expose selected state and support keyboard navigation", async (
     uaTab.dispatchEvent(new KeyboardEvent("keydown", { key: "Home", bubbles: true, cancelable: true }));
     assert.equal(galaxyTab.getAttribute("aria-selected"), "true");
     assert.equal(document.querySelector("#tool-galaxy").hidden, false);
+    assert.equal(document.querySelector("#tool-galaxy .galaxy-canvas").id, "galaxy-canvas");
+    assert.equal(document.querySelector("#galaxy-theme [data-galaxy-theme].active").getAttribute("data-galaxy-theme"), "bluePurple");
+    assert.equal(document.querySelector("#galaxy-count [data-galaxy-count].active").getAttribute("data-galaxy-count"), "1000");
     assert.equal(document.querySelector('[data-tool-category="visual"]').open, true);
-    assert.ok(Array.from(document.querySelectorAll("script")).some((script) => script.getAttribute("src") === "/js/galaxy.js"));
+    const galaxyScript = Array.from(document.querySelectorAll("script")).find((script) => script.getAttribute("src") === "/js/galaxy.js");
+    assert.ok(galaxyScript);
+    galaxyScript.dispatchEvent(new dom.window.Event("load"));
+
+    document.querySelector('[data-tool-tab="base64"]').click();
+    assert.equal(document.querySelector("#base64-input").getAttribute("data-i18n-ph"), "tools.base64.placeholder");
+    assert.equal(document.querySelector("#base64-input").getAttribute("data-i18n-en-ph"), "Text to encode or decode");
+    document.querySelector('[data-tool-tab="api"]').click();
+    assert.equal(document.querySelector("#api-url").getAttribute("aria-label"), "URL");
+    assert.equal(document.querySelector("#api-allow-risky-target").getAttribute("aria-label"), "允许本机/内网/非 HTTPS 请求");
+    document.querySelector('[data-tool-tab="random"]').click();
+    assert.match(document.querySelector("#tool-random .random-warning").textContent, /普通伪随机数/);
+    document.querySelector('[data-tool-tab="cron"]').click();
+    assert.equal(document.querySelector("#cron-minute-step").getAttribute("aria-label"), "分钟间隔");
+    document.querySelector('[data-tool-tab="url"]').click();
+    assert.equal(document.querySelector("#url-input").getAttribute("data-i18n-en-ph"), "https://example.com/?q=search");
+    document.querySelector('[data-tool-tab="html"]').click();
+    assert.equal(document.querySelector("#html-input").getAttribute("data-i18n-ph"), "tools.html.placeholder");
+    document.querySelector('[data-tool-tab="jwt"]').click();
+    assert.equal(document.querySelector("#tool-jwt .jwt-warning").getAttribute("data-i18n"), "tools.jwt.warning");
+    assert.match(document.querySelector("#tool-jwt .jwt-warning").textContent, /未经签名验证/);
 
     gestureTab.click();
-    assert.ok(Array.from(document.querySelectorAll("script")).some((script) => script.getAttribute("src") === "/js/gesture-premium.js"));
+    const premiumScript = Array.from(document.querySelectorAll("script")).find((script) => script.getAttribute("src") === "/js/gesture-premium.js");
+    assert.ok(premiumScript);
+    assert.equal(Array.from(document.querySelectorAll("script")).some((script) => script.getAttribute("src") === "/js/gesture.js"), false);
+    premiumScript.dispatchEvent(new dom.window.Event("load"));
+    await new Promise((resolve) => {
+      dom.window.setTimeout(resolve, 0);
+    });
     assert.ok(Array.from(document.querySelectorAll("script")).some((script) => script.getAttribute("src") === "/js/gesture.js"));
   } finally {
     dom.window.close();
   }
+});
+
+test("gesture runtime gates camera start on supply-chain acknowledgement", async () => {
+  const { cameraRequests, dom } = await loadGestureRuntime();
+  const { document, Event } = dom.window;
+  try {
+    const start = document.querySelector("#gesture-start");
+    const consent = document.querySelector("#gesture-allow-remote-runtime");
+    const status = document.querySelector("#gesture-status");
+
+    assert.equal(start.disabled, true);
+    assert.equal(status.textContent, "等待确认资源说明");
+
+    start.dispatchEvent(new Event("click", { bubbles: true, cancelable: true }));
+    assert.equal(cameraRequests(), 0);
+    assert.equal(status.textContent, "请先确认第三方视觉资源和本地处理说明");
+
+    consent.checked = true;
+    consent.dispatchEvent(new Event("change", { bubbles: true }));
+    assert.equal(start.disabled, false);
+    assert.equal(status.textContent, "就绪");
+
+    consent.checked = false;
+    consent.dispatchEvent(new Event("change", { bubbles: true }));
+    assert.equal(start.disabled, true);
+    assert.equal(status.textContent, "等待确认资源说明");
+  } finally {
+    dom.window.close();
+  }
+});
+
+test("gesture runtime releases camera when the page is hidden", async () => {
+  const code = await readFile(join(ROOT, "js", "gesture.js"), "utf8");
+
+  assert.match(code, /document\.addEventListener\("visibilitychange", function \(\) \{/);
+  assert.match(code, /if \(document\.hidden && running\) \{\s*stopCamera\(\);\s*setStatus\("ready", "页面已隐藏，摄像头已关闭"\);/);
+  assert.doesNotMatch(code, /pause detection but keep stream alive/);
+});
+
+test("gesture startup reports camera initialization and video stream phases", async () => {
+  const code = await readFile(join(ROOT, "js", "gesture.js"), "utf8");
+
+  assert.match(code, /setStatus\("loading", "初始化摄像头…"\);\s*try \{\s*cameraStream = await requestCamera/);
+  assert.match(code, /setStatus\("error", describeCameraError\(e\)\);/);
+  assert.match(code, /\$video\.srcObject = cameraStream;\s*setStatus\("loading", "启动视频流…"\);\s*await \$video\.play\(\);/);
 });
 
 test("tools page ignores delegated events from non-element targets", async () => {
@@ -595,6 +721,7 @@ test("tools page localizes English placeholders and dynamic statuses", async () 
   const { dom } = await loadToolsPage({ i18n: true });
   const { document } = dom.window;
   try {
+    document.querySelector('[data-tool-tab="base64"]').click();
     assert.equal(document.querySelector("#base64-input").getAttribute("placeholder"), "输入要编码或解码的文本");
 
     document.querySelector(".lang-toggle").click();
@@ -603,6 +730,7 @@ test("tools page localizes English placeholders and dynamic statuses", async () 
     assert.equal(document.querySelector(".tools-tabs").getAttribute("aria-label"), "Categorized tool list");
     assert.equal(document.querySelector('[data-tool-tab="galaxy"] span').textContent, "Galaxy");
     assert.equal(document.querySelector("#base64-input").getAttribute("placeholder"), "Text to encode or decode");
+    document.querySelector('[data-tool-tab="url"]').click();
     assert.equal(document.querySelector("#url-input").getAttribute("placeholder"), "https://example.com/?q=search");
     document.querySelector('[data-tool-tab="jwt"]').click();
     assert.match(document.querySelector("[data-jwt-decode]").textContent, /Decode JWT/);
@@ -655,6 +783,7 @@ test("expanded tools page runs all new tool actions locally", async () => {
     });
     dom.window.TextEncoder = globalThis.TextEncoder;
 
+    document.querySelector('[data-tool-tab="hash"]').click();
     document.querySelector("#hash-input").value = "hello";
     document.querySelector("[data-hash-generate]").click();
     await new Promise((resolve) => {
@@ -663,49 +792,59 @@ test("expanded tools page runs all new tool actions locally", async () => {
     assert.equal(document.querySelector("#hash-output").value, "cafe");
     assert.equal(document.querySelector("#hash-status").classList.contains("is-ok"), true);
 
+    document.querySelector('[data-tool-tab="password"]').click();
     document.querySelector("#password-length").value = "16";
     document.querySelector("[data-password-generate]").click();
     assert.equal(document.querySelector("#password-output").value.length, 16);
     assert.equal(document.querySelector("#password-status").classList.contains("is-ok"), true);
 
+    document.querySelector('[data-tool-tab="color"]').click();
     document.querySelector("#color-input").value = "#2563eb";
     document.querySelector("[data-color-convert]").click();
     assert.match(document.querySelector("#color-output").value, /HEX: #2563EB/);
     assert.equal(document.querySelector("#color-swatch").style.backgroundColor, "rgb(37, 99, 235)");
     assert.equal(document.querySelectorAll("#color-palette [data-color-value]").length, 7);
 
+    document.querySelector('[data-tool-tab="regex"]').click();
     document.querySelector("#regex-pattern").value = "(\\w+)@(example\\.com)";
     document.querySelector("#regex-flags").value = "gi";
     document.querySelector("#regex-input").value = "a@example.com";
     document.querySelector("[data-regex-test]").click();
     assert.match(document.querySelector("#regex-output").value, /Matches: 1/);
 
+    document.querySelector('[data-tool-tab="markdown"]').click();
     document.querySelector("#markdown-input").value = "# Title\n\n<script>alert(1)</script>";
     document.querySelector("#markdown-input").dispatchEvent(new dom.window.Event("input", { bubbles: true }));
     await new Promise((resolve) => {
       dom.window.setTimeout(resolve, 180);
     });
-    assert.match(document.querySelector("#markdown-preview").innerHTML, /<h1>Title<\/h1>/);
+    assert.equal(document.querySelector("#markdown-preview h1"), null);
+    assert.match(document.querySelector("#markdown-preview").innerHTML, /preview-heading-1/);
     assert.equal(document.querySelector("#markdown-preview script"), null);
 
+    document.querySelector('[data-tool-tab="diff"]').click();
     document.querySelector("#diff-left").value = "a\nb";
     document.querySelector("#diff-right").value = "a\nc";
     document.querySelector("[data-diff-run]").click();
     assert.match(document.querySelector("#diff-output").value, /\+ c/);
 
+    document.querySelector('[data-tool-tab="jsondiff"]').click();
     document.querySelector("#jsondiff-left").value = '{"score":97}';
     document.querySelector("#jsondiff-right").value = '{"score":100,"name":"CWL"}';
     document.querySelector('[data-tool-run="json-diff"]').click();
     assert.match(document.querySelector("#jsondiff-output").value, /\$\.score: 97 -> 100/);
 
+    document.querySelector('[data-tool-tab="case"]').click();
     document.querySelector("#case-input").value = "user profile id";
     document.querySelector("[data-case-convert]").click();
     assert.match(document.querySelector("#case-output").value, /camelCase: userProfileId/);
 
+    document.querySelector('[data-tool-tab="html"]').click();
     document.querySelector("#html-input").value = "<b>CWL & Codex</b>";
     document.querySelector('[data-codec-action="html-encode"]').click();
     assert.equal(document.querySelector("#html-output").value, "&lt;b&gt;CWL &amp; Codex&lt;/b&gt;");
 
+    document.querySelector('[data-tool-tab="cron"]').click();
     document.querySelector("#cron-input").value = "*/30 9-10 * * mon-fri";
     document.querySelector("[data-cron-parse]").click();
     assert.match(document.querySelector("#cron-output").value, /Next 5 runs:/);
@@ -717,17 +856,106 @@ test("expanded tools page runs all new tool actions locally", async () => {
     assert.equal(document.querySelector("#cron-input").value, "*/15 9-18 * * 1,2,3,4,5");
     assert.match(document.querySelector("#cron-output").value, /Next 5 runs:/);
 
+    document.querySelector('[data-tool-tab="qr"]').click();
     document.querySelector("#qr-input").value = "https://wenliang844.github.io/tools/";
     document.querySelector("[data-qr-generate]").click();
     assert.match(document.querySelector("#qr-output").value, /^data:image\/gif;base64,/);
     assert.equal(document.querySelector("#qr-image").hidden, false);
     assert.equal(document.querySelector("#qr-empty").hidden, true);
 
+    document.querySelector('[data-tool-tab="cssunit"]').click();
     document.querySelector("#cssunit-value").value = "16";
     document.querySelector("#cssunit-from").value = "px";
     document.querySelector('[data-tool-run="css-unit-convert"]').click();
     assert.match(document.querySelector("#cssunit-output").value, /rem: 1rem/);
   } finally {
+    dom.window.close();
+  }
+});
+
+test("regex tester runs inside a worker when available", async () => {
+  const workerMessages = [];
+  const workerUrls = [];
+  class FakeWorker {
+    constructor(url) {
+      this.url = url;
+      workerUrls.push(url);
+      this.terminated = false;
+    }
+
+    postMessage(message) {
+      workerMessages.push(message);
+      setTimeout(() => {
+        this.onmessage({
+          data: {
+            ok: true,
+            value: 'Matches: 1\n#1: "a@example.com"',
+          },
+        });
+      }, 0);
+    }
+
+    terminate() {
+      this.terminated = true;
+    }
+  }
+
+  const { dom } = await loadToolsPage({ Worker: FakeWorker });
+  const { document } = dom.window;
+  try {
+    document.querySelector('[data-tool-tab="regex"]').click();
+    document.querySelector("#regex-pattern").value = "(\\w+)@(example\\.com)";
+    document.querySelector("#regex-flags").value = "gi";
+    document.querySelector("#regex-input").value = "a@example.com";
+    document.querySelector("[data-regex-test]").click();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    assert.equal(workerUrls[0], "/js/regex-worker.js");
+    assert.deepEqual(JSON.parse(JSON.stringify(workerMessages[0])), {
+      pattern: "(\\w+)@(example\\.com)",
+      flags: "gi",
+      input: "a@example.com",
+    });
+    assert.match(document.querySelector("#regex-output").value, /Matches: 1/);
+    assert.equal(document.querySelector("#regex-status").classList.contains("is-ok"), true);
+  } finally {
+    dom.window.close();
+  }
+});
+
+test("regex tester times out stalled worker execution", async () => {
+  const terminated = [];
+  class HangingWorker {
+    postMessage() {}
+
+    terminate() {
+      terminated.push(true);
+    }
+  }
+
+  const { dom } = await loadToolsPage({ Worker: HangingWorker });
+  const { document } = dom.window;
+  const originalSetTimeout = dom.window.setTimeout;
+  try {
+    dom.window.setTimeout = function (callback, delay) {
+      if (delay === 250) {
+        callback();
+        return 1;
+      }
+      return originalSetTimeout.call(this, callback, delay);
+    };
+
+    document.querySelector('[data-tool-tab="regex"]').click();
+    document.querySelector("#regex-pattern").value = "(a+)+$";
+    document.querySelector("#regex-input").value = "aaaaaaaaaaaaaaaaaaaa!";
+    document.querySelector("[data-regex-test]").click();
+
+    assert.equal(terminated.length, 1);
+    assert.equal(document.querySelector("#regex-output").value, "");
+    assert.equal(document.querySelector("#regex-status").textContent, "正则执行超时，请简化表达式或缩短测试文本");
+    assert.equal(document.querySelector("#regex-status").classList.contains("is-error"), true);
+  } finally {
+    dom.window.setTimeout = originalSetTimeout;
     dom.window.close();
   }
 });
@@ -769,10 +997,13 @@ test("mini API tester fills relay presets, sends requests and stores history", a
   });
   const { document } = dom.window;
   try {
+    document.querySelector('[data-tool-tab="api"]').click();
     await new Promise((resolve) => {
       dom.window.setTimeout(resolve, 0);
     });
-    document.querySelector('[data-tool-tab="api"]').click();
+    await new Promise((resolve) => {
+      dom.window.setTimeout(resolve, 0);
+    });
     assert.match(document.querySelector("#api-relay-select").textContent, /Relay One/);
 
     document.querySelector("[data-api-relay-fill]").click();
@@ -868,6 +1099,190 @@ test("mini API tester redacts sensitive history by default and saves body only w
     assert.doesNotMatch(history[0].headers, /json-token|json-key/);
     assert.equal(history[0].body, '{"secret":"body-value"}');
   } finally {
+    dom.window.close();
+  }
+});
+
+test("mini API tester reports local history save failures", async () => {
+  const fetchCalls = [];
+  const { dom } = await loadToolsPage({
+    fetch(url, init) {
+      fetchCalls.push({ url: String(url), init });
+      return Promise.resolve({
+        ok: false,
+        status: 500,
+        statusText: "Internal Server Error",
+        url: String(url),
+        headers: new Map(),
+        text: () => Promise.resolve('{"ok":true}'),
+      });
+    },
+  });
+  const { document, localStorage, Storage } = dom.window;
+  const originalSetItem = Storage.prototype.setItem;
+  try {
+    document.querySelector('[data-tool-tab="api"]').click();
+    document.querySelector("#api-method").value = "POST";
+    document.querySelector("#api-url").value = "https://api.example.test/v1/messages";
+    document.querySelector("#api-headers").value = "Authorization: Bearer real-token";
+    document.querySelector("#api-body").value = '{"secret":"body-value"}';
+
+    Storage.prototype.setItem = function (key, value) {
+      if (key === "cwl.tools.apiHistory") {
+        throw new Error("QuotaExceeded");
+      }
+      return originalSetItem.call(this, key, value);
+    };
+
+    document.querySelector("[data-api-save]").click();
+    assert.equal(localStorage.getItem("cwl.tools.apiHistory"), null);
+    assert.equal(
+      document.querySelector("#api-status").textContent,
+      "请求未保存：浏览器阻止了本地历史写入",
+    );
+
+    document.querySelector("[data-api-send]").click();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    assert.equal(fetchCalls.filter((call) => call.url === "https://api.example.test/v1/messages").length, 1);
+    assert.match(document.querySelector("#api-response").value, /Status: 500 Internal Server Error/);
+    assert.equal(
+      document.querySelector("#api-status").textContent,
+      "请求完成，但浏览器阻止了本地历史写入",
+    );
+  } finally {
+    Storage.prototype.setItem = originalSetItem;
+    dom.window.close();
+  }
+});
+
+test("mini API tester requires opt-in for local private or non-HTTPS targets", async () => {
+  const fetchCalls = [];
+  const { dom } = await loadToolsPage({
+    fetch(url, init) {
+      fetchCalls.push({ url: String(url), init });
+      return Promise.resolve({
+        ok: true,
+        status: 200,
+        statusText: "OK",
+        url: String(url),
+        headers: new Map(),
+        text: () => Promise.resolve("pong"),
+      });
+    },
+  });
+  const { document } = dom.window;
+  try {
+    document.querySelector('[data-tool-tab="api"]').click();
+    [
+      "http://api.example.test/ping",
+      "https://192.168.1.20/ping",
+      "https://[fd00::1]/ping",
+      "https://localhost:3000/ping",
+      "https://printer.local/ping",
+    ].forEach((url) => {
+      document.querySelector("#api-url").value = url;
+      document.querySelector("[data-api-send]").click();
+      assert.equal(fetchCalls.filter((call) => call.url === url).length, 0);
+      assert.equal(
+        document.querySelector("#api-status").textContent,
+        "目标是本机、内网或非 HTTPS 地址，请先勾选允许后再发送",
+      );
+    });
+
+    document.querySelector("#api-allow-risky-target").checked = true;
+    document.querySelector("#api-url").value = "http://127.0.0.1:3000/ping";
+    document.querySelector("[data-api-send]").click();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    assert.equal(fetchCalls.filter((call) => call.url === "http://127.0.0.1:3000/ping").length, 1);
+    assert.match(document.querySelector("#api-response").value, /Status: 200 OK/);
+  } finally {
+    dom.window.close();
+  }
+});
+
+test("mini API tester limits oversized responses before reading the body", async () => {
+  let bodyRead = false;
+  const { dom } = await loadToolsPage({
+    fetch(url) {
+      return Promise.resolve({
+        ok: true,
+        status: 200,
+        statusText: "OK",
+        url: String(url),
+        headers: new Map([["content-length", "500001"]]),
+        text: () => {
+          bodyRead = true;
+          return Promise.resolve("x".repeat(500001));
+        },
+      });
+    },
+  });
+  const { document } = dom.window;
+  try {
+    document.querySelector('[data-tool-tab="api"]').click();
+    document.querySelector("#api-url").value = "https://api.example.test/large";
+    document.querySelector("[data-api-send]").click();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    assert.equal(bodyRead, false);
+    assert.match(document.querySelector("#api-response").value, /已跳过读取/);
+    assert.equal(
+      document.querySelector("#api-status").textContent,
+      "请求完成，响应过大已限制显示，历史已脱敏保存",
+    );
+  } finally {
+    dom.window.close();
+  }
+});
+
+test("mini API tester reports request timeout distinctly", async () => {
+  const { dom } = await loadToolsPage({
+    fetch(_url, init) {
+      if (!init || !init.signal) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({ providers: [] }),
+        });
+      }
+      if (init.signal.aborted) {
+        const error = new Error("Aborted");
+        error.name = "AbortError";
+        return Promise.reject(error);
+      }
+      return new Promise((_resolve, reject) => {
+        init.signal.addEventListener("abort", () => {
+          const error = new Error("Aborted");
+          error.name = "AbortError";
+          reject(error);
+        });
+      });
+    },
+  });
+  const { document } = dom.window;
+  const originalSetTimeout = dom.window.setTimeout;
+  try {
+    dom.window.setTimeout = function (callback, delay) {
+      if (delay === 15000) {
+        callback();
+        return 1;
+      }
+      return originalSetTimeout.call(this, callback, delay);
+    };
+
+    document.querySelector('[data-tool-tab="api"]').click();
+    document.querySelector("#api-url").value = "https://api.example.test/slow";
+    document.querySelector("[data-api-send]").click();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    assert.equal(document.querySelector("#api-response").value, "请求超时: 15000 ms");
+    assert.equal(document.querySelector("#api-status").textContent, "请求超时，请检查目标服务或缩小响应内容");
+  } finally {
+    dom.window.setTimeout = originalSetTimeout;
     dom.window.close();
   }
 });
@@ -1041,11 +1456,14 @@ test("tool success and copy statuses rerender after language changes", async () 
     ].join(".");
     document.querySelector("[data-jwt-decode]").click();
     assert.match(document.querySelector("#jwt-status").textContent, /JWT 已解码/);
+    document.querySelector('[data-tool-tab="random"]').click();
+    assert.match(document.querySelector("#tool-random .random-warning").textContent, /普通伪随机数/);
 
     document.querySelector(".lang-toggle").click();
 
     assert.equal(document.querySelector("#json-status").textContent, "Done");
     assert.equal(document.querySelector("#uuid-status").textContent, "Copied");
+    assert.match(document.querySelector("#tool-random .random-warning").textContent, /regular pseudo-random numbers/);
     assert.equal(
       document.querySelector("#jwt-status").textContent,
       "JWT decoded. The content has not been signature-verified; do not use it for security decisions.",
@@ -1154,6 +1572,35 @@ test("uuid placeholder is not copied and generated UUID survives i18n updates", 
     document.querySelector('[data-copy-target="uuid-output"]').click();
     await Promise.resolve();
     assert.equal(copiedText(), generated);
+  } finally {
+    dom.window.close();
+  }
+});
+
+test("uuid generator reports unavailable secure randomness without weak fallback", async () => {
+  const { dom } = await loadToolsPage({ i18n: true });
+  const { document } = dom.window;
+  try {
+    Object.defineProperty(dom.window, "crypto", {
+      configurable: true,
+      get() {
+        throw new Error("crypto blocked");
+      },
+    });
+
+    document.querySelector('[data-tool-tab="uuid"]').click();
+    document.querySelector("[data-uuid-generate]").click();
+
+    assert.equal(document.querySelector("#uuid-output").getAttribute("data-empty"), "true");
+    assert.match(document.querySelector("#uuid-output").textContent, /点击生成 UUID/);
+    assert.equal(document.querySelector("#uuid-status").classList.contains("is-error"), true);
+    assert.match(document.querySelector("#uuid-status").textContent, /安全随机数/);
+
+    document.querySelector(".lang-toggle").click();
+    assert.equal(
+      document.querySelector("#uuid-status").textContent,
+      "Secure random numbers are unavailable in this browser, so a safe UUID cannot be generated.",
+    );
   } finally {
     dom.window.close();
   }

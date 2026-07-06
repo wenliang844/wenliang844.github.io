@@ -13,7 +13,6 @@
 
   const searchInput = document.getElementById("post-search-input");
   const tagFilter = document.getElementById("tag-filter");
-  const countBadge = document.querySelector(".tree-group .tree-count");
 
   let items = [];
   let itemsReady = false;
@@ -74,9 +73,24 @@
       });
       const titleEl = link.querySelector(".tree-title");
       const summaryEl = panel ? panel.querySelector(".article-summary") : null;
+      const contentEl = panel ? panel.querySelector(".article-content") : null;
+      const headingEls = panel ? Array.from(panel.querySelectorAll(".article-content h2, .article-content h3")) : [];
       const title = titleEl ? titleEl.textContent : "";
       const summary = summaryEl ? summaryEl.textContent : "";
-      const haystack = (title + " " + summary + " " + tags.join(" ") + " " + tagLabels.join(" ")).toLowerCase();
+      const body = contentEl ? contentEl.textContent : "";
+      const headings = headingEls.map(function (heading) {
+        return heading.textContent || "";
+      }).join(" ");
+      const slug = panel ? panel.getAttribute("data-post-slug") || "" : "";
+      const haystack = [
+        title,
+        summary,
+        headings,
+        body,
+        slug,
+        tags.join(" "),
+        tagLabels.join(" "),
+      ].join(" ").toLowerCase();
       return { link: link, li: li, panel: panel, tags: tags, tagLabels: tagLabels, haystack: haystack };
     });
     itemsReady = true;
@@ -94,6 +108,20 @@
     return byQuery && byTag;
   }
 
+  function updateGroupCounts() {
+    document.querySelectorAll(".tree-group").forEach(function (group) {
+      const groupItems = Array.from(group.querySelectorAll("li"));
+      const visibleCount = groupItems.filter(function (li) {
+        return !li.hidden;
+      }).length;
+      const badge = group.querySelector(".tree-count");
+      if (badge) {
+        badge.textContent = String(visibleCount);
+      }
+      group.hidden = groupItems.length > 0 && visibleCount === 0;
+    });
+  }
+
   function apply() {
     const visible = [];
     items.forEach(function (item) {
@@ -106,9 +134,7 @@
       }
     });
 
-    if (countBadge) {
-      countBadge.textContent = String(visible.length);
-    }
+    updateGroupCounts();
     empty.hidden = visible.length !== 0;
 
     // If the active panel was filtered out, surface the first visible one.
@@ -127,10 +153,12 @@
     const debouncedSearch = window.CWLUtils && window.CWLUtils.debounce
       ? window.CWLUtils.debounce(function () {
           query = searchInput.value.trim().toLowerCase();
+          syncUrl();
           apply();
         }, 200)
       : function () {
           query = searchInput.value.trim().toLowerCase();
+          syncUrl();
           apply();
         };
     searchInput.addEventListener("input", debouncedSearch);
@@ -145,6 +173,12 @@
         url.searchParams.set("tag", activeTag);
       } else {
         url.searchParams.delete("tag");
+      }
+      const rawQuery = searchInput ? searchInput.value.trim() : query;
+      if (rawQuery) {
+        url.searchParams.set("q", rawQuery);
+      } else {
+        url.searchParams.delete("q");
       }
       window.history.replaceState(null, "", url);
     } catch (error) {
@@ -206,6 +240,23 @@
     }
     return data.tags;
   }
+
+  function applyInitialQueryFromUrl() {
+    if (!searchInput) {
+      return;
+    }
+    try {
+      const initialQuery = new URL(window.location.href).searchParams.get("q");
+      if (initialQuery) {
+        searchInput.value = initialQuery;
+        query = initialQuery.trim().toLowerCase();
+      }
+    } catch (error) {
+      // URL 参数解析失败，不影响核心功能，静默处理
+    }
+  }
+
+  applyInitialQueryFromUrl();
 
   if (tagFilter) {
     ensureItems();
@@ -338,11 +389,16 @@
       collapseBtn.setAttribute("title", label);
     };
 
-    const setOpen = function (open) {
+    const setOpen = function (open, options) {
       sidebar.classList.toggle("is-floating-open", open);
       document.body.classList.toggle("post-tree-floating", open);
       updateFab(open);
       updateCollapseButton();
+      if (open) {
+        collapseBtn.focus();
+      } else if (!options || options.restoreFocus !== false) {
+        fab.focus();
+      }
     };
 
     updateFab(false);
@@ -354,13 +410,12 @@
 
     collapseBtn.addEventListener("click", function () {
       setOpen(false);
-      fab.focus();
     });
 
     // 选中文章或点击树链接后自动收起浮层。
     sidebar.addEventListener("click", function (event) {
       if (event.target.closest(".post-tree-link")) {
-        setOpen(false);
+        setOpen(false, { restoreFocus: false });
       }
     });
 
