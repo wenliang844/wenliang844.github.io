@@ -87,6 +87,30 @@
 
 ---
 
+## 📌 SEO-07 [已修复]: 404 页面缺少 JSON-LD 结构化数据
+
+- **📍 位置**：`404.html:1-98`
+- **✅ 修复状态**：`404.html` 已补充 `WebPage` JSON-LD，并增加 `<meta name="robots" content="noindex,follow">`，同时保留真实不存在路径的 404 状态语义。
+- **🧪 验证**：`tests/build-extra.test.mjs` 已把 `404.html` 纳入手写页 JSON-LD 检查，并新增 `noindex,follow` 断言。
+- **📝 原状况描述**：第 3 轮 JSDOM 审计显示 19 个非临时 HTML 页面中，只有 `404.html` 没有 `script[type="application/ld+json"]`。404 页不需要强 SEO，但可以用 `WebPage` 或 `CollectionPage` 弱化标注，帮助搜索引擎理解它是站内错误页而非内容页。
+- **⚠️ 影响程度**：低
+- **💡 建议方案**：
+  ```html
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": "页面未找到",
+    "url": "https://wenliang844.github.io/404.html",
+    "isPartOf": { "@type": "WebSite", "name": "CWLBlog" }
+  }
+  </script>
+  ```
+- **📊 预期收益**：提升手写页面结构化数据一致性，减少 SEO 审计中的单点例外。
+- **🔗 相关建议引用**：[DE-14](../devex-improvements.md#de-14), [MR-HTML-06](html-pages.md#mr-html-06-页面级-dom-审计显示手写页仍有少量例外)
+
+---
+
 ## 可访问性评估
 
 | 检查项 | 状态 | 说明 |

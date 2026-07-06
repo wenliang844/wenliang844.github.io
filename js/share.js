@@ -1,24 +1,26 @@
 (function () {
-  /* ------------------------------------------------------------------------
-   * 文章分享：分享到 X、复制链接、微信二维码。
-   *
-   * 数据来自每个 .post-share 的 data-share-url / data-share-title。列表页每篇
-   * 面板各有一条分享条，用事件委托统一处理，切换文章时取当前那条的数据即可。
-   * 二维码由本地 js/vendor/qrcode.min.js（全局 qrcode）生成，不依赖外部服务。
-   * ---------------------------------------------------------------------- */
   const bars = document.querySelectorAll(".post-share");
   if (!bars.length) {
     return;
   }
 
-  // 站点根地址，用于把 /post/xxx/ 拼成可分享的绝对 URL。
-  const origin = window.location.origin;
+  function canonicalOrigin() {
+    const canonical = document.querySelector('link[rel="canonical"]');
+    if (canonical && canonical.href) {
+      try {
+        return new URL(canonical.href).origin;
+      } catch (error) {
+        return window.location.origin;
+      }
+    }
+    return window.location.origin;
+  }
 
   function absUrl(path) {
     if (/^https?:/i.test(path)) {
       return path;
     }
-    return origin + path;
+    return new URL(path || "/", canonicalOrigin() + "/").href;
   }
 
   const t = window.CWLUtils.t;
@@ -49,17 +51,14 @@
 
   Array.prototype.forEach.call(bars, updateXLink);
 
-  // ---- 剪贴板：复制逻辑统一由 utils.js 维护 --------------
   const copyText = window.CWLUtils && window.CWLUtils.copyText
     ? window.CWLUtils.copyText
     : function (_text) {
         return Promise.reject(new Error("CWLUtils.copyText is unavailable"));
       };
 
-  // 复制成功反馈用的对勾 SVG（与模板图标同为 24×24 / currentColor）。
   const CHECK_SVG = '<svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>';
 
-  // 短暂地把按钮图标换成“对勾”，给出已复制反馈。
   function flashCopied(button) {
     if (button.classList.contains("copied")) {
       return;
@@ -73,7 +72,6 @@
     }, 1600);
   }
 
-  // ---- 微信二维码浮层 ------------------------------------------------------
   let overlay = null;
 
   function closeOverlay() {
@@ -126,7 +124,7 @@
     let svg = "";
     if (typeof window.qrcode === "function") {
       try {
-        const qr = window.qrcode(0, "M"); // type 0 = 自适应版本，M 级纠错
+        const qr = window.qrcode(0, "M");
         qr.addData(url);
         qr.make();
         svg = qr.createSvgTag({ cellSize: 5, margin: 4, scalable: true });
@@ -182,7 +180,19 @@
     document.addEventListener("keydown", onKeydown);
   }
 
-  // ---- 事件委托：所有分享条共用一个监听 ------------------------------------
+  function fallbackWeibo(trigger, weibo, url, title) {
+    if (trigger.tagName && trigger.tagName.toLowerCase() === "a") {
+      trigger.setAttribute("href", weibo);
+      trigger.setAttribute("target", "_blank");
+      trigger.setAttribute("rel", "noopener");
+    }
+    copyText(weibo).then(function () {
+      flashCopied(trigger);
+    }).catch(function () {
+      showQr(url, title);
+    });
+  }
+
   document.addEventListener("click", function (event) {
     const trigger = event.target.closest("[data-share]");
     if (!trigger) {
@@ -209,7 +219,12 @@
       const weibo = "https://service.weibo.com/share/share.php?url=" +
         encodeURIComponent(url) + "&title=" + encodeURIComponent(title);
       event.preventDefault();
-      window.open(weibo, "_blank", "noopener");
+      const opened = window.open(weibo, "_blank");
+      if (opened) {
+        opened.opener = null;
+      } else {
+        fallbackWeibo(trigger, weibo, url, title);
+      }
       return;
     }
 
@@ -218,7 +233,6 @@
       copyText(url).then(function () {
         flashCopied(trigger);
       }).catch(function () {
-        // 两种方式都失败时，退而求其次：弹二维码让用户长按/扫码取链接。
         showQr(url, title);
       });
       return;

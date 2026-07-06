@@ -11,8 +11,9 @@ const ROOT = join(import.meta.dirname, "..");
 // share.js 测试
 // ═══════════════════════════════════════════════════════════════════════════════
 
-function buildShareHtml() {
-  return `<!doctype html><html lang="zh-CN"><body class="colorscheme-dark">
+function buildShareHtml(options = {}) {
+  const canonical = options.canonical ? `<link rel="canonical" href="${options.canonical}">` : "";
+  return `<!doctype html><html lang="zh-CN"><head>${canonical}</head><body class="colorscheme-dark">
   <div class="post-share" data-share-url="/post/test-article/" data-share-title="测试文章" data-share-title-en="Test Article">
     <a data-share="x" href="#">X</a>
     <a data-share="weibo" href="#">Weibo</a>
@@ -31,10 +32,10 @@ async function loadShare(dom) {
   dom.window.eval(code);
 }
 
-test("share.js converts relative URL to absolute using origin", async () => {
-  const dom = new JSDOM(buildShareHtml(), {
+test("share.js converts relative URL to absolute using canonical origin", async () => {
+  const dom = new JSDOM(buildShareHtml({ canonical: "https://wenliang844.github.io/post/" }), {
     runScripts: "outside-only",
-    url: "https://wenliang844.github.io/post/test/",
+    url: "http://127.0.0.1:4173/post/test/",
     pretendToBeVisual: true,
   });
 
@@ -44,9 +45,8 @@ test("share.js converts relative URL to absolute using origin", async () => {
   const href = xLink.getAttribute("href");
   // The href should contain the X intent URL with the encoded article path
   assert.ok(href && href.includes("x.com/intent/tweet"), "should be X intent URL");
-  // The URL param is encoded, so check for the encoded form
-  assert.ok(href.includes(encodeURIComponent("/post/test-article/")),
-    "should include URL-encoded article path");
+  assert.ok(href.includes(encodeURIComponent("https://wenliang844.github.io/post/test-article/")),
+    "should include URL-encoded canonical article URL");
 
   dom.window.close();
 });
@@ -134,7 +134,7 @@ test("share.js weibo button opens share window", async () => {
   });
 
   let openedUrl = null;
-  dom.window.open = function (url) { openedUrl = url; };
+  dom.window.open = function (url) { openedUrl = url; return {}; };
 
   await loadShare(dom);
 
@@ -145,6 +145,76 @@ test("share.js weibo button opens share window", async () => {
   assert.ok(openedUrl.includes("service.weibo.com/share"), "should be weibo share URL");
   assert.ok(openedUrl.includes(encodeURIComponent("https://wenliang844.github.io/post/test-article/")),
     "should include article URL");
+
+  dom.window.close();
+});
+
+test("share.js weibo share falls back when popup is blocked", async () => {
+  const dom = new JSDOM(buildShareHtml(), {
+    runScripts: "outside-only",
+    url: "https://wenliang844.github.io/post/test/",
+    pretendToBeVisual: true,
+  });
+
+  let copiedText = null;
+  dom.window.open = function () { return null; };
+
+  const utilsCode = await readFile(join(ROOT, "js", "utils.js"), "utf8");
+  dom.window.eval(utilsCode);
+  dom.window.CWLUtils.copyText = function (text) {
+    copiedText = text;
+    return Promise.resolve();
+  };
+  const i18nCode = await readFile(join(ROOT, "js", "i18n.js"), "utf8");
+  dom.window.eval(i18nCode);
+  const shareCode = await readFile(join(ROOT, "js", "share.js"), "utf8");
+  dom.window.eval(shareCode);
+
+  const weiboBtn = dom.window.document.querySelector('[data-share="weibo"]');
+  weiboBtn.click();
+  await new Promise((r) => setTimeout(r, 20));
+
+  assert.equal(weiboBtn.getAttribute("target"), "_blank");
+  assert.equal(weiboBtn.getAttribute("rel"), "noopener");
+  assert.ok(weiboBtn.getAttribute("href").includes("service.weibo.com/share"));
+  assert.ok(copiedText.includes("service.weibo.com/share"), "should copy the Weibo share URL");
+
+  dom.window.close();
+});
+
+test("share.js weibo blocked popup falls back to QR when copy fails", async () => {
+  const html = `<!doctype html><html lang="zh-CN"><body class="colorscheme-dark">
+  <div class="post-share" data-share-url="/post/test/" data-share-title="测试文章">
+    <button data-share="weibo">Weibo</button>
+  </div>
+</body></html>`;
+  const dom = new JSDOM(html, {
+    runScripts: "outside-only",
+    url: "https://wenliang844.github.io/post/test/",
+    pretendToBeVisual: true,
+  });
+
+  dom.window.open = function () { return null; };
+  dom.window.qrcode = function () {
+    return {
+      addData: function () {},
+      make: function () {},
+      createSvgTag: function () { return '<svg xmlns="http://www.w3.org/2000/svg"><rect/></svg>'; },
+    };
+  };
+
+  const utilsCode = await readFile(join(ROOT, "js", "utils.js"), "utf8");
+  dom.window.eval(utilsCode);
+  dom.window.CWLUtils.copyText = function () { return Promise.reject(new Error("copy blocked")); };
+  const i18nCode = await readFile(join(ROOT, "js", "i18n.js"), "utf8");
+  dom.window.eval(i18nCode);
+  const shareCode = await readFile(join(ROOT, "js", "share.js"), "utf8");
+  dom.window.eval(shareCode);
+
+  dom.window.document.querySelector('[data-share="weibo"]').click();
+  await new Promise((r) => setTimeout(r, 50));
+
+  assert.ok(dom.window.document.querySelector(".share-qr-overlay"), "QR overlay should appear when popup and copy both fail");
 
   dom.window.close();
 });
@@ -431,6 +501,40 @@ test("subscribe.js modal opens on trigger click", async () => {
   const modal = dom.window.document.querySelector(".subscribe-modal");
   assert.ok(modal, "modal should be created");
   assert.ok(modal.classList.contains("open"), "modal should be open");
+
+  dom.window.close();
+});
+
+test("subscribe.js defers Buttondown preconnect until subscription intent", async () => {
+  const dom = new JSDOM(buildSubscribeHtml(), {
+    runScripts: "outside-only",
+    url: "https://example.com/",
+    pretendToBeVisual: true,
+  });
+
+  await loadSubscribe(dom);
+
+  assert.equal(
+    dom.window.document.querySelectorAll('link[rel="preconnect"][href="https://buttondown.com"]').length,
+    0,
+    "should not preconnect before subscription intent",
+  );
+
+  dom.window.document.querySelector(".subscribe-input").dispatchEvent(new dom.window.Event("focus"));
+
+  assert.equal(
+    dom.window.document.querySelectorAll('link[rel="preconnect"][href="https://buttondown.com"]').length,
+    1,
+    "should preconnect when the footer email field receives focus",
+  );
+
+  dom.window.document.querySelector("[data-subscribe-open]").click();
+
+  assert.equal(
+    dom.window.document.querySelectorAll('link[rel="preconnect"][href="https://buttondown.com"]').length,
+    1,
+    "should not duplicate the preconnect hint",
+  );
 
   dom.window.close();
 });

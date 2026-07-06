@@ -274,6 +274,7 @@ export function renderAiPage() {
 ${renderRelayContent({ includeHero: false })}
             </section>
             <section class="ai-tab-panel" id="ai-panel-nav" data-ai-panel="nav" role="tabpanel" aria-labelledby="ai-tab-nav" hidden>
+              <span id="nav" class="sr-only">AI导航网站</span>
 ${GROUPS.map(renderGroup).join("\n")}
             </section>
           </div>

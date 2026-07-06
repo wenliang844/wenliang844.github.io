@@ -1,0 +1,5 @@
+.trust-page{max-width:88rem}.trust-stats{margin-bottom:2.4rem}.trust-section{margin-top:2.4rem}.trust-storage,.trust-service-head code{overflow-wrap:anywhere}.trust-service-list{margin-top:0}.trust-service-head{display:flex;justify-content:space-between;gap:.9rem}.trust-columns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem}.trust-report{margin-top:2.4rem}.trust-report-link{font-weight:800}
+
+@media(max-width:480px){.trust-report-link{width:100%;justify-content:center}}
+
+@media(max-width:768px){.trust-page{padding-top:2.2rem}.trust-stats,.trust-card-grid,.trust-columns,.trust-service-facts{grid-template-columns:1fr;}.trust-service-head{display:grid}.trust-service-head code{max-width:100%}.trust-card,.trust-service,.trust-control-list li,.trust-security-item,.trust-report{backdrop-filter:none;-webkit-backdrop-filter:none}}

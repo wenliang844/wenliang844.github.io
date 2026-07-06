@@ -182,12 +182,15 @@ test("search.js gives the nav trigger a shortcut hint", async () => {
   dom.window.eval(search);
 
   const trigger = dom.window.document.querySelector(".nav-search-trigger");
+  const input = dom.window.document.querySelector(".search-modal-input");
   assert.equal(trigger.getAttribute("aria-label"), "全局搜索（Ctrl+K 或 /）");
   assert.equal(trigger.getAttribute("title"), "全局搜索（Ctrl+K 或 /）");
+  assert.equal(input.getAttribute("aria-label"), "搜索文章");
 
   dom.window.cwlSetLang("en");
   assert.equal(trigger.getAttribute("aria-label"), "Global search (Ctrl+K or /)");
   assert.equal(trigger.getAttribute("title"), "Global search (Ctrl+K or /)");
+  assert.equal(input.getAttribute("aria-label"), "Search posts");
   dom.window.close();
 });
 
@@ -211,6 +214,96 @@ test("i18n consumers use CWLUtils.t instead of local wrappers", async () => {
   }
 });
 
+test("galaxy respects reduced motion by drawing a static frame without animation", async () => {
+  const code = await readFile(join(ROOT, "js", "galaxy.js"), "utf8");
+  const dom = new JSDOM(`<!doctype html><html><body>
+    <section id="tool-galaxy">
+      <div id="galaxy-viewport">
+        <canvas id="galaxy-canvas"></canvas>
+      </div>
+      <div id="galaxy-theme"></div>
+      <input id="galaxy-speed" value="1">
+      <div id="galaxy-count"></div>
+      <div id="galaxy-interact"></div>
+      <span id="galaxy-fps"></span>
+      <span id="galaxy-particles"></span>
+    </section>
+  </body></html>`, {
+    pretendToBeVisual: true,
+    runScripts: "outside-only",
+    url: "https://wenliang844.github.io/tools/",
+  });
+  const { document, HTMLCanvasElement, HTMLElement } = dom.window;
+  const drawCalls = [];
+  const gradient = { addColorStop() {} };
+  const context = {
+    arc() {},
+    beginPath() {},
+    createLinearGradient() {
+      return gradient;
+    },
+    createRadialGradient() {
+      return gradient;
+    },
+    drawImage() {},
+    fill() {},
+    fillRect() {
+      drawCalls.push("fillRect");
+    },
+    lineTo() {},
+    moveTo() {},
+    restore() {},
+    rotate() {},
+    save() {},
+    scale() {},
+    setTransform() {},
+    stroke() {},
+    translate() {},
+  };
+  HTMLCanvasElement.prototype.getContext = () => context;
+  HTMLElement.prototype.getBoundingClientRect = () => ({
+    bottom: 180,
+    height: 180,
+    left: 0,
+    right: 320,
+    top: 0,
+    width: 320,
+  });
+
+  let reduced = true;
+  let reducedMotionListener = null;
+  let rafCalls = 0;
+  dom.window.matchMedia = (query) => ({
+    addEventListener(event, listener) {
+      if (event === "change") {reducedMotionListener = listener;}
+    },
+    get matches() {
+      return reduced;
+    },
+    media: query,
+  });
+  dom.window.requestAnimationFrame = () => {
+    rafCalls += 1;
+    return rafCalls;
+  };
+  dom.window.cancelAnimationFrame = () => {};
+
+  try {
+    dom.window.eval(code);
+
+    assert.equal(rafCalls, 0);
+    assert.ok(drawCalls.length > 0);
+    assert.equal(document.querySelector("#galaxy-fps").textContent, "动画已按系统偏好暂停");
+
+    reduced = false;
+    reducedMotionListener(new dom.window.Event("change"));
+
+    assert.equal(rafCalls, 1);
+  } finally {
+    dom.window.close();
+  }
+});
+
 // ─── error-handler.js 测试 ────────────────────────────────────────────────────
 
 test("error-handler.js registers global error handlers", async () => {
@@ -231,6 +324,15 @@ test("tools.js sets up tool panel switching", async () => {
   const code = await readFile(join(ROOT, "js", "tools.js"), "utf8");
   assert.ok(code.includes("data-tool-tab"), "should handle tool tab clicks");
   assert.ok(code.includes("data-tool-panel"), "should switch tool panels");
+});
+
+test("tools.js activates tool panels from URL hashes", async () => {
+  const code = await readFile(join(ROOT, "js", "tools.js"), "utf8");
+
+  assert.match(code, /function toolIdFromHash\(\)/);
+  assert.match(code, /tool(?:-tab)?-/);
+  assert.match(code, /function activateToolFromHash\(\)/);
+  assert.match(code, /window\.addEventListener\("hashchange", activateToolFromHash\)/);
 });
 
 test("tools.js handles JSON format and minify actions", async () => {

@@ -30,6 +30,8 @@ async function loadAssistant(options = {}) {
   if (options.fetch) {
     dom.window.fetch = options.fetch;
   }
+  dom.window.TextDecoder = TextDecoder;
+  dom.window.TextEncoder = TextEncoder;
   dom.window.localStorage.clear();
   dom.window.sessionStorage.clear();
   if (options.localStorage) {
@@ -53,6 +55,12 @@ function wait(ms = 20) {
   });
 }
 
+function trustAssistantEndpoint(document) {
+  const trust = document.querySelector(".assistant-endpoint-trust-input");
+  assert.ok(trust, "assistant should expose endpoint trust confirmation");
+  trust.checked = true;
+}
+
 test("assistant starts minimized, opens on demand, answers locally and escapes user input", async () => {
   const dom = await loadAssistant();
   const { document, KeyboardEvent, Event } = dom.window;
@@ -72,8 +80,8 @@ test("assistant starts minimized, opens on demand, answers locally and escapes u
   assert.equal(panel.getAttribute("role"), "dialog");
   assert.equal(panel.getAttribute("aria-labelledby"), "assistant-title");
   assert.equal(panel.getAttribute("aria-describedby"), "assistant-privacy");
-  assert.equal(document.querySelector('[data-assistant-mode="llm"]').classList.contains("active"), true);
-  assert.equal(document.querySelector(".assistant-config").hidden, false);
+  assert.equal(document.querySelector('[data-assistant-mode="site"]').classList.contains("active"), true);
+  assert.equal(document.querySelector(".assistant-config").hidden, true);
   assert.equal(document.querySelector(".assistant-config-body").hidden, true);
   assert.equal(document.querySelector(".assistant-config-toggle").getAttribute("aria-expanded"), "false");
   assert.equal(document.querySelector(".assistant-format").value, "openai");
@@ -357,6 +365,12 @@ test("assistant can render English labels through the i18n bridge", async () => 
       "assistant.minimize": "Minimize AI assistant",
       "assistant.config.toggle": "Settings",
       "assistant.opacity": "Opacity",
+      "assistant.privacyMode": "Privacy mode",
+      "assistant.retention": "Retention",
+      "assistant.retention.30d": "30 days",
+      "assistant.clearAll": "Clear all",
+      "assistant.rememberKey": "Remember key",
+      "assistant.endpoint.confirm": "Trust endpoint",
     },
   });
   const { document } = dom.window;
@@ -365,6 +379,12 @@ test("assistant can render English labels through the i18n bridge", async () => 
   assert.equal(document.querySelector('[data-assistant-action="tools"]').textContent, "Open toolbox");
   assert.equal(document.querySelector(".assistant-config-toggle").textContent, "Settings");
   assert.equal(document.querySelector(".assistant-opacity > span").textContent, "Opacity");
+  assert.equal(document.querySelector(".assistant-privacy-mode span").textContent, "Privacy mode");
+  assert.equal(document.querySelector(".assistant-retention > span").textContent, "Retention");
+  assert.equal(document.querySelector('.assistant-retention-select option[value="30d"]').textContent, "30 days");
+  assert.equal(document.querySelector(".assistant-clear-all").textContent, "Clear all");
+  assert.equal(document.querySelector(".assistant-remember-key span").textContent, "Remember key");
+  assert.equal(document.querySelector(".assistant-endpoint-trust span").textContent, "Trust endpoint");
   assert.equal(document.querySelector(".assistant-fab").getAttribute("aria-label"), "Open AI assistant");
 });
 
@@ -394,7 +414,117 @@ test("assistant config is collapsible and opacity is adjustable", async () => {
   assert.equal(localStorage.getItem("cwl.assistant.opacity"), "75");
 });
 
-test("assistant uses the OpenAI experience key without showing or storing it", async () => {
+test("assistant privacy mode keeps chats out of localStorage", async () => {
+  const dom = await loadAssistant();
+  const { document, Event, localStorage } = dom.window;
+
+  document.querySelector(".assistant-config-toggle").click();
+  const privacy = document.querySelector(".assistant-privacy-mode-input");
+  privacy.checked = true;
+  privacy.dispatchEvent(new Event("change", { bubbles: true }));
+
+  assert.equal(localStorage.getItem("cwl.assistant.privacyMode"), "1");
+  assert.equal(localStorage.getItem("cwl.assistant.conversations"), null);
+  assert.match(document.querySelector("#assistant-privacy").textContent, /不会保存/);
+
+  const input = document.querySelector(".assistant-input");
+  input.value = "工具箱在哪里";
+  document.querySelector(".assistant-form").dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+
+  assert.match(document.querySelector(".assistant-messages").textContent, /工具箱在哪里/);
+  assert.equal(localStorage.getItem("cwl.assistant.conversations"), null);
+  assert.equal(localStorage.getItem("cwl.assistant.activeConversation"), null);
+});
+
+test("assistant retention prunes old conversations and session mode is ephemeral", async () => {
+  const oldTime = Date.now() - 40 * 86400000;
+  const freshTime = Date.now();
+  const dom = await loadAssistant({
+    localStorage: {
+      "cwl.assistant.retention": "30d",
+      "cwl.assistant.conversations": JSON.stringify([
+        {
+          id: "old",
+          title: "Old chat",
+          createdAt: oldTime,
+          updatedAt: oldTime,
+          messages: [{ id: "old-msg", role: "user", text: "old secret" }],
+          llmHistory: [{ role: "user", content: "old secret" }],
+        },
+        {
+          id: "fresh",
+          title: "Fresh chat",
+          createdAt: freshTime,
+          updatedAt: freshTime,
+          messages: [{ id: "fresh-msg", role: "user", text: "fresh topic" }],
+          llmHistory: [],
+        },
+      ]),
+    },
+  });
+  const { document, Event, localStorage } = dom.window;
+
+  assert.doesNotMatch(document.querySelector(".assistant-history-list").textContent, /Old chat/);
+  assert.match(document.querySelector(".assistant-history-list").textContent, /Fresh chat/);
+  assert.doesNotMatch(localStorage.getItem("cwl.assistant.conversations"), /old secret/);
+
+  document.querySelector(".assistant-config-toggle").click();
+  const retention = document.querySelector(".assistant-retention-select");
+  retention.value = "session";
+  retention.dispatchEvent(new Event("change", { bubbles: true }));
+
+  assert.equal(localStorage.getItem("cwl.assistant.retention"), "session");
+  assert.equal(localStorage.getItem("cwl.assistant.conversations"), null);
+
+  const input = document.querySelector(".assistant-input");
+  input.value = "本次会话";
+  document.querySelector(".assistant-form").dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+  assert.match(document.querySelector(".assistant-messages").textContent, /本次会话/);
+  assert.equal(localStorage.getItem("cwl.assistant.conversations"), null);
+});
+
+test("assistant can clear all stored conversations", async () => {
+  const dom = await loadAssistant();
+  const { document, Event, localStorage } = dom.window;
+
+  const input = document.querySelector(".assistant-input");
+  input.value = "工具箱在哪里";
+  document.querySelector(".assistant-form").dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+  assert.match(localStorage.getItem("cwl.assistant.conversations"), /工具箱在哪里/);
+
+  document.querySelector(".assistant-config-toggle").click();
+  document.querySelector(".assistant-clear-all").click();
+
+  assert.doesNotMatch(document.querySelector(".assistant-messages").textContent, /工具箱在哪里/);
+  assert.doesNotMatch(localStorage.getItem("cwl.assistant.conversations"), /工具箱在哪里/);
+  assert.equal(JSON.parse(localStorage.getItem("cwl.assistant.conversations")).length, 1);
+});
+
+test("assistant restores the saved mode and defaults to local site mode", async () => {
+  const defaultDom = await loadAssistant();
+  assert.equal(defaultDom.window.document.querySelector('[data-assistant-mode="site"]').classList.contains("active"), true);
+  defaultDom.window.close();
+
+  const llmDom = await loadAssistant({
+    localStorage: {
+      "cwl.assistant.mode": "llm",
+    },
+  });
+  assert.equal(llmDom.window.document.querySelector('[data-assistant-mode="llm"]').classList.contains("active"), true);
+  assert.equal(llmDom.window.document.querySelector(".assistant-config").hidden, false);
+  llmDom.window.close();
+
+  const siteDom = await loadAssistant({
+    localStorage: {
+      "cwl.assistant.mode": "site",
+    },
+  });
+  assert.equal(siteDom.window.document.querySelector('[data-assistant-mode="site"]').classList.contains("active"), true);
+  assert.equal(siteDom.window.document.querySelector(".assistant-config").hidden, true);
+  siteDom.window.close();
+});
+
+test("assistant requires a user API key for the default OpenAI preset", async () => {
   const calls = [];
   const dom = await loadAssistant({
     fetch: async (url, init) => {
@@ -425,11 +555,10 @@ test("assistant uses the OpenAI experience key without showing or storing it", a
 
   await wait();
 
-  assert.equal(calls.length, 1);
-  assert.equal(calls[0].url, "https://muyuan.do/v1/responses");
-  assert.match(calls[0].init.headers.Authorization, /^Bearer sk-[A-Za-z0-9_-]{20,}$/);
-  assert.match(document.querySelector(".assistant-messages").textContent, /pong/);
+  assert.equal(calls.length, 0);
+  assert.match(document.querySelector(".assistant-messages").textContent, /请先填写 API key/);
   assert.equal(JSON.parse(localStorage.getItem("cwl.assistant.llmConfig")).apiKey, "");
+  assert.equal(JSON.parse(localStorage.getItem("cwl.assistant.llmConfig")).rememberApiKey, false);
 });
 
 test("assistant still requires an API key for custom OpenAI endpoints", async () => {
@@ -451,6 +580,7 @@ test("assistant still requires an API key for custom OpenAI endpoints", async ()
   format.dispatchEvent(new Event("change", { bubbles: true }));
   document.querySelector(".assistant-endpoint").value = "https://relay.example/v1";
 
+  document.querySelector('[data-assistant-mode="llm"]').click();
   const input = document.querySelector(".assistant-input");
   input.value = "你好";
   document.querySelector(".assistant-form").dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
@@ -461,7 +591,162 @@ test("assistant still requires an API key for custom OpenAI endpoints", async ()
   assert.match(document.querySelector(".assistant-messages").textContent, /请先填写 API key/);
 });
 
-test("assistant defaults LLM mode to ChatGPT with a hidden experience key", async () => {
+test("assistant does not persist API keys unless the user opts in", async () => {
+  const dom = await loadAssistant();
+  const { document, Event, localStorage } = dom.window;
+
+  document.querySelector(".assistant-api-key").value = "sk-session-only-key";
+  document.querySelector(".assistant-config").dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+
+  let saved = JSON.parse(localStorage.getItem("cwl.assistant.llmConfig"));
+  assert.equal(saved.apiKey, "");
+  assert.equal(saved.rememberApiKey, false);
+  assert.match(document.querySelector(".assistant-config-status").textContent, /未持久保存/);
+
+  document.querySelector(".assistant-remember-key-input").checked = true;
+  document.querySelector(".assistant-api-key").value = "sk-remembered-key";
+  document.querySelector(".assistant-config").dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+
+  saved = JSON.parse(localStorage.getItem("cwl.assistant.llmConfig"));
+  assert.equal(saved.apiKey, "sk-remembered-key");
+  assert.equal(saved.rememberApiKey, true);
+  assert.match(document.querySelector(".assistant-config-status").textContent, /已保存配置和 API key/);
+});
+
+test("assistant requires endpoint trust before sending an API key", async () => {
+  const calls = [];
+  const dom = await loadAssistant({
+    fetch: async (url, init) => {
+      calls.push({ url, init });
+      return {
+        ok: true,
+        status: 200,
+        text: async () => JSON.stringify({ output_text: "pong" }),
+      };
+    },
+  });
+  const { document, Event } = dom.window;
+
+  document.querySelector('[data-assistant-mode="llm"]').click();
+  document.querySelector(".assistant-api-key").value = "sk-user-owned-key";
+  assert.match(document.querySelector(".assistant-endpoint-summary").textContent, /HTTPS:\/\/muyuan\.do\/v1\/responses/);
+
+  const input = document.querySelector(".assistant-input");
+  input.value = "你好";
+  document.querySelector(".assistant-form").dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+
+  await wait();
+
+  assert.equal(calls.length, 0);
+  assert.match(document.querySelector(".assistant-messages").textContent, /确认请求地址可信/);
+  assert.match(document.querySelector(".assistant-config-status").textContent, /确认请求地址可信/);
+
+  trustAssistantEndpoint(document);
+  document.querySelector(".assistant-form").dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+  await wait();
+
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].init.headers.Authorization, "Bearer sk-user-owned-key");
+});
+
+test("assistant sends the default OpenAI preset with a user key and flushes final SSE data", async () => {
+  const calls = [];
+  const encoder = new TextEncoder();
+  const dom = await loadAssistant({
+    fetch: async (url, init) => {
+      calls.push({ url, init });
+      return {
+        ok: true,
+        status: 200,
+        body: new ReadableStream({
+          start(controller) {
+            controller.enqueue(encoder.encode('data: {"type":"response.output_text.delta","delta":"pong"}\n\n'));
+            controller.enqueue(encoder.encode('data: {"type":"response.output_text.delta","delta":"!"}'));
+            controller.close();
+          },
+        }),
+      };
+    },
+  });
+  const { document, Event } = dom.window;
+
+  document.querySelector('[data-assistant-mode="llm"]').click();
+  document.querySelector(".assistant-api-key").value = "sk-user-owned-key";
+  trustAssistantEndpoint(document);
+  const input = document.querySelector(".assistant-input");
+  input.value = "你好";
+  document.querySelector(".assistant-form").dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+
+  await wait();
+
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].url, "https://muyuan.do/v1/responses");
+  assert.equal(calls[0].init.headers.Authorization, "Bearer sk-user-owned-key");
+  assert.match(document.querySelector(".assistant-messages").textContent, /pong!/);
+});
+
+test("assistant distinguishes request timeout from manual stop", async () => {
+  const calls = [];
+  const dom = await loadAssistant({
+    fetch: async (url, init) => {
+      calls.push({ url, init });
+      return new Promise((resolve, reject) => {
+        init.signal.addEventListener("abort", () => {
+          reject(init.signal.reason || new dom.window.DOMException("aborted", "AbortError"));
+        }, { once: true });
+      });
+    },
+  });
+  const { document, Event } = dom.window;
+  const nativeSetTimeout = dom.window.setTimeout.bind(dom.window);
+  dom.window.setTimeout = (callback, ms, ...args) => nativeSetTimeout(callback, ms === 60000 ? 1 : ms, ...args);
+
+  document.querySelector('[data-assistant-mode="llm"]').click();
+  document.querySelector(".assistant-api-key").value = "sk-user-owned-key";
+  trustAssistantEndpoint(document);
+  const input = document.querySelector(".assistant-input");
+  input.value = "你好";
+  document.querySelector(".assistant-form").dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+
+  await wait(30);
+
+  assert.equal(calls.length, 1);
+  assert.match(document.querySelector(".assistant-messages").textContent, /请求超时，请稍后重试或切换中转站。/);
+  assert.doesNotMatch(document.querySelector(".assistant-messages").textContent, /已停止生成。/);
+});
+
+test("assistant reports manual generation stop without using timeout copy", async () => {
+  const calls = [];
+  const dom = await loadAssistant({
+    fetch: async (url, init) => {
+      calls.push({ url, init });
+      return new Promise((resolve, reject) => {
+        init.signal.addEventListener("abort", () => {
+          reject(init.signal.reason || new dom.window.DOMException("aborted", "AbortError"));
+        }, { once: true });
+      });
+    },
+  });
+  const { document, Event } = dom.window;
+
+  document.querySelector('[data-assistant-mode="llm"]').click();
+  document.querySelector(".assistant-api-key").value = "sk-user-owned-key";
+  trustAssistantEndpoint(document);
+  const input = document.querySelector(".assistant-input");
+  const form = document.querySelector(".assistant-form");
+  input.value = "你好";
+  form.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+  await wait();
+
+  form.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+  await wait();
+
+  assert.equal(calls.length, 1);
+  assert.match(document.querySelector(".assistant-messages").textContent, /已停止生成。/);
+  assert.doesNotMatch(document.querySelector(".assistant-messages").textContent, /请求超时/);
+});
+
+test("assistant defaults to local site mode while keeping the OpenAI preset ready", async () => {
   const calls = [];
   const dom = await loadAssistant();
   const { document, Event } = dom.window;
@@ -475,8 +760,8 @@ test("assistant defaults LLM mode to ChatGPT with a hidden experience key", asyn
     };
   };
 
-  assert.equal(document.querySelector('[data-assistant-mode="llm"]').classList.contains("active"), true);
-  assert.equal(document.querySelector(".assistant-config").hidden, false);
+  assert.equal(document.querySelector('[data-assistant-mode="site"]').classList.contains("active"), true);
+  assert.equal(document.querySelector(".assistant-config").hidden, true);
   assert.equal(document.querySelector(".assistant-config-body").hidden, true);
   assert.equal(document.querySelector(".assistant-format").value, "openai");
   assert.equal(document.querySelector(".assistant-endpoint").value, "https://muyuan.do/v1/responses");
@@ -485,15 +770,48 @@ test("assistant defaults LLM mode to ChatGPT with a hidden experience key", asyn
   assert.equal(document.querySelector(".assistant-stream input").checked, true);
 
   const input = document.querySelector(".assistant-input");
-  input.value = "你好";
+  input.value = "工具箱在哪里";
   document.querySelector(".assistant-form").dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
 
   await wait();
 
-  assert.equal(calls.length, 1);
-  assert.equal(calls[0].url, "https://muyuan.do/v1/responses");
-  assert.match(calls[0].init.headers.Authorization, /^Bearer sk-[A-Za-z0-9_-]{20,}$/);
-  assert.match(document.querySelector(".assistant-messages").textContent, /pong/);
+  assert.equal(calls.length, 0);
+  assert.match(document.querySelector(".assistant-messages").textContent, /工具箱/);
+});
+
+test("assistant saved LLM config does not override explicit site mode", async () => {
+  const calls = [];
+  const dom = await loadAssistant({
+    fetch: async (url, init) => {
+      calls.push({ url, init });
+      return {
+        ok: true,
+        status: 200,
+        text: async () => JSON.stringify({ output_text: "pong" }),
+      };
+    },
+    localStorage: {
+      "cwl.assistant.llmConfig": JSON.stringify({
+        format: "openai",
+        endpoint: "https://relay.example/v1",
+        apiKey: "sk-user-owned-key",
+        model: "gpt-test",
+        stream: true,
+      }),
+      "cwl.assistant.mode": "site",
+    },
+  });
+  const { document, Event } = dom.window;
+
+  assert.equal(document.querySelector('[data-assistant-mode="site"]').classList.contains("active"), true);
+  const input = document.querySelector(".assistant-input");
+  input.value = "工具箱在哪里";
+  document.querySelector(".assistant-form").dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+
+  await wait();
+
+  assert.equal(calls.length, 0);
+  assert.match(document.querySelector(".assistant-messages").textContent, /工具箱/);
 });
 
 test("assistant migrates legacy default anthropic config to the new ChatGPT preset", async () => {
@@ -516,12 +834,16 @@ test("assistant migrates legacy default anthropic config to the new ChatGPT pres
   assert.equal(document.querySelector(".assistant-api-key").value, "");
 });
 
-test("assistant source does not expose experience keys as contiguous literals", async () => {
+test("assistant source does not include default experience key machinery", async () => {
   const code = await readFile(join(ROOT, "js", "assistant.js"), "utf8");
   assert.doesNotMatch(code, /LLM_DEMO_KEYS/);
+  assert.doesNotMatch(code, /LLM_EXPERIENCE_KEYS/);
+  assert.doesNotMatch(code, /OPENAI_DEFAULT_API_KEY/);
   assert.doesNotMatch(code, /sk-[A-Za-z0-9_-]{20,}/);
   assert.doesNotMatch(code, /tp-[A-Za-z0-9_-]{20,}/);
   assert.doesNotMatch(code, /留空使用内置体验 key/);
+  assert.doesNotMatch(code, /experience key/i);
+  assert.doesNotMatch(code, /内置体验 key/);
 });
 
 test("assistant supports fullscreen mode", async () => {
@@ -607,6 +929,7 @@ test("assistant sends OpenAI-compatible chat completion requests", async () => {
   format.dispatchEvent(new Event("change", { bubbles: true }));
   document.querySelector(".assistant-endpoint").value = "https://relay.example/v1";
   document.querySelector(".assistant-api-key").value = "local-test-key";
+  trustAssistantEndpoint(document);
   document.querySelector(".assistant-model").value = "gpt-test";
   const input = document.querySelector(".assistant-input");
   input.value = "你好";
@@ -649,6 +972,7 @@ test("assistant retries Codex-style OpenAI responses requests", async () => {
   format.value = "openai";
   format.dispatchEvent(new Event("change", { bubbles: true }));
   document.querySelector(".assistant-api-key").value = "local-test-key";
+  trustAssistantEndpoint(document);
   document.querySelector(".assistant-model").value = "gpt-test";
   const input = document.querySelector(".assistant-input");
   input.value = "你好";
@@ -691,6 +1015,7 @@ test("assistant sends Anthropic-compatible messages requests", async () => {
   format.dispatchEvent(new Event("change", { bubbles: true }));
   document.querySelector(".assistant-endpoint").value = "https://claude.example/anthropic";
   document.querySelector(".assistant-api-key").value = "local-claude-key";
+  trustAssistantEndpoint(document);
   document.querySelector(".assistant-model").value = "claude-test";
   const input = document.querySelector(".assistant-input");
   input.value = "你好";
@@ -709,6 +1034,6 @@ test("assistant sends Anthropic-compatible messages requests", async () => {
 });
 
 test("assistant panel keeps the hidden attribute effective in CSS", async () => {
-  const css = await readFile(join(ROOT, "css", "coder.css"), "utf8");
+  const css = await readFile(join(ROOT, "css", "assistant.css"), "utf8");
   assert.match(css, /\.assistant-panel\[hidden\]\s*{\s*display:\s*none;/);
 });

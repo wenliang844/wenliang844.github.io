@@ -3,24 +3,27 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://giscus.app https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https:; frame-src https://giscus.app; form-action 'self' https://buttondown.com https://api.web3forms.com">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://giscus.app https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://giscus.app; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https: http:; frame-src https://giscus.app; form-action 'self' https://buttondown.com https://api.web3forms.com">
   <meta name="description" content="CWLBlog 在线工具箱：Mini Postman、JSON、时间戳、Base64、URL、UUID、JWT、哈希、密码、颜色、正则、Markdown 编辑器、Diff、Cron、二维码、YAML、URL 解析、文本处理和手势交互动画等开发工具。">
   <link rel="icon" href="/images/favicon.png" type="image/png">
-  <link rel="preconnect" href="https://giscus.app">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="theme-color" content="#0f172a">
   <link rel="dns-prefetch" href="https://giscus.app">
-  <link rel="preconnect" href="https://buttondown.com">
   <link rel="dns-prefetch" href="https://buttondown.com">
   <link rel="dns-prefetch" href="https://www.ifdian.net">
   <link rel="dns-prefetch" href="https://paypal.me">
+  <link rel="alternate" type="application/rss+xml" title="CWLBlog RSS" href="/index.xml">
   <link rel="stylesheet" href="/css/fontawesome-all.min.css">
   <link rel="stylesheet" href="/css/coder.css">
+  <link rel="stylesheet" href="/css/tools.css">
   <script src="/js/error-handler.js" defer></script>
   <script src="/js/utils.js" defer></script>
   <script src="/js/i18n.js" defer></script>
   <script src="/js/coder.js" defer></script>
   <script src="/js/search-loader.js" defer></script>
   <script src="/js/subscribe.js" defer></script>
-  <script src="/js/assistant.js" defer></script>
+  <script src="/js/assistant-loader.js" defer></script>
+  <script src="/js/pwa-register.js" defer></script>
   <script src="/js/vendor/marked.min.js" defer></script>
   <script src="/js/vendor/purify.min.js" defer></script>
   <script src="/js/vendor/qrcode.min.js" defer></script>
@@ -64,6 +67,7 @@
                 <ul class="nav-more-menu">
               <li><a class="active" href="/tools/" data-i18n="nav.tools">工具箱</a></li>
               <li><a href="/overleaf/" data-i18n="nav.overleaf">简历模版</a></li>
+              <li><a href="/trust/" data-i18n="nav.trust">隐私与信任</a></li>
                 </ul>
               </details>
             </li>
@@ -299,6 +303,7 @@
           </div>
           <p class="tool-status" id="json-status" role="status" aria-live="polite"></p>
         </section>
+        <template data-tool-template="api">
         <section class="tool-panel" id="tool-api" data-tool-panel="api" role="tabpanel" aria-labelledby="tool-tab-api" tabindex="0" hidden>
           <header class="tool-panel-head">
             <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-paper-plane"></i></span>
@@ -344,6 +349,12 @@
           <div class="tool-actions">
             <button class="tool-btn primary" type="button" data-api-send data-i18n="tools.btn.sendRequest" data-i18n-html><i class="fas fa-paper-plane" aria-hidden="true"></i> 发送请求</button>
             <button class="tool-btn" type="button" data-api-save data-i18n="tools.btn.saveRequest" data-i18n-html><i class="fas fa-save" aria-hidden="true"></i> 保存请求</button>
+            <label class="tool-inline"><span data-i18n="tools.label.saveBody">保存请求体</span>
+              <input id="api-save-body-history" type="checkbox">
+            </label>
+            <label class="tool-inline"><span data-i18n="tools.label.allowRiskyApiTarget">允许本机/内网/非 HTTPS 请求</span>
+              <input id="api-allow-risky-target" type="checkbox">
+            </label>
             <label class="tool-inline"><span data-i18n="tools.label.history">历史</span>
               <select id="api-history">
                 <option value="" data-i18n="tools.api.noHistory">暂无历史</option>
@@ -355,6 +366,8 @@
           </div>
           <p class="tool-status" id="api-status" role="status" aria-live="polite"></p>
         </section>
+        </template>
+        <template data-tool-template="time">
         <section class="tool-panel" id="tool-time" data-tool-panel="time" role="tabpanel" aria-labelledby="tool-tab-time" tabindex="0" hidden>
           <header class="tool-panel-head">
             <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-clock"></i></span>
@@ -384,6 +397,8 @@
           </div>
           <p class="tool-status" id="time-status" role="status" aria-live="polite"></p>
         </section>
+        </template>
+        <template data-tool-template="base64">
         <section class="tool-panel" id="tool-base64" data-tool-panel="base64" role="tabpanel" aria-labelledby="tool-tab-base64" tabindex="0" hidden>
           <header class="tool-panel-head">
             <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-lock"></i></span>
@@ -407,6 +422,8 @@
           </div>
           <p class="tool-status" id="base64-status" role="status" aria-live="polite"></p>
         </section>
+        </template>
+        <template data-tool-template="url">
         <section class="tool-panel" id="tool-url" data-tool-panel="url" role="tabpanel" aria-labelledby="tool-tab-url" tabindex="0" hidden>
           <header class="tool-panel-head">
             <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-link"></i></span>
@@ -430,6 +447,8 @@
           </div>
           <p class="tool-status" id="url-status" role="status" aria-live="polite"></p>
         </section>
+        </template>
+        <template data-tool-template="uuid">
         <section class="tool-panel" id="tool-uuid" data-tool-panel="uuid" role="tabpanel" aria-labelledby="tool-tab-uuid" tabindex="0" hidden>
           <header class="tool-panel-head">
             <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-fingerprint"></i></span>
@@ -447,6 +466,8 @@
           </div>
           <p class="tool-status" id="uuid-status" role="status" aria-live="polite"></p>
         </section>
+        </template>
+        <template data-tool-template="jwt">
         <section class="tool-panel" id="tool-jwt" data-tool-panel="jwt" role="tabpanel" aria-labelledby="tool-tab-jwt" tabindex="0" hidden>
           <header class="tool-panel-head">
             <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-key"></i></span>
@@ -472,6 +493,8 @@
           </div>
           <p class="tool-status" id="jwt-status" role="status" aria-live="polite"></p>
         </section>
+        </template>
+        <template data-tool-template="hash">
         <section class="tool-panel" id="tool-hash" data-tool-panel="hash" role="tabpanel" aria-labelledby="tool-tab-hash" tabindex="0" hidden>
           <header class="tool-panel-head">
             <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-shield-alt"></i></span>
@@ -502,6 +525,8 @@
           </div>
           <p class="tool-status" id="hash-status" role="status" aria-live="polite"></p>
         </section>
+        </template>
+        <template data-tool-template="password">
         <section class="tool-panel" id="tool-password" data-tool-panel="password" role="tabpanel" aria-labelledby="tool-tab-password" tabindex="0" hidden>
           <header class="tool-panel-head">
             <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-user-lock"></i></span>
@@ -531,6 +556,8 @@
           </div>
           <p class="tool-status" id="password-status" role="status" aria-live="polite"></p>
         </section>
+        </template>
+        <template data-tool-template="color">
         <section class="tool-panel" id="tool-color" data-tool-panel="color" role="tabpanel" aria-labelledby="tool-tab-color" tabindex="0" hidden>
           <header class="tool-panel-head">
             <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-palette"></i></span>
@@ -561,6 +588,8 @@
           </div>
           <p class="tool-status" id="color-status" role="status" aria-live="polite"></p>
         </section>
+        </template>
+        <template data-tool-template="regex">
         <section class="tool-panel" id="tool-regex" data-tool-panel="regex" role="tabpanel" aria-labelledby="tool-tab-regex" tabindex="0" hidden>
           <header class="tool-panel-head">
             <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-search"></i></span>
@@ -588,6 +617,8 @@
           </div>
           <p class="tool-status" id="regex-status" role="status" aria-live="polite"></p>
         </section>
+        </template>
+        <template data-tool-template="markdown">
         <section class="tool-panel" id="tool-markdown" data-tool-panel="markdown" role="tabpanel" aria-labelledby="tool-tab-markdown" tabindex="0" hidden>
           <header class="tool-panel-head">
             <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-heading"></i></span>
@@ -630,6 +661,7 @@
             <div class="editor-layout">
               <section class="editor-pane">
                 <div class="pane-title"><span data-i18n="editor.pane.markdown">Markdown</span> <span class="editor-stats" id="editor-stats"></span></div>
+                <label class="sr-only" for="markdown-input" data-i18n="editor.input.label">Markdown 原文输入</label>
                 <textarea id="markdown-input" spellcheck="false"></textarea>
               </section>
               <section class="preview-pane">
@@ -640,6 +672,8 @@
             <p class="editor-note" data-i18n="editor.note" data-i18n-html>静态 GitHub Pages 不能直接写入仓库；导出的文件可放入当前静态站点生成流程的 <code>src/posts/</code>。提示：选中文字后点工具按钮可包裹格式，支持 Ctrl+B / Ctrl+I / Ctrl+K。</p>
           </div>
         </section>
+        </template>
+        <template data-tool-template="diff">
         <section class="tool-panel" id="tool-diff" data-tool-panel="diff" role="tabpanel" aria-labelledby="tool-tab-diff" tabindex="0" hidden>
           <header class="tool-panel-head">
             <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-not-equal"></i></span>
@@ -665,6 +699,8 @@
           </div>
           <p class="tool-status" id="diff-status" role="status" aria-live="polite"></p>
         </section>
+        </template>
+        <template data-tool-template="jsondiff">
         <section class="tool-panel" id="tool-jsondiff" data-tool-panel="jsondiff" role="tabpanel" aria-labelledby="tool-tab-jsondiff" tabindex="0" hidden>
           <header class="tool-panel-head">
             <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-code-branch"></i></span>
@@ -690,6 +726,8 @@
           </div>
           <p class="tool-status" id="jsondiff-status" role="status" aria-live="polite"></p>
         </section>
+        </template>
+        <template data-tool-template="case">
         <section class="tool-panel" id="tool-case" data-tool-panel="case" role="tabpanel" aria-labelledby="tool-tab-case" tabindex="0" hidden>
           <header class="tool-panel-head">
             <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-font"></i></span>
@@ -712,6 +750,8 @@
           </div>
           <p class="tool-status" id="case-status" role="status" aria-live="polite"></p>
         </section>
+        </template>
+        <template data-tool-template="html">
         <section class="tool-panel" id="tool-html" data-tool-panel="html" role="tabpanel" aria-labelledby="tool-tab-html" tabindex="0" hidden>
           <header class="tool-panel-head">
             <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-tags"></i></span>
@@ -735,6 +775,8 @@
           </div>
           <p class="tool-status" id="html-status" role="status" aria-live="polite"></p>
         </section>
+        </template>
+        <template data-tool-template="cron">
         <section class="tool-panel" id="tool-cron" data-tool-panel="cron" role="tabpanel" aria-labelledby="tool-tab-cron" tabindex="0" hidden>
           <header class="tool-panel-head">
             <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-calendar-alt"></i></span>
@@ -788,6 +830,8 @@
           </div>
           <p class="tool-status" id="cron-status" role="status" aria-live="polite"></p>
         </section>
+        </template>
+        <template data-tool-template="qr">
         <section class="tool-panel" id="tool-qr" data-tool-panel="qr" role="tabpanel" aria-labelledby="tool-tab-qr" tabindex="0" hidden>
           <header class="tool-panel-head">
             <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-qrcode"></i></span>
@@ -803,7 +847,7 @@
             <div class="tool-field">
               <span data-i18n="tools.label.preview">预览</span>
               <div class="qr-box">
-                <img id="qr-image" alt="QR code" hidden>
+                <img id="qr-image" alt="QR code" width="256" height="256" loading="lazy" decoding="async" hidden>
                 <span id="qr-empty" data-i18n="tools.qr.empty">等待生成二维码</span>
               </div>
             </div>
@@ -817,6 +861,8 @@
           </div>
           <p class="tool-status" id="qr-status" role="status" aria-live="polite"></p>
         </section>
+        </template>
+        <template data-tool-template="yaml">
         <section class="tool-panel" id="tool-yaml" data-tool-panel="yaml" role="tabpanel" aria-labelledby="tool-tab-yaml" tabindex="0" hidden>
           <header class="tool-panel-head">
             <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-project-diagram"></i></span>
@@ -840,6 +886,8 @@
           </div>
           <p class="tool-status" id="yaml-status" role="status" aria-live="polite"></p>
         </section>
+        </template>
+        <template data-tool-template="urlparse">
         <section class="tool-panel" id="tool-urlparse" data-tool-panel="urlparse" role="tabpanel" aria-labelledby="tool-tab-urlparse" tabindex="0" hidden>
           <header class="tool-panel-head">
             <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-sitemap"></i></span>
@@ -862,6 +910,8 @@
           </div>
           <p class="tool-status" id="urlparse-status" role="status" aria-live="polite"></p>
         </section>
+        </template>
+        <template data-tool-template="query">
         <section class="tool-panel" id="tool-query" data-tool-panel="query" role="tabpanel" aria-labelledby="tool-tab-query" tabindex="0" hidden>
           <header class="tool-panel-head">
             <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-list-ul"></i></span>
@@ -886,6 +936,8 @@ q=toolbox"></textarea>
           </div>
           <p class="tool-status" id="query-status" role="status" aria-live="polite"></p>
         </section>
+        </template>
+        <template data-tool-template="jsonpath">
         <section class="tool-panel" id="tool-jsonpath" data-tool-panel="jsonpath" role="tabpanel" aria-labelledby="tool-tab-jsonpath" tabindex="0" hidden>
           <header class="tool-panel-head">
             <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-filter"></i></span>
@@ -911,6 +963,8 @@ q=toolbox"></textarea>
           </div>
           <p class="tool-status" id="jsonpath-status" role="status" aria-live="polite"></p>
         </section>
+        </template>
+        <template data-tool-template="textstats">
         <section class="tool-panel" id="tool-textstats" data-tool-panel="textstats" role="tabpanel" aria-labelledby="tool-tab-textstats" tabindex="0" hidden>
           <header class="tool-panel-head">
             <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-chart-bar"></i></span>
@@ -933,6 +987,8 @@ q=toolbox"></textarea>
           </div>
           <p class="tool-status" id="textstats-status" role="status" aria-live="polite"></p>
         </section>
+        </template>
+        <template data-tool-template="cleantext">
         <section class="tool-panel" id="tool-cleantext" data-tool-panel="cleantext" role="tabpanel" aria-labelledby="tool-tab-cleantext" tabindex="0" hidden>
           <header class="tool-panel-head">
             <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-broom"></i></span>
@@ -959,6 +1015,8 @@ q=toolbox"></textarea>
           </div>
           <p class="tool-status" id="cleantext-status" role="status" aria-live="polite"></p>
         </section>
+        </template>
+        <template data-tool-template="unit">
         <section class="tool-panel" id="tool-unit" data-tool-panel="unit" role="tabpanel" aria-labelledby="tool-tab-unit" tabindex="0" hidden>
           <header class="tool-panel-head">
             <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-ruler-combined"></i></span>
@@ -991,6 +1049,8 @@ q=toolbox"></textarea>
           </div>
           <p class="tool-status" id="unit-status" role="status" aria-live="polite"></p>
         </section>
+        </template>
+        <template data-tool-template="cssunit">
         <section class="tool-panel" id="tool-cssunit" data-tool-panel="cssunit" role="tabpanel" aria-labelledby="tool-tab-cssunit" tabindex="0" hidden>
           <header class="tool-panel-head">
             <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-vector-square"></i></span>
@@ -1030,6 +1090,8 @@ q=toolbox"></textarea>
           </div>
           <p class="tool-status" id="cssunit-status" role="status" aria-live="polite"></p>
         </section>
+        </template>
+        <template data-tool-template="random">
         <section class="tool-panel" id="tool-random" data-tool-panel="random" role="tabpanel" aria-labelledby="tool-tab-random" tabindex="0" hidden>
           <header class="tool-panel-head">
             <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-dice"></i></span>
@@ -1038,6 +1100,7 @@ q=toolbox"></textarea>
               <p data-i18n="tools.random.desc" data-i18n-en="Generate integers, decimals or random lists.">生成整数、浮点数或随机列表。</p>
             </div>
           </header>
+          <p class="tool-note random-warning" role="note" data-i18n="tools.random.warning" data-i18n-en="Uses regular pseudo-random numbers for sampling, demos and quick picks. Do not use these values as passwords, tokens, verification codes or security credentials.">使用普通伪随机数，适合抽样、演示和快速选择；不要将结果用作密码、令牌、验证码或安全凭据。</p>
           <div class="tool-grid">
             <div class="tool-field">
               <label for="random-min" data-i18n="tools.label.min">最小值</label>
@@ -1059,6 +1122,8 @@ q=toolbox"></textarea>
           </div>
           <p class="tool-status" id="random-status" role="status" aria-live="polite"></p>
         </section>
+        </template>
+        <template data-tool-template="datediff">
         <section class="tool-panel" id="tool-datediff" data-tool-panel="datediff" role="tabpanel" aria-labelledby="tool-tab-datediff" tabindex="0" hidden>
           <header class="tool-panel-head">
             <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-hourglass-half"></i></span>
@@ -1084,6 +1149,8 @@ q=toolbox"></textarea>
           </div>
           <p class="tool-status" id="datediff-status" role="status" aria-live="polite"></p>
         </section>
+        </template>
+        <template data-tool-template="ua">
         <section class="tool-panel" id="tool-ua" data-tool-panel="ua" role="tabpanel" aria-labelledby="tool-tab-ua" tabindex="0" hidden>
           <header class="tool-panel-head">
             <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-desktop"></i></span>
@@ -1106,6 +1173,8 @@ q=toolbox"></textarea>
           </div>
           <p class="tool-status" id="ua-status" role="status" aria-live="polite"></p>
         </section>
+        </template>
+        <template data-tool-template="galaxy">
         <section class="tool-panel" id="tool-galaxy" data-tool-panel="galaxy" role="tabpanel" aria-labelledby="tool-tab-galaxy" tabindex="0" hidden>
           <header class="tool-panel-head">
             <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-meteor"></i></span>
@@ -1154,6 +1223,8 @@ q=toolbox"></textarea>
             <span class="galaxy-badge" id="galaxy-particles">0 星</span>
           </div>
         </section>
+        </template>
+        <template data-tool-template="gesture">
         <section class="tool-panel" id="tool-gesture" data-tool-panel="gesture" role="tabpanel" aria-labelledby="tool-tab-gesture" tabindex="0" hidden>
           <header class="tool-panel-head">
             <span class="tool-panel-icon" aria-hidden="true"><i class="fas fa-hand-sparkles"></i></span>
@@ -1163,7 +1234,7 @@ q=toolbox"></textarea>
             </div>
           </header>
           <div class="gesture-controls">
-            <button class="tool-btn primary" id="gesture-start" type="button">
+            <button class="tool-btn primary" id="gesture-start" type="button" disabled>
               <i class="fas fa-video" aria-hidden="true"></i> <span data-i18n="tools.gesture.start" data-i18n-en="Start Camera">开启摄像头</span>
             </button>
             <button class="tool-btn" id="gesture-stop" type="button" disabled>
@@ -1172,6 +1243,46 @@ q=toolbox"></textarea>
             <button class="tool-btn" id="gesture-clear" type="button">
               <i class="fas fa-eraser" aria-hidden="true"></i> <span data-i18n="tools.gesture.clear" data-i18n-en="Clear Canvas">清除画布</span>
             </button>
+          </div>
+          <div class="gesture-supply-chain" role="note">
+            <label class="gesture-toggle gesture-consent">
+              <input id="gesture-allow-remote-runtime" type="checkbox">
+              <span><i class="fas fa-shield-alt" aria-hidden="true"></i> <span data-i18n="tools.gesture.consent" data-i18n-en="I understand the visual runtime and models are downloaded from third-party CDNs.">我了解视觉运行时和模型会从第三方 CDN 下载</span></span>
+            </label>
+            <p data-i18n="tools.gesture.supplyChain" data-i18n-en="The camera stream stays in this browser for recognition. Starting the tool may download MediaPipe, face-api, Three.js and model files from jsDelivr and Google Storage.">摄像头画面只在本机浏览器识别；启动时可能从 jsDelivr 和 Google Storage 下载 MediaPipe、face-api、Three.js 与模型文件。</p>
+            <div class="gesture-resource-status" aria-label="视觉资源治理状态" data-i18n-aria="tools.gesture.resourceStatus" data-i18n-en-aria="Visual resource governance status">
+              <p data-i18n="tools.gesture.resourceSummary" data-i18n-en="Resource status: versioned runtime URLs are locked; upstream latest model paths are still planned for self-hosting and hash pinning.">资源状态：运行时 URL 已按版本锁定；latest 模型路径仍计划自托管并记录哈希。</p>
+              <ul class="gesture-resource-list">
+              <li class="gesture-resource-item" data-resource-status="locked">
+                <span data-i18n="tools.gesture.resource.locked.mediapipe-vision-runtime" data-i18n-en="MediaPipe vision runtime">MediaPipe 视觉运行时</span>
+                <strong data-i18n="tools.gesture.resource.status.locked" data-i18n-en="Version locked">版本锁定</strong>
+              </li>
+              <li class="gesture-resource-item" data-resource-status="locked">
+                <span data-i18n="tools.gesture.resource.locked.mediapipe-wasm-base" data-i18n-en="MediaPipe WASM base">MediaPipe WASM 基础包</span>
+                <strong data-i18n="tools.gesture.resource.status.locked" data-i18n-en="Version locked">版本锁定</strong>
+              </li>
+              <li class="gesture-resource-item" data-resource-status="watch">
+                <span data-i18n="tools.gesture.resource.watch.hand-landmark-model" data-i18n-en="Hand landmark model">手部识别模型</span>
+                <strong data-i18n="tools.gesture.resource.status.watch" data-i18n-en="Upstream latest">上游 latest</strong>
+              </li>
+              <li class="gesture-resource-item" data-resource-status="watch">
+                <span data-i18n="tools.gesture.resource.watch.object-detector-model" data-i18n-en="Object detector model">物体检测模型</span>
+                <strong data-i18n="tools.gesture.resource.status.watch" data-i18n-en="Upstream latest">上游 latest</strong>
+              </li>
+              <li class="gesture-resource-item" data-resource-status="locked">
+                <span data-i18n="tools.gesture.resource.locked.face-api-runtime" data-i18n-en="face-api runtime">face-api 运行时</span>
+                <strong data-i18n="tools.gesture.resource.status.locked" data-i18n-en="Version locked">版本锁定</strong>
+              </li>
+              <li class="gesture-resource-item" data-resource-status="watch">
+                <span data-i18n="tools.gesture.resource.watch.face-api-model-pack" data-i18n-en="face-api model pack">face-api 模型包</span>
+                <strong data-i18n="tools.gesture.resource.status.watch" data-i18n-en="Self-hosting planned">待自托管</strong>
+              </li>
+              <li class="gesture-resource-item" data-resource-status="locked">
+                <span data-i18n="tools.gesture.resource.locked.three-js-3d-runtime" data-i18n-en="Three.js 3D runtime">Three.js 3D 运行时</span>
+                <strong data-i18n="tools.gesture.resource.status.locked" data-i18n-en="Version locked">版本锁定</strong>
+              </li>
+              </ul>
+            </div>
           </div>
           <div class="gesture-modes" role="radiogroup" data-i18n-aria="tools.gesture.modeGroup" data-i18n-en-aria="Animation mode">
             <button class="gesture-mode-btn active" data-mode="particle" type="button">
@@ -1235,6 +1346,7 @@ q=toolbox"></textarea>
             <span data-i18n="tools.gesture.privacy" data-i18n-en="All data is processed locally in your browser and is never uploaded to any server.">所有数据均在浏览器本地处理，不会上传到任何服务器。</span>
           </p>
         </section>
+        </template>
           </div>
         </div>
       </section>
@@ -1256,6 +1368,11 @@ q=toolbox"></textarea>
             <a class="sponsor-mini-btn sponsor-mini-secondary" href="https://PayPal.Me/chenwenliang4212" target="_blank" rel="noopener noreferrer" data-i18n="sponsorMini.paypal">💳 PayPal 支持</a>
           </div>
         </div>
+        <nav class="footer-links" aria-label="站点说明" data-i18n-aria="footer.links.aria">
+          <a href="/trust/" data-i18n="footer.trust">隐私与信任</a>
+          <a href="/contact/" data-i18n="footer.contact">联系反馈</a>
+          <a href="/sponsor/" data-i18n="footer.sponsor">赞助支持</a>
+        </nav>
         <p data-i18n="footer.text">© 2021 - 2026 CWL · Powered by Cwl · Theme inspired by Coder</p>
       </section>
     </footer>

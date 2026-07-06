@@ -29,6 +29,7 @@ const BLOG_HTML = `<!doctype html><html lang="zh-CN"><body class="colorscheme-da
       <span data-tag="Java">Java</span>
       <span data-tag="Spring">Spring</span>
     </div>
+    <div class="article-content"><h2>流程运行时</h2><p>BPMN Runtime API and workflow tasks.</p></div>
   </div>
   <div class="blog-article" id="post-b" data-post-slug="finance-saas-backend">
     <div class="article-summary">金融 SaaS 后端实践</div>
@@ -36,6 +37,7 @@ const BLOG_HTML = `<!doctype html><html lang="zh-CN"><body class="colorscheme-da
       <span data-tag="Java">Java</span>
       <span data-tag="ES">ElasticSearch</span>
     </div>
+    <div class="article-content"><h2>搜索模块</h2><p>业务模块自动装配 ESClient、Searcher 和 Indexer。</p></div>
   </div>
   <div class="blog-article" id="post-c" data-post-slug="lowcode-schema-codegen">
     <div class="article-summary">低代码 Schema 与代码生成</div>
@@ -43,6 +45,44 @@ const BLOG_HTML = `<!doctype html><html lang="zh-CN"><body class="colorscheme-da
       <span data-tag="TypeScript">TypeScript</span>
       <span data-tag="React">React</span>
     </div>
+    <div class="article-content"><h2>浏览器生成</h2><p>使用 Web Worker 执行前端代码生成。</p></div>
+  </div>
+</body></html>`;
+
+const BLOG_GROUPED_HTML = `<!doctype html><html lang="zh-CN"><body class="colorscheme-dark">
+  <div class="post-tree">
+    <nav class="post-tree-nav">
+      <details class="tree-group" data-year="2024" open>
+        <summary><span>2024</span><span class="tree-count">2</span></summary>
+        <ul>
+          <li><a class="post-tree-link active" data-post-target="post-a" href="#post-a"><span class="tree-title">Activiti 工作流引擎</span></a></li>
+          <li><a class="post-tree-link" data-post-target="post-b" href="#post-b"><span class="tree-title">金融 SaaS 后端实践</span></a></li>
+        </ul>
+      </details>
+      <details class="tree-group" data-year="2023" open>
+        <summary><span>2023</span><span class="tree-count">1</span></summary>
+        <ul>
+          <li><a class="post-tree-link" data-post-target="post-c" href="#post-c"><span class="tree-title">低代码 Schema 与代码生成</span></a></li>
+        </ul>
+      </details>
+    </nav>
+  </div>
+  <input type="text" id="post-search-input" placeholder="搜索...">
+  <div id="tag-filter"></div>
+  <div class="blog-article active" id="post-a" data-post-slug="activiti-workflow-engine">
+    <div class="article-summary">Activiti 工作流引擎项目复盘</div>
+    <div class="post-tags"><span data-tag="Java">Java</span><span data-tag="Spring">Spring</span></div>
+    <div class="article-content"><h2>流程运行时</h2><p>BPMN Runtime API and workflow tasks.</p></div>
+  </div>
+  <div class="blog-article" id="post-b" data-post-slug="finance-saas-backend">
+    <div class="article-summary">金融 SaaS 后端实践</div>
+    <div class="post-tags"><span data-tag="Java">Java</span><span data-tag="ES">ElasticSearch</span></div>
+    <div class="article-content"><h2>搜索模块</h2><p>业务模块自动装配 ESClient、Searcher 和 Indexer。</p></div>
+  </div>
+  <div class="blog-article" id="post-c" data-post-slug="lowcode-schema-codegen">
+    <div class="article-summary">低代码 Schema 与代码生成</div>
+    <div class="post-tags"><span data-tag="TypeScript">TypeScript</span><span data-tag="React">React</span></div>
+    <div class="article-content"><h2>浏览器生成</h2><p>使用 Web Worker 执行前端代码生成。</p></div>
   </div>
 </body></html>`;
 
@@ -122,6 +162,94 @@ test("blog.js shows empty state when search has no matches", async () => {
 
   const empty = document.querySelector(".tree-empty");
   assert.ok(!empty.hidden, "empty state should be visible when no matches");
+  dom.window.close();
+});
+
+test("blog.js updates year group counts and hides empty groups after filtering", async () => {
+  const dom = new JSDOM(BLOG_GROUPED_HTML, {
+    runScripts: "outside-only",
+    url: "https://wenliang844.github.io/post/",
+  });
+  await loadBlog(dom);
+  const { document } = dom.window;
+
+  const searchInput = document.getElementById("post-search-input");
+  searchInput.value = "React";
+  searchInput.dispatchEvent(new dom.window.Event("input"));
+
+  await new Promise((r) => dom.window.setTimeout(r, 300));
+
+  const group2024 = document.querySelector('[data-year="2024"]');
+  const group2023 = document.querySelector('[data-year="2023"]');
+  assert.equal(group2024.querySelector(".tree-count").textContent, "0");
+  assert.equal(group2024.hidden, true, "empty year group should be hidden");
+  assert.equal(group2023.querySelector(".tree-count").textContent, "1");
+  assert.equal(group2023.hidden, false, "matching year group should remain visible");
+  assert.equal(document.querySelector(".tree-empty").hidden, true);
+  dom.window.close();
+});
+
+test("blog.js search input matches article body and section text", async () => {
+  const dom = new JSDOM(BLOG_GROUPED_HTML, {
+    runScripts: "outside-only",
+    url: "https://wenliang844.github.io/post/",
+  });
+  await loadBlog(dom);
+  const { document } = dom.window;
+
+  const searchInput = document.getElementById("post-search-input");
+  searchInput.value = "ESClient";
+  searchInput.dispatchEvent(new dom.window.Event("input"));
+
+  await new Promise((r) => dom.window.setTimeout(r, 300));
+
+  const postA = document.querySelector('[data-post-target="post-a"]').closest("li");
+  const postB = document.querySelector('[data-post-target="post-b"]').closest("li");
+  const postC = document.querySelector('[data-post-target="post-c"]').closest("li");
+  assert.equal(postA.hidden, true, "non-matching article in same year should be hidden");
+  assert.equal(postB.hidden, false, "article body match should remain visible");
+  assert.equal(postC.hidden, true, "non-matching year article should be hidden");
+  assert.equal(document.querySelector('[data-year="2024"] .tree-count').textContent, "1");
+  assert.equal(document.querySelector('[data-year="2023"]').hidden, true);
+  assert.equal(document.querySelector(".tree-empty").hidden, true);
+
+  searchInput.value = "Web Worker";
+  searchInput.dispatchEvent(new dom.window.Event("input"));
+  await new Promise((r) => dom.window.setTimeout(r, 300));
+
+  assert.equal(document.querySelector('[data-post-target="post-c"]').closest("li").hidden, false, "section body phrase should be searchable");
+  assert.equal(document.querySelector('[data-year="2023"] .tree-count').textContent, "1");
+  dom.window.close();
+});
+
+test("blog.js restores q from URL and keeps it in sync with input changes", async () => {
+  const dom = new JSDOM(BLOG_GROUPED_HTML, {
+    runScripts: "outside-only",
+    url: "https://wenliang844.github.io/post/?tag=TypeScript&q=React",
+  });
+  await loadBlog(dom);
+  const { document, URL } = dom.window;
+
+  const searchInput = document.getElementById("post-search-input");
+  assert.equal(searchInput.value, "React");
+  assert.equal(document.querySelector('[data-year="2024"]').hidden, true);
+  assert.equal(document.querySelector('[data-year="2023"] .tree-count').textContent, "1");
+
+  searchInput.value = "Schema";
+  searchInput.dispatchEvent(new dom.window.Event("input"));
+  await new Promise((r) => dom.window.setTimeout(r, 300));
+
+  let url = new URL(dom.window.location.href);
+  assert.equal(url.searchParams.get("tag"), "TypeScript");
+  assert.equal(url.searchParams.get("q"), "Schema");
+
+  searchInput.value = "";
+  searchInput.dispatchEvent(new dom.window.Event("input"));
+  await new Promise((r) => dom.window.setTimeout(r, 300));
+
+  url = new URL(dom.window.location.href);
+  assert.equal(url.searchParams.get("tag"), "TypeScript");
+  assert.equal(url.searchParams.has("q"), false);
   dom.window.close();
 });
 
@@ -248,11 +376,13 @@ test("blog.js opens the floating sidebar and closes it from the sidebar button",
   assert.equal(fab.getAttribute("aria-expanded"), "true");
   assert.ok(fab.classList.contains("is-hidden"), "open FAB should hide while the sidebar is open");
   assert.match(collapse.getAttribute("aria-label"), /收起|Collapse/);
+  assert.equal(document.activeElement, collapse, "focus should move into the floating sidebar");
 
   collapse.click();
   assert.ok(!sidebar.classList.contains("is-floating-open"), "sidebar should be closed");
   assert.equal(fab.getAttribute("aria-expanded"), "false");
   assert.ok(!fab.classList.contains("is-hidden"), "open FAB should be visible again after closing");
+  assert.equal(document.activeElement, fab, "focus should return to the FAB after closing");
   dom.window.close();
 });
 
@@ -276,6 +406,7 @@ test("blog.js Escape key closes floating sidebar", async () => {
   // Press Escape
   document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
   assert.ok(!sidebar.classList.contains("is-floating-open"), "sidebar should close on Escape");
+  assert.equal(document.activeElement, fab, "Escape should restore focus to the FAB");
   dom.window.close();
 });
 

@@ -1,4 +1,5 @@
 import { buildPageJsonLd, renderPage } from "./layout.mjs";
+import { stylesForRoute } from "../page-assets.mjs";
 
 const TOOLS = [
   { id: "json", icon: "fa-code", title: "JSON 格式化", titleEn: "JSON Formatter", desc: "格式化、压缩和校验 JSON 文本。", descEn: "Format, minify and validate JSON text." },
@@ -95,6 +96,29 @@ function toolHeader(tool) {
           </header>`;
 }
 
+const GESTURE_RESOURCE_STATUS = [
+  { name: "MediaPipe 视觉运行时", nameEn: "MediaPipe vision runtime", status: "版本锁定", statusEn: "Version locked", state: "locked" },
+  { name: "MediaPipe WASM 基础包", nameEn: "MediaPipe WASM base", status: "版本锁定", statusEn: "Version locked", state: "locked" },
+  { name: "手部识别模型", nameEn: "Hand landmark model", status: "上游 latest", statusEn: "Upstream latest", state: "watch" },
+  { name: "物体检测模型", nameEn: "Object detector model", status: "上游 latest", statusEn: "Upstream latest", state: "watch" },
+  { name: "face-api 运行时", nameEn: "face-api runtime", status: "版本锁定", statusEn: "Version locked", state: "locked" },
+  { name: "face-api 模型包", nameEn: "face-api model pack", status: "待自托管", statusEn: "Self-hosting planned", state: "watch" },
+  { name: "Three.js 3D 运行时", nameEn: "Three.js 3D runtime", status: "版本锁定", statusEn: "Version locked", state: "locked" },
+];
+
+function renderGestureResourceStatus() {
+  const items = GESTURE_RESOURCE_STATUS.map((item) => `              <li class="gesture-resource-item" data-resource-status="${item.state}">
+                <span data-i18n="tools.gesture.resource.${attr(item.state)}.${attr(item.nameEn.replace(/[^a-z0-9]+/gi, "-").toLowerCase())}" data-i18n-en="${attr(item.nameEn)}">${item.name}</span>
+                <strong data-i18n="tools.gesture.resource.status.${attr(item.state)}" data-i18n-en="${attr(item.statusEn)}">${item.status}</strong>
+              </li>`).join("\n");
+  return `            <div class="gesture-resource-status" aria-label="视觉资源治理状态" data-i18n-aria="tools.gesture.resourceStatus" data-i18n-en-aria="Visual resource governance status">
+              <p data-i18n="tools.gesture.resourceSummary" data-i18n-en="Resource status: versioned runtime URLs are locked; upstream latest model paths are still planned for self-hosting and hash pinning.">资源状态：运行时 URL 已按版本锁定；latest 模型路径仍计划自托管并记录哈希。</p>
+              <ul class="gesture-resource-list">
+${items}
+              </ul>
+            </div>`;
+}
+
 function renderJsonTool() {
   const tool = toolById("json");
   return `        <section ${panelAttrs(tool, true)}>
@@ -157,6 +181,12 @@ ${toolHeader(tool)}
           <div class="tool-actions">
             <button class="tool-btn primary" type="button" data-api-send data-i18n="tools.btn.sendRequest" data-i18n-html><i class="fas fa-paper-plane" aria-hidden="true"></i> 发送请求</button>
             <button class="tool-btn" type="button" data-api-save data-i18n="tools.btn.saveRequest" data-i18n-html><i class="fas fa-save" aria-hidden="true"></i> 保存请求</button>
+            <label class="tool-inline"><span data-i18n="tools.label.saveBody">保存请求体</span>
+              <input id="api-save-body-history" type="checkbox">
+            </label>
+            <label class="tool-inline"><span data-i18n="tools.label.allowRiskyApiTarget">允许本机/内网/非 HTTPS 请求</span>
+              <input id="api-allow-risky-target" type="checkbox">
+            </label>
             <label class="tool-inline"><span data-i18n="tools.label.history">历史</span>
               <select id="api-history">
                 <option value="" data-i18n="tools.api.noHistory">暂无历史</option>
@@ -401,6 +431,7 @@ ${toolHeader(tool)}
             <div class="editor-layout">
               <section class="editor-pane">
                 <div class="pane-title"><span data-i18n="editor.pane.markdown">Markdown</span> <span class="editor-stats" id="editor-stats"></span></div>
+                <label class="sr-only" for="markdown-input" data-i18n="editor.input.label">Markdown 原文输入</label>
                 <textarea id="markdown-input" spellcheck="false"></textarea>
               </section>
               <section class="preview-pane">
@@ -553,7 +584,7 @@ ${toolHeader(tool)}
             <div class="tool-field">
               <span data-i18n="tools.label.preview">预览</span>
               <div class="qr-box">
-                <img id="qr-image" alt="QR code" hidden>
+                <img id="qr-image" alt="QR code" width="256" height="256" loading="lazy" decoding="async" hidden>
                 <span id="qr-empty" data-i18n="tools.qr.empty">等待生成二维码</span>
               </div>
             </div>
@@ -740,6 +771,7 @@ function renderRandomTool() {
   const tool = toolById("random");
   return `        <section ${panelAttrs(tool)}>
 ${toolHeader(tool)}
+          <p class="tool-note random-warning" role="note" data-i18n="tools.random.warning" data-i18n-en="Uses regular pseudo-random numbers for sampling, demos and quick picks. Do not use these values as passwords, tokens, verification codes or security credentials.">使用普通伪随机数，适合抽样、演示和快速选择；不要将结果用作密码、令牌、验证码或安全凭据。</p>
           <div class="tool-grid">
             <div class="tool-field">
               <label for="random-min" data-i18n="tools.label.min">最小值</label>
@@ -795,7 +827,7 @@ function renderGestureTool() {
   return `        <section ${panelAttrs(tool)}>
 ${toolHeader(tool)}
           <div class="gesture-controls">
-            <button class="tool-btn primary" id="gesture-start" type="button">
+            <button class="tool-btn primary" id="gesture-start" type="button" disabled>
               <i class="fas fa-video" aria-hidden="true"></i> <span data-i18n="tools.gesture.start" data-i18n-en="Start Camera">开启摄像头</span>
             </button>
             <button class="tool-btn" id="gesture-stop" type="button" disabled>
@@ -804,6 +836,14 @@ ${toolHeader(tool)}
             <button class="tool-btn" id="gesture-clear" type="button">
               <i class="fas fa-eraser" aria-hidden="true"></i> <span data-i18n="tools.gesture.clear" data-i18n-en="Clear Canvas">清除画布</span>
             </button>
+          </div>
+          <div class="gesture-supply-chain" role="note">
+            <label class="gesture-toggle gesture-consent">
+              <input id="gesture-allow-remote-runtime" type="checkbox">
+              <span><i class="fas fa-shield-alt" aria-hidden="true"></i> <span data-i18n="tools.gesture.consent" data-i18n-en="I understand the visual runtime and models are downloaded from third-party CDNs.">我了解视觉运行时和模型会从第三方 CDN 下载</span></span>
+            </label>
+            <p data-i18n="tools.gesture.supplyChain" data-i18n-en="The camera stream stays in this browser for recognition. Starting the tool may download MediaPipe, face-api, Three.js and model files from jsDelivr and Google Storage.">摄像头画面只在本机浏览器识别；启动时可能从 jsDelivr 和 Google Storage 下载 MediaPipe、face-api、Three.js 与模型文件。</p>
+${renderGestureResourceStatus()}
           </div>
           <div class="gesture-modes" role="radiogroup" data-i18n-aria="tools.gesture.modeGroup" data-i18n-en-aria="Animation mode">
             <button class="gesture-mode-btn active" data-mode="particle" type="button">
@@ -915,8 +955,113 @@ ${toolHeader(tool)}
         </section>`;
 }
 
+function renderToolPanel(id) {
+  if (id === "json") {
+    return renderJsonTool();
+  }
+  if (id === "api") {
+    return renderApiTool();
+  }
+  if (id === "time") {
+    return renderTimeTool();
+  }
+  if (id === "base64") {
+    return renderCodecTool(toolById("base64"), "base64-input", "base64-output", "base64-encode", "base64-decode", "输入要编码或解码的文本", "Text to encode or decode");
+  }
+  if (id === "url") {
+    return renderCodecTool(toolById("url"), "url-input", "url-output", "url-encode", "url-decode", "https://example.com/?q=中文", "https://example.com/?q=search");
+  }
+  if (id === "uuid") {
+    return renderUuidTool();
+  }
+  if (id === "jwt") {
+    return renderJwtTool();
+  }
+  if (id === "hash") {
+    return renderHashTool();
+  }
+  if (id === "password") {
+    return renderPasswordTool();
+  }
+  if (id === "color") {
+    return renderColorTool();
+  }
+  if (id === "regex") {
+    return renderRegexTool();
+  }
+  if (id === "markdown") {
+    return renderMarkdownTool();
+  }
+  if (id === "diff") {
+    return renderDiffTool();
+  }
+  if (id === "jsondiff") {
+    return renderJsonDiffTool();
+  }
+  if (id === "case") {
+    return renderCaseTool();
+  }
+  if (id === "html") {
+    return renderHtmlTool();
+  }
+  if (id === "cron") {
+    return renderCronTool();
+  }
+  if (id === "qr") {
+    return renderQrTool();
+  }
+  if (id === "yaml") {
+    return renderYamlTool();
+  }
+  if (id === "urlparse") {
+    return renderUrlParseTool();
+  }
+  if (id === "query") {
+    return renderQueryTool();
+  }
+  if (id === "jsonpath") {
+    return renderJsonPathTool();
+  }
+  if (id === "textstats") {
+    return renderTextStatsTool();
+  }
+  if (id === "cleantext") {
+    return renderCleanTextTool();
+  }
+  if (id === "unit") {
+    return renderUnitTool();
+  }
+  if (id === "cssunit") {
+    return renderCssUnitTool();
+  }
+  if (id === "random") {
+    return renderRandomTool();
+  }
+  if (id === "datediff") {
+    return renderDateDiffTool();
+  }
+  if (id === "ua") {
+    return renderUaTool();
+  }
+  if (id === "galaxy") {
+    return renderGalaxyTool();
+  }
+  if (id === "gesture") {
+    return renderGestureTool();
+  }
+  throw new Error(`Unknown tool panel: ${id}`);
+}
+
+function renderDeferredToolPanel(id) {
+  return `        <template data-tool-template="${id}">
+${renderToolPanel(id)}
+        </template>`;
+}
+
 export function renderToolsPage() {
   const description = "CWLBlog 在线工具箱：Mini Postman、JSON、时间戳、Base64、URL、UUID、JWT、哈希、密码、颜色、正则、Markdown 编辑器、Diff、Cron、二维码、YAML、URL 解析、文本处理和手势交互动画等开发工具。";
+  const eagerPanels = new Set(["json"]);
+  const panels = TOOLS.map((tool) => (eagerPanels.has(tool.id) ? renderToolPanel(tool.id) : renderDeferredToolPanel(tool.id))).join("\n");
   const main = `    <main id="main-content" class="content">
       <section class="tools-page container">
         <header class="tools-header">
@@ -929,37 +1074,7 @@ export function renderToolsPage() {
 ${TOOL_CATEGORIES.map(renderToolCategory).join("\n")}
           </nav>
           <div class="tools-panels">
-${renderJsonTool()}
-${renderApiTool()}
-${renderTimeTool()}
-${renderCodecTool(toolById("base64"), "base64-input", "base64-output", "base64-encode", "base64-decode", "输入要编码或解码的文本", "Text to encode or decode")}
-${renderCodecTool(toolById("url"), "url-input", "url-output", "url-encode", "url-decode", "https://example.com/?q=中文", "https://example.com/?q=search")}
-${renderUuidTool()}
-${renderJwtTool()}
-${renderHashTool()}
-${renderPasswordTool()}
-${renderColorTool()}
-${renderRegexTool()}
-${renderMarkdownTool()}
-${renderDiffTool()}
-${renderJsonDiffTool()}
-${renderCaseTool()}
-${renderHtmlTool()}
-${renderCronTool()}
-${renderQrTool()}
-${renderYamlTool()}
-${renderUrlParseTool()}
-${renderQueryTool()}
-${renderJsonPathTool()}
-${renderTextStatsTool()}
-${renderCleanTextTool()}
-${renderUnitTool()}
-${renderCssUnitTool()}
-${renderRandomTool()}
-${renderDateDiffTool()}
-${renderUaTool()}
-${renderGalaxyTool()}
-${renderGestureTool()}
+${panels}
           </div>
         </div>
       </section>
@@ -972,6 +1087,8 @@ ${renderGestureTool()}
     descriptionEn: "CWLBlog online toolbox: Mini Postman, JSON, timestamps, Base64, URL, UUID, JWT, hashes, passwords, colors, regex, Markdown editor, diff, cron, QR, YAML, URL parsing, text tools and gesture animation.",
     active: "tools",
     page: "tools",
+    connectSrc: "'self' https: http:",
+    styles: stylesForRoute("/tools/"),
     scripts: ["/js/vendor/marked.min.js", "/js/vendor/purify.min.js", "/js/vendor/qrcode.min.js", "/js/vendor/highlight.min.js", "/js/tools-core.js", "/js/tools.js", "/js/editor.js"],
     jsonLd: buildPageJsonLd({
       type: "WebApplication",

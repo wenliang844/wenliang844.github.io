@@ -17,6 +17,7 @@
   const $face    = document.getElementById("gesture-face");
   const $haptics = document.getElementById("gesture-haptics");
   const $sound   = document.getElementById("gesture-sound");
+  const $consent = document.getElementById("gesture-allow-remote-runtime");
 
   if (!$canvas) {return;}                       // not on tools page
 
@@ -28,6 +29,7 @@
   let handLandmarker  = null;                 // MediaPipe instance
   let cameraStream    = null;                 // MediaStream
   let running         = false;                // detection loop active?
+  let starting        = false;                // model/camera startup in progress?
   let mode            = "particle";           // particle | gesture | premium | draw | fruit | detect | face | dance | 3d
   let lastGesture     = "none";               // recognised gesture name
   const lastGestureTime = 0;
@@ -423,10 +425,11 @@
       const dx = palmX - prev3D.palmX, dy = palmY - prev3D.palmY;
       switch (gesture) {
         case "open": threeTargetRot.y += dx * 4; threeTargetRot.x += dy * 4; break;
-        case "ok": case "pinch":
-          var pn = dist(lm[4], lm[8]), pp = prev3D.pinchDist || pn;
+        case "ok": case "pinch": {
+          const pn = dist(lm[4], lm[8]), pp = prev3D.pinchDist || pn;
           threeTargetPos.z = Math.max(1.5, Math.min(6, threeTargetPos.z + (pp - pn) * 0.008));
           prev3D.pinchDist = pn; break;
+        }
         case "point": threeTargetPos.x -= dx * 3; threeTargetPos.y += dy * 3; break;
         case "peace":
           if (cooled("3d-toggle", 600)) {
@@ -483,36 +486,94 @@
   /* ====================================================================
    * 2. Camera Manager
    * ==================================================================== */
-  async function startCamera() {
-    if (mode === "detect") {
-      if (!(await loadObjectDetector())) {return;}
-    } else if (mode === "face") {
-      if (!(await loadFaceApi())) {return;}
-      if (!(await loadMediaPipe())) {return;}
-    } else {
-      if (!(await loadMediaPipe())) {return;}
+  function hasRuntimeConsent() {
+    return !$consent || $consent.checked;
+  }
+
+  function updateStartButton() {
+    if ($start) {
+      $start.disabled = running || starting || !hasRuntimeConsent();
     }
-    if (mode === "3d") {
-      if (!(await loadThree())) {return;}
+  }
+
+  function describeCameraError(error) {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      return "当前浏览器不支持摄像头，或页面不是 HTTPS/localhost";
     }
+    if (!window.isSecureContext) {
+      return "请使用 HTTPS 或 localhost 打开页面后再启用摄像头";
+    }
+    switch (error && error.name) {
+      case "NotAllowedError":
+      case "SecurityError":
+        return "摄像头权限被拒绝，请在地址栏允许摄像头后刷新页面";
+      case "NotFoundError":
+      case "DevicesNotFoundError":
+        return "未找到可用摄像头，请连接设备或检查系统隐私设置";
+      case "NotReadableError":
+      case "TrackStartError":
+        return "摄像头被占用或被系统阻止，请关闭其他占用摄像头的应用";
+      case "OverconstrainedError":
+      case "ConstraintNotSatisfiedError":
+        return "当前摄像头不支持请求参数，请切换摄像头或降低分辨率";
+      default:
+        return "摄像头启动失败，请检查浏览器权限和系统摄像头设置";
+    }
+  }
+
+  async function requestCamera(preferredVideo) {
     try {
-      cameraStream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "user", width: { ideal: 640 }, height: { ideal: 480 } },
-      });
-    } catch (e) {
-      setStatus("error", "摄像头访问被拒绝");
+      return await navigator.mediaDevices.getUserMedia({ video: preferredVideo });
+    } catch (error) {
+      if (error && (error.name === "OverconstrainedError" || error.name === "ConstraintNotSatisfiedError")) {
+        return navigator.mediaDevices.getUserMedia({ video: true });
+      }
+      throw error;
+    }
+  }
+
+  async function startCamera() {
+    if (running || starting) {return;}
+    if (!hasRuntimeConsent()) {
+      setStatus("error", "请先确认第三方视觉资源和本地处理说明");
       return;
     }
-    $video.srcObject = cameraStream;
-    await $video.play();
-    resizeCanvas();
-    $overlay.classList.add("is-hidden");
-    $start.disabled = true;
-    $stop.disabled  = false;
-    running = true;
-    setStatus("running", "检测中");
-    if (mode === "3d") {initThreeScene();}
-    requestAnimationFrame(loop);
+    starting = true;
+    updateStartButton();
+    try {
+      if (mode === "detect") {
+        if (!(await loadObjectDetector())) {return;}
+      } else if (mode === "face") {
+        if (!(await loadFaceApi())) {return;}
+        if (!(await loadMediaPipe())) {return;}
+      } else {
+        if (!(await loadMediaPipe())) {return;}
+      }
+      if (mode === "3d") {
+        if (!(await loadThree())) {return;}
+      }
+      setStatus("loading", "初始化摄像头…");
+      try {
+        cameraStream = await requestCamera({ facingMode: "user", width: { ideal: 640 }, height: { ideal: 480 } });
+      } catch (e) {
+        setStatus("error", describeCameraError(e));
+        console.error("[gesture] camera start failed", e);
+        return;
+      }
+      $video.srcObject = cameraStream;
+      setStatus("loading", "启动视频流…");
+      await $video.play();
+      resizeCanvas();
+      $overlay.classList.add("is-hidden");
+      $stop.disabled  = false;
+      running = true;
+      setStatus("running", "检测中");
+      if (mode === "3d") {initThreeScene();}
+      requestAnimationFrame(loop);
+    } finally {
+      starting = false;
+      updateStartButton();
+    }
   }
 
   function stopCamera() {
@@ -522,7 +583,7 @@
       cameraStream = null;
     }
     $video.srcObject = null;
-    $start.disabled = false;
+    updateStartButton();
     $stop.disabled  = true;
     $overlay.classList.remove("is-hidden");
     setStatus("ready", "就绪");
@@ -1013,12 +1074,13 @@
         spawnParticle(toX(lm[12]), toY(lm[12]), "star", 50, 0.9);
         break;
 
-      case "ok":
+      case "ok": {
         /* golden sparkles from the pinch point */
-        var px = (toX(lm[4]) + toX(lm[8])) / 2;
-        var py = (toY(lm[4]) + toY(lm[8])) / 2;
+        const px = (toX(lm[4]) + toX(lm[8])) / 2;
+        const py = (toY(lm[4]) + toY(lm[8])) / 2;
         spawnParticle(px, py, "circle", 45, 0.95);
         break;
+      }
 
       case "wave":
         /* side-to-side sparkle trail from fingertips */
@@ -1096,10 +1158,10 @@
         }
         break;
 
-      case "fist":
+      case "fist": {
         /* implosion + explosion */
-        var cx = toX(lm[0]);
-        var cy = toY(lm[9]);
+        const cx = toX(lm[0]);
+        const cy = toY(lm[9]);
         particles.forEach(function (p) {
           const dx = cx - p.x, dy = cy - p.y;
           const d  = Math.sqrt(dx * dx + dy * dy) || 1;
@@ -1110,6 +1172,7 @@
           explodeAt(cx, cy, 60);
         }
         break;
+      }
 
       case "swipe-left":
       case "swipe-right":
@@ -1317,7 +1380,8 @@
   function fruitPickType() {
     let total = 0, i;
     for (i = 0; i < FRUIT_WEIGHTS.length; i++) {total += FRUIT_WEIGHTS[i];}
-    let r = Math.random() * total, acc = 0;
+    const r = Math.random() * total;
+    let acc = 0;
     for (i = 0; i < FRUIT_WEIGHTS.length; i++) {
       acc += FRUIT_WEIGHTS[i];
       if (r < acc) {return i;}
@@ -1904,7 +1968,8 @@
       roundRect(ctx, bx, cardY, cardW, cardH, 8);
       ctx.stroke();
 
-      let tx = bx + 10, ty = cardY + 8;
+      const tx = bx + 10;
+      let ty = cardY + 8;
       ctx.textAlign = "left";
       ctx.textBaseline = "top";
 
@@ -2431,6 +2496,22 @@
     });
   }
 
+  if ($consent) {
+    $consent.addEventListener("change", function () {
+      if (!$consent.checked && running) {
+        stopCamera();
+      }
+      if ($consent.checked && !running) {
+        setStatus("ready", "就绪");
+      } else if (!$consent.checked && !running) {
+        setStatus("ready", "等待确认资源说明");
+      }
+      updateStartButton();
+    });
+    setStatus("ready", $consent.checked ? "就绪" : "等待确认资源说明");
+  }
+  updateStartButton();
+
   /* Responsive canvas resize */
   window.addEventListener("resize", function () {
     if (running) {resizeCanvas();}
@@ -2440,7 +2521,8 @@
   window.addEventListener("beforeunload", stopCamera);
   document.addEventListener("visibilitychange", function () {
     if (document.hidden && running) {
-      /* pause detection but keep stream alive */
+      stopCamera();
+      setStatus("ready", "页面已隐藏，摄像头已关闭");
     }
   });
 

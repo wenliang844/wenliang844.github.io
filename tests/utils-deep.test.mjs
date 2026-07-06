@@ -4,6 +4,8 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { JSDOM } from "jsdom";
+import { escapeHtml as sharedEscapeHtml } from "../src/lib/format.mjs";
+import { readingMinutes as sharedReadingMinutes } from "../src/lib/reading.mjs";
 
 const ROOT = join(import.meta.dirname, "..");
 
@@ -103,6 +105,55 @@ test("utils.js escapeHtml handles complex XSS vectors", async () => {
     assert.ok(!escaped.includes("<script>"), `should escape script tags in: ${vector}`);
     assert.ok(!escaped.includes("<img"), `should escape img tags in: ${vector}`);
     assert.ok(!escaped.includes("<svg"), `should escape svg tags in: ${vector}`);
+  }
+  dom.window.close();
+});
+
+test("utils.js escapeHtml matches the shared server formatter", async () => {
+  const dom = new JSDOM(`<!doctype html><html><body></body></html>`, {
+    runScripts: "outside-only",
+    url: "https://wenliang844.github.io/",
+  });
+  await loadUtils(dom);
+  const { escapeHtml } = dom.window.CWLUtils;
+
+  const fixtures = [
+    "",
+    null,
+    undefined,
+    0,
+    false,
+    "plain text",
+    "Tom & Jerry",
+    `<script>alert("XSS&'")</script>`,
+    "中文 mixed <tag> & \"quote\" 'single'",
+  ];
+
+  for (const fixture of fixtures) {
+    assert.equal(escapeHtml(fixture), sharedEscapeHtml(fixture));
+  }
+  dom.window.close();
+});
+
+test("utils.js readingMinutes matches the shared server helper", async () => {
+  const dom = new JSDOM(`<!doctype html><html><body></body></html>`, {
+    runScripts: "outside-only",
+    url: "https://wenliang844.github.io/",
+  });
+  await loadUtils(dom);
+  const { readingMinutes } = dom.window.CWLUtils;
+
+  const fixtures = [
+    "",
+    "   ...   !!!   ???   ",
+    "中".repeat(700),
+    "word ".repeat(400).trim(),
+    "中文 content mixed ".repeat(80),
+    "代码块 function test() { return 1; } 以及 English words",
+  ];
+
+  for (const fixture of fixtures) {
+    assert.equal(readingMinutes(fixture), sharedReadingMinutes(fixture));
   }
   dom.window.close();
 });

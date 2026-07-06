@@ -134,9 +134,26 @@
   - 头像悬停效果（`filter: saturate(1.08) brightness(1.04)`）
 
   在 iOS Safari 和低端 Android 设备上，多个 `backdrop-filter` 叠加会导致明显掉帧。
-- **🧪 回归测试**：`tests/css.test.mjs` 锁定移动端 blur 降级规则，`tests/performance.test.mjs` 继续约束 `coder.css` 不超过 118KB。
+- **🧪 回归测试**：`tests/css.test.mjs` 锁定移动端 blur 降级规则，`tests/performance.test.mjs` 继续约束 `coder.css` 不超过 140KB。
 - **📊 实际收益**：移动端减少背景模糊采样与合成压力；桌面端视觉保持不变，CSS 文件仍低于体积门禁。
 - **🔗 相关建议**：[P-01](../performance-bottlenecks.md#p-01), [MR-CSS-03](#mr-css-03)
+
+---
+
+## 📌 MR-CSS-07 [部分修复]: 复查发现 CSS 单包已增长到 6637 行
+
+- **📍 位置**：`css/coder.css:1-6130`, `css/tools.css`, `css/trust.css`, `src/page-assets.mjs`, `src/templates/layout.mjs:225-226`
+- **✅ 已完成**：公共模板已支持页面级 `styles` 注入，`src/page-assets.mjs` 统一声明 `/tools/` 和 `/trust/` 的页面样式；工具页视觉/浏览器 API 样式迁入 `css/tools.css`，信任页增量样式迁入 `css/trust.css`，`coder.css` 回落到 6,130 行 / 129,973 bytes。
+- **📝 剩余状况描述**：工具箱基础选择器和 AI 助手浮层样式仍在 core CSS 中，后续应继续拆成页面级或按需样式，并明确三份 CSS 的选择器归属边界。
+- **⚠️ 影响程度**：中
+- **💡 建议方案**：
+  ```text
+  1. 更新 CSS 模块边界注释和体积统计。
+  2. 增加页面级 CSS 预算：core / tools / assistant。
+  3. 先把工具箱和助手样式拆成可选 link，再考虑构建期压缩。
+  ```
+- **📊 预期收益**：减少非相关页面样式解析成本，并让后续 CSS 增长有可观测预算。
+- **🔗 相关建议引用**：[P-17](../performance-bottlenecks.md#p-17-全站统一加载-codercss工具箱和助手样式成本扩散到所有页面), [AR-08](../architecture-review.md#ar-08-工具箱和助手资源需要从全站核心层剥离)
 
 ---
 

@@ -4,6 +4,99 @@
 
 ---
 
+## 2026-07-03 复查补充
+
+### 📌 DE-11 [已修复]: 把生产验证改造成真正只读的质量门禁
+
+- **📍 位置**：`scripts/validate-production.mjs:222-254`, `package.json:20-24`
+- **✅ 修复状态**：`validate:production` 的构建检查已改为 `--out temp/production-validate`，产物存在性检查指向该临时目录，`finally` 阶段会清理输出目录。
+- **🧪 验证**：`node --test tests/workflows.test.mjs` 7/7 通过；`npm run validate:production` 34/34 通过；验证后 `temp/production-validate` 不存在。
+- **📝 原状况描述**：项目已经有 `check:readonly`，但 `validate:production` 内部仍执行默认 `node scripts/build.mjs`，会写根目录产物。本轮验证后 Git 没有新增 diff，只是碰巧构建产物一致；脚本设计上仍然不是只读。
+- **⚠️ 影响程度**：中
+- **💡 建议方案**：
+  ```json
+  {
+    "scripts": {
+      "build:check": "node scripts/build.mjs --out temp/build-check",
+      "validate:production": "node scripts/validate-production.mjs --readonly"
+    }
+  }
+  ```
+  `validate-production.mjs` 中所有产物检查都指向临时 outDir；结束后可清理临时目录，或保留到 `temp/` 供调试。
+- **📊 实际收益**：让本地、CI、AI 自动分析都能安全运行完整验证，不污染工作区。
+- **🔗 相关建议引用**：[B-13](bugs-and-risks.md#b-13-已修复-生产验证脚本默认会覆盖根目录构建产物)
+
+### 📌 DE-12: `validate` / `precommit` 同时包含自动修复和构建写入，语义不够清晰
+
+- **📍 位置**：`package.json:18-26`
+- **📝 当前状况描述**：`lint` 使用 `eslint js/*.js --fix`，`validate` 执行 `npm run lint && npm test && npm run validate:posts && npm run build`，`precommit` 又指向 `npm run validate`。这意味着一个名为 validate/precommit 的命令会自动修改 JS 格式和生成站点产物。对自动化代理、CI 或多人协作来说，命令副作用不直观。
+- **⚠️ 影响程度**：低
+- **💡 建议方案**：
+  ```json
+  {
+    "lint": "eslint js/*.js",
+    "lint:fix": "eslint js/*.js --fix",
+    "check": "npm run lint && npm test && npm run validate:posts",
+    "build:site": "node scripts/build.mjs"
+  }
+  ```
+  把“检查”“修复”“生成”拆成独立命令，precommit 默认只跑不写文件的检查。
+- **📊 预期收益**：减少意外工作区变更，提升命令命名和实际行为的一致性。
+- **🔗 相关建议引用**：[DE-11](#de-11-已修复-把生产验证改造成真正只读的质量门禁), [TD-11](tech-debt.md#td-11-eslint-8-迁移前应先清零当前-warning-债务)
+
+### 📌 DE-13: 为 AI 助手和 Cron 边界行为补充回归测试
+
+- **📍 位置**：`tests/assistant.test.mjs:1-562`, `tests/assistant-deep.test.mjs:1-335`, `tests/tools-core-deep.test.mjs:258-266`
+- **✅ 修复状态**：AI 助手默认站点模式、保存模式恢复、默认 preset 空 key 不请求、自填 key 才请求、SSE 尾部未闭合事件 flush、超时/手动停止文案区分均已进入回归测试；生产验证输出缓冲和 Cron 无解表达式性能预算也已补护栏。
+- **📝 当前状况描述**：测试覆盖率总体很高，但第 2 轮发现的部分边界曾缺少测试锁定：`readMode()` 固定返回 LLM、SSE 流结束未处理剩余 buffer、AbortError 无法区分超时和手动停止、Cron 无解表达式耗时无预算断言。
+- **⚠️ 影响程度**：中
+- **💡 建议方案**：
+  ```javascript
+  test("assistant distinguishes timeout from manual stop", async () => {
+    // Mock AbortError from timeout and user stop separately.
+    // Assert the visible messages explain different causes.
+  });
+  ```
+  已完成项继续保留在 assistant / tools-core 回归测试中。
+- **📊 实际收益**：已把 assistant 模式/安全、SSE 尾包、超时/停止语义、生产验证缓冲和 Cron 慢路径变成可自动阻断的回归条件。
+- **🔗 相关建议引用**：[B-15](bugs-and-risks.md#b-15-ai-助手模式偏好写入后不会被恢复), [B-16](bugs-and-risks.md#b-16-ai-助手-sse-流结束时可能丢失最后一个未闭合事件), [P-16](performance-bottlenecks.md#p-16-cron-无解表达式会在主线程同步扫描两年分钟粒度)
+
+### 📌 DE-15 [已修复]: 生产验证测试输出缓冲不足导致门禁假失败
+
+- **📍 位置**：`scripts/validate-production.mjs:16`, `scripts/validate-production.mjs:130-136`, `tests/workflows.test.mjs:103-108`
+- **✅ 修复状态**：新增 `TEST_OUTPUT_MAX_BUFFER` 并传给生产验证内部的 `execFileAsync("node", ["--test", "tests/*.test.mjs"])`，同时新增 workflow 测试确认该保护存在。
+- **🧪 验证**：`node --test tests/workflows.test.mjs` 7/7 通过；`npm run validate:production` 34/34 通过；`npm run test:coverage` 773/773 通过。
+- **📝 原状况描述**：完整测试套件单独执行通过，但 `validate:production` 在收集测试输出时使用 Node 默认缓冲；当测试输出增长到当前规模时，门禁脚本会误报“测试执行失败”。
+- **⚠️ 影响程度**：中
+- **💡 建议方案**：短期保留 32MB 专用缓冲；中期可改为 `spawn` 流式读取测试摘要，进一步降低内存占用和输出耦合。
+- **📊 实际收益**：生产验证恢复为可靠质量门禁，避免自动化优化循环在假失败处停住。
+- **🔗 相关建议引用**：[B-17](bugs-and-risks.md#b-17-已修复-生产验证测试输出缓冲不足会误报失败)
+
+### 📌 DE-14 [已修复]: 增加页面级 DOM 契约审计，防止 SEO/a11y 回退
+
+- **📍 位置**：`tests/*.test.mjs`, `404.html:1-98`, `editor/index.html:117-119`, `tools/index.html:806-809`
+- **✅ 修复状态**：页面级 SEO/a11y 契约已进入测试：HTML 页面基础结构、JSON-LD、CSP、Markdown 输入 label、QR 图片尺寸/加载属性均有回归覆盖；404 页也补充 JSON-LD 与 noindex。
+- **🧪 验证**：`node --test tests/build-extra.test.mjs tests/i18n-a11y.test.mjs tests/security-extended.test.mjs` 通过，`npm run check:readonly` 覆盖完整质量门。
+- **📝 原状况描述**：第 3 轮临时 JSDOM 审计覆盖 19 个非临时 HTML 页面，确认 description、main、h1、skip link、OG image 整体良好；同时发现 404 缺 JSON-LD、`markdown-input` 缺 label、`qr-image` 缺尺寸/加载属性。这类问题适合变成持续测试，而不是靠人工巡检。
+- **⚠️ 影响程度**：中
+- **💡 建议方案**：
+  ```javascript
+  test("public html pages keep seo and a11y contracts", () => {
+    for (const file of publicHtmlFiles()) {
+      const doc = parseHtml(file);
+      assert.ok(doc.querySelector("main#main-content"));
+      assert.ok(doc.querySelector("h1"));
+      assert.ok(doc.querySelector('a.skip-link[href="#main-content"]'));
+      assert.equal(findFieldsWithoutLabel(doc).length, 0);
+      assert.equal(findImagesWithoutSize(doc).length, 0);
+    }
+  });
+  ```
+- **📊 预期收益**：把页面级 SEO/a11y 质量从文档建议固化为自动门禁，减少手写 HTML 与生成页的漂移。
+- **🔗 相关建议引用**：[UX-14](ux-improvements.md#ux-14-markdown-编辑器主输入框缺少可关联标签), [UX-15](ux-improvements.md#ux-15-qr-结果图片缺少尺寸和加载属性生成后可能产生布局跳动), [SEO-07](module-reviews/seo-analysis.md#seo-07-404-页面缺少-json-ld-结构化数据)
+
+---
+
 ## 📌 DE-01 [已修复]: 无自动化 CI/CD 流程
 
 - **📍 位置**：`.github/workflows/ci.yml`、`package.json`

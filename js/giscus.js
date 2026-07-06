@@ -1,19 +1,5 @@
 (function () {
-  /* ------------------------------------------------------------------------
-   * Giscus comments (GitHub Discussions powered).
-   *
-   * To enable: open https://giscus.app, select your repository (Discussions
-   * must be enabled), then copy the generated values below.
-   * While any of repo / repoId / categoryId is empty the comment area shows a
-   * placeholder instead of loading anything.
-   *
-   * 两种页面共用一个 #giscus-thread 容器：
-   *  - 单篇页：按 pathname 映射，直接加载该篇讨论。
-   *  - 列表页（data-giscus-mode="switch"）：只加载一个 iframe，切换文章时通过
-   *    postMessage(setConfig) 切到对应讨论线程（term = 该篇单篇页 pathname，
-   *    与单篇页共用同一条 GitHub Discussion）。避免多实例 iframe 冲突。
-   * ---------------------------------------------------------------------- */
-  const config = {
+  const config = Object.assign({
     repo: "wenliang844/wenliang844.github.io",
     repoId: "MDEwOlJlcG9zaXRvcnkzNTQyNDE4MDY=",
     category: "Announcements",
@@ -21,9 +7,10 @@
     mapping: "pathname",
     theme: "preferred_color_scheme",
     lang: "zh-CN"
-  };
+  }, window.CWL_GISCUS_CONFIG || {});
 
   const configured = config.repo && config.repoId && config.categoryId;
+  const LOAD_TIMEOUT = 12000;
 
   const t = window.CWLUtils.t;
 
@@ -53,6 +40,16 @@
     thread.replaceChildren(createPlaceholder());
   }
 
+  function renderLoadFailure(reason) {
+    const p = document.createElement("p");
+    p.className = "comments-hint";
+    p.textContent = t("dyn.comments.loadFail", "评论加载失败，可稍后重试或通过留言页反馈。");
+    thread.replaceChildren(p);
+    if (window.CWLLogger && typeof window.CWLLogger.warn === "function") {
+      window.CWLLogger.warn("Giscus load failed", { reason: reason || "unknown" });
+    }
+  }
+
   const thread = document.getElementById("giscus-thread");
   if (!thread) {
     return;
@@ -67,19 +64,52 @@
   }
 
   const isSwitchMode = thread.getAttribute("data-giscus-mode") === "switch";
+  let commentsStarted = false;
+  let lazyObserver = null;
 
-  // 当前激活面板对应的讨论 term（= 该篇单篇页 pathname）。
   function activeTerm() {
     const active = document.querySelector(".blog-article.active[data-post-slug]");
     return active ? "/post/" + active.getAttribute("data-post-slug") + "/" : null;
   }
 
+  function giscusLang() {
+    return window.cwlLang && window.cwlLang() === "en" ? "en" : config.lang;
+  }
+
+  function giscusTheme() {
+    const classes = document.body.classList;
+    return classes.contains("colorscheme-dark") ? "dark" : classes.contains("colorscheme-light") ? "light" : config.theme;
+  }
+
   function buildScript(opts) {
     opts = opts || {};
     const script = document.createElement("script");
+    let settled = false;
+    const failTimer = window.setTimeout(function () {
+      if (settled) {
+        return;
+      }
+      settled = true;
+      renderLoadFailure("timeout");
+    }, LOAD_TIMEOUT);
+    function settle() {
+      if (!settled) {
+        settled = true;
+      }
+      window.clearTimeout(failTimer);
+    }
     script.src = "https://giscus.app/client.js";
     script.async = true;
     script.crossOrigin = "anonymous";
+    script.onload = settle;
+    script.onerror = function () {
+      if (settled) {
+        return;
+      }
+      settled = true;
+      window.clearTimeout(failTimer);
+      renderLoadFailure("script-error");
+    };
     script.setAttribute("data-repo", config.repo);
     script.setAttribute("data-repo-id", config.repoId);
     script.setAttribute("data-category", config.category);
@@ -92,35 +122,28 @@
     script.setAttribute("data-reactions-enabled", "1");
     script.setAttribute("data-emit-metadata", "0");
     script.setAttribute("data-input-position", "top");
-    script.setAttribute("data-theme", config.theme);
-    script.setAttribute("data-lang", config.lang);
+    script.setAttribute("data-theme", giscusTheme());
+    script.setAttribute("data-lang", giscusLang());
     return script;
   }
 
-  /* ---- 单篇页：pathname 映射直接加载 ----------------------------------- */
-  if (!isSwitchMode) {
-    thread.appendChild(buildScript());
-    return;
-  }
-
-  /* ---- 列表页：单 iframe + setConfig 切换 ------------------------------ */
   let loadedTerm = null;
 
   function giscusFrame() {
     return thread.querySelector("iframe.giscus-frame");
   }
 
-  // 通过 postMessage 切换已存在 iframe 的讨论线程。
-  function switchTerm(term) {
+  function setGiscusConfig(partial) {
     const frame = giscusFrame();
     if (!frame || !frame.contentWindow) {
       return false;
     }
-    frame.contentWindow.postMessage(
-      { giscus: { setConfig: { term: term } } },
-      "https://giscus.app"
-    );
+    frame.contentWindow.postMessage({ giscus: { setConfig: partial } }, "https://giscus.app");
     return true;
+  }
+
+  function switchTerm(term) {
+    return setGiscusConfig({ term: term });
   }
 
   function showTerm(term) {
@@ -128,7 +151,6 @@
       return;
     }
     if (!giscusFrame()) {
-      // 首次：用 specific 映射 + term 加载唯一 iframe。
       thread.appendChild(buildScript({ mapping: "specific", term: term }));
       loadedTerm = term;
     } else if (switchTerm(term)) {
@@ -136,15 +158,48 @@
     }
   }
 
-  showTerm(activeTerm());
+  function loadCommentsOnce() {
+    if (commentsStarted) {
+      return;
+    }
+    commentsStarted = true;
+    if (lazyObserver) {
+      lazyObserver.disconnect();
+      lazyObserver = null;
+    }
+    if (!isSwitchMode) {
+      thread.appendChild(buildScript());
+      return;
+    }
+    showTerm(activeTerm());
+  }
 
-  // 面板 active 类变化时（树链接 / 搜索 / 标签筛选都经由它）切换讨论线程。
+  function scheduleCommentsLoad() {
+    if (!("IntersectionObserver" in window)) {
+      loadCommentsOnce();
+      return;
+    }
+    lazyObserver = new IntersectionObserver(function (entries) {
+      if (entries.some(function (entry) { return entry.isIntersecting; })) {
+        loadCommentsOnce();
+      }
+    }, { rootMargin: "600px 0px" });
+    lazyObserver.observe(thread);
+  }
+
+  if (!isSwitchMode) {
+    scheduleCommentsLoad();
+    return;
+  }
+
+  scheduleCommentsLoad();
+
   const observer = new MutationObserver(function (mutations) {
     mutations.forEach(function (mutation) {
       const el = mutation.target;
       if (el.classList && el.classList.contains("blog-article") && el.classList.contains("active")) {
         const slug = el.getAttribute("data-post-slug");
-        if (slug) {
+        if (slug && commentsStarted) {
           showTerm("/post/" + slug + "/");
         }
       }
@@ -155,8 +210,17 @@
     observer.observe(panel, { attributes: true, attributeFilter: ["class"] });
   });
 
-  // 清理：页面离开时断开 observer，同时保留 bfcache 兼容性。
+  document.addEventListener("cwl:langchange", function () { setGiscusConfig({ lang: giscusLang() }); });
+
+  document.addEventListener("cwl:themechange", function (event) {
+    setGiscusConfig({ theme: (event.detail || {}).actualTheme || giscusTheme() });
+  });
+
   window.addEventListener("pagehide", function () {
+    if (lazyObserver) {
+      lazyObserver.disconnect();
+      lazyObserver = null;
+    }
     if (observer) {
       observer.disconnect();
     }

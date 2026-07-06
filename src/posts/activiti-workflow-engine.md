@@ -5,6 +5,11 @@ shortTitle: "Activiti BPM 引擎实践"
 shortTitleEn: "Activiti BPM Engine Practice"
 slug: "activiti-workflow-engine"
 date: 2022-02-09
+modified: 2026-07-04
+status: historical
+reviewed: 2026-07-04
+contextNote: "本文是历史项目复盘，流程引擎背景和维护状态已按 2026 年视角复核。"
+contextNoteEn: "This is a historical project retrospective; the workflow-engine context and maintenance status were reviewed from a 2026 perspective."
 eyebrow: "Workflow"
 summary: "围绕 Activiti 7、BPMN 2.0、运行时 API 和 Spring Boot 自动装配，梳理企业审批流与流程基础设施的工程实践。"
 summaryEn: "Engineering notes on enterprise workflow infrastructure around Activiti 7, BPMN 2.0, runtime APIs and Spring Boot auto-configuration."

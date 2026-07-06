@@ -34,7 +34,7 @@
 | `fa-brands-400.subset.woff2` | 544B | 品牌图标子集 |
 | `fa-solid-900.subset.woff2` | 3.2KB | 实心图标子集 |
 
-> ✅ **重要发现**：Font Awesome 已经是子集版本！`fontawesome-all.min.css` 仅 3.2KB，字体文件总计仅 3.7KB。之前 [P-04](performance-bottlenecks.md#p-04) 的建议可以降级为"无需优化"。
+> ✅ **重要发现**：Font Awesome 已经是子集版本！`fontawesome-all.min.css` 仅 3.2KB，字体文件总计仅 3.7KB。之前 [P-04](../performance-bottlenecks.md#p-04) 的建议可以降级为"无需优化"。
 
 ---
 

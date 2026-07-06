@@ -109,7 +109,7 @@ function sanitizeProvider(input) {
     successRate: cleanNumber(input.successRate),
     latencyMs: cleanNumber(input.latencyMs || input.responseTimeMs),
     failureSummary: cleanText(input.failureSummary || input.failure || input.error),
-    isCurrent: Boolean(input.isCurrent),
+    isCurrent: cleanBoolean(input.isCurrent),
     score: cleanScore(input.score),
     tags: cleanArray(input.tags, 6),
   };
@@ -129,11 +129,50 @@ function authHeaders() {
   return headers;
 }
 
-async function fetchOneSource(url) {
-  const response = await fetch(url, { headers: authHeaders() });
+function hasAuthHeaders(headers) {
+  return Object.keys(headers).some((key) => key.toLowerCase() !== "accept");
+}
+
+function cleanSourceEntry(rawEntry, defaultRequired) {
+  const text = String(rawEntry || "").trim();
+  const requiredMatch = text.match(/^(required|optional):(https?:\/\/.+)$/i);
+  if (requiredMatch) {
+    return {
+      url: requiredMatch[2].trim(),
+      required: requiredMatch[1].toLowerCase() === "required",
+    };
+  }
+  return {
+    url: text,
+    required: defaultRequired,
+  };
+}
+
+function sourceOrigins(sources) {
+  return new Set(sources.map((source) => new URL(source.url).origin));
+}
+
+function parseCommercialSources(rawSource, defaultRequired) {
+  return rawSource
+    .split(",")
+    .map((entry) => cleanSourceEntry(entry, defaultRequired))
+    .filter((source) => source.url);
+}
+
+function assertAuthHeadersScoped(sources, headers) {
+  if (!hasAuthHeaders(headers)) {
+    return;
+  }
+  const origins = sourceOrigins(sources);
+  if (origins.size > 1) {
+    throw new Error("配置了认证 Header 时，商业站多源同步只能使用同一 origin；请拆分同步或改用 per-source 凭据。");
+  }
+}
+
+async function fetchOneSource(url, headers) {
+  const response = await fetch(url, { headers });
   if (!response.ok) {
-    console.warn(`⚠ 拉取失败 [${url}]: HTTP ${response.status}，跳过该源。`);
-    return [];
+    throw new Error(`HTTP ${response.status}`);
   }
   const payload = await response.json();
   return pickProviders(payload).map(sanitizeProvider).filter(Boolean);
@@ -149,18 +188,37 @@ export async function fetchCommercialProviders() {
     return null;
   }
 
-  const urls = rawSource.split(",").map((u) => u.trim()).filter(Boolean);
-  const results = await Promise.allSettled(urls.map(fetchOneSource));
+  const defaultRequired = cleanBoolean(process.env.RELAY_COMMERCIAL_REQUIRED);
+  const sources = parseCommercialSources(rawSource, defaultRequired);
+  const headers = authHeaders();
+  assertAuthHeadersScoped(sources, headers);
+  const results = await Promise.allSettled(sources.map((source) => fetchOneSource(source.url, headers)));
 
   const providers = [];
+  let successfulSources = 0;
+  const requiredFailures = [];
   for (let i = 0; i < results.length; i++) {
     const r = results[i];
+    const source = sources[i];
     if (r.status === "fulfilled") {
+      successfulSources += 1;
       providers.push(...r.value);
-      console.log(`✓ 源 ${urls[i]}: ${r.value.length} 条`);
+      console.log(`✓ 源 ${source.url}: ${r.value.length} 条`);
     } else {
-      console.warn(`✗ 源 ${urls[i]}: ${r.reason?.message || "请求失败"}`);
+      const message = r.reason?.message || "请求失败";
+      if (source.required) {
+        requiredFailures.push(`${source.url}: ${message}`);
+      }
+      console.warn(`✗ 源 ${source.url}: ${message}${source.required ? "（必需源）" : "（可选源，跳过）"}`);
     }
+  }
+  if (requiredFailures.length > 0) {
+    throw new Error(`商业站必需数据源同步失败：${requiredFailures.join("; ")}`);
+  }
+
+  const minSuccessfulSources = cleanNumber(process.env.RELAY_COMMERCIAL_MIN_SUCCESSFUL_SOURCES, 0);
+  if (successfulSources < minSuccessfulSources) {
+    throw new Error(`商业站成功数据源数量 ${successfulSources} 小于最低要求 ${minSuccessfulSources}，请检查外部数据源。`);
   }
 
   const seen = new Set();

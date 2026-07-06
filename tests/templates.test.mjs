@@ -5,6 +5,7 @@ import { escapeAttr, escapeHtml, escapeXml } from "../src/lib/format.mjs";
 import { renderPage } from "../src/templates/layout.mjs";
 import { renderPostPage } from "../src/templates/post.mjs";
 import { renderTagsPage } from "../src/templates/tags.mjs";
+import { renderToolsPage } from "../src/templates/tools.mjs";
 
 test("escape helpers protect text and attribute contexts", () => {
   assert.equal(escapeHtml(`<script>"x"&'y'</script>`), "&lt;script&gt;&quot;x&quot;&amp;&#39;y&#39;&lt;/script&gt;");
@@ -32,22 +33,79 @@ test("layout escapes title and metadata", () => {
   assert.match(html, /<meta name="description" content="bad &quot;description&quot; &lt;tag&gt;">/);
   assert.match(html, /property="og:title" content="OG &lt;title&gt;"/);
   assert.match(html, /href="\/tools\/" data-i18n="nav.tools">工具箱<\/a>/);
+  assert.match(html, /href="\/trust\/" data-i18n="nav\.trust">隐私与信任<\/a>/);
+  assert.match(html, /<nav class="footer-links" aria-label="站点说明" data-i18n-aria="footer\.links\.aria">/);
   assert.doesNotMatch(html, /href="\/editor\/" data-i18n="nav\.editor"/);
   assert.match(html, /class="nav-search-trigger" type="button" aria-label="全局搜索（Ctrl\+K 或 \/）" title="全局搜索（Ctrl\+K 或 \/）" data-i18n-aria="nav.searchHint" data-i18n-title="nav.searchHint"/);
   assert.match(html, /class="nav-ai-experience assistant-nav-trigger" type="button" aria-label="打开 AI 助手" title="打开 AI 助手" data-assistant-toggle data-i18n-aria="assistant.open" data-i18n-title="assistant.open"/);
   assert.doesNotMatch(html, /href="\/\?assistant=fullscreen"/);
-  assert.match(html, /src="\/js\/assistant\.js"/);
+  assert.match(html, /src="\/js\/assistant-loader\.js"/);
+  assert.match(html, /src="\/js\/pwa-register\.js"/);
+  assert.doesNotMatch(html, /src="\/js\/assistant\.js"/);
   assert.match(html, /http-equiv="Content-Security-Policy"/);
+  assert.match(html, /<link rel="manifest" href="\/manifest\.webmanifest">/);
+  assert.match(html, /<meta name="theme-color" content="#0f172a">/);
   assert.match(html, /object-src 'none'/);
+  assert.match(html, /style-src 'self' 'unsafe-inline' https:\/\/giscus\.app/);
   assert.match(html, /frame-src https:\/\/giscus\.app/);
   assert.match(html, /connect-src 'self' https:/);
-  assert.match(html, /<link rel="preconnect" href="https:\/\/giscus\.app">/);
+  assert.doesNotMatch(html, /connect-src 'self' https: http:/);
   assert.match(html, /<link rel="dns-prefetch" href="https:\/\/giscus\.app">/);
-  assert.match(html, /<link rel="preconnect" href="https:\/\/buttondown\.com">/);
   assert.match(html, /<link rel="dns-prefetch" href="https:\/\/buttondown\.com">/);
   assert.match(html, /<link rel="dns-prefetch" href="https:\/\/www\.ifdian\.net">/);
   assert.match(html, /<link rel="dns-prefetch" href="https:\/\/paypal\.me">/);
+  assert.doesNotMatch(html, /<link rel="preconnect" href="https:\/\/giscus\.app">/);
+  assert.doesNotMatch(html, /<link rel="preconnect" href="https:\/\/buttondown\.com">/);
   assert.match(html, /<label class="menu-overlay" for="menu-toggle" aria-hidden="true"><\/label>/);
+});
+
+test("layout scopes heavier third-party preconnects to page capabilities", () => {
+  const html = renderPage({
+    title: "Comments",
+    description: "Comments test",
+    active: "",
+    scripts: [],
+    bodyClass: "colorscheme-dark",
+    page: "",
+    main: "<main></main>",
+    resourceHintCapabilities: ["comments", "subscribe", "comments"],
+  });
+
+  assert.equal((html.match(/<link rel="preconnect" href="https:\/\/giscus\.app">/g) || []).length, 1);
+  assert.equal((html.match(/<link rel="preconnect" href="https:\/\/buttondown\.com">/g) || []).length, 1);
+  assert.equal((html.match(/<link rel="dns-prefetch" href="https:\/\/giscus\.app">/g) || []).length, 1);
+});
+
+test("tools page widens connect-src only for explicit API tester targets", () => {
+  const html = renderToolsPage();
+
+  assert.match(html, /connect-src 'self' https: http:/);
+  assert.match(html, /id="api-allow-risky-target"/);
+});
+
+test("tools page requires gesture supply-chain acknowledgement before camera start", () => {
+  const html = renderToolsPage();
+
+  assert.match(html, /id="gesture-start" type="button" disabled/);
+  assert.match(html, /id="gesture-allow-remote-runtime"/);
+  assert.match(html, /data-i18n="tools\.gesture\.consent"/);
+  assert.match(html, /jsDelivr 和 Google Storage/);
+  assert.match(html, /data-i18n-en="The camera stream stays in this browser for recognition\./);
+  assert.match(html, /class="gesture-resource-status"/);
+  assert.equal((html.match(/class="gesture-resource-item"/g) || []).length, 7);
+  assert.equal((html.match(/data-resource-status="locked"/g) || []).length, 4);
+  assert.equal((html.match(/data-resource-status="watch"/g) || []).length, 3);
+  assert.match(html, /latest 模型路径仍计划自托管并记录哈希/);
+  assert.match(html, /data-i18n-en="Upstream latest"/);
+});
+
+test("tools page labels random generator as non-security randomness", () => {
+  const html = renderToolsPage();
+
+  assert.match(html, /class="tool-note random-warning"/);
+  assert.match(html, /data-i18n="tools\.random\.warning"/);
+  assert.match(html, /普通伪随机数/);
+  assert.match(html, /Do not use these values as passwords, tokens, verification codes or security credentials/);
 });
 
 test("layout deduplicates core and page scripts", () => {
@@ -56,6 +114,7 @@ test("layout deduplicates core and page scripts", () => {
     description: "Script test",
     active: "",
     scripts: ["/js/utils.js", "/js/tools.js", "/js/tools.js"],
+    styles: ["/css/tools.css", "/css/tools.css"],
     bodyClass: "colorscheme-dark",
     page: "",
     main: "<main></main>",
@@ -63,7 +122,8 @@ test("layout deduplicates core and page scripts", () => {
 
   assert.equal((html.match(/src="\/js\/utils\.js"/g) || []).length, 1);
   assert.equal((html.match(/src="\/js\/tools\.js"/g) || []).length, 1);
-  assert.match(html, /src="\/js\/assistant\.js"/);
+  assert.equal((html.match(/href="\/css\/tools\.css"/g) || []).length, 1);
+  assert.match(html, /src="\/js\/assistant-loader\.js"/);
 });
 
 test("post template escapes front matter text while preserving article HTML", () => {
@@ -137,6 +197,8 @@ test("post template renders next popup, related posts, bilingual body and JSON-L
     slug: "related-post",
     date: "2025-01-01",
     eyebrow: "Related",
+    relatedReason: "共同标签：Java",
+    relatedReasonEn: "Shared tags: Java",
   }];
 
   const html = renderPostPage(post, { prev, next, related });
@@ -149,6 +211,11 @@ test("post template renders next popup, related posts, bilingual body and JSON-L
   assert.match(html, /href="\/post\/next-post\/"/);
   assert.match(html, /class="post-related"/);
   assert.match(html, /href="\/post\/related-post\/"/);
+  assert.match(html, /data-pwa-article-status/);
+  assert.match(html, /class="post-offline-status"/);
+  assert.match(html, /class="related-reason"/);
+  assert.match(html, /共同标签：Java/);
+  assert.match(html, /data-i18n-en="Shared tags: Java"/);
   assert.match(html, /data-i18n-lang="en" hidden/);
   assert.match(html, /<script type="application\/ld\+json">/);
   assert.match(html, /property="og:image" content="https:\/\/wenliang844\.github\.io\/images\/posts\/current-post\.png"/);

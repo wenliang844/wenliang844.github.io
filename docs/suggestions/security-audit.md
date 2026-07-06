@@ -4,6 +4,114 @@
 
 ---
 
+## 2026-07-03 复查补充
+
+> 复查时间：2026-07-03 22:40 +08:00 | 验证方式：`npm run lint:check`、`npm run validate:production`、`npm audit --registry=https://registry.npmjs.org --audit-level=moderate`、`npm run test:coverage`、本地 HTTP 冒烟访问
+
+### 📌 S-11 [已修复]: `assistant.js` 仍在前端运行时拼接并使用默认体验 API Key
+
+- **📍 位置**：`js/assistant.js:39-63`, `js/assistant.js:328-333`, `js/assistant.js:1439-1510`, `tests/assistant.test.mjs:401-433`, `tests/assistant.test.mjs:464-497`
+- **✅ 修复状态**：已删除前端默认 key 常量和 `LLM_EXPERIENCE_KEYS` 注入逻辑，`withEffectiveApiKey()` 只修剪用户自己输入的 key。默认 preset 留空时不再发起 `fetch`，会提示用户填写自己的 API key；助手默认进入本地站点模式。后续又补充 endpoint 信任确认和“记住 API key”显式选择，默认不会把用户 key 持久化到 localStorage。
+- **🧪 回归测试**：`tests/assistant.test.mjs` 覆盖默认 preset 空 key 不请求、用户自填 key 才请求、未确认 endpoint 时不发送 key、未勾选 remember 时不持久化 key、源码不得包含 `OPENAI_DEFAULT_API_KEY` / `LLM_EXPERIENCE_KEYS`；`tests/assistant-deep.test.mjs` 同步加强源码扫描。
+- **📝 原状况描述**：源码中曾存在 `OPENAI_DEFAULT_API_KEY` 与 `LLM_EXPERIENCE_KEYS`，通过数组片段 `.join("")` 在运行时还原默认 key。`withEffectiveApiKey()` 在用户未填写 key 且 endpoint 为默认 preset 时自动注入该 key，测试也断言“uses the OpenAI experience key without showing or storing it”。
+- **⚠️ 影响程度**：高
+- **💡 建议方案**：
+  ```javascript
+  // 前端只保留空 key；默认体验必须走服务端代理
+  const LLM_EXPERIENCE_KEYS = Object.freeze({});
+
+  function withEffectiveApiKey(config) {
+    return { ...config, apiKey: String(config.apiKey || "").trim() };
+  }
+  ```
+  同时把测试从“不可出现连续 key 字面量”改为“源码不得存在 `LLM_EXPERIENCE_KEYS`、`OPENAI_DEFAULT_API_KEY`、拼接 key，以及默认 key 请求断言”。
+- **📊 预期收益**：消除前端 key 被提取、滥用和产生费用的高危风险，避免测试对“隐藏但仍可还原”的错误安全模型背书。
+- **🔗 相关建议引用**：[S-00](#s-00-已修复-assistantjs-硬编码-demo-api-key-泄露), [CQ-12](code-quality.md#cq-12-安全回归测试只检查连续-key-字面量无法识别拼接型密钥)
+
+### 📌 S-12 [已修复核心风险]: Mini API Tester 会把 Authorization 头和请求体持久化到 localStorage
+
+- **📍 位置**：`src/templates/tools.mjs:123-170`, `js/tools.js:461-529`, `js/tools.js:584-643`, `js/tools.js:686-692`
+- **✅ 修复状态**：保存历史前会对敏感 Header 做 `[redacted]` 处理，请求体默认不写入 `localStorage`；用户显式勾选“保存请求体”后才保存 body。发送请求仍使用原始 headers/body，不影响调试功能。
+- **🧪 回归测试**：`tests/tools.test.mjs` 覆盖自动保存脱敏、默认 body 为空、显式保存 body；Playwright 抽查 `/tools/` API Tester 本地历史通过。
+- **📝 原状况描述**：API 测试器的 placeholder 引导用户填写 `Authorization: Bearer YOUR_API_KEY`，`currentApiRequest()` 会读取完整 `headers` 和 `body`，`saveApiRequest()` 直接写入 `localStorage` 的 `cwl.tools.apiHistory`。发送成功后 `sendApiRequest()` 还会自动调用 `saveApiRequest()`。真实 token、cookie、body 中的密钥或个人数据可能长期留在浏览器本地历史。
+- **⚠️ 影响程度**：中
+- **💡 建议方案**：
+  ```javascript
+  const SECRET_HEADER = /^(authorization|cookie|x-api-key|api-key)$/i;
+
+  function redactHeaders(raw) {
+    return raw.split(/\r?\n/).map((line) => {
+      const [name] = line.split(":");
+      return SECRET_HEADER.test(name.trim()) ? `${name}: <redacted>` : line;
+    }).join("\n");
+  }
+  ```
+  UI 层建议把“保存请求”和“发送后自动保存”拆开：默认不保存敏感 header，保存前给出明确提示，并提供“清除全部历史”后的成功状态。
+- **📊 预期收益**：降低本机浏览器、共享电脑、恶意扩展读取 API 凭据的风险，同时保留 API Tester 的便利性。
+- **🔗 相关建议引用**：[S-08](#s-08-localstorage-中存储反馈数据无加密), [F-11](new-features.md#f-11-为-api-tester-增加隐私模式和敏感信息脱敏保存)
+
+### 📌 S-13 [已修复核心治理]: 手势工具运行时加载 CDN 机器视觉脚本和模型，缺少完整供应链约束
+
+- **📍 位置**：`js/gesture.js:160-167`, `js/gesture.js:213-216`, `js/gesture.js:223-229`, `js/gesture.js:258-265`, `src/templates/layout.mjs:39-50`, `src/templates/tools.mjs:865-868`
+- **✅ 修复状态**：手势面板已在开启摄像头前增加第三方视觉运行时/模型下载确认，说明摄像头画面只在本机浏览器识别，但会从 jsDelivr 和 Google Storage 下载 MediaPipe、face-api、Three.js 与模型文件；未确认前“开启摄像头”保持禁用。`js/gesture.js` 同时增加 `starting` 门闩，避免模型加载或权限弹窗期间重复触发启动。本轮进一步把 7 个远程视觉运行时、WASM 和模型 URL 纳入 `data/vendor-manifest.json` 的 `remoteResources`，记录类型、版本/路径、供应商、触发条件、用户确认要求、pinning 状态和本地化计划；手势确认区会展示版本锁定、upstream latest 和待自托管状态；`check:vendor`、单测与 browser smoke 会校验 `js/gesture.js` 中的远程 URL 被完整记录且状态可见。
+- **🧪 回归测试**：`tests/templates.test.mjs` 覆盖供应链确认 DOM 契约；`tests/tools.test.mjs` 覆盖未确认时不会申请摄像头、勾选后按钮可用；`tests/vendor-manifest.test.mjs` 覆盖手势远程 runtime manifest；浏览器烟测确认 `/tools/` 手势面板默认禁用、勾选启用、取消后再次禁用。
+- **📝 当前状况描述**：手势工具运行时从 `cdn.jsdelivr.net`、`storage.googleapis.com` 加载 MediaPipe、face-api、Three.js、WASM 和模型文件；CSP 也为工具页放开了 `script-src https://cdn.jsdelivr.net`、`connect-src https: http:` 与 `wasm-unsafe-eval`。虽然摄像头帧处理在浏览器端执行，但第三方脚本一旦被供应链污染，就具备读取页面状态和摄像头处理数据的能力。
+- **⚠️ 影响程度**：中
+- **💡 建议方案**：
+  ```text
+  /js/vendor/mediapipe/vision_bundle.mjs
+  /js/vendor/mediapipe/wasm/*
+  /models/hand_landmarker.task
+  /models/efficientdet_lite0.tflite
+  /js/vendor/three.module.js
+  ```
+  将关键运行时和模型自托管、记录版本与 hash；如果继续使用 CDN，至少在 UI 中说明外部模型来源，并把 CSP 从全站宽泛 `connect-src https:` 收敛到必要域名。本轮已完成 UI 确认、启动门闩、远程资源 manifest 和资源治理状态可视化，后续继续推进自托管、hash pin 和 CSP 域名收敛。
+- **📊 实际收益**：减少隐私承诺与第三方资源加载之间的信息落差，防止用户未理解资源来源时直接授权摄像头；用户现在还能在授权前看到哪些资源已经版本锁定、哪些仍待自托管，同时降低重复启动带来的摄像头/模型加载风险。
+- **🔗 相关建议引用**：[S-06](#s-06-第三方脚本缺少-subresource-integrity-sri-校验), [P-14](performance-bottlenecks.md#p-14-手势工具首次启动依赖远程模型链路弱网下冷启动不可控)
+
+### 📌 S-14 [已修复核心风险]: AI 助手对话和 LLM 上下文长期留存在 localStorage
+
+- **📍 位置**：`js/assistant.js:34`, `js/assistant.js:130-145`, `js/assistant.js:220-243`, `js/assistant.js:1104-1108`, `js/assistant.js:1454-1478`
+- **✅ 修复状态**：AI 助手已增加隐私模式、历史保留期限（仅本次会话 / 7 天 / 30 天 / 永久）和“清空全部对话”入口；隐私模式与 session 保留不会写入 `cwl.assistant.conversations` / `cwl.assistant.activeConversation`，保留期限会清理过期对话。
+- **🧪 回归测试**：`tests/assistant.test.mjs` 覆盖隐私模式不落盘、30 天保留清理旧对话、session 模式临时会话、清空全部对话和英文文案；`tests/css.test.mjs` 覆盖隐私控件样式与移动端布局。
+- **📝 原状况描述**：AI 助手会把站点问答消息和最近 12 条 LLM 上下文写入 `cwl.assistant.conversations`。这些内容可能包含用户输入的隐私问题、代码片段、业务信息或模型回复；此前只有本地持久化，没有保留期限、敏感内容提示、一次性会话模式或“清除所有对话”的强提示入口。
+- **⚠️ 影响程度**：中
+- **💡 建议方案**：
+  ```javascript
+  const RETENTION_MS = 7 * 24 * 60 * 60 * 1000;
+
+  function shouldKeepConversation(item) {
+    return Date.now() - Number(item.updatedAt || 0) < RETENTION_MS;
+  }
+
+  function saveConversations() {
+    const retained = conversations.filter(shouldKeepConversation);
+    storageSet(CONVERSATIONS_KEY, JSON.stringify(retained));
+  }
+  ```
+  已落地隐私模式、保留期限和清空全部对话；后续如需继续增强，可补“导出/删除当前对话”和更醒目的敏感输入提示。
+- **📊 实际收益**：降低共享设备、浏览器扩展或本机恶意软件读取历史对话的隐私风险，同时保留可选多轮上下文体验。
+- **🔗 相关建议引用**：[F-13](new-features.md#f-13-已完成核心能力-ai-助手增加隐私模式和对话保留策略), [MR-AST-04](module-reviews/assistant-deep-dive.md#mr-ast-04-已修复核心风险-对话持久化缺少生命周期和隐私控制)
+
+### 📌 S-15 [已修复]: UUID 工具在 Web Crypto 不可用时退化到 `Math.random()`
+
+- **📍 位置**：`js/tools-core.js:204-228`, `tests/tools.test.mjs:236-258`
+- **✅ 修复状态**：`generateUuid()` 已改为只接受 `crypto.randomUUID()` 或 `crypto.getRandomValues()`；当安全随机数不可用时返回 `uuidCrypto` 错误，不再使用 `Math.random()` 生成看似合规但强度不足的 UUID。工具 UI 会展示错误状态而不是复制弱随机 UUID。
+- **🧪 回归测试**：`tests/tools.test.mjs` 覆盖 `randomUUID()` 失败时使用 `getRandomValues()`、Web Crypto 被阻断时返回 `uuidCrypto`、主工具 UI 通过 `runUuidGenerator()` 正确处理成功/失败结果。
+- **📝 当前状况描述**：`generateUuid()` 优先使用 `crypto.randomUUID()` 和 `crypto.getRandomValues()`，这是正确主路径；但当 crypto 访问失败时会使用 `Math.random()` 填充 UUID 字节。测试还断言“blocked crypto access”下仍应生成 UUID，等于把弱随机 fallback 固化为行为契约。对普通占位 ID 尚可，对用户认为“UUID 可用于安全 token”的场景会形成误导。
+- **⚠️ 影响程度**：低
+- **💡 建议方案**：
+  ```javascript
+  if (!filled) {
+    return fail("当前浏览器不支持安全随机数，无法生成安全 UUID", "uuidCrypto");
+  }
+  ```
+  如果必须保留兼容 fallback，输出区应标记“非加密随机，仅用于临时标识”，并把复制按钮状态同步为警示。
+- **📊 实际收益**：避免工具输出被误用为邀请码、重置 token 或安全凭据，明确随机数强度边界。
+- **🔗 相关建议引用**：[TD-12](tech-debt.md#td-12-已修复核心边界-随机数能力边界需要产品和测试共同收敛), [MR-CORE-02](module-reviews/tools-core.md#mr-core-02-已修复-uuid-生成器的弱随机-fallback-需要明确降级语义)
+
+---
+
 ## 📌 S-00 [已修复]: `assistant.js` 硬编码 Demo API Key 泄露
 
 - **📍 原位置**：`js/assistant.js:54-57`
@@ -84,10 +192,11 @@
 
 ---
 
-## 📌 S-04: `giscus.js` 硬编码 GitHub 仓库 ID 和 Category ID
+## 📌 S-04 [已优化]: `giscus.js` 默认包含 GitHub 仓库 ID 和 Category ID
 
 - **📍 位置**：`js/giscus.js:16-24`
-- **📝 当前状况**：
+- **✅ 优化状态**：默认值保留为当前站点公开的 giscus.app 配置，确保评论功能默认可用；部署方可以在加载 `js/giscus.js` 前设置 `window.CWL_GISCUS_CONFIG` 覆盖或置空这些值，未配置时会显示安全占位提示。
+- **📝 当前默认值**：
   ```javascript
   repo: "wenliang844/wenliang844.github.io",
   repoId: "MDEwOlJlcG9zaXRvcnkzNTQyNDE4MDY=",
@@ -95,7 +204,7 @@
   ```
   这些是公开的 GitHub 仓库元数据，不是敏感信息。Giscus 设计就是在前端配置这些值。
 - **⚠️ 影响程度**：无（设计如此）
-- **💡 建议方案**：无需修改。但建议在注释中说明这些值的来源（giscus.app 配置页面），方便未来维护。
+- **💡 建议方案**：继续保留公共默认配置；若需要多环境部署，使用 `window.CWL_GISCUS_CONFIG` 注入环境特定配置。
 - **📊 预期收益**：提升代码可维护性
 - **🔗 相关建议**：无
 
@@ -111,7 +220,7 @@
   ```html
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' 'unsafe-inline' https://giscus.app; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https:; frame-src https://giscus.app; form-action 'self' https://buttondown.com https://api.web3forms.com">
   ```
-  说明：`connect-src` 保留 `https:` 以兼容 AI 助手用户自定义 HTTPS API 端点；`style-src 'unsafe-inline'` 用于兼容现有运行时样式属性。`frame-ancestors` 不能通过 meta CSP 生效，未来若迁移到可配置 HTTP header 的托管平台，可在响应头中补充。
+  说明：普通页面 `connect-src` 保留 `https:` 以兼容 AI 助手用户自定义 HTTPS API 端点；工具页通过页面级 CSP 单独放宽到 `connect-src 'self' https: http:`，用于 API Tester 在用户显式勾选后调试本机/内网/非 HTTPS 目标。`style-src 'unsafe-inline'` 用于兼容现有运行时样式属性。`frame-ancestors` 不能通过 meta CSP 生效，未来若迁移到可配置 HTTP header 的托管平台，可在响应头中补充。
 
 - **📊 实际收益**：限制默认资源加载来源，禁止插件对象加载，约束 giscus iframe 和表单提交目标，降低 XSS 后续扩展面。
 - **🔗 相关建议**：[S-01](#s-01), [TD-02](tech-debt.md#td-02)

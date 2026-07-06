@@ -35,8 +35,65 @@ jobs:
       - name: Validate posts
         run: npm run validate:posts
 
+      - name: Check vendor manifest
+        run: npm run check:vendor
+
+      - name: Check generated artifacts
+        run: npm run check:generated
+
+      - name: Check i18n coverage
+        run: npm run check:i18n
+
+      - name: Check SEO and feed signals
+        run: npm run check:seo-feed
+
+      - name: Check service worker generation
+        run: npm run check:service-worker
+
+      - name: Check PWA precache resources
+        run: npm run check:pwa-precache
+
+      - name: Check suggestions index
+        run: npm run check:suggestions-index
+
+      - name: Check quality baseline artifact
+        run: npm run check:quality-baseline
+
+      - name: Generate clean quality baseline
+        run: npm run quality:baseline:clean -- --out temp/quality-baseline/clean-quality-baseline.json
+
+      - name: Check clean quality baseline
+        run: npm run check:quality-baseline -- --file temp/quality-baseline/clean-quality-baseline.json --require-head --require-clean-scope
+
+      - name: Upload clean quality baseline
+        if: ${{ always() && hashFiles('temp/quality-baseline/**') != '' }}
+        uses: actions/upload-artifact@v5
+        with:
+          name: clean-quality-baseline
+          path: temp/quality-baseline/
+          if-no-files-found: error
+          retention-days: 14
+
       - name: Build site
         run: npm run build
+
+      - name: HTTP smoke test
+        run: npm run test:http-smoke
+
+      - name: Browser smoke test
+        run: npm run test:browser-smoke
+
+      - name: Upload browser smoke artifacts
+        if: failure()
+        uses: actions/upload-artifact@v5
+        with:
+          name: browser-smoke-artifacts
+          path: temp/browser-smoke/
+          if-no-files-found: ignore
+          retention-days: 7
+
+      - name: PWA smoke test
+        run: npm run test:pwa-smoke
 
       - name: Validate production readiness
         run: npm run validate:production

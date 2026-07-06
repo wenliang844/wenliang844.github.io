@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://giscus.app https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://giscus.app; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https:; frame-src https://giscus.app; form-action 'self' https://buttondown.com https://api.web3forms.com">
+  <meta name="description" content="本站本机数据、第三方服务、AI 助手、工具箱、订阅、评论和反馈的数据流说明。">
+  <link rel="icon" href="/images/favicon.png" type="image/png">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="theme-color" content="#0f172a">
+  <link rel="dns-prefetch" href="https://giscus.app">
+  <link rel="dns-prefetch" href="https://buttondown.com">
+  <link rel="dns-prefetch" href="https://www.ifdian.net">
+  <link rel="dns-prefetch" href="https://paypal.me">
+  <link rel="alternate" type="application/rss+xml" title="CWLBlog RSS" href="/index.xml">
+  <link rel="stylesheet" href="/css/fontawesome-all.min.css">
+  <link rel="stylesheet" href="/css/coder.css">
+  <link rel="stylesheet" href="/css/trust.css">
+  <script src="/js/error-handler.js" defer></script>
+  <script src="/js/utils.js" defer></script>
+  <script src="/js/i18n.js" defer></script>
+  <script src="/js/coder.js" defer></script>
+  <script src="/js/search-loader.js" defer></script>
+  <script src="/js/subscribe.js" defer></script>
+  <script src="/js/assistant-loader.js" defer></script>
+  <script src="/js/pwa-register.js" defer></script>
+  <link rel="canonical" href="https://wenliang844.github.io/trust/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="CWLBlog">
+  <meta property="og:title" content="隐私与信任 :: CWLBlog">
+  <meta property="og:description" content="本站本机数据、第三方服务、AI 助手、工具箱、订阅、评论和反馈的数据流说明。">
+  <meta property="og:url" content="https://wenliang844.github.io/trust/">
+  <meta property="og:image" content="https://wenliang844.github.io/images/favicon.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://wenliang844.github.io/images/favicon.png">
+  <meta name="twitter:title" content="隐私与信任 :: CWLBlog">
+  <meta name="twitter:description" content="本站本机数据、第三方服务、AI 助手、工具箱、订阅、评论和反馈的数据流说明。">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"CWLBlog 隐私与信任","description":"本站本机数据、第三方服务、AI 助手、工具箱、订阅、评论和反馈的数据流说明。","url":"https://wenliang844.github.io/trust/","inLanguage":"zh-CN","isPartOf":{"@type":"WebSite","name":"CWLBlog","url":"https://wenliang844.github.io/"},"mainEntity":{"@type":"ItemList","numberOfItems":5,"itemListElement":[{"@type":"ListItem","position":1,"name":"Buttondown","item":{"@type":"Service","name":"Buttondown","serviceType":"邮件订阅托管","url":"https://buttondown.com"}},{"@type":"ListItem","position":2,"name":"Giscus / GitHub Discussions","item":{"@type":"Service","name":"Giscus / GitHub Discussions","serviceType":"文章评论区","url":"https://giscus.app"}},{"@type":"ListItem","position":3,"name":"Web3Forms","item":{"@type":"Service","name":"Web3Forms","serviceType":"可选在线反馈提交","url":"https://api.web3forms.com"}},{"@type":"ListItem","position":4,"name":"手势工具运行时资源","item":{"@type":"Service","name":"手势工具运行时资源","serviceType":"按需加载机器视觉脚本和模型","url":"https://cdn.jsdelivr.net"}},{"@type":"ListItem","position":5,"name":"赞助跳转","item":{"@type":"Service","name":"赞助跳转","serviceType":"赞助支付","url":"https://ifdian.net"}}]}}</script>
+  <title>隐私与信任 :: CWLBlog</title>
+</head>
+<body class="colorscheme-dark" data-i18n-page="trust" data-i18n-title-en="Privacy &amp; Trust :: CWLBlog" data-i18n-desc-en="How local data, third-party services, the AI assistant, toolbox, subscriptions, comments and feedback behave on this site.">
+  <a class="skip-link" href="#main-content" data-i18n="nav.skip">跳到主要内容</a>
+  <div class="cursor-glow" aria-hidden="true"></div>
+  <canvas class="cursor-canvas" aria-hidden="true"></canvas>
+  <div class="site-shell">
+    <header class="navigation">
+      <section class="container">
+        <a class="navigation-title" href="/">CWLBlog</a>
+        <input type="checkbox" id="menu-toggle" class="menu-toggle" aria-label="Toggle menu" data-i18n-aria="nav.menu">
+        <label class="menu-button" for="menu-toggle"><i class="fas fa-bars"></i></label>
+        <label class="menu-overlay" for="menu-toggle" aria-hidden="true"></label>
+        <nav class="navigation-list" aria-label="Main navigation" data-i18n-aria="nav.main">
+          <ul>
+          <li><a class="nav-blog-main" href="/post/" data-i18n="nav.blog" data-i18n-html data-i18n-en-html="&lt;i class=&quot;fas fa-book-open&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt; Blog"><i class="fas fa-book-open" aria-hidden="true"></i> 博客</a></li>
+          <li><a href="/ai/" data-i18n="nav.ai">AI中转站排名</a></li>
+          <li><a href="/appreciation/" data-i18n="nav.appreciation">观察家</a></li>
+            <li class="nav-more">
+              <details>
+                <summary class="nav-more-toggle active" data-i18n="nav.more" data-i18n-html data-i18n-en-html="&lt;i class=&quot;fas fa-ellipsis-h&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt; More"><i class="fas fa-ellipsis-h" aria-hidden="true"></i> 更多</summary>
+                <ul class="nav-more-menu">
+              <li><a href="/tools/" data-i18n="nav.tools">工具箱</a></li>
+              <li><a href="/overleaf/" data-i18n="nav.overleaf">简历模版</a></li>
+              <li><a class="active" href="/trust/" data-i18n="nav.trust">隐私与信任</a></li>
+                </ul>
+              </details>
+            </li>
+            <li><a class="nav-feedback" href="/contact/" data-i18n="nav.feedback" data-i18n-html><i class="fas fa-comment-dots" aria-hidden="true"></i> 留言反馈</a></li>
+            <li><button class="nav-subscribe" type="button" data-subscribe-open data-i18n="nav.subscribe" data-i18n-html><i class="fas fa-envelope" aria-hidden="true"></i> 订阅</button></li>
+            <li><a class="nav-sponsor" href="/sponsor/" data-i18n="nav.sponsor" data-i18n-html><i class="fas fa-heart" aria-hidden="true"></i> 赞助</a></li>
+            <li><button class="theme-toggle" type="button" aria-label="切换主题" data-i18n-aria="nav.theme"><i class="fas fa-adjust"></i></button></li>
+            <li><button class="lang-toggle" type="button" aria-label="Switch language">EN</button></li>
+            <li><button class="nav-search-trigger" type="button" aria-label="全局搜索（Ctrl+K 或 /）" title="全局搜索（Ctrl+K 或 /）" data-i18n-aria="nav.searchHint" data-i18n-title="nav.searchHint"><i class="fas fa-search"></i></button></li>
+            <li><button class="nav-ai-experience assistant-nav-trigger" type="button" aria-label="打开 AI 助手" title="打开 AI 助手" data-assistant-toggle data-i18n-aria="assistant.open" data-i18n-title="assistant.open"><span aria-hidden="true">AI</span></button></li>
+          </ul>
+        </nav>
+      </section>
+    </header>
+    <main id="main-content" class="content">
+      <section class="trust-page rank-page container" aria-labelledby="trust-title">
+        <header class="trust-hero rank-hero">
+          <span class="eyebrow" data-i18n="trust.eyebrow" data-i18n-html data-i18n-en-html="&lt;i class=&quot;fas fa-shield-alt&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt; Privacy &amp; Trust"><i class="fas fa-shield-alt" aria-hidden="true"></i> 隐私与信任</span>
+          <h1 id="trust-title" data-i18n="trust.title" data-i18n-en="How this site handles data">本站如何处理数据</h1>
+          <p class="lead" data-i18n="trust.lead" data-i18n-en="A short, practical map of what stays in your browser, which third-party services may be contacted, and how you can clear or control local data.">这里集中说明哪些数据留在你的浏览器、哪些第三方服务可能被连接，以及你可以怎样清理或控制本机数据。</p>
+        </header>
+
+        <div class="trust-stats timeline-stats" aria-label="Trust summary" data-i18n-aria="trust.stats.aria">
+          <div class="trust-stat">
+            <strong data-i18n="trust.stat.0.value" data-i18n-en="0">0</strong>
+            <span data-i18n="trust.stat.0.label" data-i18n-en="embedded private API keys">内置私密 API key</span>
+          </div>
+          <div class="trust-stat">
+            <strong data-i18n="trust.stat.1.value" data-i18n-en="本机优先">本机优先</strong>
+            <span data-i18n="trust.stat.1.label" data-i18n-en="tools and assistant default to browser-side processing">工具与助手默认在浏览器内处理</span>
+          </div>
+          <div class="trust-stat">
+            <strong data-i18n="trust.stat.2.value" data-i18n-en="可清理">可清理</strong>
+            <span data-i18n="trust.stat.2.label" data-i18n-en="local history and drafts stay under user control">本机历史与草稿由用户控制</span>
+          </div>
+        </div>
+
+        <section class="trust-section" aria-labelledby="trust-local-title">
+          <div class="trust-section-head">
+            <span class="eyebrow" data-i18n="trust.local.eyebrow" data-i18n-en="Local first">本机优先</span>
+            <h2 id="trust-local-title" data-i18n="trust.local.title" data-i18n-en="Data stored in this browser">保存在本机的数据</h2>
+            <p data-i18n="trust.local.lead" data-i18n-en="The site uses browser storage for convenience features. These records are scoped to this browser profile and can be cleared by you.">站点会用浏览器存储支持便捷功能；这些记录限定在当前浏览器配置中，可由你清理。</p>
+          </div>
+          <div class="trust-card-grid rank-grid">
+          <article class="trust-card rank-board">
+            <span class="rank-board-icon trust-icon" aria-hidden="true"><i class="fas fa-robot"></i></span>
+            <h3 data-i18n="trust.local.0.title" data-i18n-en="AI assistant settings and chats">AI 助手设置与对话</h3>
+            <p class="trust-storage">localStorage: cwl.assistant.*</p>
+            <p data-i18n="trust.local.0.description" data-i18n-en="Site-rule mode does not send chats out. In LLM mode, the API key, model and relay configuration are stored in this browser. Privacy mode keeps chats out of persistent history.">站内规则模式不会外发对话；启用大模型模式时，API key、模型和中转站配置保存在当前浏览器。隐私模式会阻止对话历史持久化。</p>
+            <p class="trust-control" data-i18n="trust.local.0.controls" data-i18n-en="Clear all conversations, switch privacy mode or change retention from the assistant panel.">可在助手面板清空全部对话、切换隐私模式或调整保留期限。</p>
+          </article>
+          <article class="trust-card rank-board">
+            <span class="rank-board-icon trust-icon" aria-hidden="true"><i class="fas fa-vial"></i></span>
+            <h3 data-i18n="trust.local.1.title" data-i18n-en="API Tester history">API Tester 历史</h3>
+            <p class="trust-storage">localStorage: cwl.tools.apiHistory</p>
+            <p data-i18n="trust.local.1.description" data-i18n-en="History is only for reusing requests. Sensitive headers are redacted before saving, and request bodies are not kept unless explicitly enabled.">历史仅用于快速复用请求；保存前会脱敏敏感 Header，请求体默认不保存，除非用户主动勾选保存。</p>
+            <p class="trust-control" data-i18n="trust.local.1.controls" data-i18n-en="Delete one saved request or clear the full history in the toolbox.">可在工具面板删除单条历史或清空全部历史。</p>
+          </article>
+          <article class="trust-card rank-board">
+            <span class="rank-board-icon trust-icon" aria-hidden="true"><i class="fas fa-folder-open"></i></span>
+            <h3 data-i18n="trust.local.2.title" data-i18n-en="Feedback, drafts and reading preferences">反馈、草稿与阅读偏好</h3>
+            <p class="trust-storage">localStorage / sessionStorage</p>
+            <p data-i18n="trust.local.2.description" data-i18n-en="Feedback is saved in this browser by default. Markdown drafts, resume templates, reading progress, theme and language choices also stay locally.">留言反馈默认保存在当前浏览器；Markdown、简历模板、阅读进度、主题和语言偏好也保存在本机。</p>
+            <p class="trust-control" data-i18n="trust.local.2.controls" data-i18n-en="Delete feedback on the page, reset drafts, or clear everything through the browser's site data settings.">可在对应页面删除反馈、重置草稿，或通过浏览器站点数据面板统一清除。</p>
+          </article>
+          </div>
+        </section>
+
+        <section class="trust-section" aria-labelledby="trust-services-title">
+          <div class="trust-section-head">
+            <span class="eyebrow" data-i18n="trust.services.eyebrow" data-i18n-en="Third-party services">第三方服务</span>
+            <h2 id="trust-services-title" data-i18n="trust.services.title" data-i18n-en="When external services may be contacted">可能连接外部服务的场景</h2>
+            <p data-i18n="trust.services.lead" data-i18n-en="External requests are tied to visible features such as subscriptions, comments, sponsor links, optional feedback delivery and gesture assets.">外部请求与订阅、评论、赞助、可选在线反馈和手势工具资源等可见功能相关。</p>
+          </div>
+          <div class="trust-service-list rank-grid">
+          <article class="trust-service rank-board">
+            <div class="trust-service-head">
+              <h3 data-i18n="trust.service.0.name" data-i18n-en="Buttondown">Buttondown</h3>
+              <code>buttondown.com</code>
+            </div>
+            <dl class="trust-service-facts">
+              <div>
+                <dt data-i18n="trust.service.purpose" data-i18n-en="Purpose">用途</dt>
+                <dd data-i18n="trust.service.0.purpose" data-i18n-en="Email subscription hosting">邮件订阅托管</dd>
+              </div>
+              <div>
+                <dt data-i18n="trust.service.trigger" data-i18n-en="Trigger">触发时机</dt>
+                <dd data-i18n="trust.service.0.trigger" data-i18n-en="Submitting the footer or modal subscription form">提交页脚或弹窗订阅表单</dd>
+              </div>
+              <div>
+                <dt data-i18n="trust.service.data" data-i18n-en="Data">数据</dt>
+                <dd data-i18n="trust.service.0.data" data-i18n-en="Email address">邮箱地址</dd>
+              </div>
+              <div>
+                <dt data-i18n="trust.service.control" data-i18n-en="User control">用户控制</dt>
+                <dd data-i18n="trust.service.0.control" data-i18n-en="Subscription state depends on the confirmation email. Manage or unsubscribe through email links.">订阅是否生效以确认邮件为准，可通过邮件中的退订链接管理。</dd>
+              </div>
+            </dl>
+          </article>
+          <article class="trust-service rank-board">
+            <div class="trust-service-head">
+              <h3 data-i18n="trust.service.1.name" data-i18n-en="Giscus / GitHub Discussions">Giscus / GitHub Discussions</h3>
+              <code>giscus.app</code>
+            </div>
+            <dl class="trust-service-facts">
+              <div>
+                <dt data-i18n="trust.service.purpose" data-i18n-en="Purpose">用途</dt>
+                <dd data-i18n="trust.service.1.purpose" data-i18n-en="Post comments">文章评论区</dd>
+              </div>
+              <div>
+                <dt data-i18n="trust.service.trigger" data-i18n-en="Trigger">触发时机</dt>
+                <dd data-i18n="trust.service.1.trigger" data-i18n-en="Loading a post comments section">打开文章评论区脚本</dd>
+              </div>
+              <div>
+                <dt data-i18n="trust.service.data" data-i18n-en="Data">数据</dt>
+                <dd data-i18n="trust.service.1.data" data-i18n-en="GitHub login state, Comment content">GitHub 登录态、评论内容</dd>
+              </div>
+              <div>
+                <dt data-i18n="trust.service.control" data-i18n-en="User control">用户控制</dt>
+                <dd data-i18n="trust.service.1.control" data-i18n-en="Comments are hosted by GitHub Discussions. Deletion and login state are managed by GitHub.">评论由 GitHub Discussions 托管，删除和登录状态由 GitHub 管理。</dd>
+              </div>
+            </dl>
+          </article>
+          <article class="trust-service rank-board">
+            <div class="trust-service-head">
+              <h3 data-i18n="trust.service.2.name" data-i18n-en="Web3Forms">Web3Forms</h3>
+              <code>api.web3forms.com</code>
+            </div>
+            <dl class="trust-service-facts">
+              <div>
+                <dt data-i18n="trust.service.purpose" data-i18n-en="Purpose">用途</dt>
+                <dd data-i18n="trust.service.2.purpose" data-i18n-en="Optional online feedback delivery">可选在线反馈提交</dd>
+              </div>
+              <div>
+                <dt data-i18n="trust.service.trigger" data-i18n-en="Trigger">触发时机</dt>
+                <dd data-i18n="trust.service.2.trigger" data-i18n-en="Submitting feedback after the site owner configures an access key">站长配置 access key 后提交反馈</dd>
+              </div>
+              <div>
+                <dt data-i18n="trust.service.data" data-i18n-en="Data">数据</dt>
+                <dd data-i18n="trust.service.2.data" data-i18n-en="Nickname, Contact detail, Feedback message">昵称、联系方式、反馈内容</dd>
+              </div>
+              <div>
+                <dt data-i18n="trust.service.control" data-i18n-en="User control">用户控制</dt>
+                <dd data-i18n="trust.service.2.control" data-i18n-en="Disabled by default. When enabled, the page still keeps a local copy that can be deleted on the feedback page.">默认不开启；启用时页面仍会保留本机副本，可在反馈页删除本机记录。</dd>
+              </div>
+            </dl>
+          </article>
+          <article class="trust-service rank-board">
+            <div class="trust-service-head">
+              <h3 data-i18n="trust.service.3.name" data-i18n-en="Gesture tool runtime assets">手势工具运行时资源</h3>
+              <code>cdn.jsdelivr.net / storage.googleapis.com</code>
+            </div>
+            <dl class="trust-service-facts">
+              <div>
+                <dt data-i18n="trust.service.purpose" data-i18n-en="Purpose">用途</dt>
+                <dd data-i18n="trust.service.3.purpose" data-i18n-en="On-demand computer-vision scripts and models">按需加载机器视觉脚本和模型</dd>
+              </div>
+              <div>
+                <dt data-i18n="trust.service.trigger" data-i18n-en="Trigger">触发时机</dt>
+                <dd data-i18n="trust.service.3.trigger" data-i18n-en="Starting the gesture tool after acknowledging third-party assets">在工具箱中确认第三方资源后启动手势工具</dd>
+              </div>
+              <div>
+                <dt data-i18n="trust.service.data" data-i18n-en="Data">数据</dt>
+                <dd data-i18n="trust.service.3.data" data-i18n-en="Model and script download requests">模型与脚本下载请求</dd>
+              </div>
+              <div>
+                <dt data-i18n="trust.service.control" data-i18n-en="User control">用户控制</dt>
+                <dd data-i18n="trust.service.3.control" data-i18n-en="Camera frames are recognized in the browser. No camera or remote runtime starts before acknowledgement.">摄像头画面只在浏览器内识别；未确认前不会启动摄像头或加载远程运行时。</dd>
+              </div>
+            </dl>
+          </article>
+          <article class="trust-service rank-board">
+            <div class="trust-service-head">
+              <h3 data-i18n="trust.service.4.name" data-i18n-en="Sponsor checkout links">赞助跳转</h3>
+              <code>ifdian.net / paypal.me</code>
+            </div>
+            <dl class="trust-service-facts">
+              <div>
+                <dt data-i18n="trust.service.purpose" data-i18n-en="Purpose">用途</dt>
+                <dd data-i18n="trust.service.4.purpose" data-i18n-en="Sponsor payments">赞助支付</dd>
+              </div>
+              <div>
+                <dt data-i18n="trust.service.trigger" data-i18n-en="Trigger">触发时机</dt>
+                <dd data-i18n="trust.service.4.trigger" data-i18n-en="Clicking an Afdian or PayPal support link">点击爱发电或 PayPal 赞助链接</dd>
+              </div>
+              <div>
+                <dt data-i18n="trust.service.data" data-i18n-en="Data">数据</dt>
+                <dd data-i18n="trust.service.4.data" data-i18n-en="Sponsor information handled by the payment platform">由支付平台处理的赞助信息</dd>
+              </div>
+              <div>
+                <dt data-i18n="trust.service.control" data-i18n-en="User control">用户控制</dt>
+                <dd data-i18n="trust.service.4.control" data-i18n-en="Checkout happens on third-party platforms. This site does not receive card or payment account details.">支付流程在第三方平台完成，本站不会接收银行卡或支付账户信息。</dd>
+              </div>
+            </dl>
+          </article>
+          </div>
+        </section>
+
+        <div class="trust-columns">
+          <section class="trust-section trust-control-section" aria-labelledby="trust-control-title">
+            <div class="trust-section-head">
+              <span class="eyebrow" data-i18n="trust.control.eyebrow" data-i18n-en="Your controls">用户控制</span>
+              <h2 id="trust-control-title" data-i18n="trust.control.title" data-i18n-en="What you can control">你可以控制什么</h2>
+            </div>
+            <ul class="trust-control-list insight-list">
+          <li>
+            <h3 data-i18n="trust.control.0.title" data-i18n-en="Clear local data">清空本机数据</h3>
+            <p data-i18n="trust.control.0.body" data-i18n-en="Delete records from the assistant, API Tester, feedback page and editors, or clear all site data from browser settings.">可以在 AI 助手、API Tester、反馈页和编辑器中删除对应记录；也可以在浏览器的站点设置中清除本站全部数据。</p>
+          </li>
+          <li>
+            <h3 data-i18n="trust.control.1.title" data-i18n-en="Outbound requests require a user action">外发请求由用户动作触发</h3>
+            <p data-i18n="trust.control.1.body" data-i18n-en="Subscription, comments, sponsorship, online feedback, LLM requests and API Tester calls happen only after user action or configuration.">订阅、评论、赞助、在线反馈、AI 大模型请求和 API Tester 请求都需要用户主动操作或配置后才会发生。</p>
+          </li>
+          <li>
+            <h3 data-i18n="trust.control.2.title" data-i18n-en="Client-side secrets are not truly secret">客户端 secret 不等于真正保密</h3>
+            <p data-i18n="trust.control.2.body" data-i18n-en="Any API key entered in the page is only stored in this browser and must not be treated as a server secret. Use a revocable site-specific key.">任何填在网页里的 API key 都只能保存在当前浏览器，不能当作服务端密钥使用；建议为站点单独创建可撤销 key。</p>
+          </li>
+            </ul>
+          </section>
+
+          <section class="trust-section trust-security-section" aria-labelledby="trust-security-title">
+            <div class="trust-section-head">
+              <span class="eyebrow" data-i18n="trust.security.eyebrow" data-i18n-en="Security posture">安全摘要</span>
+              <h2 id="trust-security-title" data-i18n="trust.security.title" data-i18n-en="Security notes">安全说明</h2>
+            </div>
+            <ul class="trust-security-list insight-list">
+          <li class="trust-security-item">
+            <h3 data-i18n="trust.security.0.title" data-i18n-en="Static site with no default backend">静态站点默认无自有后端</h3>
+            <p data-i18n="trust.security.0.body" data-i18n-en="Public pages are hosted on GitHub Pages. By default, there is no custom server receiving visitor forms or toolbox input.">公开页面由 GitHub Pages 托管；默认没有自建服务器接收访问者表单或工具输入。</p>
+          </li>
+          <li class="trust-security-item">
+            <h3 data-i18n="trust.security.1.title" data-i18n-en="CSP limits resource origins">CSP 限制资源来源</h3>
+            <p data-i18n="trust.security.1.body" data-i18n-en="Pages declare a Content Security Policy that limits allowed script, style, image, connection, form and iframe origins.">页面声明 Content Security Policy，限制脚本、样式、图片、连接、表单和 iframe 的允许来源。</p>
+          </li>
+          <li class="trust-security-item">
+            <h3 data-i18n="trust.security.2.title" data-i18n-en="Security report path">安全问题反馈入口</h3>
+            <p data-i18n="trust.security.2.body" data-i18n-en="Report leaks, misleading data flows or security issues through the contact page. They are prioritized for review.">如发现泄露、误导性数据流或安全问题，请通过联系页反馈，维护者会优先处理。</p>
+          </li>
+            </ul>
+          </section>
+        </div>
+
+        <section class="trust-report rank-board" aria-labelledby="trust-report-title">
+          <h2 id="trust-report-title" data-i18n="trust.report.title" data-i18n-en="Report a concern">反馈安全或隐私问题</h2>
+          <p data-i18n="trust.report.body" data-i18n-en="If something here looks inaccurate, or you find a security or privacy issue, please send a note through the contact page.">如果这里的说明不准确，或你发现安全/隐私问题，请通过联系页留言。</p>
+          <a class="trust-report-link" href="/contact/" data-i18n="trust.report.link" data-i18n-html data-i18n-en-html="Contact <i class=&quot;fas fa-arrow-right&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;">联系反馈 <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
+        </section>
+      </section>
+    </main>
+    <footer class="footer">
+      <section class="container">
+        <div class="subscribe">
+          <p class="subscribe-title" data-i18n="subscribe.title">订阅更新 · 新文章邮件提醒</p>
+          <form class="subscribe-form" novalidate>
+            <input class="subscribe-input" type="email" name="email" required autocomplete="email" placeholder="输入你的邮箱" data-i18n-ph="subscribe.ph" aria-label="Email">
+            <button class="subscribe-btn" type="submit" data-i18n="subscribe.btn">订阅</button>
+          </form>
+          <p class="subscribe-status" role="status" aria-live="polite"></p>
+        </div>
+        <div class="sponsor-mini" aria-label="赞助支持选项" data-i18n-aria="sponsorMini.aria">
+          <p class="sponsor-mini-text" data-i18n="sponsorMini.text">如果内容对你有帮助，可以支持我继续更新。</p>
+          <div class="sponsor-mini-actions">
+            <a class="sponsor-mini-btn sponsor-mini-primary" href="https://www.ifdian.net/order/create?plan_id=047bc28a6a1c11f182c452540025c377&product_type=0&remark=&affiliate_code=" target="_blank" rel="noopener noreferrer" data-i18n="sponsorMini.afdian">☕ 赞助</a>
+            <a class="sponsor-mini-btn sponsor-mini-secondary" href="https://PayPal.Me/chenwenliang4212" target="_blank" rel="noopener noreferrer" data-i18n="sponsorMini.paypal">💳 PayPal 支持</a>
+          </div>
+        </div>
+        <nav class="footer-links" aria-label="站点说明" data-i18n-aria="footer.links.aria">
+          <a href="/trust/" data-i18n="footer.trust">隐私与信任</a>
+          <a href="/contact/" data-i18n="footer.contact">联系反馈</a>
+          <a href="/sponsor/" data-i18n="footer.sponsor">赞助支持</a>
+        </nav>
+        <p data-i18n="footer.text">© 2021 - 2026 CWL · Powered by Cwl · Theme inspired by Coder</p>
+      </section>
+    </footer>
+  </div>
+</body>
+</html>

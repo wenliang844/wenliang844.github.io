@@ -4,6 +4,112 @@
 
 ---
 
+## 2026-07-03 复查补充
+
+### 📌 P-13: 关键静态产物体积已经接近当前性能预算
+
+- **📍 位置**：`css/coder.css:1-4783`, `css/tools.css:1-1169`, `css/assistant.css:1-887`, `tools/index.html:1-1308`, `post/index.html:1-1283`, `js/gesture.js:1-2470`, `js/assistant.js:1-1686`
+- **📝 当前状况描述**：最新文件体积扫描显示：`css/coder.css` 103,446 bytes、`css/tools.css` 21,902 bytes、`css/assistant.css` 18,392 bytes、`css/trust.css` 854 bytes、`tools/index.html` 110,158 bytes、`post/index.html` 110,800 bytes、`js/gesture.js` 91,424 bytes、`js/assistant.js` 68,881 bytes。核心 CSS 已通过页面级拆分、工具基础样式迁移和助手样式懒加载继续压缩到 140 KiB 预算内；工具箱和博客列表 HTML 仍超过 100KB，随着工具和文章继续增加，首屏解析成本仍需继续控制。
+- **⚠️ 影响程度**：中
+- **💡 建议方案**：
+  ```text
+  1. 为 tools/post 建立独立体积预算：HTML < 120KB、首屏 JS < 80KB、CSS < 140KB。
+  2. 工具箱按 category 拆分 HTML：首屏只渲染 active panel，其余 panel 通过 template 或 JSON 延迟挂载。
+  3. CSS 按页面拆分：core.css + tools.css + article.css，并在构建期按页面注入。
+  ```
+- **📊 预期收益**：控制解析与样式计算成本，避免个人站点功能持续扩张后首屏退化。
+- **🔗 相关建议引用**：[P-02](#p-02), [P-03](#p-03), [P-07](#p-07)
+
+### 📌 P-14 [已部分修复]: 手势工具首次启动依赖远程模型链路，弱网下冷启动不可控
+
+- **📍 位置**：`js/gesture.js:160-167`, `js/gesture.js:169-207`, `js/gesture.js:213-252`, `js/gesture.js:258-265`, `src/templates/tools.mjs:793-870`
+- **✅ 第一阶段修复状态**：`startCamera()` 已在模型加载后继续区分“初始化摄像头…”和“启动视频流…”两个阶段；模型下载、摄像头授权和视频播放不再共用模糊状态。
+- **🧪 回归测试**：`tests/tools.test.mjs` 覆盖手势启动链路必须在 `getUserMedia()` 前提示摄像头初始化、在 `$video.play()` 前提示视频流启动。
+- **📝 当前状况描述**：点击手势工具后，MediaPipe vision bundle、WASM、hand landmarker、object detector、face-api 模型、Three.js 均按需远程加载。当前 UI 只有“加载模型...”这类状态，没有资源大小、失败重试、预热、缓存策略或离线提示。弱网下用户可能在摄像头授权前后等待较久，且失败原因不可见。
+- **⚠️ 影响程度**：中
+- **💡 建议方案**：
+  ```javascript
+  const MODEL_ASSETS = [
+    "/models/hand_landmarker.task",
+    "/models/efficientdet_lite0.tflite",
+  ];
+
+  async function warmGestureAssets() {
+    await Promise.all(MODEL_ASSETS.map((url) => fetch(url, { cache: "force-cache" })));
+  }
+  ```
+  将模型自托管后用 `Cache-Control` 和 Service Worker 预缓存；UI 上显示“下载模型/初始化摄像头/开始识别”三段状态，并允许用户重试。
+- **📊 预期收益**：降低首次启动延迟和失败率，提升摄像头功能在移动网络下的可用性。
+- **🔗 相关建议引用**：[S-13](security-audit.md#s-13-已修复核心治理-手势工具运行时加载-cdn-机器视觉脚本和模型缺少完整供应链约束), [MR-TOOLS-01](module-reviews/tools-gesture-and-api.md#mr-tools-01-已修复核心治理-手势工具的供应链和隐私边界需要产品化治理)
+
+### 📌 P-15: 测试覆盖率总体达标，但 relay 同步脚本覆盖率明显低于整体水平
+
+- **📍 位置**：`scripts/parse-relay.mjs:1-593`, `scripts/update-commercial-relay.mjs:1-226`, `tests/relay.test.mjs:1-57`, `tests/workflows.test.mjs:1-55`
+- **✅ 部分修复状态**：本轮为 relay 链路补充 SQL official 过滤/失败摘要、CLI 参数保护、缺源配置、认证 header、非法 header JSON 和商业字段清洗测试；商业源 `isCurrent` 字符串误判已修复，非法自定义 header 会在请求前失败。
+- **🧪 验证**：`tests/relay.test.mjs` 8/8 通过；`npm run test:coverage` 798/798 通过，总体 line 96.80%、branch 83.45%、function 96.51%。`parse-relay.mjs` 提升到 line 89.21%、branch 69.90%、function 91.80%；`update-commercial-relay.mjs` 提升到 line 76.65%、branch 86.84%、function 90.91%。
+- **📝 剩余状况描述**：`parse-relay.mjs` 行覆盖已超过 85%，分支覆盖距离 70% 预算只差 0.10 个百分点；`update-commercial-relay.mjs` 分支/函数覆盖已达标，但主流程写文件、最低数量门禁和部分清洗 fallback 的行覆盖仍低于 85%。relay 数据会进入公开 AI 中转站榜单，仍属于数据质量敏感路径。
+- **⚠️ 影响程度**：低
+- **💡 建议方案**：
+  ```text
+  tests/relay-import-errors.test.mjs
+  - SQL 字段缺失
+  - 异常 JSON settings_config
+  - 重复 provider 合并
+  - token/email/url 查询参数脱敏
+  - 商业源部分失败但保留已有数据
+  ```
+- **📊 预期收益**：提高数据同步脚本的回归防护，减少公开榜单因输入异常而污染或缺失。
+- **🔗 相关建议引用**：[DE-02](devex-improvements.md#de-02), [S-09](security-audit.md#s-09)
+
+### 📌 P-16: Cron 无解表达式会在主线程同步扫描两年分钟粒度
+
+- **📍 位置**：`js/tools-core.js:938-980`, `tests/tools-core-deep.test.mjs:258-266`
+- **✅ 修复状态**：当日字段受限、星期字段为通配符，且所选月份没有任何可匹配日期时，`parseCronExpression()` 会提前返回 `cronNoRuns`，不再逐分钟扫描两年；日字段和星期字段都受限时仍保留 Cron OR 语义。
+- **🧪 验证**：`node --test tests/tools-core-deep.test.mjs tests/tools.test.mjs` 65/65 通过；新增性能预算断言要求 `0 0 31 2 *` 快速失败；Playwright mobile 烟测显示无解表达式约 0.7ms 返回错误态，`0 0 31 2 mon` 仍能正常给出后续执行时间。
+- **📝 原状况描述**：`parseCronExpression()` 对合法但无解的表达式会循环最多 `1,051,200` 次，逐分钟推进两年。第 2 轮探测中，`0 0 31 2 *` 在本机约 127.57ms，同一批普通表达式约 0.19ms 到 1.52ms。该计算发生在工具页主线程，连续输入或低端移动设备上可能造成明显卡顿。
+- **⚠️ 影响程度**：中
+- **💡 后续建议**：
+  ```javascript
+  // 更通用的下一步：按字段跳跃，而不是逐分钟扫描。
+  cursor = jumpToNextAllowedMinuteOrHour(cursor);
+  ```
+- **📊 实际收益**：典型无解日期表达式即时失败，避免工具箱交互被同步循环阻塞；更稀疏但可匹配的表达式仍可继续用字段跳跃优化。
+- **🔗 相关建议引用**：[MR-CORE-01](module-reviews/tools-core.md#mr-core-01-cron-解析器需要避免主线程百万次扫描), [DE-13](devex-improvements.md#de-13-为-ai-助手和-cron-边界行为补充回归测试)
+
+### 📌 P-17 [已修复核心]: 全站统一加载 `coder.css`，工具箱和助手样式成本扩散到所有页面
+
+- **📍 位置**：`src/templates/layout.mjs:225-226`, `js/assistant-loader.js`, `css/coder.css`, `css/tools.css`, `css/assistant.css`
+- **✅ 已完成**：公共布局模板支持页面级 `styles` 注入；`src/page-assets.mjs` 集中声明 `/tools/` 与 `/trust/` 样式；工具页 shell、tab、面板、字段、输出、QR/时间/UUID 预览和移动端工具页适配已迁入 `css/tools.css`，信任页增量样式迁入 `css/trust.css`。AI 助手浮层、消息、配置和移动端适配样式已迁入 `css/assistant.css`，由 `js/assistant-loader.js` 在首次点击 AI 入口或 fullscreen 深链时按需注入，并纳入 PWA 预缓存。`tests/performance.test.mjs` 新增 `/`、`/tools/`、`/trust/` 路由级 CSS raw/gzip 预算，避免只看单个文件体积。
+- **📝 剩余状况描述**：`coder.css` 已回落到 4,783 行 / 103,446 bytes，普通页面不再解析工具箱基础面板样式和助手浮层样式。后续 CSS 方向主要是继续梳理更细的共享组件归属，例如编辑器工具按钮、AI 导航页卡片和少量全站复用组件，而非工具页大块样式。
+- **⚠️ 影响程度**：中
+- **💡 建议方案**：
+  ```text
+  css/core.css       — 变量、导航、布局、文章基础
+  css/tools.css      — 工具箱、编辑器嵌入、视觉工具
+  css/assistant.css  — AI 助手浮层
+  ```
+  构建层可先不引入打包器，只在 `renderPage()` 中按页面类型输出额外 `<link>`；AI 助手样式已由助手加载器按需加载。
+- **📊 实际收益**：非工具页核心 CSS 继续缩小，普通页面不再解析助手面板的 18KB 级样式，也不再解析约 9KB 的工具箱基础面板样式；工具页、信任页和助手均有明确资源入口，后续继续拆 JS 或模型资源时已有 manifest、PWA 预缓存和路由级预算护栏。
+- **🔗 相关建议引用**：[MR-CSS-07](module-reviews/css-analysis.md#mr-css-07-复查发现-css-单包已增长到-6637-行), [AR-08](architecture-review.md#ar-08-工具箱和助手资源需要从全站核心层剥离)
+
+### 📌 P-18: 工具页首屏一次性解析 31 个工具面板
+
+- **📍 位置**：`tools/index.html:89-279`, `tools/index.html:302-1235`, `src/templates/tools.mjs:64-85`, `src/templates/tools.mjs:923-944`
+- **✅ 修复状态**：工具页首屏只挂载 JSON 面板，其余 30 个工具面板进入 `<template data-tool-template>`，点击 tab 时再克隆、挂载并执行面板级初始化。当前 JSDOM 复测显示首屏约 310 个元素，template 中延迟保存约 920 个元素；Markdown、Galaxy、手势工具均按需挂载/加载。
+- **📝 原状况描述**：JSDOM 审计显示工具页初始 HTML 包含 31 个 tab、31 个 panel，其中 30 个 panel 默认 hidden，但仍会被浏览器解析成 DOM；页面内有 50 个 textarea、55 个 input、141 个 button、总计约 1,199 个元素。用户首次只看到 JSON 工具，却已经支付了所有工具 markup 的解析成本。
+- **⚠️ 影响程度**：中
+- **💡 后续建议**：
+  ```javascript
+  // 后续可把工具逻辑也按类别拆分：
+  import("/js/tools-data.js");
+  import("/js/tools-security.js");
+  ```
+  面板 DOM 拆分已落地；中期继续把工具核心函数、Markdown/highlight/QR vendor 和 `/tools/` 专属 CSS 按类别或工具懒加载。
+- **📊 实际收益**：减少工具页首屏 DOM 构建时间和内存占用，给继续新增工具留出空间；Lighthouse 分数和 unused JS/CSS 降幅待复测。
+- **🔗 相关建议引用**：[P-13](#p-13-关键静态产物体积已经接近当前性能预算), [AR-08](architecture-review.md#ar-08-工具箱和助手资源需要从全站核心层剥离), [MR-TOOLS-05](module-reviews/tools-gesture-and-api.md#mr-tools-05-工具箱主模板已经过大新增工具会继续推高生成页体积)
+
+---
+
 ## 📌 P-01 [已修复]: 粒子动画 `requestAnimationFrame` 持续运行，无空闲停止机制
 
 - **📍 位置**：`js/coder.js`
@@ -194,7 +300,7 @@
   - 文章浮层与卡片：`blur(10px)` × 多处
   - 其他组件：`blur(8px)` × 2
 - **🧪 回归测试**：`tests/css.test.mjs` 验证移动端 media query 同时关闭标准和 WebKit 前缀的 backdrop blur，并为关键浮层设置实色背景。
-- **📊 实际收益**：移动端减少 GPU 密集型背景采样；`coder.css` 体积保持 117.936KB，仍低于 118KB 性能门禁。
+- **📊 实际收益**：移动端减少 GPU 密集型背景采样；`coder.css` 当前约 126.91KB，仍低于 140KB 性能门禁。
 - **🔗 相关建议**：[MR-CSS-06](module-reviews/css-analysis.md#mr-css-06)
 
 > 整体评估：当前站点性能良好（静态站点天然轻量），主要优化空间在动画性能和资源加载策略上。

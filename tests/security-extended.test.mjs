@@ -83,6 +83,12 @@ test("assistant.js does not use eval or Function constructor", async () => {
   assert.doesNotMatch(code, /new\s+Function\s*\(/);
 });
 
+test("assistant-loader.js does not use eval or Function constructor", async () => {
+  const code = await readFile(join(ROOT, "js", "assistant-loader.js"), "utf8");
+  assert.doesNotMatch(code, /\beval\s*\(/);
+  assert.doesNotMatch(code, /new\s+Function\s*\(/);
+});
+
 test("tools.js does not use eval or Function constructor", async () => {
   const code = await readFile(join(ROOT, "js", "tools.js"), "utf8");
   assert.doesNotMatch(code, /\beval\s*\(/);
@@ -201,16 +207,21 @@ test("committed HTML files include the shared Content Security Policy", async ()
     }
 
     const policy = match[1];
+    const connectDirective = policy.match(/(?:^|; )connect-src ([^;]+)/)?.[1] || "";
     for (const directive of [
       "default-src 'self'",
       "object-src 'none'",
       "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://giscus.app https://cdn.jsdelivr.net",
-      "connect-src 'self' https:",
+      "style-src 'self' 'unsafe-inline' https://giscus.app",
       "frame-src https://giscus.app",
     ]) {
       if (!policy.includes(directive)) {
         incomplete.push(`${file}: missing ${directive}`);
       }
+    }
+    const expectedConnect = file === "tools/index.html" ? "'self' https: http:" : "'self' https:";
+    if (connectDirective !== expectedConnect) {
+      incomplete.push(`${file}: expected connect-src ${expectedConnect}, got ${connectDirective || "<missing>"}`);
     }
   }
 

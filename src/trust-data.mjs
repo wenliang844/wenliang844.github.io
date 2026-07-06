@@ -1,0 +1,160 @@
+export const TRUST_STATS = [
+  {
+    value: "0",
+    label: "内置私密 API key",
+    labelEn: "embedded private API keys",
+  },
+  {
+    value: "本机优先",
+    label: "工具与助手默认在浏览器内处理",
+    labelEn: "tools and assistant default to browser-side processing",
+  },
+  {
+    value: "可清理",
+    label: "本机历史与草稿由用户控制",
+    labelEn: "local history and drafts stay under user control",
+  },
+];
+
+export const LOCAL_DATA_ITEMS = [
+  {
+    title: "AI 助手设置与对话",
+    titleEn: "AI assistant settings and chats",
+    icon: "fa-robot",
+    storage: "localStorage: cwl.assistant.*",
+    description: "站内规则模式不会外发对话；启用大模型模式时，API key、模型和中转站配置保存在当前浏览器。隐私模式会阻止对话历史持久化。",
+    descriptionEn: "Site-rule mode does not send chats out. In LLM mode, the API key, model and relay configuration are stored in this browser. Privacy mode keeps chats out of persistent history.",
+    controls: "可在助手面板清空全部对话、切换隐私模式或调整保留期限。",
+    controlsEn: "Clear all conversations, switch privacy mode or change retention from the assistant panel.",
+  },
+  {
+    title: "API Tester 历史",
+    titleEn: "API Tester history",
+    icon: "fa-vial",
+    storage: "localStorage: cwl.tools.apiHistory",
+    description: "历史仅用于快速复用请求；保存前会脱敏敏感 Header，请求体默认不保存，除非用户主动勾选保存。",
+    descriptionEn: "History is only for reusing requests. Sensitive headers are redacted before saving, and request bodies are not kept unless explicitly enabled.",
+    controls: "可在工具面板删除单条历史或清空全部历史。",
+    controlsEn: "Delete one saved request or clear the full history in the toolbox.",
+  },
+  {
+    title: "反馈、草稿与阅读偏好",
+    titleEn: "Feedback, drafts and reading preferences",
+    icon: "fa-folder-open",
+    storage: "localStorage / sessionStorage",
+    description: "留言反馈默认保存在当前浏览器；Markdown、简历模板、阅读进度、主题和语言偏好也保存在本机。",
+    descriptionEn: "Feedback is saved in this browser by default. Markdown drafts, resume templates, reading progress, theme and language choices also stay locally.",
+    controls: "可在对应页面删除反馈、重置草稿，或通过浏览器站点数据面板统一清除。",
+    controlsEn: "Delete feedback on the page, reset drafts, or clear everything through the browser's site data settings.",
+  },
+];
+
+export const THIRD_PARTY_SERVICES = [
+  {
+    host: "buttondown.com",
+    name: "Buttondown",
+    nameEn: "Buttondown",
+    purpose: "邮件订阅托管",
+    purposeEn: "Email subscription hosting",
+    trigger: "提交页脚或弹窗订阅表单",
+    triggerEn: "Submitting the footer or modal subscription form",
+    data: ["邮箱地址"],
+    dataEn: ["Email address"],
+    userControl: "订阅是否生效以确认邮件为准，可通过邮件中的退订链接管理。",
+    userControlEn: "Subscription state depends on the confirmation email. Manage or unsubscribe through email links.",
+  },
+  {
+    host: "giscus.app",
+    name: "Giscus / GitHub Discussions",
+    nameEn: "Giscus / GitHub Discussions",
+    purpose: "文章评论区",
+    purposeEn: "Post comments",
+    trigger: "打开文章评论区脚本",
+    triggerEn: "Loading a post comments section",
+    data: ["GitHub 登录态", "评论内容"],
+    dataEn: ["GitHub login state", "Comment content"],
+    userControl: "评论由 GitHub Discussions 托管，删除和登录状态由 GitHub 管理。",
+    userControlEn: "Comments are hosted by GitHub Discussions. Deletion and login state are managed by GitHub.",
+  },
+  {
+    host: "api.web3forms.com",
+    name: "Web3Forms",
+    nameEn: "Web3Forms",
+    purpose: "可选在线反馈提交",
+    purposeEn: "Optional online feedback delivery",
+    trigger: "站长配置 access key 后提交反馈",
+    triggerEn: "Submitting feedback after the site owner configures an access key",
+    data: ["昵称", "联系方式", "反馈内容"],
+    dataEn: ["Nickname", "Contact detail", "Feedback message"],
+    userControl: "默认不开启；启用时页面仍会保留本机副本，可在反馈页删除本机记录。",
+    userControlEn: "Disabled by default. When enabled, the page still keeps a local copy that can be deleted on the feedback page.",
+  },
+  {
+    host: "cdn.jsdelivr.net / storage.googleapis.com",
+    name: "手势工具运行时资源",
+    nameEn: "Gesture tool runtime assets",
+    purpose: "按需加载机器视觉脚本和模型",
+    purposeEn: "On-demand computer-vision scripts and models",
+    trigger: "在工具箱中确认第三方资源后启动手势工具",
+    triggerEn: "Starting the gesture tool after acknowledging third-party assets",
+    data: ["模型与脚本下载请求"],
+    dataEn: ["Model and script download requests"],
+    userControl: "摄像头画面只在浏览器内识别；未确认前不会启动摄像头或加载远程运行时。",
+    userControlEn: "Camera frames are recognized in the browser. No camera or remote runtime starts before acknowledgement.",
+  },
+  {
+    host: "ifdian.net / paypal.me",
+    name: "赞助跳转",
+    nameEn: "Sponsor checkout links",
+    purpose: "赞助支付",
+    purposeEn: "Sponsor payments",
+    trigger: "点击爱发电或 PayPal 赞助链接",
+    triggerEn: "Clicking an Afdian or PayPal support link",
+    data: ["由支付平台处理的赞助信息"],
+    dataEn: ["Sponsor information handled by the payment platform"],
+    userControl: "支付流程在第三方平台完成，本站不会接收银行卡或支付账户信息。",
+    userControlEn: "Checkout happens on third-party platforms. This site does not receive card or payment account details.",
+  },
+];
+
+export const USER_CONTROLS = [
+  {
+    title: "清空本机数据",
+    titleEn: "Clear local data",
+    body: "可以在 AI 助手、API Tester、反馈页和编辑器中删除对应记录；也可以在浏览器的站点设置中清除本站全部数据。",
+    bodyEn: "Delete records from the assistant, API Tester, feedback page and editors, or clear all site data from browser settings.",
+  },
+  {
+    title: "外发请求由用户动作触发",
+    titleEn: "Outbound requests require a user action",
+    body: "订阅、评论、赞助、在线反馈、AI 大模型请求和 API Tester 请求都需要用户主动操作或配置后才会发生。",
+    bodyEn: "Subscription, comments, sponsorship, online feedback, LLM requests and API Tester calls happen only after user action or configuration.",
+  },
+  {
+    title: "客户端 secret 不等于真正保密",
+    titleEn: "Client-side secrets are not truly secret",
+    body: "任何填在网页里的 API key 都只能保存在当前浏览器，不能当作服务端密钥使用；建议为站点单独创建可撤销 key。",
+    bodyEn: "Any API key entered in the page is only stored in this browser and must not be treated as a server secret. Use a revocable site-specific key.",
+  },
+];
+
+export const SECURITY_SUMMARY = [
+  {
+    title: "静态站点默认无自有后端",
+    titleEn: "Static site with no default backend",
+    body: "公开页面由 GitHub Pages 托管；默认没有自建服务器接收访问者表单或工具输入。",
+    bodyEn: "Public pages are hosted on GitHub Pages. By default, there is no custom server receiving visitor forms or toolbox input.",
+  },
+  {
+    title: "CSP 限制资源来源",
+    titleEn: "CSP limits resource origins",
+    body: "页面声明 Content Security Policy，限制脚本、样式、图片、连接、表单和 iframe 的允许来源。",
+    bodyEn: "Pages declare a Content Security Policy that limits allowed script, style, image, connection, form and iframe origins.",
+  },
+  {
+    title: "安全问题反馈入口",
+    titleEn: "Security report path",
+    body: "如发现泄露、误导性数据流或安全问题，请通过联系页反馈，维护者会优先处理。",
+    bodyEn: "Report leaks, misleading data flows or security issues through the contact page. They are prioritized for review.",
+  },
+];

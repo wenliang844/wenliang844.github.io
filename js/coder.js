@@ -1,9 +1,6 @@
 (function () {
   const body = document.body;
 
-  /* ----------------------------------------------------------------------
-   * Color scheme toggle
-   * -------------------------------------------------------------------- */
   const STORAGE_KEY_THEME = "coder-color-scheme";
   const THEME_MODES = ["auto", "light", "dark"];
   let stored = null;
@@ -44,6 +41,7 @@
     body.classList.toggle("colorscheme-dark", actualTheme === "dark");
     body.classList.toggle("colorscheme-light", actualTheme === "light");
     updateThemeButtons(actualTheme);
+    document.dispatchEvent(new CustomEvent("cwl:themechange", { detail: { mode: themeMode, actualTheme } }));
   }
 
   function saveThemeMode(mode) {
@@ -87,9 +85,6 @@
     }
   }
 
-  /* ----------------------------------------------------------------------
-   * Blog list: switch between inline article panels
-   * -------------------------------------------------------------------- */
   const postLinks = Array.from(document.querySelectorAll(".post-tree-link[data-post-target]"));
   const postPanels = Array.from(document.querySelectorAll(".blog-article[id]"));
 
@@ -141,19 +136,12 @@
     }
   }
 
-  // Expose so other scripts (search/tag filter) can drive panel switching.
   window.coderShowPost = showPost;
 
-  /* ----------------------------------------------------------------------
-   * Reading progress bar & scroll handling with throttle
-   * -------------------------------------------------------------------- */
   const progress = document.createElement("div");
   progress.className = "read-progress";
   body.appendChild(progress);
 
-  /* ----------------------------------------------------------------------
-   * Back-to-top button
-   * -------------------------------------------------------------------- */
   const existingToTop = document.querySelector(".to-top");
   const toTop = existingToTop || document.createElement("button");
   toTop.classList.add("to-top");
@@ -174,13 +162,15 @@
     toTop.setAttribute("aria-label", t("dyn.totop", "返回顶部"));
   }
 
-  // 常量定义，避免魔法数字
   const SCROLL_CONSTANTS = {
-    BACK_TO_TOP_THRESHOLD: 420,    // 显示返回顶部按钮的滚动距离
-    TOC_OFFSET: 125,                // TOC 激活偏移量
-    SCROLL_THROTTLE: 100,           // 滚动事件节流时间（毫秒）
-    RESIZE_THROTTLE: 200            // resize 事件节流时间（毫秒）
+    BACK_TO_TOP_THRESHOLD: 420,
+    TOC_OFFSET: 125,
+    SCROLL_THROTTLE: 100,
+    RESIZE_THROTTLE: 200
   };
+  const READING_RESUME_MAX_AGE = 14 * 24 * 60 * 60 * 1000;
+  const READING_RESUME_MIN_RATIO = 0.08;
+  const READING_RESUME_MAX_RATIO = 0.98;
 
   function clamp(value, min, max) {
     return Math.min(max, Math.max(min, value));
@@ -189,6 +179,103 @@
   function getActiveArticle() {
     return document.querySelector(".blog-article.active") ||
       document.querySelector("article.article");
+  }
+
+  function activeArticleSlug(article) {
+    if (article && article.dataset.postSlug) {
+      return article.dataset.postSlug;
+    }
+    const match = window.location.pathname.match(/\/post\/([^/]+)\//);
+    return match ? match[1] : "";
+  }
+
+  function readingStorageKey(slug) {
+    return "cwl.reading." + slug;
+  }
+
+  function readStoredPosition(slug) {
+    if (!slug || !window.CWLUtils) {
+      return null;
+    }
+    try {
+      const raw = window.CWLUtils.storageGet(readingStorageKey(slug));
+      return raw ? JSON.parse(raw) : null;
+    } catch (_error) {
+      return null;
+    }
+  }
+
+  function saveReadingPosition(article, ratio) {
+    const slug = activeArticleSlug(article);
+    if (!slug || !window.CWLUtils || ratio < READING_RESUME_MIN_RATIO) {
+      return;
+    }
+    window.CWLUtils.storageSet(readingStorageKey(slug), JSON.stringify({
+      ratio: ratio,
+      scroll: window.scrollY || document.documentElement.scrollTop || 0,
+      time: Date.now()
+    }));
+  }
+
+  function removeReadingResume() {
+    const existing = document.querySelector(".reading-resume");
+    if (existing) {
+      existing.remove();
+    }
+  }
+
+  function scrollArticleToRatio(article, ratio) {
+    const scrollTop = window.scrollY || document.documentElement.scrollTop || 0;
+    const articleTop = article.getBoundingClientRect().top + scrollTop;
+    const readableHeight = Math.max(1, article.scrollHeight - window.innerHeight * 0.65);
+    window.scrollTo({
+      top: articleTop + readableHeight * clamp(ratio, 0, 1),
+      behavior: "smooth"
+    });
+  }
+
+  function showReadingResume(article) {
+    removeReadingResume();
+    const slug = activeArticleSlug(article);
+    const saved = readStoredPosition(slug);
+    if (!article || !saved || !Number.isFinite(saved.ratio)) {
+      return;
+    }
+    if (Date.now() - Number(saved.time || 0) > READING_RESUME_MAX_AGE) {
+      return;
+    }
+    if (saved.ratio < READING_RESUME_MIN_RATIO || saved.ratio > READING_RESUME_MAX_RATIO) {
+      return;
+    }
+
+    const prompt = document.createElement("aside");
+    prompt.className = "reading-resume";
+    prompt.setAttribute("role", "status");
+    prompt.setAttribute("aria-live", "polite");
+
+    const text = document.createElement("span");
+    text.textContent = t("dyn.resume.text", "上次读到") + " " + Math.round(saved.ratio * 100) + "%";
+
+    const resume = document.createElement("button");
+    resume.type = "button";
+    resume.className = "reading-resume-btn";
+    resume.textContent = t("dyn.resume.continue", "继续阅读");
+    resume.addEventListener("click", function () {
+      scrollArticleToRatio(article, saved.ratio);
+      removeReadingResume();
+    });
+
+    const close = document.createElement("button");
+    close.type = "button";
+    close.className = "reading-resume-close";
+    close.setAttribute("aria-label", t("dyn.resume.close", "关闭继续阅读提示"));
+    close.textContent = "×";
+    close.addEventListener("click", removeReadingResume);
+
+    prompt.appendChild(text);
+    prompt.appendChild(resume);
+    prompt.appendChild(close);
+    body.appendChild(prompt);
   }
 
   function onScroll() {
@@ -202,6 +289,7 @@
       const articleTop = article.getBoundingClientRect().top + scrollTop;
       const readableHeight = Math.max(1, article.scrollHeight - window.innerHeight * 0.65);
       ratio = clamp((scrollTop - articleTop) / readableHeight, 0, 1);
+      saveReadingPosition(article, ratio);
     } else {
       progress.hidden = true;
     }
@@ -222,6 +310,7 @@
   window.addEventListener("scroll", throttledScroll, { passive: true });
   window.addEventListener("resize", throttledResize);
   onScroll();
+  showReadingResume(getActiveArticle());
   body.classList.add("to-top-ready");
 
   /* ----------------------------------------------------------------------
@@ -254,6 +343,81 @@
       });
     });
     pre.appendChild(button);
+  });
+
+  /* ----------------------------------------------------------------------
+   * Article image lightbox
+   * -------------------------------------------------------------------- */
+  let lightboxOverlay = null;
+
+  function closeLightbox() {
+    if (!lightboxOverlay) {
+      return;
+    }
+    lightboxOverlay.remove();
+    lightboxOverlay = null;
+    body.classList.remove("lightbox-open");
+  }
+
+  function openLightbox(img) {
+    if (!img || !img.getAttribute("src")) {
+      return;
+    }
+    closeLightbox();
+
+    const overlay = document.createElement("div");
+    overlay.className = "lightbox-overlay";
+    overlay.setAttribute("role", "dialog");
+    overlay.setAttribute("aria-modal", "true");
+    overlay.setAttribute("aria-label", t("dyn.lightbox.aria", "图片预览"));
+
+    const close = document.createElement("button");
+    close.type = "button";
+    close.className = "lightbox-close";
+    close.setAttribute("aria-label", t("dyn.lightbox.close", "关闭图片预览"));
+    close.textContent = "×";
+
+    const preview = document.createElement("img");
+    preview.className = "lightbox-image";
+    preview.src = img.currentSrc || img.src;
+    preview.alt = img.alt || t("dyn.lightbox.image", "文章图片");
+
+    overlay.appendChild(close);
+    overlay.appendChild(preview);
+    overlay.addEventListener("click", function (event) {
+      if (event.target === overlay || event.target === close) {
+        closeLightbox();
+      }
+    });
+    body.appendChild(overlay);
+    body.classList.add("lightbox-open");
+    lightboxOverlay = overlay;
+    close.focus();
+  }
+
+  document.addEventListener("keydown", function (event) {
+    if (event.key === "Escape" && lightboxOverlay) {
+      closeLightbox();
+    }
+  });
+
+  document.querySelectorAll(".article-content img").forEach(function (img) {
+    if (img.dataset.lightboxReady === "true") {
+      return;
+    }
+    img.dataset.lightboxReady = "true";
+    img.tabIndex = 0;
+    img.setAttribute("role", "button");
+    img.setAttribute("aria-label", t("dyn.lightbox.open", "查看大图"));
+    img.addEventListener("click", function () {
+      openLightbox(img);
+    });
+    img.addEventListener("keydown", function (event) {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        openLightbox(img);
+      }
+    });
   });
 
   /* ----------------------------------------------------------------------
@@ -456,6 +620,7 @@
   document.addEventListener("cwl:langchange", updateDynamicText);
   document.addEventListener("cwl:postchange", function () {
     updateDynamicText();
+    showReadingResume(getActiveArticle());
     onScroll();
   });
   updateDynamicText();

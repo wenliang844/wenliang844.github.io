@@ -6,6 +6,17 @@ import { join } from "node:path";
 import { JSDOM } from "jsdom";
 
 const ROOT = join(import.meta.dirname, "..");
+const GISCUS_TEST_CONFIG = {
+  repo: "wenliang844/wenliang844.github.io",
+  repoId: "MDEwOlJlcG9zaXRvcnkzNTQyNDE4MDY=",
+  category: "Announcements",
+  categoryId: "DIC_kwDOFR1NDs4C_PFL",
+};
+const EMPTY_GISCUS_CONFIG = {
+  repo: "",
+  repoId: "",
+  categoryId: "",
+};
 
 function buildGiscusHtml(options = {}) {
   const mode = options.mode || "";
@@ -21,11 +32,17 @@ function buildGiscusHtml(options = {}) {
 </body></html>`;
 }
 
-async function loadGiscus(dom) {
+async function loadGiscus(dom, options = {}) {
   const utilsCode = await readFile(join(ROOT, "js", "utils.js"), "utf8");
   dom.window.eval(utilsCode);
   const i18nCode = await readFile(join(ROOT, "js", "i18n.js"), "utf8");
   dom.window.eval(i18nCode);
+  if (options.lang) {
+    dom.window.cwlSetLang(options.lang);
+  }
+  if (options.config) {
+    dom.window.CWL_GISCUS_CONFIG = options.config;
+  }
   const code = await readFile(join(ROOT, "js", "giscus.js"), "utf8");
   dom.window.eval(code);
   return dom;
@@ -34,13 +51,6 @@ async function loadGiscus(dom) {
 // ─── 未配置时显示占位符 ────────────────────────────────────────────────────────
 
 test("giscus.js renders placeholder when config is incomplete", async () => {
-  // Build a version with empty config to trigger placeholder
-  const code = await readFile(join(ROOT, "js", "giscus.js"), "utf8");
-  // Replace the config to simulate unconfigured state
-  const patched = code
-    .replace('repo: "wenliang844/wenliang844.github.io"', 'repo: ""')
-    .replace('repoId: "MDEwOlJlcG9zaXRvcnkzNTQyNDE4MDY="', 'repoId: ""');
-
   const html = buildGiscusHtml();
   const dom = new JSDOM(html, {
     runScripts: "outside-only",
@@ -48,11 +58,7 @@ test("giscus.js renders placeholder when config is incomplete", async () => {
     pretendToBeVisual: true,
   });
 
-  const utilsCode = await readFile(join(ROOT, "js", "utils.js"), "utf8");
-  dom.window.eval(utilsCode);
-  const i18nCode = await readFile(join(ROOT, "js", "i18n.js"), "utf8");
-  dom.window.eval(i18nCode);
-  dom.window.eval(patched);
+  await loadGiscus(dom, { config: EMPTY_GISCUS_CONFIG });
 
   const thread = dom.window.document.getElementById("giscus-thread");
   const hint = thread.querySelector(".comments-hint");
@@ -65,11 +71,6 @@ test("giscus.js renders placeholder when config is incomplete", async () => {
 // ─── 未配置时语言切换更新占位符 ────────────────────────────────────────────────
 
 test("giscus.js updates placeholder on language change", async () => {
-  const code = await readFile(join(ROOT, "js", "giscus.js"), "utf8");
-  const patched = code
-    .replace('repo: "wenliang844/wenliang844.github.io"', 'repo: ""')
-    .replace('repoId: "MDEwOlJlcG9zaXRvcnkzNTQyNDE4MDY="', 'repoId: ""');
-
   const html = buildGiscusHtml();
   const dom = new JSDOM(html, {
     runScripts: "outside-only",
@@ -77,11 +78,7 @@ test("giscus.js updates placeholder on language change", async () => {
     pretendToBeVisual: true,
   });
 
-  const utilsCode = await readFile(join(ROOT, "js", "utils.js"), "utf8");
-  dom.window.eval(utilsCode);
-  const i18nCode = await readFile(join(ROOT, "js", "i18n.js"), "utf8");
-  dom.window.eval(i18nCode);
-  dom.window.eval(patched);
+  await loadGiscus(dom, { config: EMPTY_GISCUS_CONFIG });
 
   const thread = dom.window.document.getElementById("giscus-thread");
   const initialText = thread.querySelector(".comments-hint").textContent;
@@ -99,11 +96,6 @@ test("giscus.js updates placeholder on language change", async () => {
 // ─── placeholder code 元素解析 ─────────────────────────────────────────────────
 
 test("giscus.js createPlaceholder parses <code> tags in message", async () => {
-  const code = await readFile(join(ROOT, "js", "giscus.js"), "utf8");
-  const patched = code
-    .replace('repo: "wenliang844/wenliang844.github.io"', 'repo: ""')
-    .replace('repoId: "MDEwOlJlcG9zaXRvcnkzNTQyNDE4MDY="', 'repoId: ""');
-
   const html = buildGiscusHtml();
   const dom = new JSDOM(html, {
     runScripts: "outside-only",
@@ -111,11 +103,7 @@ test("giscus.js createPlaceholder parses <code> tags in message", async () => {
     pretendToBeVisual: true,
   });
 
-  const utilsCode = await readFile(join(ROOT, "js", "utils.js"), "utf8");
-  dom.window.eval(utilsCode);
-  const i18nCode = await readFile(join(ROOT, "js", "i18n.js"), "utf8");
-  dom.window.eval(i18nCode);
-  dom.window.eval(patched);
+  await loadGiscus(dom, { config: EMPTY_GISCUS_CONFIG });
 
   const thread = dom.window.document.getElementById("giscus-thread");
   const codeEl = thread.querySelector("code");
@@ -139,7 +127,7 @@ test("giscus.js single mode appends script with correct attributes", async () =>
     pretendToBeVisual: true,
   });
 
-  await loadGiscus(dom);
+  await loadGiscus(dom, { config: GISCUS_TEST_CONFIG });
 
   const thread = dom.window.document.getElementById("giscus-thread");
   const script = thread.querySelector("script");
@@ -149,10 +137,132 @@ test("giscus.js single mode appends script with correct attributes", async () =>
   assert.equal(script.getAttribute("data-repo"), "wenliang844/wenliang844.github.io");
   assert.equal(script.getAttribute("data-repo-id"), "MDEwOlJlcG9zaXRvcnkzNTQyNDE4MDY=");
   assert.equal(script.getAttribute("data-mapping"), "pathname");
-  assert.equal(script.getAttribute("data-theme"), "preferred_color_scheme");
+  assert.equal(script.getAttribute("data-theme"), "dark");
   assert.equal(script.getAttribute("data-lang"), "zh-CN");
   assert.equal(script.getAttribute("data-strict"), "0");
   assert.equal(script.getAttribute("data-reactions-enabled"), "1");
+
+  dom.window.close();
+});
+
+test("giscus.js initializes script language and theme from site state", async () => {
+  const html = buildGiscusHtml().replace("colorscheme-dark", "colorscheme-light");
+  const dom = new JSDOM(html, {
+    runScripts: "outside-only",
+    url: "https://example.com/post/test/",
+    pretendToBeVisual: true,
+  });
+
+  await loadGiscus(dom, { config: GISCUS_TEST_CONFIG, lang: "en" });
+
+  const script = dom.window.document.querySelector("#giscus-thread script");
+  assert.ok(script, "script element should exist");
+  assert.equal(script.getAttribute("data-lang"), "en");
+  assert.equal(script.getAttribute("data-theme"), "light");
+
+  dom.window.close();
+});
+
+test("giscus.js syncs language and theme changes to the iframe", async () => {
+  const html = buildGiscusHtml({ mode: "switch", articles: ["post-a"] });
+  const dom = new JSDOM(html, {
+    runScripts: "outside-only",
+    url: "https://example.com/post/",
+    pretendToBeVisual: true,
+  });
+  const messages = [];
+  dom.window.document.querySelector(".blog-article").classList.add("active");
+
+  await loadGiscus(dom, { config: GISCUS_TEST_CONFIG });
+
+  const thread = dom.window.document.getElementById("giscus-thread");
+  const frame = dom.window.document.createElement("iframe");
+  frame.className = "giscus-frame";
+  Object.defineProperty(frame, "contentWindow", {
+    value: {
+      postMessage(message, targetOrigin) {
+        messages.push({ message, targetOrigin });
+      },
+    },
+  });
+  thread.appendChild(frame);
+
+  dom.window.cwlSetLang("en");
+  dom.window.document.body.classList.remove("colorscheme-dark");
+  dom.window.document.body.classList.add("colorscheme-light");
+  dom.window.document.dispatchEvent(new dom.window.CustomEvent("cwl:themechange", {
+    detail: { actualTheme: "light" },
+  }));
+
+  assert.equal(messages[0].message.giscus.setConfig.lang, "en");
+  assert.equal(messages[1].message.giscus.setConfig.theme, "light");
+  assert.ok(messages.every((entry) => entry.targetOrigin === "https://giscus.app"));
+
+  dom.window.close();
+});
+
+test("giscus.js waits until the comments section is near the viewport", async () => {
+  let observerCallback = null;
+  let observedTarget = null;
+  let observerOptions = null;
+  let disconnected = false;
+  const html = buildGiscusHtml();
+  const dom = new JSDOM(html, {
+    runScripts: "outside-only",
+    url: "https://example.com/post/test/",
+    pretendToBeVisual: true,
+  });
+  dom.window.IntersectionObserver = class {
+    constructor(cb, opts) {
+      observerCallback = cb;
+      observerOptions = opts;
+    }
+    observe(target) { observedTarget = target; }
+    disconnect() { disconnected = true; }
+  };
+
+  await loadGiscus(dom, { config: GISCUS_TEST_CONFIG });
+
+  const thread = dom.window.document.getElementById("giscus-thread");
+  assert.equal(thread.querySelector("script"), null, "script should wait for intersection");
+  assert.equal(observedTarget, thread, "comments section should be observed");
+  assert.equal(observerOptions.rootMargin, "600px 0px");
+
+  observerCallback([{ isIntersecting: true }]);
+
+  assert.ok(thread.querySelector("script"), "script should load after intersection");
+  assert.equal(disconnected, true, "lazy observer should disconnect after loading");
+
+  dom.window.close();
+});
+
+test("giscus.js renders a fallback when the external script fails", async () => {
+  const html = buildGiscusHtml();
+  const dom = new JSDOM(html, {
+    runScripts: "outside-only",
+    url: "https://example.com/post/test/",
+    pretendToBeVisual: true,
+  });
+  const warnings = [];
+  dom.window.CWLLogger = {
+    warn(message, details) {
+      warnings.push({ details, message });
+    },
+  };
+
+  await loadGiscus(dom, { config: GISCUS_TEST_CONFIG });
+
+  const thread = dom.window.document.getElementById("giscus-thread");
+  const script = thread.querySelector("script");
+  assert.ok(script, "script element should be appended before failure");
+
+  script.dispatchEvent(new dom.window.Event("error"));
+
+  const hint = thread.querySelector(".comments-hint");
+  assert.ok(hint, "failure should render an actionable comments hint");
+  assert.match(hint.textContent, /评论加载失败|Comments failed to load/);
+  assert.equal(warnings[0].message, "Giscus load failed");
+  assert.equal(warnings[0].details.reason, "script-error");
 
   dom.window.close();
 });
@@ -174,7 +284,7 @@ test("giscus.js switch mode loads with specific mapping and term", async () => {
   const firstArticle = dom.window.document.querySelector(".blog-article");
   firstArticle.classList.add("active");
 
-  await loadGiscus(dom);
+  await loadGiscus(dom, { config: GISCUS_TEST_CONFIG });
 
   const thread = dom.window.document.getElementById("giscus-thread");
   const script = thread.querySelector("script");
@@ -223,7 +333,7 @@ test("giscus.js switch mode observes class changes for article switching", async
   const firstArticle = dom.window.document.querySelector(".blog-article");
   firstArticle.classList.add("active");
 
-  await loadGiscus(dom);
+  await loadGiscus(dom, { config: GISCUS_TEST_CONFIG });
 
   assert.ok(observerCallback, "MutationObserver callback should be set");
   assert.equal(observedElements.length, 2, "should observe both article panels");
@@ -259,7 +369,7 @@ test("giscus.js disconnects observer on pagehide in switch mode", async () => {
   };
 
   dom.window.document.querySelector(".blog-article").classList.add("active");
-  await loadGiscus(dom);
+  await loadGiscus(dom, { config: GISCUS_TEST_CONFIG });
 
   dom.window.dispatchEvent(new dom.window.Event("pagehide"));
 
@@ -303,11 +413,6 @@ test("giscus.js showTerm skips when term matches loadedTerm", async () => {
   dom.window.MutationObserver = class {
     constructor() { this.observe = () => {}; this.disconnect = () => {}; }
   };
-  dom.window.IntersectionObserver = class {
-    constructor() {}
-    observe() {}
-    disconnect() {}
-  };
 
   dom.window.document.querySelector(".blog-article").classList.add("active");
 
@@ -315,6 +420,7 @@ test("giscus.js showTerm skips when term matches loadedTerm", async () => {
   dom.window.eval(utilsCode);
   const i18nCode = await readFile(join(ROOT, "js", "i18n.js"), "utf8");
   dom.window.eval(i18nCode);
+  dom.window.CWL_GISCUS_CONFIG = GISCUS_TEST_CONFIG;
   const giscusCode = await readFile(join(ROOT, "js", "giscus.js"), "utf8");
   dom.window.eval(giscusCode);
 

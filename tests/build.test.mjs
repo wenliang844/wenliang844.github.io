@@ -1,9 +1,10 @@
 import { execFile } from "node:child_process";
-import { mkdir, mkdtemp, readFile, rm } from "node:fs/promises";
+import { access, mkdir, mkdtemp, readFile, rm } from "node:fs/promises";
 import { join } from "node:path";
 import { promisify } from "node:util";
 import test from "node:test";
 import assert from "node:assert/strict";
+import { STATIC_PAGES } from "../src/config.mjs";
 
 const execFileAsync = promisify(execFile);
 const ROOT = join(import.meta.dirname, "..");
@@ -15,6 +16,21 @@ async function runBuild(args = []) {
   });
 }
 
+function indexPathForRoute(root, route) {
+  const segments = route.split("/").filter(Boolean);
+  return join(root, ...segments, "index.html");
+}
+
+function indexArtifactForRoute(route) {
+  const segments = route.split("/").filter(Boolean);
+  return segments.length ? `${segments.join("/")}/index.html` : "index.html";
+}
+
+async function trackedFiles() {
+  const { stdout } = await execFileAsync("git", ["ls-files"], { cwd: ROOT, windowsHide: true });
+  return new Set(stdout.trim().split(/\r?\n/).filter(Boolean));
+}
+
 test("build writes the expected static artifacts", async () => {
   const tempRoot = join(ROOT, "temp");
   await mkdir(tempRoot, { recursive: true });
@@ -24,13 +40,23 @@ test("build writes the expected static artifacts", async () => {
     assert.match(stdout, /构建完成：6 篇文章/);
 
     const postsHtml = await readFile(join(outDir, "post", "index.html"), "utf8");
+    const homeHtml = await readFile(join(outDir, "index.html"), "utf8");
+    const notFoundHtml = await readFile(join(outDir, "404.html"), "utf8");
+    const offlineHtml = await readFile(join(outDir, "offline.html"), "utf8");
+    const contactHtml = await readFile(join(outDir, "contact", "index.html"), "utf8");
+    const coderCss = await readFile(join(outDir, "css", "coder.css"), "utf8");
+    const coderJs = await readFile(join(outDir, "js", "coder.js"), "utf8");
+    const pwaRegisterJs = await readFile(join(outDir, "js", "pwa-register.js"), "utf8");
+    const serviceWorkerJs = await readFile(join(outDir, "service-worker.js"), "utf8");
     const singlePostHtml = await readFile(join(outDir, "post", "manage-system", "index.html"), "utf8");
     const appreciationHtml = await readFile(join(outDir, "appreciation", "index.html"), "utf8");
+    const trustHtml = await readFile(join(outDir, "trust", "index.html"), "utf8");
     const toolsHtml = await readFile(join(outDir, "tools", "index.html"), "utf8");
     const aiHtml = await readFile(join(outDir, "ai", "index.html"), "utf8");
     const sitemap = await readFile(join(outDir, "sitemap.xml"), "utf8");
     const robots = await readFile(join(outDir, "robots.txt"), "utf8");
     const rss = await readFile(join(outDir, "index.xml"), "utf8");
+    const webManifest = JSON.parse(await readFile(join(outDir, "manifest.webmanifest"), "utf8"));
     const searchIndex = JSON.parse(await readFile(join(outDir, "search-index.json"), "utf8"));
     const appreciationTexts = [
       "鉴赏",
@@ -90,6 +116,24 @@ test("build writes the expected static artifacts", async () => {
       "每个人都有漏洞,可以通过观察得到",
     ];
 
+    assert.match(homeHtml, /<main\b[^>]*\bid=["']main-content["']/i);
+    assert.match(notFoundHtml, /<meta name="robots" content="noindex,follow">/);
+    assert.match(offlineHtml, /<meta name="robots" content="noindex,follow">/);
+    assert.match(offlineHtml, /当前处于离线模式/);
+    assert.match(contactHtml, /data-i18n="contact\.h1"/);
+    assert.match(coderCss, /\.navigation/);
+    assert.match(coderJs, /coderShowPost/);
+    assert.match(pwaRegisterJs, /sw\.register\("\/service-worker\.js"\)/);
+    assert.match(serviceWorkerJs, /OFFLINE_URL = "\/offline\.html"/);
+    assert.match(serviceWorkerJs, /SENSITIVE_QUERY_RE/);
+    assert.equal(webManifest.name, "CWLBlog");
+    assert.equal(webManifest.short_name, "CWLBlog");
+    assert.equal(webManifest.start_url, "/");
+    assert.equal(webManifest.scope, "/");
+    assert.equal(webManifest.display, "standalone");
+    assert.equal(webManifest.theme_color, "#0f172a");
+    assert.equal(webManifest.icons[0].src, "/images/favicon.png");
+    assert.equal(webManifest.icons[0].sizes, "32x32");
     assert.match(postsHtml, /class="post-tree"/);
     assert.match(postsHtml, /<link rel="canonical" href="https:\/\/wenliang844.github.io\/post\/">/);
     assert.match(postsHtml, /property="og:image" content="https:\/\/wenliang844.github.io\/images\/favicon.png"/);
@@ -103,11 +147,13 @@ test("build writes the expected static artifacts", async () => {
     assert.match(sitemap, /<loc>https:\/\/wenliang844.github.io\/about\/<\/loc><lastmod>[^<]+<\/lastmod><priority>0\.6<\/priority>/);
     assert.match(sitemap, /<loc>https:\/\/wenliang844.github.io\/contact\/<\/loc>/);
     assert.match(sitemap, /<loc>https:\/\/wenliang844.github.io\/tools\/<\/loc>/);
+    assert.match(sitemap, /<loc>https:\/\/wenliang844.github.io\/trust\/<\/loc><lastmod>[^<]+<\/lastmod><priority>0\.5<\/priority>/);
     assert.match(sitemap, /<loc>https:\/\/wenliang844.github.io\/post\/manage-system\/<\/loc><lastmod>[^<]+<\/lastmod><priority>0\.8<\/priority>/);
     assert.doesNotMatch(sitemap, /<priority>0<\/priority>/);
     assert.doesNotMatch(sitemap, /<loc>https:\/\/wenliang844.github.io\/ai\/relay\/<\/loc>/);
     assert.match(robots, /Sitemap: https:\/\/wenliang844.github.io\/sitemap.xml/);
     assert.match(robots, /Allow: \/post\//);
+    assert.match(robots, /Allow: \/trust\//);
     assert.match(toolsHtml, /在线工具箱/);
     assert.match(toolsHtml, /JSON 格式化/);
     assert.match(toolsHtml, /JWT 解码/);
@@ -117,7 +163,9 @@ test("build writes the expected static artifacts", async () => {
     assert.match(toolsHtml, /\/js\/vendor\/qrcode\.min\.js/);
     assert.match(toolsHtml, /\/js\/tools-core\.js/);
     assert.match(toolsHtml, /\/js\/tools\.js/);
-    assert.match(toolsHtml, /\/js\/assistant\.js/);
+    assert.match(toolsHtml, /\/js\/assistant-loader\.js/);
+    assert.match(toolsHtml, /\/js\/pwa-register\.js/);
+    assert.doesNotMatch(toolsHtml, /\/js\/assistant\.js/);
     assert.match(aiHtml, /中转站排行榜/);
     assert.match(aiHtml, /<title>中转站排名 :: CWLBlog<\/title>/);
     assert.match(aiHtml, /<a class="active" href="\/ai\/" data-i18n="nav\.ai">AI中转站排名<\/a>/);
@@ -125,6 +173,10 @@ test("build writes the expected static artifacts", async () => {
     assert.match(aiHtml, /\/js\/relay\.js/);
     assert.match(aiHtml, /id="relay"/);
     assert.match(aiHtml, /data-relay-filter="healthy"/);
+    assert.match(trustHtml, /隐私与信任/);
+    assert.match(trustHtml, /buttondown\.com/);
+    assert.match(trustHtml, /giscus\.app/);
+    assert.match(trustHtml, /localStorage: cwl\.assistant\.\*/);
     // 单篇页：阅读时长占位、JSON-LD Article、相关文章、下一篇浮动卡。
     assert.match(singlePostHtml, /class="reading-time"/);
     assert.match(singlePostHtml, />约<\/span> \d+ <span data-i18n="dyn\.readingSuffix">分钟<\/span>/);
@@ -141,6 +193,7 @@ test("build writes the expected static artifacts", async () => {
     assert.ok(searchIndex.some((item) => item.path === "/tools/" && item.summary.includes("JSON")));
     assert.ok(searchIndex.some((item) => item.path === "/ai/" && item.title === "中转站排名" && item.summary.includes("中转站")));
     assert.ok(searchIndex.some((item) => item.path === "/ai/#nav" && item.title === "AI导航网站"));
+    assert.ok(searchIndex.some((item) => item.path === "/trust/" && item.title === "隐私与信任" && item.summary.includes("第三方服务")));
     assert.ok(searchIndex.every((item) => item.path !== "/ai/relay/"));
     assert.ok(searchIndex.some((item) => item.path === "/appreciation/" && item.summary.includes("顿悟")));
     assert.ok(searchIndex.every((item) => item.path && !item.path.includes("\\")));
@@ -152,4 +205,30 @@ test("build writes the expected static artifacts", async () => {
 test("build rejects missing or unsafe output directories", async () => {
   await assert.rejects(runBuild(["--out"]), /缺少 --out <dir> 参数/);
   await assert.rejects(runBuild(["--out", ".."]), /--out 只能指向项目内目录/);
+});
+
+test("registered static pages have committed index artifacts", async () => {
+  const tracked = await trackedFiles();
+
+  for (const page of STATIC_PAGES) {
+    const artifact = indexArtifactForRoute(page.path);
+    assert.ok(tracked.has(artifact), `${page.path} should have a tracked ${artifact}`);
+
+    const html = await readFile(indexPathForRoute(ROOT, page.path), "utf8");
+    assert.match(html, /<main\b[^>]*\bid=["']main-content["']/i, `${page.path} should have main#main-content`);
+  }
+});
+
+test("temporary build output covers every registered static page", async () => {
+  const tempRoot = join(ROOT, "temp");
+  await mkdir(tempRoot, { recursive: true });
+  const outDir = await mkdtemp(join(tempRoot, "cwlblog-static-routes-"));
+  try {
+    await runBuild(["--out", outDir]);
+    for (const page of STATIC_PAGES) {
+      await access(indexPathForRoute(outDir, page.path));
+    }
+  } finally {
+    await rm(outDir, { recursive: true, force: true });
+  }
 });

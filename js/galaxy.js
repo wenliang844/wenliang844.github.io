@@ -14,6 +14,9 @@
   const $fps      = document.getElementById('galaxy-fps')
   const $pcount   = document.getElementById('galaxy-particles')
   const $panel    = document.getElementById('tool-galaxy')
+  const reduceMotionQuery = typeof window.matchMedia === 'function'
+    ? window.matchMedia('(prefers-reduced-motion: reduce)')
+    : null
 
   const ctx = $canvas.getContext('2d')
 
@@ -105,6 +108,14 @@
     return lo + Math.random() * ((hi + 360) - lo) % 360
   }
 
+  function prefersReducedMotion() {
+    return !!(reduceMotionQuery && reduceMotionQuery.matches)
+  }
+
+  function isPanelVisible() {
+    return !$panel || !$panel.hidden
+  }
+
   /* ---- Resize ---- */
   let cw = 0, ch = 0, cx = 0, cy = 0
 
@@ -133,7 +144,7 @@
     const area = cw * ch
     /* layer 1: many tiny dim background specks */
     const dimCount = Math.min(Math.floor(area / 120), 4000)
-    for (var i = 0; i < dimCount; i++) {
+    for (let i = 0; i < dimCount; i++) {
       stars.push({
         x: rand(0, cw), y: rand(0, ch),
         r: rand(0.2, 0.5),
@@ -146,7 +157,7 @@
     }
     /* layer 2: medium stars */
     const midCount = Math.min(Math.floor(area / 400), 600)
-    for (var i = 0; i < midCount; i++) {
+    for (let i = 0; i < midCount; i++) {
       stars.push({
         x: rand(0, cw), y: rand(0, ch),
         r: rand(0.6, 1.2),
@@ -159,7 +170,7 @@
     }
     /* layer 3: bright stars with glow */
     const brightCount = Math.min(Math.floor(area / 3000), 80)
-    for (var i = 0; i < brightCount; i++) {
+    for (let i = 0; i < brightCount; i++) {
       stars.push({
         x: rand(0, cw), y: rand(0, ch),
         r: rand(1.4, 2.5),
@@ -172,7 +183,7 @@
     }
     /* layer 4: very bright stars with cross rays */
     const vBrightCount = Math.min(Math.floor(area / 15000), 15)
-    for (var i = 0; i < vBrightCount; i++) {
+    for (let i = 0; i < vBrightCount; i++) {
       stars.push({
         x: rand(0, cw), y: rand(0, ch),
         r: rand(2.5, 3.5),
@@ -187,22 +198,22 @@
 
   function drawStars() {
     /* dim stars — individual fillRect with per-star twinkle */
-    for (var i = 0; i < stars.length; i++) {
-      var s = stars[i]
+    for (let i = 0; i < stars.length; i++) {
+      const s = stars[i]
       if (s.r >= 0.6) {continue}
-      var tw = (Math.sin(time * s.twinkleSpeed + s.twinklePhase) + 1) * 0.5
-      var alpha = lerp(0.03, s.brightness, tw)
+      const tw = (Math.sin(time * s.twinkleSpeed + s.twinklePhase) + 1) * 0.5
+      const alpha = lerp(0.03, s.brightness, tw)
       if (alpha < 0.06) {continue}
       ctx.fillStyle = 'hsla(220, 20%, 92%, ' + alpha + ')'
       ctx.fillRect(s.x + s.ox, s.y + s.oy, s.r, s.r)
     }
 
     /* medium and bright stars individually */
-    for (var i = 0; i < stars.length; i++) {
-      var s = stars[i]
+    for (let i = 0; i < stars.length; i++) {
+      const s = stars[i]
       if (s.r < 0.6) {continue}
-      var tw = (Math.sin(time * s.twinkleSpeed + s.twinklePhase) + 1) * 0.5
-      var alpha = lerp(0.04, s.brightness, tw)
+      const tw = (Math.sin(time * s.twinkleSpeed + s.twinklePhase) + 1) * 0.5
+      const alpha = lerp(0.04, s.brightness, tw)
       const x = s.x + s.ox
       const y = s.y + s.oy
 
@@ -280,13 +291,13 @@
       const w = diag * (0.18 - pass * 0.04)
       const alpha = [0.06, 0.04, 0.025][pass]
       const steps = 50
-      for (var si = 0; si <= steps; si++) {
-        var t = (si / steps) - 0.5
-        var bw = w * bandWidthMul(t)
-        var bx = bandCx + Math.cos(angle) * t * diag * 0.82
-        var by = bandCy + Math.sin(angle) * t * diag * 0.82
-        var h = hueAt(t)
-        var g = bc.createRadialGradient(bx, by, 0, bx, by, bw)
+      for (let si = 0; si <= steps; si++) {
+        const t = (si / steps) - 0.5
+        const bw = w * bandWidthMul(t)
+        const bx = bandCx + Math.cos(angle) * t * diag * 0.82
+        const by = bandCy + Math.sin(angle) * t * diag * 0.82
+        const h = hueAt(t)
+        const g = bc.createRadialGradient(bx, by, 0, bx, by, bw)
         g.addColorStop(0, 'hsla(' + h + ', 60%, 40%, ' + alpha + ')')
         g.addColorStop(0.5, 'hsla(' + (h + 15) + ', 50%, 35%, ' + (alpha * 0.4) + ')')
         g.addColorStop(1, 'hsla(' + h + ', 40%, 25%, 0)')
@@ -298,14 +309,14 @@
     }
 
     /* --- Layer 1: wide atmospheric haze --- */
-    for (var si = 0; si <= 40; si++) {
-      var t = (si / 40) - 0.5
-      var bw = bandWidthMul(t)
-      var bx = bandCx + Math.cos(angle) * t * diag * 0.82
-      var by = bandCy + Math.sin(angle) * t * diag * 0.82
-      var coreR = diag * rand(0.12, 0.2) * bw
-      var h = hueAt(t)
-      var g = bc.createRadialGradient(bx, by, 0, bx, by, coreR)
+    for (let si = 0; si <= 40; si++) {
+      const t = (si / 40) - 0.5
+      const bw = bandWidthMul(t)
+      const bx = bandCx + Math.cos(angle) * t * diag * 0.82
+      const by = bandCy + Math.sin(angle) * t * diag * 0.82
+      const coreR = diag * rand(0.12, 0.2) * bw
+      const h = hueAt(t)
+      const g = bc.createRadialGradient(bx, by, 0, bx, by, coreR)
       g.addColorStop(0, 'hsla(' + h + ', 50%, 30%, 0.04)')
       g.addColorStop(0.5, 'hsla(' + (h + 15) + ', 40%, 25%, 0.02)')
       g.addColorStop(1, 'hsla(' + h + ', 30%, 20%, 0)')
@@ -321,22 +332,22 @@
       const bandWidth = diag * cloud.spread * 1.2
 
       const segments = 28
-      for (var si = 0; si <= segments; si++) {
-        var t = (si / segments) - 0.5
-        var bw = bandWidthMul(t)
-        var bx = bandCx + Math.cos(angle) * t * diag * 0.8
-        var by = bandCy + Math.sin(angle) * t * diag * 0.8
-        var shift = Math.sin(t * 6 + ci * 2.1) * bandWidth * 0.3 * bw
+      for (let si = 0; si <= segments; si++) {
+        const t = (si / segments) - 0.5
+        const bw = bandWidthMul(t)
+        let bx = bandCx + Math.cos(angle) * t * diag * 0.8
+        let by = bandCy + Math.sin(angle) * t * diag * 0.8
+        const shift = Math.sin(t * 6 + ci * 2.1) * bandWidth * 0.3 * bw
         bx += perpX * shift
         by += perpY * shift
 
         const rx = bandWidth * bw * rand(0.6, 1.15)
         const ry = bandWidth * bw * rand(0.3, 0.55)
-        var h = hueAt(t) + rand(-8, 8)
+        const h = hueAt(t) + rand(-8, 8)
         const s = cloud.sat
         const l = cloud.light
 
-        var g = bc.createRadialGradient(bx, by, 0, bx, by, rx)
+        const g = bc.createRadialGradient(bx, by, 0, bx, by, rx)
         g.addColorStop(0, 'hsla(' + h + ',' + s + '%,' + l + '%, 0.18)')
         g.addColorStop(0.12, 'hsla(' + (h + 6) + ',' + (s - 2) + '%,' + (l - 2) + '%, 0.13)')
         g.addColorStop(0.35, 'hsla(' + (h + 15) + ',' + (s - 5) + '%,' + (l - 5) + '%, 0.06)')
@@ -355,17 +366,17 @@
     }
 
     /* --- Layer 3: bright dense core --- */
-    for (var si = 0; si <= 45; si++) {
-      var t = (si / 45) - 0.5
-      var bw = bandWidthMul(t)
-      var bx = bandCx + Math.cos(angle) * t * diag * 0.72
-      var by = bandCy + Math.sin(angle) * t * diag * 0.72
-      var shift = Math.sin(t * 3.5) * diag * 0.015
+    for (let si = 0; si <= 45; si++) {
+      const t = (si / 45) - 0.5
+      const bw = bandWidthMul(t)
+      let bx = bandCx + Math.cos(angle) * t * diag * 0.72
+      let by = bandCy + Math.sin(angle) * t * diag * 0.72
+      const shift = Math.sin(t * 3.5) * diag * 0.015
       bx += perpX * shift
       by += perpY * shift
-      var coreR = diag * rand(0.025, 0.065) * bw
-      var h = hueAt(t) + rand(-6, 6)
-      var g = bc.createRadialGradient(bx, by, 0, bx, by, coreR)
+      const coreR = diag * rand(0.025, 0.065) * bw
+      const h = hueAt(t) + rand(-6, 6)
+      const g = bc.createRadialGradient(bx, by, 0, bx, by, coreR)
       g.addColorStop(0, 'hsla(' + h + ', 70%, 55%, 0.14)')
       g.addColorStop(0.25, 'hsla(' + (h + 10) + ', 60%, 48%, 0.07)')
       g.addColorStop(1, 'hsla(' + h + ', 40%, 30%, 0)')
@@ -377,14 +388,14 @@
 
     /* --- Layer 4: scattered bright nebula knots --- */
     for (let ki = 0; ki < 18; ki++) {
-      var t = rand(-0.42, 0.42)
-      var bw = bandWidthMul(t)
+      const t = rand(-0.42, 0.42)
+      const bw = bandWidthMul(t)
       const spread = rand(-diag * 0.06, diag * 0.06) * bw
-      var bx = bandCx + Math.cos(angle) * t * diag * 0.72 + perpX * spread
-      var by = bandCy + Math.sin(angle) * t * diag * 0.72 + perpY * spread
-      var coreR = diag * rand(0.012, 0.035)
-      var h = hueAt(t) + rand(-12, 12)
-      var g = bc.createRadialGradient(bx, by, 0, bx, by, coreR)
+      const bx = bandCx + Math.cos(angle) * t * diag * 0.72 + perpX * spread
+      const by = bandCy + Math.sin(angle) * t * diag * 0.72 + perpY * spread
+      const coreR = diag * rand(0.012, 0.035)
+      const h = hueAt(t) + rand(-12, 12)
+      const g = bc.createRadialGradient(bx, by, 0, bx, by, coreR)
       g.addColorStop(0, 'hsla(' + h + ', 80%, 60%, 0.18)')
       g.addColorStop(0.3, 'hsla(' + (h + 8) + ', 65%, 50%, 0.08)')
       g.addColorStop(1, 'hsla(' + h + ', 50%, 35%, 0)')
@@ -395,18 +406,18 @@
     }
 
     /* --- Layer 5: warm golden/white center highlights --- */
-    for (var si = 0; si <= 30; si++) {
-      var t = (si / 30) - 0.5
-      var bw = bandWidthMul(t)
-      var bx = bandCx + Math.cos(angle) * t * diag * 0.72
-      var by = bandCy + Math.sin(angle) * t * diag * 0.72
-      var shift = Math.sin(t * 3) * diag * 0.01
+    for (let si = 0; si <= 30; si++) {
+      const t = (si / 30) - 0.5
+      const bw = bandWidthMul(t)
+      let bx = bandCx + Math.cos(angle) * t * diag * 0.72
+      let by = bandCy + Math.sin(angle) * t * diag * 0.72
+      const shift = Math.sin(t * 3) * diag * 0.01
       bx += perpX * shift
       by += perpY * shift
-      var coreR = diag * rand(0.015, 0.035) * bw
+      const coreR = diag * rand(0.015, 0.035) * bw
       /* warm white/golden hue */
-      var h = hueAt(t) * 0.3 + 40
-      var g = bc.createRadialGradient(bx, by, 0, bx, by, coreR)
+      const h = hueAt(t) * 0.3 + 40
+      const g = bc.createRadialGradient(bx, by, 0, bx, by, coreR)
       g.addColorStop(0, 'hsla(' + h + ', 40%, 80%, 0.08)')
       g.addColorStop(0.4, 'hsla(' + (h + 10) + ', 30%, 65%, 0.04)')
       g.addColorStop(1, 'hsla(' + h + ', 20%, 50%, 0)')
@@ -417,14 +428,14 @@
     }
 
     /* --- Layer 6: edge softening (very wide, very faint) --- */
-    for (var si = 0; si <= 20; si++) {
-      var t = (si / 20) - 0.5
-      var bw = bandWidthMul(t)
-      var bx = bandCx + Math.cos(angle) * t * diag * 0.85
-      var by = bandCy + Math.sin(angle) * t * diag * 0.85
-      var coreR = diag * rand(0.2, 0.35) * bw
-      var h = hueAt(t)
-      var g = bc.createRadialGradient(bx, by, 0, bx, by, coreR)
+    for (let si = 0; si <= 20; si++) {
+      const t = (si / 20) - 0.5
+      const bw = bandWidthMul(t)
+      const bx = bandCx + Math.cos(angle) * t * diag * 0.85
+      const by = bandCy + Math.sin(angle) * t * diag * 0.85
+      const coreR = diag * rand(0.2, 0.35) * bw
+      const h = hueAt(t)
+      const g = bc.createRadialGradient(bx, by, 0, bx, by, coreR)
       g.addColorStop(0, 'hsla(' + h + ', 35%, 25%, 0.025)')
       g.addColorStop(0.6, 'hsla(' + (h + 10) + ', 25%, 20%, 0.01)')
       g.addColorStop(1, 'hsla(' + h + ', 20%, 15%, 0)')
@@ -608,9 +619,7 @@
   /* ============================================================
      MAIN LOOP
      ============================================================ */
-  function frame(ts) {
-    if (!running) {return}
-    rafId = requestAnimationFrame(frame)
+  function render(ts) {
     time = ts / 1000
 
     /* FPS */
@@ -652,9 +661,27 @@
     if ($pcount) {$pcount.textContent = (stars.length + particles.length) + ' 星'}
   }
 
+  function frame(ts) {
+    if (!running) {return}
+    rafId = requestAnimationFrame(frame)
+    render(ts)
+  }
+
   /* ---- Start / Stop ---- */
+  function drawStaticFrame() {
+    stop()
+    resize()
+    ensureParticles()
+    render((window.performance && window.performance.now) ? window.performance.now() : 0)
+    if ($fps) {$fps.textContent = '动画已按系统偏好暂停'}
+  }
+
   function start() {
     if (running) {return}
+    if (prefersReducedMotion()) {
+      drawStaticFrame()
+      return
+    }
     running = true
     resize()
     ensureParticles()
@@ -669,6 +696,16 @@
   function rebuild() {
     particles = []
     ensureParticles()
+    if (prefersReducedMotion() && isPanelVisible()) {drawStaticFrame()}
+  }
+
+  function handleReducedMotionChange() {
+    if (!isPanelVisible()) {return}
+    if (prefersReducedMotion()) {
+      drawStaticFrame()
+    } else {
+      start()
+    }
   }
 
   /* ---- Event bindings ---- */
@@ -683,12 +720,13 @@
       })
       /* recolor stars to match theme */
       const theme = THEMES[themeKey]
-      for (var i = 0; i < stars.length; i++) {
+      for (let i = 0; i < stars.length; i++) {
         stars[i].hue = randHue(theme.starHueLo, theme.starHueHi)
       }
-      for (var i = 0; i < particles.length; i++) {
+      for (let i = 0; i < particles.length; i++) {
         particles[i].hue = randHue(theme.starHueLo, theme.starHueHi)
       }
+      if (prefersReducedMotion() && isPanelVisible()) {drawStaticFrame()}
     })
   }
 
@@ -750,26 +788,38 @@
   let resizeTimer = null
   window.addEventListener('resize', function () {
     clearTimeout(resizeTimer)
-    resizeTimer = setTimeout(resize, 150)
+    resizeTimer = setTimeout(function () {
+      if (prefersReducedMotion() && isPanelVisible()) {drawStaticFrame(); return}
+      resize()
+    }, 150)
   })
 
   /* Pause when tab hidden */
   if ($panel) {
     new MutationObserver(function () {
       if ($panel.hidden) { stop(); return }
+      if (prefersReducedMotion()) { drawStaticFrame(); return }
       requestAnimationFrame(function () { resize(); start() })
     }).observe($panel, { attributes: true, attributeFilter: ['hidden'] })
   }
 
   document.addEventListener('visibilitychange', function () {
     if (document.hidden) {stop()}
-    else if ($panel && !$panel.hidden) {start()}
+    else if (isPanelVisible()) {start()}
   })
 
   window.addEventListener('beforeunload', stop)
 
+  if (reduceMotionQuery) {
+    if (typeof reduceMotionQuery.addEventListener === 'function') {
+      reduceMotionQuery.addEventListener('change', handleReducedMotionChange)
+    } else if (typeof reduceMotionQuery.addListener === 'function') {
+      reduceMotionQuery.addListener(handleReducedMotionChange)
+    }
+  }
+
   /* ---- Auto-start ---- */
-  if (!$panel || !$panel.hidden) {
+  if (isPanelVisible()) {
     start()
   }
 })()
