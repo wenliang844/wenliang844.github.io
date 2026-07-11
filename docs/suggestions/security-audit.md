@@ -4,6 +4,106 @@
 
 ---
 
+## 2026-07-03 复查补充
+
+> 复查时间：2026-07-03 22:40 +08:00 | 验证方式：`npm run check:readonly`、`npm run validate:production`、`npm audit --omit=dev --json`、`npm run test:coverage`、本地 HTTP 冒烟访问
+
+### 📌 S-11: `assistant.js` 仍在前端运行时拼接并使用默认体验 API Key
+
+- **📍 位置**：`js/assistant.js:39-63`, `js/assistant.js:328-333`, `js/assistant.js:1439-1510`, `tests/assistant.test.mjs:401-433`, `tests/assistant.test.mjs:464-497`
+- **📝 当前状况描述**：当前源码中仍存在 `OPENAI_DEFAULT_API_KEY` 与 `LLM_EXPERIENCE_KEYS`，通过数组片段 `.join("")` 在运行时还原默认 key。`withEffectiveApiKey()` 在用户未填写 key 且 endpoint 为默认 preset 时自动注入该 key，测试也断言“uses the OpenAI experience key without showing or storing it”。这与本文件 S-00 中“已移除前端 demo key”的旧结论不一致。文档中不写出完整 key，但风险已经可以从源码行为确认。
+- **⚠️ 影响程度**：高
+- **💡 建议方案**：
+  ```javascript
+  // 前端只保留空 key；默认体验必须走服务端代理
+  const LLM_EXPERIENCE_KEYS = Object.freeze({});
+
+  function withEffectiveApiKey(config) {
+    return { ...config, apiKey: String(config.apiKey || "").trim() };
+  }
+  ```
+  同时把测试从“不可出现连续 key 字面量”改为“源码不得存在 `LLM_EXPERIENCE_KEYS`、`OPENAI_DEFAULT_API_KEY`、拼接 key，以及默认 key 请求断言”。
+- **📊 预期收益**：消除前端 key 被提取、滥用和产生费用的高危风险，避免测试对“隐藏但仍可还原”的错误安全模型背书。
+- **🔗 相关建议引用**：[S-00](#s-00-已修复-assistantjs-硬编码-demo-api-key-泄露), [CQ-12](code-quality.md#cq-12-安全回归测试只检查连续-key-字面量无法识别拼接型密钥)
+
+### 📌 S-12 [已修复核心风险]: Mini API Tester 会把 Authorization 头和请求体持久化到 localStorage
+
+- **📍 位置**：`src/templates/tools.mjs:123-170`, `js/tools.js:461-529`, `js/tools.js:584-643`, `js/tools.js:686-692`
+- **✅ 修复状态**：保存历史前会对敏感 Header 做 `[redacted]` 处理，请求体默认不写入 `localStorage`；用户显式勾选“保存请求体”后才保存 body。发送请求仍使用原始 headers/body，不影响调试功能。
+- **🧪 回归测试**：`tests/tools.test.mjs` 覆盖自动保存脱敏、默认 body 为空、显式保存 body；Playwright 抽查 `/tools/` API Tester 本地历史通过。
+- **📝 原状况描述**：API 测试器的 placeholder 引导用户填写 `Authorization: Bearer YOUR_API_KEY`，`currentApiRequest()` 会读取完整 `headers` 和 `body`，`saveApiRequest()` 直接写入 `localStorage` 的 `cwl.tools.apiHistory`。发送成功后 `sendApiRequest()` 还会自动调用 `saveApiRequest()`。真实 token、cookie、body 中的密钥或个人数据可能长期留在浏览器本地历史。
+- **⚠️ 影响程度**：中
+- **💡 建议方案**：
+  ```javascript
+  const SECRET_HEADER = /^(authorization|cookie|x-api-key|api-key)$/i;
+
+  function redactHeaders(raw) {
+    return raw.split(/\r?\n/).map((line) => {
+      const [name] = line.split(":");
+      return SECRET_HEADER.test(name.trim()) ? `${name}: <redacted>` : line;
+    }).join("\n");
+  }
+  ```
+  UI 层建议把“保存请求”和“发送后自动保存”拆开：默认不保存敏感 header，保存前给出明确提示，并提供“清除全部历史”后的成功状态。
+- **📊 预期收益**：降低本机浏览器、共享电脑、恶意扩展读取 API 凭据的风险，同时保留 API Tester 的便利性。
+- **🔗 相关建议引用**：[S-08](#s-08-localstorage-中存储反馈数据无加密), [F-11](new-features.md#f-11-为-api-tester-增加隐私模式和敏感信息脱敏保存)
+
+### 📌 S-13: 手势工具运行时加载 CDN 机器视觉脚本和模型，缺少完整供应链约束
+
+- **📍 位置**：`js/gesture.js:160-167`, `js/gesture.js:213-216`, `js/gesture.js:223-229`, `js/gesture.js:258-265`, `src/templates/layout.mjs:39-50`, `src/templates/tools.mjs:865-868`
+- **📝 当前状况描述**：手势工具运行时从 `cdn.jsdelivr.net`、`storage.googleapis.com` 加载 MediaPipe、face-api、Three.js、WASM 和模型文件；CSP 也为工具页放开了 `script-src https://cdn.jsdelivr.net`、`connect-src https:` 与 `wasm-unsafe-eval`。虽然摄像头帧处理在浏览器端执行，但第三方脚本一旦被供应链污染，就具备读取页面状态和摄像头处理数据的能力。
+- **⚠️ 影响程度**：中
+- **💡 建议方案**：
+  ```text
+  /js/vendor/mediapipe/vision_bundle.mjs
+  /js/vendor/mediapipe/wasm/*
+  /models/hand_landmarker.task
+  /models/efficientdet_lite0.tflite
+  /js/vendor/three.module.js
+  ```
+  将关键运行时和模型自托管、记录版本与 hash；如果继续使用 CDN，至少在 UI 中说明外部模型来源，并把 CSP 从全站宽泛 `connect-src https:` 收敛到必要域名。
+- **📊 预期收益**：减少第三方供应链风险，提升摄像头功能的隐私可信度，并让离线/弱网体验更可控。
+- **🔗 相关建议引用**：[S-06](#s-06-第三方脚本缺少-subresource-integrity-sri-校验), [P-14](performance-bottlenecks.md#p-14-手势工具首次启动依赖远程模型链路弱网下冷启动不可控)
+
+### 📌 S-14: AI 助手对话和 LLM 上下文长期留存在 localStorage
+
+- **📍 位置**：`js/assistant.js:34`, `js/assistant.js:130-145`, `js/assistant.js:220-243`, `js/assistant.js:1104-1108`, `js/assistant.js:1454-1478`
+- **📝 当前状况描述**：AI 助手会把站点问答消息和最近 12 条 LLM 上下文写入 `cwl.assistant.conversations`。这些内容可能包含用户输入的隐私问题、代码片段、业务信息或模型回复；当前只有本地持久化，没有保留期限、敏感内容提示、一次性会话模式或“清除所有对话”的强提示入口。
+- **⚠️ 影响程度**：中
+- **💡 建议方案**：
+  ```javascript
+  const RETENTION_MS = 7 * 24 * 60 * 60 * 1000;
+
+  function shouldKeepConversation(item) {
+    return Date.now() - Number(item.updatedAt || 0) < RETENTION_MS;
+  }
+
+  function saveConversations() {
+    const retained = conversations.filter(shouldKeepConversation);
+    storageSet(CONVERSATIONS_KEY, JSON.stringify(retained));
+  }
+  ```
+  UI 层增加“隐私模式：不保存本轮对话”“清除全部对话”“导出/删除当前对话”，并在 LLM 输入区说明本地保存范围。
+- **📊 预期收益**：降低共享设备、浏览器扩展或本机恶意软件读取历史对话的隐私风险，同时保留多轮上下文体验。
+- **🔗 相关建议引用**：[F-13](new-features.md#f-13-ai-助手增加隐私模式和对话保留策略), [MR-AST-04](module-reviews/assistant-deep-dive.md#mr-ast-04-对话持久化缺少生命周期和隐私控制)
+
+### 📌 S-15: UUID 工具在 Web Crypto 不可用时退化到 `Math.random()`
+
+- **📍 位置**：`js/tools-core.js:204-228`, `tests/tools.test.mjs:236-258`
+- **📝 当前状况描述**：`generateUuid()` 优先使用 `crypto.randomUUID()` 和 `crypto.getRandomValues()`，这是正确主路径；但当 crypto 访问失败时会使用 `Math.random()` 填充 UUID 字节。测试还断言“blocked crypto access”下仍应生成 UUID，等于把弱随机 fallback 固化为行为契约。对普通占位 ID 尚可，对用户认为“UUID 可用于安全 token”的场景会形成误导。
+- **⚠️ 影响程度**：低
+- **💡 建议方案**：
+  ```javascript
+  if (!filled) {
+    return fail("当前浏览器不支持安全随机数，无法生成安全 UUID", "uuidCrypto");
+  }
+  ```
+  如果必须保留兼容 fallback，输出区应标记“非加密随机，仅用于临时标识”，并把复制按钮状态同步为警示。
+- **📊 预期收益**：避免工具输出被误用为邀请码、重置 token 或安全凭据，明确随机数强度边界。
+- **🔗 相关建议引用**：[TD-12](tech-debt.md#td-12-随机数能力边界需要产品和测试共同收敛), [MR-CORE-02](module-reviews/tools-core.md#mr-core-02-uuid-生成器的弱随机-fallback-需要明确降级语义)
+
+---
+
 ## 📌 S-00 [已修复]: `assistant.js` 硬编码 Demo API Key 泄露
 
 - **📍 原位置**：`js/assistant.js:54-57`
@@ -84,10 +184,11 @@
 
 ---
 
-## 📌 S-04: `giscus.js` 硬编码 GitHub 仓库 ID 和 Category ID
+## 📌 S-04 [已优化]: `giscus.js` 默认包含 GitHub 仓库 ID 和 Category ID
 
 - **📍 位置**：`js/giscus.js:16-24`
-- **📝 当前状况**：
+- **✅ 优化状态**：默认值保留为当前站点公开的 giscus.app 配置，确保评论功能默认可用；部署方可以在加载 `js/giscus.js` 前设置 `window.CWL_GISCUS_CONFIG` 覆盖或置空这些值，未配置时会显示安全占位提示。
+- **📝 当前默认值**：
   ```javascript
   repo: "wenliang844/wenliang844.github.io",
   repoId: "MDEwOlJlcG9zaXRvcnkzNTQyNDE4MDY=",
@@ -95,7 +196,7 @@
   ```
   这些是公开的 GitHub 仓库元数据，不是敏感信息。Giscus 设计就是在前端配置这些值。
 - **⚠️ 影响程度**：无（设计如此）
-- **💡 建议方案**：无需修改。但建议在注释中说明这些值的来源（giscus.app 配置页面），方便未来维护。
+- **💡 建议方案**：继续保留公共默认配置；若需要多环境部署，使用 `window.CWL_GISCUS_CONFIG` 注入环境特定配置。
 - **📊 预期收益**：提升代码可维护性
 - **🔗 相关建议**：无
 

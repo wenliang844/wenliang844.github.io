@@ -6,6 +6,17 @@ import { join } from "node:path";
 import { JSDOM } from "jsdom";
 
 const ROOT = join(import.meta.dirname, "..");
+const GISCUS_TEST_CONFIG = {
+  repo: "wenliang844/wenliang844.github.io",
+  repoId: "MDEwOlJlcG9zaXRvcnkzNTQyNDE4MDY=",
+  category: "Announcements",
+  categoryId: "DIC_kwDOFR1NDs4C_PFL",
+};
+const EMPTY_GISCUS_CONFIG = {
+  repo: "",
+  repoId: "",
+  categoryId: "",
+};
 
 function buildGiscusHtml(options = {}) {
   const mode = options.mode || "";
@@ -21,11 +32,14 @@ function buildGiscusHtml(options = {}) {
 </body></html>`;
 }
 
-async function loadGiscus(dom) {
+async function loadGiscus(dom, options = {}) {
   const utilsCode = await readFile(join(ROOT, "js", "utils.js"), "utf8");
   dom.window.eval(utilsCode);
   const i18nCode = await readFile(join(ROOT, "js", "i18n.js"), "utf8");
   dom.window.eval(i18nCode);
+  if (options.config) {
+    dom.window.CWL_GISCUS_CONFIG = options.config;
+  }
   const code = await readFile(join(ROOT, "js", "giscus.js"), "utf8");
   dom.window.eval(code);
   return dom;
@@ -34,13 +48,6 @@ async function loadGiscus(dom) {
 // ─── 未配置时显示占位符 ────────────────────────────────────────────────────────
 
 test("giscus.js renders placeholder when config is incomplete", async () => {
-  // Build a version with empty config to trigger placeholder
-  const code = await readFile(join(ROOT, "js", "giscus.js"), "utf8");
-  // Replace the config to simulate unconfigured state
-  const patched = code
-    .replace('repo: "wenliang844/wenliang844.github.io"', 'repo: ""')
-    .replace('repoId: "MDEwOlJlcG9zaXRvcnkzNTQyNDE4MDY="', 'repoId: ""');
-
   const html = buildGiscusHtml();
   const dom = new JSDOM(html, {
     runScripts: "outside-only",
@@ -48,11 +55,7 @@ test("giscus.js renders placeholder when config is incomplete", async () => {
     pretendToBeVisual: true,
   });
 
-  const utilsCode = await readFile(join(ROOT, "js", "utils.js"), "utf8");
-  dom.window.eval(utilsCode);
-  const i18nCode = await readFile(join(ROOT, "js", "i18n.js"), "utf8");
-  dom.window.eval(i18nCode);
-  dom.window.eval(patched);
+  await loadGiscus(dom, { config: EMPTY_GISCUS_CONFIG });
 
   const thread = dom.window.document.getElementById("giscus-thread");
   const hint = thread.querySelector(".comments-hint");
@@ -65,11 +68,6 @@ test("giscus.js renders placeholder when config is incomplete", async () => {
 // ─── 未配置时语言切换更新占位符 ────────────────────────────────────────────────
 
 test("giscus.js updates placeholder on language change", async () => {
-  const code = await readFile(join(ROOT, "js", "giscus.js"), "utf8");
-  const patched = code
-    .replace('repo: "wenliang844/wenliang844.github.io"', 'repo: ""')
-    .replace('repoId: "MDEwOlJlcG9zaXRvcnkzNTQyNDE4MDY="', 'repoId: ""');
-
   const html = buildGiscusHtml();
   const dom = new JSDOM(html, {
     runScripts: "outside-only",
@@ -77,11 +75,7 @@ test("giscus.js updates placeholder on language change", async () => {
     pretendToBeVisual: true,
   });
 
-  const utilsCode = await readFile(join(ROOT, "js", "utils.js"), "utf8");
-  dom.window.eval(utilsCode);
-  const i18nCode = await readFile(join(ROOT, "js", "i18n.js"), "utf8");
-  dom.window.eval(i18nCode);
-  dom.window.eval(patched);
+  await loadGiscus(dom, { config: EMPTY_GISCUS_CONFIG });
 
   const thread = dom.window.document.getElementById("giscus-thread");
   const initialText = thread.querySelector(".comments-hint").textContent;
@@ -99,11 +93,6 @@ test("giscus.js updates placeholder on language change", async () => {
 // ─── placeholder code 元素解析 ─────────────────────────────────────────────────
 
 test("giscus.js createPlaceholder parses <code> tags in message", async () => {
-  const code = await readFile(join(ROOT, "js", "giscus.js"), "utf8");
-  const patched = code
-    .replace('repo: "wenliang844/wenliang844.github.io"', 'repo: ""')
-    .replace('repoId: "MDEwOlJlcG9zaXRvcnkzNTQyNDE4MDY="', 'repoId: ""');
-
   const html = buildGiscusHtml();
   const dom = new JSDOM(html, {
     runScripts: "outside-only",
@@ -111,11 +100,7 @@ test("giscus.js createPlaceholder parses <code> tags in message", async () => {
     pretendToBeVisual: true,
   });
 
-  const utilsCode = await readFile(join(ROOT, "js", "utils.js"), "utf8");
-  dom.window.eval(utilsCode);
-  const i18nCode = await readFile(join(ROOT, "js", "i18n.js"), "utf8");
-  dom.window.eval(i18nCode);
-  dom.window.eval(patched);
+  await loadGiscus(dom, { config: EMPTY_GISCUS_CONFIG });
 
   const thread = dom.window.document.getElementById("giscus-thread");
   const codeEl = thread.querySelector("code");
@@ -139,7 +124,7 @@ test("giscus.js single mode appends script with correct attributes", async () =>
     pretendToBeVisual: true,
   });
 
-  await loadGiscus(dom);
+  await loadGiscus(dom, { config: GISCUS_TEST_CONFIG });
 
   const thread = dom.window.document.getElementById("giscus-thread");
   const script = thread.querySelector("script");
@@ -174,7 +159,7 @@ test("giscus.js switch mode loads with specific mapping and term", async () => {
   const firstArticle = dom.window.document.querySelector(".blog-article");
   firstArticle.classList.add("active");
 
-  await loadGiscus(dom);
+  await loadGiscus(dom, { config: GISCUS_TEST_CONFIG });
 
   const thread = dom.window.document.getElementById("giscus-thread");
   const script = thread.querySelector("script");
@@ -223,7 +208,7 @@ test("giscus.js switch mode observes class changes for article switching", async
   const firstArticle = dom.window.document.querySelector(".blog-article");
   firstArticle.classList.add("active");
 
-  await loadGiscus(dom);
+  await loadGiscus(dom, { config: GISCUS_TEST_CONFIG });
 
   assert.ok(observerCallback, "MutationObserver callback should be set");
   assert.equal(observedElements.length, 2, "should observe both article panels");
@@ -259,7 +244,7 @@ test("giscus.js disconnects observer on pagehide in switch mode", async () => {
   };
 
   dom.window.document.querySelector(".blog-article").classList.add("active");
-  await loadGiscus(dom);
+  await loadGiscus(dom, { config: GISCUS_TEST_CONFIG });
 
   dom.window.dispatchEvent(new dom.window.Event("pagehide"));
 
@@ -315,6 +300,7 @@ test("giscus.js showTerm skips when term matches loadedTerm", async () => {
   dom.window.eval(utilsCode);
   const i18nCode = await readFile(join(ROOT, "js", "i18n.js"), "utf8");
   dom.window.eval(i18nCode);
+  dom.window.CWL_GISCUS_CONFIG = GISCUS_TEST_CONFIG;
   const giscusCode = await readFile(join(ROOT, "js", "giscus.js"), "utf8");
   dom.window.eval(giscusCode);
 

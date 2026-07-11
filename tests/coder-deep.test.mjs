@@ -69,6 +69,39 @@ test("coder.js creates reading progress bar", async () => {
   dom.window.close();
 });
 
+test("coder.js shows a resume-reading prompt for saved article progress", async () => {
+  const dom = buildDom(`<!doctype html><html lang="zh-CN"><body class="colorscheme-dark">
+    <article class="article" data-post-slug="resume-test">
+      <div class="article-content"><p>Long article body</p></div>
+    </article>
+  </body></html>`);
+  dom.window.localStorage.setItem("cwl.reading.resume-test", JSON.stringify({
+    ratio: 0.42,
+    scroll: 840,
+    time: Date.now(),
+  }));
+  let scrollTarget = null;
+  dom.window.scrollTo = (options) => {
+    scrollTarget = options;
+  };
+  await loadCoder(dom);
+
+  const { document } = dom.window;
+  const article = document.querySelector("article.article");
+  Object.defineProperty(article, "scrollHeight", { value: 2400, configurable: true });
+  article.getBoundingClientRect = () => ({ top: 120 });
+
+  const prompt = document.querySelector(".reading-resume");
+  assert.ok(prompt, "should render resume prompt");
+  assert.match(prompt.textContent, /42%/);
+
+  prompt.querySelector(".reading-resume-btn").click();
+  assert.ok(scrollTarget, "clicking continue should scroll");
+  assert.equal(scrollTarget.behavior, "smooth");
+  assert.equal(document.querySelector(".reading-resume"), null, "prompt should close after resume");
+  dom.window.close();
+});
+
 test("coder.js hides reading progress bar on non-article pages", async () => {
   const dom = buildDom(`<!doctype html><html lang="zh-CN"><body class="colorscheme-dark">
     <main class="container"><h1>Tools</h1><p>Utility page content.</p></main>
@@ -120,6 +153,41 @@ test("coder.js adds copy button to code blocks", async () => {
   const btn = dom.window.document.querySelector(".code-copy");
   assert.ok(btn, "should add copy button to pre block");
   assert.equal(btn.type, "button");
+  dom.window.close();
+});
+
+test("coder.js opens article images in an accessible lightbox", async () => {
+  const dom = buildDom(`<!doctype html><html lang="zh-CN"><body class="colorscheme-dark">
+    <article class="article"><div class="article-content">
+      <img src="/images/posts/example.png" alt="Example diagram">
+    </div></article>
+  </body></html>`);
+  await loadCoder(dom);
+  const { document, KeyboardEvent } = dom.window;
+  const img = document.querySelector(".article-content img");
+
+  assert.equal(img.dataset.lightboxReady, "true");
+  assert.equal(img.getAttribute("role"), "button");
+  assert.equal(img.tabIndex, 0);
+  assert.equal(img.getAttribute("aria-label"), "查看大图");
+
+  img.click();
+  let overlay = document.querySelector(".lightbox-overlay");
+  assert.ok(overlay, "lightbox should open on click");
+  assert.equal(overlay.getAttribute("role"), "dialog");
+  assert.equal(overlay.getAttribute("aria-modal"), "true");
+  assert.equal(overlay.querySelector(".lightbox-image").getAttribute("alt"), "Example diagram");
+  assert.ok(document.body.classList.contains("lightbox-open"));
+
+  document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+  assert.equal(document.querySelector(".lightbox-overlay"), null, "Escape should close lightbox");
+  assert.equal(document.body.classList.contains("lightbox-open"), false);
+
+  img.dispatchEvent(new KeyboardEvent("keydown", { key: " ", bubbles: true, cancelable: true }));
+  overlay = document.querySelector(".lightbox-overlay");
+  assert.ok(overlay, "Space should open lightbox");
+  overlay.querySelector(".lightbox-close").click();
+  assert.equal(document.querySelector(".lightbox-overlay"), null, "close button should remove lightbox");
   dom.window.close();
 });
 

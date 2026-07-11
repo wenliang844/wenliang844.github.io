@@ -87,10 +87,32 @@ test("feedback.js rejects empty message submission", async () => {
 
   const status = document.getElementById("feedback-status").textContent;
   assert.ok(status.length > 0, "should show error status");
+  assert.equal(document.getElementById("fb-message").getAttribute("aria-invalid"), "true");
+  assert.equal(document.getElementById("fb-message").classList.contains("is-invalid"), true);
 
   const list = document.getElementById("feedback-list");
   const empty = list.querySelector(".feedback-empty");
   assert.ok(empty, "should still show empty state");
+  dom.window.close();
+});
+
+test("feedback.js clears message invalid state while typing", async () => {
+  const dom = new JSDOM(FEEDBACK_HTML, {
+    runScripts: "outside-only",
+    url: "https://wenliang844.github.io/contact/",
+  });
+  await loadFeedback(dom);
+  const { document, Event } = dom.window;
+  const messageInput = document.getElementById("fb-message");
+
+  messageInput.value = "";
+  document.getElementById("feedback-form").dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+  assert.equal(messageInput.getAttribute("aria-invalid"), "true");
+
+  messageInput.value = "typing";
+  messageInput.dispatchEvent(new Event("input", { bubbles: true }));
+  assert.equal(messageInput.getAttribute("aria-invalid"), "false");
+  assert.equal(messageInput.classList.contains("is-invalid"), false);
   dom.window.close();
 });
 

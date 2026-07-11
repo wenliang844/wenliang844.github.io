@@ -7,6 +7,7 @@ build/
 target/
 outputs/
 coverage/
+test-results/
 
 # Logs
 logs/

@@ -4,6 +4,121 @@
 
 ---
 
+## 2026-07-03 复查补充
+
+### 📌 P-13: 关键静态产物体积已经接近当前性能预算
+
+- **📍 位置**：`css/coder.css:1-6481`, `tools/index.html:1-1247`, `post/index.html:1-1283`, `js/gesture.js:1-2470`, `js/assistant.js:1-1568`
+- **📝 当前状况描述**：本轮文件体积扫描显示：`css/coder.css` 137,647 bytes、`tools/index.html` 105,773 bytes、`post/index.html` 108,252 bytes、`js/gesture.js` 90,259 bytes、`js/assistant.js` 61,069 bytes。CSS 已接近测试中 140KB 预算；工具箱和博客列表 HTML 都超过 100KB，随着工具和文章继续增加，首屏解析成本会继续线性增长。
+- **⚠️ 影响程度**：中
+- **💡 建议方案**：
+  ```text
+  1. 为 tools/post 建立独立体积预算：HTML < 120KB、首屏 JS < 80KB、CSS < 140KB。
+  2. 工具箱按 category 拆分 HTML：首屏只渲染 active panel，其余 panel 通过 template 或 JSON 延迟挂载。
+  3. CSS 按页面拆分：core.css + tools.css + article.css，并在构建期按页面注入。
+  ```
+- **📊 预期收益**：控制解析与样式计算成本，避免个人站点功能持续扩张后首屏退化。
+- **🔗 相关建议引用**：[P-02](#p-02), [P-03](#p-03), [P-07](#p-07)
+
+### 📌 P-14: 手势工具首次启动依赖远程模型链路，弱网下冷启动不可控
+
+- **📍 位置**：`js/gesture.js:160-167`, `js/gesture.js:169-207`, `js/gesture.js:213-252`, `js/gesture.js:258-265`, `src/templates/tools.mjs:793-870`
+- **📝 当前状况描述**：点击手势工具后，MediaPipe vision bundle、WASM、hand landmarker、object detector、face-api 模型、Three.js 均按需远程加载。当前 UI 只有“加载模型...”这类状态，没有资源大小、失败重试、预热、缓存策略或离线提示。弱网下用户可能在摄像头授权前后等待较久，且失败原因不可见。
+- **⚠️ 影响程度**：中
+- **💡 建议方案**：
+  ```javascript
+  const MODEL_ASSETS = [
+    "/models/hand_landmarker.task",
+    "/models/efficientdet_lite0.tflite",
+  ];
+
+  async function warmGestureAssets() {
+    await Promise.all(MODEL_ASSETS.map((url) => fetch(url, { cache: "force-cache" })));
+  }
+  ```
+  将模型自托管后用 `Cache-Control` 和 Service Worker 预缓存；UI 上显示“下载模型/初始化摄像头/开始识别”三段状态，并允许用户重试。
+- **📊 预期收益**：降低首次启动延迟和失败率，提升摄像头功能在移动网络下的可用性。
+- **🔗 相关建议引用**：[S-13](security-audit.md#s-13-手势工具运行时加载-cdn-机器视觉脚本和模型缺少完整供应链约束), [MR-TOOLS-01](module-reviews/tools-gesture-and-api.md#mr-tools-01-手势工具的供应链和隐私边界需要产品化治理)
+
+### 📌 P-15: 测试覆盖率总体达标，但 relay 同步脚本覆盖率明显低于整体水平
+
+- **📍 位置**：`scripts/parse-relay.mjs:1-593`, `scripts/update-commercial-relay.mjs:1-226`, `tests/relay.test.mjs:1-57`, `tests/workflows.test.mjs:1-55`
+- **📝 当前状况描述**：`npm run test:coverage` 通过阈值，总体 line 94.32%、branch 76.28%、function 91.70%。但 `parse-relay.mjs` line 77.23%、branch 46.58%，`update-commercial-relay.mjs` line 68.14%、branch 64.91%，低于其他核心构建模块。relay 数据会进入公开 AI 中转站榜单，属于数据质量敏感路径。
+- **⚠️ 影响程度**：低
+- **💡 建议方案**：
+  ```text
+  tests/relay-import-errors.test.mjs
+  - SQL 字段缺失
+  - 异常 JSON settings_config
+  - 重复 provider 合并
+  - token/email/url 查询参数脱敏
+  - 商业源部分失败但保留已有数据
+  ```
+- **📊 预期收益**：提高数据同步脚本的回归防护，减少公开榜单因输入异常而污染或缺失。
+- **🔗 相关建议引用**：[DE-02](devex-improvements.md#de-02), [S-09](security-audit.md#s-09)
+
+### 📌 P-16: Cron 无解表达式会在主线程同步扫描两年分钟粒度
+
+- **📍 位置**：`js/tools-core.js:938-980`, `tests/tools-core-deep.test.mjs:258-266`
+- **📝 当前状况描述**：`parseCronExpression()` 对合法但无解的表达式会循环最多 `1,051,200` 次，逐分钟推进两年。第 2 轮探测中，`0 0 31 2 *` 在本机约 127.57ms，同一批普通表达式约 0.19ms 到 1.52ms。该计算发生在工具页主线程，连续输入或低端移动设备上可能造成明显卡顿。
+- **⚠️ 影响程度**：中
+- **💡 建议方案**：
+  ```javascript
+  function hasImpossibleDate(dayOfMonth, month) {
+    return [...month.values].every((m) => {
+      const maxDay = new Date(2026, m, 0).getDate();
+      return [...dayOfMonth.values].every((day) => day > maxDay);
+    });
+  }
+
+  if (hasImpossibleDate(dayOfMonth.value, month.value)) {
+    return fail("日期字段永远无法匹配", "cronNoRuns");
+  }
+  ```
+  更通用的方案是按“下一可用分钟/小时/日期”跳跃，而不是逐分钟扫描；若继续保留扫描，可放入 Web Worker 或在 UI 层 debounce。
+- **📊 预期收益**：让 Cron 工具在无解或稀疏表达式下保持即时反馈，避免工具箱交互被同步循环阻塞。
+- **🔗 相关建议引用**：[MR-CORE-01](module-reviews/tools-core.md#mr-core-01-cron-解析器需要避免主线程百万次扫描), [DE-13](devex-improvements.md#de-13-为-ai-助手和-cron-边界行为补充回归测试)
+
+### 📌 P-17: 全站统一加载 `coder.css`，工具箱和助手样式成本扩散到所有页面
+
+- **📍 位置**：`src/templates/layout.mjs:225-226`, `css/coder.css:3910-4898`, `css/coder.css:4982-6084`, `css/coder.css:6260-6543`
+- **📝 当前状况描述**：第 3 轮统计显示 `css/coder.css` 已增长到 6,617 行，`layout.mjs` 仍在每个页面统一加载该文件。工具箱样式约从 3,910 行开始，AI 助手样式约 4,982-6,084 行，手势/视觉工具还有后续专属样式；普通文章页、404、关于页都会解析这些仅工具页或助手面板才需要的规则。
+- **⚠️ 影响程度**：中
+- **💡 建议方案**：
+  ```text
+  css/core.css       — 变量、导航、布局、文章基础
+  css/tools.css      — 工具箱、编辑器嵌入、视觉工具
+  css/assistant.css  — AI 助手浮层
+  ```
+  构建层可先不引入打包器，只在 `renderPage()` 中按页面类型输出额外 `<link>`；AI 助手样式也可在助手首次打开时按需加载。
+- **📊 预期收益**：降低非工具页的 CSS 解析和样式匹配成本，让 CSS 体积预算从“全站单包”转成“页面级预算”。
+- **🔗 相关建议引用**：[MR-CSS-07](module-reviews/css-analysis.md#mr-css-07-复查发现-css-单包已增长到-6617-行), [AR-08](architecture-review.md#ar-08-工具箱和助手资源需要从全站核心层剥离)
+
+### 📌 P-18: 工具页首屏一次性解析 31 个工具面板
+
+- **📍 位置**：`tools/index.html:89-279`, `tools/index.html:302-1235`, `src/templates/tools.mjs:64-85`, `src/templates/tools.mjs:923-944`
+- **📝 当前状况描述**：JSDOM 审计显示工具页初始 HTML 包含 31 个 tab、31 个 panel，其中 30 个 panel 默认 hidden，但仍会被浏览器解析成 DOM；页面内有 50 个 textarea、55 个 input、141 个 button、总计约 1,199 个元素。用户首次只看到 JSON 工具，却已经支付了所有工具 markup 的解析成本。
+- **⚠️ 影响程度**：中
+- **💡 建议方案**：
+  ```javascript
+  const TOOL_TEMPLATES = {
+    json: renderJsonTool,
+    api: renderApiTool,
+  };
+
+  function activateTool(id) {
+    if (!panelCache.has(id)) {
+      mountPanel(id, TOOL_TEMPLATES[id]());
+    }
+    showPanel(id);
+  }
+  ```
+  短期可把非首屏 panel 放入 `<template>`，点击 tab 时再实例化；中期把工具定义拆成 JSON/模块，按分类懒加载。
+- **📊 预期收益**：减少工具页首屏 HTML 体积、DOM 构建时间和内存占用，给继续新增工具留出空间。
+- **🔗 相关建议引用**：[P-13](#p-13-关键静态产物体积已经接近当前性能预算), [AR-08](architecture-review.md#ar-08-工具箱和助手资源需要从全站核心层剥离), [MR-TOOLS-05](module-reviews/tools-gesture-and-api.md#mr-tools-05-工具箱主模板已经过大新增工具会继续推高生成页体积)
+
+---
+
 ## 📌 P-01 [已修复]: 粒子动画 `requestAnimationFrame` 持续运行，无空闲停止机制
 
 - **📍 位置**：`js/coder.js`

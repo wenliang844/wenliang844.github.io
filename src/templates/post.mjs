@@ -30,6 +30,15 @@ function renderTags(post) {
   }).join("");
 }
 
+function prefixTocIds(html, prefix) {
+  if (!prefix) {
+    return html;
+  }
+  return html
+    .replace(/\sid="(toc-[^"]+)"/g, ` id="${prefix}-$1"`)
+    .replace(/\shref="#(toc-[^"]+)"/g, ` href="#${prefix}-$1"`);
+}
+
 // 单篇页用：tags 渲染为链接，点击跳转到 /post/?tag= 并自动筛选
 //（单篇页不加载 blog.js，因此用真链接而非就地筛选）。
 function renderTagLinks(post) {
@@ -38,13 +47,16 @@ function renderTagLinks(post) {
     .join("");
 }
 
-function renderI18nContent(post, indent) {
+function renderI18nContent(post, indent, options = {}) {
   // 没有英文译文时，正文不打 data-i18n-lang 标记，保证任何语言下都显示（中文兜底）。
+  const idPrefix = options.headingIdPrefix || "";
   if (!post.contentHtmlEn) {
-    return `${indent}<div class="article-content">\n${post.contentHtml}\n${indent}</div>`;
+    return `${indent}<div class="article-content">\n${prefixTocIds(post.contentHtml, idPrefix)}\n${indent}</div>`;
   }
-  const zh = `${indent}<div class="article-content" data-i18n-lang="zh">\n${post.contentHtml}\n${indent}</div>`;
-  const en = `${indent}<div class="article-content" data-i18n-lang="en" hidden>\n${post.contentHtmlEn}\n${indent}</div>`;
+  const zhPrefix = idPrefix ? `${idPrefix}-zh` : "";
+  const enPrefix = idPrefix ? `${idPrefix}-en` : "";
+  const zh = `${indent}<div class="article-content" data-i18n-lang="zh">\n${prefixTocIds(post.contentHtml, zhPrefix)}\n${indent}</div>`;
+  const en = `${indent}<div class="article-content" data-i18n-lang="en" hidden>\n${prefixTocIds(post.contentHtmlEn, enPrefix)}\n${indent}</div>`;
   return `${zh}\n${en}`;
 }
 
@@ -218,7 +230,7 @@ export function renderPostPage(post, nav) {
   const tocHtml = renderToc(post.toc, post.tocEn);
   const main = `    <main id="main-content" class="content container">
       <div class="post-layout">
-        <article class="article">
+        <article class="article" data-post-slug="${escapeAttr(post.slug)}">
           <header class="article-header">
             <span class="eyebrow">${escapeHtml(post.eyebrow)}</span>
             <h1 ${i18nText(`post.${post.slug}.title`, post.title, enValue(post, "title"))}>${escapeHtml(post.title)}</h1>
@@ -330,7 +342,7 @@ function renderArticlePanel(post, isFirst) {
                 ${renderTags(post)}
               </div>
             </header>
-${renderI18nContent(post, "            ")}
+${renderI18nContent(post, "            ", { headingIdPrefix: `post-${post.slug}` })}
 ${renderShare(post)}
           </article>`;
 }

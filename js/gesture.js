@@ -423,10 +423,11 @@
       const dx = palmX - prev3D.palmX, dy = palmY - prev3D.palmY;
       switch (gesture) {
         case "open": threeTargetRot.y += dx * 4; threeTargetRot.x += dy * 4; break;
-        case "ok": case "pinch":
-          var pn = dist(lm[4], lm[8]), pp = prev3D.pinchDist || pn;
+        case "ok": case "pinch": {
+          const pn = dist(lm[4], lm[8]), pp = prev3D.pinchDist || pn;
           threeTargetPos.z = Math.max(1.5, Math.min(6, threeTargetPos.z + (pp - pn) * 0.008));
           prev3D.pinchDist = pn; break;
+        }
         case "point": threeTargetPos.x -= dx * 3; threeTargetPos.y += dy * 3; break;
         case "peace":
           if (cooled("3d-toggle", 600)) {
@@ -1013,12 +1014,13 @@
         spawnParticle(toX(lm[12]), toY(lm[12]), "star", 50, 0.9);
         break;
 
-      case "ok":
+      case "ok": {
         /* golden sparkles from the pinch point */
-        var px = (toX(lm[4]) + toX(lm[8])) / 2;
-        var py = (toY(lm[4]) + toY(lm[8])) / 2;
+        const px = (toX(lm[4]) + toX(lm[8])) / 2;
+        const py = (toY(lm[4]) + toY(lm[8])) / 2;
         spawnParticle(px, py, "circle", 45, 0.95);
         break;
+      }
 
       case "wave":
         /* side-to-side sparkle trail from fingertips */
@@ -1096,10 +1098,10 @@
         }
         break;
 
-      case "fist":
+      case "fist": {
         /* implosion + explosion */
-        var cx = toX(lm[0]);
-        var cy = toY(lm[9]);
+        const cx = toX(lm[0]);
+        const cy = toY(lm[9]);
         particles.forEach(function (p) {
           const dx = cx - p.x, dy = cy - p.y;
           const d  = Math.sqrt(dx * dx + dy * dy) || 1;
@@ -1110,6 +1112,7 @@
           explodeAt(cx, cy, 60);
         }
         break;
+      }
 
       case "swipe-left":
       case "swipe-right":
@@ -1317,7 +1320,8 @@
   function fruitPickType() {
     let total = 0, i;
     for (i = 0; i < FRUIT_WEIGHTS.length; i++) {total += FRUIT_WEIGHTS[i];}
-    let r = Math.random() * total, acc = 0;
+    const r = Math.random() * total;
+    let acc = 0;
     for (i = 0; i < FRUIT_WEIGHTS.length; i++) {
       acc += FRUIT_WEIGHTS[i];
       if (r < acc) {return i;}
@@ -1904,7 +1908,8 @@
       roundRect(ctx, bx, cardY, cardW, cardH, 8);
       ctx.stroke();
 
-      let tx = bx + 10, ty = cardY + 8;
+      const tx = bx + 10;
+      let ty = cardY + 8;
       ctx.textAlign = "left";
       ctx.textBaseline = "top";
 

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://giscus.app https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https:; frame-src https://giscus.app; form-action 'self' https://buttondown.com https://api.web3forms.com">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://giscus.app https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://giscus.app; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https:; frame-src https://giscus.app; form-action 'self' https://buttondown.com https://api.web3forms.com">
   <meta name="description" content="智能分析预警平台中规则引擎、标准事实和业务告警闭环的后端实践。">
   <link rel="icon" href="/images/favicon.png" type="image/png">
   <link rel="preconnect" href="https://giscus.app">
@@ -78,7 +78,7 @@
     </header>
     <main id="main-content" class="content container">
       <div class="post-layout">
-        <article class="article">
+        <article class="article" data-post-slug="rule-engine-alerts">
           <header class="article-header">
             <span class="eyebrow">Runtime Design</span>
             <h1 data-i18n="post.rule-engine-alerts.title" data-i18n-en="Rule Engine and Alert Loop: Runtime Design for an Intelligent Analysis Platform">规则引擎与告警闭环：智能分析预警平台的运行时设计</h1>

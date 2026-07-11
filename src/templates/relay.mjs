@@ -17,8 +17,8 @@ export function renderRelayContent({ includeHero = true } = {}) {
             <button type="button" data-relay-filter="unhealthy">异常</button>
           </div>
           <label class="relay-search">
-            <span>搜索</span>
-            <input id="relay-search-input" type="search" autocomplete="off" placeholder="名称、端点或模型">
+            <span data-i18n="relay.search.label" data-i18n-en="Search">搜索</span>
+            <input id="relay-search-input" type="search" autocomplete="off" placeholder="名称、端点或模型" aria-label="搜索中转站" data-i18n-aria="relay.search.aria" data-i18n-en-aria="Search relay providers">
           </label>
         </section>
         <section class="relay-stats" aria-label="榜单概览">

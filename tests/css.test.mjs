@@ -182,6 +182,7 @@ test("coder.css contains subscribe selectors", async () => {
   assert.ok(css.includes(".subscribe-modal"), "should have subscribe-modal");
   assert.ok(css.includes(".subscribe-input.is-invalid"), "should have invalid footer subscribe input state");
   assert.ok(css.includes(".subscribe-modal-input.is-invalid"), "should have invalid modal subscribe input state");
+  assert.ok(css.includes(".feedback-form textarea.is-invalid"), "should have invalid feedback textarea state");
 });
 
 test("coder.css contains share selectors", async () => {

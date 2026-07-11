@@ -4,6 +4,96 @@
 
 ---
 
+## 2026-07-03 复查补充
+
+### 📌 B-13: 生产验证脚本默认会覆盖根目录构建产物
+
+- **📍 位置**：`scripts/validate-production.mjs:222-254`, `scripts/build.mjs:31-35`, `scripts/build.mjs:586-608`
+- **📝 当前状况描述**：`validate-production.mjs` 的 `checkBuild()` 直接执行 `node scripts/build.mjs`，而 `build.mjs` 默认输出到项目根目录，会重写 `post/*/index.html`、`post/index.html`、`tags/index.html`、`categories/index.html`、`tools/index.html`、`sitemap.xml`、`robots.txt`、`index.xml`、`search-index.json` 等产物。本轮运行后没有产生 Git diff，但“验证”脚本具备写入副作用，不适合只读质量门禁。
+- **⚠️ 影响程度**：中
+- **💡 建议方案**：
+  ```javascript
+  const outDir = join(ROOT, "temp", "production-validate");
+  await execFileAsync("node", ["scripts/build.mjs", "--out", outDir], { cwd: ROOT });
+  // 后续检查 join(outDir, output)，最后清理 temp 目录
+  ```
+  或新增 `npm run build:check`，固定输出到临时目录，CI 和 `validate:production` 全部使用该命令。
+- **📊 预期收益**：避免本地验证污染工作区，减少生成文件意外混入业务提交的风险。
+- **🔗 相关建议引用**：[DE-11](devex-improvements.md#de-11-把生产验证改造成真正只读的质量门禁), [DE-05](devex-improvements.md#de-05)
+
+### 📌 B-14: 工具箱按需脚本加载 Promise 过早 resolve，手势页存在初始化竞态
+
+- **📍 位置**：`js/tools.js:68-92`, `js/tools.js:312-315`, `js/tools.js:842-846`, `js/gesture.js:2339-2341`
+- **📝 当前状况描述**：`loadScript()` 创建 `<script>` 后立即 `return Promise.resolve()`，没有等待 `onload`。用户切换到 Galaxy/Gesture 面板后，面板已可交互，但 `gesture.js` 可能尚未执行到按钮事件绑定。极端弱网或 CDN 阻塞时，用户点击“开启摄像头”可能没有反应，且当前只在 console warn。
+- **⚠️ 影响程度**：中
+- **💡 建议方案**：
+  ```javascript
+  function loadScript(src) {
+    return new Promise((resolve, reject) => {
+      const script = document.createElement("script");
+      script.src = src;
+      script.defer = true;
+      script.onload = resolve;
+      script.onerror = reject;
+      document.head.appendChild(script);
+    });
+  }
+
+  loadedToolRuntimes[id] = Promise.all(scripts.map(loadScript));
+  ```
+  UI 层在 runtime 加载中禁用该面板关键按钮，失败时在 `tool-status` 中展示可恢复错误。
+- **📊 预期收益**：消除弱网竞态，提升视觉/摄像头工具的可预期性和可诊断性。
+- **🔗 相关建议引用**：[MR-TOOLS-02](module-reviews/tools-gesture-and-api.md#mr-tools-02-按需-runtime-加载没有等待脚本执行完成), [P-14](performance-bottlenecks.md#p-14-手势工具首次启动依赖远程模型链路弱网下冷启动不可控)
+
+### 📌 B-15: AI 助手模式偏好写入后不会被恢复
+
+- **📍 位置**：`js/assistant.js:31`, `js/assistant.js:337-339`, `js/assistant.js:1306-1309`
+- **📝 当前状况描述**：`MODE_KEY` 已定义，`applyMode()` 也会把用户选择的 `site` / `llm` 写入 localStorage，但 `readMode()` 固定返回 `"llm"`。用户切到“站点模式”后刷新页面会重新回到大模型模式，保存逻辑与读取逻辑不对称。
+- **⚠️ 影响程度**：中
+- **💡 建议方案**：
+  ```javascript
+  function readMode() {
+    const saved = storageGet(MODE_KEY);
+    if (saved === "site" || saved === "llm") {
+      return saved;
+    }
+    return "site";
+  }
+  ```
+  如果产品仍希望默认展示 LLM，可在没有 API key 且没有体验代理时回落到 `site`，避免新用户默认进入网络请求路径。
+- **📊 预期收益**：恢复用户偏好的一致性，减少刷新后误入大模型模式和误解隐私边界的概率。
+- **🔗 相关建议引用**：[MR-AST-02](module-reviews/assistant-deep-dive.md#mr-ast-02-模式偏好保存与读取不对称), [UX-13](ux-improvements.md#ux-13-ai-助手默认模式与隐私文案需要重新对齐)
+
+### 📌 B-16: AI 助手 SSE 流结束时可能丢失最后一个未闭合事件
+
+- **📍 位置**：`js/assistant.js:594-649`
+- **📝 当前状况描述**：`postStream()` 每次把 `buffer.split("\n\n")` 的最后一段留作未完成事件，但 `reader.read()` 返回 `done` 后直接 `break`，没有调用 `decoder.decode()` flush，也没有处理剩余 `buffer`。如果中转站最后一个 `data:` 事件没有以空行结尾，最后一段 delta 可能不会进入 `onDelta()`。
+- **⚠️ 影响程度**：中
+- **💡 建议方案**：
+  ```javascript
+  function consumeEvent(eventText) {
+    eventText.split("\n").forEach(consumeLine);
+  }
+
+  for (;;) {
+    const chunk = await reader.read();
+    if (chunk.done) {
+      buffer += decoder.decode();
+      if (buffer.trim()) consumeEvent(buffer);
+      break;
+    }
+    buffer += decoder.decode(chunk.value, { stream: true });
+    const events = buffer.split("\n\n");
+    buffer = events.pop() || "";
+    events.forEach(consumeEvent);
+  }
+  ```
+  同时增加一个单元测试：模拟最后一个 SSE 事件不带尾随 `\n\n`，断言回答文本完整。
+- **📊 预期收益**：提升流式回答完整性，避免少数中转站或代理实现差异导致尾句缺失。
+- **🔗 相关建议引用**：[MR-AST-03](module-reviews/assistant-deep-dive.md#mr-ast-03-sse-解析缺少流结束收尾处理), [DE-13](devex-improvements.md#de-13-为-ai-助手和-cron-边界行为补充回归测试)
+
+---
+
 ## 📌 B-01 [已修复]: `coder.js` 中 `draw()` 递归动画无法停止，离开页面持续消耗资源
 
 - **📍 位置**：`js/coder.js`

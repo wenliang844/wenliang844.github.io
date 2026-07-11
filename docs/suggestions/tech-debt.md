@@ -4,6 +4,40 @@
 
 ---
 
+## 2026-07-03 复查补充
+
+### 📌 TD-11: ESLint 8 迁移前应先清零当前 warning 债务
+
+- **📍 位置**：`package.json:18-32`, `.eslintrc.json:1-34`, `js/galaxy.js:136-690`, `js/gesture.js:427-1907`
+- **📝 当前状况描述**：`npm outdated --json` 显示 `eslint` 当前 8.57.1，latest 9.39.4；`npm run lint:check` 当前仍有 77 个 warning。直接迁移 ESLint 9 flat config 会同时面对配置迁移和历史 warning，容易把机械迁移变成大改动。
+- **⚠️ 影响程度**：低
+- **💡 建议方案**：
+  ```text
+  阶段 1：清零现有 no-var / prefer-const warning。
+  阶段 2：把 .eslintrc.json 迁到 eslint.config.js。
+  阶段 3：CI 增加 --max-warnings=0。
+  ```
+  迁移期间保持 Node engines `20 || >=22`，避免工具链版本不一致。
+- **📊 预期收益**：降低 ESLint 9 升级风险，让后续 lint 输出保持高信噪比。
+- **🔗 相关建议引用**：[CQ-11](code-quality.md#cq-11-eslint-当前仍有-77-个-warning集中在视觉交互大文件), [DE-12](devex-improvements.md#de-12-validate--precommit-同时包含自动修复和构建写入语义不够清晰)
+
+### 📌 TD-12: 随机数能力边界需要产品和测试共同收敛
+
+- **📍 位置**：`js/tools-core.js:204-228`, `js/tools-core.js:1275-1293`, `tests/tools.test.mjs:236-258`
+- **📝 当前状况描述**：UUID 生成器在 Web Crypto 不可用时退化到 `Math.random()`；随机数工具也使用 `Math.random()`，但 UI 和测试没有明确区分“安全随机”和“模拟/抽样随机”。这类边界如果只由代码 fallback 隐式表达，后续很容易被用户误用或被测试固化为错误安全承诺。
+- **⚠️ 影响程度**：低
+- **💡 建议方案**：
+  ```text
+  UUID：没有 Web Crypto 时失败或明确标记非安全。
+  随机数：文案标注“非加密随机，适合抽样/演示”。
+  密码：继续要求 Web Crypto，不提供弱随机 fallback。
+  ```
+  测试层把 `cryptoThrows` 场景从“仍生成 UUID”改为“显示降级警告或失败 code”。
+- **📊 预期收益**：让工具箱的随机能力边界更透明，避免兼容性 fallback 演变成安全债务。
+- **🔗 相关建议引用**：[S-15](security-audit.md#s-15-uuid-工具在-web-crypto-不可用时退化到-mathrandom), [MR-CORE-02](module-reviews/tools-core.md#mr-core-02-uuid-生成器的弱随机-fallback-需要明确降级语义)
+
+---
+
 ## 📌 TD-01: 使用已废弃的 Web API
 
 - **📍 位置**：多个文件

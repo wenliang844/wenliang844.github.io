@@ -4,6 +4,41 @@
 
 ---
 
+## 2026-07-03 复查补充
+
+### 📌 CQ-11: ESLint 当前仍有 77 个 warning，集中在视觉交互大文件
+
+- **📍 位置**：`js/galaxy.js:136-205`, `js/galaxy.js:283-427`, `js/galaxy.js:686-690`, `js/gesture.js:427`, `js/gesture.js:1018-1019`, `js/gesture.js:1101-1102`, `js/gesture.js:1320`, `js/gesture.js:1907`
+- **📝 当前状况描述**：`npm run lint:check` 0 error 但输出 77 个 warning，主要是 `no-var` 与 `prefer-const`。这些 warning 集中在 `galaxy.js` 与 `gesture.js`，二者又是动画/摄像头交互热区，后续维护者容易在 `var` 函数作用域、循环复用变量和闭包中引入边界 bug。
+- **⚠️ 影响程度**：低
+- **💡 建议方案**：
+  ```javascript
+  // 分批改造，不和功能变更混在一起
+  for (let i = 0; i < stars.length; i += 1) {
+    const star = stars[i];
+    // ...
+  }
+  ```
+  建议新建纯机械提交：只处理 `no-var` / `prefer-const`，并保留现有动画测试和工具箱冒烟验证。
+- **📊 预期收益**：降低视觉交互模块的维护噪音，让未来 lint warning 更能指向真实问题。
+- **🔗 相关建议引用**：[TD-11](tech-debt.md#td-11-eslint-8-迁移前应先清零当前-warning-债务), [MR-TOOLS-04](module-reviews/tools-gesture-and-api.md#mr-tools-04-视觉交互脚本已成为代码质量热点)
+
+### 📌 CQ-12: 安全回归测试只检查连续 key 字面量，无法识别拼接型密钥
+
+- **📍 位置**：`tests/assistant.test.mjs:519-525`, `tests/assistant-deep.test.mjs:288-299`, `js/assistant.js:39-63`
+- **📝 当前状况描述**：测试断言源码不包含 `/sk-[A-Za-z0-9_-]{20,}/` 和 `/tp-[A-Za-z0-9_-]{20,}/`，但当前源码用数组片段 `.join("")` 还原 key，绕过了连续字面量扫描。测试还保留默认体验 key 的行为断言，导致安全目标和行为目标互相冲突。
+- **⚠️ 影响程度**：中
+- **💡 建议方案**：
+  ```javascript
+  assert.doesNotMatch(code, /OPENAI_DEFAULT_API_KEY|LLM_EXPERIENCE_KEYS/);
+  assert.doesNotMatch(code, /withEffectiveApiKey\(.*preset/s);
+  ```
+  更稳妥的做法是加入运行时测试：默认配置提交问题时不得调用 `fetch`，必须提示用户输入 key。
+- **📊 预期收益**：让测试真正约束“前端不得携带任何可还原密钥”，避免未来用字符串拼接、base64、分段常量等方式绕过扫描。
+- **🔗 相关建议引用**：[S-11](security-audit.md#s-11-assistantjs-仍在前端运行时拼接并使用默认体验-api-key)
+
+---
+
 ## 📌 CQ-01 [已修复]: `editing()` 函数在 3 个文件中重复定义
 
 - **📍 位置**：`js/blog.js`、`js/search-loader.js`、`js/search.js`

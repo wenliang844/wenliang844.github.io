@@ -112,6 +112,11 @@
     }
   }
 
+  function setMessageInvalid(invalid) {
+    messageInput.classList.toggle("is-invalid", invalid);
+    messageInput.setAttribute("aria-invalid", invalid ? "true" : "false");
+  }
+
   listEl.addEventListener("click", function (event) {
     const clearAll = event.target && event.target.closest("[data-clear-all]");
     if (clearAll) {
@@ -137,10 +142,12 @@
     event.preventDefault();
     const message = messageInput.value.trim();
     if (!message) {
+      setMessageInvalid(true);
       setStatus(t("contact.fb.required", "请输入反馈内容。"));
       messageInput.focus();
       return;
     }
+    setMessageInvalid(false);
 
     const entry = {
       id: String(Date.now()) + Math.random().toString(16).slice(2, 6),
@@ -183,6 +190,13 @@
     }
   });
 
+  messageInput.addEventListener("input", function () {
+    if (messageInput.value.trim()) {
+      setMessageInvalid(false);
+    }
+  });
+
   document.addEventListener("cwl:langchange", render);
+  setMessageInvalid(false);
   render();
 })();
