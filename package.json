@@ -26,9 +26,9 @@
     "precommit": "npm run validate"
   },
   "devDependencies": {
-    "eslint": "^8.57.0",
-    "jsdom": "^27.0.1",
-    "marked": "^18.0.5",
+    "eslint": "^10.7.0",
+    "jsdom": "^29.1.1",
+    "marked": "^18.0.7",
     "yaml": "^2.9.0"
   }
 }
