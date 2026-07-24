@@ -13,13 +13,13 @@
       "commercial": {
         "label": "商业站",
         "source": "external-actions",
-        "generatedAt": "2026-07-24T08:44:07.144Z",
-        "totalProviders": 24
+        "generatedAt": "2026-07-24T14:14:40.780Z",
+        "totalProviders": 32
       }
     },
-    "totalProviders": 43,
+    "totalProviders": 51,
     "totalLinuxdoProviders": 19,
-    "totalCommercialProviders": 24
+    "totalCommercialProviders": 32
   },
   "providers": [
     {
@@ -630,10 +630,42 @@
       "tags": []
     },
     {
+      "name": "ChipCloud AI",
+      "format": "chatgpt",
+      "formatLabel": "ChatGPT/OpenAI",
+      "endpoint": "https://www.chipcloud.cc",
+      "websiteUrl": "",
+      "models": [],
+      "healthStatus": "unknown",
+      "lastTestedAt": null,
+      "successRate": null,
+      "latencyMs": null,
+      "failureSummary": "",
+      "isCurrent": false,
+      "score": 0,
+      "tags": []
+    },
+    {
       "name": "CloseAI",
       "format": "chatgpt",
       "formatLabel": "ChatGPT/OpenAI",
       "endpoint": "https://console.closeai-asia.com",
+      "websiteUrl": "",
+      "models": [],
+      "healthStatus": "unknown",
+      "lastTestedAt": null,
+      "successRate": null,
+      "latencyMs": null,
+      "failureSummary": "",
+      "isCurrent": false,
+      "score": 0,
+      "tags": []
+    },
+    {
+      "name": "DataPipe",
+      "format": "chatgpt",
+      "formatLabel": "ChatGPT/OpenAI",
+      "endpoint": "https://datapipe.app",
       "websiteUrl": "",
       "models": [],
       "healthStatus": "unknown",
@@ -662,10 +694,58 @@
       "tags": []
     },
     {
+      "name": "GreatRouter",
+      "format": "chatgpt",
+      "formatLabel": "ChatGPT/OpenAI",
+      "endpoint": "https://www.greatrouter.com",
+      "websiteUrl": "",
+      "models": [],
+      "healthStatus": "unknown",
+      "lastTestedAt": null,
+      "successRate": null,
+      "latencyMs": null,
+      "failureSummary": "",
+      "isCurrent": false,
+      "score": 0,
+      "tags": []
+    },
+    {
+      "name": "LLM API",
+      "format": "chatgpt",
+      "formatLabel": "ChatGPT/OpenAI",
+      "endpoint": "https://llmapi.pro",
+      "websiteUrl": "",
+      "models": [],
+      "healthStatus": "unknown",
+      "lastTestedAt": null,
+      "successRate": null,
+      "latencyMs": null,
+      "failureSummary": "",
+      "isCurrent": false,
+      "score": 0,
+      "tags": []
+    },
+    {
       "name": "MiniMax",
       "format": "chatgpt",
       "formatLabel": "ChatGPT/OpenAI",
       "endpoint": "https://platform.minimaxi.com",
+      "websiteUrl": "",
+      "models": [],
+      "healthStatus": "unknown",
+      "lastTestedAt": null,
+      "successRate": null,
+      "latencyMs": null,
+      "failureSummary": "",
+      "isCurrent": false,
+      "score": 0,
+      "tags": []
+    },
+    {
+      "name": "NX AI",
+      "format": "chatgpt",
+      "formatLabel": "ChatGPT/OpenAI",
+      "endpoint": "https://nxaiapp.com",
       "websiteUrl": "",
       "models": [],
       "healthStatus": "unknown",
@@ -694,10 +774,58 @@
       "tags": []
     },
     {
+      "name": "OpenClaw API",
+      "format": "chatgpt",
+      "formatLabel": "ChatGPT/OpenAI",
+      "endpoint": "https://docs.openclaw-api.com/about",
+      "websiteUrl": "",
+      "models": [],
+      "healthStatus": "unknown",
+      "lastTestedAt": null,
+      "successRate": null,
+      "latencyMs": null,
+      "failureSummary": "",
+      "isCurrent": false,
+      "score": 0,
+      "tags": []
+    },
+    {
       "name": "OpenRouter",
       "format": "chatgpt",
       "formatLabel": "ChatGPT/OpenAI",
       "endpoint": "https://openrouter.ai",
+      "websiteUrl": "",
+      "models": [],
+      "healthStatus": "unknown",
+      "lastTestedAt": null,
+      "successRate": null,
+      "latencyMs": null,
+      "failureSummary": "",
+      "isCurrent": false,
+      "score": 0,
+      "tags": []
+    },
+    {
+      "name": "QuickRouter",
+      "format": "chatgpt",
+      "formatLabel": "ChatGPT/OpenAI",
+      "endpoint": "https://quickrouter.ai/models",
+      "websiteUrl": "",
+      "models": [],
+      "healthStatus": "unknown",
+      "lastTestedAt": null,
+      "successRate": null,
+      "latencyMs": null,
+      "failureSummary": "",
+      "isCurrent": false,
+      "score": 0,
+      "tags": []
+    },
+    {
+      "name": "SunAPI",
+      "format": "chatgpt",
+      "formatLabel": "ChatGPT/OpenAI",
+      "endpoint": "https://sunapi.ai",
       "websiteUrl": "",
       "models": [],
       "healthStatus": "unknown",
@@ -759,8 +887,8 @@
     }
   ],
   "commercialMeta": {
-    "generatedAt": "2026-07-24T08:44:07.144Z",
+    "generatedAt": "2026-07-24T14:14:40.780Z",
     "source": "external-actions",
-    "totalProviders": 24
+    "totalProviders": 32
   }
 }
