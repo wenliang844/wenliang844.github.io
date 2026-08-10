@@ -5,12 +5,17 @@ shortTitle: "规则引擎与告警闭环"
 shortTitleEn: "Rule Engine and Alert Loop"
 slug: "rule-engine-alerts"
 date: 2026-06-16
+modified: 2026-08-06
+category: "ai-systems"
+series: "intelligent-analysis"
+order: 2
 eyebrow: "Runtime Design"
 summary: "从标准事实、规则上下文、窗口聚合到正式告警，梳理智能分析平台中规则引擎和告警闭环的设计。"
 summaryEn: "Design notes on the rule engine and alert loop, from standard facts and rule context to window aggregation and formal alerts."
 description: "智能分析预警平台中规则引擎、标准事实和业务告警闭环的后端实践。"
 descriptionEn: "Backend practice for rule engine, standard facts and business alert loop in an intelligent analysis platform."
 cover: "/images/posts/rule-engine-alerts.png"
+coverAlt: "规则引擎、标准事实与告警闭环的数据流示意封面"
 tags: [规则引擎, 告警系统, 视频分析, RabbitMQ, Redis]
 tagsEn: [Rule Engine, Alert System, Video Analysis, RabbitMQ, Redis]
 ---
@@ -112,3 +117,7 @@ tagsEn: [Rule Engine, Alert System, Video Analysis, RabbitMQ, Redis]
 - `OCR_RECOGNIZE`：OCR 文本识别
 
 算法执行后统一输出 `StandardAnalysisResultDto` 和 `StandardAnalysisTargetDto`，再落库到 `t_analysis_record`、`t_analysis_target`。这样新增算法时，主要改动被收敛在执行器层，业务主链路和规则链路不用反复改造。
+
+## 延伸阅读
+
+- [[manage-system|智能视频分析平台设计]] 回到采集、算法调度和标准事实落库的上游链路。

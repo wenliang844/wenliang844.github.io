@@ -3,8 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://giscus.app https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://giscus.app; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https:; frame-src https://giscus.app; form-action 'self' https://buttondown.com https://api.web3forms.com">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' https://cloud.umami.is https://plausible.io 'wasm-unsafe-eval' 'sha256-BJt2lgaEHypYXt13GTY1lt2JdP2R/c2B5dtcQZrlsh0='; script-src-attr 'none'; style-src 'self'; style-src-attr 'none'; img-src 'self' data: https:; font-src 'self' data:; worker-src 'self'; connect-src 'self' https://cloud.umami.is https://plausible.io https://buttondown.com https://muyuan.do https://token-plan-cn.xiaomimimo.com; frame-src https://giscus.app; form-action 'self' https://buttondown.com https://api.web3forms.com">
+  <meta name="cwl-api-base" content="">
   <meta name="description" content="中转站排行榜与常用 AI 网站导航，支持快速对比 AI 中转站路由、模型、健康状态、成功率和响应耗时。">
+  <meta name="theme-color" content="#171717">
   <link rel="icon" href="/images/favicon.png" type="image/png">
   <link rel="preconnect" href="https://giscus.app">
   <link rel="dns-prefetch" href="https://giscus.app">
@@ -14,8 +16,13 @@
   <link rel="dns-prefetch" href="https://paypal.me">
   <link rel="stylesheet" href="/css/fontawesome-all.min.css">
   <link rel="stylesheet" href="/css/coder.css">
+  <link rel="stylesheet" href="/css/content.css">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="apple-touch-icon" href="/images/pwa-192.png">
   <script src="/js/error-handler.js" defer></script>
   <script src="/js/utils.js" defer></script>
+  <script src="/js/pwa.js" defer></script>
+  <script src="/js/analytics.js" defer></script>
   <script src="/js/i18n.js" defer></script>
   <script src="/js/coder.js" defer></script>
   <script src="/js/search-loader.js" defer></script>
@@ -37,7 +44,7 @@
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"CollectionPage","name":"CWLBlog AI 中转站排名","description":"中转站排行榜与常用 AI 网站导航，支持快速对比 AI 中转站路由、模型、健康状态、成功率和响应耗时。","url":"https://wenliang844.github.io/ai/","inLanguage":"zh-CN","isPartOf":{"@type":"WebSite","name":"CWLBlog","url":"https://wenliang844.github.io/"},"mainEntity":{"@type":"ItemList","numberOfItems":20,"itemListElement":[{"@type":"ListItem","position":1,"name":"ChatGPT","url":"https://chatgpt.com/"},{"@type":"ListItem","position":2,"name":"Claude","url":"https://claude.ai/"},{"@type":"ListItem","position":3,"name":"Gemini","url":"https://gemini.google.com/"},{"@type":"ListItem","position":4,"name":"Perplexity","url":"https://www.perplexity.ai/"},{"@type":"ListItem","position":5,"name":"OpenAI Codex","url":"https://chatgpt.com/codex"},{"@type":"ListItem","position":6,"name":"Cursor","url":"https://www.cursor.com/"},{"@type":"ListItem","position":7,"name":"GitHub Copilot","url":"https://github.com/features/copilot"},{"@type":"ListItem","position":8,"name":"v0","url":"https://v0.dev/"},{"@type":"ListItem","position":9,"name":"Midjourney","url":"https://www.midjourney.com/"},{"@type":"ListItem","position":10,"name":"Runway","url":"https://runwayml.com/"},{"@type":"ListItem","position":11,"name":"Gamma","url":"https://gamma.app/"},{"@type":"ListItem","position":12,"name":"Canva AI","url":"https://www.canva.com/ai/"},{"@type":"ListItem","position":13,"name":"Notion AI","url":"https://www.notion.so/product/ai"},{"@type":"ListItem","position":14,"name":"NotebookLM","url":"https://notebooklm.google/"},{"@type":"ListItem","position":15,"name":"Poe","url":"https://poe.com/"},{"@type":"ListItem","position":16,"name":"秘塔AI搜索","url":"https://metaso.cn/"},{"@type":"ListItem","position":17,"name":"DeepSeek","url":"https://chat.deepseek.com/"},{"@type":"ListItem","position":18,"name":"Kimi","url":"https://www.kimi.com/"},{"@type":"ListItem","position":19,"name":"豆包","url":"https://www.doubao.com/"},{"@type":"ListItem","position":20,"name":"通义千问","url":"https://tongyi.aliyun.com/qianwen/"}]}}</script>
   <title>中转站排名 :: CWLBlog</title>
 </head>
-<body class="colorscheme-dark" data-i18n-page="ai">
+<body class="colorscheme-dark" data-i18n-page="ai" data-language-mode="bilingual">
   <a class="skip-link" href="#main-content" data-i18n="nav.skip">跳到主要内容</a>
   <div class="cursor-glow" aria-hidden="true"></div>
   <canvas class="cursor-canvas" aria-hidden="true"></canvas>
@@ -57,6 +64,7 @@
               <details>
                 <summary class="nav-more-toggle" data-i18n="nav.more" data-i18n-html data-i18n-en-html="&lt;i class=&quot;fas fa-ellipsis-h&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt; More"><i class="fas fa-ellipsis-h" aria-hidden="true"></i> 更多</summary>
                 <ul class="nav-more-menu">
+              <li><a href="/knowledge/" data-i18n="nav.knowledge">知识资产</a></li>
               <li><a href="/tools/" data-i18n="nav.tools">工具箱</a></li>
               <li><a href="/overleaf/" data-i18n="nav.overleaf">简历模版</a></li>
                 </ul>
@@ -73,7 +81,7 @@
         </nav>
       </section>
     </header>
-    <main id="main-content" class="content">
+    <main data-pagefind-body id="main-content" class="content">
       <section class="ai-nav-page container">
         <header class="ai-nav-hero">
           <span class="eyebrow" data-i18n="ai.eyebrow" data-i18n-en-html='<i class="fas fa-robot" aria-hidden="true"></i> AI Toolkit' data-i18n-html><i class="fas fa-robot" aria-hidden="true"></i> AI Toolkit</span>

@@ -23,6 +23,7 @@ home/ruoyi/logs/
 .env
 .env.*
 !.env.example
+.dev.vars
 
 # Caches
 .cache/
@@ -30,6 +31,7 @@ home/ruoyi/logs/
 .eslintcache
 .stylelintcache
 .vite/
+.astro/
 tmp/
 temp/
 

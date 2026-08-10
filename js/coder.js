@@ -147,8 +147,11 @@
   /* ----------------------------------------------------------------------
    * Reading progress bar & scroll handling with throttle
    * -------------------------------------------------------------------- */
-  const progress = document.createElement("div");
+  const progress = document.createElement("progress");
   progress.className = "read-progress";
+  progress.max = 1;
+  progress.value = 0;
+  progress.setAttribute("aria-label", "文章阅读进度");
   body.appendChild(progress);
 
   /* ----------------------------------------------------------------------
@@ -249,6 +252,12 @@
 
   function showReadingResume(article) {
     removeReadingResume();
+    const compactViewport = window.matchMedia
+      ? window.matchMedia("(max-width: 768px)").matches
+      : window.innerWidth <= 768;
+    if (compactViewport) {
+      return;
+    }
     const slug = activeArticleSlug(article);
     const saved = readStoredPosition(slug);
     if (!article || !saved || !Number.isFinite(saved.ratio)) {
@@ -307,7 +316,7 @@
       progress.hidden = true;
     }
 
-    progress.style.width = (ratio * 100).toFixed(2) + "%";
+    progress.value = ratio;
     toTop.classList.toggle("visible", scrollTop > SCROLL_CONSTANTS.BACK_TO_TOP_THRESHOLD);
     updateActiveToc();
   }
@@ -668,9 +677,6 @@
   // Animate skill bars (.skill-fill[data-level]) to their target width.
   const skillFills = Array.from(document.querySelectorAll(".skill-fill[data-level]"));
   if (skillFills.length) {
-    skillFills.forEach(function (fill) {
-      fill.style.setProperty("--level", fill.getAttribute("data-level"));
-    });
     if (!prefersReduced && "IntersectionObserver" in window) {
       // Observe the full-width track, not the zero-width fill (a zero-area
       // target never produces an intersection ratio).
@@ -714,8 +720,6 @@
     const ratio = window.devicePixelRatio || 1;
     canvas.width = Math.floor(window.innerWidth * ratio);
     canvas.height = Math.floor(window.innerHeight * ratio);
-    canvas.style.width = window.innerWidth + "px";
-    canvas.style.height = window.innerHeight + "px";
     context.setTransform(ratio, 0, 0, ratio, 0, 0);
   }
 
@@ -802,9 +806,6 @@
     pointer.x = event.clientX;
     pointer.y = event.clientY;
     hue = (hue + 2) % 360;
-    body.classList.add("cursor-active");
-    body.style.setProperty("--cursor-x", pointer.x + "px");
-    body.style.setProperty("--cursor-y", pointer.y + "px");
     addParticle(pointer.x, pointer.y);
     scheduleDraw();
   });

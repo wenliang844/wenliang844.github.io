@@ -281,7 +281,7 @@
     threeCamera = new THREE_M.PerspectiveCamera(60, w / h, 0.1, 1000);
     threeCamera.position.set(0, 0, 3);
     threeRenderer = new THREE_M.WebGLRenderer({ antialias: true, alpha: true });
-    threeRenderer.setSize(w, h);
+    threeRenderer.setSize(w, h, false);
     threeRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     const ctr = document.getElementById("gesture-three-container");
     if (ctr) { ctr.innerHTML = ""; ctr.appendChild(threeRenderer.domElement); }
@@ -549,12 +549,10 @@
       drawCanvas.width  = w * dpr;
       drawCanvas.height = h * dpr;
     }
-    $canvas.style.width  = w + "px";
-    $canvas.style.height = h + "px";
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     drawCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
     if (threeRenderer) {
-      threeRenderer.setSize(w, h);
+      threeRenderer.setSize(w, h, false);
       if (threeCamera) { threeCamera.aspect = w / h; threeCamera.updateProjectionMatrix(); }
     }
   }

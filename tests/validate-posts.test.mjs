@@ -27,6 +27,7 @@ function postMarkdown(overrides = {}, body = "## 正文\n\n有效内容。") {
     shortTitle: "测试",
     slug: "test-post",
     date: "2026-01-02",
+    category: "backend-platform",
     summary: "测试摘要",
     description: "测试描述",
     tags: "[Java, 测试]",

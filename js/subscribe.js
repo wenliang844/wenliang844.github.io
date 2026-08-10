@@ -44,6 +44,7 @@
       body: body
     }).then(function () {
       setStatus(t("subscribe.success", "差一步！请查收确认邮件完成订阅。"));
+      document.dispatchEvent(new CustomEvent("cwl:subscribe-success"));
       if (onSuccess) {onSuccess();}
     }).catch(function () {
       setStatus(t("subscribe.fail", "提交失败，请稍后重试。"));
@@ -126,7 +127,6 @@
   const closeBtn = overlay.querySelector(".subscribe-modal-close");
 
   let lastActive = null;
-  let oldOverflow = "";
   const raf = window.requestAnimationFrame || function (callback) {
     return window.setTimeout(callback, 0);
   };
@@ -139,9 +139,8 @@
 
   function openModal() {
     lastActive = document.activeElement;
-    oldOverflow = document.body.style.overflow;
     overlay.classList.add("open");
-    document.body.style.overflow = "hidden";
+    document.body.classList.add("subscribe-open");
     const menu = document.querySelector(".menu-toggle");
     if (menu) {
       menu.checked = false;
@@ -157,7 +156,7 @@
 
   function closeModal() {
     overlay.classList.remove("open");
-    document.body.style.overflow = oldOverflow;
+    document.body.classList.remove("subscribe-open");
     if (lastActive && lastActive.focus) {
       lastActive.focus();
     }

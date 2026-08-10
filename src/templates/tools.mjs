@@ -329,7 +329,7 @@ ${toolHeader(tool)}
             </label>
           </div>
           <div class="tool-color-preview">
-            <span id="color-swatch" class="tool-color-swatch" aria-hidden="true"></span>
+            <img id="color-swatch" class="tool-color-swatch" width="42" height="42" alt="" aria-hidden="true">
             <span id="color-preview-text" data-i18n="tools.color.empty">等待转换颜色</span>
           </div>
           <div id="color-palette" class="tool-palette" aria-label="调色板" data-i18n-aria="tools.label.palette"></div>
@@ -880,10 +880,10 @@ ${toolHeader(tool)}
             <div class="galaxy-ctrl-group">
               <span class="galaxy-ctrl-label" data-i18n="tools.galaxy.theme" data-i18n-en="Theme">主题</span>
               <div class="galaxy-btn-row" id="galaxy-theme" role="group" aria-label="星河主题" data-i18n-aria="tools.galaxy.theme" data-i18n-en-aria="Galaxy theme">
-                <button class="galaxy-theme-btn active" type="button" data-galaxy-theme="bluePurple"><span class="galaxy-theme-dot" style="background:linear-gradient(135deg,#22d3ee,#8b5cf6)" aria-hidden="true"></span><span data-i18n="tools.galaxy.themeBlue" data-i18n-en="Blue">蓝紫</span></button>
-                <button class="galaxy-theme-btn" type="button" data-galaxy-theme="pinkOrange"><span class="galaxy-theme-dot" style="background:linear-gradient(135deg,#fb7185,#f59e0b)" aria-hidden="true"></span><span data-i18n="tools.galaxy.themePink" data-i18n-en="Amber">粉橙</span></button>
-                <button class="galaxy-theme-btn" type="button" data-galaxy-theme="cyanGreen"><span class="galaxy-theme-dot" style="background:linear-gradient(135deg,#06b6d4,#22c55e)" aria-hidden="true"></span><span data-i18n="tools.galaxy.themeCyan" data-i18n-en="Cyan">青绿</span></button>
-                <button class="galaxy-theme-btn" type="button" data-galaxy-theme="rainbow"><span class="galaxy-theme-dot" style="background:linear-gradient(135deg,#ef4444,#eab308,#22c55e,#3b82f6)" aria-hidden="true"></span><span data-i18n="tools.galaxy.themeRainbow" data-i18n-en="Prism">彩虹</span></button>
+                <button class="galaxy-theme-btn active" type="button" data-galaxy-theme="bluePurple"><span class="galaxy-theme-dot galaxy-theme-blue-purple" aria-hidden="true"></span><span data-i18n="tools.galaxy.themeBlue" data-i18n-en="Blue">蓝紫</span></button>
+                <button class="galaxy-theme-btn" type="button" data-galaxy-theme="pinkOrange"><span class="galaxy-theme-dot galaxy-theme-pink-orange" aria-hidden="true"></span><span data-i18n="tools.galaxy.themePink" data-i18n-en="Amber">粉橙</span></button>
+                <button class="galaxy-theme-btn" type="button" data-galaxy-theme="cyanGreen"><span class="galaxy-theme-dot galaxy-theme-cyan-green" aria-hidden="true"></span><span data-i18n="tools.galaxy.themeCyan" data-i18n-en="Cyan">青绿</span></button>
+                <button class="galaxy-theme-btn" type="button" data-galaxy-theme="rainbow"><span class="galaxy-theme-dot galaxy-theme-rainbow" aria-hidden="true"></span><span data-i18n="tools.galaxy.themeRainbow" data-i18n-en="Prism">彩虹</span></button>
               </div>
             </div>
             <div class="galaxy-ctrl-group">

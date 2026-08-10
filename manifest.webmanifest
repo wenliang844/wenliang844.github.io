@@ -1,0 +1,25 @@
+{
+  "name": "CWLBlog",
+  "short_name": "CWLBlog",
+  "description": "AI 全栈工程、平台架构与知识资产",
+  "lang": "zh-CN",
+  "start_url": "/post/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#171717",
+  "theme_color": "#171717",
+  "icons": [
+    {
+      "src": "/images/pwa-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/images/pwa-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

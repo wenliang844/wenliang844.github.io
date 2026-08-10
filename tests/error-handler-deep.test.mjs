@@ -171,7 +171,7 @@ test("error-handler.js replaces existing toast on repeated calls", async () => {
 
 // ─── 错误处理注入样式 ──────────────────────────────────────────────────────
 
-test("error-handler.js injects toast styles into document head", async () => {
+test("error-handler.js relies on the CSP-safe static toast stylesheet", async () => {
   const dom = new JSDOM(`<!doctype html><html><head></head><body></body></html>`, {
     runScripts: "outside-only",
     url: "https://wenliang844.github.io/",
@@ -179,10 +179,10 @@ test("error-handler.js injects toast styles into document head", async () => {
   await loadErrorHandler(dom);
   const { document } = dom.window;
 
-  const style = document.querySelector("head style");
-  assert.ok(style, "should inject style element");
-  assert.ok(style.textContent.includes(".global-error-toast"), "style should include toast CSS");
-  assert.ok(style.textContent.includes("@keyframes slideInRight"), "style should include animation");
+  const css = await readFile(join(ROOT, "css", "content.css"), "utf8");
+  assert.equal(document.querySelector("head style"), null, "should not inject a CSP-blocked style element");
+  assert.match(css, /\.global-error-toast/);
+  assert.match(css, /@keyframes slideInRight/);
   dom.window.close();
 });
 

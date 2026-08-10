@@ -67,6 +67,7 @@
     "nav.blog": "Blog",
     "nav.tryAi": "Try AI",
     "nav.tools": "Toolbox",
+    "nav.knowledge": "Knowledge",
     "nav.editor": "Editor",
     "nav.overleaf": "Overleaf",
     "nav.more": '<i class="fas fa-ellipsis-h" aria-hidden="true"></i> More',
@@ -481,13 +482,18 @@
     "assistant.config.toggle": "Settings",
     "assistant.opacity": "Opacity",
     "assistant.privacy": "Local rules only. Your input is not sent anywhere.",
-    "assistant.llmPrivacy": "Large-model mode requests your configured relay. The API key field stays empty by default; blank presets use an experience key.",
+    "assistant.llmPrivacy": "Large-model mode only requests the selected relay preset. Your API key is used on this page only and is never saved.",
     "assistant.placeholder": "Ask about site navigation or article keywords",
     "assistant.llmPlaceholder": "Type a question for the large model",
     "assistant.input": "Type a question",
     "assistant.send": "Send",
     "assistant.mode.site": "Site assistant",
+    "assistant.mode.knowledge": "Knowledge Q&A",
     "assistant.mode.llm": "Large model",
+    "assistant.knowledgePrivacy": "Answers use public posts and include source links. The server does not log question text.",
+    "assistant.knowledgeUnavailable": "Knowledge Q&A is not configured. The local site assistant remains available.",
+    "assistant.knowledgePlaceholder": "Ask a question grounded in blog posts",
+    "assistant.knowledgeSources": "Source articles",
     "assistant.relayCta": "Relay ranking",
     "assistant.quick.search": "Search posts",
     "assistant.quick.tools": "Open toolbox",
@@ -627,6 +633,15 @@
     "editor.btn.copyfail": '<i class="fas fa-copy"></i> Copy failed',
     "editor.btn.md": '<i class="fas fa-download"></i> MD',
     "editor.btn.html": '<i class="fas fa-code"></i> HTML',
+    "editor.btn.delete": '<i class="fas fa-trash-alt" aria-hidden="true"></i> Delete draft',
+    "editor.drafts.aria": "Draft management",
+    "editor.drafts.label": "Current draft",
+    "editor.drafts.select": "Select draft",
+    "editor.drafts.saved": "Auto-saved",
+    "editor.drafts.saving": "Saving...",
+    "editor.drafts.untitled": "Untitled draft",
+    "editor.drafts.confirmDelete": "Delete this local draft?",
+    "editor.draft.label": "Keep as draft (excluded from builds)",
     "editor.title.label": "Title",
     "editor.title.ph": "Article title",
     "editor.shortTitle.label": "Short title",
@@ -767,7 +782,8 @@
     try { window.localStorage.setItem(KEY, lang); } catch (e) { /* 存储失败，不影响功能 */ }
   }
 
-  let lang = read() === "en" ? "en" : "zh"; // 默认中文
+  const languageMode = document.body && document.body.getAttribute("data-language-mode");
+  let lang = languageMode === "zh-only" ? "zh" : (read() === "en" ? "en" : "zh"); // 默认中文
 
   // 取当前语言下某键的文案；en 命中字典则返回英文，否则回退 fallback（中文）。
   function t(key, fallback) {
@@ -842,7 +858,7 @@
   }
 
   function setLang(next) {
-    lang = next === "en" ? "en" : "zh";
+    lang = languageMode === "zh-only" ? "zh" : (next === "en" ? "en" : "zh");
     write(lang);
     apply();
   }

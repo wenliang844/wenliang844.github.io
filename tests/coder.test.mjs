@@ -287,7 +287,7 @@ test("coder.js does not add reveal class when prefers-reduced-motion", async () 
 
 // ─── Skill bar animation ─────────────────────────────────────────────────
 
-test("coder.js sets --level CSS variable on skill fills", async () => {
+test("coder.js leaves skill levels in CSP-safe data attributes", async () => {
   const dom = buildDom(`<!doctype html><html lang="zh-CN"><body class="colorscheme-dark">
     <div class="skill-fill" data-level="85"></div>
     <div class="skill-fill" data-level="60"></div>
@@ -298,8 +298,10 @@ test("coder.js sets --level CSS variable on skill fills", async () => {
   dom.window.eval(coderCode);
 
   const fills = dom.window.document.querySelectorAll(".skill-fill");
-  assert.equal(fills[0].style.getPropertyValue("--level"), "85");
-  assert.equal(fills[1].style.getPropertyValue("--level"), "60");
+  assert.equal(fills[0].dataset.level, "85");
+  assert.equal(fills[1].dataset.level, "60");
+  assert.equal(fills[0].hasAttribute("style"), false);
+  assert.equal(fills[1].hasAttribute("style"), false);
   dom.window.close();
 });
 

@@ -1,310 +1,97 @@
-# 项目结构
+# CWLBlog 架构说明
 
-```
-wenliang844.github.io/
-├── .claude/                   # Claude Code 配置
-│   ├── settings.json          # 项目设置
-│   └── launch.json            # 开发服务器配置
-│
-├── .github/                   # GitHub Actions 工作流（可选）
-│   └── workflows/
-│       └── deploy.yml         # 自动部署配置
-│
-├── css/                       # 样式文件
-│   ├── coder.css              # 主样式
-│   └── fontawesome-all.min.css  # 图标字体
-│
-├── docs/                      # 项目文档
-│   ├── SECURITY.md            # 安全指南
-│   ├── PERFORMANCE.md         # 性能优化指南
-│   └── DEPLOYMENT.md          # 部署指南
-│
-├── js/                        # JavaScript 文件
-│   ├── utils.js               # 公共工具函数
-│   ├── error-handler.js       # 全局错误处理
-│   ├── performance-monitor.js # 性能监控（可选）
-│   ├── logger.js              # 日志收集器（可选）
-│   ├── i18n.js                # 国际化
-│   ├── coder.js               # 核心交互逻辑
-│   ├── blog.js                # 博客列表交互
-│   ├── search.js              # 全局搜索
-│   ├── search-loader.js       # 搜索懒加载
-│   ├── toc.js                 # 文章目录
-│   ├── editor.js              # Markdown 编辑器
-│   ├── overleaf.js            # 简历编辑器
-│   ├── feedback.js            # 反馈表单
-│   ├── giscus.js              # 评论系统
-│   ├── share.js               # 分享功能
-│   ├── highlight-loader.js    # 代码高亮懒加载
-│   └── vendor/                # 第三方库
-│       ├── marked.min.js      # Markdown 解析器
-│       ├── purify.min.js      # HTML 清理器
-│       ├── highlight.min.js   # 代码高亮
-│       ├── fuse.min.js        # 模糊搜索
-│       └── qrcode.min.js      # 二维码生成
-│
-├── scripts/                   # 构建脚本
-│   └── build.mjs              # 主构建脚本
-│
-├── src/                       # 源文件
-│   ├── config.mjs             # 站点配置
-│   ├── lib/
-│   │   └── format.mjs         # 格式化工具
-│   ├── posts/                 # Markdown 文章源文件
-│   │   ├── example-post.md
-│   │   └── ...
-│   └── templates/             # HTML 模板
-│       ├── layout.mjs         # 页面布局
-│       ├── post.mjs           # 文章页模板
-│       ├── tags.mjs           # 标签页模板
-│       ├── categories.mjs     # 归档页模板
-│       └── ai.mjs             # AI 导航页模板
-│
-├── tests/                     # 测试文件
-│   ├── build.test.mjs         # 构建测试
-│   ├── security.test.mjs      # 安全测试
-│   ├── templates.test.mjs     # 模板测试
-│   ├── utils.test.mjs         # 工具函数测试
-│   └── links.test.mjs         # 链接验证测试
-│
-├── post/                      # 构建输出：文章页
-│   ├── index.html             # 文章列表
-│   ├── index.xml              # RSS 订阅
-│   └── [slug]/
-│       └── index.html         # 单篇文章
-│
-├── tags/                      # 构建输出：标签云
-│   └── index.html
-│
-├── categories/                # 构建输出：时间归档
-│   ├── index.html
-│   └── index.xml
-│
-├── ai/                        # 构建输出：AI 导航
-│   └── index.html
-│
-├── editor/                    # Markdown 编辑器页面
-│   └── index.html
-│
-├── overleaf/                  # 简历编辑器页面
-│   └── index.html
-│
-├── contact/                   # 联系页面
-│   └── index.html
-│
-├── index.html                 # 首页
-├── sitemap.xml                # 搜索引擎地图
-├── index.xml                  # 站点 RSS
-├── search-index.json          # 搜索索引
-├── robots.txt                 # 搜索引擎爬虫配置
-├── package.json               # 项目配置
-├── .eslintrc.json             # ESLint 配置
-└── README.md                  # 项目说明
+## 系统边界
+
+CWLBlog 当前是静态优先的个人知识品牌站，不是多用户 CMS。文章正文、元数据和版本保存在 Git；浏览器只负责阅读交互、本地草稿和可选的第三方评论/订阅。动态服务尚未成为部署必需项。
+
+## 构建数据流
+
+```text
+src/posts/*.md + src/content.config.ts + images/posts/*
+                       |
+          +------------+-------------+
+          |                          |
+          v                          v
+ Astro Content Collections     scripts/build.mjs
+ Schema / /post 路由           图片、RSS、Sitemap、知识派生
+          |                          |
+          +------------+-------------+
+                       v
+         根目录静态产物 + Pagefind 全文索引
+                       |
+                       v
+              GitHub Pages / CDN
 ```
 
-## 关键文件说明
+Astro Content Collections 已接管 `/post/` 列表和 `/post/{slug}/` 详情路由，并在路由生成前执行类型化 front matter Schema。`scripts/build.mjs` 仍负责统一文章领域模型、`draft: true` 隔离、图片处理，以及分类、系列、标签、知识资产、RSS 和 Sitemap 等派生产物；`scripts/sync-astro-output.mjs` 只允许把 Astro 的 `post/` 输出覆盖到 GitHub Pages 根目录。当前兼容层继续复用成熟的 HTML 模板，因此迁移前后的 URL、canonical、正文和交互保持一致。
 
-### 配置文件
+Sharp 校验本地封面并生成 960px AVIF/WebP；Pagefind 对最终 HTML 的完整正文建索引；`knowledge/chunks.json` 以稳定哈希输出公开正文分块，供边缘混合检索和向量更新使用。`knowledge/health.json` 派生主题覆盖、内容陈旧度、链接孤立和维护优先级，知识资产页直接消费同一模型。迁移边界和后续拆分顺序见 [Astro 迁移说明](ASTRO_MIGRATION.md)。
 
-- **package.json** - npm 项目配置，定义脚本和依赖
-- **.eslintrc.json** - 代码检查规则
-- **src/config.mjs** - 站点级配置（URL、标题、SEO 等）
+## 内容模型
 
-### 构建系统
+文章 front matter 的核心字段包括：
 
-- **scripts/build.mjs** - 主构建脚本
-  - 解析 Markdown 文章
-  - 验证必填字段和格式
-  - 渲染 HTML 页面
-  - 生成 sitemap 和 RSS
-  - 构建搜索索引
+- 身份与 SEO：`title`、`shortTitle`、`slug`、`summary`、`description`
+- 生命周期：`date`、`modified`、`draft`
+- 组织：`tags`、`category`、`series`、`order`
+- 媒体：`cover`、`coverAlt`
 
-### 模板系统
+分类和系列使用 `src/config.mjs` 中的稳定 ASCII ID 作为 URL。展示名称可以调整，但 ID 和已发布 slug 不应随意变更。
 
-- **src/templates/layout.mjs** - 页面通用结构
-- **src/templates/post.mjs** - 文章页和列表页
-- **src/templates/tags.mjs** - 标签云页面
-- **src/templates/categories.mjs** - 时间归档页面
+## 浏览器架构
 
-### 前端核心
+- `/post/` 路由由 `src/pages/post/` 中的 Astro 页面生成；共享布局暂由 `src/templates/layout.mjs` 兼容输出，下一阶段再拆为原生 Astro 组件。
+- `css/coder.css` 承载既有全站样式，`css/content.css` 承载文章、知识页和新增内容组件；后续继续按 token/layout/component/page 拆分。
+- 浏览器脚本大部分仍是全局 IIFE，按页面使用 `defer` 加载；CodeMirror 工作台已使用 TypeScript、esbuild 和严格 `tsc --noEmit` 门禁，其他脚本将渐进迁移为 ES Modules/TypeScript。
+- 搜索优先使用 Pagefind，保留 `search-index.json` 作为兼容数据源。
+- 编辑器使用 CodeMirror 6 和 IndexedDB 保存多草稿，支持 Markdown 诊断、快捷格式、WikiLink 与预览同步；草稿数据不上传、不进入 Service Worker 缓存。认证作者可申请短期图片上传许可，许可与 CSRF 只存在页面内存。
 
-- **js/utils.js** - 公共工具（转义、复制、节流、防抖等）
-- **js/error-handler.js** - 全局错误捕获和用户友好提示
-- **js/coder.js** - 页面交互核心（主题切换、阅读进度、返回顶部、目录等）
-- **js/blog.js** - 博客列表交互（搜索、标签过滤、面板切换）
-- **js/search.js** - 全局模糊搜索（Fuse.js 驱动）
+## PWA 缓存边界
 
-### 测试套件
+`service-worker.js` 只处理同源 GET 请求：
 
-- **tests/security.test.mjs** - XSS 防护、输入验证、转义逻辑
-- **tests/build.test.mjs** - 构建输出验证
-- **tests/templates.test.mjs** - 模板转义验证
-- **tests/utils.test.mjs** - 工具函数验证
-- **tests/links.test.mjs** - 链接完整性检查
+- 文章、分类、系列、标签和知识页：网络优先，离线时回退到已访问版本。
+- CSS、JavaScript、图片、字体和 Pagefind：缓存命中后立即返回，并在后台更新。
+- `/editor/`、`/overleaf/`、`/api/`：页面请求以及由这些页面发起的同源子资源请求全部绕过 Service Worker。
 
-## 数据流
+私有边界同时检查请求 URL 与 `request.referrer`，避免已控制页面把 `/js/editor*.js` 等创作资源写入共享缓存。缓存有显式版本号，激活新版本时仅清理带 `cwlblog-public-` 前缀的旧缓存，不触碰其他站点数据。
 
-### 构建流程
+`build:pwa` 会对 Service Worker 逻辑以及公开 `css/js/images/fonts`、离线页和 Manifest 计算内容哈希并写入缓存名。新 HTML 与旧 CSS/JS 因部署顺序混用的窗口因此受控；相同输入重复构建保持同一版本。
 
-```
-src/posts/*.md
-    ↓ (parse front matter + markdown)
-scripts/build.mjs
-    ↓ (render templates)
-post/[slug]/index.html  (单篇文章)
-post/index.html         (文章列表)
-tags/index.html         (标签云)
-categories/index.html   (时间归档)
-sitemap.xml             (SEO)
-index.xml               (RSS)
-search-index.json       (搜索索引)
-```
+## 内容关系
 
-### 运行时流程
+Markdown 支持 `[[slug|显示文字]]` 和普通站内文章链接。构建器基于 Markdown token 树提取关系，忽略代码块和行内代码；不存在的目标会使构建失败。每篇文章得到 `outgoingLinks` 与 `backlinks`，知识图谱把正文引用作为独立边类型输出，因此推荐、孤立文章检测和后续 RAG 都可复用同一关系数据。
 
-```
-用户访问 /post/
-    ↓
-加载 post/index.html
-    ↓
-执行 js/blog.js
-    ↓
-初始化搜索、标签过滤、面板切换
-    ↓
-用户交互（搜索、筛选、点击）
-    ↓
-动态更新 DOM（不刷新页面）
-```
+文末推荐在构建期计算，正文引用权重最高，其次为同系列、同专题和共同标签，发布时间接近度只用于小幅排序。推荐卡会显示主要原因；算法只依赖公开文章元数据和引用关系，不创建访客画像。
 
-### 搜索流程
+## 外部服务
 
-```
-用户打开搜索弹窗
-    ↓
-懒加载 fuse.min.js + search-index.json
-    ↓
-用户输入查询
-    ↓
-防抖 150ms
-    ↓
-Fuse.js 模糊搜索
-    ↓
-安全渲染结果（DOM API，无 innerHTML）
-    ↓
-用户选择结果 → 跳转页面
-```
+- Giscus：文章评论，按需加载并依赖 GitHub 身份。
+- Buttondown：邮件订阅。
+- Umami/Plausible：可选匿名统计；未配置时不发起请求，遵守 DNT/GPC。
+- AI：当前为本地规则/用户自有密钥体验；站点不分发可复用的模型密钥，只允许两个只读中转站预设，密钥不落盘。
+- 知识问答：可选 Workers AI + Vectorize 边缘能力，回答只基于公开分块并返回原文来源；未配置时保持网络静默。
 
-## 开发工作流
+全站 CSP 已移除 `script-src 'unsafe-inline'`，JSON-LD 由逐页 SHA-256 哈希授权，`script-src-attr 'none'` 禁止内联事件；文章详情页才允许 Giscus，只有工具箱允许固定版本 jsDelivr。Pagefind 和 MediaPipe 页面按能力获得专用 `wasm-unsafe-eval`，普通 `unsafe-eval` 始终禁用。公开路由也已移除样式侧 `unsafe-inline`，一方脚本不再写入内联样式，静态 `style` 属性会让构建失败。CodeMirror 6 依赖运行时测量样式，因此仅 `/editor/` 保留样式侧兼容例外，并由测试阻止扩散到其他路由。网络权限同样按能力生成：公共页只连接明确的统计、订阅、固定 AI 预设和配置的 Worker Origin，联系页增加 Web3Forms；只有包含任意目标 API 测试器的 `/tools/` 保留宽泛 HTTPS。
 
-### 添加新文章
+## 单作者发布边缘
 
-1. 在 `src/posts/` 创建 `my-post.md`
-2. 添加 front matter：
-   ```yaml
-   ---
-   title: "文章标题"
-   shortTitle: "短标题"
-   slug: my-post
-   date: 2026-06-17
-   summary: "摘要"
-   description: "SEO 描述"
-   tags: [标签1, 标签2]
-   ---
-   ```
-3. 编写 Markdown 正文
-4. 运行 `npm run build`
-5. 查看 `post/my-post/index.html`
+`worker/src/index.ts` 已实现 `/api/v1` 发布边缘。GitHub OAuth 只验证作者白名单，仓库写入使用服务端细粒度 Token；签名 HttpOnly Cookie、精确 Origin 与 CSRF 共同保护写接口。发布操作只允许写入 `src/posts/{slug}.md`，并通过临时分支和 PR 进入现有 CI，不直接修改主分支。创建后由只读作者接口聚合 PR 与 Check Runs 状态，编辑器采用有上限的轮询显示 CI 成功、失败、合并或关闭终态。
 
-### 修改样式
+图片上传采用 Worker 签发的 5 分钟内存许可和 R2 对象存储。服务端生成 `images/uploads/YYYY/MM/{uuid}.{ext}`，复验类型、魔数、字节、真实像素与 SHA-256，并以条件写入阻止许可重放覆盖。认证作者可通过固定前缀、cursor 分页的只读媒体库复用历史图片；列表响应不暴露上传者和任意 R2 元数据。构建期 `asset-references.json` 与 R2 分页审计提供带最短保护期的孤立资源 dry-run，当前不开放自动删除。公开读取走独立 HTTPS 资源域名；Analytics Engine 只保存登录名、事件、slug/对象键和错误码，不保存正文、图片内容或 Token。完整配置见 [GitHub PR 发布 API](PUBLISHING_API.md)。
 
-1. 编辑 `css/coder.css`
-2. 刷新浏览器查看效果
-3. 测试响应式布局（移动端）
+知识问答以关键词召回与 Vectorize 召回做融合排序，只允许当前 `datasetHash` 的向量进入上下文。`AiBudget` Durable Object 原子执行每 IP 哈希分钟限流和每日全局熔断；低证据问题不调用生成模型。作者可在编辑器手动重建索引，每周定时任务处理遗漏更新。
 
-### 添加新功能
+离线评测集覆盖每篇已发布文章，CI 要求词法 Top-3 Recall 与离题问题拒答率均不低于 90%。模型回答在发给浏览器前会删除超出本次来源数量的引用编号；有事实回答但没有合法引用时补入 `[1]`，明确“不知道/证据不足”的回答不伪造引用。`npm run eval:knowledge` 可单独执行该门禁。
 
-1. 编辑相应的 JS 文件（如 `js/coder.js`）
-2. 添加测试（如 `tests/utils.test.mjs`）
-3. 运行 `npm run validate` 确保通过
-4. 提交代码
+## 内容健康与恢复
 
-### 国际化
+内容健康模型以“当前月月初”和仓库最新 `modified` 日期中的较晚者作为时钟：90 天进入复核、180 天进入更新队列。这样停更时陈旧度仍会推进，又把纯时间导致的生成文件变化限制为每月一次；恢复构建可用 `CWL_CONTENT_AS_OF=YYYY-MM-DD` 固定时钟。模型同时计算四个稳定主题各 5 篇的阶段覆盖目标、正文入出链孤立、图谱孤立和标签稀疏度。它用于安排内容维护，不采集或推断访客数据。
 
-1. 在 `js/i18n.js` 添加翻译键值
-2. 在 HTML 中使用 `data-i18n` 或 `data-i18n-html` 属性
-3. 动态内容使用 `cwlT(key, fallback)` 函数
+`.github/workflows/content-backup.yml` 每月生成内容快照，对 Markdown、原始图片和内容 Schema 建立 SHA-256 清单，执行一次隔离目录恢复后保存 90 天 Artifact。配置 `R2_ACCOUNT_ID`、`R2_ACCESS_KEY_ID`、`R2_SECRET_ACCESS_KEY`、`R2_BUCKET_NAME` 时，工作流会通过 S3 兼容接口把 R2 对象纳入同一快照；未配置时明确降级为 Git 内容快照。恢复工具先验证全部路径、字节数与哈希，只允许创建新目录，不覆盖工作区。
 
-## 扩展指南
+## 目标演进
 
-### 添加新页面
+近期继续保持静态优先：文章集合和路由已迁移到 Astro Content Collections/TypeScript，下一步迁移公共布局并拆分浏览器 IIFE。Git 仍是唯一内容源。只有资源上传、Git PR 发布、带引用的 AI 问答等动态请求进入版本化边缘 API。向量分块、资源元数据和审计日志可使用独立数据库，文章正文不得与 Git 双写。
 
-1. 在 `src/templates/` 创建新模板（如 `my-page.mjs`）
-2. 在 `scripts/build.mjs` 中渲染新页面
-3. 在 `src/config.mjs` 的 `STATIC_PAGES` 中添加路由
-4. （可选）在 `SEARCH_PAGES` 中添加搜索索引
-
-### 添加新的第三方库
-
-1. 下载到 `js/vendor/` 或使用 CDN
-2. 在模板中引入（优先使用 `defer` 或 `async`）
-3. 更新 CSP 策略（如需要）
-4. 在 `.eslintrc.json` 中声明全局变量
-
-### 自定义构建
-
-编辑 `scripts/build.mjs`：
-
-```javascript
-// 自定义处理逻辑
-function customProcess(posts) {
-  // 过滤、排序、分组等
-  return posts.filter(p => !p.draft);
-}
-
-const posts = customProcess(await loadPosts());
-```
-
-## 性能考量
-
-### 构建优化
-
-- 并行处理文章（未来可添加）
-- 增量构建（仅重建变更的文章）
-- 缓存 Markdown 渲染结果
-
-### 运行时优化
-
-- 懒加载非关键资源（搜索、代码高亮）
-- 防抖/节流高频事件
-- 使用事件委托减少监听器
-- DOM 操作批量化
-
-## 维护建议
-
-### 定期任务
-
-- **每周**：运行 `npm audit` 检查依赖漏洞
-- **每月**：更新依赖到最新稳定版本
-- **每季度**：审查性能指标（Lighthouse）
-- **每年**：完整安全审计
-
-### 备份策略
-
-- 使用 Git 版本控制（已实施）
-- 定期推送到 GitHub（远程备份）
-- 导出 `src/posts/` 到本地（额外备份）
-- 备份 `localStorage` 数据（编辑器草稿、反馈等）
-
-### 监控
-
-- 使用 Google Analytics 跟踪访问
-- 监控 Core Web Vitals（LCP、FID、CLS）
-- 设置错误收集（可选）
-- 定期检查死链接
-
-## 相关文档
-
-- [安全指南](./SECURITY.md)
-- [性能优化指南](./PERFORMANCE.md)
-- [部署指南](./DEPLOYMENT.md)
-- [README.md](../README.md)
+多用户、租户、会员、主题市场和插件市场不在当前系统边界内；达到明确用户规模后再评估平台化。

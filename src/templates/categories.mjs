@@ -43,12 +43,24 @@ ${links}
           </details>`;
 }
 
-export function renderCategoriesPage(posts, stats) {
+export function renderCategoriesPage(posts, stats, categories = []) {
   const groups = groupPostsByYear(posts).map(renderYearGroup).join("\n");
+  const categoryCards = categories.map((group) => `          <a class="taxonomy-card" href="/categories/${escapeAttr(group.id)}/">
+            <span class="eyebrow">${group.posts.length} 篇</span>
+            <strong>${escapeHtml(group.name)}</strong>
+            <span>${escapeHtml(group.description)}</span>
+          </a>`).join("\n");
   const main = `    <main id="main-content" class="content">
       <section class="list-page container">
-        <h1 data-i18n="categories.title" data-i18n-en="Time Archive">时间归档</h1>
-        <p class="lead" data-i18n="categories.lead">按年份回看项目复盘，从 AI Coding、低代码与工作流基础设施，到 SaaS 后台，再到智能分析预警和规则引擎告警闭环。</p>
+        <h1 data-i18n="categories.title" data-i18n-en="Categories & Archive">内容分类与归档</h1>
+        <p class="lead" data-i18n="categories.lead">先按主题进入知识领域，也可以沿时间线回看项目复盘。</p>
+        <div class="taxonomy-grid" aria-label="内容分类">
+${categoryCards}
+        </div>
+        <div class="section-heading taxonomy-archive-heading">
+          <span class="eyebrow">Timeline</span>
+          <h2>时间归档</h2>
+        </div>
         <div class="timeline-stats" aria-label="归档概览" data-i18n-aria="categories.stats.aria">
           <div>
             <strong>${stats.count}</strong>

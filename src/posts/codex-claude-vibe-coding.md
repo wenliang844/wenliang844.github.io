@@ -5,12 +5,17 @@ shortTitle: "Codex 与 Claude 的 Vibe Coding"
 shortTitleEn: "Codex and Claude Vibe Coding"
 slug: "codex-claude-vibe-coding"
 date: 2026-02-01
+modified: 2026-08-06
+category: "ai-coding"
+series: "ai-collaboration"
+order: 1
 eyebrow: "AI Coding"
 summary: "记录如何把 Codex 的工程执行力与 Claude 的长上下文理解结合起来，让 Vibe Coding 从随手试验变成可交付的开发流程。"
 summaryEn: "A note on combining Codex's engineering execution with Claude's long-context reasoning to turn vibe coding into a shippable workflow."
 description: "Codex 和 Claude 协作进行 Vibe Coding 的实践方法：需求澄清、方案探索、代码落地、测试验证与迭代节奏。"
 descriptionEn: "A practical workflow for vibe coding with Codex and Claude across requirement shaping, exploration, implementation, testing and iteration."
 cover: "/images/posts/codex-claude-vibe-coding.png"
+coverAlt: "Codex 与 Claude 协同开发工作流封面"
 tags: [Codex, Claude, AI Coding, Vibe Coding, 工程效率]
 tagsEn: [Codex, Claude, AI Coding, Vibe Coding, Engineering Efficiency]
 ---
@@ -149,3 +154,7 @@ Codex 和 Claude 一起做 Vibe Coding，最好的状态不是「AI 替我写完
 Claude 帮忙把想法说清楚，Codex 帮忙把想法落到仓库里。一个拓宽思路，一个推动执行。开发者则站在中间，负责判断方向、收紧边界、确认质量。
 
 当灵感、代码和验证形成闭环，Vibe Coding 就不只是轻松愉快的编程姿势，而是一种更高密度、更有反馈感的创造方式。
+
+## 延伸阅读
+
+- [[lowcode-schema-codegen|低代码引擎与 Schema 出码实践]] 展示了如何把平台级设计判断落到可验证的工程结构中。

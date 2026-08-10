@@ -9,6 +9,8 @@ import {
   normalizeCover,
   normalizeDate,
   normalizeModifiedDate,
+  validateCoverAlt,
+  validateContentTaxonomy,
   validatePost,
   validateSlug,
   validateUniqueSlug,
@@ -76,6 +78,7 @@ export async function validatePosts(postsDir = DEFAULT_POSTS_DIR) {
   const errors = [];
   const warnings = [];
   const seenSlugs = new Map();
+  const seenSeriesOrders = new Map();
 
   if (files.length === 0) {
     errors.push("No Markdown posts found.");
@@ -92,6 +95,7 @@ export async function validatePosts(postsDir = DEFAULT_POSTS_DIR) {
       const { data, content } = parseFrontMatter(raw, file);
       validatePost(data, file);
       validateTagFields(data, file);
+      validateContentTaxonomy(data, file, seenSeriesOrders);
 
       const slug = data.slug || file.replace(/\.md$/, "");
       validateSlug(slug, file);
@@ -99,7 +103,8 @@ export async function validatePosts(postsDir = DEFAULT_POSTS_DIR) {
 
       const date = normalizeDate(data.date);
       normalizeModifiedDate(data.modified, date, file);
-      normalizeCover(data.cover, file);
+      const cover = normalizeCover(data.cover, file);
+      validateCoverAlt(cover, data.coverAlt, file);
 
       if (!content.trim()) {
         warnings.push(`${file}: Content body is empty.`);

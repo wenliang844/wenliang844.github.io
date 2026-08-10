@@ -1,7 +1,7 @@
 // Deep test: build.mjs 辅助函数 — collectTags, stripHtml, extractToc, tidyHtml, absoluteUrl, buildSearchIndex i18n
 import test from "node:test";
 import assert from "node:assert/strict";
-import { normalizeDate, validateSlug, validatePost, tidyHtml, renderContent, readingMinutes, relatedPosts } from "../scripts/build.mjs";
+import { buildAssetReferences, collectCategories, collectSeries, normalizeDate, validateContentTaxonomy, validateSlug, validatePost, tidyHtml, renderContent, readingMinutes, relatedPosts, isDraftPost } from "../scripts/build.mjs";
 import { readFile, mkdir, mkdtemp, rm } from "node:fs/promises";
 import { join } from "node:path";
 import { execFile } from "node:child_process";
@@ -10,6 +10,53 @@ import { JSDOM } from "jsdom";
 
 const execFileAsync = promisify(execFile);
 const ROOT = join(import.meta.dirname, "..");
+
+test("isDraftPost only excludes an explicit boolean true", () => {
+  assert.equal(isDraftPost({ draft: true }), true);
+  assert.equal(isDraftPost({ draft: false }), false);
+  assert.equal(isDraftPost({ draft: "true" }), false);
+  assert.equal(isDraftPost({}), false);
+});
+
+test("asset reference manifest normalizes uploaded images and ignores traversal", () => {
+  const manifest = buildAssetReferences([
+    {
+      cover: "https://assets.example.com/images/uploads/2026/08/cover.webp?version=1",
+      contentMarkdown: [
+        "![正文](/images/uploads/2026/08/body.png)",
+        "![重复](images/uploads/2026/08/body.png)",
+        "![非法](/images/uploads/../private.png)",
+      ].join("\n"),
+    },
+  ]);
+  assert.equal(manifest.version, 1);
+  assert.match(manifest.contentHash, /^[a-f0-9]{64}$/);
+  assert.deepEqual(manifest.references, [
+    "images/uploads/2026/08/body.png",
+    "images/uploads/2026/08/cover.webp",
+  ]);
+});
+
+test("content taxonomy validates configured category and ordered series", () => {
+  const seen = new Map();
+  assert.doesNotThrow(() => validateContentTaxonomy({ category: "ai-systems", series: "intelligent-analysis", order: 1 }, "one.md", seen));
+  assert.throws(() => validateContentTaxonomy({ category: "unknown" }, "bad.md"), /Invalid category/);
+  assert.throws(() => validateContentTaxonomy({ category: "ai-systems", series: "unknown", order: 1 }, "bad.md"), /Invalid series/);
+  assert.throws(() => validateContentTaxonomy({ category: "ai-systems", series: "intelligent-analysis", order: 0 }, "bad.md"), /positive integer/);
+  assert.throws(() => validateContentTaxonomy({ category: "ai-systems", order: 1 }, "bad.md"), /order requires a series/);
+  assert.throws(() => validateContentTaxonomy({ category: "ai-systems", series: "intelligent-analysis", order: 1 }, "two.md", seen), /Duplicate series order/);
+});
+
+test("category and series collectors preserve taxonomy and reading order", () => {
+  const posts = [
+    { slug: "second", category: "ai-systems", series: "intelligent-analysis", seriesOrder: 2 },
+    { slug: "first", category: "ai-systems", series: "intelligent-analysis", seriesOrder: 1 },
+  ];
+  const categories = collectCategories(posts);
+  const series = collectSeries(posts);
+  assert.equal(categories.find((group) => group.id === "ai-systems").posts.length, 2);
+  assert.deepEqual(series.find((group) => group.id === "intelligent-analysis").posts.map((post) => post.slug), ["first", "second"]);
+});
 
 async function runBuild(args = []) {
   return execFileAsync("node", ["scripts/build.mjs", ...args], {
@@ -80,6 +127,7 @@ test("search index includes i18n metadata for posts", async () => {
       assert.ok(p.i18n.en.title.length > 0, `post ${p.slug} en title should not be empty`);
       assert.ok(Array.isArray(p.i18n.en.tags), `post ${p.slug} should have en tags array`);
     }
+    assert.ok(posts.some((post) => post.body.length > 600), "full article text should not be truncated to 600 characters");
 
     // 每个 page 应有 i18n.en
     const pages = index.filter(item => item.type === "page");
@@ -121,11 +169,13 @@ test("RSS feed has correct channel structure", async () => {
     await runBuild(["--out", outDir]);
     const rss = await readFile(join(outDir, "index.xml"), "utf8");
     assert.match(rss, /<rss version="2\.0"/);
+    assert.match(rss, /xmlns:content="http:\/\/purl\.org\/rss\/1\.0\/modules\/content\/"/);
     assert.match(rss, /<channel>/);
     assert.match(rss, /<title>CWLBlog<\/title>/);
     assert.match(rss, /<language>zh-CN<\/language>/);
     assert.match(rss, /<lastBuildDate>/);
     assert.match(rss, /<atom:link.*rel="self"/);
+    assert.match(rss, /<content:encoded><!\[CDATA\[/);
     // 应包含至少 6 篇文章的 <item>
     const itemCount = (rss.match(/<item>/g) || []).length;
     assert.ok(itemCount >= 6, `RSS should have at least 6 items, got ${itemCount}`);

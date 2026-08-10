@@ -5,12 +5,17 @@ shortTitle: "LowCode Engine 实践"
 shortTitleEn: "LowCode Engine Practice"
 slug: "lowcode-schema-codegen"
 date: 2022-02-01
+modified: 2026-08-06
+category: "frontend-platform"
+series: "enterprise-platforms"
+order: 1
 eyebrow: "LowCode"
 summary: "从低代码协议、设计器内核、物料体系、渲染器到出码工具链，梳理企业级中后台低代码平台底座。"
 summaryEn: "A low-code platform foundation covering protocol design, designer core, materials, renderers and code generation tooling."
 description: "企业级中后台低代码引擎在 Schema、物料、渲染和出码链路上的实践复盘。"
 descriptionEn: "A retrospective on enterprise low-code engine practice across schema, materials, rendering and code generation."
 cover: "/images/posts/lowcode-schema-codegen.png"
+coverAlt: "低代码 Schema 驱动代码生成流程封面"
 tags: [TypeScript, React, 低代码, Schema, 代码生成]
 tagsEn: [TypeScript, React, Low-Code, Schema, Code Generation]
 ---
@@ -113,3 +118,8 @@ Terminus LowCode Engine 是一套面向企业级中后台场景的低代码技�
 - 处理组件资源加载和异步 library 加载。
 - 同步设计模式、设备类型、国际化、请求处理器、上下文工具等运行时信息。
 - 支持设计器在画布上进行选中、拖拽、定位、节点查找等操作。
+
+## 延伸阅读
+
+- [[manage-system|智能视频分析平台设计]] 进一步说明统一协议如何连接采集、算法和业务规则。
+- [[codex-claude-vibe-coding|Codex + Claude 协作开发实践]] 记录复杂仓库分析与验证闭环的方法。

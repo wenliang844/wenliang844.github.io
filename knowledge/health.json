@@ -1,0 +1,154 @@
+{
+  "version": 1,
+  "asOf": "2026-08-06",
+  "policy": {
+    "categoryTarget": 5,
+    "reviewAfterDays": 90,
+    "staleAfterDays": 180,
+    "clock": "monthly-or-latest-content"
+  },
+  "stats": {
+    "articles": 6,
+    "current": 6,
+    "review": 0,
+    "stale": 0,
+    "linkOrphans": 0,
+    "graphOrphans": 0,
+    "categoryGap": 14
+  },
+  "categories": [
+    {
+      "id": "ai-coding",
+      "name": "AI 协作开发",
+      "count": 1,
+      "target": 5,
+      "coverage": 20,
+      "gap": 4,
+      "latestModified": "2026-08-06",
+      "stale": 0
+    },
+    {
+      "id": "ai-systems",
+      "name": "AI 与智能系统",
+      "count": 2,
+      "target": 5,
+      "coverage": 40,
+      "gap": 3,
+      "latestModified": "2026-08-06",
+      "stale": 0
+    },
+    {
+      "id": "backend-platform",
+      "name": "后端平台工程",
+      "count": 2,
+      "target": 5,
+      "coverage": 40,
+      "gap": 3,
+      "latestModified": "2026-08-06",
+      "stale": 0
+    },
+    {
+      "id": "frontend-platform",
+      "name": "前端平台工程",
+      "count": 1,
+      "target": 5,
+      "coverage": 20,
+      "gap": 4,
+      "latestModified": "2026-08-06",
+      "stale": 0
+    }
+  ],
+  "articles": [
+    {
+      "slug": "rule-engine-alerts",
+      "title": "规则引擎与告警闭环：智能分析预警平台的运行时设计",
+      "shortTitle": "规则引擎与告警闭环",
+      "url": "/post/rule-engine-alerts/",
+      "category": "ai-systems",
+      "modified": "2026-08-06",
+      "ageDays": 0,
+      "freshness": "current",
+      "linkOrphan": false,
+      "graphOrphan": false,
+      "sparseTags": false,
+      "score": 0,
+      "reasons": []
+    },
+    {
+      "slug": "codex-claude-vibe-coding",
+      "title": "Codex 与 Claude 一起做 Vibe Coding：从灵感到可运行系统",
+      "shortTitle": "Codex 与 Claude 的 Vibe Coding",
+      "url": "/post/codex-claude-vibe-coding/",
+      "category": "ai-coding",
+      "modified": "2026-08-06",
+      "ageDays": 0,
+      "freshness": "current",
+      "linkOrphan": false,
+      "graphOrphan": false,
+      "sparseTags": false,
+      "score": 0,
+      "reasons": []
+    },
+    {
+      "slug": "manage-system",
+      "title": "智能分析预警平台：从视频采集到业务告警的后端重构实践",
+      "shortTitle": "智能分析预警平台重构",
+      "url": "/post/manage-system/",
+      "category": "ai-systems",
+      "modified": "2026-08-06",
+      "ageDays": 0,
+      "freshness": "current",
+      "linkOrphan": false,
+      "graphOrphan": false,
+      "sparseTags": false,
+      "score": 0,
+      "reasons": []
+    },
+    {
+      "slug": "finance-saas-backend",
+      "title": "企顾 SaaS 多模块平台项目介绍",
+      "shortTitle": "企顾 SaaS 多模块平台",
+      "url": "/post/finance-saas-backend/",
+      "category": "backend-platform",
+      "modified": "2026-08-06",
+      "ageDays": 0,
+      "freshness": "current",
+      "linkOrphan": false,
+      "graphOrphan": false,
+      "sparseTags": false,
+      "score": 0,
+      "reasons": []
+    },
+    {
+      "slug": "activiti-workflow-engine",
+      "title": "Terminus Activiti：面向业务流程数字化的轻量级 BPM 引擎实践",
+      "shortTitle": "Activiti BPM 引擎实践",
+      "url": "/post/activiti-workflow-engine/",
+      "category": "backend-platform",
+      "modified": "2026-08-06",
+      "ageDays": 0,
+      "freshness": "current",
+      "linkOrphan": false,
+      "graphOrphan": false,
+      "sparseTags": false,
+      "score": 0,
+      "reasons": []
+    },
+    {
+      "slug": "lowcode-schema-codegen",
+      "title": "Terminus LowCode Engine 项目介绍：面向企业级中后台的低代码引擎实践",
+      "shortTitle": "LowCode Engine 实践",
+      "url": "/post/lowcode-schema-codegen/",
+      "category": "frontend-platform",
+      "modified": "2026-08-06",
+      "ageDays": 0,
+      "freshness": "current",
+      "linkOrphan": false,
+      "graphOrphan": false,
+      "sparseTags": false,
+      "score": 0,
+      "reasons": []
+    }
+  ],
+  "maintenance": []
+}

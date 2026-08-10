@@ -3,8 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://giscus.app https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://giscus.app; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https:; frame-src https://giscus.app; form-action 'self' https://buttondown.com https://api.web3forms.com">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' https://cloud.umami.is https://plausible.io https://giscus.app 'wasm-unsafe-eval' 'sha256-M70YOCkNQw/dKNO0ABgXMJImLAj1mc/n8VluH8CxGpw='; script-src-attr 'none'; style-src 'self'; style-src-attr 'none'; img-src 'self' data: https:; font-src 'self' data:; worker-src 'self'; connect-src 'self' https://cloud.umami.is https://plausible.io https://buttondown.com https://muyuan.do https://token-plan-cn.xiaomimimo.com; frame-src https://giscus.app; form-action 'self' https://buttondown.com https://api.web3forms.com">
+  <meta name="cwl-api-base" content="">
   <meta name="description" content="基于 Activiti 7 的企业级工作流与 BPM 流程引擎实践。">
+  <meta name="theme-color" content="#171717">
   <link rel="icon" href="/images/favicon.png" type="image/png">
   <link rel="preconnect" href="https://giscus.app">
   <link rel="dns-prefetch" href="https://giscus.app">
@@ -14,8 +16,13 @@
   <link rel="dns-prefetch" href="https://paypal.me">
   <link rel="stylesheet" href="/css/fontawesome-all.min.css">
   <link rel="stylesheet" href="/css/coder.css">
+  <link rel="stylesheet" href="/css/content.css">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="apple-touch-icon" href="/images/pwa-192.png">
   <script src="/js/error-handler.js" defer></script>
   <script src="/js/utils.js" defer></script>
+  <script src="/js/pwa.js" defer></script>
+  <script src="/js/analytics.js" defer></script>
   <script src="/js/i18n.js" defer></script>
   <script src="/js/coder.js" defer></script>
   <script src="/js/search-loader.js" defer></script>
@@ -37,10 +44,11 @@
   <meta name="twitter:image" content="https://wenliang844.github.io/images/posts/activiti-workflow-engine.png">
   <meta name="twitter:title" content="Activiti BPM 引擎实践">
   <meta name="twitter:description" content="基于 Activiti 7 的企业级工作流与 BPM 流程引擎实践。">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"Activiti BPM 引擎实践","name":"Terminus Activiti：面向业务流程数字化的轻量级 BPM 引擎实践","description":"基于 Activiti 7 的企业级工作流与 BPM 流程引擎实践。","datePublished":"2022-02-09","dateModified":"2022-02-09","inLanguage":"zh-CN","keywords":"Java, Spring Boot, Activiti 7, BPMN 2.0, 工作流","mainEntityOfPage":{"@type":"WebPage","@id":"https://wenliang844.github.io/post/activiti-workflow-engine/"},"url":"https://wenliang844.github.io/post/activiti-workflow-engine/","author":{"@type":"Person","name":"CWL"},"publisher":{"@type":"Organization","name":"CWLBlog","logo":{"@type":"ImageObject","url":"https://wenliang844.github.io/images/favicon.png"}},"image":["https://wenliang844.github.io/images/posts/activiti-workflow-engine.png"]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"Activiti BPM 引擎实践","name":"Terminus Activiti：面向业务流程数字化的轻量级 BPM 引擎实践","description":"基于 Activiti 7 的企业级工作流与 BPM 流程引擎实践。","datePublished":"2022-02-09","dateModified":"2026-08-06","inLanguage":"zh-CN","keywords":"Java, Spring Boot, Activiti 7, BPMN 2.0, 工作流","mainEntityOfPage":{"@type":"WebPage","@id":"https://wenliang844.github.io/post/activiti-workflow-engine/"},"url":"https://wenliang844.github.io/post/activiti-workflow-engine/","author":{"@type":"Person","name":"CWL"},"publisher":{"@type":"Organization","name":"CWLBlog","logo":{"@type":"ImageObject","url":"https://wenliang844.github.io/images/favicon.png"}},"breadcrumb":{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"首页","item":"https://wenliang844.github.io/"},{"@type":"ListItem","position":2,"name":"文章","item":"https://wenliang844.github.io/post/"},{"@type":"ListItem","position":3,"name":"Activiti BPM 引擎实践","item":"https://wenliang844.github.io/post/activiti-workflow-engine/"}]},"image":["https://wenliang844.github.io/images/posts/activiti-workflow-engine.png"]}</script>
   <title>Activiti BPM 引擎实践 :: CWLBlog</title>
+  <meta name="generator" content="Astro Content Collections">
 </head>
-<body class="colorscheme-dark" data-i18n-page="posts" data-i18n-title-en="Activiti BPM Engine Practice :: CWLBlog" data-i18n-desc-en="Enterprise workflow and BPM engine practice based on Activiti 7.">
+<body class="colorscheme-dark" data-i18n-page="posts" data-i18n-title-en="Activiti BPM Engine Practice :: CWLBlog" data-i18n-desc-en="Enterprise workflow and BPM engine practice based on Activiti 7." data-language-mode="zh-only">
   <a class="skip-link" href="#main-content" data-i18n="nav.skip">跳到主要内容</a>
   <div class="cursor-glow" aria-hidden="true"></div>
   <canvas class="cursor-canvas" aria-hidden="true"></canvas>
@@ -60,6 +68,7 @@
               <details>
                 <summary class="nav-more-toggle" data-i18n="nav.more" data-i18n-html data-i18n-en-html="&lt;i class=&quot;fas fa-ellipsis-h&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt; More"><i class="fas fa-ellipsis-h" aria-hidden="true"></i> 更多</summary>
                 <ul class="nav-more-menu">
+              <li><a href="/knowledge/" data-i18n="nav.knowledge">知识资产</a></li>
               <li><a href="/tools/" data-i18n="nav.tools">工具箱</a></li>
               <li><a href="/overleaf/" data-i18n="nav.overleaf">简历模版</a></li>
                 </ul>
@@ -69,31 +78,36 @@
             <li><button class="nav-subscribe" type="button" data-subscribe-open data-i18n="nav.subscribe" data-i18n-html><i class="fas fa-envelope" aria-hidden="true"></i> 订阅</button></li>
             <li><a class="nav-sponsor" href="/sponsor/" data-i18n="nav.sponsor" data-i18n-html><i class="fas fa-heart" aria-hidden="true"></i> 赞助</a></li>
             <li><button class="theme-toggle" type="button" aria-label="切换主题" data-i18n-aria="nav.theme"><i class="fas fa-adjust"></i></button></li>
-            <li><button class="lang-toggle" type="button" aria-label="Switch language">EN</button></li>
+
             <li><button class="nav-search-trigger" type="button" aria-label="全局搜索（Ctrl+K 或 /）" title="全局搜索（Ctrl+K 或 /）" data-i18n-aria="nav.searchHint" data-i18n-title="nav.searchHint"><i class="fas fa-search"></i></button></li>
             <li><button class="nav-ai-experience assistant-nav-trigger" type="button" aria-label="打开 AI 助手" title="打开 AI 助手" data-assistant-toggle data-i18n-aria="assistant.open" data-i18n-title="assistant.open"><span aria-hidden="true">AI</span></button></li>
           </ul>
         </nav>
       </section>
     </header>
-    <main id="main-content" class="content container">
+    <main data-pagefind-body id="main-content" class="content container">
       <div class="post-layout">
         <article class="article" data-post-slug="activiti-workflow-engine">
           <header class="article-header">
             <span class="eyebrow">Workflow</span>
-            <h1 data-i18n="post.activiti-workflow-engine.title" data-i18n-en="Terminus Activiti: Lightweight BPM Engine Practice for Digital Business Processes">Terminus Activiti：面向业务流程数字化的轻量级 BPM 引擎实践</h1>
+            <h1 data-pagefind-meta="title">Terminus Activiti：面向业务流程数字化的轻量级 BPM 引擎实践</h1>
             <div class="article-meta">
-              <time datetime="2022-02-09">February 9, 2022</time>
+              <time datetime="2022-02-09" data-pagefind-meta="date[datetime]">February 9, 2022</time>
               <span>·</span>
               <a href="/post/#activiti-workflow-engine" data-i18n="post.meta.posts" data-i18n-en="Posts">文章</a>
               <span>·</span>
               <span class="reading-time"><i class="fas fa-clock" aria-hidden="true"></i> <span data-i18n="dyn.readingPrefix">约</span> 7 <span data-i18n="dyn.readingSuffix">分钟</span></span>
             </div>
-            <p class="article-summary" data-i18n="post.activiti-workflow-engine.summary" data-i18n-en="Engineering notes on enterprise workflow infrastructure around Activiti 7, BPMN 2.0, runtime APIs and Spring Boot auto-configuration.">围绕 Activiti 7、BPMN 2.0、运行时 API 和 Spring Boot 自动装配，梳理企业审批流与流程基础设施的工程实践。</p>
+            <div class="article-revision"><span>发布于 <time datetime="2022-02-09">February 9, 2022</time></span><span>最后更新 <time datetime="2026-08-06">August 6, 2026</time></span><a href="https://github.com/wenliang844/wenliang844.github.io/commits/master/src/posts/activiti-workflow-engine.md" target="_blank" rel="noopener noreferrer">修订历史</a></div>
+            <p class="article-summary">围绕 Activiti 7、BPMN 2.0、运行时 API 和 Spring Boot 自动装配，梳理企业审批流与流程基础设施的工程实践。</p>
             <div class="post-tags">
               <a href="/post/?tag=Java" data-tag="Java" data-i18n="post.activiti-workflow-engine.tag.0" data-i18n-en="Java">Java</a><a href="/post/?tag=Spring%20Boot" data-tag="Spring Boot" data-i18n="post.activiti-workflow-engine.tag.1" data-i18n-en="Spring Boot">Spring Boot</a><a href="/post/?tag=Activiti%207" data-tag="Activiti 7" data-i18n="post.activiti-workflow-engine.tag.2" data-i18n-en="Activiti 7">Activiti 7</a><a href="/post/?tag=BPMN%202.0" data-tag="BPMN 2.0" data-i18n="post.activiti-workflow-engine.tag.3" data-i18n-en="BPMN 2.0">BPMN 2.0</a><a href="/post/?tag=%E5%B7%A5%E4%BD%9C%E6%B5%81" data-tag="工作流" data-i18n="post.activiti-workflow-engine.tag.4" data-i18n-en="Workflow">工作流</a>
             </div>
+            <nav class="post-taxonomy" aria-label="内容分类与系列">
+              <a href="/categories/backend-platform/"><span>分类</span>后端平台工程</a><a href="/series/enterprise-platforms/"><span>系列 2</span>企业平台工程实践</a>
+            </nav>
           </header>
+          <figure class="post-cover post-cover-hero"><picture><source srcset="/images/generated/activiti-workflow-engine-cover.avif" type="image/avif"><source srcset="/images/generated/activiti-workflow-engine-cover.webp" type="image/webp"><img src="/images/posts/activiti-workflow-engine.png" width="1200" height="630" alt="Activiti 工作流引擎的流程编排与运行机制封面" loading="eager" decoding="async" fetchpriority="high"></picture></figure>
           <div class="article-content">
           <h2 id="toc-1-项目概述">项目概述</h2>
           <p>Terminus Activiti 是一个基于 Activiti 7.1.0-SNAPSHOT 的企业级工作流与 BPM（Business Process Management）项目。项目以 BPMN 2.0 流程引擎为核心，围绕流程定义、流程实例、人工任务、变量管理、事件监听、异步作业、连接器扩展和 Spring Boot 自动装配构建了一套可嵌入业务系统、可扩展到微服务架构的流程基础设施。</p>
@@ -220,6 +234,10 @@
           <li>异步 Job 和 Timer Job 默认每次获取 1 条，以降低乐观锁冲突概率。</li>
           <li>Job 锁默认 5 分钟，过期 Job 每 60 秒扫描一次，默认分页大小 3。</li>
           </ul>
+          <h2 id="toc-5-延伸阅读">延伸阅读</h2>
+          <ul>
+          <li><a class="wiki-link" href="/post/finance-saas-backend/">金融 SaaS 后端平台设计</a> 展示流程能力在多模块 SaaS 系统中的服务化边界。</li>
+          </ul>
           </div>
             <div class="post-share" data-share-url="/post/activiti-workflow-engine/" data-share-title="Activiti BPM 引擎实践" data-share-title-en="Activiti BPM Engine Practice">
               <span class="share-label" data-i18n="post.share"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg> 分享</span>
@@ -229,9 +247,9 @@
               <button class="share-btn" type="button" data-share="copy" aria-label="复制链接" data-i18n-aria="post.share.copy"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/></svg></button>
             </div>
         </article>
-        <aside class="toc-sidebar is-open" aria-label="目录" data-i18n-aria="toc.aria">
+        <aside class="toc-sidebar is-collapsed" aria-label="目录" data-i18n-aria="toc.aria">
           <div class="toc-header">
-            <button class="toc-toggle" type="button" aria-expanded="true" aria-label="展开/收起目录" data-i18n-aria="toc.toggle">
+            <button class="toc-toggle" type="button" aria-expanded="false" aria-label="展开/收起目录" data-i18n-aria="toc.toggle">
               <i class="fas fa-list" aria-hidden="true"></i>
               <span data-i18n="toc.title">目录</span>
               <i class="fas fa-chevron-down toc-chevron" aria-hidden="true"></i>
@@ -249,6 +267,7 @@
             <li class="toc-sub"><a href="#toc-4-1-runtime-api-设计-用稳定契约隔离流程引擎复杂度" data-toc-id="toc-4-1-runtime-api-设计-用稳定契约隔离流程引擎复杂度" data-i18n="toc.toc-4-1-runtime-api-设计-用稳定契约隔离流程引擎复杂度" data-i18n-en="1. Runtime API 设计：用稳定契约隔离流程引擎复杂度">1. Runtime API 设计：用稳定契约隔离流程引擎复杂度</a></li>
             <li class="toc-sub"><a href="#toc-4-2-缓存设计-命令执行期实体缓存-查询匹配器" data-toc-id="toc-4-2-缓存设计-命令执行期实体缓存-查询匹配器" data-i18n="toc.toc-4-2-缓存设计-命令执行期实体缓存-查询匹配器" data-i18n-en="2. 缓存设计：命令执行期实体缓存 + 查询匹配器">2. 缓存设计：命令执行期实体缓存 + 查询匹配器</a></li>
             <li class="toc-sub"><a href="#toc-4-3-性能优化-执行树预取-关系计数与异步作业调度" data-toc-id="toc-4-3-性能优化-执行树预取-关系计数与异步作业调度" data-i18n="toc.toc-4-3-性能优化-执行树预取-关系计数与异步作业调度" data-i18n-en="3. 性能优化：执行树预取、关系计数与异步作业调度">3. 性能优化：执行树预取、关系计数与异步作业调度</a></li>
+            <li><a href="#toc-5-延伸阅读" data-toc-id="toc-5-延伸阅读" data-i18n="toc.toc-5-延伸阅读" data-i18n-en="延伸阅读">延伸阅读</a></li>
             </ul>
           </nav>
         </aside>
@@ -257,24 +276,55 @@
         <h2 data-i18n="post.comments" data-i18n-html><i class="fas fa-comments" aria-hidden="true"></i> 评论</h2>
         <div id="giscus-thread"></div>
       </section>
+      <section class="post-backlinks" aria-labelledby="post-backlinks-title">
+        <div>
+          <span class="eyebrow">Backlinks</span>
+          <h2 id="post-backlinks-title">哪些文章提到了这里</h2>
+        </div>
+        <ul>
+          <li>
+            <a href="/post/finance-saas-backend/">
+              <strong>企顾 SaaS 多模块平台</strong>
+              <span>围绕客户数据资产、财税报表处理、通知触达和搜索检索，复盘企业服务 SaaS 多模块后端平台建设。</span>
+            </a>
+          </li>
+        </ul>
+      </section>
       <nav class="post-related" aria-label="相关文章" data-i18n-aria="post.related.aria">
         <h2 class="post-related-title" data-i18n="post.related.title" data-i18n-en="Related posts">相关文章</h2>
         <ul class="related-list">
         <li>
-          <a class="related-card" href="/post/manage-system/">
-            <span class="related-eyebrow">System Refactor</span>
-            <span class="related-title" data-i18n="post.manage-system.shortTitle" data-i18n-en="Alert Platform Refactor">智能分析预警平台重构</span>
-            <time datetime="2025-09-16">2025-09-16</time>
-          </a>
-        </li>
-        <li>
-          <a class="related-card" href="/post/finance-saas-backend/">
+          <a class="related-card" href="/post/finance-saas-backend/" data-analytics-event="related_click" data-analytics-target="finance-saas-backend">
             <span class="related-eyebrow">SaaS Backend</span>
             <span class="related-title" data-i18n="post.finance-saas-backend.shortTitle" data-i18n-en="Qigu SaaS Platform">企顾 SaaS 多模块平台</span>
+            <span class="related-reason" data-i18n-en="Linked content · Same series">正文引用 · 同一系列</span>
             <time datetime="2023-08-18">2023-08-18</time>
           </a>
         </li>
+        <li>
+          <a class="related-card" href="/post/lowcode-schema-codegen/" data-analytics-event="related_click" data-analytics-target="lowcode-schema-codegen">
+            <span class="related-eyebrow">LowCode</span>
+            <span class="related-title" data-i18n="post.lowcode-schema-codegen.shortTitle" data-i18n-en="LowCode Engine Practice">LowCode Engine 实践</span>
+            <span class="related-reason" data-i18n-en="Same series">同一系列</span>
+            <time datetime="2022-02-01">2022-02-01</time>
+          </a>
+        </li>
+        <li>
+          <a class="related-card" href="/post/manage-system/" data-analytics-event="related_click" data-analytics-target="manage-system">
+            <span class="related-eyebrow">System Refactor</span>
+            <span class="related-title" data-i18n="post.manage-system.shortTitle" data-i18n-en="Alert Platform Refactor">智能分析预警平台重构</span>
+            <span class="related-reason" data-i18n-en="2 shared tags">2 个共同标签</span>
+            <time datetime="2025-09-16">2025-09-16</time>
+          </a>
+        </li>
         </ul>
+      </nav>
+      <nav class="series-navigation" aria-label="系列连续阅读">
+        <div>
+          <span class="eyebrow">系列 2 / 3</span>
+          <a class="series-navigation-title" href="/series/enterprise-platforms/">企业平台工程实践</a>
+        </div>
+        <div class="series-navigation-links"><a href="/post/lowcode-schema-codegen/">← LowCode Engine 实践</a><a href="/post/finance-saas-backend/">企顾 SaaS 多模块平台 →</a></div>
       </nav>
       <nav class="post-pager" aria-label="Post pagination">
         <a class="pager-prev" href="/post/finance-saas-backend/">← <span data-i18n="post.finance-saas-backend.shortTitle" data-i18n-en="Qigu SaaS Platform">企顾 SaaS 多模块平台</span></a>

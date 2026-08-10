@@ -102,6 +102,29 @@ test("coder.js shows a resume-reading prompt for saved article progress", async 
   dom.window.close();
 });
 
+test("coder.js does not cover mobile reading content with a resume prompt", async () => {
+  const dom = buildDom(`<!doctype html><html lang="zh-CN"><body class="colorscheme-dark">
+    <article class="article" data-post-slug="mobile-resume-test">
+      <div class="article-content"><p>Long article body</p></div>
+    </article>
+  </body></html>`);
+  dom.window.localStorage.setItem("cwl.reading.mobile-resume-test", JSON.stringify({
+    ratio: 0.42,
+    scroll: 840,
+    time: Date.now(),
+  }));
+  dom.window.matchMedia = (query) => ({
+    matches: query === "(max-width: 768px)",
+    addEventListener() {},
+    removeEventListener() {},
+  });
+
+  await loadCoder(dom);
+
+  assert.equal(dom.window.document.querySelector(".reading-resume"), null);
+  dom.window.close();
+});
+
 test("coder.js hides reading progress bar on non-article pages", async () => {
   const dom = buildDom(`<!doctype html><html lang="zh-CN"><body class="colorscheme-dark">
     <main class="container"><h1>Tools</h1><p>Utility page content.</p></main>

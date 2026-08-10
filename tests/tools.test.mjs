@@ -671,7 +671,8 @@ test("expanded tools page runs all new tool actions locally", async () => {
     document.querySelector("#color-input").value = "#2563eb";
     document.querySelector("[data-color-convert]").click();
     assert.match(document.querySelector("#color-output").value, /HEX: #2563EB/);
-    assert.equal(document.querySelector("#color-swatch").style.backgroundColor, "rgb(37, 99, 235)");
+    assert.equal(document.querySelector("#color-swatch").dataset.colorValue, "#2563EB");
+    assert.match(document.querySelector("#color-swatch").getAttribute("src"), /^data:image\/svg\+xml,/);
     assert.equal(document.querySelectorAll("#color-palette [data-color-value]").length, 7);
 
     document.querySelector("#regex-pattern").value = "(\\w+)@(example\\.com)";
@@ -938,10 +939,10 @@ test("tool reset buttons restore controls and generated previews", async () => {
     document.querySelector('[data-tool-tab="color"]').click();
     document.querySelector("#color-input").value = "#2563eb";
     document.querySelector("[data-color-convert]").click();
-    assert.equal(document.querySelector("#color-swatch").style.backgroundColor, "rgb(37, 99, 235)");
+    assert.equal(document.querySelector("#color-swatch").dataset.colorValue, "#2563EB");
     assert.equal(document.querySelectorAll("#color-palette [data-color-value]").length, 7);
     document.querySelector('#tool-color [data-tool-reset]').click();
-    assert.equal(document.querySelector("#color-swatch").style.backgroundColor, "");
+    assert.equal(document.querySelector("#color-swatch").hasAttribute("src"), false);
     assert.equal(document.querySelectorAll("#color-palette [data-color-value]").length, 0);
     assert.match(document.querySelector("#color-preview-text").textContent, /等待转换颜色/);
 

@@ -5,12 +5,17 @@ shortTitle: "Activiti BPM 引擎实践"
 shortTitleEn: "Activiti BPM Engine Practice"
 slug: "activiti-workflow-engine"
 date: 2022-02-09
+modified: 2026-08-06
+category: "backend-platform"
+series: "enterprise-platforms"
+order: 2
 eyebrow: "Workflow"
 summary: "围绕 Activiti 7、BPMN 2.0、运行时 API 和 Spring Boot 自动装配，梳理企业审批流与流程基础设施的工程实践。"
 summaryEn: "Engineering notes on enterprise workflow infrastructure around Activiti 7, BPMN 2.0, runtime APIs and Spring Boot auto-configuration."
 description: "基于 Activiti 7 的企业级工作流与 BPM 流程引擎实践。"
 descriptionEn: "Enterprise workflow and BPM engine practice based on Activiti 7."
 cover: "/images/posts/activiti-workflow-engine.png"
+coverAlt: "Activiti 工作流引擎的流程编排与运行机制封面"
 tags: [Java, Spring Boot, Activiti 7, BPMN 2.0, 工作流]
 tagsEn: [Java, Spring Boot, Activiti 7, BPMN 2.0, Workflow]
 ---
@@ -113,3 +118,7 @@ Terminus Activiti 是一个基于 Activiti 7.1.0-SNAPSHOT 的企业级工作流�
 - Job 默认重试 3 次，重试等待 500ms。
 - 异步 Job 和 Timer Job 默认每次获取 1 条，以降低乐观锁冲突概率。
 - Job 锁默认 5 分钟，过期 Job 每 60 秒扫描一次，默认分页大小 3。
+
+## 延伸阅读
+
+- [[finance-saas-backend|金融 SaaS 后端平台设计]] 展示流程能力在多模块 SaaS 系统中的服务化边界。

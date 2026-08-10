@@ -15,6 +15,10 @@ npm install
 # 构建站点
 npm run build
 
+# 完整生产门禁
+npm run validate:production
+npm run security:secrets
+
 # 启动本地服务器
 npm run serve
 
@@ -24,16 +28,30 @@ npm run serve
 ### 开发工作流
 
 ```bash
-# 运行完整验证（推荐）
-npm run validate
+# 运行不修改源码的完整验证（推荐）
+npm run check:readonly
 
 # 单独运行各项检查
 npm run lint      # 代码检查
+npm run check:astro # Astro 页面与内容集合检查
 npm test          # 测试套件
 npm run build     # 构建验证
 ```
 
 ## 生产部署
+
+项目要求 Node.js 22.12.0 或以上版本。提交前至少执行 `npm run check:readonly`、`npm run build`、`npm run test:e2e`、`npm run security:secrets` 和 `npm audit --registry=https://registry.npmjs.org`。CI 在 Ubuntu/Node 22.12 上额外执行 Lighthouse，阈值为 Performance 90、Accessibility 95、SEO 95。
+
+### 发布边缘
+
+静态阅读站仍可独立部署。需要编辑器直接创建 GitHub PR 时，另行部署 `worker/src/index.ts`：
+
+```bash
+npm run check:worker
+npm run deploy:worker
+```
+
+部署前必须配置 GitHub OAuth、细粒度仓库 Token、32 字节以上会话密钥、精确 `SITE_ORIGIN` 和作者白名单，并把 Worker Origin 写入 `src/config.mjs` 的 `SITE.apiBase` 以及编辑器的 `cwl-api-base` meta。启用图片上传还需创建 R2 桶并配置资源域名；启用知识问答还需创建 1024 维 Vectorize 索引、先执行一次作者重建，再设置 `AI_ENABLED=true`。完整步骤见 [GitHub PR 发布 API](PUBLISHING_API.md)。
 
 ### GitHub Pages（推荐）
 
@@ -62,17 +80,20 @@ jobs:
       
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22.12.0'
           cache: 'npm'
       
       - name: Install dependencies
         run: npm ci
       
-      - name: Run tests
-        run: npm test
+      - name: Run quality gates
+        run: npm run check:readonly
       
       - name: Build site
         run: npm run build
+
+      - name: Scan secrets
+        run: npm run security:secrets
       
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
@@ -471,6 +492,26 @@ npm run build
 
 ## 持续集成/持续部署
 
+### 内容备份与恢复演练
+
+`.github/workflows/content-backup.yml` 在每月 1 日和手动触发时运行。Git 内容无需额外凭据；若要包含 R2，请在仓库 Actions Secrets 中配置 `R2_ACCOUNT_ID`、`R2_ACCESS_KEY_ID`、`R2_SECRET_ACCESS_KEY` 和 `R2_BUCKET_NAME`，凭据应只授予目标 Bucket 的只读权限。
+
+本地可创建并验证快照：
+
+```bash
+npm run backup:content -- --out temp/content-backup
+npm run verify:backup -- temp/content-backup
+```
+
+恢复演练必须写入一个不存在的隔离目录：
+
+```bash
+node scripts/backup-content.mjs --restore temp/content-backup --out temp/recovery-rehearsal
+node scripts/backup-content.mjs --verify temp/recovery-rehearsal
+```
+
+确认清单、文章数和图片完整后，再通过正常 Git PR 发布流恢复；不要把恢复目录直接覆盖到生产分支。CI Artifact 保留 90 天，季度应下载一次 Artifact 并在独立 checkout 中完成构建验证。
+
 ### GitHub Actions 工作流
 
 完整的 CI/CD 流程：
@@ -491,7 +532,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22.12.0'
       - run: npm ci
       - run: npm run lint
       - run: npm test
@@ -504,7 +545,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22.12.0'
       - run: npm ci
       - run: npm run build
       - uses: actions/upload-artifact@v4

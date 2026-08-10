@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 
 import { escapeAttr, escapeHtml, escapeXml } from "../src/lib/format.mjs";
 import { renderPage } from "../src/templates/layout.mjs";
@@ -38,9 +39,17 @@ test("layout escapes title and metadata", () => {
   assert.doesNotMatch(html, /href="\/\?assistant=fullscreen"/);
   assert.match(html, /src="\/js\/assistant\.js"/);
   assert.match(html, /http-equiv="Content-Security-Policy"/);
+  assert.match(html, /<meta name="cwl-api-base" content="">/);
   assert.match(html, /object-src 'none'/);
+  assert.match(html, /script-src-attr 'none'/);
+  assert.doesNotMatch(html, /script-src[^;]*'unsafe-inline'/);
+  assert.match(html, /style-src 'self'; style-src-attr 'none'/);
+  assert.doesNotMatch(html, /style-src[^;]*'unsafe-inline'/);
   assert.match(html, /frame-src https:\/\/giscus\.app/);
-  assert.match(html, /connect-src 'self' https:/);
+  assert.match(html, /connect-src 'self' https:\/\/cloud\.umami\.is https:\/\/plausible\.io https:\/\/buttondown\.com https:\/\/muyuan\.do https:\/\/token-plan-cn\.xiaomimimo\.com/);
+  assert.doesNotMatch(html, /connect-src[^;]*\shttps:(?:\s|;)/);
+  assert.doesNotMatch(html, /script-src[^;]*https:\/\/giscus\.app/);
+  assert.doesNotMatch(html, /script-src[^;]*https:\/\/cdn\.jsdelivr\.net/);
   assert.match(html, /<link rel="preconnect" href="https:\/\/giscus\.app">/);
   assert.match(html, /<link rel="dns-prefetch" href="https:\/\/giscus\.app">/);
   assert.match(html, /<link rel="preconnect" href="https:\/\/buttondown\.com">/);
@@ -64,6 +73,49 @@ test("layout deduplicates core and page scripts", () => {
   assert.equal((html.match(/src="\/js\/utils\.js"/g) || []).length, 1);
   assert.equal((html.match(/src="\/js\/tools\.js"/g) || []).length, 1);
   assert.match(html, /src="\/js\/assistant\.js"/);
+});
+
+test("layout authorizes JSON-LD with an exact CSP hash", () => {
+  const jsonLd = { "@context": "https://schema.org", "@type": "WebPage", name: "CWL" };
+  const html = renderPage({
+    title: "JSON-LD",
+    description: "CSP hash",
+    page: "",
+    scripts: [],
+    main: "<main></main>",
+    jsonLd,
+  });
+  const source = JSON.stringify(jsonLd);
+  const hash = createHash("sha256").update(source).digest("base64");
+  assert.match(html, new RegExp(`script-src[^;]*'sha256-${hash.replace(/[+]/g, "\\+")}'`));
+  assert.match(html, new RegExp(`<script type="application/ld\\+json">${source.replace(/[{}]/g, "\\$&")}</script>`));
+});
+
+test("layout grants external script sources only to pages that use them", () => {
+  const postHtml = renderPage({
+    title: "Post",
+    description: "Post CSP",
+    page: "posts",
+    scripts: ["/js/giscus.js"],
+    main: "<main></main>",
+  });
+  const toolsHtml = renderPage({
+    title: "Tools",
+    description: "Tools CSP",
+    page: "tools",
+    scripts: ["/js/tools.js"],
+    main: "<main></main>",
+  });
+
+  assert.match(postHtml, /script-src[^;]*https:\/\/giscus\.app/);
+  assert.doesNotMatch(postHtml, /script-src[^;]*https:\/\/cdn\.jsdelivr\.net/);
+  assert.match(toolsHtml, /script-src[^;]*https:\/\/cdn\.jsdelivr\.net/);
+  assert.match(toolsHtml, /script-src[^;]*'wasm-unsafe-eval'/);
+  assert.doesNotMatch(toolsHtml, /script-src[^;]*https:\/\/giscus\.app/);
+  assert.match(toolsHtml, /connect-src 'self' https:/);
+  assert.doesNotMatch(postHtml, /connect-src[^;]*\shttps:(?:\s|;)/);
+  assert.match(postHtml, /script-src[^;]*'wasm-unsafe-eval'/);
+  assert.doesNotMatch(postHtml, /(?:^|\s)'unsafe-eval'(?:\s|;|$)/);
 });
 
 test("post template escapes front matter text while preserving article HTML", () => {
@@ -149,6 +201,7 @@ test("post template renders next popup, related posts, bilingual body and JSON-L
   assert.match(html, /href="\/post\/next-post\/"/);
   assert.match(html, /class="post-related"/);
   assert.match(html, /href="\/post\/related-post\/"/);
+  assert.match(html, /class="related-reason"/);
   assert.match(html, /data-i18n-lang="en" hidden/);
   assert.match(html, /<script type="application\/ld\+json">/);
   assert.match(html, /property="og:image" content="https:\/\/wenliang844\.github\.io\/images\/posts\/current-post\.png"/);

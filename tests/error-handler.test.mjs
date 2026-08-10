@@ -203,10 +203,9 @@ test("error-handler.js registers global error and unhandledrejection handlers", 
   dom.window.eval(code);
   const { document } = dom.window;
 
-  // Injected style tag for toast
-  const styles = document.querySelectorAll("style");
-  const hasToastStyle = Array.from(styles).some((s) => s.textContent.includes(".global-error-toast"));
-  assert.ok(hasToastStyle, "should inject toast styles");
+  const css = await readFile(join(ROOT, "css", "content.css"), "utf8");
+  assert.equal(document.querySelector("style"), null, "should not inject CSP-blocked toast styles");
+  assert.match(css, /\.global-error-toast/);
   dom.window.close();
 });
 

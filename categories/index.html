@@ -3,8 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://giscus.app https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://giscus.app; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https:; frame-src https://giscus.app; form-action 'self' https://buttondown.com https://api.web3forms.com">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' https://cloud.umami.is https://plausible.io 'wasm-unsafe-eval' 'sha256-iterholRx6CIyFqLKy7YUB4BDgvcAJFnLswHGs6+KQU='; script-src-attr 'none'; style-src 'self'; style-src-attr 'none'; img-src 'self' data: https:; font-src 'self' data:; worker-src 'self'; connect-src 'self' https://cloud.umami.is https://plausible.io https://buttondown.com https://muyuan.do https://token-plan-cn.xiaomimimo.com; frame-src https://giscus.app; form-action 'self' https://buttondown.com https://api.web3forms.com">
+  <meta name="cwl-api-base" content="">
   <meta name="description" content="按年份整理 CWLBlog 的项目复盘，覆盖 AI Coding、低代码、工作流、SaaS 后台、智能分析预警与规则引擎。">
+  <meta name="theme-color" content="#171717">
   <link rel="icon" href="/images/favicon.png" type="image/png">
   <link rel="preconnect" href="https://giscus.app">
   <link rel="dns-prefetch" href="https://giscus.app">
@@ -14,8 +16,13 @@
   <link rel="dns-prefetch" href="https://paypal.me">
   <link rel="stylesheet" href="/css/fontawesome-all.min.css">
   <link rel="stylesheet" href="/css/coder.css">
+  <link rel="stylesheet" href="/css/content.css">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="apple-touch-icon" href="/images/pwa-192.png">
   <script src="/js/error-handler.js" defer></script>
   <script src="/js/utils.js" defer></script>
+  <script src="/js/pwa.js" defer></script>
+  <script src="/js/analytics.js" defer></script>
   <script src="/js/i18n.js" defer></script>
   <script src="/js/coder.js" defer></script>
   <script src="/js/search-loader.js" defer></script>
@@ -35,7 +42,7 @@
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"CollectionPage","name":"CWLBlog 时间归档","description":"按年份整理 CWLBlog 的项目复盘，覆盖 AI Coding、低代码、工作流、SaaS 后台、智能分析预警与规则引擎。","url":"https://wenliang844.github.io/categories/","inLanguage":"zh-CN","isPartOf":{"@type":"WebSite","name":"CWLBlog","url":"https://wenliang844.github.io/"},"mainEntity":{"@type":"ItemList","numberOfItems":6,"itemListElement":[{"@type":"ListItem","position":1,"name":"规则引擎与告警闭环","url":"https://wenliang844.github.io/post/rule-engine-alerts/"},{"@type":"ListItem","position":2,"name":"Codex 与 Claude 的 Vibe Coding","url":"https://wenliang844.github.io/post/codex-claude-vibe-coding/"},{"@type":"ListItem","position":3,"name":"智能分析预警平台重构","url":"https://wenliang844.github.io/post/manage-system/"},{"@type":"ListItem","position":4,"name":"企顾 SaaS 多模块平台","url":"https://wenliang844.github.io/post/finance-saas-backend/"},{"@type":"ListItem","position":5,"name":"Activiti BPM 引擎实践","url":"https://wenliang844.github.io/post/activiti-workflow-engine/"},{"@type":"ListItem","position":6,"name":"LowCode Engine 实践","url":"https://wenliang844.github.io/post/lowcode-schema-codegen/"}]}}</script>
   <title>时间归档 :: CWLBlog</title>
 </head>
-<body class="colorscheme-dark" data-i18n-page="categories" data-i18n-title-en="Time Archive :: CWLBlog" data-i18n-desc-en="A year-based archive of CWLBlog project retrospectives covering AI coding, low-code, workflow, SaaS backend, intelligent analysis and rule engines.">
+<body class="colorscheme-dark" data-i18n-page="categories" data-i18n-title-en="Time Archive :: CWLBlog" data-i18n-desc-en="A year-based archive of CWLBlog project retrospectives covering AI coding, low-code, workflow, SaaS backend, intelligent analysis and rule engines." data-language-mode="bilingual">
   <a class="skip-link" href="#main-content" data-i18n="nav.skip">跳到主要内容</a>
   <div class="cursor-glow" aria-hidden="true"></div>
   <canvas class="cursor-canvas" aria-hidden="true"></canvas>
@@ -55,6 +62,7 @@
               <details>
                 <summary class="nav-more-toggle" data-i18n="nav.more" data-i18n-html data-i18n-en-html="&lt;i class=&quot;fas fa-ellipsis-h&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt; More"><i class="fas fa-ellipsis-h" aria-hidden="true"></i> 更多</summary>
                 <ul class="nav-more-menu">
+              <li><a href="/knowledge/" data-i18n="nav.knowledge">知识资产</a></li>
               <li><a href="/tools/" data-i18n="nav.tools">工具箱</a></li>
               <li><a href="/overleaf/" data-i18n="nav.overleaf">简历模版</a></li>
                 </ul>
@@ -71,10 +79,36 @@
         </nav>
       </section>
     </header>
-    <main id="main-content" class="content">
+    <main data-pagefind-body id="main-content" class="content">
       <section class="list-page container">
-        <h1 data-i18n="categories.title" data-i18n-en="Time Archive">时间归档</h1>
-        <p class="lead" data-i18n="categories.lead">按年份回看项目复盘，从 AI Coding、低代码与工作流基础设施，到 SaaS 后台，再到智能分析预警和规则引擎告警闭环。</p>
+        <h1 data-i18n="categories.title" data-i18n-en="Categories & Archive">内容分类与归档</h1>
+        <p class="lead" data-i18n="categories.lead">先按主题进入知识领域，也可以沿时间线回看项目复盘。</p>
+        <div class="taxonomy-grid" aria-label="内容分类">
+          <a class="taxonomy-card" href="/categories/backend-platform/">
+            <span class="eyebrow">2 篇</span>
+            <strong>后端平台工程</strong>
+            <span>工作流、SaaS 与企业级后端基础设施。</span>
+          </a>
+          <a class="taxonomy-card" href="/categories/ai-systems/">
+            <span class="eyebrow">2 篇</span>
+            <strong>AI 与智能系统</strong>
+            <span>智能分析、规则运行时与告警闭环。</span>
+          </a>
+          <a class="taxonomy-card" href="/categories/frontend-platform/">
+            <span class="eyebrow">1 篇</span>
+            <strong>前端平台工程</strong>
+            <span>低代码、Schema、物料与代码生成工具链。</span>
+          </a>
+          <a class="taxonomy-card" href="/categories/ai-coding/">
+            <span class="eyebrow">1 篇</span>
+            <strong>AI 协作开发</strong>
+            <span>AI Coding、提示工程与人机协作开发流程。</span>
+          </a>
+        </div>
+        <div class="section-heading taxonomy-archive-heading">
+          <span class="eyebrow">Timeline</span>
+          <h2>时间归档</h2>
+        </div>
         <div class="timeline-stats" aria-label="归档概览" data-i18n-aria="categories.stats.aria">
           <div>
             <strong>6</strong>

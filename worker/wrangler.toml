@@ -1,0 +1,44 @@
+name = "cwlblog-api"
+main = "src/index.ts"
+compatibility_date = "2026-08-06"
+
+[vars]
+SITE_ORIGIN = "https://wenliang844.github.io"
+EDITOR_URL = "https://wenliang844.github.io/editor/?connected=1"
+GITHUB_REPOSITORY = "wenliang844/wenliang844.github.io"
+GITHUB_BASE_BRANCH = "master"
+OWNER_GITHUB_LOGIN = "wenliang844"
+AI_ENABLED = "false"
+AI_CHAT_MODEL = "@cf/meta/llama-3.1-8b-instruct"
+AI_EMBEDDING_MODEL = "@cf/baai/bge-m3"
+AI_DAILY_REQUEST_LIMIT = "100"
+AI_REQUESTS_PER_MINUTE = "6"
+
+[[r2_buckets]]
+binding = "ASSETS"
+bucket_name = "cwlblog-assets"
+
+[[analytics_engine_datasets]]
+binding = "AUDIT_EVENTS"
+dataset = "cwlblog_audit"
+
+[ai]
+binding = "AI"
+
+[[vectorize]]
+binding = "VECTORIZE"
+index_name = "cwlblog-knowledge"
+
+[[durable_objects.bindings]]
+name = "AI_BUDGET"
+class_name = "AiBudget"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["AiBudget"]
+
+[triggers]
+crons = ["0 3 * * 1"]
+
+# Configure GITHUB_CLIENT_ID as an environment variable and store
+# GITHUB_CLIENT_SECRET, GITHUB_TOKEN and SESSION_SECRET with `wrangler secret put`.

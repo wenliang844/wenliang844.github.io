@@ -10,8 +10,12 @@ const execFileAsync = promisify(execFile);
 const ROOT = join(import.meta.dirname, "..");
 
 async function htmlFiles() {
-  const { stdout } = await execFileAsync("git", ["ls-files", "*.html"], { cwd: ROOT, windowsHide: true });
-  return stdout.trim().split(/\r?\n/).filter(Boolean);
+  const { stdout } = await execFileAsync(
+    "git",
+    ["ls-files", "--cached", "--others", "--exclude-standard", "-z", "*.html"],
+    { cwd: ROOT, windowsHide: true, encoding: "buffer" },
+  );
+  return stdout.toString("utf8").split("\0").filter(Boolean);
 }
 
 // ─── 关键安全文件不使用 innerHTML 赋值 ──────────────────────────────────────────
@@ -36,6 +40,22 @@ test("assistant.js does not use innerHTML for user input rendering", async () =>
   assert.doesNotMatch(code, /\.innerHTML\s*=/);
 });
 
+test("first-party runtime scripts do not create inline styles", async () => {
+  const files = [
+    "js/assistant.js", "js/coder.js", "js/error-handler.js", "js/galaxy.js", "js/gesture.js",
+    "js/object-search.js", "js/relay.js", "js/search.js", "js/subscribe.js",
+    "js/tools.js", "js/utils.js",
+  ];
+  const violations = [];
+  for (const file of files) {
+    const code = await readFile(join(ROOT, file), "utf8");
+    if (/\.style(?:\.|\[)|style\.setProperty|setAttribute\([^)]*style|cssText/.test(code)) {
+      violations.push(file);
+    }
+  }
+  assert.deepEqual(violations, []);
+});
+
 // ─── HTML 模板安全 ────────────────────────────────────────────────────────────
 
 test("committed HTML files do not contain inline event handlers", async () => {
@@ -52,6 +72,16 @@ test("committed HTML files do not contain inline event handlers", async () => {
   }
 
   assert.deepEqual(violations, [], "HTML files with inline event handlers");
+});
+
+test("committed HTML files do not contain inline style attributes", async () => {
+  const files = await htmlFiles();
+  const violations = [];
+  for (const file of files) {
+    const html = await readFile(join(ROOT, file), "utf8");
+    if (/<[^>]+\sstyle\s*=/i.test(html)) violations.push(file);
+  }
+  assert.deepEqual(violations, [], "HTML files with inline style attributes");
 });
 
 test("committed HTML files do not contain javascript: protocol URLs", async () => {
@@ -204,18 +234,59 @@ test("committed HTML files include the shared Content Security Policy", async ()
     for (const directive of [
       "default-src 'self'",
       "object-src 'none'",
-      "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://giscus.app https://cdn.jsdelivr.net",
-      "connect-src 'self' https:",
+      "script-src 'self'",
+      "script-src-attr 'none'",
+      "style-src 'self'",
+      "connect-src 'self'",
       "frame-src https://giscus.app",
     ]) {
       if (!policy.includes(directive)) {
         incomplete.push(`${file}: missing ${directive}`);
       }
     }
+    if (/script-src[^;]*'unsafe-inline'/.test(policy)) {
+      incomplete.push(`${file}: script-src still allows unsafe-inline`);
+    }
+    const connect = policy.split(";").map((part) => part.trim()).find((part) => part.startsWith("connect-src "));
+    const connectSources = connect ? connect.split(/\s+/).slice(1) : [];
+    if (file === "tools/index.html") {
+      if (!connectSources.includes("https:")) incomplete.push(`${file}: missing toolbox HTTPS capability`);
+    } else if (connectSources.includes("https:")) {
+      incomplete.push(`${file}: broad HTTPS network access is not scoped to the toolbox`);
+    }
+    if (file === "editor/index.html") {
+      if (!policy.includes("style-src-attr 'unsafe-inline'")) {
+        incomplete.push(`${file}: missing scoped CodeMirror style exception`);
+      }
+    } else {
+      if (!policy.includes("style-src-attr 'none'")) incomplete.push(`${file}: missing style-src-attr 'none'`);
+      if (/style-src[^;]*'unsafe-inline'/.test(policy)) incomplete.push(`${file}: style-src still allows unsafe-inline`);
+    }
   }
 
   assert.deepEqual(missing, [], "HTML files missing CSP meta tag");
   assert.deepEqual(incomplete, [], "HTML files with incomplete CSP directives");
+});
+
+test("generated pages scope third-party script origins to actual consumers", async () => {
+  const post = await readFile(join(ROOT, "post", "rule-engine-alerts", "index.html"), "utf8");
+  const tools = await readFile(join(ROOT, "tools", "index.html"), "utf8");
+  const knowledge = await readFile(join(ROOT, "knowledge", "index.html"), "utf8");
+  const contact = await readFile(join(ROOT, "contact", "index.html"), "utf8");
+
+  assert.match(post, /script-src[^;]*https:\/\/giscus\.app/);
+  assert.doesNotMatch(post, /script-src[^;]*https:\/\/cdn\.jsdelivr\.net/);
+  assert.match(tools, /script-src[^;]*https:\/\/cdn\.jsdelivr\.net/);
+  assert.match(tools, /script-src[^;]*'wasm-unsafe-eval'/);
+  assert.doesNotMatch(tools, /script-src[^;]*https:\/\/giscus\.app/);
+  assert.doesNotMatch(knowledge, /script-src[^;]*https:\/\/(?:giscus\.app|cdn\.jsdelivr\.net)/);
+  assert.match(knowledge, /script-src[^;]*'wasm-unsafe-eval'/);
+  assert.doesNotMatch(knowledge, /(?:^|\s)'unsafe-eval'(?:\s|;|$)/);
+  assert.match(post, /connect-src[^;]*https:\/\/muyuan\.do/);
+  assert.doesNotMatch(post, /connect-src[^;]*\shttps:(?:\s|;)/);
+  assert.match(tools, /connect-src 'self' https:/);
+  assert.match(contact, /connect-src[^;]*https:\/\/api\.web3forms\.com/);
+  assert.doesNotMatch(knowledge, /connect-src[^;]*https:\/\/api\.web3forms\.com/);
 });
 
 test("no HTML files contain data: protocol in href attributes", async () => {

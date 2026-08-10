@@ -245,6 +245,24 @@ test("i18n.js lang toggle button click switches language", async () => {
   dom.window.close();
 });
 
+test("i18n.js keeps Chinese-only pages in Chinese even with a stored English preference", async () => {
+  const dom = new JSDOM(`<!doctype html><html lang="zh-CN"><head></head><body data-language-mode="zh-only">
+    <span data-i18n="nav.blog">博客</span>
+  </body></html>`, {
+    runScripts: "outside-only",
+    url: "https://wenliang844.github.io/post/chinese-only/",
+  });
+  dom.window.localStorage.setItem("cwl-lang", "en");
+  await loadI18n(dom);
+
+  assert.equal(dom.window.cwlLang(), "zh");
+  dom.window.cwlSetLang("en");
+  assert.equal(dom.window.cwlLang(), "zh");
+  assert.equal(dom.window.document.documentElement.lang, "zh-CN");
+  assert.equal(dom.window.document.querySelector("[data-i18n]").textContent, "博客");
+  dom.window.close();
+});
+
 // ─── i18n page body attributes ────────────────────────────────────────────
 
 test("i18n.js reads page-specific head translations from body data attributes", async () => {

@@ -1,6 +1,6 @@
 // 文章相关模板：单篇页、博客列表页（树形单页显隐）。
 import { buildPageJsonLd, renderPage } from "./layout.mjs";
-import { SITE } from "../config.mjs";
+import { CONTENT_CATEGORIES, CONTENT_SERIES, SITE } from "../config.mjs";
 import { isoDate, longDate, escapeAttr, escapeHtml } from "../lib/format.mjs";
 
 function enValue(post, key) {
@@ -23,10 +23,22 @@ function renderReadingTime(post) {
   return `<span class="reading-time"><i class="fas fa-clock" aria-hidden="true"></i> <span data-i18n="dyn.readingPrefix">约</span> ${minutes} <span data-i18n="dyn.readingSuffix">分钟</span></span>`;
 }
 
-// 列表页面板用：tags 渲染为 span，由 blog.js 接管就地筛选（span 之间不留空白）。
-function renderTags(post) {
+function renderRevision(post) {
+  const published = isoDate(post.date);
+  const modified = isoDate(post.modified || post.date);
+  const updated = modified > published
+    ? `<span>最后更新 <time datetime="${modified}">${longDate(modified)}</time></span>`
+    : "";
+  const history = post.revisionUrl
+    ? `<a href="${escapeAttr(post.revisionUrl)}" target="_blank" rel="noopener noreferrer">修订历史</a>`
+    : "";
+  return `<div class="article-revision"><span>发布于 <time datetime="${published}">${longDate(published)}</time></span>${updated}${history}</div>`;
+}
+
+// 列表页用：标签按钮由 blog.js 接管就地筛选。
+function renderListTags(post) {
   return post.tags.map((tag, index) => {
-    return `<span data-tag="${escapeAttr(tag)}" data-i18n="post.${post.slug}.tag.${index}" data-i18n-en="${escapeAttr(tagEn(post, tag, index))}">${escapeHtml(tag)}</span>`;
+    return `<button class="post-list-tag" type="button" data-tag="${escapeAttr(tag)}" data-i18n="post.${post.slug}.tag.${index}" data-i18n-en="${escapeAttr(tagEn(post, tag, index))}">${escapeHtml(tag)}</button>`;
   }).join("");
 }
 
@@ -45,6 +57,50 @@ function renderTagLinks(post) {
   return post.tags
     .map((tag, index) => `<a href="/post/?tag=${encodeURIComponent(tag)}" data-tag="${escapeAttr(tag)}" data-i18n="post.${post.slug}.tag.${index}" data-i18n-en="${escapeAttr(tagEn(post, tag, index))}">${escapeHtml(tag)}</a>`)
     .join("");
+}
+
+function renderTaxonomy(post) {
+  const category = CONTENT_CATEGORIES[post.category];
+  const series = post.series ? CONTENT_SERIES[post.series] : null;
+  if (!category && !series) return "";
+  const categoryLink = category
+    ? `<a href="/categories/${escapeAttr(post.category)}/"><span>分类</span>${escapeHtml(category.name)}</a>`
+    : "";
+  const seriesLink = series
+    ? `<a href="/series/${escapeAttr(post.series)}/"><span>系列 ${post.seriesOrder}</span>${escapeHtml(series.name)}</a>`
+    : "";
+  return `            <nav class="post-taxonomy" aria-label="内容分类与系列">
+              ${categoryLink}${seriesLink}
+            </nav>`;
+}
+
+function renderCover(post, variant = "list") {
+  const asset = post.coverAsset;
+  if (!asset) return "";
+  const eager = variant === "hero";
+  const image = `<img src="${escapeAttr(asset.src)}" width="${asset.width}" height="${asset.height}" alt="${escapeAttr(asset.alt)}" loading="${eager ? "eager" : "lazy"}" decoding="async"${eager ? ' fetchpriority="high"' : ""}>`;
+  const picture = `<picture><source srcset="${escapeAttr(asset.avif)}" type="image/avif"><source srcset="${escapeAttr(asset.webp)}" type="image/webp">${image}</picture>`;
+  if (eager) {
+    return `          <figure class="post-cover post-cover-hero">${picture}</figure>`;
+  }
+  return `            <a class="post-cover post-cover-list" href="/post/${escapeAttr(post.slug)}/" tabindex="-1" aria-hidden="true">${picture}</a>`;
+}
+
+function renderSeriesNavigation(series) {
+  if (!series) return "";
+  const previous = series.prev
+    ? `<a href="/post/${series.prev.slug}/">← ${escapeHtml(series.prev.shortTitle)}</a>`
+    : "<span></span>";
+  const next = series.next
+    ? `<a href="/post/${series.next.slug}/">${escapeHtml(series.next.shortTitle)} →</a>`
+    : "<span></span>";
+  return `      <nav class="series-navigation" aria-label="系列连续阅读">
+        <div>
+          <span class="eyebrow">系列 ${series.index + 1} / ${series.total}</span>
+          <a class="series-navigation-title" href="/series/${escapeAttr(series.id)}/">${escapeHtml(series.name)}</a>
+        </div>
+        <div class="series-navigation-links">${previous}${next}</div>
+      </nav>`;
 }
 
 function renderI18nContent(post, indent, options = {}) {
@@ -100,9 +156,9 @@ function renderToc(toc, tocEn) {
     return `            <li${indent}><a href="#${item.id}" data-toc-id="${item.id}" data-i18n="toc.${item.id}" data-i18n-en="${escapeAttr(enText)}">${escapeHtml(item.text)}</a></li>`;
   }).join("\n");
 
-  return `        <aside class="toc-sidebar is-open" aria-label="目录" data-i18n-aria="toc.aria">
+  return `        <aside class="toc-sidebar is-collapsed" aria-label="目录" data-i18n-aria="toc.aria">
           <div class="toc-header">
-            <button class="toc-toggle" type="button" aria-expanded="true" aria-label="展开/收起目录" data-i18n-aria="toc.toggle">
+            <button class="toc-toggle" type="button" aria-expanded="false" aria-label="展开/收起目录" data-i18n-aria="toc.toggle">
               <i class="fas fa-list" aria-hidden="true"></i>
               <span data-i18n="toc.title">目录</span>
               <i class="fas fa-chevron-down toc-chevron" aria-hidden="true"></i>
@@ -152,13 +208,38 @@ function renderNextPopup(next, prev) {
 function renderRelated(related) {
   if (!related || related.length === 0) return "";
   const cards = related
-    .map((post) => `        <li>
-          <a class="related-card" href="/post/${post.slug}/">
+    .map((post) => {
+      const recommendation = post.recommendation || {};
+      const reasons = recommendation.reasons || [];
+      const reasonLabels = [];
+      const reasonLabelsEn = [];
+      if (reasons.includes("linked")) {
+        reasonLabels.push("正文引用");
+        reasonLabelsEn.push("Linked content");
+      }
+      if (reasons.includes("series")) {
+        reasonLabels.push("同一系列");
+        reasonLabelsEn.push("Same series");
+      }
+      if (reasons.includes("category")) {
+        reasonLabels.push("同一专题");
+        reasonLabelsEn.push("Same topic");
+      }
+      if (reasons.includes("tags") && recommendation.sharedTags) {
+        reasonLabels.push(`${recommendation.sharedTags} 个共同标签`);
+        reasonLabelsEn.push(`${recommendation.sharedTags} shared tag${recommendation.sharedTags > 1 ? "s" : ""}`);
+      }
+      const reason = reasonLabels.slice(0, 2).join(" · ") || post.eyebrow;
+      const reasonEn = reasonLabelsEn.slice(0, 2).join(" · ") || enValue(post, "eyebrow");
+      return `        <li>
+          <a class="related-card" href="/post/${post.slug}/" data-analytics-event="related_click" data-analytics-target="${escapeAttr(post.slug)}">
             <span class="related-eyebrow">${escapeHtml(post.eyebrow)}</span>
             <span class="related-title" ${i18nText(`post.${post.slug}.shortTitle`, post.shortTitle, enValue(post, "shortTitle"))}>${escapeHtml(post.shortTitle)}</span>
+            <span class="related-reason" data-i18n-en="${escapeAttr(reasonEn)}">${escapeHtml(reason)}</span>
             <time datetime="${isoDate(post.date)}">${isoDate(post.date)}</time>
           </a>
-        </li>`)
+        </li>`;
+    })
     .join("\n");
   return `      <nav class="post-related" aria-label="相关文章" data-i18n-aria="post.related.aria">
         <h2 class="post-related-title" data-i18n="post.related.title" data-i18n-en="Related posts">相关文章</h2>
@@ -166,6 +247,25 @@ function renderRelated(related) {
 ${cards}
         </ul>
       </nav>`;
+}
+
+function renderBacklinks(backlinks) {
+  if (!backlinks || backlinks.length === 0) return "";
+  const items = backlinks.map((post) => `          <li>
+            <a href="/post/${escapeAttr(post.slug)}/">
+              <strong>${escapeHtml(post.shortTitle)}</strong>
+              <span>${escapeHtml(post.summary)}</span>
+            </a>
+          </li>`).join("\n");
+  return `      <section class="post-backlinks" aria-labelledby="post-backlinks-title">
+        <div>
+          <span class="eyebrow">Backlinks</span>
+          <h2 id="post-backlinks-title">哪些文章提到了这里</h2>
+        </div>
+        <ul>
+${items}
+        </ul>
+      </section>`;
 }
 
 // Article 结构化数据（JSON-LD），数据均取自 post 对象。
@@ -188,6 +288,14 @@ function buildArticleJsonLd(post) {
       "@type": "Organization",
       name: SITE.title,
       logo: { "@type": "ImageObject", url: `${SITE.baseURL}/images/favicon.png` },
+    },
+    breadcrumb: {
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "首页", item: `${SITE.baseURL}/` },
+        { "@type": "ListItem", position: 2, name: "文章", item: `${SITE.baseURL}/post/` },
+        { "@type": "ListItem", position: 3, name: post.shortTitle, item: url },
+      ],
     },
   };
   if (post.images && post.images.length) {
@@ -224,28 +332,32 @@ function buildPostListJsonLd(posts, description) {
 /**
  * 单篇文章页 → post/<slug>/index.html
  * @param {object} post 文章对象（含 contentHtml）
- * @param {object} nav  { prev, next, related } 相邻文章 + 相关文章
+ * @param {object} nav  { prev, next, related, backlinks } 相邻文章 + 相关文章 + 反向链接
  */
 export function renderPostPage(post, nav) {
+  const hasEnglishContent = Boolean(post.contentHtmlEn);
   const tocHtml = renderToc(post.toc, post.tocEn);
   const main = `    <main id="main-content" class="content container">
       <div class="post-layout">
         <article class="article" data-post-slug="${escapeAttr(post.slug)}">
           <header class="article-header">
             <span class="eyebrow">${escapeHtml(post.eyebrow)}</span>
-            <h1 ${i18nText(`post.${post.slug}.title`, post.title, enValue(post, "title"))}>${escapeHtml(post.title)}</h1>
+            <h1 data-pagefind-meta="title"${hasEnglishContent ? ` ${i18nText(`post.${post.slug}.title`, post.title, enValue(post, "title"))}` : ""}>${escapeHtml(post.title)}</h1>
             <div class="article-meta">
-              <time datetime="${isoDate(post.date)}">${longDate(post.date)}</time>
+              <time datetime="${isoDate(post.date)}" data-pagefind-meta="date[datetime]">${longDate(post.date)}</time>
               <span>·</span>
               <a href="/post/#${post.slug}" data-i18n="post.meta.posts" data-i18n-en="Posts">文章</a>
               <span>·</span>
               ${renderReadingTime(post)}
             </div>
-            <p class="article-summary" ${i18nText(`post.${post.slug}.summary`, post.summary, enValue(post, "summary"))}>${escapeHtml(post.summary)}</p>
+            ${renderRevision(post)}
+            <p class="article-summary"${hasEnglishContent ? ` ${i18nText(`post.${post.slug}.summary`, post.summary, enValue(post, "summary"))}` : ""}>${escapeHtml(post.summary)}</p>
             <div class="post-tags">
               ${renderTagLinks(post)}
             </div>
+${renderTaxonomy(post)}
           </header>
+${renderCover(post, "hero")}
 ${renderI18nContent(post, "          ")}
 ${renderShare(post)}
         </article>
@@ -255,7 +367,9 @@ ${tocHtml}
         <h2 data-i18n="post.comments" data-i18n-html><i class="fas fa-comments" aria-hidden="true"></i> 评论</h2>
         <div id="giscus-thread"></div>
       </section>
+${renderBacklinks(nav.backlinks)}
 ${renderRelated(nav.related)}
+${renderSeriesNavigation(nav.series)}
 ${renderPager(nav.prev, nav.next)}
 ${renderNextPopup(nav.next, nav.prev)}
     </main>`;
@@ -272,6 +386,7 @@ ${renderNextPopup(nav.next, nav.prev)}
     page: "posts",
     scripts,
     jsonLd: buildArticleJsonLd(post),
+    languageMode: hasEnglishContent ? "bilingual" : "zh-only",
     og: {
       type: "article",
       title: post.shortTitle,
@@ -284,11 +399,9 @@ ${renderNextPopup(nav.next, nav.prev)}
 }
 
 // 列表页左侧树形导航中的单条链接。
-function renderTreeLink(post, isFirst) {
-  const activeCls = isFirst ? " active" : "";
-  const ariaCurrent = isFirst ? ' aria-current="page"' : "";
+function renderTreeLink(post) {
   return `                <li>
-                  <a class="post-tree-link${activeCls}" href="#${post.slug}" data-post-target="post-${post.slug}"${ariaCurrent}>
+                  <a class="post-tree-link" href="#post-${post.slug}" data-post-target="post-${post.slug}">
                     <span class="tree-title" ${i18nText(`post.${post.slug}.shortTitle`, post.shortTitle, enValue(post, "shortTitle"))}>${escapeHtml(post.shortTitle)}</span>
                     <time datetime="${isoDate(post.date)}">${isoDate(post.date)}</time>
                   </a>
@@ -309,9 +422,9 @@ function groupPostsByYear(posts) {
   return groups;
 }
 
-function renderTreeGroup(group, activeSlug) {
+function renderTreeGroup(group) {
   const links = group.posts
-    .map((post) => renderTreeLink(post, post.slug === activeSlug))
+    .map((post) => renderTreeLink(post))
     .join("\n");
   return `            <details class="tree-group" open>
               <summary>
@@ -324,26 +437,26 @@ ${links}
             </details>`;
 }
 
-// 列表页右侧的单篇文章面板（与单篇页正文相同，但 meta 链接指向单篇）。
-function renderArticlePanel(post, isFirst) {
-  const activeCls = isFirst ? " active" : "";
-  return `          <span class="post-anchor" id="${escapeAttr(post.slug)}" aria-hidden="true"></span>
-          <article class="article blog-article${activeCls}" id="post-${post.slug}" data-post-slug="${post.slug}">
-            <header class="article-header">
+// 列表页只输出扫描所需的元数据，正文只存在于单篇 URL，避免列表体积随全文增长。
+function renderPostCard(post) {
+  return `          <article class="post-summary-card" id="post-${escapeAttr(post.slug)}" data-post-slug="${escapeAttr(post.slug)}">
+            <span id="${escapeAttr(post.slug)}" class="legacy-post-anchor" aria-hidden="true"></span>
+${renderCover(post)}
+            <div class="post-summary-meta">
               <span class="eyebrow">${escapeHtml(post.eyebrow)}</span>
-              <h2 ${i18nText(`post.${post.slug}.title`, post.title, enValue(post, "title"))}>${escapeHtml(post.title)}</h2>
-              <div class="article-meta">
-                <time datetime="${isoDate(post.date)}">${longDate(post.date)}</time>
-                <span>·</span>
-                ${renderReadingTime(post)}
-              </div>
-              <p class="article-summary" ${i18nText(`post.${post.slug}.summary`, post.summary, enValue(post, "summary"))}>${escapeHtml(post.summary)}</p>
-              <div class="post-tags">
-                ${renderTags(post)}
-              </div>
-            </header>
-${renderI18nContent(post, "            ", { headingIdPrefix: `post-${post.slug}` })}
-${renderShare(post)}
+              <time datetime="${isoDate(post.date)}">${longDate(post.date)}</time>
+              ${renderReadingTime(post)}
+            </div>
+            <h2><a href="/post/${post.slug}/" ${i18nText(`post.${post.slug}.title`, post.title, enValue(post, "title"))}>${escapeHtml(post.title)}</a></h2>
+            <p class="article-summary" ${i18nText(`post.${post.slug}.summary`, post.summary, enValue(post, "summary"))}>${escapeHtml(post.summary)}</p>
+            <div class="post-tags" aria-label="文章标签">
+              ${renderListTags(post)}
+            </div>
+${renderTaxonomy(post)}
+            <a class="post-summary-link" href="/post/${post.slug}/" aria-label="阅读全文：${escapeAttr(post.shortTitle)}">
+              <span data-i18n="post.readMore" data-i18n-en="Read article">阅读全文</span>
+              <span aria-hidden="true">→</span>
+            </a>
           </article>`;
 }
 
@@ -354,10 +467,10 @@ ${renderShare(post)}
  */
 export function renderPostList(posts, stats) {
   const treeGroups = groupPostsByYear(posts)
-    .map((group) => renderTreeGroup(group, posts[0].slug))
+    .map((group) => renderTreeGroup(group))
     .join("\n");
-  const panels = posts
-    .map((post, i) => renderArticlePanel(post, i === 0))
+  const cards = posts
+    .map((post) => renderPostCard(post))
     .join("\n\n");
 
   const main = `    <main id="main-content" class="content">
@@ -392,12 +505,9 @@ ${treeGroups}
           <div class="tag-filter" id="tag-filter" aria-label="按标签筛选" data-i18n-aria="post.tagfilter.aria"></div>
         </aside>
 
-        <section class="post-detail" aria-live="polite">
-${panels}
-          <section class="comments" aria-label="评论" data-i18n-aria="post.comments.aria">
-            <h2 data-i18n="post.comments" data-i18n-html><i class="fas fa-comments" aria-hidden="true"></i> 评论</h2>
-            <div id="giscus-thread" data-giscus-mode="switch"></div>
-          </section>
+        <section class="post-detail" aria-label="文章列表" data-i18n-aria="post.tree.aria">
+${cards}
+          <p class="post-list-empty" hidden aria-live="polite"></p>
         </section>
       </section>
     </main>`;
@@ -410,8 +520,9 @@ ${panels}
     titleEn: "Posts :: CWLBlog",
     active: "blog",
     page: "posts",
-    scripts: ["/js/blog.js", "/js/vendor/qrcode.min.js", "/js/share.js", "/js/giscus.js"],
+    scripts: ["/js/blog.js?v=20260806"],
     jsonLd: buildPostListJsonLd(posts, description),
+    languageMode: "zh-only",
     og: { type: "website", title: "Posts", description, path: "/post/" },
     main,
   });

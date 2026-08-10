@@ -241,3 +241,25 @@ test("relatedPosts returns empty when no shared tags", () => {
   ];
   assert.deepEqual(relatedPosts(current, posts), []);
 });
+
+test("relatedPosts prioritizes explicit links and series with explainable metadata", () => {
+  const current = {
+    slug: "current",
+    tags: ["Java"],
+    category: "backend",
+    series: "platform",
+    date: "2026-08-01",
+    outgoingLinks: ["linked"],
+  };
+  const posts = [
+    { slug: "tags", tags: ["Java", "Spring"], category: "other", date: "2026-08-05" },
+    { slug: "series", tags: [], category: "backend", series: "platform", date: "2024-01-01" },
+    { slug: "linked", tags: [], category: "other", date: "2020-01-01", outgoingLinks: [] },
+  ];
+  const result = relatedPosts(current, posts, 3);
+  assert.deepEqual(result.map((entry) => entry.slug), ["series", "linked", "tags"]);
+  assert.deepEqual(result[0].recommendation.reasons, ["series", "category"]);
+  assert.deepEqual(result[1].recommendation.reasons, ["linked"]);
+  assert.equal(result[2].recommendation.sharedTags, 1);
+  assert.equal(posts[0].recommendation, undefined, "source post objects must remain unchanged");
+});

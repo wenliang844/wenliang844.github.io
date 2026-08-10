@@ -1,5 +1,5 @@
 import { execFile } from "node:child_process";
-import { mkdir, mkdtemp, readFile, rm } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, rm, stat } from "node:fs/promises";
 import { join } from "node:path";
 import { promisify } from "node:util";
 import test from "node:test";
@@ -25,6 +25,14 @@ test("build writes the expected static artifacts", async () => {
 
     const postsHtml = await readFile(join(outDir, "post", "index.html"), "utf8");
     const singlePostHtml = await readFile(join(outDir, "post", "manage-system", "index.html"), "utf8");
+    const coverAvif = await stat(join(outDir, "images", "generated", "manage-system-cover.avif"));
+    const coverWebp = await stat(join(outDir, "images", "generated", "manage-system-cover.webp"));
+    const categoryHtml = await readFile(join(outDir, "categories", "ai-systems", "index.html"), "utf8");
+    const seriesIndexHtml = await readFile(join(outDir, "series", "index.html"), "utf8");
+    const seriesHtml = await readFile(join(outDir, "series", "intelligent-analysis", "index.html"), "utf8");
+    const knowledgeHtml = await readFile(join(outDir, "knowledge", "index.html"), "utf8");
+    const knowledgeGraph = JSON.parse(await readFile(join(outDir, "knowledge", "graph.json"), "utf8"));
+    const contentHealth = JSON.parse(await readFile(join(outDir, "knowledge", "health.json"), "utf8"));
     const appreciationHtml = await readFile(join(outDir, "appreciation", "index.html"), "utf8");
     const toolsHtml = await readFile(join(outDir, "tools", "index.html"), "utf8");
     const aiHtml = await readFile(join(outDir, "ai", "index.html"), "utf8");
@@ -32,6 +40,35 @@ test("build writes the expected static artifacts", async () => {
     const robots = await readFile(join(outDir, "robots.txt"), "utf8");
     const rss = await readFile(join(outDir, "index.xml"), "utf8");
     const searchIndex = JSON.parse(await readFile(join(outDir, "search-index.json"), "utf8"));
+    const assetReferences = JSON.parse(await readFile(join(outDir, "asset-references.json"), "utf8"));
+    assert.match(categoryHtml, /AI 与智能系统/);
+    assert.match(categoryHtml, /rule-engine-alerts/);
+    assert.match(seriesIndexHtml, /智能分析平台/);
+    assert.match(seriesHtml, /系列 · 2 篇/);
+    assert.match(knowledgeHtml, /知识资产/);
+    assert.equal(knowledgeGraph.nodes.length, 6);
+    assert.ok(knowledgeGraph.edges.length > 0);
+    assert.equal(knowledgeGraph.generatedAt, "2026-08-06T00:00:00.000Z");
+    assert.match(contentHealth.asOf, /^\d{4}-\d{2}-\d{2}$/);
+    assert.ok(contentHealth.asOf >= "2026-08-06");
+    assert.equal(contentHealth.stats.articles, 6);
+    assert.equal(contentHealth.categories.length, 4);
+    assert.match(knowledgeHtml, /内容健康看板/);
+    assert.equal(assetReferences.version, 1);
+    assert.match(assetReferences.contentHash, /^[a-f0-9]{64}$/);
+    assert.deepEqual(assetReferences.references, []);
+    assert.ok(seriesHtml.indexOf("manage-system") < seriesHtml.indexOf("rule-engine-alerts"));
+    assert.match(singlePostHtml, /class="series-navigation"/);
+    assert.ok(coverAvif.size > 0);
+    assert.ok(coverWebp.size > 0);
+    assert.match(postsHtml, /<picture><source srcset="\/images\/generated\/rule-engine-alerts-cover\.avif" type="image\/avif">/);
+    assert.match(postsHtml, /width="1200" height="630" alt="规则引擎/);
+    assert.match(singlePostHtml, /class="post-cover post-cover-hero"/);
+    assert.match(singlePostHtml, /最后更新/);
+    assert.match(singlePostHtml, /\/commits\/master\/src\/posts\/manage-system\.md/);
+    assert.match(singlePostHtml, /系列 1 \/ 2/);
+    assert.match(sitemap, /\/categories\/ai-systems\//);
+    assert.match(sitemap, /\/series\/intelligent-analysis\//);
     const appreciationTexts = [
       "鉴赏",
       "科技研究排行榜",
@@ -130,12 +167,15 @@ test("build writes the expected static artifacts", async () => {
     assert.match(singlePostHtml, />约<\/span> \d+ <span data-i18n="dyn\.readingSuffix">分钟<\/span>/);
     assert.match(singlePostHtml, /<script type="application\/ld\+json">/);
     assert.match(singlePostHtml, /"@type":"Article"/);
+    assert.match(singlePostHtml, /"@type":"BreadcrumbList"/);
     assert.match(singlePostHtml, /class="post-related"/);
     assert.match(singlePostHtml, /class="next-popup"/);
     assert.match(singlePostHtml, /\/js\/post-next\.js/);
     assert.match(rss, /<rss version="2.0"/);
+    assert.match(rss, /<content:encoded><!\[CDATA\[/);
     assert.doesNotMatch(rss, /Hugo/);
     assert.equal(searchIndex.filter((item) => item.type === "post").length, 6);
+    assert.ok(searchIndex.some((item) => item.type === "post" && item.body.length > 600));
     assert.ok(searchIndex.some((item) => item.path === "/about/" && item.summary.includes("CWL")));
     assert.ok(searchIndex.some((item) => item.path === "/contact/" && item.summary.includes("CWL")));
     assert.ok(searchIndex.some((item) => item.path === "/tools/" && item.summary.includes("JSON")));

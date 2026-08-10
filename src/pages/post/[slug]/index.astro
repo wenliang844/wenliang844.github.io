@@ -1,0 +1,30 @@
+---
+import {
+  buildSeriesContext,
+  collectSeries,
+  relatedPosts,
+} from "../../../../scripts/build.mjs";
+import { renderPostPage } from "../../../templates/post.mjs";
+import { getPublishedPosts, markAstroOutput } from "../../../lib/astro-posts";
+
+export async function getStaticPaths() {
+  const posts = await getPublishedPosts();
+  return posts.map((post) => ({ params: { slug: post.slug } }));
+}
+
+const posts = await getPublishedPosts();
+const postIndex = posts.findIndex((candidate) => candidate.slug === Astro.params.slug);
+if (postIndex === -1) throw new Error(`Unknown post route: ${Astro.params.slug}`);
+
+const post = posts[postIndex];
+const seriesGroups = collectSeries(posts);
+const nav = {
+  prev: posts[postIndex - 1] || null,
+  next: posts[postIndex + 1] || null,
+  related: relatedPosts(post, posts),
+  backlinks: post.backlinks,
+  series: buildSeriesContext(post, seriesGroups),
+};
+const html = markAstroOutput(renderPostPage(post, nav));
+---
+<Fragment set:html={html} />

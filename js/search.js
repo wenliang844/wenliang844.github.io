@@ -1,8 +1,8 @@
 (function () {
   /* ------------------------------------------------------------------------
-   * 全局模糊搜索（Fuse.js）。
+   * 全局全文搜索（Pagefind，Fuse.js 降级）。
    *
-   * - 首次打开弹窗时懒加载 /js/vendor/fuse.min.js 与 /search-index.json；
+   * - 首次打开弹窗时懒加载 /pagefind/ 索引；加载失败时回退 Fuse；
    * - 快捷键 "/" 或 Ctrl/Cmd+K 打开，Escape 关闭；
    * - 搜索范围：文章标题、摘要、标签、正文纯文本。
    * ---------------------------------------------------------------------- */
@@ -35,6 +35,7 @@
   const list      = overlay.querySelector(".search-modal-results");
   const emptyMsg  = overlay.querySelector(".search-modal-empty");
   const trigger   = nav.querySelector(".nav-search-trigger");
+  let pagefind  = null;
   let fuse      = null;
   let indexData = [];
   let activeData = [];
@@ -42,7 +43,7 @@
   let results   = [];
   let selected  = -1;
   let lastActive = null;
-  let oldOverflow = "";
+  let searchToken = 0;
 
   document.body.appendChild(overlay);
 
@@ -136,16 +137,14 @@
     }
     list.replaceChildren();
     emptyMsg.textContent = t("dyn.search.start", "输入关键词开始搜索");
-    emptyMsg.style.display = "";
+    emptyMsg.hidden = false;
     input.value = "";
     results = [];
     selected = -1;
     lastActive = document.activeElement;
-    oldOverflow = document.body.style.overflow;
     overlay.classList.add("open");
     document.body.classList.add("search-open");
     input.setAttribute("aria-expanded", "true");
-    document.body.style.overflow = "hidden";
     window.setTimeout(function () { input.focus(); }, 60);
     loadIndex().then(render).catch(function () {
       setEmpty("搜索索引加载失败，请稍后重试");
@@ -157,13 +156,12 @@
     document.body.classList.remove("search-open");
     input.setAttribute("aria-expanded", "false");
     input.removeAttribute("aria-activedescendant");
-    document.body.style.overflow = oldOverflow;
     if (lastActive && lastActive.focus) {
       lastActive.focus();
     }
   }
 
-  /* ---- lazy-load Fuse + index ------------------------------------------- */
+  /* ---- lazy-load Pagefind, with Fuse fallback --------------------------- */
   function loadScript(src, cb, fail) {
     if (document.querySelector('script[src="' + src + '"]')) {
       waitForFuse(cb, fail);
@@ -198,11 +196,8 @@
     }, 50);
   }
 
-  function loadIndex() {
-    if (fuse) { return Promise.resolve(fuse); }
-    if (loadTask) { return loadTask; }
-
-    loadTask = new Promise(function (resolve, reject) {
+  function loadFuseIndex() {
+    return new Promise(function (resolve, reject) {
       function fetchIndex() {
         fetch("/search-index.json", { cache: "no-cache" })
         .then(function (r) { return r.json(); })
@@ -223,6 +218,34 @@
       } else {
         loadScript("/js/vendor/fuse.min.js", fetchIndex, reject);
       }
+    });
+  }
+
+  function loadPagefind() {
+    const importer = window.cwlPagefindImport || function (src) {
+      return import(src);
+    };
+    return importer("/pagefind/pagefind.js").then(function (module) {
+      if (!module || typeof module.search !== "function") {
+        throw new Error("Pagefind module is invalid");
+      }
+      return Promise.resolve(typeof module.init === "function" ? module.init() : null)
+        .then(function () {
+          pagefind = module;
+          return pagefind;
+        });
+    });
+  }
+
+  function loadIndex() {
+    if (pagefind || fuse) { return Promise.resolve(pagefind || fuse); }
+    if (loadTask) { return loadTask; }
+
+    loadTask = loadPagefind().catch(function () {
+      return loadFuseIndex();
+    }).catch(function (error) {
+      loadTask = null;
+      throw error;
     });
 
     return loadTask;
@@ -268,10 +291,35 @@
     return item.summary || item.body || item.path || "";
   }
 
+  function pagefindItem(data) {
+    const path = data.url || "";
+    const meta = data.meta || {};
+    const excerpt = String(data.excerpt || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+    return {
+      type: /^\/post\/[^/?#]+\/?(?:#.*)?$/.test(path) ? "post" : "page",
+      path: path,
+      title: meta.title || path,
+      shortTitle: meta.title || path,
+      summary: excerpt,
+      body: excerpt,
+      tags: [],
+      date: meta.date || "",
+    };
+  }
+
   function openResult(idx) {
     if (!results[idx]) { return; }
     const path = results[idx].item.path;
-    if (path) { window.location.href = path; }
+    if (path) {
+      if (window.CWLAnalytics) {
+        window.CWLAnalytics.track("search_result_click", {
+          query: input.value.trim().slice(0, 80),
+          target: path,
+          engine: pagefind ? "pagefind" : "fuse"
+        });
+      }
+      window.location.href = path;
+    }
   }
 
   function setEmpty(message) {
@@ -280,34 +328,11 @@
     selected = -1;
     input.removeAttribute("aria-activedescendant");
     emptyMsg.textContent = message;
-    emptyMsg.style.display = "";
+    emptyMsg.hidden = false;
   }
 
-  function render() {
-    const query = input.value.trim();
-    clearBtn.classList.toggle("visible", !!query);
-    if (!query) {
-      setEmpty(t("dyn.search.start", "输入关键词开始搜索"));
-      return;
-    }
-    if (!fuse) {
-      setEmpty(t("dyn.search.loading", "正在加载搜索索引…"));
-      loadIndex().then(render).catch(function () {
-        setEmpty(t("dyn.search.loadFail", "搜索索引加载失败，请稍后重试"));
-      });
-      return;
-    }
-
-    results = fuse.search(query).slice(0, 10);
-    selected = results.length ? 0 : -1;
-
-    if (!results.length) {
-      setEmpty(activeData.length ? t("dyn.search.noMatch", "没有找到匹配内容，换个关键词试试") : t("dyn.search.indexEmpty", "搜索索引为空"));
-      return;
-    }
-
-    emptyMsg.style.display = "none";
-    // Use DOM API to safely build result list
+  function renderResults(query) {
+    emptyMsg.hidden = true;
     list.replaceChildren();
     results.forEach(function (r, i) {
       const item = r.item;
@@ -364,6 +389,64 @@
     updateSelected();
   }
 
+  function render() {
+    const query = input.value.trim();
+    clearBtn.classList.toggle("visible", !!query);
+    if (!query) {
+      setEmpty(t("dyn.search.start", "输入关键词开始搜索"));
+      return;
+    }
+    if (!pagefind && !fuse) {
+      setEmpty(t("dyn.search.loading", "正在加载搜索索引…"));
+      loadIndex().then(render).catch(function () {
+        setEmpty(t("dyn.search.loadFail", "搜索索引加载失败，请稍后重试"));
+      });
+      return;
+    }
+
+    if (pagefind) {
+      const token = ++searchToken;
+      setEmpty(t("dyn.search.loading", "正在搜索完整正文…"));
+      pagefind.search(query).then(function (response) {
+        return Promise.all((response.results || []).slice(0, 10).map(function (result) {
+          return result.data().then(function (data) {
+            return { item: pagefindItem(data), score: result.score };
+          });
+        }));
+      }).then(function (pagefindResults) {
+        if (token !== searchToken || input.value.trim() !== query) {
+          return;
+        }
+        results = pagefindResults;
+        selected = results.length ? 0 : -1;
+        if (!results.length) {
+          setEmpty(t("dyn.search.noMatch", "没有找到匹配内容，换个关键词试试"));
+          return;
+        }
+        renderResults(query);
+      }).catch(function () {
+        pagefind = null;
+        loadTask = null;
+        loadFuseIndex().then(function () {
+          render();
+        }).catch(function () {
+          setEmpty(t("dyn.search.loadFail", "搜索索引加载失败，请稍后重试"));
+        });
+      });
+      return;
+    }
+
+    results = fuse.search(query).slice(0, 10);
+    selected = results.length ? 0 : -1;
+
+    if (!results.length) {
+      setEmpty(activeData.length ? t("dyn.search.noMatch", "没有找到匹配内容，换个关键词试试") : t("dyn.search.indexEmpty", "搜索索引为空"));
+      return;
+    }
+
+    renderResults(query);
+  }
+
   /* ---- keyboard --------------------------------------------------------- */
   const debouncedRender = window.CWLUtils && window.CWLUtils.debounce
     ? window.CWLUtils.debounce(render, 150)
@@ -401,7 +484,9 @@
     }
     if (items[selected]) {
       input.setAttribute("aria-activedescendant", items[selected].id);
-      items[selected].scrollIntoView({ block: "nearest" });
+      if (items[selected].scrollIntoView) {
+        items[selected].scrollIntoView({ block: "nearest" });
+      }
     } else {
       input.removeAttribute("aria-activedescendant");
     }

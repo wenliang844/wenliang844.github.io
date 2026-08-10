@@ -20,7 +20,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v5
         with:
-          node-version: 22
+          node-version: 22.12.0
           cache: npm
 
       - name: Install dependencies
@@ -29,14 +29,45 @@ jobs:
       - name: Lint JavaScript
         run: npm run lint:check
 
+      - name: Type-check TypeScript
+        run: npm run check:types
+
+      - name: Validate Astro routes
+        run: npm run check:astro
+
+      - name: Validate edge Worker bundle
+        run: npm run check:worker
+
       - name: Run tests
         run: npm test
+
+      - name: Evaluate knowledge retrieval and citations
+        run: npm run eval:knowledge
 
       - name: Validate posts
         run: npm run validate:posts
 
       - name: Build site
         run: npm run build
+
+      - name: Scan tracked files for secrets
+        run: npm run security:secrets
+
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+
+      - name: Run responsive browser tests
+        run: npm run test:e2e
+
+      - name: Start Lighthouse preview server
+        run: npm run serve -- --port 8139 &
+
+      - name: Run Lighthouse budgets
+        uses: treosh/lighthouse-ci-action@v12
+        with:
+          configPath: ./lighthouserc.json
+          uploadArtifacts: true
+          temporaryPublicStorage: false
 
       - name: Validate production readiness
         run: npm run validate:production

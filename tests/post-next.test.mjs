@@ -37,3 +37,27 @@ test("post-next.js reveals the next recommendation near article bottom", async (
   assert.ok(popup.classList.contains("is-visible"));
   dom.window.close();
 });
+
+test("post-next.js keeps the automatic recommendation hidden on mobile", async () => {
+  const code = await readFile(join(ROOT, "js", "post-next.js"), "utf8");
+  const dom = new JSDOM(`<!doctype html><html><body>
+    <article class="article"><p>Body</p></article>
+    <aside class="next-popup" hidden data-next-url="/post/next-post/">
+      <a class="next-popup-link" href="/post/next-post/">Next</a>
+    </aside>
+  </body></html>`, {
+    runScripts: "outside-only",
+    url: "https://wenliang844.github.io/post/current-post/",
+    pretendToBeVisual: true,
+  });
+  Object.defineProperty(dom.window, "innerWidth", { value: 390, configurable: true });
+  dom.window.matchMedia = (query) => ({ matches: query === "(max-width: 768px)" });
+
+  dom.window.eval(code);
+  await wait();
+
+  const popup = dom.window.document.querySelector(".next-popup");
+  assert.equal(popup.hidden, true);
+  assert.equal(popup.classList.contains("is-visible"), false);
+  dom.window.close();
+});

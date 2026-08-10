@@ -4,30 +4,19 @@
     return;
   }
 
-  const links = Array.from(
-    document.querySelectorAll(".post-tree-link[data-post-target]")
-  );
+  const links = Array.from(document.querySelectorAll(".post-tree-link[data-post-target]"));
   if (!links.length) {
     return;
   }
 
   const searchInput = document.getElementById("post-search-input");
   const tagFilter = document.getElementById("tag-filter");
-  const countBadge = document.querySelector(".tree-group .tree-count");
-
-  let items = [];
-  let itemsReady = false;
-
+  const postList = document.querySelector(".post-detail");
+  const empty = document.querySelector(".post-list-empty");
+  const t = window.CWLUtils.t;
   let query = "";
   let activeTag = null;
-
-  // Empty-state notice.
-  const empty = document.createElement("p");
-  empty.className = "tree-empty";
-  empty.hidden = true;
-  const t = window.CWLUtils.t;
-  empty.textContent = t("dyn.blog.empty", "没有匹配的文章，换个关键词或标签试试。");
-  treeNav.appendChild(empty);
+  let items = [];
 
   function treeToggleIcon(open) {
     const paths = open
@@ -63,81 +52,87 @@
 
   function buildItems() {
     items = links.map(function (link) {
-      const li = link.closest("li");
-      const panel = document.getElementById(link.getAttribute("data-post-target"));
-      const tagEls = panel ? Array.from(panel.querySelectorAll(".post-tags span")) : [];
-      const tags = tagEls.map(function (s) {
-        return s.dataset.tag || (s.textContent || "").trim();
+      const card = document.getElementById(link.getAttribute("data-post-target"));
+      const tagEls = card ? Array.from(card.querySelectorAll(".post-list-tag")) : [];
+      const tags = tagEls.map(function (tag) {
+        return tag.dataset.tag || (tag.textContent || "").trim();
       });
-      const tagLabels = tagEls.map(function (s) {
-        return (s.textContent || "").trim();
+      const tagLabels = tagEls.map(function (tag) {
+        return (tag.textContent || "").trim();
       });
-      const titleEl = link.querySelector(".tree-title");
-      const summaryEl = panel ? panel.querySelector(".article-summary") : null;
-      const title = titleEl ? titleEl.textContent : "";
-      const summary = summaryEl ? summaryEl.textContent : "";
-      const haystack = (title + " " + summary + " " + tags.join(" ") + " " + tagLabels.join(" ")).toLowerCase();
-      return { link: link, li: li, panel: panel, tags: tags, tagLabels: tagLabels, haystack: haystack };
+      const title = link.querySelector(".tree-title");
+      const summary = card ? card.querySelector(".article-summary") : null;
+      const haystack = [
+        title ? title.textContent : "",
+        summary ? summary.textContent : "",
+        tags.join(" "),
+        tagLabels.join(" "),
+      ].join(" ").toLowerCase();
+      return {
+        link: link,
+        li: link.closest("li"),
+        card: card,
+        tags: tags,
+        tagLabels: tagLabels,
+        haystack: haystack,
+      };
     });
-    itemsReady = true;
-  }
-
-  function ensureItems() {
-    if (!itemsReady) {
-      buildItems();
-    }
   }
 
   function matches(item) {
-    const byQuery = !query || item.haystack.indexOf(query) !== -1;
-    const byTag = !activeTag || item.tags.indexOf(activeTag) !== -1;
-    return byQuery && byTag;
+    return (!query || item.haystack.indexOf(query) !== -1)
+      && (!activeTag || item.tags.indexOf(activeTag) !== -1);
+  }
+
+  function setCurrent(item) {
+    items.forEach(function (candidate) {
+      const current = candidate === item;
+      candidate.link.classList.toggle("active", current);
+      if (current) {
+        candidate.link.setAttribute("aria-current", "location");
+      } else {
+        candidate.link.removeAttribute("aria-current");
+      }
+      if (candidate.card) {
+        candidate.card.classList.toggle("is-current", current);
+      }
+    });
+  }
+
+  function updateGroups() {
+    document.querySelectorAll(".tree-group").forEach(function (group) {
+      const visible = Array.from(group.querySelectorAll("li")).filter(function (li) {
+        return !li.hidden;
+      }).length;
+      const badge = group.querySelector(".tree-count");
+      if (badge) {
+        badge.textContent = String(visible);
+      }
+      group.hidden = visible === 0;
+    });
   }
 
   function apply() {
-    const visible = [];
+    let visibleCount = 0;
     items.forEach(function (item) {
-      const ok = matches(item);
+      const visible = matches(item);
       if (item.li) {
-        item.li.hidden = !ok;
+        item.li.hidden = !visible;
       }
-      if (ok) {
-        visible.push(item);
+      if (item.card) {
+        item.card.hidden = !visible;
+      }
+      if (visible) {
+        visibleCount += 1;
       }
     });
-
-    if (countBadge) {
-      countBadge.textContent = String(visible.length);
-    }
-    empty.hidden = visible.length !== 0;
-
-    // If the active panel was filtered out, surface the first visible one.
-    if (visible.length && typeof window.coderShowPost === "function") {
-      const activePanelVisible = visible.some(function (item) {
-        return item.panel && item.panel.classList.contains("active");
-      });
-      if (!activePanelVisible) {
-        window.coderShowPost(visible[0].link.getAttribute("data-post-target"), false);
-      }
+    updateGroups();
+    if (empty) {
+      empty.hidden = visibleCount !== 0;
+      empty.textContent = t("dyn.blog.empty", "没有匹配的文章，换个关键词或标签试试。");
     }
   }
 
-  // ---- Search -------------------------------------------------------------
-  if (searchInput) {
-    const debouncedSearch = window.CWLUtils && window.CWLUtils.debounce
-      ? window.CWLUtils.debounce(function () {
-          query = searchInput.value.trim().toLowerCase();
-          apply();
-        }, 200)
-      : function () {
-          query = searchInput.value.trim().toLowerCase();
-          apply();
-        };
-    searchInput.addEventListener("input", debouncedSearch);
-  }
-
-  // ---- Tag filter ---------------------------------------------------------
-  // 把当前激活标签同步进 URL（?tag=），便于复制分享与直达。
   function syncUrl() {
     try {
       const url = new URL(window.location.href);
@@ -148,7 +143,7 @@
       }
       window.history.replaceState(null, "", url);
     } catch (error) {
-      // URL 操作失败，不影响核心功能，静默处理
+      // URL synchronization is an enhancement; filtering still works without it.
     }
   }
 
@@ -163,7 +158,7 @@
     apply();
   }
 
-  function collectTagLabels() {
+  function collectTags() {
     const seen = {};
     const tags = [];
     const labels = {};
@@ -183,12 +178,11 @@
   }
 
   function rebuildTagFilter() {
-    if (!tagFilter) {return [];}
-    const data = collectTagLabels();
-    // Clear safely using textContent first to avoid potential XSS
-    while (tagFilter.firstChild) {
-      tagFilter.removeChild(tagFilter.firstChild);
+    if (!tagFilter) {
+      return [];
     }
+    const data = collectTags();
+    tagFilter.replaceChildren();
     data.tags.forEach(function (tag) {
       const chip = document.createElement("button");
       chip.type = "button";
@@ -207,84 +201,83 @@
     return data.tags;
   }
 
-  if (tagFilter) {
-    ensureItems();
-    const tags = rebuildTagFilter();
-
-    // 支持通过 /post/?tag=<标签> 直达并自动激活筛选。
-    try {
-      const initialTag = new URL(window.location.href).searchParams.get("tag");
-      if (initialTag && tags.indexOf(initialTag) !== -1) {
-        setActiveTag(initialTag);
-      }
-    } catch (error) {
-      // URL 参数解析失败，不影响核心功能，静默处理
-    }
-  }
-
-  // ---- Clickable tags inside each article ---------------------------------
-  document.querySelectorAll(".blog-article .post-tags span").forEach(function (span) {
-    span.setAttribute("role", "button");
-    span.setAttribute("tabindex", "0");
-    const tag = span.dataset.tag || (span.textContent || "").trim();
-    function trigger() {
-      setActiveTag(tag);
-      const sidebar = document.querySelector(".post-tree");
-      if (sidebar && sidebar.scrollIntoView) {
-        sidebar.scrollIntoView({ behavior: "smooth", block: "start" });
-      }
-    }
-    span.addEventListener("click", trigger);
-    span.addEventListener("keydown", function (event) {
-      if (event.key === "Enter" || event.key === " ") {
-        event.preventDefault();
-        trigger();
-      }
+  function attachCardTagHandlers() {
+    document.querySelectorAll(".post-summary-card .post-list-tag").forEach(function (button) {
+      button.addEventListener("click", function () {
+        setActiveTag(button.dataset.tag || (button.textContent || "").trim());
+        if (searchInput) {
+          searchInput.focus();
+        }
+      });
     });
-  });
-
-  // ---- Vim 风格 J/K 切换文章 ----------------------------------------------
-  // 复用 window.coderShowPost（coder.js 暴露）切换可见面板，跳过被筛选隐藏的项。
-  function editing() {
-    return Boolean(window.CWLUtils && window.CWLUtils.isEditing && window.CWLUtils.isEditing());
   }
 
   function visibleItems() {
     return items.filter(function (item) {
-      return !item.li || !item.li.hidden;
+      return item.card && !item.card.hidden;
     });
   }
 
-  function activeIndex(list) {
-    for (let i = 0; i < list.length; i++) {
-      if (list[i].panel && list[i].panel.classList.contains("active")) {
-        return i;
-      }
-    }
-    return -1;
+  function editing() {
+    return Boolean(window.CWLUtils && window.CWLUtils.isEditing && window.CWLUtils.isEditing());
   }
 
   function move(delta) {
-    if (typeof window.coderShowPost !== "function") {
+    const visible = visibleItems();
+    if (!visible.length) {
       return;
     }
-    const list = visibleItems();
-    if (!list.length) {
-      return;
+    let index = visible.findIndex(function (item) {
+      return item.link.classList.contains("active");
+    });
+    index = index === -1
+      ? (delta > 0 ? 0 : visible.length - 1)
+      : Math.max(0, Math.min(visible.length - 1, index + delta));
+    const target = visible[index];
+    setCurrent(target);
+    if (target.card.scrollIntoView) {
+      target.card.scrollIntoView({ behavior: "smooth", block: "start" });
     }
-    let index = activeIndex(list);
-    index = index === -1 ? 0 : index + delta;
-    index = Math.max(0, Math.min(list.length - 1, index));
-    const target = list[index];
-    if (!target) {
-      return;
+    const articleLink = target.card.querySelector("h2 a");
+    if (articleLink) {
+      articleLink.focus({ preventScroll: true });
     }
-    window.coderShowPost(target.link.getAttribute("data-post-target"), true);
-    if (target.link.scrollIntoView) {
-      target.link.scrollIntoView({ behavior: "smooth", block: "nearest" });
-    }
-    window.scrollTo({ top: 0, behavior: "smooth" });
   }
+
+  buildItems();
+  attachCardTagHandlers();
+  const availableTags = rebuildTagFilter();
+
+  if (searchInput) {
+    const search = function () {
+      query = searchInput.value.trim().toLowerCase();
+      apply();
+    };
+    searchInput.addEventListener(
+      "input",
+      window.CWLUtils.debounce ? window.CWLUtils.debounce(search, 200) : search,
+    );
+  }
+
+  try {
+    const initialTag = new URL(window.location.href).searchParams.get("tag");
+    if (initialTag && availableTags.indexOf(initialTag) !== -1) {
+      setActiveTag(initialTag);
+    }
+  } catch (error) {
+    // Invalid URLs do not block the article list.
+  }
+
+  links.forEach(function (link) {
+    link.addEventListener("click", function () {
+      const item = items.find(function (candidate) {
+        return candidate.link === link;
+      });
+      if (item) {
+        setCurrent(item);
+      }
+    });
+  });
 
   document.addEventListener("keydown", function (event) {
     if (event.defaultPrevented || event.ctrlKey || event.metaKey || event.altKey || editing()) {
@@ -299,7 +292,6 @@
     }
   });
 
-  // ---- 移动端浮动侧栏切换 --------------------------------------------------
   const sidebar = document.querySelector(".post-tree");
   if (sidebar) {
     if (!sidebar.id) {
@@ -315,87 +307,74 @@
     collapseBtn.className = "post-tree-collapse";
     collapseBtn.setAttribute("aria-controls", sidebar.id);
 
-    const updateFab = function (open) {
-      const label = t("dyn.blog.expandTree", "展开文章目录");
-      while (fab.firstChild) {
-        fab.removeChild(fab.firstChild);
-      }
-      fab.appendChild(treeToggleIcon(false));
-      fab.classList.toggle("is-hidden", open);
-      fab.setAttribute("aria-expanded", String(open));
-      fab.setAttribute("aria-label", label);
-      fab.setAttribute("title", label);
+    const replaceIcon = function (button, open, label) {
+      const text = document.createElement("span");
+      text.className = "post-tree-control-label";
+      text.textContent = label;
+      button.replaceChildren(treeToggleIcon(open), text);
     };
 
-    const updateCollapseButton = function () {
-      const label = t("dyn.blog.collapseTree", "收起文章目录");
-      while (collapseBtn.firstChild) {
-        collapseBtn.removeChild(collapseBtn.firstChild);
-      }
-      collapseBtn.appendChild(treeToggleIcon(true));
+    const updateControls = function (open) {
+      const expandLabel = t("dyn.blog.expandTree", "展开文章目录");
+      const collapseLabel = t("dyn.blog.collapseTree", "收起文章目录");
+      replaceIcon(fab, false, expandLabel);
+      replaceIcon(collapseBtn, true, collapseLabel);
+      fab.classList.toggle("is-hidden", open);
+      fab.setAttribute("aria-expanded", String(open));
+      fab.setAttribute("aria-label", expandLabel);
+      fab.setAttribute("title", expandLabel);
       collapseBtn.setAttribute("aria-expanded", "true");
-      collapseBtn.setAttribute("aria-label", label);
-      collapseBtn.setAttribute("title", label);
+      collapseBtn.setAttribute("aria-label", collapseLabel);
+      collapseBtn.setAttribute("title", collapseLabel);
     };
 
     const setOpen = function (open) {
       sidebar.classList.toggle("is-floating-open", open);
       document.body.classList.toggle("post-tree-floating", open);
-      updateFab(open);
-      updateCollapseButton();
+      updateControls(open);
     };
 
-    updateFab(false);
-    updateCollapseButton();
-
+    updateControls(false);
     fab.addEventListener("click", function () {
       setOpen(true);
     });
-
     collapseBtn.addEventListener("click", function () {
       setOpen(false);
       fab.focus();
     });
-
-    // 选中文章或点击树链接后自动收起浮层。
     sidebar.addEventListener("click", function (event) {
       if (event.target.closest(".post-tree-link")) {
         setOpen(false);
       }
     });
-
     document.addEventListener("keydown", function (event) {
       if (event.key === "Escape" && sidebar.classList.contains("is-floating-open")) {
         setOpen(false);
       }
     });
-
     sidebar.appendChild(collapseBtn);
-    document.body.appendChild(fab);
+    (postList || document.body).prepend(fab);
+
+    document.addEventListener("cwl:langchange", function () {
+      buildItems();
+      rebuildTagFilter();
+      updateControls(sidebar.classList.contains("is-floating-open"));
+      apply();
+    });
   }
 
-  function refreshI18n() {
-    empty.textContent = t("dyn.blog.empty", "没有匹配的文章，换个关键词或标签试试。");
-    buildItems();
-    rebuildTagFilter();
-    apply();
-    const fab = document.querySelector(".post-tree-fab");
-    if (fab) {
-      const open = fab.getAttribute("aria-expanded") === "true";
-      const label = t("dyn.blog.expandTree", "展开文章目录");
-      fab.classList.toggle("is-hidden", open);
-      fab.setAttribute("aria-label", label);
-      fab.setAttribute("title", label);
-    }
-    const collapseBtn = document.querySelector(".post-tree-collapse");
-    if (collapseBtn) {
-      const label = t("dyn.blog.collapseTree", "收起文章目录");
-      collapseBtn.setAttribute("aria-label", label);
-      collapseBtn.setAttribute("title", label);
+  if (window.location.hash) {
+    const target = window.location.hash.slice(1);
+    const current = items.find(function (item) {
+      return item.card && item.card.id === target;
+    });
+    if (current) {
+      setCurrent(current);
     }
   }
 
-  ensureItems();
-  document.addEventListener("cwl:langchange", refreshI18n);
+  if (postList) {
+    postList.setAttribute("data-list-ready", "true");
+  }
   apply();
 })();

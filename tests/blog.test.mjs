@@ -10,40 +10,41 @@ const ROOT = join(import.meta.dirname, "..");
 const BLOG_HTML = `<!doctype html><html lang="zh-CN"><body class="colorscheme-dark">
   <div class="post-tree">
     <nav class="post-tree-nav">
-      <a class="post-tree-link" data-post-target="post-a" href="#post-a">
+      <details class="tree-group" open><span class="tree-count">3</span><ul><li><a class="post-tree-link" data-post-target="post-a" href="#post-a">
         <span class="tree-title">Activiti 工作流引擎</span>
-      </a>
-      <a class="post-tree-link active" data-post-target="post-b" href="#post-b">
+      </a></li><li><a class="post-tree-link" data-post-target="post-b" href="#post-b">
         <span class="tree-title">金融 SaaS 后端实践</span>
-      </a>
-      <a class="post-tree-link" data-post-target="post-c" href="#post-c">
+      </a></li><li><a class="post-tree-link" data-post-target="post-c" href="#post-c">
         <span class="tree-title">低代码 Schema 与代码生成</span>
-      </a>
+      </a></li></ul></details>
     </nav>
   </div>
   <input type="text" id="post-search-input" placeholder="搜索...">
   <div id="tag-filter"></div>
-  <div class="blog-article active" id="post-a" data-post-slug="activiti-workflow-engine">
+  <section class="post-detail"><article class="post-summary-card" id="post-a" data-post-slug="activiti-workflow-engine">
+    <h2><a href="/post/activiti-workflow-engine/">Activiti 工作流引擎</a></h2>
     <div class="article-summary">Activiti 工作流引擎项目复盘</div>
     <div class="post-tags">
-      <span data-tag="Java">Java</span>
-      <span data-tag="Spring">Spring</span>
+      <button class="post-list-tag" data-tag="Java">Java</button>
+      <button class="post-list-tag" data-tag="Spring">Spring</button>
     </div>
-  </div>
-  <div class="blog-article" id="post-b" data-post-slug="finance-saas-backend">
+  </article>
+  <article class="post-summary-card" id="post-b" data-post-slug="finance-saas-backend">
+    <h2><a href="/post/finance-saas-backend/">金融 SaaS 后端实践</a></h2>
     <div class="article-summary">金融 SaaS 后端实践</div>
     <div class="post-tags">
-      <span data-tag="Java">Java</span>
-      <span data-tag="ES">ElasticSearch</span>
+      <button class="post-list-tag" data-tag="Java">Java</button>
+      <button class="post-list-tag" data-tag="ES">ElasticSearch</button>
     </div>
-  </div>
-  <div class="blog-article" id="post-c" data-post-slug="lowcode-schema-codegen">
+  </article>
+  <article class="post-summary-card" id="post-c" data-post-slug="lowcode-schema-codegen">
+    <h2><a href="/post/lowcode-schema-codegen/">低代码 Schema 与代码生成</a></h2>
     <div class="article-summary">低代码 Schema 与代码生成</div>
     <div class="post-tags">
-      <span data-tag="TypeScript">TypeScript</span>
-      <span data-tag="React">React</span>
+      <button class="post-list-tag" data-tag="TypeScript">TypeScript</button>
+      <button class="post-list-tag" data-tag="React">React</button>
     </div>
-  </div>
+  </article><p class="post-list-empty" hidden></p></section>
 </body></html>`;
 
 async function loadBlog(dom) {
@@ -54,7 +55,7 @@ async function loadBlog(dom) {
   return dom;
 }
 
-test("blog.js builds post item cache once during startup", async () => {
+test("blog.js builds post card cache once during startup", async () => {
   const dom = new JSDOM(BLOG_HTML, {
     runScripts: "outside-only",
     url: "https://wenliang844.github.io/post/",
@@ -70,9 +71,9 @@ test("blog.js builds post item cache once during startup", async () => {
 
   await loadBlog(dom);
 
-  assert.equal(calls.get("post-a"), 1, "post-a panel should be read once");
-  assert.equal(calls.get("post-b"), 1, "post-b panel should be read once");
-  assert.equal(calls.get("post-c"), 1, "post-c panel should be read once");
+  assert.equal(calls.get("post-a"), 1, "post-a card should be read once");
+  assert.equal(calls.get("post-b"), 1, "post-b card should be read once");
+  assert.equal(calls.get("post-c"), 1, "post-c card should be read once");
   dom.window.close();
 });
 
@@ -93,13 +94,13 @@ test("blog.js search input filters posts by keyword", async () => {
   // Wait for debounce
   await new Promise((r) => dom.window.setTimeout(r, 300));
 
-  const links = document.querySelectorAll(".post-tree-link");
-  // The link for Activiti should be visible
   const activitiLink = document.querySelector('[data-post-target="post-a"]');
-  assert.ok(!activitiLink.closest("li") || true, "activiti link should exist");
+  const financeCard = document.getElementById("post-b");
+  assert.ok(!activitiLink.closest("li").hidden, "matching tree link should remain visible");
+  assert.ok(financeCard.hidden, "non-matching summary card should be hidden");
 
   // Check that empty state is hidden (some results found)
-  const empty = document.querySelector(".tree-empty");
+  const empty = document.querySelector(".post-list-empty");
   assert.ok(empty.hidden, "empty state should be hidden when results exist");
   dom.window.close();
 });
@@ -120,7 +121,7 @@ test("blog.js shows empty state when search has no matches", async () => {
 
   await new Promise((r) => dom.window.setTimeout(r, 300));
 
-  const empty = document.querySelector(".tree-empty");
+  const empty = document.querySelector(".post-list-empty");
   assert.ok(!empty.hidden, "empty state should be visible when no matches");
   dom.window.close();
 });
@@ -286,16 +287,13 @@ test("blog.js J/K keys navigate between posts", async () => {
     runScripts: "outside-only",
     url: "https://wenliang844.github.io/post/",
   });
-  // Mock coderShowPost
-  dom.window.coderShowPost = () => {};
   await loadBlog(dom);
   const { document, KeyboardEvent } = dom.window;
 
-  // Press J to go to next post
   document.dispatchEvent(new KeyboardEvent("keydown", { key: "j", bubbles: true }));
-  // We can't directly verify coderShowPost was called since it's mocked,
-  // but we verify no errors were thrown
-  assert.ok(true, "J key navigation should work without errors");
+  assert.ok(document.querySelector('[data-post-target="post-a"]').classList.contains("active"));
+  document.dispatchEvent(new KeyboardEvent("keydown", { key: "j", bubbles: true }));
+  assert.ok(document.querySelector('[data-post-target="post-b"]').classList.contains("active"));
   dom.window.close();
 });
 
@@ -306,8 +304,6 @@ test("blog.js J/K keys don't navigate when input is focused", async () => {
     runScripts: "outside-only",
     url: "https://wenliang844.github.io/post/",
   });
-  let navigated = false;
-  dom.window.coderShowPost = () => { navigated = true; };
   await loadBlog(dom);
   const { document, KeyboardEvent } = dom.window;
 
@@ -316,25 +312,24 @@ test("blog.js J/K keys don't navigate when input is focused", async () => {
   searchInput.focus();
 
   document.dispatchEvent(new KeyboardEvent("keydown", { key: "j", bubbles: true }));
-  assert.ok(!navigated, "should not navigate when input is focused");
+  assert.equal(document.querySelector(".post-tree-link.active"), null, "focused input should suppress navigation");
   dom.window.close();
 });
 
 // ─── Clickable tags in article ────────────────────────────────────────────
 
-test("blog.js makes post tags keyboard accessible", async () => {
+test("blog.js renders semantic tag buttons", async () => {
   const dom = new JSDOM(BLOG_HTML, {
     runScripts: "outside-only",
     url: "https://wenliang844.github.io/post/",
   });
-  dom.window.coderShowPost = () => {};
   await loadBlog(dom);
   const { document } = dom.window;
 
-  const tagSpans = document.querySelectorAll(".blog-article .post-tags span");
-  tagSpans.forEach((span) => {
-    assert.equal(span.getAttribute("role"), "button", "tag span should have role=button");
-    assert.equal(span.getAttribute("tabindex"), "0", "tag span should be focusable");
+  const tagButtons = document.querySelectorAll(".post-summary-card .post-list-tag");
+  assert.ok(tagButtons.length > 0);
+  tagButtons.forEach((button) => {
+    assert.equal(button.tagName, "BUTTON");
   });
   dom.window.close();
 });
@@ -349,7 +344,7 @@ test("blog.js empty state text updates on language change", async () => {
   await loadBlog(dom);
   const { document } = dom.window;
 
-  const empty = document.querySelector(".tree-empty");
+  const empty = document.querySelector(".post-list-empty");
   assert.ok(empty.textContent.includes("没有匹配") || empty.textContent.includes("No matching"), "should have empty state text");
   dom.window.close();
 });

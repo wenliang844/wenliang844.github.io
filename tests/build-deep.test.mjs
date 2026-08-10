@@ -1,7 +1,7 @@
 // Deep test: build.mjs — uncovered code paths (empty file, empty content, error aggregation, absoluteUrl)
 import test from "node:test";
 import assert from "node:assert/strict";
-import { addImageLoadingHints, normalizeDate, normalizeModifiedDate, normalizeCover, validateSlug, validatePost, renderContent, readingMinutes, relatedPosts } from "../scripts/build.mjs";
+import { addImageLoadingHints, normalizeDate, normalizeModifiedDate, normalizeCover, validateCoverAlt, validateSlug, validatePost, renderContent, readingMinutes, relatedPosts } from "../scripts/build.mjs";
 
 // ─── normalizeDate edge cases ─────────────────────────────────────────────
 
@@ -73,6 +73,13 @@ test("normalizeCover rejects unsafe or unexpected paths", () => {
   assert.throws(() => normalizeCover("javascript:alert(1)", "test.md"), /must start with/);
   assert.throws(() => normalizeCover("/post/cover.png", "test.md"), /must start with/);
   assert.throws(() => normalizeCover(42, "test.md"), /must be a string/);
+});
+
+test("validateCoverAlt requires accessible text for configured covers", () => {
+  assert.equal(validateCoverAlt(null, null), "");
+  assert.equal(validateCoverAlt("/images/posts/cover.png", "  Architecture diagram  "), "Architecture diagram");
+  assert.throws(() => validateCoverAlt("/images/posts/cover.png", "", "test.md"), /coverAlt/);
+  assert.throws(() => validateCoverAlt("/images/posts/cover.png", "x".repeat(241), "test.md"), /too long/);
 });
 
 // ─── validateSlug boundary cases ──────────────────────────────────────────

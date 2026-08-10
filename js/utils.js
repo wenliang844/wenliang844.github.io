@@ -70,11 +70,8 @@
           return;
         }
         area = document.createElement("textarea");
+        area.className = "copy-fallback-input";
         area.value = value;
-        area.style.position = "fixed";
-        area.style.left = "-9999px";
-        area.style.top = "-9999px";
-        area.style.opacity = "0";
         area.setAttribute("readonly", "");
         container.appendChild(area);
         area.select();

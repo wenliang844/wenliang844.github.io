@@ -233,6 +233,22 @@ test("coder.css contains TOC selectors", async () => {
   assert.ok(css.includes(".toc-sub"), "should have toc-sub");
 });
 
+test("single-post reading column stays within 800px", async () => {
+  const css = await readFile(join(ROOT, "css", "coder.css"), "utf8");
+
+  assert.match(css, /\.post-layout\s*>\s*\.article\s*{[\s\S]*?flex:\s*0 1 50rem;[\s\S]*?width:\s*min\(100%, 50rem\);/);
+  assert.match(css, /\.article-content\s*{[\s\S]*?line-height:\s*1\.75;/);
+});
+
+test("mobile collapsed TOC stays opposite the back-to-top control", async () => {
+  const css = await readFile(join(ROOT, "css", "coder.css"), "utf8");
+
+  assert.match(css, /@media \(max-width: 768px\)[\s\S]*?\.toc-sidebar\.is-collapsed\s*{[\s\S]*?right:\s*auto;[\s\S]*?left:\s*0\.75rem;/);
+  assert.match(css, /\.to-top\s*{[\s\S]*?right:\s*1\.6rem;/);
+  assert.match(css, /body\.toc-open \.reading-resume,[\s\S]*?body\.toc-open \.next-popup,[\s\S]*?body\.toc-open \.to-top\s*{\s*display:\s*none;/);
+  assert.match(css, /@media \(max-width: 768px\)[\s\S]*?\.reading-resume,[\s\S]*?\.next-popup\s*{\s*display:\s*none !important;/);
+});
+
 test("coder.css contains comments selectors", async () => {
   const css = await readFile(join(ROOT, "css", "coder.css"), "utf8");
 

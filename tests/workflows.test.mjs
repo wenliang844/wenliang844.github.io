@@ -18,17 +18,20 @@ test("CI workflow runs quality gates without write permissions", async () => {
   assert.equal(workflow.jobs.quality["runs-on"], "ubuntu-latest");
   assert.equal(stepByName.get("Checkout").uses, "actions/checkout@v5");
   assert.equal(stepByName.get("Setup Node.js").uses, "actions/setup-node@v5");
-  assert.equal(stepByName.get("Setup Node.js").with["node-version"], 22);
+  assert.equal(stepByName.get("Setup Node.js").with["node-version"], "22.12.0");
   assert.equal(stepByName.get("Setup Node.js").with.cache, "npm");
-  assert.equal(packageJson.engines.node, "20 || >=22");
+  assert.equal(packageJson.engines.node, ">=22.12.0");
   assert.equal(
     packageJson.scripts["test:coverage"],
-    "node --test --experimental-test-coverage --test-coverage-lines=90 --test-coverage-branches=70 --test-coverage-functions=85 tests/*.test.mjs",
+    "node --test --test-concurrency=2 --experimental-test-coverage --test-coverage-exclude=temp/** --test-coverage-lines=90 --test-coverage-branches=70 --test-coverage-functions=85 tests/*.test.mjs",
   );
 
   [
     "npm ci",
     "npm run lint:check",
+    "npm run check:types",
+    "npm run check:astro",
+    "npm run check:worker",
     "npm test",
     "npm run validate:posts",
     "npm run build",
@@ -66,6 +69,20 @@ test("commercial relay sync workflow skips safely when source secret is absent",
       `${name} should be skipped when RELAY_COMMERCIAL_SOURCE_URL is empty`,
     );
   });
+});
+
+test("scheduled content backup verifies integrity and rehearses an isolated restore", async () => {
+  const workflowSource = await readFile(join(ROOT, ".github", "workflows", "content-backup.yml"), "utf8");
+  const workflow = parse(workflowSource);
+  const packageJson = JSON.parse(await readFile(join(ROOT, "package.json"), "utf8"));
+
+  assert.deepEqual(workflow.permissions, { contents: "read" });
+  assert.deepEqual(workflow.on.schedule, [{ cron: "17 3 1 * *" }]);
+  assert.match(workflowSource, /aws s3 sync/);
+  assert.match(workflowSource, /--restore temp\/content-backup --out temp\/recovery-rehearsal/);
+  assert.equal(workflow.jobs.backup.steps.at(-1).with["retention-days"], 90);
+  assert.equal(packageJson.scripts["backup:content"], "node scripts/backup-content.mjs");
+  assert.equal(packageJson.scripts["verify:backup"], "node scripts/backup-content.mjs --verify");
 });
 
 test("Dependabot keeps npm and GitHub Actions dependencies current", async () => {

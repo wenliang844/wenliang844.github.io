@@ -6,6 +6,14 @@
 
 ## 已实施的优化
 
+### 0. 当前关键链路
+
+- 文章列表只输出标题、摘要、主题和日期，不再内嵌每篇全文。
+- Pagefind 在构建后索引完整正文，并返回中文命中片段。
+- Sharp 为封面生成固定尺寸 AVIF/WebP 与 `srcset`，减少传输并避免 CLS。
+- 公开文章和静态资源支持 PWA 离线读取；编辑器、草稿和 API 明确排除。
+- CI 在 390x844、768x1024、1280x720 三个视口运行响应式回归，并执行 Lighthouse 预算。
+
 ### 1. JavaScript 性能
 
 #### 防抖和节流
@@ -37,11 +45,10 @@ var throttledScroll = CWLUtils.throttle(onScroll, 100);
 延迟加载非关键资源：
 
 ```javascript
-// js/search.js - 首次打开时加载 Fuse.js 和搜索索引
+// js/search.js - 首次打开时加载 Pagefind
 function loadIndex() {
-  if (fuse) { return Promise.resolve(fuse); }
-  // 动态加载 /js/vendor/fuse.min.js
-  // 动态加载 /search-index.json
+  // 动态导入 /pagefind/pagefind.js
+  // Pagefind 返回完整正文的匹配片段与页面元数据
 }
 
 // js/highlight-loader.js - 代码高亮按需加载
@@ -165,15 +172,11 @@ window.addEventListener("scroll", throttledScroll, { passive: true });
 
 ### 4. 缓存策略
 
-#### localStorage 缓存
+#### IndexedDB 草稿存储
 ```javascript
-// 编辑器状态持久化
+// 编辑器多草稿持久化
 function saveState() {
-  try {
-    localStorage.setItem(storageKey, JSON.stringify(currentState()));
-  } catch (error) {
-    // 处理配额超限
-  }
+  // 草稿单独存储，不进入 Service Worker 或共享缓存
 }
 
 // 主题偏好持久化

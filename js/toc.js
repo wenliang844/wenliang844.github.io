@@ -11,15 +11,18 @@
 
   const currentScrollY = () => window.scrollY || document.documentElement.scrollTop || 0;
 
+  const setTocOpen = (open) => {
+    if (!tocToggle) {return;}
+    tocSidebar.classList.toggle("is-open", open);
+    tocSidebar.classList.toggle("is-collapsed", !open);
+    tocToggle.setAttribute("aria-expanded", String(open));
+    document.body.classList.toggle("toc-open", open);
+  };
+
   // 展开/收起目录
   if (tocToggle) {
-    const setTocOpen = (open) => {
-      tocSidebar.classList.toggle("is-open", open);
-      tocSidebar.classList.toggle("is-collapsed", !open);
-      tocToggle.setAttribute("aria-expanded", String(open));
-    };
-
-    setTocOpen(tocToggle.getAttribute("aria-expanded") !== "false");
+    const desktopDefault = window.matchMedia && window.matchMedia("(min-width: 1201px)").matches;
+    setTocOpen(desktopDefault || tocToggle.getAttribute("aria-expanded") !== "false");
 
     tocToggle.addEventListener("click", () => {
       const expanded = tocToggle.getAttribute("aria-expanded") === "true";
@@ -82,6 +85,9 @@
           history.replaceState(null, null, `#${targetId}`);
           activeId = targetId;
           updateActiveTocLink(targetId);
+          if (window.matchMedia && window.matchMedia("(max-width: 1200px)").matches) {
+            setTocOpen(false);
+          }
         }
       });
     });

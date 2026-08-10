@@ -1,0 +1,11 @@
+GITHUB_CLIENT_ID=replace-with-github-oauth-client-id
+GITHUB_CLIENT_SECRET=replace-with-github-oauth-client-secret
+GITHUB_TOKEN=replace-with-fine-grained-repository-token
+SESSION_SECRET=replace-with-at-least-32-random-bytes
+PREVIEW_URL_TEMPLATE=https://preview.example.com/{branch}
+ASSET_PUBLIC_BASE=https://assets.example.com
+AI_ENABLED=false
+AI_CHAT_MODEL=@cf/meta/llama-3.1-8b-instruct
+AI_EMBEDDING_MODEL=@cf/baai/bge-m3
+AI_DAILY_REQUEST_LIMIT=100
+AI_REQUESTS_PER_MINUTE=6

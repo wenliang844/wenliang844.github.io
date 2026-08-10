@@ -5,7 +5,7 @@
  * 在部署前运行此脚本以确保项目符合生产级标准
  */
 
-import { readFile, access } from 'node:fs/promises';
+import { readFile, access, readdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
@@ -49,7 +49,11 @@ async function checkRequiredFiles() {
 
   const required = [
     'package.json',
-    'scripts/build.mjs',
+      'astro.config.mjs',
+      'scripts/build.mjs',
+      'scripts/harden-csp.mjs',
+    'scripts/sync-astro-output.mjs',
+    'src/content.config.ts',
     'src/config.mjs',
     'js/utils.js',
     'js/error-handler.js',
@@ -127,10 +131,12 @@ async function runTests() {
   console.log('\n🧪 运行测试套件...');
 
   try {
-    const { stdout } = await execFileAsync('node', ['--test', 'tests/*.test.mjs'], {
+    const testFiles = (await readdir(join(ROOT, 'tests')))
+      .filter((file) => file.endsWith('.test.mjs'))
+      .map((file) => join('tests', file));
+    const { stdout } = await execFileAsync(process.execPath, ['--test', ...testFiles], {
       cwd: ROOT,
       windowsHide: true,
-      shell: true
     });
 
     if (stdout.includes('fail 0')) {
@@ -159,10 +165,13 @@ async function checkDependencies() {
     }
 
     try {
-      const { stdout } = await execFileAsync('npm', args, {
+      const command = IS_WINDOWS ? (process.env.ComSpec || 'cmd.exe') : 'npm';
+      const commandArgs = IS_WINDOWS
+        ? ['/d', '/s', '/c', ['npm', ...args].join(' ')]
+        : args;
+      const { stdout } = await execFileAsync(command, commandArgs, {
         cwd: ROOT,
         windowsHide: true,
-        shell: IS_WINDOWS
       });
       return JSON.parse(stdout);
     } catch (error) {
@@ -223,12 +232,16 @@ async function checkBuild() {
   console.log('\n🔨 验证构建...');
 
   try {
-    const { stdout } = await execFileAsync('node', ['scripts/build.mjs'], {
+    const command = IS_WINDOWS ? (process.env.ComSpec || 'cmd.exe') : 'npm';
+    const commandArgs = IS_WINDOWS
+      ? ['/d', '/s', '/c', 'npm run build']
+      : ['run', 'build'];
+    const { stdout } = await execFileAsync(command, commandArgs, {
       cwd: ROOT,
       windowsHide: true
     });
 
-    if (stdout.includes('构建完成')) {
+    if (stdout.includes('构建完成') && stdout.includes('Astro routes synced')) {
       pass('构建成功');
 
       // 检查输出文件
@@ -236,7 +249,10 @@ async function checkBuild() {
         'post/index.html',
         'sitemap.xml',
         'index.xml',
-        'search-index.json'
+        'search-index.json',
+        'knowledge/chunks.json',
+        'knowledge/health.json',
+        'asset-references.json'
       ];
 
       for (const output of outputs) {
@@ -245,6 +261,13 @@ async function checkBuild() {
         } else {
           fail(`输出文件缺失: ${output}`);
         }
+      }
+
+      const postIndex = await readFile(join(ROOT, 'post/index.html'), 'utf8');
+      if (postIndex.includes('<meta name="generator" content="Astro Content Collections">')) {
+        pass('文章路由由 Astro Content Collections 生成');
+      } else {
+        fail('文章路由缺少 Astro 生成标记');
       }
     } else {
       fail('构建失败');

@@ -1,0 +1,219 @@
+{
+  "generatedAt": "2026-08-06T00:00:00.000Z",
+  "nodes": [
+    {
+      "id": "rule-engine-alerts",
+      "title": "规则引擎与告警闭环：智能分析预警平台的运行时设计",
+      "shortTitle": "规则引擎与告警闭环",
+      "url": "/post/rule-engine-alerts/",
+      "category": "ai-systems",
+      "series": "intelligent-analysis",
+      "date": "2026-06-16",
+      "modified": "2026-08-06",
+      "tags": [
+        "规则引擎",
+        "告警系统",
+        "视频分析",
+        "RabbitMQ",
+        "Redis"
+      ],
+      "incomingLinks": 1,
+      "outgoingLinks": 1,
+      "connections": 3
+    },
+    {
+      "id": "codex-claude-vibe-coding",
+      "title": "Codex 与 Claude 一起做 Vibe Coding：从灵感到可运行系统",
+      "shortTitle": "Codex 与 Claude 的 Vibe Coding",
+      "url": "/post/codex-claude-vibe-coding/",
+      "category": "ai-coding",
+      "series": "ai-collaboration",
+      "date": "2026-02-01",
+      "modified": "2026-08-06",
+      "tags": [
+        "Codex",
+        "Claude",
+        "AI Coding",
+        "Vibe Coding",
+        "工程效率"
+      ],
+      "incomingLinks": 1,
+      "outgoingLinks": 1,
+      "connections": 1
+    },
+    {
+      "id": "manage-system",
+      "title": "智能分析预警平台：从视频采集到业务告警的后端重构实践",
+      "shortTitle": "智能分析预警平台重构",
+      "url": "/post/manage-system/",
+      "category": "ai-systems",
+      "series": "intelligent-analysis",
+      "date": "2025-09-16",
+      "modified": "2026-08-06",
+      "tags": [
+        "Java",
+        "Spring Boot",
+        "视频分析",
+        "规则引擎",
+        "ONNX Runtime"
+      ],
+      "incomingLinks": 3,
+      "outgoingLinks": 1,
+      "connections": 7
+    },
+    {
+      "id": "finance-saas-backend",
+      "title": "企顾 SaaS 多模块平台项目介绍",
+      "shortTitle": "企顾 SaaS 多模块平台",
+      "url": "/post/finance-saas-backend/",
+      "category": "backend-platform",
+      "series": "enterprise-platforms",
+      "date": "2023-08-18",
+      "modified": "2026-08-06",
+      "tags": [
+        "Java",
+        "Spring Boot",
+        "Dubbo",
+        "RocketMQ",
+        "Elasticsearch"
+      ],
+      "incomingLinks": 1,
+      "outgoingLinks": 2,
+      "connections": 5
+    },
+    {
+      "id": "activiti-workflow-engine",
+      "title": "Terminus Activiti：面向业务流程数字化的轻量级 BPM 引擎实践",
+      "shortTitle": "Activiti BPM 引擎实践",
+      "url": "/post/activiti-workflow-engine/",
+      "category": "backend-platform",
+      "series": "enterprise-platforms",
+      "date": "2022-02-09",
+      "modified": "2026-08-06",
+      "tags": [
+        "Java",
+        "Spring Boot",
+        "Activiti 7",
+        "BPMN 2.0",
+        "工作流"
+      ],
+      "incomingLinks": 1,
+      "outgoingLinks": 1,
+      "connections": 5
+    },
+    {
+      "id": "lowcode-schema-codegen",
+      "title": "Terminus LowCode Engine 项目介绍：面向企业级中后台的低代码引擎实践",
+      "shortTitle": "LowCode Engine 实践",
+      "url": "/post/lowcode-schema-codegen/",
+      "category": "frontend-platform",
+      "series": "enterprise-platforms",
+      "date": "2022-02-01",
+      "modified": "2026-08-06",
+      "tags": [
+        "TypeScript",
+        "React",
+        "低代码",
+        "Schema",
+        "代码生成"
+      ],
+      "incomingLinks": 1,
+      "outgoingLinks": 2,
+      "connections": 3
+    }
+  ],
+  "edges": [
+    {
+      "source": "rule-engine-alerts",
+      "target": "manage-system",
+      "type": "tag",
+      "label": "规则引擎、视频分析",
+      "weight": 2
+    },
+    {
+      "source": "manage-system",
+      "target": "finance-saas-backend",
+      "type": "tag",
+      "label": "Java、Spring Boot",
+      "weight": 2
+    },
+    {
+      "source": "manage-system",
+      "target": "activiti-workflow-engine",
+      "type": "tag",
+      "label": "Java、Spring Boot",
+      "weight": 2
+    },
+    {
+      "source": "finance-saas-backend",
+      "target": "activiti-workflow-engine",
+      "type": "tag",
+      "label": "Java、Spring Boot",
+      "weight": 2
+    },
+    {
+      "source": "lowcode-schema-codegen",
+      "target": "activiti-workflow-engine",
+      "type": "series",
+      "label": "企业平台工程实践",
+      "weight": 1
+    },
+    {
+      "source": "activiti-workflow-engine",
+      "target": "finance-saas-backend",
+      "type": "series",
+      "label": "企业平台工程实践",
+      "weight": 1
+    },
+    {
+      "source": "manage-system",
+      "target": "rule-engine-alerts",
+      "type": "series",
+      "label": "智能分析平台",
+      "weight": 1
+    },
+    {
+      "source": "rule-engine-alerts",
+      "target": "manage-system",
+      "type": "reference",
+      "label": "文章引用",
+      "weight": 1
+    },
+    {
+      "source": "codex-claude-vibe-coding",
+      "target": "lowcode-schema-codegen",
+      "type": "reference",
+      "label": "文章引用",
+      "weight": 1
+    },
+    {
+      "source": "finance-saas-backend",
+      "target": "activiti-workflow-engine",
+      "type": "reference",
+      "label": "文章引用",
+      "weight": 1
+    },
+    {
+      "source": "finance-saas-backend",
+      "target": "manage-system",
+      "type": "reference",
+      "label": "文章引用",
+      "weight": 1
+    },
+    {
+      "source": "lowcode-schema-codegen",
+      "target": "manage-system",
+      "type": "reference",
+      "label": "文章引用",
+      "weight": 1
+    }
+  ],
+  "stats": {
+    "articles": 6,
+    "categories": 4,
+    "edges": 12,
+    "orphans": 0,
+    "references": 5,
+    "linkOrphans": 0
+  }
+}

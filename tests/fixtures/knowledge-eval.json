@@ -1,0 +1,12 @@
+[
+  { "question": "Activiti 工作流如何处理流程审批？", "expected": "activiti-workflow-engine" },
+  { "question": "BPMN 流程引擎的任务和网关怎么设计？", "expected": "activiti-workflow-engine" },
+  { "question": "低代码平台如何用 Schema 生成代码？", "expected": "lowcode-schema-codegen" },
+  { "question": "物料协议和组件配置怎样驱动低代码页面？", "expected": "lowcode-schema-codegen" },
+  { "question": "金融 SaaS 后端如何设计报表能力？", "expected": "finance-saas-backend" },
+  { "question": "规则引擎怎样形成告警处置闭环？", "expected": "rule-engine-alerts" },
+  { "question": "视频分析规则如何减少人工巡查？", "expected": "rule-engine-alerts" },
+  { "question": "管理系统前后端工程如何组织？", "expected": "manage-system" },
+  { "question": "Codex 和 Claude 如何协作开发？", "expected": "codex-claude-vibe-coding" },
+  { "question": "AI Coding 如何进行任务拆分和代码审查？", "expected": "codex-claude-vibe-coding" }
+]

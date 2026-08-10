@@ -384,6 +384,8 @@ test("renderPostPage without English content does not add language markers", () 
   const html = renderPostPage(post, { prev: null, next: null });
 
   assert.doesNotMatch(html, /data-i18n-lang/);
+  assert.match(html, /data-language-mode="zh-only"/);
+  assert.doesNotMatch(html, /class="lang-toggle"/);
 });
 
 test("renderPostPage includes giscus comments section", () => {
@@ -447,22 +449,26 @@ test("renderPostList groups posts by year with correct counts", () => {
   assert.match(html, /2023/);
   assert.match(html, /3/); // count
   assert.match(html, /2023-2024/); // range
+  assert.match(html, /data-language-mode="zh-only"/);
+  assert.doesNotMatch(html, /class="lang-toggle"/);
 });
 
-test("renderPostList prefixes article heading ids to avoid duplicates", () => {
-  const repeatedHeading = '<h2 id="toc-1-overview">Overview</h2><h3 id="toc-1-detail">Detail</h3>';
+test("renderPostList uses scannable summary cards without embedding article bodies", () => {
+  const articleBody = '<h2 id="toc-1-overview">Private body marker</h2><p>Long article content</p>';
   const posts = [
-    { slug: "a", shortTitle: "A", shortTitleEn: "A", title: "A", titleEn: "A", date: "2024-06-01", eyebrow: "项目", summary: "S", summaryEn: "S", tags: [], tagsEn: [], contentHtml: repeatedHeading, contentHtmlEn: "", readMinutes: 1, images: [] },
-    { slug: "b", shortTitle: "B", shortTitleEn: "B", title: "B", titleEn: "B", date: "2024-03-01", eyebrow: "项目", summary: "S", summaryEn: "S", tags: [], tagsEn: [], contentHtml: repeatedHeading, contentHtmlEn: "", readMinutes: 1, images: [] },
+    { slug: "a", shortTitle: "A", shortTitleEn: "A", title: "A", titleEn: "A", date: "2024-06-01", eyebrow: "项目", summary: "Summary A", summaryEn: "S", tags: [], tagsEn: [], contentHtml: articleBody, contentHtmlEn: "", readMinutes: 1, images: [] },
+    { slug: "b", shortTitle: "B", shortTitleEn: "B", title: "B", titleEn: "B", date: "2024-03-01", eyebrow: "项目", summary: "Summary B", summaryEn: "S", tags: [], tagsEn: [], contentHtml: articleBody, contentHtmlEn: "", readMinutes: 1, images: [] },
   ];
   const stats = { count: 2, systems: 1, startYear: "2024", endYear: "2024", yearCount: 1, range: "2024" };
   const html = renderPostList(posts, stats);
-  const ids = Array.from(html.matchAll(/\sid="([^"]+)"/g)).map((match) => match[1]);
-  const duplicateIds = ids.filter((id, index) => ids.indexOf(id) !== index);
 
-  assert.deepEqual([...new Set(duplicateIds)], []);
-  assert.match(html, /id="post-a-toc-1-overview"/);
-  assert.match(html, /id="post-b-toc-1-overview"/);
+  assert.equal((html.match(/class="post-summary-card"/g) || []).length, 2);
+  assert.match(html, /Summary A/);
+  assert.match(html, /href="\/post\/a\/"/);
+  assert.doesNotMatch(html, /Private body marker/);
+  assert.doesNotMatch(html, /class="article-content"/);
+  assert.doesNotMatch(html, /id="giscus-thread"/);
+  assert.doesNotMatch(html, /src="\/js\/giscus\.js"/);
 });
 
 test("renderPostList renders search input and tag filter", () => {
@@ -476,21 +482,19 @@ test("renderPostList renders search input and tag filter", () => {
   assert.match(html, /id="tag-filter"/);
 });
 
-test("renderPostList prefixes repeated article heading ids per post", () => {
-  const repeatedContent = '<h2 id="toc-1-overview">Overview</h2>\n<p><a href="#toc-1-overview">Jump</a></p>';
+test("renderPostList keeps stable card anchors and single-post links", () => {
+  const repeatedContent = '<h2 id="toc-1-overview">Overview</h2>';
   const posts = [
     { slug: "alpha", shortTitle: "A", shortTitleEn: "A", title: "A", titleEn: "A", date: "2024-01-02", eyebrow: "项目", summary: "S", summaryEn: "S", tags: [], tagsEn: [], contentHtml: repeatedContent, contentHtmlEn: "", readMinutes: 1, images: [] },
     { slug: "beta", shortTitle: "B", shortTitleEn: "B", title: "B", titleEn: "B", date: "2024-01-01", eyebrow: "项目", summary: "S", summaryEn: "S", tags: [], tagsEn: [], contentHtml: repeatedContent, contentHtmlEn: "", readMinutes: 1, images: [] },
   ];
   const stats = { count: 2, systems: 1, startYear: "2024", endYear: "2024", yearCount: 1, range: "2024" };
   const html = renderPostList(posts, stats);
-  const ids = [...html.matchAll(/\sid="([^"]+)"/g)].map((match) => match[1]);
-  const duplicates = ids.filter((id, index) => ids.indexOf(id) !== index);
-
-  assert.equal(duplicates.length, 0);
-  assert.match(html, /id="post-alpha-toc-1-overview"/);
-  assert.match(html, /href="#post-alpha-toc-1-overview"/);
-  assert.match(html, /id="post-beta-toc-1-overview"/);
-  assert.match(html, /href="#post-beta-toc-1-overview"/);
-  assert.doesNotMatch(html, /\sid="toc-1-overview"/);
+  assert.match(html, /id="post-alpha"/);
+  assert.match(html, /href="#post-alpha"/);
+  assert.match(html, /href="\/post\/alpha\/"/);
+  assert.match(html, /id="post-beta"/);
+  assert.match(html, /href="#post-beta"/);
+  assert.match(html, /href="\/post\/beta\/"/);
+  assert.doesNotMatch(html, /toc-1-overview/);
 });

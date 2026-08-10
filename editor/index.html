@@ -3,7 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://giscus.app https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://giscus.app; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https:; frame-src https://giscus.app; form-action 'self' https://buttondown.com https://api.web3forms.com">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' https://cloud.umami.is https://plausible.io 'wasm-unsafe-eval' 'sha256-Iz9mg7EWtr9gFDr25d9MFOgXrtsMbb6SWQ/Uj8Ex9JI='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; style-src-attr 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://cloud.umami.is https://plausible.io https://buttondown.com https://muyuan.do https://token-plan-cn.xiaomimimo.com; frame-src https://giscus.app; form-action 'self' https://buttondown.com https://api.web3forms.com">
+  <meta name="cwl-api-base" content="">
   <meta name="description" content="浏览器本地运行的 Markdown 博客编辑器，支持实时预览、自动保存、Front Matter 生成和导出。">
   <link rel="canonical" href="https://wenliang844.github.io/editor/">
   <meta property="og:type" content="website">
@@ -25,8 +26,10 @@
   <link rel="dns-prefetch" href="https://paypal.me">
   <link rel="stylesheet" href="/css/fontawesome-all.min.css">
   <link rel="stylesheet" href="/css/coder.css">
+  <link rel="stylesheet" href="/css/content.css">
   <script src="/js/error-handler.js" defer></script>
   <script src="/js/utils.js" defer></script>
+  <script src="/js/analytics.js" defer></script>
   <script src="/js/i18n.js" defer></script>
   <script src="/js/coder.js" defer></script>
   <script src="/js/subscribe.js" defer></script>
@@ -34,12 +37,13 @@
   <script src="/js/vendor/purify.min.js" defer></script>
   <script src="/js/vendor/highlight.min.js" defer></script>
   <script src="/js/editor.js" defer></script>
+  <script src="/js/editor-codemirror.js" defer></script>
   <script src="/js/search-loader.js" defer></script>
   <script src="/js/assistant.js" defer></script>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"CWLBlog Markdown 编辑器","description":"在线 Markdown 编辑器，实时预览与自动保存。","url":"https://wenliang844.github.io/editor/","applicationCategory":"DeveloperApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"isPartOf":{"@type":"WebSite","name":"CWLBlog","url":"https://wenliang844.github.io/"}}</script>
   <title>Markdown 编辑器 :: CWLBlog</title>
 </head>
-<body class="colorscheme-dark" data-i18n-page="editor">
+<body class="colorscheme-dark" data-i18n-page="editor" data-language-mode="zh-only">
   <a class="skip-link" href="#main-content" data-i18n="nav.skip">跳到主要内容</a>
   <div class="cursor-glow" aria-hidden="true"></div>
   <canvas class="cursor-canvas" aria-hidden="true"></canvas>
@@ -59,6 +63,7 @@
               <details>
                 <summary class="nav-more-toggle active" data-i18n="nav.more" data-i18n-html data-i18n-en-html="&lt;i class=&quot;fas fa-ellipsis-h&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt; More"><i class="fas fa-ellipsis-h" aria-hidden="true"></i> 更多</summary>
                 <ul class="nav-more-menu">
+              <li><a href="/knowledge/">知识资产</a></li>
               <li><a href="/tools/" data-i18n="nav.tools">工具箱</a></li>
               <li><a href="/overleaf/" data-i18n="nav.overleaf">简历模版</a></li>
                 </ul>
@@ -68,7 +73,6 @@
             <li><button class="nav-subscribe" type="button" data-subscribe-open data-i18n="nav.subscribe" data-i18n-html><i class="fas fa-envelope" aria-hidden="true"></i> 订阅</button></li>
             <li><a class="nav-sponsor" href="/sponsor/" data-i18n="nav.sponsor" data-i18n-html><i class="fas fa-heart" aria-hidden="true"></i> 赞助</a></li>
             <li><button class="theme-toggle" type="button" aria-label="切换主题" data-i18n-aria="nav.theme"><i class="fas fa-adjust"></i></button></li>
-            <li><button class="lang-toggle" type="button" aria-label="Switch language">EN</button></li>
             <li><button class="nav-search-trigger" type="button" aria-label="全局搜索" data-i18n-aria="nav.search"><i class="fas fa-search"></i></button></li>
             <li><button class="nav-ai-experience assistant-nav-trigger" type="button" aria-label="打开 AI 助手" title="打开 AI 助手" data-assistant-toggle data-i18n-aria="assistant.open" data-i18n-title="assistant.open"><span aria-hidden="true">AI</span></button></li>
           </ul>
@@ -90,14 +94,83 @@
             <button class="editor-button" type="button" data-action="download-html" data-i18n="editor.btn.html" data-i18n-html><i class="fas fa-code"></i> 导出 HTML</button>
           </div>
         </header>
-        <div class="editor-meta">
+        <div class="editor-draft-manager" aria-label="草稿管理" data-i18n-aria="editor.drafts.aria">
+          <label for="draft-select" data-i18n="editor.drafts.label">当前草稿</label>
+          <select id="draft-select" aria-label="选择草稿" data-i18n-aria="editor.drafts.select"></select>
+          <span id="draft-save-status" class="editor-save-status" role="status" aria-live="polite" data-i18n="editor.drafts.saved">已自动保存</span>
+          <button class="editor-button editor-button-danger" type="button" data-action="delete-draft" data-i18n="editor.btn.delete" data-i18n-html><i class="fas fa-trash-alt" aria-hidden="true"></i> 删除草稿</button>
+        </div>
+        <div class="editor-publish-panel" id="editor-publish-panel" aria-label="GitHub 发布">
+          <span class="editor-publish-status" id="editor-publish-status" role="status" aria-live="polite">检查发布连接...</span>
+          <div class="editor-publish-actions">
+            <button class="editor-button" type="button" data-action="connect-github"><i class="fab fa-github" aria-hidden="true"></i> 连接 GitHub</button>
+            <button class="editor-button editor-button-primary" type="button" data-action="publish-pr" disabled><i class="fas fa-paper-plane" aria-hidden="true"></i> 创建发布 PR</button>
+            <button class="editor-button" type="button" data-action="reindex-knowledge" disabled><i class="fas fa-database" aria-hidden="true"></i> 更新知识索引</button>
+            <button class="editor-button" type="button" data-action="logout-github" hidden><i class="fas fa-sign-out-alt" aria-hidden="true"></i> 断开</button>
+          </div>
+          <div class="editor-publish-links" aria-live="polite">
+            <a id="editor-pr-link" target="_blank" rel="noopener noreferrer" hidden>查看 PR</a>
+            <a id="editor-preview-link" target="_blank" rel="noopener noreferrer" hidden>打开预览</a>
+          </div>
+          <span class="editor-ci-status" id="editor-ci-status" role="status" aria-live="polite" hidden></span>
+        </div>
+        <details class="editor-meta-panel">
+          <summary><span>文章信息</span><span>标题、分类与发布状态</span></summary>
+          <div class="editor-meta">
           <label><span data-i18n="editor.title.label">标题</span> <input id="post-title" type="text" placeholder="文章标题" data-i18n-ph="editor.title.ph"></label>
           <label><span data-i18n="editor.shortTitle.label">短标题</span> <input id="post-short-title" type="text" placeholder="列表短标题" data-i18n-ph="editor.shortTitle.ph"></label>
-          <label><span data-i18n="editor.slug.label">别名</span> <input id="post-slug" type="text" placeholder="my-new-post" data-i18n-ph="editor.slug.ph"></label>
+          <label><span data-i18n="editor.slug.label">别名</span> <input id="post-slug" type="text" placeholder="my-new-post" pattern="[A-Za-z0-9_-]+" maxlength="100" required data-i18n-ph="editor.slug.ph"></label>
           <label><span data-i18n="editor.date.label">日期</span> <input id="post-date" type="date"></label>
+          <label><span>分类</span>
+            <select id="post-category">
+              <option value="ai-coding">AI 协作开发</option>
+              <option value="ai-systems">AI 与智能系统</option>
+              <option value="backend-platform">后端平台工程</option>
+              <option value="frontend-platform">前端平台工程</option>
+            </select>
+          </label>
+          <label><span>系列</span>
+            <select id="post-series">
+              <option value="">不加入系列</option>
+              <option value="ai-collaboration">AI 协作开发实践</option>
+              <option value="enterprise-platforms">企业平台工程实践</option>
+              <option value="intelligent-analysis">智能分析平台</option>
+            </select>
+          </label>
+          <label><span>系列顺序</span> <input id="post-series-order" type="number" min="1" step="1" value="1"></label>
           <label><span data-i18n="editor.summary.label">摘要</span> <input id="post-summary" type="text" placeholder="一句话摘要" data-i18n-ph="editor.summary.ph"></label>
           <label><span data-i18n="editor.description.label">描述</span> <input id="post-description" type="text" placeholder="搜索与分享描述" data-i18n-ph="editor.description.ph"></label>
-        </div>
+          <label><span>标签</span> <input id="post-tags" type="text" maxlength="600" placeholder="GitHub, 发布流程, 技术博客"></label>
+          <div class="editor-asset-upload">
+            <label for="post-cover-file">封面图片</label>
+            <input id="post-cover-file" type="file" accept="image/avif,image/jpeg,image/png,image/webp">
+            <button class="editor-button" type="button" data-action="upload-cover" disabled><i class="fas fa-cloud-upload-alt" aria-hidden="true"></i> 上传</button>
+            <button class="editor-button" type="button" data-action="open-media-library" disabled><i class="fas fa-images" aria-hidden="true"></i> 媒体库</button>
+            <span id="editor-asset-upload-status" role="status" aria-live="polite">选择图片后上传</span>
+          </div>
+          <label><span>封面路径</span> <input id="post-cover" type="text" placeholder="/images/posts/my-new-post.png"></label>
+          <label><span>封面说明</span> <input id="post-cover-alt" type="text" maxlength="240" placeholder="描述图片内容，用于无障碍阅读"></label>
+            <label class="editor-draft-field"><input id="post-draft" type="checkbox" checked> <span data-i18n="editor.draft.label">保留为草稿（构建时不会发布）</span></label>
+          </div>
+        </details>
+        <dialog class="editor-media-library" id="editor-media-library" aria-labelledby="editor-media-library-title" hidden>
+          <header>
+            <div>
+              <span class="eyebrow">Media</span>
+              <h2 id="editor-media-library-title">媒体库</h2>
+            </div>
+            <button class="tool-btn" type="button" data-action="close-media-library" aria-label="关闭媒体库" title="关闭媒体库"><i class="fas fa-times" aria-hidden="true"></i></button>
+          </header>
+          <div class="editor-media-library-tools">
+            <label for="editor-media-search">筛选图片</label>
+            <input id="editor-media-search" type="search" placeholder="按路径或格式筛选" autocomplete="off">
+          </div>
+          <p class="editor-media-status" id="editor-media-status" role="status" aria-live="polite">连接 GitHub 后可浏览已上传图片</p>
+          <div class="editor-media-grid" id="editor-media-grid"></div>
+          <footer>
+            <button class="editor-button" id="editor-media-more" type="button" data-action="load-more-media" hidden>加载更多</button>
+          </footer>
+        </dialog>
         <div class="editor-toolbar" role="toolbar" aria-label="Markdown 格式工具" data-i18n-aria="editor.toolbar.aria">
           <button type="button" class="tool-btn" data-md="bold" title="加粗 (Ctrl+B)" aria-label="加粗" data-i18n-title="editor.tool.bold" data-i18n-aria="editor.tool.bold"><i class="fas fa-bold"></i></button>
           <button type="button" class="tool-btn" data-md="italic" title="斜体 (Ctrl+I)" aria-label="斜体" data-i18n-title="editor.tool.italic" data-i18n-aria="editor.tool.italic"><i class="fas fa-italic"></i></button>
@@ -115,8 +188,9 @@
         </div>
         <div class="editor-layout">
           <section class="editor-pane">
-            <div class="pane-title"><span data-i18n="editor.pane.markdown">Markdown</span> <span class="editor-stats" id="editor-stats"></span></div>
+            <div class="pane-title"><label for="markdown-input" data-i18n="editor.pane.markdown">Markdown</label> <span class="editor-stats" id="editor-stats"></span></div>
             <textarea id="markdown-input" spellcheck="false"></textarea>
+            <div id="markdown-editor" class="markdown-editor" aria-label="Markdown 正文编辑器" hidden></div>
           </section>
           <section class="preview-pane">
             <div class="pane-title" data-i18n="editor.pane.preview">Preview</div>

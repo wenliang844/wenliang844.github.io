@@ -32,6 +32,14 @@ function buildTocHtml(options = {}) {
 }
 
 async function loadToc(dom, options = {}) {
+  if (typeof options.desktop === "boolean") {
+    dom.window.matchMedia = (query) => ({
+      matches: query === "(min-width: 1201px)" ? options.desktop : !options.desktop,
+      media: query,
+      addEventListener() {},
+      removeEventListener() {},
+    });
+  }
   // JSDOM doesn't provide IntersectionObserver; mock it before loading
   if (!dom.window.IntersectionObserver) {
     dom.window.IntersectionObserver = class {
@@ -79,6 +87,34 @@ test("toc.js initializes sidebar as collapsed when aria-expanded is false", asyn
 
   assert.ok(sidebar.classList.contains("is-collapsed"), "sidebar should have is-collapsed");
   assert.ok(!sidebar.classList.contains("is-open"), "sidebar should not have is-open");
+  dom.window.close();
+});
+
+test("toc.js opens collapsed SSR markup by default on desktop", async () => {
+  const dom = new JSDOM(buildTocHtml({ tocOpen: false }), {
+    runScripts: "outside-only",
+    url: "https://example.com/post/test/",
+    pretendToBeVisual: true,
+  });
+  await loadToc(dom, { desktop: true });
+  const sidebar = dom.window.document.querySelector(".toc-sidebar");
+
+  assert.ok(sidebar.classList.contains("is-open"));
+  assert.equal(dom.window.document.querySelector(".toc-toggle").getAttribute("aria-expanded"), "true");
+  dom.window.close();
+});
+
+test("toc.js keeps collapsed SSR markup closed on mobile", async () => {
+  const dom = new JSDOM(buildTocHtml({ tocOpen: false }), {
+    runScripts: "outside-only",
+    url: "https://example.com/post/test/",
+    pretendToBeVisual: true,
+  });
+  await loadToc(dom, { desktop: false });
+  const sidebar = dom.window.document.querySelector(".toc-sidebar");
+
+  assert.ok(sidebar.classList.contains("is-collapsed"));
+  assert.equal(dom.window.document.querySelector(".toc-toggle").getAttribute("aria-expanded"), "false");
   dom.window.close();
 });
 
@@ -221,6 +257,23 @@ test("toc.js link click scrolls to heading and updates hash", async () => {
 
   // The clicked link should be active
   assert.ok(link2.classList.contains("active"), "clicked link should be active");
+  dom.window.close();
+});
+
+test("toc.js closes the TOC after selecting a heading on mobile", async () => {
+  const dom = new JSDOM(buildTocHtml({ tocOpen: true }), {
+    runScripts: "outside-only",
+    url: "https://example.com/post/test/",
+    pretendToBeVisual: true,
+  });
+  dom.window.scrollTo = function () {};
+  await loadToc(dom, { desktop: false });
+
+  dom.window.document.querySelector('.toc-nav a[href="#heading-1"]').click();
+
+  assert.ok(dom.window.document.querySelector(".toc-sidebar").classList.contains("is-collapsed"));
+  assert.equal(dom.window.document.querySelector(".toc-toggle").getAttribute("aria-expanded"), "false");
+  assert.equal(dom.window.document.body.classList.contains("toc-open"), false);
   dom.window.close();
 });
 

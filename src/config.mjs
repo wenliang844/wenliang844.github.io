@@ -4,17 +4,37 @@ import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
+const sourceRoot = join(HERE, "..");
+const PROJECT_ROOT = existsSync(join(sourceRoot, "images")) ? sourceRoot : process.cwd();
 
 // OG 卡片缩略图（站点根相对路径）。使用已存在的站点图标作为默认分享图，
 // 避免手写页和生成页在社交平台分享时缺少 og:image。
 const OG_IMAGE = "/images/favicon.png";
 export const SITE = {
   baseURL: "https://wenliang844.github.io",
+  repositoryURL: "https://github.com/wenliang844/wenliang844.github.io",
+  repositoryBranch: "master",
+  // 部署边缘 API 后填写 HTTPS Origin；留空时知识问答明确降级且不发起请求。
+  apiBase: "",
   title: "CWLBlog",
   // 列表页顶部"X 类主题"统计值（与文章数解耦，手工维护）。
   systems: 6,
   // OG 图经存在性检测后的最终路径（不存在则为 null，模板据此降级为文字卡）。
-  ogImage: existsSync(join(HERE, "..", OG_IMAGE.replace(/^\//, ""))) ? OG_IMAGE : null,
+  ogImage: existsSync(join(PROJECT_ROOT, OG_IMAGE.replace(/^\//, ""))) ? OG_IMAGE : null,
+};
+
+// 内容分类和系列使用稳定 ID 作为 URL，展示名集中维护，避免改名破坏链接。
+export const CONTENT_CATEGORIES = {
+  "ai-coding": { name: "AI 协作开发", description: "AI Coding、提示工程与人机协作开发流程。" },
+  "ai-systems": { name: "AI 与智能系统", description: "智能分析、规则运行时与告警闭环。" },
+  "backend-platform": { name: "后端平台工程", description: "工作流、SaaS 与企业级后端基础设施。" },
+  "frontend-platform": { name: "前端平台工程", description: "低代码、Schema、物料与代码生成工具链。" },
+};
+
+export const CONTENT_SERIES = {
+  "ai-collaboration": { name: "AI 协作开发实践", description: "从工具选择到可交付工作流的 AI Coding 实践。" },
+  "enterprise-platforms": { name: "企业平台工程实践", description: "工作流、低代码与 SaaS 平台的工程复盘。" },
+  "intelligent-analysis": { name: "智能分析平台", description: "从视频采集、标准事实到规则告警的连续设计记录。" },
 };
 
 // sitemap 中需要列出的静态页（文章 URL 由构建脚本动态插入到 /post/ 之后）。
@@ -23,6 +43,7 @@ export const STATIC_PAGES = [
   { path: "/", withDate: true, priority: "1.0" },
   { path: "/about/", withDate: true, priority: "0.6" },
   { path: "/post/", withDate: true, insertPostsAfter: true, priority: "0.6" },
+  { path: "/knowledge/", withDate: true, priority: "0.6" },
   { path: "/tools/", withDate: true, priority: "0.6" },
   { path: "/editor/", withDate: true, priority: "0.6" },
   { path: "/overleaf/", withDate: true, priority: "0.6" },
@@ -31,11 +52,19 @@ export const STATIC_PAGES = [
   { path: "/appreciation/", withDate: true, priority: "0.6" },
   { path: "/sponsor/", withDate: true, priority: "0.6" },
   { path: "/categories/", withDate: false, priority: "0.6" },
+  { path: "/series/", withDate: true, priority: "0.6" },
   { path: "/tags/", withDate: true, priority: "0.6" },
 ];
 
 // 全局搜索索引中额外包含的静态页（文章页由构建脚本动态生成）。
 export const SEARCH_PAGES = [
+  {
+    title: "知识资产",
+    summary: "按主题、系列、标签和文章引用组织 CWLBlog 的公开知识资产。",
+    path: "/knowledge/",
+    tags: ["知识库", "知识图谱", "主题", "系列"],
+    i18n: { en: { title: "Knowledge Assets", summary: "Public knowledge assets organized by topics, series, tags and references.", tags: ["Knowledge", "Graph", "Topics", "Series"] } },
+  },
   {
     title: "关于",
     summary: "CWL 的个人经历、技术栈、项目背景和联系方式入口。",

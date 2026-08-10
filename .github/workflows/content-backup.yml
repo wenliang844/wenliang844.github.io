@@ -1,0 +1,54 @@
+name: Content backup and recovery rehearsal
+
+on:
+  schedule:
+    - cron: "17 3 1 * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+      R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+      R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+      R2_BUCKET_NAME: ${{ secrets.R2_BUCKET_NAME }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22.12.0
+          cache: npm
+      - run: npm ci
+      - run: npm run validate:posts
+      - name: Snapshot R2 when credentials are configured
+        shell: bash
+        run: |
+          mkdir -p temp/r2-snapshot
+          if [[ -n "$R2_ACCOUNT_ID" && -n "$R2_ACCESS_KEY_ID" && -n "$R2_SECRET_ACCESS_KEY" && -n "$R2_BUCKET_NAME" ]]; then
+            AWS_ACCESS_KEY_ID="$R2_ACCESS_KEY_ID" AWS_SECRET_ACCESS_KEY="$R2_SECRET_ACCESS_KEY" \
+              aws s3 sync "s3://$R2_BUCKET_NAME" temp/r2-snapshot \
+              --endpoint-url "https://$R2_ACCOUNT_ID.r2.cloudflarestorage.com" --no-progress
+          else
+            echo "R2 credentials are not configured; source content backup will still run."
+          fi
+      - name: Create and verify snapshot
+        run: |
+          npm run backup:content -- --out temp/content-backup --r2-source temp/r2-snapshot
+          npm run verify:backup -- temp/content-backup
+      - name: Rehearse restore into an isolated directory
+        run: |
+          node scripts/backup-content.mjs --restore temp/content-backup --out temp/recovery-rehearsal
+          node scripts/backup-content.mjs --verify temp/recovery-rehearsal
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cwlblog-content-backup-${{ github.run_id }}
+          path: temp/content-backup
+          retention-days: 90
+          if-no-files-found: error

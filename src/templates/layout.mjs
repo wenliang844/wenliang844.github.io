@@ -1,5 +1,6 @@
 // 公共页面骨架：head / 导航 / 页脚 / 粒子 canvas。
 // 所有页面 1:1 复用这里的常量，确保与手写 HTML 像素级一致。
+import { createHash } from "node:crypto";
 import { SITE } from "../config.mjs";
 import { escapeAttr, escapeHtml } from "../lib/format.mjs";
 
@@ -18,6 +19,7 @@ const NAV_ITEMS = [
 ];
 
 const MORE_ITEMS = [
+  { href: "/knowledge/", label: "知识资产", key: "knowledge", i18n: "nav.knowledge" },
   { href: "/tools/", label: "工具箱", key: "tools", i18n: "nav.tools" },
   { href: "/overleaf/", label: "简历模版", key: "overleaf", i18n: "nav.overleaf" },
 ];
@@ -36,22 +38,86 @@ const RESOURCE_HINTS = [
   { rel: "dns-prefetch", href: "https://paypal.me" },
 ];
 
-const CONTENT_SECURITY_POLICY = [
-  "default-src 'self'",
-  "base-uri 'self'",
-  "object-src 'none'",
-  "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://giscus.app https://cdn.jsdelivr.net",
-  "style-src 'self' 'unsafe-inline' https://giscus.app",
-  "img-src 'self' data: https:",
-  "font-src 'self' data:",
-  "connect-src 'self' https:",
-  "frame-src https://giscus.app",
-  "form-action 'self' https://buttondown.com https://api.web3forms.com",
-].join("; ");
+const ASSISTANT_CONNECT_ORIGINS = [
+  "https://muyuan.do",
+  "https://token-plan-cn.xiaomimimo.com",
+];
+
+function apiOrigin(value) {
+  if (!value) return "";
+  try {
+    const url = new URL(value);
+    const local = url.hostname === "127.0.0.1" || url.hostname === "localhost";
+    return url.protocol === "https:" || (local && url.protocol === "http:") ? url.origin : "";
+  } catch {
+    return "";
+  }
+}
+
+function contentSecurityPolicy(page, scripts, inlineScripts = []) {
+  const scriptSources = [
+    "'self'",
+    "https://cloud.umami.is",
+    "https://plausible.io",
+  ];
+  const styleSources = ["'self'"];
+  if (scripts.includes("/js/giscus.js")) {
+    scriptSources.push("https://giscus.app");
+  }
+  if (page === "tools") {
+    scriptSources.push("'wasm-unsafe-eval'", "https://cdn.jsdelivr.net");
+  }
+  if (scripts.includes("/js/search-loader.js") && !scriptSources.includes("'wasm-unsafe-eval'")) {
+    scriptSources.push("'wasm-unsafe-eval'");
+  }
+  scriptSources.push(...inlineScripts.map((source) => `'sha256-${createHash("sha256").update(source).digest("base64")}'`));
+
+  const connectSources = ["'self'"];
+  if (page === "tools") {
+    // Mini API Tester intentionally accepts arbitrary HTTPS targets. Keep this
+    // exception isolated to the toolbox instead of granting it site-wide.
+    connectSources.push("https:");
+  } else {
+    if (scripts.includes("/js/analytics.js")) {
+      connectSources.push("https://cloud.umami.is", "https://plausible.io");
+    }
+    if (scripts.includes("/js/subscribe.js")) {
+      connectSources.push("https://buttondown.com");
+    }
+    if (scripts.includes("/js/assistant.js")) {
+      connectSources.push(...ASSISTANT_CONNECT_ORIGINS);
+    }
+    if (scripts.includes("/js/feedback.js")) {
+      connectSources.push("https://api.web3forms.com");
+    }
+    const configuredApiOrigin = apiOrigin(SITE.apiBase);
+    if (configuredApiOrigin) {
+      connectSources.push(configuredApiOrigin);
+    }
+  }
+
+  return [
+    "default-src 'self'",
+    "base-uri 'self'",
+    "object-src 'none'",
+    `script-src ${scriptSources.join(" ")}`,
+    "script-src-attr 'none'",
+    `style-src ${styleSources.join(" ")}`,
+    "style-src-attr 'none'",
+    "img-src 'self' data: https:",
+    "font-src 'self' data:",
+    "worker-src 'self'",
+    `connect-src ${[...new Set(connectSources)].join(" ")}`,
+    "frame-src https://giscus.app",
+    "form-action 'self' https://buttondown.com https://api.web3forms.com",
+  ].join("; ");
+}
 
 const CORE_SCRIPTS = [
   "/js/error-handler.js",
   "/js/utils.js",
+  "/js/pwa.js",
+  "/js/analytics.js",
   "/js/i18n.js",
   "/js/coder.js",
   "/js/search-loader.js",
@@ -69,10 +135,13 @@ function renderNavItem(item, active, indent = "          ") {
   return `${indent}<li><a${cls} href="${item.href}"${target} data-i18n="${item.i18n}"${i18nHtml}${i18nEn}>${item.html || item.label}</a></li>`;
 }
 
-function renderNav(active) {
+function renderNav(active, languageMode) {
   const items = NAV_ITEMS.map((item) => renderNavItem(item, active)).join("\n");
   const moreActive = MORE_ITEMS.some((item) => item.key === active);
   const moreItems = MORE_ITEMS.map((item) => renderNavItem(item, active, "              ")).join("\n");
+  const languageItem = languageMode === "zh-only"
+    ? ""
+    : '            <li><button class="lang-toggle" type="button" aria-label="Switch language">EN</button></li>';
 
   return `        <nav class="navigation-list" aria-label="Main navigation" data-i18n-aria="nav.main">
           <ul>
@@ -89,7 +158,7 @@ ${moreItems}
             <li><button class="nav-subscribe" type="button" data-subscribe-open data-i18n="nav.subscribe" data-i18n-html><i class="fas fa-envelope" aria-hidden="true"></i> 订阅</button></li>
             <li><a class="nav-sponsor${active === "sponsor" ? " active" : ""}" href="/sponsor/" data-i18n="nav.sponsor" data-i18n-html><i class="fas fa-heart" aria-hidden="true"></i> 赞助</a></li>
             <li><button class="theme-toggle" type="button" aria-label="切换主题" data-i18n-aria="nav.theme"><i class="fas fa-adjust"></i></button></li>
-            <li><button class="lang-toggle" type="button" aria-label="Switch language">EN</button></li>
+${languageItem}
             <li><button class="nav-search-trigger" type="button" aria-label="全局搜索（Ctrl+K 或 /）" title="全局搜索（Ctrl+K 或 /）" data-i18n-aria="nav.searchHint" data-i18n-title="nav.searchHint"><i class="fas fa-search"></i></button></li>
             <li><button class="nav-ai-experience assistant-nav-trigger" type="button" aria-label="打开 AI 助手" title="打开 AI 助手" data-assistant-toggle data-i18n-aria="assistant.open" data-i18n-title="assistant.open"><span aria-hidden="true">AI</span></button></li>
           </ul>
@@ -184,6 +253,7 @@ export function buildPageJsonLd({ type = "WebPage", name, description, path, ...
  * @param {string} opts.page         用于 i18n head 切换（如 "home"/"posts"/"tags"），对应 head.title.* / head.desc.* 键
  * @param {string} opts.main         <main> 内部 HTML
  * @param {object} [opts.og]         OG/Twitter 卡片数据 { title, description, path, type? }；省略则不输出
+ * @param {"bilingual"|"zh-only"} [opts.languageMode] 页面语言能力
  */
 export function renderPage(opts) {
   const {
@@ -198,32 +268,42 @@ export function renderPage(opts) {
     main,
     og,
     jsonLd,
+    languageMode = "bilingual",
   } = opts;
 
   const allScripts = [...new Set([...CORE_SCRIPTS, ...scripts])];
   const meta = renderMeta(og);
   // JSON-LD 结构化数据：转义 "<" 防止 </script> 提前闭合脚本块。
-  const jsonLdTag = jsonLd
-    ? `\n  <script type="application/ld+json">${JSON.stringify(jsonLd).replace(/</g, "\\u003c")}</script>`
+  const jsonLdSource = jsonLd ? JSON.stringify(jsonLd).replace(/</g, "\\u003c") : "";
+  const jsonLdTag = jsonLdSource
+    ? `\n  <script type="application/ld+json">${jsonLdSource}</script>`
     : "";
+  const csp = contentSecurityPolicy(page, allScripts, jsonLdSource ? [jsonLdSource] : []);
 
   const bodyI18n = [
     page ? `data-i18n-page="${page}"` : "",
     titleEn ? `data-i18n-title-en="${escapeAttr(titleEn)}"` : "",
     descriptionEn ? `data-i18n-desc-en="${escapeAttr(descriptionEn)}"` : "",
+    `data-language-mode="${languageMode}"`,
   ].filter(Boolean).join(" ");
+  const searchableMain = main.replace(/<main\b/, "<main data-pagefind-body");
 
   return `<!doctype html>
 <html lang="zh-CN">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta http-equiv="Content-Security-Policy" content="${escapeAttr(CONTENT_SECURITY_POLICY)}">
+  <meta http-equiv="Content-Security-Policy" content="${escapeAttr(csp)}">
+  <meta name="cwl-api-base" content="${escapeAttr(SITE.apiBase || "")}">
   <meta name="description" content="${escapeAttr(description)}">
+  <meta name="theme-color" content="#171717">
   <link rel="icon" href="/images/favicon.png" type="image/png">
 ${renderResourceHints()}
   <link rel="stylesheet" href="/css/fontawesome-all.min.css">
   <link rel="stylesheet" href="/css/coder.css">
+  <link rel="stylesheet" href="/css/content.css">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="apple-touch-icon" href="/images/pwa-192.png">
 ${renderScripts(allScripts)}${meta ? "\n" + meta : ""}${jsonLdTag}
   <title>${escapeHtml(title)}</title>
 </head>
@@ -238,10 +318,10 @@ ${renderScripts(allScripts)}${meta ? "\n" + meta : ""}${jsonLdTag}
         <input type="checkbox" id="menu-toggle" class="menu-toggle" aria-label="Toggle menu" data-i18n-aria="nav.menu">
         <label class="menu-button" for="menu-toggle"><i class="fas fa-bars"></i></label>
         <label class="menu-overlay" for="menu-toggle" aria-hidden="true"></label>
-${renderNav(active)}
+${renderNav(active, languageMode)}
       </section>
     </header>
-${main}
+${searchableMain}
     <footer class="footer">
       <section class="container">
         <div class="subscribe">

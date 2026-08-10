@@ -11,6 +11,14 @@
     return;
   }
 
+  // Mobile already exposes the same destination through the inline pager.
+  // Avoid covering reading content with an automatic fixed recommendation.
+  if (window.matchMedia
+    ? window.matchMedia("(max-width: 768px)").matches
+    : window.innerWidth <= 768) {
+    return;
+  }
+
   const link = popup.querySelector(".next-popup-link");
   const nextUrl = popup.dataset.nextUrl || (link ? link.getAttribute("href") : "") || window.location.pathname;
   if (link && !link.getAttribute("href")) {

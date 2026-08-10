@@ -292,7 +292,8 @@
       const swatch = document.getElementById("color-swatch");
       const preview = document.getElementById("color-preview-text");
       if (swatch) {
-        swatch.style.backgroundColor = "";
+        swatch.removeAttribute("src");
+        swatch.removeAttribute("data-color-value");
       }
       if (preview) {
         preview.textContent = t("tools.color.empty", "等待转换颜色");
@@ -500,7 +501,8 @@
     if (result.ok) {
       value("color-output", result.value.lines);
       if (swatch) {
-        swatch.style.backgroundColor = result.value.hex;
+        swatch.src = colorSwatchUrl(result.value.hex);
+        swatch.setAttribute("data-color-value", result.value.hex);
       }
       if (preview) {
         preview.textContent = result.value.hex + " / " + result.value.foreground;
@@ -510,7 +512,8 @@
     } else {
       value("color-output", "");
       if (swatch) {
-        swatch.style.backgroundColor = "";
+        swatch.removeAttribute("src");
+        swatch.removeAttribute("data-color-value");
       }
       if (preview) {
         preview.textContent = t("tools.color.empty", "等待转换颜色");
@@ -578,13 +581,25 @@
       const item = document.createElement("button");
       item.type = "button";
       item.className = "tool-palette-swatch";
-      item.style.backgroundColor = color;
       item.setAttribute("title", color);
       item.setAttribute("aria-label", color);
       item.setAttribute("data-color-value", color);
-      item.textContent = color;
+      const image = document.createElement("img");
+      image.src = colorSwatchUrl(color);
+      image.alt = "";
+      image.setAttribute("aria-hidden", "true");
+      const label = document.createElement("span");
+      label.textContent = color;
+      item.appendChild(image);
+      item.appendChild(label);
       palette.appendChild(item);
     });
+  }
+
+  function colorSwatchUrl(color) {
+    const normalized = /^#[0-9a-f]{6}$/i.test(String(color)) ? String(color).toLowerCase() : "#000000";
+    return "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3Cpath fill='%23"
+      + normalized.slice(1) + "' d='M0 0h1v1H0z'/%3E%3C/svg%3E";
   }
 
   function apiHistory() {

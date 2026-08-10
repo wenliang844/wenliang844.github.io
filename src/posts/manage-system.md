@@ -5,12 +5,17 @@ shortTitle: "智能分析预警平台重构"
 shortTitleEn: "Alert Platform Refactor"
 slug: "manage-system"
 date: 2025-09-16
+modified: 2026-08-06
+category: "ai-systems"
+series: "intelligent-analysis"
+order: 1
 eyebrow: "System Refactor"
 summary: "围绕视频采集、算法识别、标准事实落库、规则判定和正式告警生成，复盘智能分析预警平台后端重构。"
 summaryEn: "A backend refactor retrospective covering video capture, algorithm recognition, standard fact persistence, rule judgment and formal alert creation."
 description: "智能分析预警平台从视频采集到业务告警闭环的后端重构实践。"
 descriptionEn: "Backend refactor practice for an intelligent analysis alert platform from video capture to business alert loop."
 cover: "/images/posts/manage-system.png"
+coverAlt: "智能分析管理系统的平台架构与业务模块封面"
 tags: [Java, Spring Boot, 视频分析, 规则引擎, ONNX Runtime]
 tagsEn: [Java, Spring Boot, Video Analysis, Rule Engine, ONNX Runtime]
 ---
@@ -112,3 +117,7 @@ tagsEn: [Java, Spring Boot, Video Analysis, Rule Engine, ONNX Runtime]
 - `OCR_RECOGNIZE`：OCR 文本识别
 
 算法执行后统一输出 `StandardAnalysisResultDto` 和 `StandardAnalysisTargetDto`，再落库到 `t_analysis_record`、`t_analysis_target`。这样新增算法时，主要改动被收敛在执行器层，业务主链路和规则链路不用反复改造。
+
+## 延伸阅读
+
+- [[rule-engine-alerts|规则引擎与智能告警闭环]] 继续展开标准事实进入规则运行时后的判定与通知过程。

@@ -107,12 +107,12 @@ test("subscribe modal sets body overflow hidden when open", async () => {
   document.querySelector("[data-subscribe-open]").click();
   await new Promise((resolve) => dom.window.setTimeout(resolve, 220));
 
-  assert.equal(document.body.style.overflow, "hidden", "body overflow should be hidden");
+  assert.equal(document.body.classList.contains("subscribe-open"), true, "body scrolling should be locked");
 
   // 关闭后恢复
   const closeBtn = document.querySelector(".subscribe-modal-close");
   closeBtn.click();
-  assert.notEqual(document.body.style.overflow, "hidden", "body overflow should be restored");
+  assert.equal(document.body.classList.contains("subscribe-open"), false, "body scrolling should be restored");
   dom.window.close();
 });
 

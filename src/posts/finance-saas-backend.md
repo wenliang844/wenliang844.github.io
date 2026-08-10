@@ -5,12 +5,17 @@ shortTitle: "企顾 SaaS 多模块平台"
 shortTitleEn: "Qigu SaaS Platform"
 slug: "finance-saas-backend"
 date: 2023-08-18
+modified: 2026-08-06
+category: "backend-platform"
+series: "enterprise-platforms"
+order: 3
 eyebrow: "SaaS Backend"
 summary: "围绕客户数据资产、财税报表处理、通知触达和搜索检索，复盘企业服务 SaaS 多模块后端平台建设。"
 summaryEn: "A backend platform retrospective covering customer data assets, finance reports, notification delivery and search for enterprise-service SaaS."
 description: "企顾 SaaS 中客户数据、财税报表、通知中心和 Elasticsearch 搜索能力的多模块后端实践。"
 descriptionEn: "Multi-module backend practice for customer data, finance reports, notification center and Elasticsearch search in Qigu SaaS."
 cover: "/images/posts/finance-saas-backend.png"
+coverAlt: "企顾 SaaS 财务后台的领域与数据架构封面"
 tags: [Java, Spring Boot, Dubbo, RocketMQ, Elasticsearch]
 tagsEn: [Java, Spring Boot, Dubbo, RocketMQ, Elasticsearch]
 ---
@@ -113,3 +118,8 @@ API / SDK 层
 - Starter 模块负责自动装配，减少接入方配置成本。
 - SDK 模块沉淀外呼状态、报表导出等可复用能力。
 - Runtime 模块提供独立运行入口，支持单独部署与本地调试。
+
+## 延伸阅读
+
+- [[activiti-workflow-engine|Activiti 工作流引擎深度分析]] 解释流程运行时、任务和事务内缓存的实现细节。
+- [[manage-system|智能视频分析平台设计]] 展示异步分析、规则判断和告警闭环的另一种平台形态。

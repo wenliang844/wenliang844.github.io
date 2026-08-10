@@ -36,31 +36,25 @@
   const DEFAULT_OPACITY = 100;
   const MAX_CONVERSATIONS = 20;
   const REQUEST_TIMEOUT_MS = 60000;
-  const OPENAI_DEFAULT_API_KEY = ["sk", "-KsVG2X640CtGExXHyDSQApJPxrHMBb7xYa05PuaFKa6nS3Ij"].join("");
+  const API_META_SELECTOR = 'meta[name="cwl-api-base"]';
   const OPENAI_DEFAULT_ENDPOINT = "https://muyuan.do/v1/responses";
-  const LEGACY_OPENAI_DEFAULT_ENDPOINT = "https://free.lyclaude.site/v1/responses";
-  const LEGACY_OPENAI_FC_ENDPOINT = "https://a-ocnfniawgw.cn-shanghai.fcapp.run/v1";
-  const LEGACY_ANTHROPIC_DEFAULT_ENDPOINT = "https://token-plan-cn.xiaomimimo.com/anthropic";
-  const LLM_PRESETS = {
-    openai: {
+  const ANTHROPIC_DEFAULT_ENDPOINT = "https://token-plan-cn.xiaomimimo.com/anthropic";
+  const LLM_PRESETS = Object.freeze({
+    openai: Object.freeze({
       format: "openai",
       endpoint: OPENAI_DEFAULT_ENDPOINT,
       apiKey: "",
       model: "gpt-5.5",
       stream: true,
-    },
-    anthropic: {
+    }),
+    anthropic: Object.freeze({
       format: "anthropic",
-      endpoint: LEGACY_ANTHROPIC_DEFAULT_ENDPOINT,
+      endpoint: ANTHROPIC_DEFAULT_ENDPOINT,
       apiKey: "",
       model: "mimo-v2.5-pro",
       stream: true,
-    },
-  };
-  const LLM_EXPERIENCE_KEYS = {
-    openai: OPENAI_DEFAULT_API_KEY,
-    anthropic: ["tp", "-cm4es5h6ehs1m9p2i2su9894nuyiwh2nomdswvjfaix86pxr"].join(""),
-  };
+    }),
+  });
   function t(key, fallback) {
     return window.cwlT ? window.cwlT(key, fallback) : fallback;
   }
@@ -208,6 +202,7 @@
         links: [],
       }],
       llmHistory: [],
+      knowledgeHistory: [],
     };
   }
 
@@ -226,6 +221,7 @@
       updatedAt: Number.isFinite(timestamp) ? timestamp : now(),
       messages: messages.length ? messages : newConversation().messages,
       llmHistory: cleanLlmHistory(conversation.llmHistory),
+      knowledgeHistory: cleanLlmHistory(conversation.knowledgeHistory),
     };
   }
 
@@ -270,9 +266,17 @@
     return Object.assign({}, LLM_PRESETS[normalizeFormat(format)]);
   }
 
-  function isPresetEndpoint(format, endpoint) {
+  function normalizeLlmConfig(config) {
+    const format = normalizeFormat(config && config.format);
     const base = preset(format);
-    return cleanEndpoint(endpoint) === cleanEndpoint(base.endpoint);
+    const model = String(config && config.model || base.model).trim();
+    return {
+      format: format,
+      endpoint: base.endpoint,
+      apiKey: String(config && config.apiKey || "").trim(),
+      model: model || base.model,
+      stream: typeof (config && config.stream) === "boolean" ? config.stream : base.stream,
+    };
   }
 
   function readConfig() {
@@ -283,59 +287,44 @@
 
     try {
       const parsed = JSON.parse(saved);
-      const format = normalizeFormat(parsed.format);
-      const base = preset(format);
-      const endpoint = String(parsed.endpoint || base.endpoint);
-      const apiKey = String(parsed.apiKey || "");
-      const model = String(parsed.model || base.model);
-      const migrateLegacyAnthropicDefault =
-        format === "anthropic" &&
-        endpoint === LEGACY_ANTHROPIC_DEFAULT_ENDPOINT &&
-        !apiKey &&
-        model === "mimo-v2.5-pro";
-      const migrateLegacyOpenAiDefault =
-        format === "openai" &&
-        (endpoint === LEGACY_OPENAI_DEFAULT_ENDPOINT || endpoint === LEGACY_OPENAI_FC_ENDPOINT) &&
-        !apiKey &&
-        model === "gpt-5.5";
-      if (migrateLegacyAnthropicDefault || migrateLegacyOpenAiDefault) {
-        return preset("openai");
-      }
-      return {
-        format: format,
-        endpoint: endpoint,
-        apiKey: apiKey,
-        model: model,
-        stream: typeof parsed.stream === "boolean" ? parsed.stream : base.stream,
-      };
+      const clean = normalizeLlmConfig(parsed);
+      clean.apiKey = "";
+      storageSet(STORAGE_KEY, JSON.stringify(clean));
+      return clean;
     } catch {
-      return preset("openai");
+      const clean = preset("openai");
+      storageSet(STORAGE_KEY, JSON.stringify(clean));
+      return clean;
     }
   }
 
   function saveConfig(config) {
-    const clean = {
-      format: normalizeFormat(config.format),
-      endpoint: String(config.endpoint || "").trim(),
-      apiKey: String(config.apiKey || ""),
-      model: String(config.model || "").trim(),
-      stream: Boolean(config.stream),
-    };
-    storageSet(STORAGE_KEY, JSON.stringify(clean));
+    const clean = normalizeLlmConfig(config);
+    storageSet(STORAGE_KEY, JSON.stringify(Object.assign({}, clean, { apiKey: "" })));
     return clean;
   }
 
   function withEffectiveApiKey(config) {
-    const clean = Object.assign({}, config);
-    clean.apiKey = String(clean.apiKey || "").trim();
-    if (!clean.apiKey && isPresetEndpoint(clean.format, clean.endpoint)) {
-      clean.apiKey = LLM_EXPERIENCE_KEYS[normalizeFormat(clean.format)] || "";
-    }
-    return clean;
+    return normalizeLlmConfig(config);
   }
 
   function readMode() {
-    return "llm";
+    const saved = storageGet(MODE_KEY);
+    return saved === "llm" || saved === "knowledge" ? saved : "site";
+  }
+
+  function configuredApiBase() {
+    const meta = document.querySelector(API_META_SELECTOR);
+    const value = String(meta && meta.getAttribute("content") || "").trim();
+    if (!value) {return "";}
+    try {
+      const url = new URL(value, window.location.origin);
+      const local = url.hostname === "127.0.0.1" || url.hostname === "localhost";
+      if (url.protocol !== "https:" && !(local && url.protocol === "http:")) {return "";}
+      return url.origin + url.pathname.replace(/\/$/, "");
+    } catch {
+      return "";
+    }
   }
 
   function readOpacity() {
@@ -462,6 +451,24 @@
     return String(endpoint || "").trim().replace(/\/+$/, "");
   }
 
+  function validatedLlmEndpoint(endpoint) {
+    const clean = cleanEndpoint(endpoint);
+    try {
+      const url = new URL(clean);
+      const allowed = Object.keys(LLM_PRESETS).some(function (format) {
+        return new URL(LLM_PRESETS[format].endpoint).origin === url.origin;
+      });
+      if (url.protocol === "https:" && allowed) {
+        return clean;
+      }
+    } catch {
+      // Fall through to the same closed error for malformed and disallowed URLs.
+    }
+    const error = new Error("不支持的中转站请求地址");
+    error.code = "endpoint_not_allowed";
+    throw error;
+  }
+
   function openAiChatEndpoint(endpoint) {
     const clean = cleanEndpoint(endpoint);
     if (/\/v1\/chat\/completions$/i.test(clean) || /\/chat\/completions$/i.test(clean)) {
@@ -559,7 +566,7 @@
   }
 
   async function postJson(endpoint, headers, body, signal) {
-    const response = await fetch(endpoint, {
+    const response = await fetch(validatedLlmEndpoint(endpoint), {
       method: "POST",
       headers: Object.assign({ "Content-Type": "application/json" }, headers),
       body: JSON.stringify(body),
@@ -592,7 +599,7 @@
   }
 
   async function postStream(endpoint, headers, body, signal, onDelta) {
-    const response = await fetch(endpoint, {
+    const response = await fetch(validatedLlmEndpoint(endpoint), {
       method: "POST",
       headers: Object.assign({ "Content-Type": "application/json" }, headers),
       body: JSON.stringify(body),
@@ -647,6 +654,75 @@
       });
     }
     return result;
+  }
+
+  async function callKnowledge(question, history, signal, onDelta) {
+    const base = configuredApiBase();
+    if (!base) {
+      const error = new Error("知识问答 API 未配置");
+      error.code = "api_not_configured";
+      throw error;
+    }
+    const timeout = withTimeout(signal);
+    try {
+      const response = await fetch(base + "/api/v1/ai/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question: question, history: history.slice(-6) }),
+        credentials: "omit",
+        signal: timeout.signal,
+      });
+      if (!response.ok) {
+        const payload = await parsePayload(response);
+        throw makeHttpError(response, payload);
+      }
+      const result = { text: "", sources: [] };
+      const consumeEvent = function (block) {
+        let eventName = "message";
+        let data = "";
+        block.split("\n").forEach(function (line) {
+          if (line.startsWith("event:")) {eventName = line.slice(6).trim();}
+          if (line.startsWith("data:")) {data += line.slice(5).trim();}
+        });
+        if (!data) {return;}
+        try {
+          const payload = JSON.parse(data);
+          if (eventName === "delta" && typeof payload.text === "string") {
+            result.text += payload.text;
+            onDelta(payload.text);
+          }
+          if (eventName === "sources" && Array.isArray(payload.sources)) {
+            result.sources = payload.sources.slice(0, 6).map(function (source) {
+              const url = String(source && source.url || "");
+              if (!/^\/post\/[A-Za-z0-9_-]+\/$/.test(url)) {return null;}
+              return { title: String(source.title || "来源").slice(0, 120), url: url };
+            }).filter(Boolean);
+          }
+        } catch {
+          // Ignore malformed server-sent events; the request still ends with a done event.
+        }
+      };
+      if (!response.body || !response.body.getReader) {
+        (await response.text()).split("\n\n").filter(Boolean).forEach(consumeEvent);
+        return result;
+      }
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      for (;;) {
+        const chunk = await reader.read();
+        if (chunk.done) {break;}
+        buffer += decoder.decode(chunk.value, { stream: true });
+        const events = buffer.split("\n\n");
+        buffer = events.pop() || "";
+        events.filter(Boolean).forEach(consumeEvent);
+      }
+      buffer += decoder.decode();
+      if (buffer.trim()) {consumeEvent(buffer);}
+      return result;
+    } finally {
+      timeout.clear();
+    }
   }
 
   function withTimeout(parentSignal) {
@@ -815,11 +891,12 @@
   }
 
   async function callLlm(config, history, signal, onDelta) {
+    const safeConfig = withEffectiveApiKey(config);
     const timeout = withTimeout(signal);
     try {
-      const result = config.format === "anthropic"
-        ? await callAnthropic(config, history, timeout.signal, onDelta)
-        : await callOpenAi(config, history, timeout.signal, onDelta);
+      const result = safeConfig.format === "anthropic"
+        ? await callAnthropic(safeConfig, history, timeout.signal, onDelta)
+        : await callOpenAi(safeConfig, history, timeout.signal, onDelta);
       return result || "";
     } finally {
       timeout.clear();
@@ -849,7 +926,7 @@
 
     const root = el("section", "assistant-widget");
     root.setAttribute("aria-label", t("assistant.aria", "AI 助手"));
-    root.style.setProperty("--assistant-opacity", String(readOpacity() / 100));
+    root.dataset.opacity = String(readOpacity());
 
     const navToggles = Array.from(document.querySelectorAll("[data-assistant-toggle]"));
     if (navToggles.length) {
@@ -897,12 +974,16 @@
 
     const modes = el("div", "assistant-modes");
     const siteMode = el("button", "", t("assistant.mode.site", "站点助手"));
+    const knowledgeMode = el("button", "", t("assistant.mode.knowledge", "知识问答"));
     const llmMode = el("button", "", t("assistant.mode.llm", "大模型"));
     siteMode.type = "button";
+    knowledgeMode.type = "button";
     llmMode.type = "button";
     siteMode.setAttribute("data-assistant-mode", "site");
+    knowledgeMode.setAttribute("data-assistant-mode", "knowledge");
     llmMode.setAttribute("data-assistant-mode", "llm");
     modes.appendChild(siteMode);
+    modes.appendChild(knowledgeMode);
     modes.appendChild(llmMode);
 
     const body = el("div", "assistant-body");
@@ -1012,6 +1093,8 @@
     const endpointInput = el("input", "assistant-endpoint");
     endpointInput.type = "url";
     endpointInput.autocomplete = "off";
+    endpointInput.readOnly = true;
+    endpointInput.setAttribute("aria-readonly", "true");
     endpointLabel.appendChild(endpointInput);
 
     const keyLabel = el("label", "assistant-config-field");
@@ -1222,7 +1305,7 @@
       opacityInput.value = String(opacity);
       opacityValue.value = String(opacity);
       opacityValue.textContent = opacity + "%";
-      root.style.setProperty("--assistant-opacity", String(opacity / 100));
+      root.dataset.opacity = String(opacity);
       storageSet(OPACITY_KEY, String(opacity));
     }
 
@@ -1237,22 +1320,14 @@
       });
     }
 
-    function updateFullscreenOffset() {
-      root.style.removeProperty("--assistant-fullscreen-top");
-    }
-
     function updateNavigationOffset() {
       const nav = document.querySelector(".navigation");
       if (!nav) {
-        root.style.removeProperty("--assistant-nav-height");
+        delete root.dataset.navSize;
         return;
       }
       const navHeight = Math.ceil(nav.getBoundingClientRect().height);
-      if (navHeight > 0) {
-        root.style.setProperty("--assistant-nav-height", navHeight + "px");
-      } else {
-        root.style.removeProperty("--assistant-nav-height");
-      }
+      root.dataset.navSize = navHeight > 80 ? "tall" : "compact";
     }
 
     function setFullscreen(nextFullscreen) {
@@ -1262,7 +1337,6 @@
       }
       root.classList.toggle("fullscreen", fullscreen);
       document.body.classList.toggle("assistant-fullscreen", fullscreen);
-      updateFullscreenOffset();
       updateFullscreenButton();
       if (fullscreen && panel.hidden) {
         setOpen(true);
@@ -1287,6 +1361,7 @@
       opacityText.textContent = t("assistant.opacity", "透明度");
       opacityInput.setAttribute("aria-label", t("assistant.opacity", "透明度"));
       siteMode.textContent = t("assistant.mode.site", "站点助手");
+      knowledgeMode.textContent = t("assistant.mode.knowledge", "知识问答");
       llmMode.textContent = t("assistant.mode.llm", "大模型");
       syncToggles(!panel.hidden);
       QUICK_ACTIONS.forEach(function (item) {
@@ -1304,19 +1379,27 @@
     }
 
     function applyMode(nextMode) {
-      mode = nextMode === "llm" ? "llm" : "site";
+      mode = nextMode === "llm" || nextMode === "knowledge" ? nextMode : "site";
       storageSet(MODE_KEY, mode);
       siteMode.classList.toggle("active", mode === "site");
+      knowledgeMode.classList.toggle("active", mode === "knowledge");
       llmMode.classList.toggle("active", mode === "llm");
       siteMode.setAttribute("aria-pressed", String(mode === "site"));
+      knowledgeMode.setAttribute("aria-pressed", String(mode === "knowledge"));
       llmMode.setAttribute("aria-pressed", String(mode === "llm"));
       configForm.hidden = mode !== "llm";
-      privacy.textContent = mode === "llm"
-        ? t("assistant.llmPrivacy", "大模型模式会请求你配置的中转站，API key 输入框默认留空；未填写时使用内置体验 key。")
-        : t("assistant.privacy", "本地规则版，不会发送你的输入");
-      input.placeholder = mode === "llm"
-        ? t("assistant.llmPlaceholder", "输入要发送给大模型的问题")
-        : t("assistant.placeholder", "问站点导航或文章关键词");
+      if (mode === "llm") {
+        privacy.textContent = t("assistant.llmPrivacy", "大模型模式只请求所选中转站预设；API key 仅在当前页面使用，不会保存。");
+        input.placeholder = t("assistant.llmPlaceholder", "输入要发送给大模型的问题");
+      } else if (mode === "knowledge") {
+        privacy.textContent = configuredApiBase()
+          ? t("assistant.knowledgePrivacy", "仅检索公开文章，回答会附原文来源；服务端不记录问题正文。")
+          : t("assistant.knowledgeUnavailable", "知识问答 API 尚未配置，本地站点助手仍可使用。");
+        input.placeholder = t("assistant.knowledgePlaceholder", "基于博客原文提问");
+      } else {
+        privacy.textContent = t("assistant.privacy", "本地规则版，不会发送你的输入");
+        input.placeholder = t("assistant.placeholder", "问站点导航或文章关键词");
+      }
     }
 
     function syncToggles(open) {
@@ -1436,6 +1519,66 @@
       input.value = "";
     }
 
+    function normalizeKnowledgeError(error) {
+      if (error && error.name === "AbortError") {return "已停止生成。";}
+      if (error && error.code === "api_not_configured") {return "知识问答 API 尚未配置，请先使用站点助手搜索文章。";}
+      const status = error && error.status;
+      if (status === 429) {return "知识问答请求较多，请稍后再试。";}
+      if (status === 503) {return "知识问答当前不可用或今日预算已用完。";}
+      if (status >= 500) {return "知识问答服务暂时异常，请稍后再试。";}
+      return "知识问答失败：" + (error && error.message ? error.message : "未知错误");
+    }
+
+    async function askKnowledge(value) {
+      const query = String(value || "").trim();
+      if (!query) {
+        addMessage("bot", "请输入要从公开文章中查询的问题。");
+        return;
+      }
+      if (!configuredApiBase()) {
+        addMessage("bot", "知识问答 API 尚未配置，请先使用站点助手或全文搜索。", [
+          { title: t("assistant.searchLink", "打开搜索"), url: "#search" },
+        ]);
+        return;
+      }
+      addMessage("user", query);
+      input.value = "";
+      const conversation = activeConversation();
+      const history = conversation.knowledgeHistory.slice(-6);
+      conversation.knowledgeHistory.push({ role: "user", content: query });
+      conversation.knowledgeHistory = conversation.knowledgeHistory.slice(-12);
+      touchConversation(conversation);
+
+      activeController = new AbortController();
+      const requestController = activeController;
+      setGenerating(true);
+      const botMessage = addMessage("bot", "正在检索公开文章...");
+      let received = "";
+      try {
+        const result = await callKnowledge(query, history, requestController.signal, function (delta) {
+          received += delta;
+          updateMessage(botMessage, received || "正在生成...", conversation);
+        });
+        const finalText = received || result.text || "知识问答没有返回文本内容。";
+        updateMessage(botMessage, finalText, conversation);
+        if (result.sources.length) {
+          addMessage("bot", t("assistant.knowledgeSources", "原文来源"), result.sources);
+        }
+        if (finalText !== "已停止生成。") {
+          conversation.knowledgeHistory.push({ role: "assistant", content: finalText });
+          conversation.knowledgeHistory = conversation.knowledgeHistory.slice(-12);
+          touchConversation(conversation);
+        }
+      } catch (error) {
+        updateMessage(botMessage, normalizeKnowledgeError(error), conversation);
+      } finally {
+        if (activeController === requestController) {
+          activeController = null;
+          setGenerating(false);
+        }
+      }
+    }
+
     async function askLlm(value) {
       const query = String(value || "").trim();
       if (!query) {
@@ -1444,7 +1587,7 @@
       }
       const config = withEffectiveApiKey(readConfigFromFields());
       if (!config.apiKey) {
-        addMessage("bot", "请先填写 API key。密钥只会保存在本机浏览器 localStorage。", [
+        addMessage("bot", "请先填写 API key。密钥仅在当前页面使用，不会保存。", [
           { title: "打开中转站排行榜", url: "/ai/#relay" },
         ]);
         keyInput.focus();
@@ -1551,12 +1694,12 @@
       next.apiKey = keyInput.value;
       fillConfigFields(next);
       readConfigFromFields();
-      configStatus.textContent = "已切换预设，留空会使用体验 key";
+      configStatus.textContent = "已切换预设，请填写你自己的 API key";
     });
     configForm.addEventListener("submit", function (event) {
       event.preventDefault();
       readConfigFromFields();
-      configStatus.textContent = "已保存到本机浏览器";
+      configStatus.textContent = "已保存预设；API key 不会保存";
     });
     testConfigBtn.addEventListener("click", testConnection);
     configToggle.addEventListener("click", function () {
@@ -1614,12 +1757,14 @@
     });
     form.addEventListener("submit", function (event) {
       event.preventDefault();
-      if (mode === "llm" && activeController) {
+      if ((mode === "llm" || mode === "knowledge") && activeController) {
         activeController.abort();
         return;
       }
       if (mode === "llm") {
         askLlm(input.value);
+      } else if (mode === "knowledge") {
+        askKnowledge(input.value);
       } else {
         askSite(input.value);
       }
@@ -1641,10 +1786,8 @@
     document.addEventListener("cwl:langchange", function () {
       updateStaticText();
       window.requestAnimationFrame(updateNavigationOffset);
-      window.requestAnimationFrame(updateFullscreenOffset);
     });
     window.addEventListener("resize", updateNavigationOffset);
-    window.addEventListener("resize", updateFullscreenOffset);
     setOpacity(opacityInput.value);
     setConfigExpanded(false);
     updateNavigationOffset();

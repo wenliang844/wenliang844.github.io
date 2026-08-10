@@ -116,8 +116,6 @@
     const dpr = Math.min(window.devicePixelRatio || 1, 1.5)
     $canvas.width  = cw * dpr
     $canvas.height = ch * dpr
-    $canvas.style.width  = cw + 'px'
-    $canvas.style.height = ch + 'px'
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
     cx = cw / 2
     cy = ch / 2

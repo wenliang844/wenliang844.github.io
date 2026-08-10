@@ -208,7 +208,7 @@ test("assistant truncates long conversation titles", async () => {
 
 // ─── 配置读取与格式切换 ────────────────────────────────────────────────────────
 
-test("assistant reads config from localStorage", async () => {
+test("assistant sanitizes stored endpoints and API keys while retaining safe preferences", async () => {
   const dom = new JSDOM(buildAssistantHtml(), {
     runScripts: "outside-only",
     url: "https://example.com/",
@@ -232,13 +232,20 @@ test("assistant reads config from localStorage", async () => {
   const modelInput = dom.window.document.querySelector(".assistant-model");
 
   if (endpointInput) {
-    assert.equal(endpointInput.value, "https://api.example.com/v1", "endpoint should be loaded");
+    assert.equal(endpointInput.value, "https://muyuan.do/v1/responses", "endpoint should be reset to the preset");
+    assert.equal(endpointInput.readOnly, true, "endpoint should not be user-editable");
   }
   if (modelInput) {
     assert.equal(modelInput.value, "gpt-4", "model should be loaded");
   }
   // At minimum, verify the config was loaded from the correct key
   assert.ok(endpointInput || modelInput, "should have config fields in DOM");
+  assert.equal(dom.window.document.querySelector(".assistant-api-key").value, "");
+  const stored = JSON.parse(dom.window.localStorage.getItem("cwl.assistant.llmConfig"));
+  assert.equal(stored.endpoint, "https://muyuan.do/v1/responses");
+  assert.equal(stored.apiKey, "");
+  assert.equal(stored.model, "gpt-4");
+  assert.doesNotMatch(JSON.stringify(stored), /api\.example\.com|sk-test-key/);
 
   dom.window.close();
 });
@@ -264,10 +271,11 @@ test("assistant migrates old OpenAI default endpoint", async () => {
   const code = await readFile(join(ROOT, "js", "assistant.js"), "utf8");
   dom.window.eval(code);
 
-  const endpointInput = dom.window.document.querySelector(".ai-endpoint-input");
-  // After migration, endpoint should be different from the old one
-  assert.notEqual(endpointInput.value, "https://a-ocnfniawgw.cn-shanghai.fcapp.run/v1",
-    "old endpoint should be migrated");
+  const endpointInput = dom.window.document.querySelector(".assistant-endpoint");
+  assert.equal(endpointInput.value, "https://muyuan.do/v1/responses");
+  assert.equal(dom.window.document.querySelector(".assistant-api-key").value, "");
+  const stored = dom.window.localStorage.getItem("cwl.assistant.llmConfig");
+  assert.doesNotMatch(stored, /a-ocnfniawgw|sk-old/);
 
   dom.window.close();
 });

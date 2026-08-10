@@ -177,12 +177,14 @@ test("footer has i18n attributes for translatable content", async () => {
   assert.deepEqual(failures, []);
 });
 
-test("all pages include the language toggle button", async () => {
+test("bilingual pages include a language toggle and Chinese-only pages omit it", async () => {
   const failures = [];
   for (const file of await htmlFiles()) {
     const html = await readFile(join(ROOT, file), "utf8");
-    if (!html.includes('class="lang-toggle"')) {
-      failures.push(`${file}: missing language toggle button`);
+    const chineseOnly = html.includes('data-language-mode="zh-only"');
+    const hasToggle = html.includes('class="lang-toggle"');
+    if ((!chineseOnly && !hasToggle) || (chineseOnly && hasToggle)) {
+      failures.push(`${file}: language toggle does not match page language mode`);
     }
   }
   assert.deepEqual(failures, []);

@@ -51,7 +51,7 @@ export function renderSponsorPage() {
             <section class="sponsor-goal" aria-labelledby="sponsor-goal-title">
               <h2 id="sponsor-goal-title" data-i18n="sponsor.goal.title">本月目标：¥2000</h2>
               <div class="sponsor-progress" aria-label="Monthly sponsor goal progress 72%" data-i18n-aria="sponsor.goal.aria">
-                <span style="width: 72%"></span>
+                <span class="sponsor-progress-value"></span>
               </div>
               <p data-i18n="sponsor.goal.percent">本月已完成 72%</p>
             </section>

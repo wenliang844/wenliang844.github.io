@@ -74,10 +74,9 @@
     }
 
     const textarea = el("textarea");
+    textarea.className = "copy-fallback-input";
     textarea.value = text;
     textarea.setAttribute("readonly", "");
-    textarea.style.position = "fixed";
-    textarea.style.left = "-9999px";
     document.body.appendChild(textarea);
     textarea.select();
     try {

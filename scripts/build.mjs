@@ -1,39 +1,72 @@
 // CWLBlog 静态站点构建脚本。
 //
 // 输入：src/posts/*.md（front matter + Markdown 正文）
-// 输出：post/<slug>/index.html、post/index.html、sitemap.xml、index.xml
+// 输出：文章路由、RSS/Sitemap、搜索/知识索引与资源引用清单
 //
 // 用法：
 //   node scripts/build.mjs            # 输出到项目根（覆盖现有产物）
 //   node scripts/build.mjs --out dist # 输出到 dist/（用于对齐验证）
 
-import { readdir, readFile, mkdir, writeFile } from "node:fs/promises";
+import { existsSync } from "node:fs";
+import { readdir, readFile, mkdir, stat, writeFile } from "node:fs/promises";
+import { createHash } from "node:crypto";
 import { dirname, isAbsolute, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { marked } from "marked";
+import sharp from "sharp";
 import { parse as parseYaml } from "yaml";
 
-import { SITE, STATIC_PAGES, SEARCH_PAGES } from "../src/config.mjs";
+import { CONTENT_CATEGORIES, CONTENT_SERIES, SITE, STATIC_PAGES, SEARCH_PAGES } from "../src/config.mjs";
 import { renderPostPage, renderPostList } from "../src/templates/post.mjs";
 import { renderTagsPage } from "../src/templates/tags.mjs";
 import { renderCategoriesPage } from "../src/templates/categories.mjs";
+import { renderSeriesIndex, renderTaxonomyDetail } from "../src/templates/taxonomy.mjs";
+import { renderKnowledgePage } from "../src/templates/knowledge.mjs";
 import { renderAiPage } from "../src/templates/ai.mjs";
 import { renderToolsPage } from "../src/templates/tools.mjs";
 import { renderAppreciationPage } from "../src/templates/appreciation.mjs";
 import { renderSponsorPage } from "../src/templates/sponsor.mjs";
-import { escapeXml, rfc822, sitemapDate } from "../src/lib/format.mjs";
+import { escapeAttr, escapeHtml, escapeXml, rfc822, sitemapDate } from "../src/lib/format.mjs";
 import { readingMinutes } from "../src/lib/reading.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const ROOT = join(__dirname, "..");
+const sourceRoot = join(__dirname, "..");
+const ROOT = existsSync(join(sourceRoot, "src", "posts")) ? sourceRoot : process.cwd();
 const POSTS_DIR = join(ROOT, "src", "posts");
+const IMAGES_DIR = join(ROOT, "images");
 const POST_SITEMAP_PRIORITY = "0.8";
+const COVER_MAX_PIXELS = 40_000_000;
+const COVER_WIDTH = 960;
+const COVER_FORMATS = new Set(["png", "jpeg", "webp", "avif"]);
 
 // 输出目录：--out <dir>，默认项目根。
 const outIdx = process.argv.indexOf("--out");
 const OUT_DIR = resolveOutDir(outIdx);
 
 marked.setOptions({ gfm: true, breaks: false });
+marked.use({
+  extensions: [{
+    name: "wikiLink",
+    level: "inline",
+    start(source) {
+      const index = source.indexOf("[[");
+      return index >= 0 ? index : undefined;
+    },
+    tokenizer(source) {
+      const match = source.match(/^\[\[([A-Za-z0-9_-]+)(?:\|([^\]\n]+))?\]\]/);
+      if (!match) return undefined;
+      return {
+        type: "wikiLink",
+        raw: match[0],
+        target: match[1],
+        label: (match[2] || match[1]).trim(),
+      };
+    },
+    renderer(token) {
+      return `<a class="wiki-link" href="/post/${escapeAttr(token.target)}/">${escapeHtml(token.label)}</a>`;
+    },
+  }],
+});
 
 // YAML 会把不带引号的 date 解析为 Date 对象；统一规范成 "YYYY-MM-DD" 字符串。
 export function normalizeDate(d) {
@@ -88,6 +121,73 @@ export function normalizeCover(cover, filename = "post") {
   return cover;
 }
 
+export function validateCoverAlt(cover, coverAlt, filename = "post") {
+  if (!cover) return "";
+  if (typeof coverAlt !== "string" || !coverAlt.trim()) {
+    throw new Error(`Invalid coverAlt in ${filename}: a non-empty description is required when cover is set.`);
+  }
+  if (coverAlt.length > 240) {
+    throw new Error(`Invalid coverAlt in ${filename}: description is too long (max 240 characters).`);
+  }
+  return coverAlt.trim();
+}
+
+async function generatedCoverIsCurrent(sourcePath, outputPaths) {
+  try {
+    const sourceStat = await stat(sourcePath);
+    const outputStats = await Promise.all(outputPaths.map((path) => stat(path)));
+    return outputStats.every((outputStat) => outputStat.mtimeMs >= sourceStat.mtimeMs);
+  } catch {
+    return false;
+  }
+}
+
+async function buildCoverAsset(cover, coverAlt, slug, filename) {
+  if (!cover || /^https?:\/\//i.test(cover)) return null;
+
+  const sourcePath = resolve(ROOT, cover.replace(/^\/+/, ""));
+  const imageRelativePath = relative(IMAGES_DIR, sourcePath);
+  if (!imageRelativePath || imageRelativePath.startsWith("..") || isAbsolute(imageRelativePath)) {
+    throw new Error(`Invalid cover in ${filename}: local cover must stay inside /images/.`);
+  }
+
+  let metadata;
+  try {
+    metadata = await sharp(sourcePath, { failOn: "error", limitInputPixels: COVER_MAX_PIXELS }).metadata();
+  } catch (error) {
+    throw new Error(`Invalid cover in ${filename}: ${error.message}`);
+  }
+  if (!COVER_FORMATS.has(metadata.format) || !metadata.width || !metadata.height) {
+    throw new Error(`Invalid cover in ${filename}: use PNG, JPEG, WebP or AVIF with valid dimensions.`);
+  }
+
+  const generatedBase = `images/generated/${slug}-cover`;
+  const webpPath = join(OUT_DIR, `${generatedBase}.webp`);
+  const avifPath = join(OUT_DIR, `${generatedBase}.avif`);
+  await mkdir(dirname(webpPath), { recursive: true });
+  if (!(await generatedCoverIsCurrent(sourcePath, [webpPath, avifPath]))) {
+    await Promise.all([
+      sharp(sourcePath, { failOn: "error", limitInputPixels: COVER_MAX_PIXELS })
+        .resize({ width: COVER_WIDTH, withoutEnlargement: true })
+        .webp({ quality: 78 })
+        .toFile(webpPath),
+      sharp(sourcePath, { failOn: "error", limitInputPixels: COVER_MAX_PIXELS })
+        .resize({ width: COVER_WIDTH, withoutEnlargement: true })
+        .avif({ quality: 52, effort: 4 })
+        .toFile(avifPath),
+    ]);
+  }
+
+  return {
+    src: cover,
+    alt: coverAlt,
+    width: metadata.width,
+    height: metadata.height,
+    webp: `/${generatedBase}.webp`,
+    avif: `/${generatedBase}.avif`,
+  };
+}
+
 // 验证 slug 是否合法（仅包含字母、数字、连字符、下划线）
 export function validateSlug(slug, filename) {
   if (!slug || typeof slug !== "string") {
@@ -129,6 +229,37 @@ export function validatePost(data, filename) {
   if (data.description.length > 500) {
     throw new Error(`Description too long in ${filename} (max 500 characters).`);
   }
+}
+
+export function validateContentTaxonomy(data, filename, seenSeriesOrders = null) {
+  if (!data.category || typeof data.category !== "string" || !CONTENT_CATEGORIES[data.category]) {
+    throw new Error(`Invalid category in ${filename}: use a configured category ID.`);
+  }
+  if (!data.series) {
+    if (data.order !== undefined) {
+      throw new Error(`Invalid order in ${filename}: order requires a series.`);
+    }
+    return;
+  }
+  if (typeof data.series !== "string" || !CONTENT_SERIES[data.series]) {
+    throw new Error(`Invalid series in ${filename}: use a configured series ID.`);
+  }
+  if (!Number.isInteger(data.order) || data.order < 1) {
+    throw new Error(`Invalid order in ${filename}: series order must be a positive integer.`);
+  }
+  if (seenSeriesOrders) {
+    const key = `${data.series}:${data.order}`;
+    const existing = seenSeriesOrders.get(key);
+    if (existing) {
+      throw new Error(`Duplicate series order in ${filename}: ${key} is already used by ${existing}.`);
+    }
+    seenSeriesOrders.set(key, filename);
+  }
+}
+
+// 只有显式布尔值 true 才视为草稿，避免字符串 "false" 等宽松值误判。
+export function isDraftPost(data) {
+  return data && data.draft === true;
 }
 
 function resolveOutDir(index) {
@@ -252,27 +383,85 @@ export function renderContent(markdown) {
   return { html: indented, toc: rendered.toc };
 }
 
-// 读取并解析所有文章，按日期倒序（最新在前）。
-async function loadPosts() {
-  const files = (await readdir(POSTS_DIR)).filter((f) => f.endsWith(".md"));
-  const posts = [];
+function internalPostSlug(href) {
+  if (!href || typeof href !== "string") return null;
+  let url;
+  try {
+    url = new URL(href, SITE.baseURL);
+  } catch {
+    return null;
+  }
+  if (url.origin !== new URL(SITE.baseURL).origin) return null;
+  const match = url.pathname.match(/^\/post\/([A-Za-z0-9_-]+)\/?$/);
+  return match ? match[1] : null;
+}
+
+export function collectInternalLinks(markdown) {
+  const links = new Set();
+  const seen = new Set();
+  const visit = (value) => {
+    if (!value || typeof value !== "object" || seen.has(value)) return;
+    seen.add(value);
+    if (value.type === "wikiLink" && value.target) {
+      links.add(value.target);
+    } else if (value.type === "link") {
+      const slug = internalPostSlug(value.href);
+      if (slug) links.add(slug);
+    }
+    for (const child of Object.values(value)) {
+      if (Array.isArray(child)) child.forEach(visit);
+      else if (child && typeof child === "object") visit(child);
+    }
+  };
+  marked.lexer(markdown || "").forEach(visit);
+  return [...links];
+}
+
+export function resolvePostLinks(posts) {
+  const bySlug = new Map(posts.map((post) => [post.slug, post]));
   const errors = [];
-  const seenSlugs = new Map();
-
-  for (const file of files) {
-    try {
-      const raw = await readFile(join(POSTS_DIR, file), "utf8");
-
-      // 检查文件是否为空
-      if (!raw.trim()) {
-        errors.push(`${file}: File is empty`);
-        continue;
+  for (const post of posts) {
+    post.backlinks = [];
+    post.outgoingLinks = [...new Set(post.outgoingLinks || [])];
+    for (const target of post.outgoingLinks) {
+      if (target === post.slug) continue;
+      if (!bySlug.has(target)) {
+        errors.push(`${post.sourceFile || post.slug}: internal link target does not exist: ${target}`);
       }
+    }
+  }
+  if (errors.length) {
+    throw new Error(`Broken internal links:\n${errors.map((error) => `  - ${error}`).join("\n")}`);
+  }
+  for (const post of posts) {
+    for (const target of post.outgoingLinks) {
+      if (target === post.slug) continue;
+      bySlug.get(target).backlinks.push(post);
+    }
+  }
+  posts.forEach((post) => post.backlinks.sort((a, b) => b.modified.localeCompare(a.modified)));
+  return posts;
+}
 
-      const { data, content } = parseFrontMatter(raw, file);
+// 将已解析的内容条目转换为站点领域模型。Astro Content Collections 和
+// 兼容构建器共享这一步，避免迁移期间出现两套文章排序、链接与图片逻辑。
+export async function buildPosts(sourceEntries, initialErrors = []) {
+  const posts = [];
+  const errors = [...initialErrors];
+  const seenSlugs = new Map();
+  const seenSeriesOrders = new Map();
 
+  for (const entry of sourceEntries) {
+    const { file, data, content = "" } = entry;
+    try {
       // 验证必填字段
       validatePost(data, file);
+      validateContentTaxonomy(data, file, seenSeriesOrders);
+
+      // 草稿保留在 Git 中，但不得进入页面、搜索、RSS 或 sitemap。
+      if (isDraftPost(data)) {
+        continue;
+      }
 
       const slug = data.slug || file.replace(/\.md$/, "");
       validateSlug(slug, file);
@@ -285,10 +474,18 @@ async function loadPosts() {
 
       const contentResult = renderContent(content);
       const contentEnResult = data.contentEn ? renderContent(data.contentEn) : null;
+      const outgoingLinks = [
+        ...new Set([
+          ...collectInternalLinks(content),
+          ...(data.contentEn ? collectInternalLinks(data.contentEn) : []),
+        ]),
+      ];
 
       const date = normalizeDate(data.date);
       const modified = normalizeModifiedDate(data.modified, date, file);
       const cover = normalizeCover(data.cover, file);
+      const coverAlt = validateCoverAlt(cover, data.coverAlt, file);
+      const coverAsset = await buildCoverAsset(cover, coverAlt, slug, file);
       const contentImages = extractImages(contentResult.html);
       const images = cover
         ? [cover, ...contentImages.filter((src) => src !== cover)]
@@ -302,7 +499,14 @@ async function loadPosts() {
         slug,
         date,
         modified,
+        category: data.category,
+        series: data.series || "",
+        seriesOrder: data.series ? data.order : null,
+        sourceFile: file,
+        revisionUrl: `${SITE.repositoryURL}/commits/${SITE.repositoryBranch}/src/posts/${encodeURIComponent(file)}`,
         cover,
+        coverAlt,
+        coverAsset,
         eyebrow: data.eyebrow || "项目",
         summary: data.summary,
         summaryEn: data.summaryEn,
@@ -312,6 +516,8 @@ async function loadPosts() {
         tagsEn: Array.isArray(data.tagsEn) ? data.tagsEn : (Array.isArray(data.tags) ? data.tags : []),
         contentHtml: contentResult.html,
         contentHtmlEn: contentEnResult ? contentEnResult.html : "",
+        contentMarkdown: content,
+        outgoingLinks,
         toc: contentResult.toc,
         tocEn: contentEnResult ? contentEnResult.toc : [],
         readMinutes: readingMinutes(stripHtml(contentResult.html)),
@@ -329,7 +535,31 @@ async function loadPosts() {
   }
 
   posts.sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
-  return posts;
+  return resolvePostLinks(posts);
+}
+
+// 兼容构建器仍可直接从文件系统加载内容；文章页面路由已由 Astro
+// Content Collections 接管，RSS、Sitemap 与知识派生产物暂时复用此入口。
+export async function loadPosts() {
+  const files = (await readdir(POSTS_DIR)).filter((f) => f.endsWith(".md"));
+  const entries = [];
+  const errors = [];
+
+  for (const file of files) {
+    try {
+      const raw = await readFile(join(POSTS_DIR, file), "utf8");
+      if (!raw.trim()) {
+        errors.push(`${file}: File is empty`);
+        continue;
+      }
+      const { data, content } = parseFrontMatter(raw, file);
+      entries.push({ file, data, content });
+    } catch (error) {
+      errors.push(`${file}: ${error.message}`);
+    }
+  }
+
+  return buildPosts(entries, errors);
 }
 
 async function writeFileEnsured(relPath, content) {
@@ -365,16 +595,57 @@ function extractImages(html) {
   return urls;
 }
 
-// 基于标签重叠为文章挑选相关文章：先按共同标签数降序，
-// 同数按日期更新优先；取前 limit 篇。
+// 构建期推荐只使用公开内容关系，不依赖用户画像。
+// 正文引用、系列、分类和共同标签形成主分，发布时间接近度只做小幅排序。
 export function relatedPosts(post, posts, limit = 3) {
-  const tags = new Set(post.tags);
-  if (tags.size === 0) return [];
+  const tags = new Set(post.tags || []);
+  const outgoing = new Set(post.outgoingLinks || []);
+  const postTime = Date.parse(post.modified || post.date || "") || 0;
   return posts
     .filter((p) => p.slug !== post.slug)
-    .map((p) => ({ post: p, shared: p.tags.filter((tag) => tags.has(tag)).length }))
-    .filter((entry) => entry.shared > 0)
-    .sort((a, b) => b.shared - a.shared || (a.post.date < b.post.date ? 1 : -1))
+    .map((candidate) => {
+      const sharedTags = (candidate.tags || []).filter((tag) => tags.has(tag)).length;
+      const linked = outgoing.has(candidate.slug) || (candidate.outgoingLinks || []).includes(post.slug);
+      const sameSeries = Boolean(post.series && candidate.series && post.series === candidate.series);
+      const sameCategory = Boolean(post.category && candidate.category && post.category === candidate.category);
+      const reasons = [];
+      let semanticScore = 0;
+      if (linked) {
+        semanticScore += 8;
+        reasons.push("linked");
+      }
+      if (sameSeries) {
+        semanticScore += 6;
+        reasons.push("series");
+      }
+      if (sameCategory) {
+        semanticScore += 3;
+        reasons.push("category");
+      }
+      if (sharedTags > 0) {
+        semanticScore += sharedTags * 2;
+        reasons.push("tags");
+      }
+      const candidateTime = Date.parse(candidate.modified || candidate.date || "") || 0;
+      const distanceDays = postTime && candidateTime ? Math.abs(postTime - candidateTime) / 86_400_000 : 3650;
+      const recencyAffinity = Math.max(0, 1 - distanceDays / 1825);
+      return {
+        post: {
+          ...candidate,
+          recommendation: {
+            score: Number((semanticScore + recencyAffinity).toFixed(3)),
+            reasons,
+            sharedTags,
+          },
+        },
+        semanticScore,
+        recencyAffinity,
+      };
+    })
+    .filter((entry) => entry.semanticScore > 0)
+    .sort((a, b) => b.semanticScore - a.semanticScore
+      || b.recencyAffinity - a.recencyAffinity
+      || String(b.post.modified || b.post.date || "").localeCompare(String(a.post.modified || a.post.date || "")))
     .slice(0, limit)
     .map((entry) => entry.post);
 }
@@ -385,7 +656,7 @@ function localizedPost(post) {
     shortTitle: post.shortTitleEn || post.shortTitle,
     summary: post.summaryEn || post.summary,
     tags: post.tagsEn || post.tags,
-    body: stripHtml(post.contentHtmlEn || post.contentHtml).slice(0, 600),
+    body: stripHtml(post.contentHtmlEn || post.contentHtml),
   };
 }
 
@@ -401,7 +672,9 @@ function buildSearchIndex(posts) {
       tags: p.tags,
       path: `/post/${p.slug}/`,
       slug: p.slug,
-      body: stripHtml(p.contentHtml).slice(0, 600),
+      category: p.category,
+      series: p.series,
+      body: stripHtml(p.contentHtml),
       i18n: {
         en: localizedPost(p),
       },
@@ -412,7 +685,7 @@ function buildSearchIndex(posts) {
 }
 
 // sitemap.xml：静态页 + 文章页（插入到 /post/ 之后），对齐现有顺序。
-function buildSitemap(posts) {
+function buildSitemap(posts, categories = collectCategories(posts), seriesGroups = collectSeries(posts)) {
   const siteLastmod = sitemapDate(posts[0].date);
   const rows = [];
 
@@ -431,10 +704,17 @@ function buildSitemap(posts) {
           .map((src) => `<image:image><image:loc>${escapeXml(absoluteUrl(src, post.slug))}</image:loc></image:image>`)
           .join("");
         rows.push(
-          `  <url><loc>${loc}</loc><lastmod>${sitemapDate(post.date)}</lastmod><priority>${POST_SITEMAP_PRIORITY}</priority>${images}</url>`,
+          `  <url><loc>${loc}</loc><lastmod>${sitemapDate(post.modified || post.date)}</lastmod><priority>${POST_SITEMAP_PRIORITY}</priority>${images}</url>`,
         );
       }
     }
+  }
+
+  for (const group of categories) {
+    rows.push(`  <url><loc>${escapeXml(`${SITE.baseURL}/categories/${group.id}/`)}</loc><lastmod>${siteLastmod}</lastmod><priority>0.6</priority></url>`);
+  }
+  for (const group of seriesGroups) {
+    rows.push(`  <url><loc>${escapeXml(`${SITE.baseURL}/series/${group.id}/`)}</loc><lastmod>${siteLastmod}</lastmod><priority>0.6</priority></url>`);
   }
 
   return `<?xml version="1.0" encoding="utf-8" standalone="yes"?>
@@ -480,7 +760,330 @@ function collectTags(posts) {
     );
 }
 
-// index.xml：RSS 2.0，对齐现有结构。
+function rssCdata(value) {
+  return String(value || "").replace(/]]>/g, "]]]]><![CDATA[>");
+}
+
+export function buildKnowledgeGraph(posts) {
+  const nodes = posts.map((post) => ({
+    id: post.slug,
+    title: post.title,
+    shortTitle: post.shortTitle,
+    url: `/post/${post.slug}/`,
+    category: post.category,
+    series: post.series,
+    date: post.date,
+    modified: post.modified || post.date,
+    tags: [...post.tags],
+    incomingLinks: post.backlinks?.length || 0,
+    outgoingLinks: post.outgoingLinks?.length || 0,
+  }));
+  const edges = [];
+  const seen = new Set();
+  const addEdge = (source, target, type, label, weight = 1) => {
+    if (!source || !target || source === target) return;
+    const key = `${source}:${target}:${type}`;
+    const reverseKey = `${target}:${source}:${type}`;
+    if (seen.has(key) || seen.has(reverseKey)) return;
+    seen.add(key);
+    edges.push({ source, target, type, label, weight });
+  };
+
+  for (let i = 0; i < posts.length; i++) {
+    for (let j = i + 1; j < posts.length; j++) {
+      const sharedTags = posts[i].tags.filter((tag) => posts[j].tags.includes(tag));
+      if (sharedTags.length) {
+        addEdge(posts[i].slug, posts[j].slug, "tag", sharedTags.join("、"), sharedTags.length);
+      }
+    }
+  }
+  for (const group of collectSeries(posts)) {
+    for (let index = 1; index < group.posts.length; index++) {
+      addEdge(group.posts[index - 1].slug, group.posts[index].slug, "series", group.name);
+    }
+  }
+  for (const post of posts) {
+    (post.outgoingLinks || []).forEach((target) => {
+      if (nodes.some((node) => node.id === target)) {
+        addEdge(post.slug, target, "reference", "文章引用");
+      }
+    });
+  }
+
+  const degree = new Map(nodes.map((node) => [node.id, 0]));
+  edges.forEach((edge) => {
+    degree.set(edge.source, degree.get(edge.source) + 1);
+    degree.set(edge.target, degree.get(edge.target) + 1);
+  });
+  nodes.forEach((node) => { node.connections = degree.get(node.id); });
+  const latestModified = nodes.reduce((latest, node) => node.modified > latest ? node.modified : latest, "1970-01-01");
+  return {
+    generatedAt: `${latestModified}T00:00:00.000Z`,
+    nodes,
+    edges,
+    stats: {
+      articles: nodes.length,
+      categories: new Set(nodes.map((node) => node.category)).size,
+      edges: edges.length,
+      orphans: nodes.filter((node) => node.connections === 0).length,
+      references: edges.filter((edge) => edge.type === "reference").length,
+      linkOrphans: nodes.filter((node) => node.incomingLinks + node.outgoingLinks === 0).length,
+    },
+  };
+}
+
+const CONTENT_TARGET_PER_CATEGORY = 5;
+const CONTENT_REVIEW_DAYS = 90;
+const CONTENT_STALE_DAYS = 180;
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+function daysBetween(start, end) {
+  return Math.max(0, Math.floor((Date.parse(`${end}T00:00:00Z`) - Date.parse(`${start}T00:00:00Z`)) / DAY_MS));
+}
+
+function currentMonthStart() {
+  const now = new Date();
+  return `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, "0")}-01`;
+}
+
+// 月初时钟让停更站点的陈旧度继续推进，同时把纯时间造成的生成产物变化
+// 限制为每月一次。测试和恢复构建可通过 asOf 显式固定评估日期。
+export function buildContentHealth(posts, graph = buildKnowledgeGraph(posts), { asOf: requestedAsOf } = {}) {
+  const latestModified = graph.generatedAt.slice(0, 10);
+  const clockDate = normalizeDate(requestedAsOf || process.env.CWL_CONTENT_AS_OF || currentMonthStart());
+  const asOf = clockDate > latestModified ? clockDate : latestModified;
+  const nodesById = new Map(graph.nodes.map((node) => [node.id, node]));
+  const articles = posts.map((post) => {
+    const node = nodesById.get(post.slug);
+    const modified = post.modified || post.date;
+    const ageDays = daysBetween(modified, asOf);
+    const freshness = ageDays > CONTENT_STALE_DAYS
+      ? "stale"
+      : ageDays > CONTENT_REVIEW_DAYS ? "review" : "current";
+    const linkOrphan = (node?.incomingLinks || 0) + (node?.outgoingLinks || 0) === 0;
+    const graphOrphan = (node?.connections || 0) === 0;
+    const sparseTags = (post.tags?.length || 0) < 2;
+    const score = (freshness === "stale" ? 4 : freshness === "review" ? 2 : 0)
+      + (linkOrphan ? 3 : 0)
+      + (graphOrphan ? 2 : 0)
+      + (sparseTags ? 1 : 0);
+    const reasons = [];
+    if (freshness === "stale") reasons.push(`超过 ${CONTENT_STALE_DAYS} 天未更新`);
+    else if (freshness === "review") reasons.push(`超过 ${CONTENT_REVIEW_DAYS} 天未更新`);
+    if (linkOrphan) reasons.push("缺少正文入链或出链");
+    if (graphOrphan) reasons.push("未形成知识关联");
+    if (sparseTags) reasons.push("主题标签少于 2 个");
+    return {
+      slug: post.slug,
+      title: post.title,
+      shortTitle: post.shortTitle,
+      url: `/post/${post.slug}/`,
+      category: post.category,
+      modified,
+      ageDays,
+      freshness,
+      linkOrphan,
+      graphOrphan,
+      sparseTags,
+      score,
+      reasons,
+    };
+  });
+
+  const categories = Object.entries(CONTENT_CATEGORIES).map(([id, meta]) => {
+    const categoryArticles = articles.filter((article) => article.category === id);
+    const latestModified = categoryArticles.reduce(
+      (latest, article) => article.modified > latest ? article.modified : latest,
+      "",
+    );
+    return {
+      id,
+      name: meta.name,
+      count: categoryArticles.length,
+      target: CONTENT_TARGET_PER_CATEGORY,
+      coverage: Math.min(100, Math.round((categoryArticles.length / CONTENT_TARGET_PER_CATEGORY) * 100)),
+      gap: Math.max(0, CONTENT_TARGET_PER_CATEGORY - categoryArticles.length),
+      latestModified: latestModified || null,
+      stale: categoryArticles.filter((article) => article.freshness === "stale").length,
+    };
+  });
+  const maintenance = articles
+    .filter((article) => article.score > 0)
+    .sort((left, right) => right.score - left.score || left.modified.localeCompare(right.modified))
+    .slice(0, 10);
+
+  return {
+    version: 1,
+    asOf,
+    policy: {
+      categoryTarget: CONTENT_TARGET_PER_CATEGORY,
+      reviewAfterDays: CONTENT_REVIEW_DAYS,
+      staleAfterDays: CONTENT_STALE_DAYS,
+      clock: "monthly-or-latest-content",
+    },
+    stats: {
+      articles: articles.length,
+      current: articles.filter((article) => article.freshness === "current").length,
+      review: articles.filter((article) => article.freshness === "review").length,
+      stale: articles.filter((article) => article.freshness === "stale").length,
+      linkOrphans: articles.filter((article) => article.linkOrphan).length,
+      graphOrphans: articles.filter((article) => article.graphOrphan).length,
+      categoryGap: categories.reduce((total, category) => total + category.gap, 0),
+    },
+    categories,
+    articles,
+    maintenance,
+  };
+}
+
+function knowledgePlainText(markdown) {
+  return String(markdown || "")
+    .replace(/```[^\n]*\n([\s\S]*?)```/g, "$1")
+    .replace(/`([^`]+)`/g, "$1")
+    .replace(/!\[([^\]]*)\]\([^)]*\)/g, "$1")
+    .replace(/\[([^\]]+)\]\([^)]*\)/g, "$1")
+    .replace(/\[\[([A-Za-z0-9_-]+)(?:\|([^\]\n]+))?\]\]/g, (_, slug, label) => label || slug)
+    .replace(/<[^>]+>/g, " ")
+    .replace(/^\s{0,3}(?:#{1,6}|>|[-*+]\s|\d+\.\s)\s*/gm, "")
+    .replace(/[\t ]+/g, " ")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
+function splitKnowledgeText(text, maxLength = 1100, overlap = 140) {
+  const paragraphs = text.split(/\n{2,}/).map((part) => part.trim()).filter(Boolean);
+  const chunks = [];
+  let current = "";
+  for (const paragraph of paragraphs) {
+    if (paragraph.length > maxLength) {
+      const prefix = current.trim();
+      let start = 0;
+      const available = maxLength - prefix.length - 2;
+      if (prefix && available >= 100) {
+        chunks.push(`${prefix}\n\n${paragraph.slice(0, available)}`);
+        start = Math.max(0, available - overlap);
+      } else if (prefix) {
+        chunks.push(prefix);
+      }
+      for (let offset = start; offset < paragraph.length; offset += maxLength - overlap) {
+        chunks.push(paragraph.slice(offset, offset + maxLength).trim());
+      }
+      current = "";
+      continue;
+    }
+    const next = current ? `${current}\n\n${paragraph}` : paragraph;
+    if (next.length <= maxLength) {
+      current = next;
+      continue;
+    }
+    const previous = current.trim();
+    if (previous) chunks.push(previous);
+    const tail = previous.slice(Math.max(0, previous.length - overlap));
+    current = tail && tail.length + paragraph.length + 2 <= maxLength
+      ? `${tail}\n\n${paragraph}`
+      : paragraph;
+  }
+  if (current.trim()) chunks.push(current.trim());
+  return [...new Set(chunks.filter((chunk) => chunk.length >= 40))];
+}
+
+function sha256Text(value) {
+  return createHash("sha256").update(value).digest("hex");
+}
+
+export function buildKnowledgeChunks(posts) {
+  const chunks = [];
+  const documents = posts.map((post) => {
+    const text = knowledgePlainText(post.contentMarkdown || stripHtml(post.contentHtml || ""));
+    const documentHash = sha256Text(`${post.slug}\n${post.modified || post.date}\n${text}`);
+    const parts = splitKnowledgeText(text);
+    parts.forEach((part, ordinal) => {
+      const hash = sha256Text(`${documentHash}:${ordinal}:${part}`);
+      chunks.push({
+        id: `${post.slug}-${ordinal}-${hash.slice(0, 12)}`,
+        documentId: post.slug,
+        ordinal,
+        title: post.title,
+        path: `/post/${post.slug}/`,
+        text: part,
+        hash,
+        category: post.category,
+        series: post.series || "",
+        tags: [...(post.tags || [])],
+        modified: post.modified || post.date,
+      });
+    });
+    return {
+      id: post.slug,
+      title: post.title,
+      path: `/post/${post.slug}/`,
+      contentHash: documentHash,
+      modified: post.modified || post.date,
+      chunkCount: parts.length,
+    };
+  });
+  const datasetHash = sha256Text(documents.map((document) => `${document.id}:${document.contentHash}`).join("\n"));
+  return { version: 1, datasetHash, documents, chunks };
+}
+
+export function buildAssetReferences(posts) {
+  const references = new Set();
+  const pattern = /(?:^|[(/"'\s])(images\/uploads\/[A-Za-z0-9][A-Za-z0-9._/-]*\.(?:avif|jpe?g|png|webp))(?=$|[?#)"'\s])/gi;
+  for (const post of posts) {
+    const sources = [post.cover || "", post.contentMarkdown || ""];
+    for (const source of sources) {
+      pattern.lastIndex = 0;
+      let match;
+      while ((match = pattern.exec(String(source)))) {
+        const key = match[1];
+        if (!key.includes("..")) references.add(key);
+      }
+    }
+  }
+  const sorted = [...references].sort();
+  return {
+    version: 1,
+    contentHash: sha256Text(sorted.join("\n")),
+    references: sorted,
+  };
+}
+
+export function collectCategories(posts) {
+  return Object.entries(CONTENT_CATEGORIES)
+    .map(([id, meta]) => ({ id, ...meta, posts: posts.filter((post) => post.category === id) }))
+    .filter((group) => group.posts.length > 0)
+    .sort((a, b) => b.posts.length - a.posts.length || a.name.localeCompare(b.name, "zh-Hans-CN"));
+}
+
+export function collectSeries(posts) {
+  return Object.entries(CONTENT_SERIES)
+    .map(([id, meta]) => ({
+      id,
+      ...meta,
+      posts: posts
+        .filter((post) => post.series === id)
+        .sort((a, b) => a.seriesOrder - b.seriesOrder),
+    }))
+    .filter((group) => group.posts.length > 0)
+    .sort((a, b) => a.name.localeCompare(b.name, "zh-Hans-CN"));
+}
+
+export function buildSeriesContext(post, groups) {
+  if (!post.series) return null;
+  const group = groups.find((candidate) => candidate.id === post.series);
+  if (!group) return null;
+  const index = group.posts.findIndex((candidate) => candidate.slug === post.slug);
+  return {
+    id: group.id,
+    name: group.name,
+    index,
+    total: group.posts.length,
+    prev: group.posts[index - 1] || null,
+    next: group.posts[index + 1] || null,
+  };
+}
+
+// index.xml：RSS 2.0，全量输出正文，读者无需跳出阅读器才能阅读。
 function buildRssItems(posts) {
   return posts
     .map((post) => {
@@ -491,12 +1094,13 @@ function buildRssItems(posts) {
       <pubDate>${rfc822(post.date)}</pubDate>
       <guid>${escapeXml(url)}</guid>
       <description>${escapeXml(post.description)}</description>
+      <content:encoded><![CDATA[${rssCdata(post.contentHtml)}]]></content:encoded>
     </item>`;
     })
     .join("\n");
 }
 
-function buildStats(posts) {
+export function buildStats(posts) {
   const years = [...new Set(posts.map((post) => post.date.slice(0, 4)))];
   const startYear = years[years.length - 1];
   const endYear = years[0];
@@ -511,11 +1115,15 @@ function buildStats(posts) {
 }
 
 function buildRssFeed(posts, { title, link, description, selfHref }) {
-  const lastBuild = rfc822(posts[0].date);
+  const latestModified = posts.reduce((latest, post) => {
+    const value = post.modified || post.date;
+    return value > latest ? value : latest;
+  }, posts[0].modified || posts[0].date);
+  const lastBuild = rfc822(latestModified);
   const items = buildRssItems(posts);
 
   return `<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title>${escapeXml(title)}</title>
     <link>${escapeXml(link)}</link>
@@ -566,6 +1174,11 @@ async function main() {
   }
 
   const stats = buildStats(posts);
+  const categories = collectCategories(posts);
+  const seriesGroups = collectSeries(posts);
+  const knowledgeGraph = buildKnowledgeGraph(posts);
+  const contentHealth = buildContentHealth(posts, knowledgeGraph);
+  const knowledgeChunks = buildKnowledgeChunks(posts);
 
   // 单篇页
   for (let i = 0; i < posts.length; i++) {
@@ -574,6 +1187,8 @@ async function main() {
       prev: posts[i - 1] || null,
       next: posts[i + 1] || null,
       related: relatedPosts(post, posts),
+      backlinks: post.backlinks,
+      series: buildSeriesContext(post, seriesGroups),
     };
     await writeFileEnsured(`post/${post.slug}/index.html`, renderPostPage(post, nav) + "\n");
   }
@@ -585,7 +1200,22 @@ async function main() {
   await writeFileEnsured("tags/index.html", renderTagsPage(collectTags(posts)) + "\n");
 
   // 时间归档页
-  await writeFileEnsured("categories/index.html", renderCategoriesPage(posts, stats) + "\n");
+  await writeFileEnsured("categories/index.html", renderCategoriesPage(posts, stats, categories) + "\n");
+  for (const group of categories) {
+    await writeFileEnsured(`categories/${group.id}/index.html`, renderTaxonomyDetail(group, "category") + "\n");
+  }
+
+  // 系列页按 order 提供连续阅读路径。
+  await writeFileEnsured("series/index.html", renderSeriesIndex(seriesGroups) + "\n");
+  for (const group of seriesGroups) {
+    await writeFileEnsured(`series/${group.id}/index.html`, renderTaxonomyDetail(group, "series") + "\n");
+  }
+
+  await writeFileEnsured("knowledge/index.html", renderKnowledgePage(knowledgeGraph, contentHealth) + "\n");
+  await writeFileEnsured("knowledge/graph.json", JSON.stringify(knowledgeGraph, null, 2) + "\n");
+  await writeFileEnsured("knowledge/health.json", JSON.stringify(contentHealth, null, 2) + "\n");
+  await writeFileEnsured("knowledge/chunks.json", JSON.stringify(knowledgeChunks) + "\n");
+  await writeFileEnsured("asset-references.json", JSON.stringify(buildAssetReferences(posts), null, 2) + "\n");
 
   // AI 导航页
   await writeFileEnsured("ai/index.html", renderAiPage() + "\n");
@@ -600,7 +1230,7 @@ async function main() {
   await writeFileEnsured("sponsor/index.html", renderSponsorPage() + "\n");
 
   // sitemap + RSS
-  await writeFileEnsured("sitemap.xml", buildSitemap(posts) + "\n");
+  await writeFileEnsured("sitemap.xml", buildSitemap(posts, categories, seriesGroups) + "\n");
   await writeFileEnsured("robots.txt", buildRobots() + "\n");
   await writeFileEnsured("index.xml", buildRss(posts) + "\n");
   await writeFileEnsured("post/index.xml", buildPostRss(posts) + "\n");

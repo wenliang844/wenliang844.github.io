@@ -5,30 +5,67 @@
   "type": "module",
   "description": "CWLBlog 静态站点构建脚本：从 src/posts/*.md 生成文章页、列表页、sitemap 与 RSS。",
   "engines": {
-    "node": "20 || >=22"
+    "node": ">=22.12.0"
   },
   "scripts": {
-    "build": "node scripts/build.mjs",
+    "build": "npm run build:editor && npm run build:content && npm run build:astro && npm run build:pwa && npm run build:csp && npm run build:search",
+    "build:editor": "node scripts/build-editor.mjs",
+    "build:content": "node scripts/build.mjs",
+    "build:astro": "astro build && node scripts/sync-astro-output.mjs",
+    "build:pwa": "node scripts/version-service-worker.mjs",
+    "build:csp": "node scripts/harden-csp.mjs",
+    "build:search": "pagefind --site . --output-subdir pagefind --glob \"{index.html,post/**/*.html,categories/**/*.html,series/**/*.html,knowledge/**/*.html,tags/**/*.html,tools/**/*.html,ai/**/*.html,appreciation/**/*.html,sponsor/**/*.html}\" --force-language zh --include-characters \"+#_.\"",
     "test": "node --test tests/*.test.mjs",
     "test:assistant": "node --test tests/assistant.test.mjs tests/assistant-enter.test.mjs tests/assistant-tools-page.test.mjs",
     "test:toolbox": "node --test tests/assistant.test.mjs tests/assistant-enter.test.mjs tests/assistant-tools-page.test.mjs tests/tools.test.mjs",
     "test:tools": "node --test tests/tools.test.mjs",
-    "test:coverage": "node --test --experimental-test-coverage --test-coverage-lines=90 --test-coverage-branches=70 --test-coverage-functions=85 tests/*.test.mjs",
+    "test:coverage": "node --test --test-concurrency=2 --experimental-test-coverage --test-coverage-exclude=temp/** --test-coverage-lines=90 --test-coverage-branches=70 --test-coverage-functions=85 tests/*.test.mjs",
+    "test:e2e": "playwright test",
+    "eval:knowledge": "node --test tests/knowledge-retrieval.test.mjs",
     "test:watch": "node --test --watch tests/*.test.mjs",
     "lint": "eslint js/*.js --fix",
     "lint:check": "eslint js/*.js",
-    "check:readonly": "npm run lint:check && npm test && npm run validate:posts",
-    "serve": "npx --yes http-server . -p 8137 -c-1",
+    "check:types": "astro sync && tsc --noEmit",
+    "check:astro": "astro check",
+    "check:worker": "wrangler deploy --dry-run --outdir temp/worker-dry-run --config worker/wrangler.toml",
+    "check:editor": "node scripts/build-editor.mjs --check",
+    "check:readonly": "npm run lint:check && npm run check:types && npm run check:astro && npm run check:worker && npm run check:editor && npm test && npm run validate:posts",
+    "dev:worker": "wrangler dev --config worker/wrangler.toml",
+    "deploy:worker": "wrangler deploy --config worker/wrangler.toml",
+    "serve": "node scripts/serve.mjs",
+    "security:secrets": "node scripts/scan-secrets.mjs",
+    "backup:content": "node scripts/backup-content.mjs",
+    "verify:backup": "node scripts/backup-content.mjs --verify",
     "dev": "npm run build && npm run serve",
     "validate": "npm run lint && npm test && npm run validate:posts && npm run build",
     "validate:production": "node scripts/validate-production.mjs",
     "validate:posts": "node scripts/validate-posts.mjs",
     "precommit": "npm run validate"
   },
+  "overrides": {
+    "undici": "^7.29.0"
+  },
   "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "@codemirror/autocomplete": "^6.20.3",
+    "@codemirror/lang-markdown": "^6.5.2",
+    "@codemirror/lint": "^6.9.7",
+    "@codemirror/state": "^6.7.1",
+    "@codemirror/view": "^6.43.8",
+    "@playwright/test": "^1.55.1",
+    "astro": "^7.2.0",
+    "codemirror": "^6.0.2",
+    "esbuild": "^0.28.1",
     "eslint": "^8.57.0",
     "jsdom": "^27.0.1",
     "marked": "^18.0.5",
+    "pagefind": "^1.4.0",
+    "sharp": "^0.35.3",
+    "typescript": "^5.9.3",
+    "wrangler": "^4.119.0",
     "yaml": "^2.9.0"
+  },
+  "optionalDependencies": {
+    "@rolldown/binding-win32-x64-msvc": "^1.2.3"
   }
 }
