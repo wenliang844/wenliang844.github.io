@@ -60,8 +60,8 @@ test("generated relay data does not contain known secret markers", async () => {
   assert.ok(Array.isArray(data.commercialProviders));
   assert.equal(data.meta.sections.linuxdo.label, "LinuxDo 站");
   assert.equal(data.meta.sections.commercial.label, "商业站");
-  assert.ok(data.providers.length > 0);
-  assert.ok(data.providers.every((provider) => provider.name && provider.format && provider.endpoint));
+  assert.equal(data.providers.length, 0);
+  assert.equal(data.meta.sections.linuxdo.totalProviders, 0);
 });
 
 test("commercial relay sync merges multiple sources and skips failed sources", async () => {

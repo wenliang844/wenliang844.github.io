@@ -201,9 +201,11 @@ test("renderAiPage includes the relay ranking tab content", () => {
   assert.match(html, /id="relay-search-input"/);
   assert.match(html, /aria-label="搜索中转站"/);
   assert.match(html, /data-i18n-aria="relay\.search\.aria"/);
-  assert.match(html, /LinuxDo 站/);
+  assert.match(html, /ChatGPT 官方订阅/);
+  assert.match(html, /Claude 官方订阅/);
+  assert.match(html, /sub2api 自建拼车/);
   assert.match(html, /商业站/);
-  assert.match(html, /id="relay-list-linuxdo"/);
+  assert.doesNotMatch(html, /id="relay-list-linuxdo"/);
   assert.match(html, /id="relay-list-commercial"/);
   assert.match(html, /src="\/js\/relay\.js"/);
   assert.match(html, /href="https:\/\/wenliang844\.github\.io\/ai\/"/);
@@ -449,11 +451,11 @@ test("renderPostList groups posts by year with correct counts", () => {
   assert.match(html, /2023/);
   assert.match(html, /3/); // count
   assert.match(html, /2023-2024/); // range
-  assert.match(html, /data-language-mode="zh-only"/);
-  assert.doesNotMatch(html, /class="lang-toggle"/);
+  assert.match(html, /data-language-mode="bilingual"/);
+  assert.match(html, /class="lang-toggle"/);
 });
 
-test("renderPostList uses scannable summary cards without embedding article bodies", () => {
+test("renderPostList embeds switchable article panels for the three-column reading layout", () => {
   const articleBody = '<h2 id="toc-1-overview">Private body marker</h2><p>Long article content</p>';
   const posts = [
     { slug: "a", shortTitle: "A", shortTitleEn: "A", title: "A", titleEn: "A", date: "2024-06-01", eyebrow: "项目", summary: "Summary A", summaryEn: "S", tags: [], tagsEn: [], contentHtml: articleBody, contentHtmlEn: "", readMinutes: 1, images: [] },
@@ -462,13 +464,13 @@ test("renderPostList uses scannable summary cards without embedding article bodi
   const stats = { count: 2, systems: 1, startYear: "2024", endYear: "2024", yearCount: 1, range: "2024" };
   const html = renderPostList(posts, stats);
 
-  assert.equal((html.match(/class="post-summary-card"/g) || []).length, 2);
+  assert.equal((html.match(/class="article blog-article/g) || []).length, 2);
+  assert.equal((html.match(/class="article blog-article active"/g) || []).length, 1);
   assert.match(html, /Summary A/);
-  assert.match(html, /href="\/post\/a\/"/);
-  assert.doesNotMatch(html, /Private body marker/);
-  assert.doesNotMatch(html, /class="article-content"/);
-  assert.doesNotMatch(html, /id="giscus-thread"/);
-  assert.doesNotMatch(html, /src="\/js\/giscus\.js"/);
+  assert.match(html, /Private body marker/);
+  assert.match(html, /class="article-content"/);
+  assert.match(html, /id="giscus-thread"/);
+  assert.match(html, /src="\/js\/giscus\.js"/);
 });
 
 test("renderPostList renders search input and tag filter", () => {
@@ -482,7 +484,7 @@ test("renderPostList renders search input and tag filter", () => {
   assert.match(html, /id="tag-filter"/);
 });
 
-test("renderPostList keeps stable card anchors and single-post links", () => {
+test("renderPostList keeps stable panel anchors and prefixes repeated heading ids", () => {
   const repeatedContent = '<h2 id="toc-1-overview">Overview</h2>';
   const posts = [
     { slug: "alpha", shortTitle: "A", shortTitleEn: "A", title: "A", titleEn: "A", date: "2024-01-02", eyebrow: "项目", summary: "S", summaryEn: "S", tags: [], tagsEn: [], contentHtml: repeatedContent, contentHtmlEn: "", readMinutes: 1, images: [] },
@@ -491,10 +493,9 @@ test("renderPostList keeps stable card anchors and single-post links", () => {
   const stats = { count: 2, systems: 1, startYear: "2024", endYear: "2024", yearCount: 1, range: "2024" };
   const html = renderPostList(posts, stats);
   assert.match(html, /id="post-alpha"/);
-  assert.match(html, /href="#post-alpha"/);
-  assert.match(html, /href="\/post\/alpha\/"/);
+  assert.match(html, /href="#alpha"/);
+  assert.match(html, /id="post-alpha-toc-1-overview"/);
   assert.match(html, /id="post-beta"/);
-  assert.match(html, /href="#post-beta"/);
-  assert.match(html, /href="\/post\/beta\/"/);
-  assert.doesNotMatch(html, /toc-1-overview/);
+  assert.match(html, /href="#beta"/);
+  assert.match(html, /id="post-beta-toc-1-overview"/);
 });

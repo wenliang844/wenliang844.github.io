@@ -509,8 +509,11 @@
       return;
     }
 
+    const compactToc = window.matchMedia
+      ? window.matchMedia("(max-width: 768px)").matches
+      : false;
     const toc = document.createElement("aside");
-    toc.className = "article-toc is-open";
+    toc.className = compactToc ? "article-toc is-collapsed" : "article-toc is-open";
     toc.setAttribute("aria-label", t("dyn.toc.aria", "目录"));
     toc.setAttribute("data-toc-lang", contentBlock.getAttribute("data-i18n-lang") || "content");
     toc.hidden = contentBlock.hidden;
@@ -518,7 +521,7 @@
     const toggle = document.createElement("button");
     toggle.type = "button";
     toggle.className = "article-toc-toggle";
-    toggle.setAttribute("aria-expanded", "true");
+    toggle.setAttribute("aria-expanded", String(!compactToc));
     toggle.setAttribute("aria-label", t("dyn.toc.aria", "目录"));
     toggle.innerHTML = '<i class="fas fa-list" aria-hidden="true"></i><span>' +
       t("dyn.toc", "目录") +

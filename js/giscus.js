@@ -96,9 +96,19 @@
     return script;
   }
 
+  function afterPageLoad(callback) {
+    if (document.readyState === "complete") {
+      callback();
+      return;
+    }
+    window.addEventListener("load", callback, { once: true });
+  }
+
   /* ---- 单篇页：pathname 映射直接加载 ----------------------------------- */
   if (!isSwitchMode) {
-    thread.appendChild(buildScript());
+    afterPageLoad(function () {
+      thread.appendChild(buildScript());
+    });
     return;
   }
 
@@ -135,7 +145,9 @@
     }
   }
 
-  showTerm(activeTerm());
+  afterPageLoad(function () {
+    showTerm(activeTerm());
+  });
 
   // 面板 active 类变化时（树链接 / 搜索 / 标签筛选都经由它）切换讨论线程。
   const observer = new MutationObserver(function (mutations) {

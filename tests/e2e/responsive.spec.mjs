@@ -24,8 +24,9 @@ async function openAssistant(page) {
 
 test("article list remains scannable without horizontal overflow", async ({ page }, testInfo) => {
   await page.goto("/post/");
-  await expect(page.locator(".post-summary-card")).toHaveCount(6);
-  await expect(page.locator(".post-summary-card picture").first()).toBeVisible();
+  await expect(page.locator(".blog-article")).toHaveCount(6);
+  await expect(page.locator(".blog-article.active")).toHaveCount(1);
+  await expect(page.locator(".blog-article.active .article-content")).toBeVisible();
   const dimensions = await page.evaluate(() => ({
     documentWidth: document.documentElement.scrollWidth,
     viewportWidth: document.documentElement.clientWidth,

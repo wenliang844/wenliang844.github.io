@@ -162,18 +162,14 @@
     return card;
   }
 
-  function setStats(linuxdoProviders, commercialProviders) {
+  function setStats(commercialProviders) {
     const total = document.getElementById("relay-total");
-    const linuxdo = document.getElementById("relay-linuxdo-total");
     const commercial = document.getElementById("relay-commercial-total");
     const healthy = document.getElementById("relay-healthy");
     const current = document.getElementById("relay-current");
-    const providers = linuxdoProviders.concat(commercialProviders);
+    const providers = commercialProviders;
     if (total) {
       total.textContent = String(providers.length);
-    }
-    if (linuxdo) {
-      linuxdo.textContent = String(linuxdoProviders.length);
     }
     if (commercial) {
       commercial.textContent = String(commercialProviders.length);
@@ -199,33 +195,25 @@
   }
 
   function normalizeSections(data) {
-    const linuxdoMeta = getSectionMeta(data, "linuxdo");
     const commercialMeta = getSectionMeta(data, "commercial");
     return {
-      linuxdo: (Array.isArray(data.providers) ? data.providers : []).map(function (provider) {
-        return { ...provider, site: "linuxdo", siteLabel: linuxdoMeta.label || "LinuxDo 站" };
-      }),
       commercial: (Array.isArray(data.commercialProviders) ? data.commercialProviders : []).map(function (provider) {
         return { ...provider, site: "commercial", siteLabel: commercialMeta.label || "商业站" };
       }),
-      linuxdoUpdatedAt: linuxdoMeta.generatedAt || data.meta && data.meta.generatedAt,
       commercialUpdatedAt: commercialMeta.generatedAt || data.commercialMeta && data.commercialMeta.generatedAt,
     };
   }
 
   function init() {
-    const linuxdoList = document.getElementById("relay-list-linuxdo");
     const commercialList = document.getElementById("relay-list-commercial");
     const search = document.getElementById("relay-search-input");
     const filters = Array.from(document.querySelectorAll("[data-relay-filter]"));
-    if (!linuxdoList || !commercialList) {
+    if (!commercialList) {
       return;
     }
 
     let sections = {
-      linuxdo: [],
       commercial: [],
-      linuxdoUpdatedAt: null,
       commercialUpdatedAt: null,
     };
     let activeFilter = "all";
@@ -250,7 +238,6 @@
     }
 
     function render() {
-      renderList(linuxdoList, sections.linuxdo, "没有匹配的 LinuxDo 站中转。");
       renderList(commercialList, sections.commercial, sections.commercial.length ? "没有匹配的商业站中转。" : "商业站数据等待 GitHub Actions 同步。");
     }
 
@@ -276,21 +263,15 @@
       })
       .then(function (data) {
         sections = normalizeSections(data || {});
-        setStats(sections.linuxdo, sections.commercial);
-        const linuxdoUpdated = document.getElementById("relay-linuxdo-updated");
+        setStats(sections.commercial);
         const commercialUpdated = document.getElementById("relay-commercial-updated");
-        if (linuxdoUpdated) {
-          linuxdoUpdated.textContent = updatedLabel(sections.linuxdoUpdatedAt);
-        }
         if (commercialUpdated) {
           commercialUpdated.textContent = updatedLabel(sections.commercialUpdatedAt);
         }
         render();
       })
       .catch(function () {
-        linuxdoList.textContent = "";
         commercialList.textContent = "";
-        linuxdoList.appendChild(el("p", "relay-empty", "LinuxDo 站数据加载失败。"));
         commercialList.appendChild(el("p", "relay-empty", "商业站数据加载失败。"));
       });
   }

@@ -35,10 +35,10 @@ function renderRevision(post) {
   return `<div class="article-revision"><span>发布于 <time datetime="${published}">${longDate(published)}</time></span>${updated}${history}</div>`;
 }
 
-// 列表页用：标签按钮由 blog.js 接管就地筛选。
-function renderListTags(post) {
+// 博客总览用：标签由 blog.js 接管就地筛选。
+function renderPanelTags(post) {
   return post.tags.map((tag, index) => {
-    return `<button class="post-list-tag" type="button" data-tag="${escapeAttr(tag)}" data-i18n="post.${post.slug}.tag.${index}" data-i18n-en="${escapeAttr(tagEn(post, tag, index))}">${escapeHtml(tag)}</button>`;
+    return `<span data-tag="${escapeAttr(tag)}" data-i18n="post.${post.slug}.tag.${index}" data-i18n-en="${escapeAttr(tagEn(post, tag, index))}">${escapeHtml(tag)}</span>`;
   }).join("");
 }
 
@@ -399,9 +399,11 @@ ${renderNextPopup(nav.next, nav.prev)}
 }
 
 // 列表页左侧树形导航中的单条链接。
-function renderTreeLink(post) {
+function renderTreeLink(post, isFirst) {
+  const activeClass = isFirst ? " active" : "";
+  const ariaCurrent = isFirst ? ' aria-current="page"' : "";
   return `                <li>
-                  <a class="post-tree-link" href="#post-${post.slug}" data-post-target="post-${post.slug}">
+                  <a class="post-tree-link${activeClass}" href="#${post.slug}" data-post-target="post-${post.slug}"${ariaCurrent}>
                     <span class="tree-title" ${i18nText(`post.${post.slug}.shortTitle`, post.shortTitle, enValue(post, "shortTitle"))}>${escapeHtml(post.shortTitle)}</span>
                     <time datetime="${isoDate(post.date)}">${isoDate(post.date)}</time>
                   </a>
@@ -422,9 +424,9 @@ function groupPostsByYear(posts) {
   return groups;
 }
 
-function renderTreeGroup(group) {
+function renderTreeGroup(group, activeSlug) {
   const links = group.posts
-    .map((post) => renderTreeLink(post))
+    .map((post) => renderTreeLink(post, post.slug === activeSlug))
     .join("\n");
   return `            <details class="tree-group" open>
               <summary>
@@ -437,26 +439,26 @@ ${links}
             </details>`;
 }
 
-// 列表页只输出扫描所需的元数据，正文只存在于单篇 URL，避免列表体积随全文增长。
-function renderPostCard(post) {
-  return `          <article class="post-summary-card" id="post-${escapeAttr(post.slug)}" data-post-slug="${escapeAttr(post.slug)}">
-            <span id="${escapeAttr(post.slug)}" class="legacy-post-anchor" aria-hidden="true"></span>
-${renderCover(post)}
-            <div class="post-summary-meta">
+// 博客总览中的完整文章面板。左侧时间轴切换面板，coder.js 按正文生成右侧目录。
+function renderArticlePanel(post, isFirst) {
+  const activeClass = isFirst ? " active" : "";
+  return `          <span class="post-anchor" id="${escapeAttr(post.slug)}" aria-hidden="true"></span>
+          <article class="article blog-article${activeClass}" id="post-${escapeAttr(post.slug)}" data-post-slug="${escapeAttr(post.slug)}">
+            <header class="article-header">
               <span class="eyebrow">${escapeHtml(post.eyebrow)}</span>
+              <h2 ${i18nText(`post.${post.slug}.title`, post.title, enValue(post, "title"))}>${escapeHtml(post.title)}</h2>
+              <div class="article-meta">
               <time datetime="${isoDate(post.date)}">${longDate(post.date)}</time>
+                <span>·</span>
               ${renderReadingTime(post)}
-            </div>
-            <h2><a href="/post/${post.slug}/" ${i18nText(`post.${post.slug}.title`, post.title, enValue(post, "title"))}>${escapeHtml(post.title)}</a></h2>
+              </div>
             <p class="article-summary" ${i18nText(`post.${post.slug}.summary`, post.summary, enValue(post, "summary"))}>${escapeHtml(post.summary)}</p>
-            <div class="post-tags" aria-label="文章标签">
-              ${renderListTags(post)}
-            </div>
-${renderTaxonomy(post)}
-            <a class="post-summary-link" href="/post/${post.slug}/" aria-label="阅读全文：${escapeAttr(post.shortTitle)}">
-              <span data-i18n="post.readMore" data-i18n-en="Read article">阅读全文</span>
-              <span aria-hidden="true">→</span>
-            </a>
+              <div class="post-tags" aria-label="文章标签">
+                ${renderPanelTags(post)}
+              </div>
+            </header>
+${renderI18nContent(post, "            ", { headingIdPrefix: `post-${post.slug}` })}
+${renderShare(post)}
           </article>`;
 }
 
@@ -467,10 +469,10 @@ ${renderTaxonomy(post)}
  */
 export function renderPostList(posts, stats) {
   const treeGroups = groupPostsByYear(posts)
-    .map((group) => renderTreeGroup(group))
+    .map((group) => renderTreeGroup(group, posts[0].slug))
     .join("\n");
-  const cards = posts
-    .map((post) => renderPostCard(post))
+  const panels = posts
+    .map((post, index) => renderArticlePanel(post, index === 0))
     .join("\n\n");
 
   const main = `    <main id="main-content" class="content">
@@ -505,9 +507,12 @@ ${treeGroups}
           <div class="tag-filter" id="tag-filter" aria-label="按标签筛选" data-i18n-aria="post.tagfilter.aria"></div>
         </aside>
 
-        <section class="post-detail" aria-label="文章列表" data-i18n-aria="post.tree.aria">
-${cards}
-          <p class="post-list-empty" hidden aria-live="polite"></p>
+        <section class="post-detail" aria-live="polite">
+${panels}
+          <section class="comments" aria-label="评论" data-i18n-aria="post.comments.aria">
+            <h2 data-i18n="post.comments" data-i18n-html><i class="fas fa-comments" aria-hidden="true"></i> 评论</h2>
+            <div id="giscus-thread" data-giscus-mode="switch"></div>
+          </section>
         </section>
       </section>
     </main>`;
@@ -520,9 +525,8 @@ ${cards}
     titleEn: "Posts :: CWLBlog",
     active: "blog",
     page: "posts",
-    scripts: ["/js/blog.js?v=20260806"],
+    scripts: ["/js/blog.js?v=20260810", "/js/vendor/qrcode.min.js", "/js/share.js", "/js/giscus.js"],
     jsonLd: buildPostListJsonLd(posts, description),
-    languageMode: "zh-only",
     og: { type: "website", title: "Posts", description, path: "/post/" },
     main,
   });

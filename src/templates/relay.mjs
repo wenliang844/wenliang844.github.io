@@ -2,9 +2,44 @@ export function renderRelayContent({ includeHero = true } = {}) {
   return `${includeHero ? `        <header class="relay-hero">
           <span class="eyebrow"><i class="fas fa-network-wired" aria-hidden="true"></i> AI Relay</span>
           <h1>中转站排行榜</h1>
-          <p class="lead">中转站分为 LinuxDo 站和商业站。当前 LinuxDo 数据来自 CC Switch 脱敏导出，商业站通过 GitHub Actions 对接外部数据自动更新。</p>
+          <p class="lead">优先选择官方订阅，也可以通过自建 sub2api 与可信成员拼车；商业中转站榜单由 GitHub Actions 对接外部数据自动更新。</p>
         </header>
-` : ""}        <section class="relay-score-note" aria-label="评分规则">
+` : ""}        <section class="relay-access" aria-labelledby="relay-access-title">
+          <header class="relay-access-head">
+            <span class="eyebrow"><i class="fas fa-link" aria-hidden="true"></i> Access</span>
+            <h2 id="relay-access-title">订阅与拼车方式</h2>
+          </header>
+          <div class="relay-access-grid">
+            <article class="relay-access-card">
+              <div class="relay-access-icon"><i class="fas fa-star" aria-hidden="true"></i></div>
+              <div>
+                <span class="relay-access-type">官方订阅</span>
+                <h3>ChatGPT 官方订阅</h3>
+                <p>通过 OpenAI 官方方案订阅，适合使用 ChatGPT 与 Codex，账号、账单和用量由官方直接管理。</p>
+              </div>
+              <a class="relay-access-link" href="https://chatgpt.com/pricing" target="_blank" rel="noopener noreferrer">查看官方方案 <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
+            </article>
+            <article class="relay-access-card">
+              <div class="relay-access-icon warm"><i class="fas fa-code" aria-hidden="true"></i></div>
+              <div>
+                <span class="relay-access-type">官方订阅</span>
+                <h3>Claude 官方订阅</h3>
+                <p>通过 Anthropic 官方方案订阅，适合使用 Claude 与 Claude Code，权益和额度以官方页面为准。</p>
+              </div>
+              <a class="relay-access-link" href="https://claude.com/pricing" target="_blank" rel="noopener noreferrer">查看官方方案 <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
+            </article>
+            <article class="relay-access-card">
+              <div class="relay-access-icon"><i class="fas fa-comments" aria-hidden="true"></i></div>
+              <div>
+                <span class="relay-access-type">拼车方式</span>
+                <h3>sub2api 自建拼车</h3>
+                <p>由车主自行部署 sub2api，将订阅能力转换为 API 后为成员分配密钥。加入前应确认额度、隐私、费用和退出规则。</p>
+              </div>
+              <a class="relay-access-link" href="https://github.com/Wei-Shaw/sub2api" target="_blank" rel="noopener noreferrer">查看 sub2api <i class="fab fa-github" aria-hidden="true"></i></a>
+            </article>
+          </div>
+        </section>
+        <section class="relay-score-note" aria-label="评分规则">
           <strong>评分</strong>
           <span>健康状态 40 + 最近成功率 30 + 响应速度 15 + 数据新鲜度 10 + 当前使用/排序 5 - 失败惩罚。</span>
         </section>
@@ -23,24 +58,11 @@ export function renderRelayContent({ includeHero = true } = {}) {
         </section>
         <section class="relay-stats" aria-label="榜单概览">
           <div><strong id="relay-total">0</strong><span>路由</span></div>
-          <div><strong id="relay-linuxdo-total">0</strong><span>LinuxDo 站</span></div>
           <div><strong id="relay-commercial-total">0</strong><span>商业站</span></div>
           <div><strong id="relay-healthy">0</strong><span>可用</span></div>
           <div><strong id="relay-current">0</strong><span>当前使用</span></div>
         </section>
-        <section class="relay-site-grid" aria-label="中转站分组榜单">
-          <section class="relay-site" data-relay-site="linuxdo">
-            <header class="relay-site-head">
-              <div>
-                <h2>LinuxDo 站</h2>
-                <p>当前展示的手动脱敏榜单数据。</p>
-              </div>
-              <span id="relay-linuxdo-updated" class="relay-site-updated">等待加载</span>
-            </header>
-            <div id="relay-list-linuxdo" class="relay-list" aria-live="polite">
-              <p class="relay-loading">正在加载 LinuxDo 站数据...</p>
-            </div>
-          </section>
+        <section class="relay-site-grid relay-site-grid-single" aria-label="商业中转站榜单">
           <section class="relay-site" data-relay-site="commercial">
             <header class="relay-site-head">
               <div>

@@ -11,9 +11,13 @@
 
   const searchInput = document.getElementById("post-search-input");
   const tagFilter = document.getElementById("tag-filter");
-  const postList = document.querySelector(".post-detail");
-  const empty = document.querySelector(".post-list-empty");
   const t = window.CWLUtils.t;
+  const empty = document.querySelector(".post-list-empty") || document.createElement("p");
+  if (!empty.parentNode) {
+    empty.className = "tree-empty";
+    empty.hidden = true;
+    treeNav.appendChild(empty);
+  }
   let query = "";
   let activeTag = null;
   let items = [];
@@ -52,8 +56,8 @@
 
   function buildItems() {
     items = links.map(function (link) {
-      const card = document.getElementById(link.getAttribute("data-post-target"));
-      const tagEls = card ? Array.from(card.querySelectorAll(".post-list-tag")) : [];
+      const panel = document.getElementById(link.getAttribute("data-post-target"));
+      const tagEls = panel ? Array.from(panel.querySelectorAll(".post-tags [data-tag]")) : [];
       const tags = tagEls.map(function (tag) {
         return tag.dataset.tag || (tag.textContent || "").trim();
       });
@@ -61,7 +65,7 @@
         return (tag.textContent || "").trim();
       });
       const title = link.querySelector(".tree-title");
-      const summary = card ? card.querySelector(".article-summary") : null;
+      const summary = panel ? panel.querySelector(".article-summary") : null;
       const haystack = [
         title ? title.textContent : "",
         summary ? summary.textContent : "",
@@ -71,7 +75,7 @@
       return {
         link: link,
         li: link.closest("li"),
-        card: card,
+        panel: panel,
         tags: tags,
         tagLabels: tagLabels,
         haystack: haystack,
@@ -85,16 +89,15 @@
   }
 
   function setCurrent(item) {
+    if (item && typeof window.coderShowPost === "function") {
+      window.coderShowPost(item.link.getAttribute("data-post-target"), true);
+      return;
+    }
     items.forEach(function (candidate) {
       const current = candidate === item;
       candidate.link.classList.toggle("active", current);
-      if (current) {
-        candidate.link.setAttribute("aria-current", "location");
-      } else {
-        candidate.link.removeAttribute("aria-current");
-      }
-      if (candidate.card) {
-        candidate.card.classList.toggle("is-current", current);
+      if (candidate.panel) {
+        candidate.panel.classList.toggle("active", current);
       }
     });
   }
@@ -119,17 +122,24 @@
       if (item.li) {
         item.li.hidden = !visible;
       }
-      if (item.card) {
-        item.card.hidden = !visible;
+      if (item.panel) {
+        item.panel.hidden = !visible;
       }
       if (visible) {
         visibleCount += 1;
       }
     });
     updateGroups();
-    if (empty) {
-      empty.hidden = visibleCount !== 0;
-      empty.textContent = t("dyn.blog.empty", "没有匹配的文章，换个关键词或标签试试。");
+    empty.hidden = visibleCount !== 0;
+    empty.textContent = t("dyn.blog.empty", "没有匹配的文章，换个关键词或标签试试。");
+    const activeVisible = items.some(function (item) {
+      return matches(item) && item.panel && item.panel.classList.contains("active");
+    });
+    if (!activeVisible) {
+      const firstVisible = items.find(matches);
+      if (firstVisible && typeof window.coderShowPost === "function") {
+        window.coderShowPost(firstVisible.link.getAttribute("data-post-target"), false);
+      }
     }
   }
 
@@ -201,12 +211,23 @@
     return data.tags;
   }
 
-  function attachCardTagHandlers() {
-    document.querySelectorAll(".post-summary-card .post-list-tag").forEach(function (button) {
-      button.addEventListener("click", function () {
-        setActiveTag(button.dataset.tag || (button.textContent || "").trim());
+  function attachPanelTagHandlers() {
+    document.querySelectorAll(".post-tags [data-tag]").forEach(function (tagElement) {
+      if (tagElement.tagName !== "BUTTON") {
+        tagElement.setAttribute("role", "button");
+        tagElement.setAttribute("tabindex", "0");
+      }
+      const activate = function () {
+        setActiveTag(tagElement.dataset.tag || (tagElement.textContent || "").trim());
         if (searchInput) {
           searchInput.focus();
+        }
+      };
+      tagElement.addEventListener("click", activate);
+      tagElement.addEventListener("keydown", function (event) {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          activate();
         }
       });
     });
@@ -214,7 +235,7 @@
 
   function visibleItems() {
     return items.filter(function (item) {
-      return item.card && !item.card.hidden;
+      return item.panel && !item.panel.hidden;
     });
   }
 
@@ -235,17 +256,14 @@
       : Math.max(0, Math.min(visible.length - 1, index + delta));
     const target = visible[index];
     setCurrent(target);
-    if (target.card.scrollIntoView) {
-      target.card.scrollIntoView({ behavior: "smooth", block: "start" });
+    if (target.link.scrollIntoView) {
+      target.link.scrollIntoView({ behavior: "smooth", block: "nearest" });
     }
-    const articleLink = target.card.querySelector("h2 a");
-    if (articleLink) {
-      articleLink.focus({ preventScroll: true });
-    }
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   buildItems();
-  attachCardTagHandlers();
+  attachPanelTagHandlers();
   const availableTags = rebuildTagFilter();
 
   if (searchInput) {
@@ -267,17 +285,6 @@
   } catch (error) {
     // Invalid URLs do not block the article list.
   }
-
-  links.forEach(function (link) {
-    link.addEventListener("click", function () {
-      const item = items.find(function (candidate) {
-        return candidate.link === link;
-      });
-      if (item) {
-        setCurrent(item);
-      }
-    });
-  });
 
   document.addEventListener("keydown", function (event) {
     if (event.defaultPrevented || event.ctrlKey || event.metaKey || event.altKey || editing()) {
@@ -353,7 +360,8 @@
       }
     });
     sidebar.appendChild(collapseBtn);
-    (postList || document.body).prepend(fab);
+    const postDetail = document.querySelector(".post-detail");
+    (postDetail || document.body).prepend(fab);
 
     document.addEventListener("cwl:langchange", function () {
       buildItems();
@@ -364,17 +372,14 @@
   }
 
   if (window.location.hash) {
-    const target = window.location.hash.slice(1);
+    const target = window.location.hash.slice(1).replace(/^post-/, "");
     const current = items.find(function (item) {
-      return item.card && item.card.id === target;
+      return item.panel && item.panel.dataset.postSlug === target;
     });
     if (current) {
       setCurrent(current);
     }
   }
 
-  if (postList) {
-    postList.setAttribute("data-list-ready", "true");
-  }
   apply();
 })();

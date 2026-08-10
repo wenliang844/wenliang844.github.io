@@ -42,6 +42,7 @@ async function loadGiscus(dom, options = {}) {
   }
   const code = await readFile(join(ROOT, "js", "giscus.js"), "utf8");
   dom.window.eval(code);
+  dom.window.dispatchEvent(new dom.window.Event("load"));
   return dom;
 }
 
@@ -303,6 +304,7 @@ test("giscus.js showTerm skips when term matches loadedTerm", async () => {
   dom.window.CWL_GISCUS_CONFIG = GISCUS_TEST_CONFIG;
   const giscusCode = await readFile(join(ROOT, "js", "giscus.js"), "utf8");
   dom.window.eval(giscusCode);
+  dom.window.dispatchEvent(new dom.window.Event("load"));
 
   // Script should have loaded once for the active article
   const thread = dom.window.document.getElementById("giscus-thread");

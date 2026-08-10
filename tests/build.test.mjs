@@ -61,8 +61,10 @@ test("build writes the expected static artifacts", async () => {
     assert.match(singlePostHtml, /class="series-navigation"/);
     assert.ok(coverAvif.size > 0);
     assert.ok(coverWebp.size > 0);
-    assert.match(postsHtml, /<picture><source srcset="\/images\/generated\/rule-engine-alerts-cover\.avif" type="image\/avif">/);
-    assert.match(postsHtml, /width="1200" height="630" alt="规则引擎/);
+    assert.equal((postsHtml.match(/class="article blog-article/g) || []).length, 6);
+    assert.equal((postsHtml.match(/class="article blog-article active"/g) || []).length, 1);
+    assert.match(postsHtml, /id="post-rule-engine-alerts-toc-/);
+    assert.match(postsHtml, /id="giscus-thread" data-giscus-mode="switch"/);
     assert.match(singlePostHtml, /class="post-cover post-cover-hero"/);
     assert.match(singlePostHtml, /最后更新/);
     assert.match(singlePostHtml, /\/commits\/master\/src\/posts\/manage-system\.md/);

@@ -1488,6 +1488,16 @@ a.card:hover {
 .relay-toolbar,
 .relay-stats,
 .relay-card { border: 1px solid var(--border); border-radius: 0.7rem; background: var(--surface); box-shadow: var(--shadow); }
+.relay-access { display: grid; gap: 1rem; margin-bottom: 1.4rem; }
+.relay-access-head h2 { margin: 0.35rem 0 0; font-size: 1.45rem; line-height: 1.25; }
+.relay-access-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+.relay-access-card { display: grid; grid-template-rows: auto 1fr auto; gap: 0.9rem; min-width: 0; padding: 1rem; border: 1px solid var(--border); border-radius: 0.5rem; background: var(--surface); box-shadow: var(--shadow); }
+.relay-access-icon { display: inline-grid; place-items: center; width: 2.4rem; height: 2.4rem; border-radius: 0.45rem; background: var(--grad-soft); color: var(--accent); }
+.relay-access-icon.warm { color: var(--warm); }
+.relay-access-type { color: var(--muted); font-size: 0.75rem; font-weight: 800; }
+.relay-access-card h3 { margin: 0.25rem 0 0.45rem; font-size: 1.08rem; line-height: 1.35; }
+.relay-access-card p { margin: 0; color: var(--muted); font-size: 0.88rem; line-height: 1.65; }
+.relay-access-link { display: inline-flex; align-items: center; justify-content: space-between; gap: 0.6rem; color: var(--link); font-weight: 800; }
 .relay-score-note { display: flex; flex-wrap: wrap; gap: 0.45rem 0.7rem; margin-bottom: 1rem; padding: 0.85rem 1rem; color: var(--muted); }
 .relay-score-note strong { color: var(--text); }
 .relay-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 0.9rem; }
@@ -1501,11 +1511,13 @@ a.card:hover {
 .relay-search { display: grid; gap: 0.25rem; min-width: min(18rem, 100%); color: var(--muted); font-size: 0.82rem; font-weight: 800; }
 .relay-search input { min-height: 2.45rem; border: 1px solid var(--border); border-radius: 0.55rem; padding: 0.55rem 0.75rem; background: var(--surface-solid); color: var(--text); }
 .relay-search input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
-.relay-stats { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0.7rem; margin: 1rem 0; padding: 1rem; }
+.relay-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.7rem; margin: 1rem 0; padding: 1rem; }
 .relay-stats div { display: grid; gap: 0.2rem; min-width: 0; }
 .relay-stats strong { font-size: 1.5rem; line-height: 1; }
 .relay-stats span { color: var(--muted); font-size: 0.85rem; }
 .relay-site-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; align-items: start; }
+.relay-site-grid-single { grid-template-columns: minmax(0, 1fr); }
+.relay-site-grid-single .relay-list { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
 .relay-site { display: grid; gap: 0.9rem; min-width: 0; }
 .relay-site-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; min-width: 0; padding: 0.2rem 0.1rem 0; }
 .relay-site-head h2 { margin: 0 0 0.25rem; font-size: 1.22rem; line-height: 1.25; }
@@ -1948,8 +1960,6 @@ a.card:hover {
 }
 
 .post-detail {
-  display: grid;
-  gap: 1rem;
   min-width: 0;
 }
 
@@ -5934,6 +5944,8 @@ body.assistant-fullscreen .site-shell {
   }
 
   .relay-stats,
+  .relay-access-grid,
+  .relay-site-grid-single .relay-list,
   .relay-site-grid {
     grid-template-columns: 1fr;
   }
