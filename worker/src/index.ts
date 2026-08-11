@@ -52,6 +52,9 @@ interface Env {
     idFromName(name: string): unknown;
     get(id: unknown): { fetch(input: string, init?: RequestInit): Promise<Response> };
   };
+  CHAT_ENABLED?: string;
+  CHAT_ROOMS?: DurableNamespaceLike;
+  CHAT_GATE?: DurableNamespaceLike;
   AUDIT_EVENTS: {
     writeDataPoint(event: { blobs: string[]; doubles: number[]; indexes: string[] }): void;
   };
@@ -116,11 +119,46 @@ interface AiChatInput {
 interface DurableStorageLike {
   get<T>(key: string): Promise<T | undefined>;
   put<T>(key: string, value: T): Promise<void>;
+  setAlarm?(scheduledTime: number | Date): Promise<void>;
+  deleteAll?(): Promise<void>;
 }
 
 interface DurableStateLike {
   storage: DurableStorageLike;
+  acceptWebSocket?(socket: WebSocket, tags?: string[]): void;
+  getWebSockets?(tag?: string): WebSocket[];
 }
+
+interface DurableNamespaceLike {
+  idFromName(name: string): unknown;
+  get(id: unknown): { fetch(input: string | Request, init?: RequestInit): Promise<Response> };
+}
+
+interface ChatSocketAttachment {
+  participantId?: string;
+  nickname?: string;
+  resumeToken?: string;
+  joined?: boolean;
+  rateWindow?: number;
+  rateCount?: number;
+}
+
+interface AttachedWebSocket extends WebSocket {
+  serializeAttachment(value: ChatSocketAttachment): void;
+  deserializeAttachment(): ChatSocketAttachment | null;
+}
+
+interface ChatMessage {
+  id: string;
+  participantId: string;
+  nickname: string;
+  text: string;
+  sentAt: string;
+}
+
+declare const WebSocketPair: {
+  new(): { 0: WebSocket; 1: WebSocket };
+};
 
 const SESSION_COOKIE = "cwl_session";
 const OAUTH_COOKIE = "cwl_oauth_state";
@@ -138,6 +176,12 @@ const MAX_IMAGE_DIMENSION = 12_000;
 const MAX_IMAGE_PIXELS = 40_000_000;
 const UPLOAD_SECONDS = 5 * 60;
 const MAX_AI_BODY_BYTES = 16_000;
+const MAX_CHAT_FRAME_BYTES = 4_096;
+const MAX_CHAT_MESSAGES = 1_000;
+const MAX_CHAT_PARTICIPANTS = 20;
+const CHAT_IDLE_MS = 2 * 60 * 60 * 1000;
+const CHAT_CODE_ALPHABET = "0123456789ABCDEFGHJKMNPQRSTVWXYZ";
+const CHAT_CODE_PATTERN = /^[0-9A-HJKMNP-TV-Z]{8}$/;
 const KNOWLEDGE_CACHE_MS = 5 * 60 * 1000;
 const DEFAULT_CHAT_MODEL = "@cf/meta/llama-3.1-8b-instruct";
 const DEFAULT_EMBEDDING_MODEL = "@cf/baai/bge-m3";
@@ -876,6 +920,71 @@ function requireAi(env: Env): void {
   }
 }
 
+function requireChat(env: Env): void {
+  if (env.CHAT_ENABLED !== "true") throw new HttpError(503, "Chat is currently disabled.", "chat_disabled");
+  if (!env.CHAT_ROOMS || !env.CHAT_GATE) {
+    throw new HttpError(503, "Chat bindings are incomplete.", "configuration_error");
+  }
+}
+
+function requireChatOrigin(request: Request, env: Env): void {
+  if (request.headers.get("origin") !== env.SITE_ORIGIN) {
+    throw new HttpError(403, "Origin is not allowed.", "invalid_origin");
+  }
+}
+
+function chatRoomCode(): string {
+  const bytes = new Uint8Array(8);
+  crypto.getRandomValues(bytes);
+  return Array.from(bytes, (value) => CHAT_CODE_ALPHABET[value & 31]).join("");
+}
+
+async function checkChatGate(request: Request, env: Env, action: "create" | "join"): Promise<void> {
+  const ip = request.headers.get("cf-connecting-ip") || "unknown";
+  const ipHash = (await signature(`chat-rate:${ip}`, env.SESSION_SECRET)).slice(0, 32);
+  const id = env.CHAT_GATE!.idFromName("global");
+  const response = await env.CHAT_GATE!.get(id).fetch("https://chat-gate.internal/check", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ action, ipHash }),
+  });
+  if (response.status === 429) throw new HttpError(429, "Too many chat requests. Try again later.", "rate_limited");
+  if (!response.ok) throw new HttpError(503, "Chat rate control is unavailable.", "configuration_error");
+}
+
+async function createChatRoom(request: Request, env: Env): Promise<Response> {
+  requireChat(env);
+  requireChatOrigin(request, env);
+  await readJsonWithLimit(request, 256);
+  await checkChatGate(request, env, "create");
+  for (let attempt = 0; attempt < 5; attempt += 1) {
+    const roomCode = chatRoomCode();
+    const id = env.CHAT_ROOMS!.idFromName(roomCode);
+    const response = await env.CHAT_ROOMS!.get(id).fetch("https://chat-room.internal/initialize", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ roomCode }),
+    });
+    if (response.status === 409) continue;
+    if (!response.ok) throw new HttpError(503, "Chat room could not be created.", "configuration_error");
+    audit(env, { type: "chat.created", login: "public-chat" });
+    return json(request, env, { roomCode, idleTimeoutSeconds: CHAT_IDLE_MS / 1000 }, 201);
+  }
+  throw new HttpError(503, "Chat room code allocation failed.", "configuration_error");
+}
+
+async function connectChatRoom(request: Request, env: Env, roomCode: string): Promise<Response> {
+  requireChat(env);
+  requireChatOrigin(request, env);
+  if (!CHAT_CODE_PATTERN.test(roomCode)) throw new HttpError(404, "Chat room was not found.", "room_not_found");
+  if ((request.headers.get("upgrade") || "").toLowerCase() !== "websocket") {
+    throw new HttpError(426, "WebSocket upgrade is required.", "websocket_required");
+  }
+  await checkChatGate(request, env, "join");
+  const id = env.CHAT_ROOMS!.idFromName(roomCode);
+  return env.CHAT_ROOMS!.get(id).fetch(request);
+}
+
 function validateAiChatInput(value: unknown): AiChatInput {
   if (!value || typeof value !== "object" || Array.isArray(value)) {
     throw new HttpError(422, "Chat payload must be an object.", "invalid_chat");
@@ -1264,6 +1373,13 @@ async function route(request: Request, env: Env): Promise<Response> {
   }
   if (request.method === "POST" && url.pathname === "/api/v1/ai/chat") {
     return aiChat(request, env);
+  }
+  if (request.method === "POST" && url.pathname === "/api/v1/chat/rooms") {
+    return createChatRoom(request, env);
+  }
+  const chatSocketMatch = url.pathname.match(/^\/api\/v1\/chat\/rooms\/([0-9A-HJKMNP-TV-Z]{8})\/websocket$/);
+  if (request.method === "GET" && chatSocketMatch) {
+    return connectChatRoom(request, env, chatSocketMatch[1]);
   }
   if (request.method === "POST" && url.pathname === "/api/v1/admin/knowledge/reindex") {
     const session = await requireWriteAccess(request, env);

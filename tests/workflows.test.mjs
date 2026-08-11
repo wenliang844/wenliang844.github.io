@@ -6,6 +6,11 @@ import { parse } from "yaml";
 
 const ROOT = join(import.meta.dirname, "..");
 
+test("GitHub Pages branch publishing bypasses Jekyll for Astro sources", async () => {
+  const marker = await readFile(join(ROOT, ".nojekyll"), "utf8");
+  assert.equal(marker.trim(), "");
+});
+
 test("CI workflow runs quality gates without write permissions", async () => {
   const workflow = parse(await readFile(join(ROOT, ".github", "workflows", "ci.yml"), "utf8"));
   const steps = workflow.jobs.quality.steps;
