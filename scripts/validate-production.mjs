@@ -7,7 +7,7 @@
 
 import { readFile, access, readdir } from 'node:fs/promises';
 import { join } from 'node:path';
-import { execFile } from 'node:child_process';
+import { execFile, spawn } from 'node:child_process';
 import { promisify } from 'node:util';
 
 const execFileAsync = promisify(execFile);
@@ -130,28 +130,29 @@ async function checkSecurityMeasures() {
 async function runTests() {
   console.log('\n🧪 运行测试套件...');
 
-  try {
-    const testFiles = (await readdir(join(ROOT, 'tests')))
-      .filter((file) => file.endsWith('.test.mjs'))
-      .map((file) => join('tests', file));
-    const { stdout } = await execFileAsync(process.execPath, ['--test', ...testFiles], {
+  const testFiles = (await readdir(join(ROOT, 'tests')))
+    .filter((file) => file.endsWith('.test.mjs'))
+    .map((file) => join('tests', file));
+
+  const result = await new Promise((resolve, reject) => {
+    const child = spawn(process.execPath, ['--test', '--test-concurrency=2', ...testFiles], {
       cwd: ROOT,
       windowsHide: true,
+      stdio: 'inherit',
     });
 
-    if (stdout.includes('fail 0')) {
-      pass('所有测试通过');
-    } else {
-      fail('部分测试失败');
-      console.log(stdout);
-    }
-  } catch (error) {
-    // Node test runner exits with code 1 even on success in some cases
-    if (error.stdout && error.stdout.includes('fail 0')) {
-      pass('所有测试通过');
-    } else {
-      fail(`测试执行失败: ${error.message}`);
-    }
+    child.once('error', reject);
+    child.once('exit', (code, signal) => resolve({ code, signal }));
+  }).catch((error) => {
+    fail(`测试执行失败: ${error.message}`);
+    return null;
+  });
+
+  if (result?.code === 0) {
+    pass('所有测试通过');
+  } else if (result) {
+    const reason = result.signal ? `信号 ${result.signal}` : `退出码 ${result.code}`;
+    fail(`测试执行失败（${reason}）`);
   }
 }
 

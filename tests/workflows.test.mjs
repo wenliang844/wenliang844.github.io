@@ -109,7 +109,6 @@ test("Dependabot keeps npm and GitHub Actions dependencies current", async () =>
 test("project changelog records dated release history", async () => {
   const readme = await readFile(join(ROOT, "readme.md"), "utf8");
   const changelog = await readFile(join(ROOT, "CHANGELOG.md"), "utf8");
-  const productionValidator = await readFile(join(ROOT, "scripts", "validate-production.mjs"), "utf8");
 
   assert.match(readme, /\[变更日志\]\(CHANGELOG\.md\)/);
   assert.match(changelog, /^# Changelog$/m);
@@ -119,5 +118,13 @@ test("project changelog records dated release history", async () => {
   assert.match(changelog, /^### Changed$/m);
   assert.match(changelog, /^### Fixed$/m);
   assert.match(changelog, /^### Security$/m);
+});
+
+test("production validation streams a resource-bounded test run", async () => {
+  const productionValidator = await readFile(join(ROOT, "scripts", "validate-production.mjs"), "utf8");
+
   assert.match(productionValidator, /'CHANGELOG\.md'/);
+  assert.match(productionValidator, /spawn\(process\.execPath/);
+  assert.match(productionValidator, /'--test-concurrency=2'/);
+  assert.match(productionValidator, /stdio: 'inherit'/);
 });
