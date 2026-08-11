@@ -71,7 +71,7 @@ test("site shell HTML files load common scripts in a consistent order", async ()
     "/js/i18n.js",
     "/js/coder.js",
     "/js/search-loader.js",
-    "/js/assistant.js",
+    "/js/assistant-loader.js",
   ];
   const failures = [];
 

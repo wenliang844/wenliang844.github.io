@@ -182,67 +182,53 @@ test("search-loader.js calls cwlOpenSearch directly if already loaded", async ()
   dom.window.close();
 });
 
-// ─── 空闲预加载 ────────────────────────────────────────────────────────────────
+// ─── 用户意图预加载 ────────────────────────────────────────────────────────────
 
-test("search-loader.js uses requestIdleCallback for preload when available", async () => {
-  let idleCallback = null;
+test("search-loader.js does not preload search merely because the page is idle", async () => {
   const dom = new JSDOM(buildSearchLoaderHtml(), {
     runScripts: "outside-only",
     url: "https://example.com/",
     pretendToBeVisual: true,
   });
 
-  dom.window.requestIdleCallback = function (cb, opts) {
-    idleCallback = { cb, opts };
+  dom.window.requestIdleCallback = function () {
+    assert.fail("search should not schedule idle work");
   };
 
   await loadSearchLoader(dom);
 
-  assert.ok(idleCallback, "requestIdleCallback should be called");
-  assert.equal(idleCallback.opts.timeout, 3500, "timeout should be 3500ms");
+  assert.equal(dom.window.document.querySelector('script[src="/js/search.js"]'), null);
 
   dom.window.close();
 });
 
-test("search-loader.js falls back to setTimeout when requestIdleCallback unavailable", async () => {
-  let timeoutArgs = null;
+test("search-loader.js preloads on search trigger hover", async () => {
   const dom = new JSDOM(buildSearchLoaderHtml(), {
     runScripts: "outside-only",
     url: "https://example.com/",
     pretendToBeVisual: true,
   });
 
-  // Delete requestIdleCallback before loading so the "in" check returns false
-  delete dom.window.requestIdleCallback;
-  const origSetTimeout = dom.window.setTimeout;
-  dom.window.setTimeout = function (cb, ms) {
-    timeoutArgs = { cb, ms };
-    return origSetTimeout(cb, ms);
-  };
-
   await loadSearchLoader(dom);
+  const trigger = dom.window.document.querySelector(".nav-search-trigger");
+  trigger.dispatchEvent(new dom.window.Event("pointerenter"));
 
-  assert.ok(timeoutArgs, "setTimeout should be called as fallback");
-  assert.equal(timeoutArgs.ms, 2500, "fallback timeout should be 2500ms");
+  assert.ok(dom.window.document.querySelector('script[src="/js/search.js"]'));
 
   dom.window.close();
 });
 
-// ─── 无 trigger 时跳过预加载 ───────────────────────────────────────────────────
-
-test("search-loader.js skips idle preload without nav-search-trigger", async () => {
-  const dom = new JSDOM(buildSearchLoaderHtml({ hasTrigger: false }), {
+test("search-loader.js preloads when the search trigger receives focus", async () => {
+  const dom = new JSDOM(buildSearchLoaderHtml(), {
     runScripts: "outside-only",
     url: "https://example.com/",
     pretendToBeVisual: true,
   });
 
-  let idleCalled = false;
-  dom.window.requestIdleCallback = function () { idleCalled = true; };
-
   await loadSearchLoader(dom);
+  dom.window.document.querySelector(".nav-search-trigger").focus();
 
-  assert.ok(!idleCalled, "should not schedule idle preload without trigger");
+  assert.ok(dom.window.document.querySelector('script[src="/js/search.js"]'));
 
   dom.window.close();
 });
@@ -260,8 +246,7 @@ test("search-loader.js handles script load failure by checking source pattern", 
 
 // ─── cwlPreloadSearch 回退 ─────────────────────────────────────────────────────
 
-test("search-loader.js calls cwlPreloadSearch for idle preload path", async () => {
-  // Verify the source code has the cwlPreloadSearch fallback path
+test("search-loader.js calls cwlPreloadSearch for intent preload path", async () => {
   const code = await readFile(join(ROOT, "js", "search-loader.js"), "utf8");
   assert.ok(code.includes("cwlPreloadSearch"), "should reference cwlPreloadSearch");
   assert.ok(code.includes("queuedOpen"), "should have queuedOpen logic");

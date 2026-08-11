@@ -28,11 +28,9 @@
   <script src="/js/coder.js" defer></script>
   <script src="/js/search-loader.js" defer></script>
   <script src="/js/subscribe.js" defer></script>
-  <script src="/js/assistant.js" defer></script>
+  <script src="/js/assistant-loader.js" defer></script>
   <script src="/js/blog.js?v=20260810" defer></script>
-  <script src="/js/vendor/qrcode.min.js" defer></script>
-  <script src="/js/share.js" defer></script>
-  <script src="/js/giscus.js" defer></script>
+  <script src="/js/post-extras-loader.js" defer></script>
   <link rel="canonical" href="https://wenliang844.github.io/post/">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="CWLBlog">
@@ -88,7 +86,7 @@
     </header>
     <main data-pagefind-body id="main-content" class="content">
       <section class="blog-layout container" aria-label="Blog">
-        <aside class="post-tree" aria-label="文章目录" data-i18n-aria="post.tree.aria">
+        <aside class="post-tree" id="post-tree-sidebar" aria-label="文章目录" data-i18n-aria="post.tree.aria">
           <div class="post-tree-header">
             <span class="eyebrow">2022-2026 Timeline</span>
             <h1 data-i18n="post.list.title" data-i18n-en="Posts">文章</h1>
@@ -186,6 +184,12 @@
         </aside>
 
         <section class="post-detail" aria-live="polite">
+          <button class="post-tree-fab" type="button" aria-controls="post-tree-sidebar" aria-expanded="false" aria-label="展开文章目录" title="展开文章目录">
+            <svg class="post-tree-fab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+              <path d="M8 3H5a2 2 0 0 0-2 2v3"></path><path d="M16 3h3a2 2 0 0 1 2 2v3"></path><path d="M21 16v3a2 2 0 0 1-2 2h-3"></path><path d="M8 21H5a2 2 0 0 1-2-2v-3"></path>
+            </svg>
+            <span class="post-tree-control-label">展开文章目录</span>
+          </button>
           <span class="post-anchor" id="rule-engine-alerts" aria-hidden="true"></span>
           <article class="article blog-article active" id="post-rule-engine-alerts" data-post-slug="rule-engine-alerts">
             <header class="article-header">

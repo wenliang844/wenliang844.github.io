@@ -87,7 +87,7 @@ export function connectSourcesForHtml(html) {
   if (html.includes('src="/js/subscribe.js"')) {
     sources.push("https://buttondown.com");
   }
-  if (html.includes('src="/js/assistant.js"')) {
+  if (html.includes('src="/js/assistant.js"') || html.includes('src="/js/assistant-loader.js"')) {
     sources.push(...ASSISTANT_CONNECT_ORIGINS);
   }
   if (html.includes('src="/js/feedback.js"')) {
@@ -108,14 +108,19 @@ export function hardenHtml(html, file = "HTML") {
   const match = html.match(CSP_RE);
   if (!match) return html;
   const removedSources = [];
-  if (!html.includes('src="/js/giscus.js"')) removedSources.push("https://giscus.app");
+  const usesGiscus = html.includes('src="/js/giscus.js"')
+    || html.includes('src="/js/post-extras-loader.js"');
+  if (!usesGiscus) removedSources.push("https://giscus.app");
   if (!html.includes('src="/js/tools.js"')) removedSources.push("https://cdn.jsdelivr.net");
   const usesPagefind = html.includes('src="/js/search-loader.js"');
   if (!html.includes('src="/js/tools.js"') && !usesPagefind) removedSources.push("'wasm-unsafe-eval'");
   const policy = hardenPolicy(match[1], inlineScriptHashes(html), removedSources, {
     allowInlineStyles: html.includes('src="/js/editor-codemirror.js"')
       || html.includes('src="https://minnit.chat/js/embed.js'),
-    scriptSources: usesPagefind ? ["'wasm-unsafe-eval'"] : [],
+    scriptSources: [
+      ...(usesPagefind ? ["'wasm-unsafe-eval'"] : []),
+      ...(usesGiscus ? ["https://giscus.app"] : []),
+    ],
     connectSources: connectSourcesForHtml(html),
   });
   return html.replace(CSP_RE, `<meta http-equiv="Content-Security-Policy" content="${policy}">`);

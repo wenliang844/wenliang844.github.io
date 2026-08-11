@@ -65,7 +65,7 @@ test("renderToolsPage has correct script references", () => {
   assert.match(html, /src="\/js\/tools-core\.js"/);
   assert.match(html, /src="\/js\/tools\.js"/);
   assert.match(html, /src="\/js\/editor\.js"/);
-  assert.match(html, /src="\/js\/assistant\.js"/);
+  assert.match(html, /src="\/js\/assistant-loader\.js"/);
   assert.match(html, /src="\/js\/vendor\/marked\.min\.js"/);
   assert.match(html, /src="\/js\/vendor\/purify\.min\.js"/);
   assert.match(html, /src="\/js\/vendor\/highlight\.min\.js"/);
@@ -401,7 +401,8 @@ test("renderPostPage includes giscus comments section", () => {
   };
   const html = renderPostPage(post, { prev: null, next: null });
   assert.match(html, /id="giscus-thread"/);
-  assert.match(html, /src="\/js\/giscus\.js"/);
+  assert.match(html, /src="\/js\/post-extras-loader\.js"/);
+  assert.doesNotMatch(html, /src="\/js\/giscus\.js"/);
 });
 
 // ─── Tags 页面测试 ─────────────────────────────────────────────────────────────
@@ -470,7 +471,8 @@ test("renderPostList embeds switchable article panels for the three-column readi
   assert.match(html, /Private body marker/);
   assert.match(html, /class="article-content"/);
   assert.match(html, /id="giscus-thread"/);
-  assert.match(html, /src="\/js\/giscus\.js"/);
+  assert.match(html, /src="\/js\/post-extras-loader\.js"/);
+  assert.doesNotMatch(html, /src="\/js\/(?:vendor\/qrcode\.min|share|giscus)\.js"/);
 });
 
 test("renderPostList renders search input and tag filter", () => {
@@ -482,6 +484,9 @@ test("renderPostList renders search input and tag filter", () => {
 
   assert.match(html, /id="post-search-input"/);
   assert.match(html, /id="tag-filter"/);
+  assert.match(html, /id="post-tree-sidebar"/);
+  assert.match(html, /class="post-tree-fab"[^>]*aria-controls="post-tree-sidebar"/);
+  assert.match(html, /class="post-tree-fab-icon"/);
 });
 
 test("renderPostList keeps stable panel anchors and prefixes repeated heading ids", () => {

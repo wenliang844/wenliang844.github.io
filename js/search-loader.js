@@ -44,15 +44,13 @@
     loadSearch(false).catch(function () {});
   }
 
-  function scheduleIdlePreload() {
-    if (window.cwlOpenSearch || !document.querySelector(".nav-search-trigger")) {
+  function scheduleIntentPreload() {
+    const trigger = document.querySelector(".nav-search-trigger");
+    if (window.cwlOpenSearch || !trigger) {
       return;
     }
-    if ("requestIdleCallback" in window) {
-      window.requestIdleCallback(preloadSearch, { timeout: 3500 });
-    } else {
-      window.setTimeout(preloadSearch, 2500);
-    }
+    trigger.addEventListener("pointerenter", preloadSearch, { once: true });
+    trigger.addEventListener("focus", preloadSearch, { once: true });
   }
 
   document.addEventListener("click", function (event) {
@@ -75,5 +73,5 @@
     }
   });
 
-  scheduleIdlePreload();
+  scheduleIntentPreload();
 })();

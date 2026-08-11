@@ -267,12 +267,13 @@ test("search-loader.js lazily loads search dependencies", async () => {
   assert.ok(code.includes("trigger") || code.includes("click") || code.includes("addEventListener"), "should handle user interaction");
 });
 
-test("search-loader.js preloads search during idle time", async () => {
+test("search-loader.js preloads search only after user intent", async () => {
   const loader = await readFile(join(ROOT, "js", "search-loader.js"), "utf8");
   const search = await readFile(join(ROOT, "js", "search.js"), "utf8");
 
-  assert.match(loader, /requestIdleCallback\(preloadSearch,\s*{\s*timeout:\s*3500\s*}\)/);
-  assert.match(loader, /setTimeout\(preloadSearch,\s*2500\)/);
+  assert.doesNotMatch(loader, /requestIdleCallback|setTimeout\(preloadSearch/);
+  assert.match(loader, /addEventListener\("pointerenter", preloadSearch/);
+  assert.match(loader, /addEventListener\("focus", preloadSearch/);
   assert.match(loader, /loadSearch\(false\)/);
   assert.match(loader, /cwlPreloadSearch\(\)\.catch/);
   assert.match(search, /window\.cwlPreloadSearch\s*=\s*loadIndex/);
@@ -332,6 +333,23 @@ test("giscus.js cleans observer up on pagehide", async () => {
   const code = await readFile(join(ROOT, "js", "giscus.js"), "utf8");
   assert.match(code, /addEventListener\("pagehide"/, "should use pagehide for bfcache-friendly cleanup");
   assert.doesNotMatch(code, /addEventListener\("unload"/, "should avoid unload cleanup");
+});
+
+test("post extras load only when sharing or comments approach the viewport", async () => {
+  const code = await readFile(join(ROOT, "js", "post-extras-loader.js"), "utf8");
+  assert.match(code, /IntersectionObserver/);
+  assert.match(code, /rootMargin:\s*"800px 0px"/);
+  assert.match(code, /loadScript\("\/js\/vendor\/qrcode\.min\.js"\)/);
+  assert.match(code, /loadScript\("\/js\/share\.js"\)/);
+  assert.match(code, /loadScript\("\/js\/giscus\.js"\)/);
+});
+
+test("assistant implementation loads only after user intent or a deep link", async () => {
+  const code = await readFile(join(ROOT, "js", "assistant-loader.js"), "utf8");
+  assert.match(code, /closest\("\[data-assistant-toggle\]"\)/);
+  assert.match(code, /script\.src\s*=\s*"\/js\/assistant\.js"/);
+  assert.match(code, /params\.get\("assistant"\)\s*===\s*"fullscreen"/);
+  assert.match(code, /window\.location\.hash\s*===\s*"#assistant-fullscreen"/);
 });
 
 // ─── feedback.js 测试 ─────────────────────────────────────────────────────────

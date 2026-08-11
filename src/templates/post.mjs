@@ -374,7 +374,7 @@ ${renderPager(nav.prev, nav.next)}
 ${renderNextPopup(nav.next, nav.prev)}
     </main>`;
 
-  const scripts = ["/js/vendor/qrcode.min.js", "/js/share.js", "/js/giscus.js", "/js/toc.js"];
+  const scripts = ["/js/post-extras-loader.js", "/js/toc.js"];
   if (nav.next) scripts.push("/js/post-next.js");
 
   return renderPage({
@@ -439,6 +439,15 @@ ${links}
             </details>`;
 }
 
+function renderPostTreeFab() {
+  return `          <button class="post-tree-fab" type="button" aria-controls="post-tree-sidebar" aria-expanded="false" aria-label="展开文章目录" title="展开文章目录">
+            <svg class="post-tree-fab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+              <path d="M8 3H5a2 2 0 0 0-2 2v3"></path><path d="M16 3h3a2 2 0 0 1 2 2v3"></path><path d="M21 16v3a2 2 0 0 1-2 2h-3"></path><path d="M8 21H5a2 2 0 0 1-2-2v-3"></path>
+            </svg>
+            <span class="post-tree-control-label">展开文章目录</span>
+          </button>`;
+}
+
 // 博客总览中的完整文章面板。左侧时间轴切换面板，coder.js 按正文生成右侧目录。
 function renderArticlePanel(post, isFirst) {
   const activeClass = isFirst ? " active" : "";
@@ -477,7 +486,7 @@ export function renderPostList(posts, stats) {
 
   const main = `    <main id="main-content" class="content">
       <section class="blog-layout container" aria-label="Blog">
-        <aside class="post-tree" aria-label="文章目录" data-i18n-aria="post.tree.aria">
+        <aside class="post-tree" id="post-tree-sidebar" aria-label="文章目录" data-i18n-aria="post.tree.aria">
           <div class="post-tree-header">
             <span class="eyebrow">${stats.range} Timeline</span>
             <h1 data-i18n="post.list.title" data-i18n-en="Posts">文章</h1>
@@ -508,6 +517,7 @@ ${treeGroups}
         </aside>
 
         <section class="post-detail" aria-live="polite">
+${renderPostTreeFab()}
 ${panels}
           <section class="comments" aria-label="评论" data-i18n-aria="post.comments.aria">
             <h2 data-i18n="post.comments" data-i18n-html><i class="fas fa-comments" aria-hidden="true"></i> 评论</h2>
@@ -525,7 +535,7 @@ ${panels}
     titleEn: "Posts :: CWLBlog",
     active: "blog",
     page: "posts",
-    scripts: ["/js/blog.js?v=20260810", "/js/vendor/qrcode.min.js", "/js/share.js", "/js/giscus.js"],
+    scripts: ["/js/blog.js?v=20260810", "/js/post-extras-loader.js"],
     jsonLd: buildPostListJsonLd(posts, description),
     og: { type: "website", title: "Posts", description, path: "/post/" },
     main,

@@ -331,7 +331,9 @@
 
   window.addEventListener("scroll", throttledScroll, { passive: true });
   window.addEventListener("resize", throttledResize);
-  onScroll();
+  // Avoid forcing a full document layout while deferred scripts are running.
+  // Scroll and resize events refresh the geometry when it is first needed.
+  progress.hidden = !getActiveArticle();
   showReadingResume(getActiveArticle());
   body.classList.add("to-top-ready");
 
@@ -613,7 +615,6 @@
         title.textContent = t("dyn.toc", "目录");
       }
     });
-    onScroll();
   }
 
   document.querySelectorAll("article.article").forEach(function (article) {
@@ -642,7 +643,10 @@
     }
   });
 
-  document.addEventListener("cwl:langchange", updateDynamicText);
+  document.addEventListener("cwl:langchange", function () {
+    updateDynamicText();
+    onScroll();
+  });
   document.addEventListener("cwl:postchange", function () {
     updateDynamicText();
     showReadingResume(getActiveArticle());
@@ -713,17 +717,19 @@
     return;
   }
 
-  const context = canvas.getContext("2d");
+  let context = null;
   const particles = [];
   const pointer = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
   let hue = 190;
   let animationFrame = 0;
+  let canvasSized = false;
 
   function resizeCanvas() {
     const ratio = window.devicePixelRatio || 1;
     canvas.width = Math.floor(window.innerWidth * ratio);
     canvas.height = Math.floor(window.innerHeight * ratio);
     context.setTransform(ratio, 0, 0, ratio, 0, 0);
+    canvasSized = true;
   }
 
   function addParticle(x, y) {
@@ -804,8 +810,21 @@
     scheduleDraw();
   }
 
-  window.addEventListener("resize", resizeCanvas);
+  window.addEventListener("resize", function () {
+    if (canvasSized) {
+      resizeCanvas();
+    }
+  });
   window.addEventListener("pointermove", function (event) {
+    if (!context) {
+      context = canvas.getContext("2d");
+      if (!context) {
+        return;
+      }
+    }
+    if (!canvasSized) {
+      resizeCanvas();
+    }
     pointer.x = event.clientX;
     pointer.y = event.clientY;
     hue = (hue + 2) % 360;
@@ -822,6 +841,4 @@
       scheduleDraw();
     }
   });
-
-  resizeCanvas();
 })();

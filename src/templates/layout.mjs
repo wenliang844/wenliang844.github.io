@@ -69,7 +69,7 @@ function contentSecurityPolicy(page, scripts, inlineScripts = []) {
     "https://plausible.io",
   ];
   const styleSources = ["'self'"];
-  if (scripts.includes("/js/giscus.js")) {
+  if (scripts.includes("/js/giscus.js") || scripts.includes("/js/post-extras-loader.js")) {
     scriptSources.push("https://giscus.app");
   }
   if (page === "chat") {
@@ -95,7 +95,7 @@ function contentSecurityPolicy(page, scripts, inlineScripts = []) {
     if (scripts.includes("/js/subscribe.js")) {
       connectSources.push("https://buttondown.com");
     }
-    if (scripts.includes("/js/assistant.js")) {
+    if (scripts.includes("/js/assistant.js") || scripts.includes("/js/assistant-loader.js")) {
       connectSources.push(...ASSISTANT_CONNECT_ORIGINS);
     }
     if (scripts.includes("/js/feedback.js")) {
@@ -137,7 +137,7 @@ const CORE_SCRIPTS = [
   "/js/coder.js",
   "/js/search-loader.js",
   "/js/subscribe.js",
-  "/js/assistant.js",
+  "/js/assistant-loader.js",
 ];
 
 // 渲染主导航；active 标记当前栏目。

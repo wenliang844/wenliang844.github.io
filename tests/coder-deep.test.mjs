@@ -571,7 +571,11 @@ test("coder.js cursor particles only animate while particles are active", async 
     set shadowColor(_value) {},
     set shadowBlur(_value) {},
   };
-  dom.window.HTMLCanvasElement.prototype.getContext = () => context;
+  let contextRequests = 0;
+  dom.window.HTMLCanvasElement.prototype.getContext = () => {
+    contextRequests += 1;
+    return context;
+  };
   dom.window.requestAnimationFrame = (callback) => {
     rafQueue.push(callback);
     return rafQueue.length;
@@ -581,6 +585,7 @@ test("coder.js cursor particles only animate while particles are active", async 
   await loadCoder(dom);
 
   assert.equal(rafQueue.length, 0, "idle cursor canvas should not start an animation loop");
+  assert.equal(contextRequests, 0, "idle cursor canvas should not initialize a rendering context");
 
   dom.window.dispatchEvent(new dom.window.MouseEvent("pointermove", {
     clientX: 24,
@@ -589,6 +594,7 @@ test("coder.js cursor particles only animate while particles are active", async 
   }));
 
   assert.equal(rafQueue.length, 1, "pointer movement should start the particle loop");
+  assert.equal(contextRequests, 1, "first pointer movement should initialize the rendering context once");
 
   for (let i = 0; i < 80 && rafQueue.length; i += 1) {
     const callback = rafQueue.shift();

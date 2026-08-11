@@ -304,10 +304,13 @@
     if (!sidebar.id) {
       sidebar.id = "post-tree-sidebar";
     }
-    const fab = document.createElement("button");
-    fab.type = "button";
-    fab.className = "post-tree-fab";
-    fab.setAttribute("aria-controls", sidebar.id);
+    const existingFab = document.querySelector(".post-tree-fab");
+    const fab = existingFab || document.createElement("button");
+    if (!existingFab) {
+      fab.type = "button";
+      fab.className = "post-tree-fab";
+      fab.setAttribute("aria-controls", sidebar.id);
+    }
 
     const collapseBtn = document.createElement("button");
     collapseBtn.type = "button";
@@ -361,7 +364,9 @@
     });
     sidebar.appendChild(collapseBtn);
     const postDetail = document.querySelector(".post-detail");
-    (postDetail || document.body).prepend(fab);
+    if (!existingFab) {
+      (postDetail || document.body).prepend(fab);
+    }
 
     document.addEventListener("cwl:langchange", function () {
       buildItems();

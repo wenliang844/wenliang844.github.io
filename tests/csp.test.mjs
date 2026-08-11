@@ -59,7 +59,7 @@ test("CSP hardener grants network origins by page capability", () => {
     '<meta name="cwl-api-base" content="https://api.example.com/edge">',
     '<script src="/js/analytics.js"></script>',
     '<script src="/js/subscribe.js"></script>',
-    '<script src="/js/assistant.js"></script>',
+    '<script src="/js/assistant-loader.js"></script>',
   ].join("");
   assert.deepEqual(connectSourcesForHtml(publicHtml), [
     "'self'",
@@ -77,6 +77,9 @@ test("CSP hardener grants network origins by page capability", () => {
 
   const contactHtml = publicHtml + '<script src="/js/feedback.js"></script>';
   assert.equal(connectSourcesForHtml(contactHtml).includes("https://api.web3forms.com"), true);
+
+  const lazyPostHtml = publicHtml + '<script src="/js/post-extras-loader.js"></script>';
+  assert.match(hardenHtml(lazyPostHtml), /script-src[^;]*https:\/\/giscus\.app/);
 
   const toolsHtml = publicHtml + '<script src="/js/tools.js"></script>';
   assert.deepEqual(connectSourcesForHtml(toolsHtml), ["'self'", "https:"]);
