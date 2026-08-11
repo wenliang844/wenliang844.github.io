@@ -97,4 +97,8 @@ test("public entry points expose the manifest while authoring pages do not regis
   }
   const offline = await readFile(join(ROOT, "offline.html"), "utf8");
   assert.match(offline, /http-equiv="Content-Security-Policy"/);
+  assert.match(offline, /<meta name="description"/);
+  assert.match(offline, /class="skip-link" href="#main-content"/);
+  assert.match(offline, /<main id="main-content"/);
+  assert.doesNotMatch(offline, /<script\b|rel="(?:preconnect|dns-prefetch)"/);
 });

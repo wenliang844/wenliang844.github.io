@@ -40,6 +40,10 @@ async function htmlFiles() {
   return stdout.trim().split(/\r?\n/).filter(Boolean);
 }
 
+async function siteShellHtmlFiles() {
+  return (await htmlFiles()).filter((file) => file !== "offline.html");
+}
+
 function escapeRegExp(value) {
   return String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
@@ -60,7 +64,7 @@ test("committed HTML files do not contain broken root-relative links", async () 
   assert.deepEqual(broken, []);
 });
 
-test("HTML files load common scripts in a consistent order", async () => {
+test("site shell HTML files load common scripts in a consistent order", async () => {
   const required = [
     "/js/error-handler.js",
     "/js/utils.js",
@@ -71,7 +75,7 @@ test("HTML files load common scripts in a consistent order", async () => {
   ];
   const failures = [];
 
-  for (const file of await htmlFiles()) {
+  for (const file of await siteShellHtmlFiles()) {
     const html = await readFile(join(ROOT, file), "utf8");
     const positions = required.map((src) => html.indexOf(`src="${src}"`));
     positions.forEach((pos, index) => {

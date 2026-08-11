@@ -54,6 +54,14 @@ function apiOrigin(value) {
   }
 }
 
+function websocketOrigin(value) {
+  const origin = apiOrigin(value);
+  if (!origin) return "";
+  const url = new URL(origin);
+  url.protocol = url.protocol === "https:" ? "wss:" : "ws:";
+  return url.origin;
+}
+
 function contentSecurityPolicy(page, scripts, inlineScripts = []) {
   const scriptSources = [
     "'self'",
@@ -93,6 +101,7 @@ function contentSecurityPolicy(page, scripts, inlineScripts = []) {
     const configuredApiOrigin = apiOrigin(SITE.apiBase);
     if (configuredApiOrigin) {
       connectSources.push(configuredApiOrigin);
+      if (page === "chat") connectSources.push(websocketOrigin(SITE.apiBase));
     }
   }
 
@@ -157,6 +166,7 @@ ${moreItems}
             <li><a class="nav-feedback${active === "contact" ? " active" : ""}" href="/contact/" data-i18n="nav.feedback" data-i18n-html><i class="fas fa-comment-dots" aria-hidden="true"></i> 留言反馈</a></li>
             <li><button class="nav-subscribe" type="button" data-subscribe-open data-i18n="nav.subscribe" data-i18n-html><i class="fas fa-envelope" aria-hidden="true"></i> 订阅</button></li>
             <li><a class="nav-sponsor${active === "sponsor" ? " active" : ""}" href="/sponsor/" data-i18n="nav.sponsor" data-i18n-html><i class="fas fa-heart" aria-hidden="true"></i> 赞助</a></li>
+            <li><a class="nav-chat${active === "chat" ? " active" : ""}" href="/chat/" aria-label="打开临时聊天室" title="打开临时聊天室" data-i18n-aria="nav.chat" data-i18n-title="nav.chat"><i class="fas fa-comments" aria-hidden="true"></i></a></li>
             <li><button class="theme-toggle" type="button" aria-label="切换主题" data-i18n-aria="nav.theme"><i class="fas fa-adjust"></i></button></li>
 ${languageItem}
             <li><button class="nav-search-trigger" type="button" aria-label="全局搜索（Ctrl+K 或 /）" title="全局搜索（Ctrl+K 或 /）" data-i18n-aria="nav.searchHint" data-i18n-title="nav.searchHint"><i class="fas fa-search"></i></button></li>

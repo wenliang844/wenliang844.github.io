@@ -26,6 +26,7 @@ import { renderAiPage } from "../src/templates/ai.mjs";
 import { renderToolsPage } from "../src/templates/tools.mjs";
 import { renderAppreciationPage } from "../src/templates/appreciation.mjs";
 import { renderSponsorPage } from "../src/templates/sponsor.mjs";
+import { renderChatPage } from "../src/templates/chat.mjs";
 import { escapeAttr, escapeHtml, escapeXml, rfc822, sitemapDate } from "../src/lib/format.mjs";
 import { readingMinutes } from "../src/lib/reading.mjs";
 
@@ -1222,6 +1223,9 @@ async function main() {
 
   // 在线工具箱
   await writeFileEnsured("tools/index.html", renderToolsPage() + "\n");
+
+  // 临时聊天室
+  await writeFileEnsured("chat/index.html", renderChatPage() + "\n");
 
   // 鉴赏页
   await writeFileEnsured("appreciation/index.html", renderAppreciationPage() + "\n");

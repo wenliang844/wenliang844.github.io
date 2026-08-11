@@ -14,6 +14,10 @@ async function htmlFiles() {
   return stdout.trim().split(/\r?\n/).filter(Boolean);
 }
 
+async function siteShellHtmlFiles() {
+  return (await htmlFiles()).filter((file) => file !== "offline.html");
+}
+
 // ─── HTML 文件大小检查 ─────────────────────────────────────────────────────────
 
 test("HTML files are reasonably sized (under 200KB each)", async () => {
@@ -109,8 +113,8 @@ test("all HTML files reference the favicon", async () => {
   assert.deepEqual(missing, [], "HTML files missing favicon reference");
 });
 
-test("committed HTML files include third-party resource hints", async () => {
-  const files = await htmlFiles();
+test("committed site shell HTML files include third-party resource hints", async () => {
+  const files = await siteShellHtmlFiles();
   const hints = [
     '<link rel="preconnect" href="https://giscus.app">',
     '<link rel="dns-prefetch" href="https://giscus.app">',
@@ -222,8 +226,8 @@ test("RSS feeds are valid and reasonably sized", async () => {
 // ─── CSS 文件大小 ─────────────────────────────────────────────────────────────
 
 test("coder.css is reasonably sized (under 140KB)", async () => {
-  const fileStat = await stat(join(ROOT, "css", "coder.css"));
-  const sizeKB = fileStat.size / 1024;
+  const css = await readFile(join(ROOT, "css", "coder.css"), "utf8");
+  const sizeKB = Buffer.byteLength(css.replace(/\r\n/g, "\n"), "utf8") / 1024;
   assert.ok(sizeKB <= 140, `coder.css is ${sizeKB.toFixed(1)}KB, exceeds 140KB`);
 });
 

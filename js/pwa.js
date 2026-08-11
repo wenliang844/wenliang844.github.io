@@ -3,7 +3,7 @@
     return;
   }
 
-  const excluded = ["/editor/", "/overleaf/", "/api/"];
+  const excluded = ["/editor/", "/overleaf/", "/chat/", "/api/"];
   if (excluded.some(function (prefix) { return window.location.pathname.startsWith(prefix); })) {
     return;
   }

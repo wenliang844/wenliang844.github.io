@@ -14,6 +14,10 @@ async function htmlFiles() {
   return stdout.trim().split(/\r?\n/).filter(Boolean);
 }
 
+async function siteShellHtmlFiles() {
+  return (await htmlFiles()).filter((file) => file !== "offline.html");
+}
+
 // ─── ARIA 属性测试 ─────────────────────────────────────────────────────────────
 
 test("all HTML files have lang attribute on <html>", async () => {
@@ -136,9 +140,9 @@ test("images have alt attributes in templates", async () => {
 
 // ─── i18n 数据属性测试 ─────────────────────────────────────────────────────────
 
-test("all pages have data-i18n-page attribute on body", async () => {
+test("site shell pages have data-i18n-page attribute on body", async () => {
   const failures = [];
-  for (const file of await htmlFiles()) {
+  for (const file of await siteShellHtmlFiles()) {
     const html = await readFile(join(ROOT, file), "utf8");
     if (!html.includes('data-i18n-page=')) {
       failures.push(`${file}: missing data-i18n-page`);
@@ -177,9 +181,9 @@ test("footer has i18n attributes for translatable content", async () => {
   assert.deepEqual(failures, []);
 });
 
-test("bilingual pages include a language toggle and Chinese-only pages omit it", async () => {
+test("bilingual site shell pages include a language toggle and Chinese-only pages omit it", async () => {
   const failures = [];
-  for (const file of await htmlFiles()) {
+  for (const file of await siteShellHtmlFiles()) {
     const html = await readFile(join(ROOT, file), "utf8");
     const chineseOnly = html.includes('data-language-mode="zh-only"');
     const hasToggle = html.includes('class="lang-toggle"');
@@ -190,9 +194,9 @@ test("bilingual pages include a language toggle and Chinese-only pages omit it",
   assert.deepEqual(failures, []);
 });
 
-test("all pages include the theme toggle button", async () => {
+test("site shell pages include the theme toggle button", async () => {
   const failures = [];
-  for (const file of await htmlFiles()) {
+  for (const file of await siteShellHtmlFiles()) {
     const html = await readFile(join(ROOT, file), "utf8");
     if (!html.includes('class="theme-toggle"')) {
       failures.push(`${file}: missing theme toggle button`);
@@ -203,9 +207,9 @@ test("all pages include the theme toggle button", async () => {
 
 // ─── 页脚一致性测试 ────────────────────────────────────────────────────────────
 
-test("all pages have consistent footer with subscribe form", async () => {
+test("site shell pages have a consistent footer with subscribe form", async () => {
   const failures = [];
-  for (const file of await htmlFiles()) {
+  for (const file of await siteShellHtmlFiles()) {
     const html = await readFile(join(ROOT, file), "utf8");
     if (!html.includes('class="subscribe"')) {
       failures.push(`${file}: missing subscribe section in footer`);
@@ -220,9 +224,9 @@ test("all pages have consistent footer with subscribe form", async () => {
   assert.deepEqual(failures, []);
 });
 
-test("all pages have sponsor CTA in footer", async () => {
+test("site shell pages have a sponsor CTA in the footer", async () => {
   const failures = [];
-  for (const file of await htmlFiles()) {
+  for (const file of await siteShellHtmlFiles()) {
     const html = await readFile(join(ROOT, file), "utf8");
     if (!html.includes('class="sponsor-mini"')) {
       failures.push(`${file}: missing sponsor mini CTA`);

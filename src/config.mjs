@@ -45,6 +45,7 @@ export const STATIC_PAGES = [
   { path: "/post/", withDate: true, insertPostsAfter: true, priority: "0.6" },
   { path: "/knowledge/", withDate: true, priority: "0.6" },
   { path: "/tools/", withDate: true, priority: "0.6" },
+  { path: "/chat/", withDate: true, priority: "0.5" },
   { path: "/editor/", withDate: true, priority: "0.6" },
   { path: "/overleaf/", withDate: true, priority: "0.6" },
   { path: "/contact/", withDate: true, priority: "0.6" },
@@ -58,6 +59,13 @@ export const STATIC_PAGES = [
 
 // 全局搜索索引中额外包含的静态页（文章页由构建脚本动态生成）。
 export const SEARCH_PAGES = [
+  {
+    title: "临时聊天室",
+    summary: "通过邀请码创建或加入临时实时聊天室。",
+    path: "/chat/",
+    tags: ["聊天室", "实时通信", "临时房间"],
+    i18n: { en: { title: "Temporary Chat", summary: "Create or join a temporary real-time chat room with an invite code.", tags: ["Chat", "Real-time", "Temporary Room"] } },
+  },
   {
     title: "知识资产",
     summary: "按主题、系列、标签和文章引用组织 CWLBlog 的公开知识资产。",

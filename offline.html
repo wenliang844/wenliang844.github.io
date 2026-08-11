@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="CWLBlog 离线提示：已访问过的文章仍可继续阅读。">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self'; script-src-attr 'none'; style-src 'self'; style-src-attr 'none'; img-src 'self' data: https:; font-src 'self' data:; worker-src 'self'; connect-src 'self'; frame-src https://giscus.app; form-action 'self' https://buttondown.com https://api.web3forms.com">
   <meta name="theme-color" content="#171717">
   <meta name="robots" content="noindex">
@@ -12,7 +13,8 @@
   <title>当前处于离线状态 | CWLBlog</title>
 </head>
 <body class="colorscheme-dark">
-  <main class="container offline-page">
+  <a class="skip-link" href="#main-content">跳到主要内容</a>
+  <main id="main-content" class="container offline-page">
     <section class="offline-message">
       <img src="/images/pwa-192.png" width="96" height="96" alt="CWLBlog">
       <h1>当前处于离线状态</h1>
