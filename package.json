@@ -8,10 +8,11 @@
     "node": ">=22.12.0"
   },
   "scripts": {
-    "build": "npm run build:editor && npm run build:content && npm run build:astro && npm run build:pwa && npm run build:csp && npm run build:search",
+    "build": "npm run build:editor && npm run build:content && npm run build:astro && npm run build:styles && npm run build:pwa && npm run build:csp && npm run build:search",
     "build:editor": "node scripts/build-editor.mjs",
     "build:content": "node scripts/build.mjs",
     "build:astro": "astro build && node scripts/sync-astro-output.mjs",
+    "build:styles": "node scripts/build-styles.mjs",
     "build:pwa": "node scripts/version-service-worker.mjs",
     "build:csp": "node scripts/harden-csp.mjs",
     "build:search": "pagefind --site . --output-subdir pagefind --glob \"{index.html,post/**/*.html,categories/**/*.html,series/**/*.html,knowledge/**/*.html,tags/**/*.html,tools/**/*.html,chat/**/*.html,ai/**/*.html,appreciation/**/*.html,sponsor/**/*.html}\" --force-language zh --include-characters \"+#_.\"",
@@ -61,6 +62,7 @@
     "jsdom": "^27.0.1",
     "marked": "^18.0.5",
     "pagefind": "^1.4.0",
+    "purgecss": "^7.0.2",
     "sharp": "^0.35.3",
     "typescript": "^5.9.3",
     "wrangler": "^4.119.0",

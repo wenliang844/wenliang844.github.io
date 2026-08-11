@@ -194,6 +194,12 @@ function renderResourceHints() {
     .join("\n");
 }
 
+function mainStylesheet(page) {
+  if (page === "home") return "/css/coder-home.min.css";
+  if (page === "posts") return "/css/coder-post.min.css";
+  return "/css/coder.min.css";
+}
+
 function renderSponsorFooterCta() {
   return `        <div class="sponsor-mini" aria-label="赞助支持选项" data-i18n-aria="sponsorMini.aria">
           <p class="sponsor-mini-text" data-i18n="sponsorMini.text">如果内容对你有帮助，可以支持我继续更新。</p>
@@ -290,6 +296,7 @@ export function renderPage(opts) {
   } = opts;
 
   const allScripts = [...new Set([...CORE_SCRIPTS, ...scripts])];
+  const mainStyle = mainStylesheet(page);
   const meta = renderMeta(og);
   // JSON-LD 结构化数据：转义 "<" 防止 </script> 提前闭合脚本块。
   const jsonLdSource = jsonLd ? JSON.stringify(jsonLd).replace(/</g, "\\u003c") : "";
@@ -318,8 +325,8 @@ export function renderPage(opts) {
   <link rel="icon" href="/images/favicon.png" type="image/png">
 ${renderResourceHints()}
   <link rel="stylesheet" href="/css/fontawesome-all.min.css">
-  <link rel="stylesheet" href="/css/coder.css">
-  <link rel="stylesheet" href="/css/content.css">
+  <link rel="stylesheet" href="${mainStyle}">
+  <link rel="stylesheet" href="/css/content.min.css">
 ${styles.map((href) => `  <link rel="stylesheet" href="${escapeAttr(href)}">`).join("\n")}
   <link rel="manifest" href="/manifest.webmanifest">
   <link rel="apple-touch-icon" href="/images/pwa-192.png">

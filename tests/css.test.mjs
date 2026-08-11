@@ -233,6 +233,20 @@ test("coder.css contains TOC selectors", async () => {
   assert.ok(css.includes(".toc-sub"), "should have toc-sub");
 });
 
+test("performance page styles are generated and substantially smaller", async () => {
+  const source = await readFile(join(ROOT, "css", "coder.css"), "utf8");
+  const home = await readFile(join(ROOT, "css", "coder-home.min.css"), "utf8");
+  const post = await readFile(join(ROOT, "css", "coder-post.min.css"), "utf8");
+
+  assert.ok(home.length < source.length * 0.5, "home CSS should stay below half of the full stylesheet");
+  assert.ok(post.length < source.length * 0.5, "post CSS should stay below half of the full stylesheet");
+  for (const css of [home, post]) {
+    assert.ok(css.includes(".navigation"), "optimized CSS should retain navigation styles");
+    assert.ok(css.includes(".footer"), "optimized CSS should retain footer styles");
+  }
+  assert.ok(post.includes(".post-layout"), "post CSS should retain article layout styles");
+});
+
 test("single-post reading column stays within 800px", async () => {
   const css = await readFile(join(ROOT, "css", "coder.css"), "utf8");
 

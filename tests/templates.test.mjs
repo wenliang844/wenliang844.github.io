@@ -77,6 +77,21 @@ test("layout deduplicates core and page scripts", () => {
   assert.match(html, /src="\/js\/assistant-loader\.js"/);
 });
 
+test("layout selects optimized stylesheets for performance-critical pages", () => {
+  const render = (page) => renderPage({
+    title: "Styles",
+    description: "Stylesheet test",
+    page,
+    scripts: [],
+    main: "<main></main>",
+  });
+
+  assert.match(render("home"), /href="\/css\/coder-home\.min\.css"/);
+  assert.match(render("posts"), /href="\/css\/coder-post\.min\.css"/);
+  assert.match(render("tools"), /href="\/css\/coder\.min\.css"/);
+  assert.match(render("posts"), /href="\/css\/content\.min\.css"/);
+});
+
 test("layout authorizes JSON-LD with an exact CSP hash", () => {
   const jsonLd = { "@context": "https://schema.org", "@type": "WebPage", name: "CWL" };
   const html = renderPage({

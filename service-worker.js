@@ -1,14 +1,16 @@
 "use strict";
 
 const CACHE_PREFIX = "cwlblog-public-";
-const CACHE_NAME = `${CACHE_PREFIX}636a6f444423954c`;
+const CACHE_NAME = `${CACHE_PREFIX}60aef040e83e4f61`;
 const OFFLINE_URL = "/offline.html";
 const PRECACHE = [
   OFFLINE_URL,
   "/post/",
   "/knowledge/",
-  "/css/coder.css",
-  "/css/content.css",
+  "/css/coder.min.css",
+  "/css/coder-home.min.css",
+  "/css/coder-post.min.css",
+  "/css/content.min.css",
   "/images/favicon.png",
 ];
 const PRIVATE_PREFIXES = ["/editor/", "/overleaf/", "/chat/", "/api/"];

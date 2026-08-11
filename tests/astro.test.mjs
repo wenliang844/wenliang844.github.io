@@ -45,7 +45,7 @@ test("Astro owns the post routes while the sync boundary stays scoped", async ()
   const detailRoute = await readFile(join(ROOT, "src", "pages", "post", "[slug]", "index.astro"), "utf8");
   const sync = await readFile(join(ROOT, "scripts", "sync-astro-output.mjs"), "utf8");
 
-  assert.match(packageJson.scripts.build, /build:content && npm run build:astro && npm run build:pwa && npm run build:csp && npm run build:search/);
+  assert.match(packageJson.scripts.build, /build:content && npm run build:astro && npm run build:styles && npm run build:pwa && npm run build:csp && npm run build:search/);
   assert.equal(packageJson.scripts["check:astro"], "astro check");
   assert.match(listRoute, /getPublishedPosts/);
   assert.match(detailRoute, /getStaticPaths/);
