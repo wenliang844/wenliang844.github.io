@@ -59,7 +59,7 @@ export function renderChatPage() {
             <label for="chat-message" data-i18n="chat.message">消息</label>
             <div class="chat-compose-row">
               <textarea id="chat-message" name="message" rows="2" maxlength="500" placeholder="输入消息" data-i18n-ph="chat.message.ph" required></textarea>
-              <button class="chat-send" type="submit" title="发送消息" aria-label="发送消息" data-i18n-title="chat.send" data-i18n-aria="chat.send"><i class="fas fa-paper-plane" aria-hidden="true"></i></button>
+              <button class="chat-send" type="submit" data-chat-send title="发送消息" aria-label="发送消息" data-i18n-title="chat.send" data-i18n-aria="chat.send"><i class="fas fa-paper-plane" aria-hidden="true"></i></button>
             </div>
             <span class="chat-counter"><span data-chat-counter>0</span>/500</span>
           </form>
@@ -74,6 +74,7 @@ export function renderChatPage() {
     descriptionEn,
     active: "chat",
     scripts: ["/js/chat.js"],
+    styles: ["/css/chat.css"],
     page: "chat",
     bodyClass: "colorscheme-dark chat-body",
     main,

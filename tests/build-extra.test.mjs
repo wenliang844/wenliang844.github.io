@@ -337,6 +337,7 @@ test("generated static pages include valid JSON-LD structured data", async () =>
     const pages = [
       ["post/index.html", "CollectionPage"],
       ["tools/index.html", "WebApplication"],
+      ["chat/index.html", "WebApplication"],
       ["ai/index.html", "CollectionPage"],
       ["categories/index.html", "CollectionPage"],
       ["tags/index.html", "CollectionPage"],

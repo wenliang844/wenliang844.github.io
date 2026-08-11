@@ -17,7 +17,7 @@ test("web app manifest is installable and uses local icons", async () => {
 
 test("service worker caches only public content and static assets", async () => {
   const source = await readFile(join(ROOT, "service-worker.js"), "utf8");
-  assert.match(source, /PRIVATE_PREFIXES = \["\/editor\/", "\/overleaf\/", "\/api\/"\]/);
+  assert.match(source, /PRIVATE_PREFIXES = \["\/editor\/", "\/overleaf\/", "\/chat\/", "\/api\/"\]/);
   assert.match(source, /request\.method !== "GET"/);
   assert.match(source, /url\.origin !== self\.location\.origin/);
   assert.match(source, /isPrivateRequest\(request, url\)/);
@@ -25,7 +25,7 @@ test("service worker caches only public content and static assets", async () => 
   assert.match(source, /request\.mode === "navigate" && hasPrefix\(url\.pathname, CONTENT_PREFIXES\)/);
   assert.match(source, /hasPrefix\(url\.pathname, STATIC_PREFIXES\)/);
   const precache = source.match(/const PRECACHE = \[[\s\S]*?\];/)?.[0] || "";
-  assert.doesNotMatch(precache, /\/editor\/|\/overleaf\/|\/api\//);
+  assert.doesNotMatch(precache, /\/editor\/|\/overleaf\/|\/chat\/|\/api\//);
   assert.doesNotMatch(source, /localStorage|indexedDB/);
   assert.match(source, /CACHE_NAME = `\$\{CACHE_PREFIX\}[a-f0-9]{16}`/);
 });
@@ -81,7 +81,7 @@ test("service worker bypasses static assets requested by private authoring pages
 
 test("PWA registration skips authoring routes", async () => {
   const source = await readFile(join(ROOT, "js", "pwa.js"), "utf8");
-  assert.match(source, /\["\/editor\/", "\/overleaf\/", "\/api\/"\]/);
+  assert.match(source, /\["\/editor\/", "\/overleaf\/", "\/chat\/", "\/api\/"\]/);
   assert.match(source, /navigator\.serviceWorker\.register\("\/service-worker\.js", \{ scope: "\/" \}\)/);
 });
 

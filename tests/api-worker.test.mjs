@@ -18,7 +18,7 @@ await build({
 });
 const workerModule = await import(`${new URL(`file:///${outfile.replace(/\\/g, "/")}`).href}?v=${Date.now()}`);
 const worker = workerModule.default;
-const { AiBudget } = workerModule;
+const { AiBudget, ChatGate, ChatRoom } = workerModule;
 
 const API_ORIGIN = "https://api.example.com";
 const SITE_ORIGIN = "https://blog.example.com";
@@ -186,6 +186,140 @@ test("OAuth state and owner allowlist produce a signed HttpOnly session", async 
   const { sessionCookie, csrfToken } = await authenticate();
   assert.match(sessionCookie, /^cwl_session=/);
   assert.ok(csrfToken.length >= 20);
+});
+
+function memoryDurableState(initial = {}) {
+  const values = new Map(Object.entries(initial));
+  const sockets = [];
+  return {
+    values,
+    sockets,
+    alarms: [],
+    deleted: false,
+    storage: {
+      async get(key) { return values.get(key); },
+      async put(key, value) { values.set(key, structuredClone(value)); },
+      async setAlarm(value) { this.lastAlarm = Number(value); },
+      async deleteAll() { values.clear(); },
+    },
+    acceptWebSocket(socket) { sockets.push(socket); },
+    getWebSockets() { return sockets; },
+  };
+}
+
+function fakeChatSocket() {
+  let attachment = {};
+  return {
+    sent: [],
+    closed: null,
+    send(value) { this.sent.push(JSON.parse(value)); },
+    close(code, reason) { this.closed = { code, reason }; },
+    serializeAttachment(value) { attachment = structuredClone(value); },
+    deserializeAttachment() { return structuredClone(attachment); },
+  };
+}
+
+test("chat room creation is origin checked, gated and initializes a private room object", async () => {
+  const initialized = [];
+  const env = {
+    ...ENV,
+    CHAT_ENABLED: "true",
+    CHAT_GATE: {
+      idFromName() { return "gate"; },
+      get() { return { async fetch() { return jsonResponse({ ok: true }); } }; },
+    },
+    CHAT_ROOMS: {
+      idFromName(code) { return code; },
+      get(code) {
+        return {
+          async fetch(_input, init) {
+            initialized.push({ code, body: JSON.parse(init.body) });
+            return jsonResponse({ ok: true }, 201);
+          },
+        };
+      },
+    },
+  };
+  const denied = await worker.fetch(request("/api/v1/chat/rooms", {
+    method: "POST",
+    headers: { origin: "https://evil.example", "content-type": "application/json" },
+    body: "{}",
+  }), env, context());
+  assert.equal(denied.status, 403);
+  assert.equal((await denied.json()).error.code, "invalid_origin");
+
+  const response = await worker.fetch(request("/api/v1/chat/rooms", {
+    method: "POST",
+    headers: { origin: SITE_ORIGIN, "content-type": "application/json", "cf-connecting-ip": "203.0.113.4" },
+    body: "{}",
+  }), env, context());
+  assert.equal(response.status, 201);
+  const data = await response.json();
+  assert.match(data.roomCode, /^[0-9A-HJKMNP-TV-Z]{8}$/);
+  assert.equal(data.idleTimeoutSeconds, 7200);
+  assert.equal(initialized.length, 1);
+  assert.equal(initialized[0].code, data.roomCode);
+});
+
+test("chat gate enforces create and join windows without storing raw IP addresses", async () => {
+  const state = memoryDurableState();
+  const gate = new ChatGate(state);
+  const createBody = JSON.stringify({ action: "create", ipHash: "hashed-chat-client-0001" });
+  for (let count = 0; count < 5; count += 1) {
+    assert.equal((await gate.fetch(new Request("https://gate/check", { method: "POST", body: createBody }))).status, 200);
+  }
+  assert.equal((await gate.fetch(new Request("https://gate/check", { method: "POST", body: createBody }))).status, 429);
+  assert.doesNotMatch(JSON.stringify([...state.values]), /203\.0\.113\./);
+});
+
+test("chat room joins with unique nicknames, broadcasts text and rolls history at 1000 messages", async () => {
+  const now = Date.now();
+  const seededHistory = Array.from({ length: 1000 }, (_, index) => ({
+    id: `old-${index}`,
+    participantId: "seed",
+    nickname: "Seed",
+    text: `message-${index}`,
+    sentAt: new Date(now - 1000 + index).toISOString(),
+  }));
+  const state = memoryDurableState({
+    meta: { roomCode: "ABCD2345", createdAt: now, lastActivity: now },
+    history: seededHistory,
+    participants: {},
+  });
+  const roomObject = new ChatRoom(state);
+  const first = fakeChatSocket();
+  const second = fakeChatSocket();
+  state.sockets.push(first, second);
+  await roomObject.webSocketMessage(first, JSON.stringify({ type: "join", nickname: "CWL" }));
+  await roomObject.webSocketMessage(second, JSON.stringify({ type: "join", nickname: "CWL" }));
+  const firstReady = first.sent.find((frame) => frame.type === "ready");
+  const secondReady = second.sent.find((frame) => frame.type === "ready");
+  assert.equal(firstReady.nickname, "CWL");
+  assert.equal(secondReady.nickname, "CWL (2)");
+  assert.equal(secondReady.online, 2);
+
+  await roomObject.webSocketMessage(first, JSON.stringify({ type: "message", text: "<img src=x onerror=alert(1)>" }));
+  const history = state.values.get("history");
+  assert.equal(history.length, 1000);
+  assert.equal(history[0].id, "old-1");
+  assert.equal(history.at(-1).text, "<img src=x onerror=alert(1)>");
+  assert.ok(second.sent.some((frame) => frame.type === "message" && frame.text.includes("onerror")));
+});
+
+test("chat room expires through its alarm and deletes all durable state", async () => {
+  const state = memoryDurableState({
+    meta: { roomCode: "ABCD2345", createdAt: 1, lastActivity: 1 },
+    history: [],
+    participants: {},
+  });
+  const socket = fakeChatSocket();
+  socket.serializeAttachment({ joined: true, participantId: "p1", nickname: "CWL", resumeToken: "token-token-token-token" });
+  state.sockets.push(socket);
+  const roomObject = new ChatRoom(state);
+  await roomObject.alarm();
+  assert.equal(state.values.size, 0);
+  assert.deepEqual(socket.closed, { code: 4000, reason: "room_expired" });
+  assert.ok(socket.sent.some((frame) => frame.code === "room_expired"));
 });
 
 test("short session secrets fail closed without issuing cookies", async () => {

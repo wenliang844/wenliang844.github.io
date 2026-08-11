@@ -22,6 +22,78 @@ async function openAssistant(page) {
   await trigger.click();
 }
 
+async function installChatSocket(page) {
+  await page.addInitScript(() => {
+    class MockChatSocket extends EventTarget {
+      static OPEN = 1;
+      constructor() {
+        super();
+        this.readyState = 0;
+        queueMicrotask(() => {
+          this.readyState = MockChatSocket.OPEN;
+          this.dispatchEvent(new Event("open"));
+        });
+      }
+      send(raw) {
+        const frame = JSON.parse(raw);
+        if (frame.type === "join") {
+          queueMicrotask(() => this.dispatchEvent(new MessageEvent("message", { data: JSON.stringify({
+            type: "ready",
+            roomCode: "ABCD2345",
+            participantId: "browser-user",
+            resumeToken: "browser-resume-token-12345",
+            nickname: frame.nickname,
+            history: [],
+            online: 1,
+          }) })));
+        }
+        if (frame.type === "message") {
+          queueMicrotask(() => this.dispatchEvent(new MessageEvent("message", { data: JSON.stringify({
+            type: "message",
+            id: "browser-message",
+            participantId: "browser-user",
+            nickname: "Responsive Tester",
+            text: frame.text,
+            sentAt: new Date().toISOString(),
+          }) })));
+        }
+      }
+      close(code = 1000, reason = "") {
+        this.readyState = 3;
+        this.dispatchEvent(new CloseEvent("close", { code, reason }));
+      }
+    }
+    window.WebSocket = MockChatSocket;
+  });
+}
+
+test("temporary chat lobby and room remain usable at every viewport", async ({ page }, testInfo) => {
+  await installChatSocket(page);
+  await page.route("**/chat/**", async (route) => {
+    const response = await route.fetch();
+    const body = configureApiBase(await response.text());
+    await route.fulfill({ response, body });
+  });
+  await page.goto("/chat/?room=ABCD2345");
+  await page.locator("#chat-nickname").fill("Responsive Tester");
+  await page.locator("[data-chat-join]").click();
+  await expect(page.locator('[data-chat-view="room"]')).toBeVisible();
+  await expect(page.locator("[data-chat-connection]")).toHaveAttribute("data-state", "connected");
+  await expect(page.locator("[data-chat-online]")).toHaveText("1");
+  await page.locator("#chat-message").fill("Hello from responsive chat");
+  await page.locator("[data-chat-send]").click();
+  await expect(page.locator(".chat-message")).toContainText("Hello from responsive chat");
+  const dimensions = await page.evaluate(() => ({
+    documentWidth: document.documentElement.scrollWidth,
+    viewportWidth: document.documentElement.clientWidth,
+  }));
+  expect(dimensions.documentWidth).toBeLessThanOrEqual(dimensions.viewportWidth);
+  await testInfo.attach(`chat-${testInfo.project.name}`, {
+    body: await page.screenshot({ fullPage: true }),
+    contentType: "image/png",
+  });
+});
+
 test("article list remains scannable without horizontal overflow", async ({ page }, testInfo) => {
   await page.goto("/post/");
   await expect(page.locator(".blog-article")).toHaveCount(6);

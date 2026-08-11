@@ -114,6 +114,14 @@ export function validatePost(data, filename)  // 验证文章字段
 - 隐私：Analytics Engine 只记录结果类型和数据集哈希前缀，不记录问题、回答、原始 IP、Cookie 或 Token。
 - 关闭开关：`AI_ENABLED=false` 时接口失败关闭，客户端不会绕过边缘 API 直连模型。
 
+### 4.4 临时聊天室
+
+- 访问边界：创建房间和 WebSocket 握手都要求精确 `SITE_ORIGIN`；邀请码不公开枚举，获得邀请码即拥有加入能力。
+- 数据边界：只接受纯文本昵称和消息，消息由 DOM `textContent` 渲染；拒绝二进制帧、超 4 KB 帧和未知协议类型。
+- 生命周期：每个房间最多 20 人、滚动保留 1000 条消息，连续 2 小时无活动后关闭连接并删除全部 Durable Object 数据。
+- 滥用控制：访客 IP 经 HMAC 后分配独立 `ChatGate` 对象，限制创建、加入和房间内发送频率；不记录原始 IP、消息、昵称、邀请码或恢复令牌。
+- 关闭开关：`CHAT_ENABLED=false` 时创建和加入接口失败关闭；静态聊天室页面和资源不进入 PWA 缓存。
+
 ### 5. localStorage 安全
 
 #### 存储的数据

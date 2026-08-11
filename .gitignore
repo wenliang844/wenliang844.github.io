@@ -24,6 +24,7 @@ home/ruoyi/logs/
 .env.*
 !.env.example
 .dev.vars
+.wrangler/
 
 # Caches
 .cache/

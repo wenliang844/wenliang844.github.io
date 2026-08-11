@@ -942,7 +942,7 @@ function chatRoomCode(): string {
 async function checkChatGate(request: Request, env: Env, action: "create" | "join"): Promise<void> {
   const ip = request.headers.get("cf-connecting-ip") || "unknown";
   const ipHash = (await signature(`chat-rate:${ip}`, env.SESSION_SECRET)).slice(0, 32);
-  const id = env.CHAT_GATE!.idFromName("global");
+  const id = env.CHAT_GATE!.idFromName(`${action}:${ipHash}`);
   const response = await env.CHAT_GATE!.get(id).fetch("https://chat-gate.internal/check", {
     method: "POST",
     headers: { "content-type": "application/json" },
@@ -1393,6 +1393,242 @@ async function route(request: Request, env: Env): Promise<Response> {
     }
   }
   throw new HttpError(404, "API route not found.", "not_found");
+}
+
+export class ChatGate {
+  constructor(private state: DurableStateLike) {}
+
+  async fetch(request: Request): Promise<Response> {
+    if (request.method !== "POST") return new Response("Method not allowed", { status: 405 });
+    let input: { action?: "create" | "join"; ipHash?: string };
+    try {
+      input = await request.json() as typeof input;
+    } catch {
+      return new Response("Invalid JSON", { status: 400 });
+    }
+    if ((input.action !== "create" && input.action !== "join")
+      || !input.ipHash || !/^[A-Za-z0-9_-]{16,64}$/.test(input.ipHash)) {
+      return new Response("Invalid gate input", { status: 400 });
+    }
+    const now = Date.now();
+    const windowMs = input.action === "create" ? 60 * 60 * 1000 : 60 * 1000;
+    const limit = input.action === "create" ? 5 : 30;
+    const window = Math.floor(now / windowMs);
+    const current = await this.state.storage.get<{ window: number; count: number }>("limit");
+    const count = current?.window === window ? current.count : 0;
+    if (count >= limit) {
+      return new Response(JSON.stringify({ error: "rate_limited" }), { status: 429, headers: { "content-type": "application/json" } });
+    }
+    await this.state.storage.put("limit", { window, count: count + 1 });
+    return new Response(JSON.stringify({ ok: true }), { status: 200, headers: { "content-type": "application/json" } });
+  }
+}
+
+export class ChatRoom {
+  constructor(private state: DurableStateLike) {}
+
+  private sockets(): AttachedWebSocket[] {
+    return (this.state.getWebSockets?.() || []) as AttachedWebSocket[];
+  }
+
+  private send(socket: WebSocket, frame: unknown): void {
+    try {
+      socket.send(JSON.stringify(frame));
+    } catch {
+      // A concurrent close must not prevent delivery to remaining participants.
+    }
+  }
+
+  private broadcast(frame: unknown, except?: WebSocket): void {
+    for (const socket of this.sockets()) {
+      if (socket !== except) this.send(socket, frame);
+    }
+  }
+
+  private joinedSockets(): AttachedWebSocket[] {
+    return this.sockets().filter((socket) => socket.deserializeAttachment()?.joined === true);
+  }
+
+  private async touch(): Promise<void> {
+    const meta = await this.state.storage.get<{ roomCode: string; createdAt: number; lastActivity: number }>("meta");
+    if (!meta) return;
+    const now = Date.now();
+    await this.state.storage.put("meta", { ...meta, lastActivity: now });
+    await this.state.storage.setAlarm?.(now + CHAT_IDLE_MS);
+  }
+
+  private uniqueNickname(requested: string, currentParticipantId = ""): string {
+    const names = new Set(this.joinedSockets()
+      .map((socket) => socket.deserializeAttachment())
+      .filter((item) => item?.participantId !== currentParticipantId)
+      .map((item) => item?.nickname?.toLocaleLowerCase())
+      .filter(Boolean));
+    if (!names.has(requested.toLocaleLowerCase())) return requested;
+    for (let suffix = 2; suffix <= 99; suffix += 1) {
+      const marker = ` (${suffix})`;
+      const base = requested.slice(0, Math.max(1, 20 - marker.length)).trimEnd();
+      const candidate = `${base}${marker}`;
+      if (!names.has(candidate.toLocaleLowerCase())) return candidate;
+    }
+    return `${requested.slice(0, 14)}-${randomToken().slice(0, 4)}`;
+  }
+
+  async fetch(request: Request): Promise<Response> {
+    const url = new URL(request.url);
+    if (request.method === "POST" && url.pathname === "/initialize") {
+      const existing = await this.state.storage.get("meta");
+      if (existing) return new Response("Room already exists", { status: 409 });
+      let input: { roomCode?: string };
+      try {
+        input = await request.json() as typeof input;
+      } catch {
+        return new Response("Invalid JSON", { status: 400 });
+      }
+      if (!input.roomCode || !CHAT_CODE_PATTERN.test(input.roomCode)) return new Response("Invalid room code", { status: 400 });
+      const now = Date.now();
+      await this.state.storage.put("meta", { roomCode: input.roomCode, createdAt: now, lastActivity: now });
+      await this.state.storage.put("history", [] as ChatMessage[]);
+      await this.state.storage.put("participants", {} as Record<string, { participantId: string; nickname: string; lastSeen: number }>);
+      await this.state.storage.setAlarm?.(now + CHAT_IDLE_MS);
+      return new Response(JSON.stringify({ ok: true }), { status: 201, headers: { "content-type": "application/json" } });
+    }
+
+    if ((request.headers.get("upgrade") || "").toLowerCase() !== "websocket") {
+      return new Response("WebSocket upgrade required", { status: 426 });
+    }
+    const pair = new WebSocketPair();
+    const client = pair[0];
+    const server = pair[1] as AttachedWebSocket;
+    this.state.acceptWebSocket?.(server);
+    server.serializeAttachment({ joined: false });
+    const meta = await this.state.storage.get("meta");
+    if (!meta) {
+      this.send(server, { type: "error", code: "room_not_found", message: "Chat room was not found.", retryable: false });
+      server.close(4404, "room_not_found");
+    } else if (this.joinedSockets().length >= MAX_CHAT_PARTICIPANTS) {
+      this.send(server, { type: "error", code: "room_full", message: "Chat room is full.", retryable: false });
+      server.close(4409, "room_full");
+    }
+    return new Response(null, { status: 101, webSocket: client } as ResponseInit & { webSocket: WebSocket });
+  }
+
+  async webSocketMessage(socket: AttachedWebSocket, raw: string | ArrayBuffer): Promise<void> {
+    if (typeof raw !== "string" || encoder.encode(raw).byteLength > MAX_CHAT_FRAME_BYTES) {
+      this.send(socket, { type: "error", code: "message_invalid", message: "Chat frame is invalid.", retryable: false });
+      socket.close(4400, "invalid_frame");
+      return;
+    }
+    let frame: any;
+    try {
+      frame = JSON.parse(raw);
+    } catch {
+      this.send(socket, { type: "error", code: "message_invalid", message: "Chat frame must be valid JSON.", retryable: true });
+      return;
+    }
+    const attachment = socket.deserializeAttachment() || {};
+    if (!attachment.joined) {
+      if (frame?.type !== "join") {
+        this.send(socket, { type: "error", code: "nickname_invalid", message: "Join the room before sending messages.", retryable: false });
+        socket.close(4400, "join_required");
+        return;
+      }
+      const requested = typeof frame.nickname === "string" ? frame.nickname.trim() : "";
+      if (requested.length < 2 || requested.length > 20 || /[\u0000-\u001f\u007f]/.test(requested)) {
+        this.send(socket, { type: "error", code: "nickname_invalid", message: "Nickname must contain 2-20 characters.", retryable: false });
+        socket.close(4400, "nickname_invalid");
+        return;
+      }
+      if (this.joinedSockets().length >= MAX_CHAT_PARTICIPANTS) {
+        this.send(socket, { type: "error", code: "room_full", message: "Chat room is full.", retryable: false });
+        socket.close(4409, "room_full");
+        return;
+      }
+      const participants = await this.state.storage.get<Record<string, { participantId: string; nickname: string; lastSeen: number }>>("participants") || {};
+      const suppliedToken = typeof frame.resumeToken === "string" && /^[A-Za-z0-9_-]{20,64}$/.test(frame.resumeToken) ? frame.resumeToken : "";
+      const resumed = suppliedToken ? participants[suppliedToken] : undefined;
+      const resumeToken = resumed ? suppliedToken : randomToken();
+      const participantId = resumed?.participantId || randomToken().slice(0, 16);
+      const nickname = this.uniqueNickname(resumed?.nickname || requested, participantId);
+      for (const existing of this.joinedSockets()) {
+        const existingAttachment = existing.deserializeAttachment();
+        if (existing !== socket && existingAttachment?.resumeToken === resumeToken) existing.close(4001, "replaced");
+      }
+      const joinedAttachment: ChatSocketAttachment = { participantId, nickname, resumeToken, joined: true, rateWindow: 0, rateCount: 0 };
+      socket.serializeAttachment(joinedAttachment);
+      participants[resumeToken] = { participantId, nickname, lastSeen: Date.now() };
+      const entries = Object.entries(participants).sort((left, right) => right[1].lastSeen - left[1].lastSeen).slice(0, 200);
+      await this.state.storage.put("participants", Object.fromEntries(entries));
+      const history = await this.state.storage.get<ChatMessage[]>("history") || [];
+      const online = this.joinedSockets().length;
+      this.send(socket, { type: "ready", roomCode: (await this.state.storage.get<{ roomCode: string }>("meta"))?.roomCode, participantId, resumeToken, nickname, history, online });
+      this.broadcast({ type: "system", event: "joined", nickname }, socket);
+      this.broadcast({ type: "presence", online });
+      await this.touch();
+      return;
+    }
+
+    if (frame?.type !== "message") {
+      this.send(socket, { type: "error", code: "message_invalid", message: "Unknown chat frame type.", retryable: true });
+      return;
+    }
+    const text = typeof frame.text === "string" ? frame.text.trim() : "";
+    if (!text || text.length > 500 || /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/.test(text)) {
+      this.send(socket, { type: "error", code: "message_invalid", message: "Message must contain 1-500 characters.", retryable: true });
+      return;
+    }
+    const now = Date.now();
+    const rateWindow = Math.floor(now / 10_000);
+    const rateCount = attachment.rateWindow === rateWindow ? attachment.rateCount || 0 : 0;
+    if (rateCount >= 5) {
+      this.send(socket, { type: "error", code: "rate_limited", message: "Too many messages.", retryable: true });
+      return;
+    }
+    socket.serializeAttachment({ ...attachment, rateWindow, rateCount: rateCount + 1 });
+    const message: ChatMessage = {
+      id: `${now.toString(36)}-${randomToken().slice(0, 8)}`,
+      participantId: attachment.participantId!,
+      nickname: attachment.nickname!,
+      text,
+      sentAt: new Date(now).toISOString(),
+    };
+    const history = await this.state.storage.get<ChatMessage[]>("history") || [];
+    history.push(message);
+    if (history.length > MAX_CHAT_MESSAGES) history.splice(0, history.length - MAX_CHAT_MESSAGES);
+    await this.state.storage.put("history", history);
+    this.broadcast({ type: "message", ...message });
+    await this.touch();
+  }
+
+  async webSocketClose(socket: AttachedWebSocket): Promise<void> {
+    const attachment = socket.deserializeAttachment();
+    if (!attachment?.joined) return;
+    const participants = await this.state.storage.get<Record<string, { participantId: string; nickname: string; lastSeen: number }>>("participants") || {};
+    if (attachment.resumeToken && participants[attachment.resumeToken]) {
+      participants[attachment.resumeToken].lastSeen = Date.now();
+      await this.state.storage.put("participants", participants);
+    }
+    const online = this.joinedSockets().filter((item) => item !== socket).length;
+    this.broadcast({ type: "system", event: "left", nickname: attachment.nickname }, socket);
+    this.broadcast({ type: "presence", online }, socket);
+    await this.touch();
+  }
+
+  async webSocketError(socket: AttachedWebSocket): Promise<void> {
+    socket.close(1011, "socket_error");
+  }
+
+  async alarm(): Promise<void> {
+    const meta = await this.state.storage.get<{ lastActivity: number }>("meta");
+    if (!meta) return;
+    const expiresAt = meta.lastActivity + CHAT_IDLE_MS;
+    if (expiresAt > Date.now()) {
+      await this.state.storage.setAlarm?.(expiresAt);
+      return;
+    }
+    this.broadcast({ type: "error", code: "room_expired", message: "Chat room expired.", retryable: false });
+    for (const socket of this.sockets()) socket.close(4000, "room_expired");
+    await this.state.storage.deleteAll?.();
+  }
 }
 
 export class AiBudget {

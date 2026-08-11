@@ -91,6 +91,9 @@ test("site shell HTML files load common scripts in a consistent order", async ()
     if (html.includes('class="navigation-list"') && !html.includes('class="nav-search-trigger"')) {
       failures.push(`${file}: missing global search trigger`);
     }
+    if (html.includes('class="navigation-list"') && !html.includes('href="/chat/"')) {
+      failures.push(`${file}: missing temporary chat navigation`);
+    }
   }
 
   assert.deepEqual(failures, []);

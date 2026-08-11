@@ -13,6 +13,7 @@ AI_CHAT_MODEL = "@cf/meta/llama-3.1-8b-instruct"
 AI_EMBEDDING_MODEL = "@cf/baai/bge-m3"
 AI_DAILY_REQUEST_LIMIT = "100"
 AI_REQUESTS_PER_MINUTE = "6"
+CHAT_ENABLED = "true"
 
 [[r2_buckets]]
 binding = "ASSETS"
@@ -33,9 +34,21 @@ index_name = "cwlblog-knowledge"
 name = "AI_BUDGET"
 class_name = "AiBudget"
 
+[[durable_objects.bindings]]
+name = "CHAT_ROOMS"
+class_name = "ChatRoom"
+
+[[durable_objects.bindings]]
+name = "CHAT_GATE"
+class_name = "ChatGate"
+
 [[migrations]]
 tag = "v1"
 new_sqlite_classes = ["AiBudget"]
+
+[[migrations]]
+tag = "v2"
+new_sqlite_classes = ["ChatRoom", "ChatGate"]
 
 [triggers]
 crons = ["0 3 * * 1"]

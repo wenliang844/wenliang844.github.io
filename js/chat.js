@@ -1,9 +1,9 @@
 (function () {
-  "use strict";
+
 
   const lobby = document.querySelector('[data-chat-view="lobby"]');
   const room = document.querySelector('[data-chat-view="room"]');
-  if (!lobby || !room) return;
+  if (!lobby || !room) {return;}
 
   const apiMeta = document.querySelector('meta[name="cwl-api-base"]');
   const apiBase = apiMeta ? apiMeta.getAttribute("content").replace(/\/$/, "") : "";
@@ -40,14 +40,21 @@
     return String(value || "").trim().toUpperCase().replace(/[-\s]/g, "");
   }
 
+  function hasControlCharacters(value) {
+    return Array.from(value).some(function (character) {
+      const code = character.charCodeAt(0);
+      return code <= 31 || code === 127;
+    });
+  }
+
   function validNickname(value) {
     const nickname = String(value || "").trim();
-    return nickname.length >= 2 && nickname.length <= 20 && !/[\u0000-\u001f\u007f]/.test(nickname);
+    return nickname.length >= 2 && nickname.length <= 20 && !hasControlCharacters(nickname);
   }
 
   function setStatus(element, text, state) {
     element.textContent = text || "";
-    if (state) element.dataset.state = state;
+    if (state) {element.dataset.state = state;}
   }
 
   function setConnection(state) {
@@ -87,10 +94,10 @@
   }
 
   function appendMessage(message, historical) {
-    if (!message || typeof message.text !== "string") return;
+    if (!message || typeof message.text !== "string") {return;}
     const item = document.createElement("li");
     item.className = "chat-message" + (message.participantId === participantId ? " is-own" : "");
-    if (message.id) item.dataset.messageId = message.id;
+    if (message.id) {item.dataset.messageId = message.id;}
     const meta = document.createElement("div");
     meta.className = "chat-message-meta";
     const name = document.createElement("strong");
@@ -104,27 +111,27 @@
     meta.append(name, time);
     item.append(meta, body);
     messagesEl.appendChild(item);
-    if (!historical) item.scrollIntoView({ block: "end" });
+    if (!historical) {item.scrollIntoView({ block: "end" });}
   }
 
   function appendSystem(event, nickname) {
     const item = document.createElement("li");
     item.className = "chat-system-message";
-    if (event === "joined") item.textContent = t("chat.system.joined", "{name} 加入了房间").replace("{name}", nickname || t("chat.anonymous", "匿名"));
-    else if (event === "left") item.textContent = t("chat.system.left", "{name} 离开了房间").replace("{name}", nickname || t("chat.anonymous", "匿名"));
-    else if (event === "history_truncated") item.textContent = t("chat.system.truncated", "较早的消息已按房间上限清除。");
-    else return;
+    if (event === "joined") {item.textContent = t("chat.system.joined", "{name} 加入了房间").replace("{name}", nickname || t("chat.anonymous", "匿名"));}
+    else if (event === "left") {item.textContent = t("chat.system.left", "{name} 离开了房间").replace("{name}", nickname || t("chat.anonymous", "匿名"));}
+    else if (event === "history_truncated") {item.textContent = t("chat.system.truncated", "较早的消息已按房间上限清除。");}
+    else {return;}
     messagesEl.appendChild(item);
     item.scrollIntoView({ block: "end" });
   }
 
   function handleFrame(frame) {
-    if (!frame || typeof frame.type !== "string") return;
+    if (!frame || typeof frame.type !== "string") {return;}
     if (frame.type === "ready") {
       participantId = frame.participantId || "";
       currentNickname = frame.nickname || currentNickname;
       nicknameInput.value = currentNickname;
-      if (frame.resumeToken) saveResumeToken(currentRoom, frame.resumeToken);
+      if (frame.resumeToken) {saveResumeToken(currentRoom, frame.resumeToken);}
       messagesEl.replaceChildren();
       (Array.isArray(frame.history) ? frame.history : []).forEach(function (message) { appendMessage(message, true); });
       onlineEl.textContent = String(Number.isInteger(frame.online) ? frame.online : 1);
@@ -132,12 +139,12 @@
       setConnection("connected");
       messageInput.disabled = false;
       messageInput.focus();
-      if (messagesEl.lastElementChild) messagesEl.lastElementChild.scrollIntoView({ block: "end" });
+      if (messagesEl.lastElementChild) {messagesEl.lastElementChild.scrollIntoView({ block: "end" });}
       return;
     }
-    if (frame.type === "message") appendMessage(frame, false);
-    else if (frame.type === "presence") onlineEl.textContent = String(Number.isInteger(frame.online) ? frame.online : 0);
-    else if (frame.type === "system") appendSystem(frame.event, frame.nickname);
+    if (frame.type === "message") {appendMessage(frame, false);}
+    else if (frame.type === "presence") {onlineEl.textContent = String(Number.isInteger(frame.online) ? frame.online : 0);}
+    else if (frame.type === "system") {appendSystem(frame.event, frame.nickname);}
     else if (frame.type === "error") {
       setStatus(roomStatus, errorMessage(frame.code, frame.message), "error");
       if (TERMINAL_ERRORS.has(frame.code)) {
@@ -156,7 +163,7 @@
   }
 
   function scheduleReconnect() {
-    if (leaving || !currentRoom || reconnectTimer) return;
+    if (leaving || !currentRoom || reconnectTimer) {return;}
     const delay = Math.min(30000, Math.pow(2, reconnectAttempt) * 1000);
     reconnectAttempt += 1;
     setConnection("reconnecting");
@@ -164,7 +171,7 @@
   }
 
   function connect() {
-    if (!apiBase || !currentRoom || leaving) return;
+    if (!apiBase || !currentRoom || leaving) {return;}
     setConnection(reconnectAttempt ? "reconnecting" : "connecting");
     messageInput.disabled = true;
     try { socket = new WebSocket(websocketUrl(currentRoom)); } catch (_error) { scheduleReconnect(); return; }
@@ -172,10 +179,10 @@
       socket.send(JSON.stringify({ type: "join", nickname: currentNickname, resumeToken: readResumeToken(currentRoom) || undefined }));
     });
     socket.addEventListener("message", function (event) {
-      if (typeof event.data !== "string") return;
+      if (typeof event.data !== "string") {return;}
       try { handleFrame(JSON.parse(event.data)); } catch (_error) { /* malformed server frame */ }
     });
-    socket.addEventListener("close", function () { socket = null; if (!leaving) scheduleReconnect(); });
+    socket.addEventListener("close", function () { socket = null; if (!leaving) {scheduleReconnect();} });
     socket.addEventListener("error", function () { setConnection("disconnected"); });
   }
 
@@ -211,13 +218,13 @@
 
   async function createRoom() {
     const values = lobbyValues();
-    if (!values || !apiBase) return;
+    if (!values || !apiBase) {return;}
     createButton.disabled = true;
     setStatus(lobbyStatus, t("chat.state.creating", "正在创建房间…"), "loading");
     try {
       const response = await fetch(apiBase + "/api/v1/chat/rooms", { method: "POST", headers: { "content-type": "application/json" }, body: "{}" });
       const data = await response.json();
-      if (!response.ok) throw Object.assign(new Error("create failed"), { code: data && data.error && data.error.code });
+      if (!response.ok) {throw Object.assign(new Error("create failed"), { code: data && data.error && data.error.code });}
       openRoom(data.roomCode, values.nickname);
     } catch (error) {
       setStatus(lobbyStatus, errorMessage(error.code), "error");
@@ -228,7 +235,7 @@
 
   function joinRoom() {
     const values = lobbyValues();
-    if (!values) return;
+    if (!values) {return;}
     if (!ROOM_CODE.test(values.code)) {
       codeInput.setAttribute("aria-invalid", "true");
       setStatus(lobbyStatus, t("chat.error.code", "请输入有效的 8 位邀请码。"), "error");
@@ -243,7 +250,7 @@
     leaving = true;
     window.clearTimeout(reconnectTimer);
     reconnectTimer = null;
-    if (socket) socket.close(1000, "left");
+    if (socket) {socket.close(1000, "left");}
     socket = null;
     removeResumeToken(currentRoom);
     currentRoom = "";
@@ -264,7 +271,7 @@
     event.preventDefault();
     const text = messageInput.value.trim();
     if (!text || text.length > 500 || !socket || socket.readyState !== WebSocket.OPEN) {
-      if (text) setStatus(roomStatus, errorMessage("message_invalid"), "error");
+      if (text) {setStatus(roomStatus, errorMessage("message_invalid"), "error");}
       return;
     }
     socket.send(JSON.stringify({ type: "message", text, clientMessageId: String(Date.now()) + Math.random().toString(16).slice(2) }));
@@ -282,13 +289,13 @@
       .catch(function () { setStatus(roomStatus, t("chat.error.copy", "复制失败，请从地址栏复制链接。"), "error"); });
   });
   shareButton.addEventListener("click", function () {
-    if (navigator.share) navigator.share({ title: t("chat.title", "临时聊天室"), url: inviteUrl() }).catch(function () { /* user cancelled */ });
-    else copyButton.click();
+    if (navigator.share) {navigator.share({ title: t("chat.title", "临时聊天室"), url: inviteUrl() }).catch(function () { /* user cancelled */ });}
+    else {copyButton.click();}
   });
-  window.addEventListener("beforeunload", function () { leaving = true; if (socket) socket.close(1000, "left"); });
+  window.addEventListener("beforeunload", function () { leaving = true; if (socket) {socket.close(1000, "left");} });
 
   const requestedRoom = normalizeRoomCode(new URLSearchParams(window.location.search).get("room"));
-  if (requestedRoom && ROOM_CODE.test(requestedRoom)) codeInput.value = requestedRoom;
+  if (requestedRoom && ROOM_CODE.test(requestedRoom)) {codeInput.value = requestedRoom;}
   if (!apiBase) {
     createButton.disabled = true;
     joinButton.disabled = true;

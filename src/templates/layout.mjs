@@ -259,6 +259,7 @@ export function buildPageJsonLd({ type = "WebPage", name, description, path, ...
  * @param {string} [opts.descriptionEn] 英文 meta description
  * @param {string} opts.active       导航高亮 key（blog/editor/contact 或 ""）
  * @param {string[]} opts.scripts    额外 defer 脚本（coder.js 已默认包含）
+ * @param {string[]} [opts.styles]   当前页面额外加载的同源样式表
  * @param {string} opts.bodyClass    body 额外 class，默认 colorscheme-light
  * @param {string} opts.page         用于 i18n head 切换（如 "home"/"posts"/"tags"），对应 head.title.* / head.desc.* 键
  * @param {string} opts.main         <main> 内部 HTML
@@ -273,6 +274,7 @@ export function renderPage(opts) {
     descriptionEn = "",
     active = "",
     scripts = [],
+    styles = [],
     bodyClass = "colorscheme-dark",
     page = "",
     main,
@@ -312,6 +314,7 @@ ${renderResourceHints()}
   <link rel="stylesheet" href="/css/fontawesome-all.min.css">
   <link rel="stylesheet" href="/css/coder.css">
   <link rel="stylesheet" href="/css/content.css">
+${styles.map((href) => `  <link rel="stylesheet" href="${escapeAttr(href)}">`).join("\n")}
   <link rel="manifest" href="/manifest.webmanifest">
   <link rel="apple-touch-icon" href="/images/pwa-192.png">
 ${renderScripts(allScripts)}${meta ? "\n" + meta : ""}${jsonLdTag}
