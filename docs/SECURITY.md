@@ -114,13 +114,13 @@ export function validatePost(data, filename)  // 验证文章字段
 - 隐私：Analytics Engine 只记录结果类型和数据集哈希前缀，不记录问题、回答、原始 IP、Cookie 或 Token。
 - 关闭开关：`AI_ENABLED=false` 时接口失败关闭，客户端不会绕过边缘 API 直连模型。
 
-### 4.4 临时聊天室
+### 4.4 在线聊天室
 
-- 访问边界：创建房间和 WebSocket 握手都要求精确 `SITE_ORIGIN`；邀请码不公开枚举，获得邀请码即拥有加入能力。
-- 数据边界：只接受纯文本昵称和消息，消息由 DOM `textContent` 渲染；拒绝二进制帧、超 4 KB 帧和未知协议类型。
-- 生命周期：每个房间最多 20 人、滚动保留 1000 条消息，连续 2 小时无活动后关闭连接并删除全部 Durable Object 数据。
-- 滥用控制：访客 IP 经 HMAC 后分配独立 `ChatGate` 对象，限制创建、加入和房间内发送频率；不记录原始 IP、消息、昵称、邀请码或恢复令牌。
-- 关闭开关：`CHAT_ENABLED=false` 时创建和加入接口失败关闭；静态聊天室页面和资源不进入 PWA 缓存。
+- 第三方边界：消息、昵称、IP 与浏览器连接信息会发送给 Minnit Chat，并受其隐私政策、保留期限和管理设置约束；页面明确提示访客不要发送敏感信息。
+- CSP 边界：只有 `/chat/` 放行 `https://minnit.chat` 脚本、`https://organizations.minnit.chat` iframe，以及官方加载器生成 iframe 所需的内联样式属性；其他页面不继承这些权限。
+- 本地状态：官方加载器使用带组织 ID 前缀的 localStorage 项保存访客昵称和恢复状态，不读取本站文章、编辑器草稿或其他业务数据。
+- 缓存边界：聊天室页面、iframe 状态和第三方请求不进入本站 PWA 缓存。
+- 备用实现：仓库保留的 Durable Objects 聊天 API 默认通过 `CHAT_ENABLED=false` 关闭，不参与当前页面运行。
 
 ### 5. localStorage 安全
 

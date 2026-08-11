@@ -3,9 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' https://cloud.umami.is https://plausible.io 'wasm-unsafe-eval' 'sha256-TgJhHHWdb9zwmiySfDdv+A3YlW5rtrRHOCr3ItQ9kxg='; script-src-attr 'none'; style-src 'self'; style-src-attr 'none'; img-src 'self' data: https:; font-src 'self' data:; worker-src 'self'; connect-src 'self' https://cloud.umami.is https://plausible.io https://buttondown.com https://muyuan.do https://token-plan-cn.xiaomimimo.com; frame-src https://giscus.app; form-action 'self' https://buttondown.com https://api.web3forms.com">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' https://cloud.umami.is https://plausible.io https://minnit.chat 'wasm-unsafe-eval' 'sha256-wG5EztvLBv0B5Mgll5WZMCAJdM1zRMrOCi+OAUr6pA4='; script-src-attr 'none'; style-src 'self'; style-src-attr 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; worker-src 'self'; connect-src 'self' https://cloud.umami.is https://plausible.io https://buttondown.com https://muyuan.do https://token-plan-cn.xiaomimimo.com; frame-src https://giscus.app https://organizations.minnit.chat; form-action 'self' https://buttondown.com https://api.web3forms.com">
   <meta name="cwl-api-base" content="">
-  <meta name="description" content="通过邀请码创建或加入临时实时聊天室，房间闲置两小时后自动清除。">
+  <meta name="description" content="嵌入式在线聊天室，由 Minnit Chat 提供实时群聊服务。">
   <meta name="theme-color" content="#171717">
   <link rel="icon" href="/images/favicon.png" type="image/png">
   <link rel="preconnect" href="https://giscus.app">
@@ -29,22 +29,23 @@
   <script src="/js/search-loader.js" defer></script>
   <script src="/js/subscribe.js" defer></script>
   <script src="/js/assistant.js" defer></script>
-  <script src="/js/chat.js" defer></script>
+  <script src="https://minnit.chat/js/embed.js?c=1772345192" defer></script>
+  <script src="/js/chat-embed.js" defer></script>
   <link rel="canonical" href="https://wenliang844.github.io/chat/">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="CWLBlog">
-  <meta property="og:title" content="临时聊天室">
-  <meta property="og:description" content="通过邀请码创建或加入临时实时聊天室，房间闲置两小时后自动清除。">
+  <meta property="og:title" content="在线聊天室">
+  <meta property="og:description" content="嵌入式在线聊天室，由 Minnit Chat 提供实时群聊服务。">
   <meta property="og:url" content="https://wenliang844.github.io/chat/">
   <meta property="og:image" content="https://wenliang844.github.io/images/favicon.png">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:image" content="https://wenliang844.github.io/images/favicon.png">
-  <meta name="twitter:title" content="临时聊天室">
-  <meta name="twitter:description" content="通过邀请码创建或加入临时实时聊天室，房间闲置两小时后自动清除。">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"CWLBlog 临时聊天室","description":"通过邀请码创建或加入临时实时聊天室，房间闲置两小时后自动清除。","url":"https://wenliang844.github.io/chat/","inLanguage":"zh-CN","isPartOf":{"@type":"WebSite","name":"CWLBlog","url":"https://wenliang844.github.io/"},"applicationCategory":"CommunicationApplication","operatingSystem":"Any"}</script>
-  <title>临时聊天室 :: CWLBlog</title>
+  <meta name="twitter:title" content="在线聊天室">
+  <meta name="twitter:description" content="嵌入式在线聊天室，由 Minnit Chat 提供实时群聊服务。">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"CWLBlog 在线聊天室","description":"嵌入式在线聊天室，由 Minnit Chat 提供实时群聊服务。","url":"https://wenliang844.github.io/chat/","inLanguage":"zh-CN","isPartOf":{"@type":"WebSite","name":"CWLBlog","url":"https://wenliang844.github.io/"},"applicationCategory":"CommunicationApplication","operatingSystem":"Any"}</script>
+  <title>在线聊天室 :: CWLBlog</title>
 </head>
-<body class="colorscheme-dark chat-body" data-i18n-page="chat" data-i18n-title-en="Temporary Chat :: CWLBlog" data-i18n-desc-en="Create or join a temporary real-time chat room that is cleared after two hours of inactivity." data-language-mode="bilingual">
+<body class="colorscheme-dark chat-body" data-i18n-page="chat" data-i18n-title-en="Online Chat :: CWLBlog" data-i18n-desc-en="An embedded real-time group chat powered by Minnit Chat." data-language-mode="bilingual">
   <a class="skip-link" href="#main-content" data-i18n="nav.skip">跳到主要内容</a>
   <div class="cursor-glow" aria-hidden="true"></div>
   <canvas class="cursor-canvas" aria-hidden="true"></canvas>
@@ -73,7 +74,7 @@
             <li><a class="nav-feedback" href="/contact/" data-i18n="nav.feedback" data-i18n-html><i class="fas fa-comment-dots" aria-hidden="true"></i> 留言反馈</a></li>
             <li><button class="nav-subscribe" type="button" data-subscribe-open data-i18n="nav.subscribe" data-i18n-html><i class="fas fa-envelope" aria-hidden="true"></i> 订阅</button></li>
             <li><a class="nav-sponsor" href="/sponsor/" data-i18n="nav.sponsor" data-i18n-html><i class="fas fa-heart" aria-hidden="true"></i> 赞助</a></li>
-            <li><a class="nav-chat active" href="/chat/" aria-label="打开临时聊天室" title="打开临时聊天室" data-i18n-aria="nav.chat" data-i18n-title="nav.chat"><i class="fas fa-comments" aria-hidden="true"></i></a></li>
+            <li><a class="nav-chat active" href="/chat/" aria-label="打开在线聊天室" title="打开在线聊天室" data-i18n-aria="nav.chat" data-i18n-title="nav.chat"><i class="fas fa-comments" aria-hidden="true"></i></a></li>
             <li><button class="theme-toggle" type="button" aria-label="切换主题" data-i18n-aria="nav.theme"><i class="fas fa-adjust"></i></button></li>
             <li><button class="lang-toggle" type="button" aria-label="Switch language">EN</button></li>
             <li><button class="nav-search-trigger" type="button" aria-label="全局搜索（Ctrl+K 或 /）" title="全局搜索（Ctrl+K 或 /）" data-i18n-aria="nav.searchHint" data-i18n-title="nav.searchHint"><i class="fas fa-search"></i></button></li>
@@ -85,63 +86,26 @@
     <main data-pagefind-body id="main-content" class="content">
       <section class="chat-page container" aria-labelledby="chat-title">
         <header class="chat-header">
-          <span class="eyebrow" data-i18n="chat.eyebrow"><i class="fas fa-comments" aria-hidden="true"></i> 临时会话</span>
-          <h1 id="chat-title" data-i18n="chat.title">临时聊天室</h1>
-          <p class="lead" data-i18n="chat.lead">创建一个房间，或使用邀请码加入正在进行的会话。</p>
+          <span class="eyebrow" data-i18n="chat.eyebrow"><i class="fas fa-comments" aria-hidden="true"></i> 在线交流</span>
+          <h1 id="chat-title" data-i18n="chat.title">在线聊天室</h1>
+          <p class="lead" data-i18n="chat.lead">输入昵称即可加入实时群聊。</p>
         </header>
 
-        <section class="chat-lobby" data-chat-view="lobby" aria-labelledby="chat-lobby-title">
-          <div class="chat-lobby-heading">
+        <section class="chat-embed" aria-labelledby="chat-embed-title">
+          <div class="chat-embed-heading">
             <div>
-              <h2 id="chat-lobby-title" data-i18n="chat.lobby.title">进入聊天室</h2>
-              <p class="chat-muted" data-i18n="chat.lobby.status">房间最多 20 人，闲置 2 小时后自动清除。</p>
+              <h2 id="chat-embed-title" data-i18n="chat.provider">CWLBlog 群聊</h2>
+              <p data-i18n="chat.privacy">聊天室由 Minnit Chat 托管。请勿发送密码、联系方式等敏感信息。</p>
             </div>
-            <span class="chat-privacy" data-i18n="chat.lobby.privacy"><i class="fas fa-user-shield" aria-hidden="true"></i> 匿名加入</span>
+            <a class="chat-external-link" href="https://organizations.minnit.chat/330715643479128/c/Main?embed" target="_blank" rel="noopener noreferrer" data-i18n="chat.newTab"><i class="fas fa-external-link-alt" aria-hidden="true"></i> 新窗口打开</a>
           </div>
-          <form class="chat-lobby-form" data-chat-lobby-form novalidate>
-            <label class="chat-field" for="chat-nickname">
-              <span data-i18n="chat.nickname">昵称</span>
-              <input id="chat-nickname" name="nickname" type="text" minlength="2" maxlength="20" autocomplete="nickname" placeholder="2–20 个字符" data-i18n-ph="chat.nickname.ph" required>
-            </label>
-            <div class="chat-lobby-actions">
-              <button class="chat-primary" type="button" data-chat-create><i class="fas fa-plus" aria-hidden="true"></i><span data-i18n="chat.create">创建房间</span></button>
-              <span class="chat-or" data-i18n="chat.or">或</span>
-              <label class="chat-field chat-code-field" for="chat-room-code">
-                <span data-i18n="chat.code">邀请码</span>
-                <input id="chat-room-code" name="roomCode" type="text" minlength="8" maxlength="8" inputmode="text" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="8 位邀请码" data-i18n-ph="chat.code.ph">
-              </label>
-              <button class="chat-secondary" type="submit" data-chat-join><i class="fas fa-sign-in-alt" aria-hidden="true"></i><span data-i18n="chat.join">加入</span></button>
-            </div>
-          </form>
-          <p class="chat-status" data-chat-lobby-status role="status" aria-live="polite"></p>
-        </section>
 
-        <section class="chat-room" data-chat-view="room" aria-labelledby="chat-room-title" hidden>
-          <header class="chat-room-toolbar">
-            <div>
-              <span class="chat-room-label" data-i18n="chat.room.label">房间</span>
-              <h2 id="chat-room-title" data-chat-room-code>--------</h2>
-            </div>
-            <div class="chat-room-meta">
-              <span class="chat-connection" data-chat-connection data-state="connecting" role="status" aria-live="polite">正在连接</span>
-              <span class="chat-online"><i class="fas fa-user" aria-hidden="true"></i> <strong data-chat-online>0</strong><span data-i18n="chat.online"> 人在线</span></span>
-            </div>
-            <div class="chat-room-actions">
-              <button type="button" class="chat-icon-button" data-chat-share title="分享邀请链接" aria-label="分享邀请链接" data-i18n-title="chat.share" data-i18n-aria="chat.share"><i class="fas fa-share-alt" aria-hidden="true"></i></button>
-              <button type="button" class="chat-icon-button" data-chat-copy title="复制邀请链接" aria-label="复制邀请链接" data-i18n-title="chat.copy" data-i18n-aria="chat.copy"><i class="fas fa-link" aria-hidden="true"></i></button>
-              <button type="button" class="chat-icon-button chat-leave" data-chat-leave title="退出房间" aria-label="退出房间" data-i18n-title="chat.leave" data-i18n-aria="chat.leave"><i class="fas fa-sign-out-alt" aria-hidden="true"></i></button>
-            </div>
-          </header>
-          <ol class="chat-messages" data-chat-messages aria-live="polite" aria-relevant="additions"></ol>
-          <p class="chat-room-status" data-chat-room-status role="status" aria-live="polite"></p>
-          <form class="chat-compose" data-chat-compose>
-            <label for="chat-message" data-i18n="chat.message">消息</label>
-            <div class="chat-compose-row">
-              <textarea id="chat-message" name="message" rows="2" maxlength="500" placeholder="输入消息" data-i18n-ph="chat.message.ph" required></textarea>
-              <button class="chat-send" type="submit" data-chat-send title="发送消息" aria-label="发送消息" data-i18n-title="chat.send" data-i18n-aria="chat.send"><i class="fas fa-paper-plane" aria-hidden="true"></i></button>
-            </div>
-            <span class="chat-counter"><span data-chat-counter>0</span>/500</span>
-          </form>
+          <div class="chat-frame-shell">
+            <span class="minnit-chat-sembed" data-chatname="https://organizations.minnit.chat/330715643479128/c/Main?embed" data-style="width:100%; height:640px; max-height:75vh;" data-version="1.55">正在加载聊天室…</span>
+            <noscript><p class="chat-noscript">请启用 JavaScript，或使用上方链接打开聊天室。</p></noscript>
+          </div>
+
+          <p class="powered-by-minnit"><a href="https://minnit.chat" target="_blank" rel="noopener noreferrer">Get your own free chatroom with Minnit Chat</a></p>
         </section>
       </section>
     </main>

@@ -254,9 +254,9 @@ test("committed HTML files include the shared Content Security Policy", async ()
     } else if (connectSources.includes("https:")) {
       incomplete.push(`${file}: broad HTTPS network access is not scoped to the toolbox`);
     }
-    if (file === "editor/index.html") {
+    if (file === "editor/index.html" || file === "chat/index.html") {
       if (!policy.includes("style-src-attr 'unsafe-inline'")) {
-        incomplete.push(`${file}: missing scoped CodeMirror style exception`);
+        incomplete.push(`${file}: missing scoped inline style exception`);
       }
     } else {
       if (!policy.includes("style-src-attr 'none'")) incomplete.push(`${file}: missing style-src-attr 'none'`);

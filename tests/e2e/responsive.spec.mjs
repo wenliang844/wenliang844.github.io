@@ -22,67 +22,26 @@ async function openAssistant(page) {
   await trigger.click();
 }
 
-async function installChatSocket(page) {
-  await page.addInitScript(() => {
-    class MockChatSocket extends EventTarget {
-      static OPEN = 1;
-      constructor() {
-        super();
-        this.readyState = 0;
-        queueMicrotask(() => {
-          this.readyState = MockChatSocket.OPEN;
-          this.dispatchEvent(new Event("open"));
-        });
-      }
-      send(raw) {
-        const frame = JSON.parse(raw);
-        if (frame.type === "join") {
-          queueMicrotask(() => this.dispatchEvent(new MessageEvent("message", { data: JSON.stringify({
-            type: "ready",
-            roomCode: "ABCD2345",
-            participantId: "browser-user",
-            resumeToken: "browser-resume-token-12345",
-            nickname: frame.nickname,
-            history: [],
-            online: 1,
-          }) })));
-        }
-        if (frame.type === "message") {
-          queueMicrotask(() => this.dispatchEvent(new MessageEvent("message", { data: JSON.stringify({
-            type: "message",
-            id: "browser-message",
-            participantId: "browser-user",
-            nickname: "Responsive Tester",
-            text: frame.text,
-            sentAt: new Date().toISOString(),
-          }) })));
-        }
-      }
-      close(code = 1000, reason = "") {
-        this.readyState = 3;
-        this.dispatchEvent(new CloseEvent("close", { code, reason }));
-      }
-    }
-    window.WebSocket = MockChatSocket;
-  });
-}
-
-test("temporary chat lobby and room remain usable at every viewport", async ({ page }, testInfo) => {
-  await installChatSocket(page);
-  await page.route("**/chat/**", async (route) => {
-    const response = await route.fetch();
-    const body = configureApiBase(await response.text());
-    await route.fulfill({ response, body });
-  });
-  await page.goto("/chat/?room=ABCD2345");
-  await page.locator("#chat-nickname").fill("Responsive Tester");
-  await page.locator("[data-chat-join]").click();
-  await expect(page.locator('[data-chat-view="room"]')).toBeVisible();
-  await expect(page.locator("[data-chat-connection]")).toHaveAttribute("data-state", "connected");
-  await expect(page.locator("[data-chat-online]")).toHaveText("1");
-  await page.locator("#chat-message").fill("Hello from responsive chat");
-  await page.locator("[data-chat-send]").click();
-  await expect(page.locator(".chat-message")).toContainText("Hello from responsive chat");
+test("embedded Minnit chat remains usable at every viewport", async ({ page }, testInfo) => {
+  await page.route("https://minnit.chat/js/embed.js*", (route) => route.fulfill({
+    contentType: "application/javascript",
+    body: `(() => {
+      const host = document.querySelector(".minnit-chat-sembed");
+      const frame = document.createElement("iframe");
+      frame.className = "minnit-chat-iframe";
+      frame.src = host.dataset.chatname;
+      host.replaceChildren(frame);
+    })();`,
+  }));
+  await page.route("https://organizations.minnit.chat/**", (route) => route.fulfill({
+    contentType: "text/html",
+    body: "<!doctype html><title>Minnit Chat</title><main>Mock Minnit room</main>",
+  }));
+  await page.goto("/chat/");
+  await expect(page.locator(".chat-embed")).toBeVisible();
+  await expect(page.locator(".minnit-chat-iframe")).toBeVisible();
+  await expect(page.locator(".minnit-chat-iframe")).toHaveAttribute("title", "Minnit Chat");
+  await expect(page.locator(".chat-external-link")).toHaveAttribute("rel", "noopener noreferrer");
   const dimensions = await page.evaluate(() => ({
     documentWidth: document.documentElement.scrollWidth,
     viewportWidth: document.documentElement.clientWidth,

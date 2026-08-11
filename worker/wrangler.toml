@@ -13,7 +13,7 @@ AI_CHAT_MODEL = "@cf/meta/llama-3.1-8b-instruct"
 AI_EMBEDDING_MODEL = "@cf/baai/bge-m3"
 AI_DAILY_REQUEST_LIMIT = "100"
 AI_REQUESTS_PER_MINUTE = "6"
-CHAT_ENABLED = "true"
+CHAT_ENABLED = "false"
 
 [[r2_buckets]]
 binding = "ASSETS"

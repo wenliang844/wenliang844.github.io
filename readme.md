@@ -19,7 +19,7 @@ CWLBlog 是一个以 Markdown + Git 为内容真源的个人技术博客和知�
 - 基于公开文章的混合检索知识问答，包含原文引用、无证据兜底和预算限流
 - 可选 Umami/Plausible 分析适配器，默认关闭并遵守 DNT/GPC
 - PWA 离线阅读公开文章；编辑器、简历编辑器和 API 永不进入缓存
-- 基于 Durable Objects 与 WebSocket 的匿名临时聊天室，邀请码加入、闲置自动销毁
+- 可嵌入式在线群聊，由 Minnit Chat 托管并支持访客昵称加入
 - 每月带 SHA-256 清单的内容备份、可选 R2 镜像与隔离恢复演练
 
 ## 本地开发
@@ -69,7 +69,7 @@ CI 还会运行 Lighthouse 预算：Performance 不低于 90，Accessibility 和
 - `scripts/sync-astro-output.mjs`：把 Astro 文章产物安全同步到 GitHub Pages 根目录
 - `src/editor-codemirror.ts`：CodeMirror 编辑器源码，构建为仅编辑页加载的独立 bundle
 - `worker/src/index.ts`：GitHub OAuth、CSRF、内容校验、PR 发布与审计边缘 API
-- `src/templates/chat.mjs`、`js/chat.js`：临时聊天室页面与浏览器实时连接
+- `src/templates/chat.mjs`、`js/chat-embed.js`、`css/chat.css`：Minnit 在线聊天室嵌入页、无障碍增强与响应式样式
 - `js/`、`css/`：浏览器交互、生成后的编辑器 bundle 与样式
 - `pagefind/`：构建后的全文搜索资源
 - `knowledge/graph.json`：构建期知识关系数据

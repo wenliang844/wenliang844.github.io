@@ -40,6 +40,12 @@ test("CSP hardener scopes the CodeMirror runtime style exception to the editor",
   assert.match(hardened, /style-src 'self' 'unsafe-inline'; style-src-attr 'unsafe-inline'/);
 });
 
+test("CSP hardener preserves the Minnit loader runtime style exception", () => {
+  const html = '<meta http-equiv="Content-Security-Policy" content="script-src \'self\' https://minnit.chat; style-src \'self\'"><script src="https://minnit.chat/js/embed.js?c=1"></script>';
+  const hardened = hardenHtml(html);
+  assert.match(hardened, /style-src 'self'; style-src-attr 'unsafe-inline'/);
+});
+
 test("CSP hardener grants only the WebAssembly permission required by Pagefind", () => {
   const html = '<meta http-equiv="Content-Security-Policy" content="script-src \'self\'; style-src \'self\'"><script src="/js/search-loader.js"></script>';
   const hardened = hardenHtml(html);

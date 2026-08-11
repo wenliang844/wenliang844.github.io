@@ -53,7 +53,7 @@ npm run deploy:worker
 
 部署前必须配置 GitHub OAuth、细粒度仓库 Token、32 字节以上会话密钥、精确 `SITE_ORIGIN` 和作者白名单，并把 Worker Origin 写入 `src/config.mjs` 的 `SITE.apiBase` 以及编辑器的 `cwl-api-base` meta。启用图片上传还需创建 R2 桶并配置资源域名；启用知识问答还需创建 1024 维 Vectorize 索引、先执行一次作者重建，再设置 `AI_ENABLED=true`。完整步骤见 [GitHub PR 发布 API](PUBLISHING_API.md)。
 
-临时聊天室使用 `ChatRoom` 和 `ChatGate` Durable Objects。首次部署会应用 `v2` SQLite migration；确认 Worker 和两个绑定可用后，将 `CHAT_ENABLED` 设为 `true`，把 Worker HTTPS Origin 写入 `SITE.apiBase`，重新构建并发布静态站。未完成这些步骤时 `/chat/` 会安全降级为不可用状态，不会尝试连接其他端点。
+`/chat/` 直接嵌入 Minnit Chat 托管房间，不依赖本站 Worker。构建时会为该页面单独放行 `https://minnit.chat` 脚本和 `https://organizations.minnit.chat` iframe；部署后应从目标网络验证这两个域名均可访问。仓库保留的 Durable Objects 聊天实现默认关闭，仅作为自托管替代方案，不参与当前页面运行。
 
 ### GitHub Pages（推荐）
 

@@ -60,11 +60,11 @@ export const STATIC_PAGES = [
 // 全局搜索索引中额外包含的静态页（文章页由构建脚本动态生成）。
 export const SEARCH_PAGES = [
   {
-    title: "临时聊天室",
-    summary: "通过邀请码创建或加入临时实时聊天室。",
+    title: "在线聊天室",
+    summary: "输入昵称加入由 Minnit Chat 托管的 CWLBlog 实时群聊。",
     path: "/chat/",
-    tags: ["聊天室", "实时通信", "临时房间"],
-    i18n: { en: { title: "Temporary Chat", summary: "Create or join a temporary real-time chat room with an invite code.", tags: ["Chat", "Real-time", "Temporary Room"] } },
+    tags: ["聊天室", "实时通信", "在线群聊"],
+    i18n: { en: { title: "Online Chat", summary: "Join the CWLBlog real-time group chat hosted by Minnit Chat.", tags: ["Chat", "Real-time", "Group Chat"] } },
   },
   {
     title: "知识资产",

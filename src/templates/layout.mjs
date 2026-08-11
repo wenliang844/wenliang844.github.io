@@ -72,6 +72,9 @@ function contentSecurityPolicy(page, scripts, inlineScripts = []) {
   if (scripts.includes("/js/giscus.js")) {
     scriptSources.push("https://giscus.app");
   }
+  if (page === "chat") {
+    scriptSources.push("https://minnit.chat");
+  }
   if (page === "tools") {
     scriptSources.push("'wasm-unsafe-eval'", "https://cdn.jsdelivr.net");
   }
@@ -105,6 +108,9 @@ function contentSecurityPolicy(page, scripts, inlineScripts = []) {
     }
   }
 
+  const frameSources = ["https://giscus.app"];
+  if (page === "chat") frameSources.push("https://organizations.minnit.chat");
+
   return [
     "default-src 'self'",
     "base-uri 'self'",
@@ -112,12 +118,12 @@ function contentSecurityPolicy(page, scripts, inlineScripts = []) {
     `script-src ${scriptSources.join(" ")}`,
     "script-src-attr 'none'",
     `style-src ${styleSources.join(" ")}`,
-    "style-src-attr 'none'",
+    `style-src-attr ${page === "chat" ? "'unsafe-inline'" : "'none'"}`,
     "img-src 'self' data: https:",
     "font-src 'self' data:",
     "worker-src 'self'",
     `connect-src ${[...new Set(connectSources)].join(" ")}`,
-    "frame-src https://giscus.app",
+    `frame-src ${frameSources.join(" ")}`,
     "form-action 'self' https://buttondown.com https://api.web3forms.com",
   ].join("; ");
 }
@@ -166,7 +172,7 @@ ${moreItems}
             <li><a class="nav-feedback${active === "contact" ? " active" : ""}" href="/contact/" data-i18n="nav.feedback" data-i18n-html><i class="fas fa-comment-dots" aria-hidden="true"></i> 留言反馈</a></li>
             <li><button class="nav-subscribe" type="button" data-subscribe-open data-i18n="nav.subscribe" data-i18n-html><i class="fas fa-envelope" aria-hidden="true"></i> 订阅</button></li>
             <li><a class="nav-sponsor${active === "sponsor" ? " active" : ""}" href="/sponsor/" data-i18n="nav.sponsor" data-i18n-html><i class="fas fa-heart" aria-hidden="true"></i> 赞助</a></li>
-            <li><a class="nav-chat${active === "chat" ? " active" : ""}" href="/chat/" aria-label="打开临时聊天室" title="打开临时聊天室" data-i18n-aria="nav.chat" data-i18n-title="nav.chat"><i class="fas fa-comments" aria-hidden="true"></i></a></li>
+            <li><a class="nav-chat${active === "chat" ? " active" : ""}" href="/chat/" aria-label="打开在线聊天室" title="打开在线聊天室" data-i18n-aria="nav.chat" data-i18n-title="nav.chat"><i class="fas fa-comments" aria-hidden="true"></i></a></li>
             <li><button class="theme-toggle" type="button" aria-label="切换主题" data-i18n-aria="nav.theme"><i class="fas fa-adjust"></i></button></li>
 ${languageItem}
             <li><button class="nav-search-trigger" type="button" aria-label="全局搜索（Ctrl+K 或 /）" title="全局搜索（Ctrl+K 或 /）" data-i18n-aria="nav.searchHint" data-i18n-title="nav.searchHint"><i class="fas fa-search"></i></button></li>
@@ -178,7 +184,7 @@ ${languageItem}
 // 渲染 <head> 中按页变化的脚本标签。
 function renderScripts(scripts) {
   return scripts
-    .map((src) => `  <script src="${src}" defer></script>`)
+    .map((src) => `  <script src="${escapeAttr(src)}" defer></script>`)
     .join("\n");
 }
 

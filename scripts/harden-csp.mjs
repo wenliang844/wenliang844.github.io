@@ -113,7 +113,8 @@ export function hardenHtml(html, file = "HTML") {
   const usesPagefind = html.includes('src="/js/search-loader.js"');
   if (!html.includes('src="/js/tools.js"') && !usesPagefind) removedSources.push("'wasm-unsafe-eval'");
   const policy = hardenPolicy(match[1], inlineScriptHashes(html), removedSources, {
-    allowInlineStyles: html.includes('src="/js/editor-codemirror.js"'),
+    allowInlineStyles: html.includes('src="/js/editor-codemirror.js"')
+      || html.includes('src="https://minnit.chat/js/embed.js'),
     scriptSources: usesPagefind ? ["'wasm-unsafe-eval'"] : [],
     connectSources: connectSourcesForHtml(html),
   });
