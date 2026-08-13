@@ -1,0 +1,272 @@
+---
+import { CONTENT_CATEGORIES, CONTENT_SERIES } from "../config.mjs";
+import { isoDate, longDate } from "../lib/format.mjs";
+import MarkdownContent from "./MarkdownContent.astro";
+import PostShare from "./PostShare.astro";
+
+type Post = Record<string, any>;
+type Navigation = {
+  prev: Post | null;
+  next: Post | null;
+  related: Post[];
+  backlinks: Post[];
+  series: null | {
+    id: string;
+    name: string;
+    index: number;
+    total: number;
+    prev: Post | null;
+    next: Post | null;
+  };
+};
+
+interface Props {
+  post: Post;
+  nav: Navigation;
+}
+
+const { post, nav } = Astro.props;
+const hasEnglishContent = Boolean(post.contentHtmlEn);
+const published = isoDate(post.date);
+const modified = isoDate(post.modified || post.date);
+const category = CONTENT_CATEGORIES[post.category as keyof typeof CONTENT_CATEGORIES];
+const configuredSeries = post.series
+  ? CONTENT_SERIES[post.series as keyof typeof CONTENT_SERIES]
+  : null;
+
+function englishValue(item: Post, key: string) {
+  return item[`${key}En`] || item[key] || "";
+}
+
+function englishTag(tag: string, index: number) {
+  return post.tagsEn?.[index] || tag;
+}
+
+function recommendationReason(item: Post) {
+  const recommendation = item.recommendation || {};
+  const reasons = recommendation.reasons || [];
+  const labels: string[] = [];
+  const labelsEn: string[] = [];
+
+  if (reasons.includes("linked")) {
+    labels.push("正文引用");
+    labelsEn.push("Linked content");
+  }
+  if (reasons.includes("series")) {
+    labels.push("同一系列");
+    labelsEn.push("Same series");
+  }
+  if (reasons.includes("category")) {
+    labels.push("同一专题");
+    labelsEn.push("Same topic");
+  }
+  if (reasons.includes("tags") && recommendation.sharedTags) {
+    const count = recommendation.sharedTags;
+    labels.push(`${count} 个共同标签`);
+    labelsEn.push(`${count} shared tag${count > 1 ? "s" : ""}`);
+  }
+
+  return {
+    zh: labels.slice(0, 2).join(" · ") || item.eyebrow,
+    en: labelsEn.slice(0, 2).join(" · ") || englishValue(item, "eyebrow"),
+  };
+}
+
+const prevHref = nav.prev ? `/post/${nav.prev.slug}/` : "/post/";
+const prevLabel = nav.prev?.shortTitle || "文章";
+const prevLabelEn = nav.prev ? englishValue(nav.prev, "shortTitle") : "Posts";
+const nextHref = nav.next ? `/post/${nav.next.slug}/` : "/post/";
+const nextLabel = nav.next?.shortTitle || "文章";
+const nextLabelEn = nav.next ? englishValue(nav.next, "shortTitle") : "Posts";
+---
+<main id="main-content" class="content container" data-pagefind-body>
+  <div class="post-layout">
+    <article class="article" data-post-slug={post.slug}>
+      <header class="article-header">
+        <span class="eyebrow">{post.eyebrow}</span>
+        <h1
+          data-pagefind-meta="title"
+          data-i18n={hasEnglishContent ? `post.${post.slug}.title` : undefined}
+          data-i18n-en={hasEnglishContent ? englishValue(post, "title") : undefined}
+        >{post.title}</h1>
+        <div class="article-meta">
+          <time datetime={published} data-pagefind-meta="date[datetime]">{longDate(post.date)}</time>
+          <span>·</span>
+          <a href={`/post/#${post.slug}`} data-i18n="post.meta.posts" data-i18n-en="Posts">文章</a>
+          <span>·</span>
+          <span class="reading-time">
+            <i class="fas fa-clock" aria-hidden="true"></i>
+            <span data-i18n="dyn.readingPrefix">约</span> {post.readMinutes || 1} <span data-i18n="dyn.readingSuffix">分钟</span>
+          </span>
+        </div>
+        <div class="article-revision">
+          <span>发布于 <time datetime={published}>{longDate(published)}</time></span>
+          {modified > published && <span>最后更新 <time datetime={modified}>{longDate(modified)}</time></span>}
+          {post.revisionUrl && <a href={post.revisionUrl} target="_blank" rel="noopener noreferrer">修订历史</a>}
+        </div>
+        <p
+          class="article-summary"
+          data-i18n={hasEnglishContent ? `post.${post.slug}.summary` : undefined}
+          data-i18n-en={hasEnglishContent ? englishValue(post, "summary") : undefined}
+        >{post.summary}</p>
+        <div class="post-tags">
+          {post.tags.map((tag: string, index: number) => (
+            <a
+              href={`/post/?tag=${encodeURIComponent(tag)}`}
+              data-tag={tag}
+              data-i18n={`post.${post.slug}.tag.${index}`}
+              data-i18n-en={englishTag(tag, index)}
+            >{tag}</a>
+          ))}
+        </div>
+        {(category || configuredSeries) && (
+          <nav class="post-taxonomy" aria-label="内容分类与系列">
+            {category && <a href={`/categories/${post.category}/`}><span>分类</span>{category.name}</a>}
+            {configuredSeries && (
+              <a href={`/series/${post.series}/`}><span>系列 {post.seriesOrder}</span>{configuredSeries.name}</a>
+            )}
+          </nav>
+        )}
+      </header>
+
+      {post.coverAsset && (
+        <figure class="post-cover post-cover-hero">
+          <picture>
+            <source srcset={post.coverAsset.avif} type="image/avif" />
+            <source srcset={post.coverAsset.webp} type="image/webp" />
+            <img
+              src={post.coverAsset.src}
+              width={post.coverAsset.width}
+              height={post.coverAsset.height}
+              alt={post.coverAsset.alt}
+              loading="eager"
+              decoding="async"
+              fetchpriority="high"
+            />
+          </picture>
+        </figure>
+      )}
+
+      {hasEnglishContent ? (
+        <>
+          <MarkdownContent html={post.contentHtml} lang="zh" />
+          <MarkdownContent html={post.contentHtmlEn} lang="en" hidden />
+        </>
+      ) : <MarkdownContent html={post.contentHtml} />}
+
+      <PostShare slug={post.slug} title={post.shortTitle} titleEn={englishValue(post, "shortTitle")} />
+    </article>
+
+    {post.toc?.length > 0 && (
+      <aside class="toc-sidebar is-collapsed" aria-label="目录" data-i18n-aria="toc.aria">
+        <div class="toc-header">
+          <button class="toc-toggle" type="button" aria-expanded="false" aria-label="展开/收起目录" data-i18n-aria="toc.toggle">
+            <i class="fas fa-list" aria-hidden="true"></i>
+            <span data-i18n="toc.title">目录</span>
+            <i class="fas fa-chevron-down toc-chevron" aria-hidden="true"></i>
+          </button>
+        </div>
+        <nav class="toc-nav">
+          <ul>
+            {post.toc.map((item: Post, index: number) => (
+              <li class={item.level === 3 ? "toc-sub" : undefined}>
+                <a
+                  href={`#${item.id}`}
+                  data-toc-id={item.id}
+                  data-i18n={`toc.${item.id}`}
+                  data-i18n-en={post.tocEn?.[index]?.text || item.text}
+                >{item.text}</a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      </aside>
+    )}
+  </div>
+
+  <section class="comments container" aria-label="评论" data-i18n-aria="post.comments.aria">
+    <h2 data-i18n="post.comments" data-i18n-html=""><i class="fas fa-comments" aria-hidden="true"></i> 评论</h2>
+    <div id="giscus-thread"></div>
+  </section>
+
+  {nav.backlinks?.length > 0 && (
+    <section class="post-backlinks" aria-labelledby="post-backlinks-title">
+      <div><span class="eyebrow">Backlinks</span><h2 id="post-backlinks-title">哪些文章提到了这里</h2></div>
+      <ul>
+        {nav.backlinks.map((item: Post) => (
+          <li><a href={`/post/${item.slug}/`}><strong>{item.shortTitle}</strong><span>{item.summary}</span></a></li>
+        ))}
+      </ul>
+    </section>
+  )}
+
+  {nav.related?.length > 0 && (
+    <nav class="post-related" aria-label="相关文章" data-i18n-aria="post.related.aria">
+      <h2 class="post-related-title" data-i18n="post.related.title" data-i18n-en="Related posts">相关文章</h2>
+      <ul class="related-list">
+        {nav.related.map((item: Post) => {
+          const reason = recommendationReason(item);
+          return (
+            <li>
+              <a class="related-card" href={`/post/${item.slug}/`} data-analytics-event="related_click" data-analytics-target={item.slug}>
+                <span class="related-eyebrow">{item.eyebrow}</span>
+                <span class="related-title" data-i18n={`post.${item.slug}.shortTitle`} data-i18n-en={englishValue(item, "shortTitle")}>{item.shortTitle}</span>
+                <span class="related-reason" data-i18n-en={reason.en}>{reason.zh}</span>
+                <time datetime={isoDate(item.date)}>{isoDate(item.date)}</time>
+              </a>
+            </li>
+          );
+        })}
+      </ul>
+    </nav>
+  )}
+
+  {nav.series && (
+    <nav class="series-navigation" aria-label="系列连续阅读">
+      <div>
+        <span class="eyebrow">系列 {nav.series.index + 1} / {nav.series.total}</span>
+        <a class="series-navigation-title" href={`/series/${nav.series.id}/`}>{nav.series.name}</a>
+      </div>
+      <div class="series-navigation-links">
+        {nav.series.prev ? <a href={`/post/${nav.series.prev.slug}/`}>← {nav.series.prev.shortTitle}</a> : <span></span>}
+        {nav.series.next ? <a href={`/post/${nav.series.next.slug}/`}>{nav.series.next.shortTitle} →</a> : <span></span>}
+      </div>
+    </nav>
+  )}
+
+  <nav class="post-pager" aria-label="Post pagination">
+    <a class="pager-prev" href={prevHref}>← <span data-i18n={nav.prev ? `post.${nav.prev.slug}.shortTitle` : "post.meta.posts"} data-i18n-en={prevLabelEn}>{prevLabel}</span></a>
+    <a class="pager-next" href={nextHref}><span data-i18n={nav.next ? `post.${nav.next.slug}.shortTitle` : "post.meta.posts"} data-i18n-en={nextLabelEn}>{nextLabel}</span> →</a>
+  </nav>
+
+{nav.next && (
+    <aside
+      class="next-popup"
+      hidden
+      aria-label="下一篇推荐"
+      data-i18n-aria="post.next.aria"
+      data-next-url={`/post/${nav.next.slug}/`}
+      data-next-title={nav.next.shortTitle}
+      data-next-title-en={englishValue(nav.next, "shortTitle")}
+      data-prev-url={nav.prev ? `/post/${nav.prev.slug}/` : undefined}
+      data-prev-title={nav.prev?.shortTitle}
+      data-prev-title-en={nav.prev ? englishValue(nav.prev, "shortTitle") : undefined}
+    >
+      <button class="next-popup-close" type="button" aria-label="关闭" data-i18n-aria="post.next.close"><i class="fas fa-times" aria-hidden="true"></i></button>
+      <span class="next-popup-eyebrow" data-i18n="post.next.eyebrow" data-i18n-en="Up next">下一篇</span>
+      <a class="next-popup-link" href={`/post/${nav.next.slug}/`}>
+        <span class="next-popup-title" data-i18n={`post.${nav.next.slug}.shortTitle`} data-i18n-en={englishValue(nav.next, "shortTitle")}>{nav.next.shortTitle}</span>
+      </a>
+    </aside>
+)}
+</main>
+
+<script>
+  import { initArticleRuntime } from "../client/article-runtime";
+  import { initArticleToc } from "../client/article-toc";
+  import { initPostExtras } from "../client/post-extras";
+
+  initArticleRuntime();
+  initArticleToc();
+  initPostExtras();
+</script>

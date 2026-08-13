@@ -1,0 +1,15 @@
+---
+import { buildContentHealth, buildKnowledgeGraph } from "../../../scripts/build.mjs";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import KnowledgePage from "../../components/KnowledgePage.astro";
+import { getPublishedPosts } from "../../lib/astro-posts";
+import { buildKnowledgePageMetadata } from "../../templates/knowledge.mjs";
+
+const posts = await getPublishedPosts();
+const graph = buildKnowledgeGraph(posts);
+const health = buildContentHealth(posts, graph);
+const page = buildKnowledgePageMetadata();
+---
+<BaseLayout {...page}>
+  <KnowledgePage {graph} {health} />
+</BaseLayout>

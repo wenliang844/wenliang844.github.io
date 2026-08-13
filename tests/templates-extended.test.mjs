@@ -401,7 +401,8 @@ test("renderPostPage includes giscus comments section", () => {
   };
   const html = renderPostPage(post, { prev: null, next: null });
   assert.match(html, /id="giscus-thread"/);
-  assert.match(html, /src="\/js\/post-extras-loader\.js"/);
+  assert.match(html, /data-cwl-comments="enabled"/);
+  assert.doesNotMatch(html, /src="\/js\/post-extras-loader\.js"/);
   assert.doesNotMatch(html, /src="\/js\/giscus\.js"/);
 });
 
@@ -471,7 +472,8 @@ test("renderPostList embeds switchable article panels for the three-column readi
   assert.match(html, /Private body marker/);
   assert.match(html, /class="article-content"/);
   assert.match(html, /id="giscus-thread"/);
-  assert.match(html, /src="\/js\/post-extras-loader\.js"/);
+  assert.match(html, /data-cwl-comments="enabled"/);
+  assert.doesNotMatch(html, /src="\/js\/post-extras-loader\.js"/);
   assert.doesNotMatch(html, /src="\/js\/(?:vendor\/qrcode\.min|share|giscus)\.js"/);
 });
 

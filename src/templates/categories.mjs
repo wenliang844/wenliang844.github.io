@@ -43,7 +43,38 @@ ${links}
           </details>`;
 }
 
-export function renderCategoriesPage(posts, stats, categories = []) {
+export function buildCategoriesPageMetadata(posts) {
+  const description =
+    "按年份整理 CWLBlog 的项目复盘，覆盖 AI Coding、低代码、工作流、SaaS 后台、智能分析预警与规则引擎。";
+  return {
+    title: "时间归档 :: CWLBlog",
+    description,
+    titleEn: "Time Archive :: CWLBlog",
+    descriptionEn:
+      "A year-based archive of CWLBlog project retrospectives covering AI coding, low-code, workflow, SaaS backend, intelligent analysis and rule engines.",
+    active: "blog",
+    page: "categories",
+    jsonLd: buildPageJsonLd({
+      type: "CollectionPage",
+      name: "CWLBlog 时间归档",
+      description,
+      path: "/categories/",
+      mainEntity: {
+        "@type": "ItemList",
+        numberOfItems: posts.length,
+        itemListElement: posts.map((post, index) => ({
+          "@type": "ListItem",
+          position: index + 1,
+          name: post.shortTitle,
+          url: siteUrl(`/post/${post.slug}/`),
+        })),
+      },
+    }),
+    og: { type: "website", title: "Time Archive", description, path: "/categories/" },
+  };
+}
+
+export function buildCategoriesPageModel(posts, stats, categories = []) {
   const groups = groupPostsByYear(posts).map(renderYearGroup).join("\n");
   const categoryCards = categories.map((group) => `          <a class="taxonomy-card" href="/categories/${escapeAttr(group.id)}/">
             <span class="eyebrow">${group.posts.length} 篇</span>
@@ -81,33 +112,12 @@ ${groups}
       </section>
     </main>`;
 
-  const description =
-    "按年份整理 CWLBlog 的项目复盘，覆盖 AI Coding、低代码、工作流、SaaS 后台、智能分析预警与规则引擎。";
-  return renderPage({
-    title: "时间归档 :: CWLBlog",
-    description,
-    titleEn: "Time Archive :: CWLBlog",
-    descriptionEn:
-      "A year-based archive of CWLBlog project retrospectives covering AI coding, low-code, workflow, SaaS backend, intelligent analysis and rule engines.",
-    active: "blog",
-    page: "categories",
-    jsonLd: buildPageJsonLd({
-      type: "CollectionPage",
-      name: "CWLBlog 时间归档",
-      description,
-      path: "/categories/",
-      mainEntity: {
-        "@type": "ItemList",
-        numberOfItems: posts.length,
-        itemListElement: posts.map((post, index) => ({
-          "@type": "ListItem",
-          position: index + 1,
-          name: post.shortTitle,
-          url: siteUrl(`/post/${post.slug}/`),
-        })),
-      },
-    }),
-    og: { type: "website", title: "Time Archive", description, path: "/categories/" },
+  return {
+    ...buildCategoriesPageMetadata(posts),
     main,
-  });
+  };
+}
+
+export function renderCategoriesPage(posts, stats, categories = []) {
+  return renderPage(buildCategoriesPageModel(posts, stats, categories));
 }

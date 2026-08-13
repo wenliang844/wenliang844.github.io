@@ -1,0 +1,23 @@
+---
+import { SPONSOR_LINKS } from "../templates/layout.mjs";
+---
+<footer class="footer">
+  <section class="container">
+    <div class="subscribe">
+      <p class="subscribe-title" data-i18n="subscribe.title">订阅更新 · 新文章邮件提醒</p>
+      <form class="subscribe-form" novalidate>
+        <input class="subscribe-input" type="email" name="email" required autocomplete="email" placeholder="输入你的邮箱" data-i18n-ph="subscribe.ph" aria-label="Email" />
+        <button class="subscribe-btn" type="submit" data-i18n="subscribe.btn">订阅</button>
+      </form>
+      <p class="subscribe-status" role="status" aria-live="polite"></p>
+    </div>
+    <div class="sponsor-mini" aria-label="赞助支持选项" data-i18n-aria="sponsorMini.aria">
+      <p class="sponsor-mini-text" data-i18n="sponsorMini.text">如果内容对你有帮助，可以支持我继续更新。</p>
+      <div class="sponsor-mini-actions">
+        <a class="sponsor-mini-btn sponsor-mini-primary" href={SPONSOR_LINKS.afdian} target="_blank" rel="noopener noreferrer" data-i18n="sponsorMini.afdian">☕ 赞助</a>
+        <a class="sponsor-mini-btn sponsor-mini-secondary" href={SPONSOR_LINKS.paypal} target="_blank" rel="noopener noreferrer" data-i18n="sponsorMini.paypal">💳 PayPal 支持</a>
+      </div>
+    </div>
+    <p data-i18n="footer.text">© 2021 - 2026 CWL · Powered by Cwl · Theme inspired by Coder</p>
+  </section>
+</footer>

@@ -6,7 +6,7 @@ function configureApiBase(html) {
   const origin = new URL(TEST_API_BASE).origin;
   return html
     .replace(
-      '<meta name="cwl-api-base" content="">',
+      /<meta\s+name="cwl-api-base"\s+content(?:="[^"]*")?>/,
       `<meta name="cwl-api-base" content="${TEST_API_BASE}">`,
     )
     .replace(/connect-src ([^;\"]+)/, function (directive, sources) {
@@ -67,6 +67,43 @@ test("article list remains scannable without horizontal overflow", async ({ page
     body: await page.screenshot({ fullPage: true }),
     contentType: "image/png",
   });
+});
+
+test("article list switches panels, filters content and updates the hash", async ({ page }, testInfo) => {
+  await page.goto("/post/");
+  const links = page.locator(".post-tree-link[data-post-target]");
+  const second = links.nth(1);
+  const secondTarget = await second.getAttribute("data-post-target");
+  const secondPanel = page.locator(`#${secondTarget}`);
+  const tree = page.locator(".post-tree");
+
+  if (!(await second.isVisible())) {
+    await page.locator(".post-tree-fab").click();
+    await expect(tree).toHaveClass(/is-floating-open/);
+  }
+  await second.click();
+  await expect(secondPanel).toHaveClass(/active/);
+  await expect(second).toHaveAttribute("aria-current", "page");
+  await expect(page).toHaveURL(new RegExp(`#${secondTarget.replace(/^post-/, "")}$`));
+  await expect(page.locator(".blog-article.active")).toHaveCount(1);
+  if (await page.locator(".post-tree-fab").isVisible()) {
+    await expect(tree).not.toHaveClass(/is-floating-open/);
+  }
+
+  if (testInfo.project.name !== "mobile") {
+    await page.keyboard.press("j");
+    await expect(page.locator(".blog-article.active")).not.toHaveAttribute("id", secondTarget);
+  }
+
+  const search = page.locator("#post-search-input");
+  if (!(await search.isVisible())) {
+    await page.locator(".post-tree-fab").click();
+  }
+  await search.fill("不存在的文章关键词");
+  await expect(page.locator(".post-tree-link:visible")).toHaveCount(0);
+  await expect(page.locator(".tree-empty")).toBeVisible();
+  await search.fill("");
+  await expect(page.locator(".post-tree-link:visible")).toHaveCount(6);
 });
 
 test("mobile article directory is closed until requested", async ({ page }, testInfo) => {
@@ -131,6 +168,95 @@ test("article recommendations expose a content-based reason", async ({ page }) =
   await expect(recommendations.first().locator(".related-reason")).not.toHaveText("");
 });
 
+test("article sharing and comments stay deferred until the reader approaches them", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "desktop", "One browser project covers route-level lazy chunks");
+  const requested = [];
+  page.on("request", (request) => {
+    const path = new URL(request.url()).pathname;
+    if (/\/_astro\/(?:share|giscus)\.[^/]+\.js$/.test(path) || path === "/js/vendor/qrcode.min.js") {
+      requested.push(path);
+    }
+  });
+  await page.route("https://giscus.app/client.js", (route) => route.fulfill({
+    contentType: "application/javascript",
+    body: "",
+  }));
+
+  await page.goto("/post/manage-system/");
+  await page.waitForTimeout(150);
+  expect(requested).toEqual([]);
+
+  await page.locator(".post-share").scrollIntoViewIfNeeded();
+  await expect.poll(() => requested.some((path) => /\/_astro\/share\./.test(path))).toBe(true);
+  await expect.poll(() => requested.includes("/js/vendor/qrcode.min.js")).toBe(true);
+  await page.locator('[data-share="wechat"]').click();
+  await expect(page.locator(".share-qr-card")).toBeVisible();
+  await page.locator(".share-qr-close").click();
+
+  await page.locator("#giscus-thread").scrollIntoViewIfNeeded();
+  await expect.poll(() => requested.some((path) => /\/_astro\/giscus\./.test(path))).toBe(true);
+});
+
+test("article runtime is route-scoped and persists reading progress", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "desktop", "One browser project covers the article runtime contract");
+  await page.goto("/tools/");
+  await expect(page.locator(".read-progress")).toHaveCount(0);
+
+  await page.goto("/post/rule-engine-alerts/");
+  await expect(page.locator(".read-progress")).toBeAttached();
+  await expect(page.locator(".article-content .code-copy").first()).toBeVisible();
+  await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight * 0.35));
+  await expect.poll(() => page.evaluate(() => Boolean(localStorage.getItem("cwl.reading.rule-engine-alerts")))).toBe(true);
+});
+
+test("Astro routes use the module runtime while compatibility pages use its bundle", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "desktop", "One browser project covers the shared runtime boundary");
+  await page.goto("/post/activiti-workflow-engine/");
+  await expect(page.locator('script[src="/js/coder.js"]')).toHaveCount(0);
+  await expect(page.locator(".to-top")).toHaveCount(1);
+
+  await page.goto("/tools/");
+  await expect(page.locator('script[src="/js/coder.js"]')).toHaveCount(1);
+  await expect(page.locator(".to-top")).toHaveCount(1);
+  await page.locator(".theme-toggle").click();
+  await expect(page.locator("body")).toHaveClass(/colorscheme-light/);
+});
+
+test("syntax highlighting loads only near code and never on code-free articles", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "desktop", "One browser project covers the highlight loading boundary");
+  const requests = [];
+  page.on("request", (request) => {
+    if (new URL(request.url()).pathname === "/js/vendor/highlight.min.js") requests.push(request.url());
+  });
+
+  await page.goto("/post/activiti-workflow-engine/");
+  await page.waitForTimeout(150);
+  expect(requests).toHaveLength(0);
+
+  await page.goto("/post/finance-saas-backend/");
+  await page.waitForTimeout(150);
+  expect(requests).toHaveLength(0);
+  await page.locator(".article-content pre code").first().scrollIntoViewIfNeeded();
+  await expect.poll(() => requests.length).toBe(1);
+  await expect(page.locator(".article-content pre code").first()).toHaveAttribute("data-cwl-highlighted", "true");
+  expect(requests).toHaveLength(1);
+});
+
+test("next-post recommendation reveals once and remembers dismissal", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "desktop", "Desktop-only automatic recommendation contract");
+  await page.goto("/post/rule-engine-alerts/");
+  const popup = page.locator(".next-popup");
+  const nextUrl = await popup.getAttribute("data-next-url");
+  await page.locator("article.article").evaluate((article) => article.lastElementChild?.scrollIntoView());
+  await expect(popup).toBeVisible();
+  await expect(popup).toHaveClass(/is-visible/);
+  await popup.locator(".next-popup-close").click();
+  await expect.poll(() => page.evaluate((key) => sessionStorage.getItem(key), `cwl-next-dismissed:${nextUrl}`)).toBe("1");
+  await page.reload();
+  await page.locator("article.article").evaluate((article) => article.lastElementChild?.scrollIntoView());
+  await expect(popup).toBeHidden();
+});
+
 test("assistant exposes three stable modes without viewport overflow", async ({ page }) => {
   await page.goto("/knowledge/");
   await openAssistant(page);
@@ -166,6 +292,7 @@ test("knowledge assistant renders cited source links from SSE", async ({ page },
     });
   });
   await page.goto("/knowledge/");
+  await expect(page.locator('meta[name="cwl-api-base"]')).toHaveAttribute("content", TEST_API_BASE);
   await openAssistant(page);
   await page.locator('[data-assistant-mode="knowledge"]').click();
   await page.locator(".assistant-input").fill("工作流如何保证可追踪？");

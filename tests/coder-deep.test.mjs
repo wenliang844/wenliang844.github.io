@@ -4,6 +4,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { JSDOM } from "jsdom";
+import { loadClientModule } from "./helpers/client-module.mjs";
 
 const ROOT = join(import.meta.dirname, "..");
 
@@ -18,10 +19,14 @@ function buildDom(html, opts = {}) {
 async function loadCoder(dom) {
   const utilsCode = await readFile(join(ROOT, "js", "utils.js"), "utf8");
   const i18nCode = await readFile(join(ROOT, "js", "i18n.js"), "utf8");
-  const coderCode = await readFile(join(ROOT, "js", "coder.js"), "utf8");
   dom.window.eval(utilsCode);
   dom.window.eval(i18nCode);
-  dom.window.eval(coderCode);
+  const runtime = await loadClientModule(dom, "src/client/site-runtime.ts", "SiteRuntimeClient");
+  runtime.initSiteRuntime();
+  const enhancements = await loadClientModule(dom, "src/client/article-enhancements.ts", "ArticleEnhancementsClient");
+  const reading = await loadClientModule(dom, "src/client/article-reading.ts", "ArticleReadingClient");
+  enhancements.initArticleEnhancements();
+  reading.initArticleReading();
   return dom;
 }
 
@@ -125,14 +130,13 @@ test("coder.js does not cover mobile reading content with a resume prompt", asyn
   dom.window.close();
 });
 
-test("coder.js hides reading progress bar on non-article pages", async () => {
+test("article reading runtime stays absent on non-article pages", async () => {
   const dom = buildDom(`<!doctype html><html lang="zh-CN"><body class="colorscheme-dark">
     <main class="container"><h1>Tools</h1><p>Utility page content.</p></main>
   </body></html>`, { url: "https://wenliang844.github.io/tools/" });
   await loadCoder(dom);
   const bar = dom.window.document.querySelector(".read-progress");
-  assert.ok(bar, "should still create read-progress element for consistent layout hooks");
-  assert.equal(bar.hidden, true, "should hide progress when no article is active");
+  assert.equal(bar, null, "non-article routes should not pay for article progress UI");
   dom.window.close();
 });
 
@@ -336,58 +340,6 @@ test("coder.js renders reading-time span in article meta", async () => {
   dom.window.close();
 });
 
-// ─── showPost 函数面板切换 ───────────────────────────────────────────────────
-
-test("coder.js showPost toggles active article panel", async () => {
-  const dom = buildDom(`<!doctype html><html lang="zh-CN"><body class="colorscheme-dark">
-    <a class="post-tree-link" data-post-target="post-a">A</a>
-    <a class="post-tree-link active" data-post-target="post-b">B</a>
-    <article class="blog-article active" id="post-b" data-post-slug="b">
-      <div class="article-content"><p>Post B</p></div>
-    </article>
-    <article class="blog-article" id="post-a" data-post-slug="a">
-      <div class="article-content"><p>Post A</p></div>
-    </article>
-  </body></html>`);
-  await loadCoder(dom);
-  const { document } = dom.window;
-
-  // Initially post-b is active
-  assert.ok(document.getElementById("post-b").classList.contains("active"));
-  assert.ok(!document.getElementById("post-a").classList.contains("active"));
-
-  // Switch to post-a
-  dom.window.coderShowPost("post-a", false);
-
-  assert.ok(document.getElementById("post-a").classList.contains("active"));
-  assert.ok(!document.getElementById("post-b").classList.contains("active"));
-  dom.window.close();
-});
-
-// ─── showPost 设置 aria-current ─────────────────────────────────────────────
-
-test("coder.js showPost sets aria-current on active link", async () => {
-  const dom = buildDom(`<!doctype html><html lang="zh-CN"><body class="colorscheme-dark">
-    <a class="post-tree-link" data-post-target="post-a">A</a>
-    <a class="post-tree-link active" data-post-target="post-b">B</a>
-    <article class="blog-article active" id="post-b" data-post-slug="b">
-      <div class="article-content"><p>Post B</p></div>
-    </article>
-    <article class="blog-article" id="post-a" data-post-slug="a">
-      <div class="article-content"><p>Post A</p></div>
-    </article>
-  </body></html>`);
-  await loadCoder(dom);
-  const { document } = dom.window;
-
-  dom.window.coderShowPost("post-a", false);
-  const linkA = document.querySelector('[data-post-target="post-a"]');
-  const linkB = document.querySelector('[data-post-target="post-b"]');
-  assert.equal(linkA.getAttribute("aria-current"), "page");
-  assert.equal(linkB.getAttribute("aria-current"), null);
-  dom.window.close();
-});
-
 // ─── 主题切换持久化 ─────────────────────────────────────────────────────────
 
 test("coder.js theme toggle persists to localStorage", async () => {
@@ -412,9 +364,9 @@ test("coder.js defaults to dark theme when no preference stored", async () => {
     <button class="theme-toggle" type="button"></button>
   </body></html>`);
   const utilsCode = await readFile(join(ROOT, "js", "utils.js"), "utf8");
-  const coderCode = await readFile(join(ROOT, "js", "coder.js"), "utf8");
   dom.window.eval(utilsCode);
-  dom.window.eval(coderCode);
+  const runtime = await loadClientModule(dom, "src/client/site-runtime.ts", "SiteRuntimeClient");
+  runtime.initSiteRuntime();
   assert.ok(dom.window.document.body.classList.contains("colorscheme-dark"), "should default to dark");
   dom.window.close();
 });
@@ -444,8 +396,8 @@ test("coder.js auto theme follows system preference until user chooses a theme",
   dom.window.close();
 });
 
-test("coder.js keeps theme icon inside the bundled Font Awesome subset", async () => {
-  const code = await readFile(join(ROOT, "js", "coder.js"), "utf8");
+test("site runtime keeps theme icon inside the bundled Font Awesome subset", async () => {
+  const code = await readFile(join(ROOT, "src/client/site-runtime.ts"), "utf8");
 
   assert.doesNotMatch(code, /fa-(desktop|sun|moon)/, "theme toggle must not switch to icons missing from the bundled subset font");
   assert.match(code, /fa-adjust/, "theme toggle should use the bundled visible icon");
@@ -533,27 +485,6 @@ test("coder.js includes h3 headings in TOC", async () => {
   dom.window.close();
 });
 
-// ─── 多文章面板只有目标激活 ──────────────────────────────────────────────────
-
-test("coder.js showPost only activates one panel at a time", async () => {
-  const dom = buildDom(`<!doctype html><html lang="zh-CN"><body class="colorscheme-dark">
-    <a class="post-tree-link" data-post-target="p1">P1</a>
-    <a class="post-tree-link" data-post-target="p2">P2</a>
-    <a class="post-tree-link" data-post-target="p3">P3</a>
-    <article class="blog-article" id="p1" data-post-slug="p1"><div class="article-content"><p>1</p></div></article>
-    <article class="blog-article" id="p2" data-post-slug="p2"><div class="article-content"><p>2</p></div></article>
-    <article class="blog-article" id="p3" data-post-slug="p3"><div class="article-content"><p>3</p></div></article>
-  </body></html>`);
-  await loadCoder(dom);
-  const { document } = dom.window;
-
-  dom.window.coderShowPost("p2", false);
-  const activePanels = document.querySelectorAll(".blog-article.active");
-  assert.equal(activePanels.length, 1, "should have exactly 1 active panel");
-  assert.equal(activePanels[0].id, "p2");
-  dom.window.close();
-});
-
 // ─── 粒子动画空闲停止 ───────────────────────────────────────────────────────
 
 test("coder.js cursor particles only animate while particles are active", async () => {
@@ -605,27 +536,27 @@ test("coder.js cursor particles only animate while particles are active", async 
   dom.window.close();
 });
 
-test("coder.js cursor particles avoid canvas shadowBlur in the animation loop", async () => {
-  const code = await readFile(join(ROOT, "js", "coder.js"), "utf8");
+test("site runtime cursor particles avoid canvas shadowBlur in the animation loop", async () => {
+  const code = await readFile(join(ROOT, "src/client/site-runtime.ts"), "utf8");
 
   assert.doesNotMatch(code, /shadowBlur/, "cursor particles should avoid shadowBlur in per-frame drawing");
   assert.match(code, /globalAlpha/, "cursor particles should use alpha layers for glow");
 });
 
-test("coder.js cursor particles remove expired items without splice", async () => {
-  const code = await readFile(join(ROOT, "js", "coder.js"), "utf8");
+test("site runtime cursor particles remove expired items without splice", async () => {
+  const code = await readFile(join(ROOT, "src/client/site-runtime.ts"), "utf8");
 
   assert.doesNotMatch(code, /\.splice\(/, "particle hot path should avoid splice allocations");
-  assert.match(code, /function removeParticle\(index\)/, "should keep a dedicated particle removal helper");
+  assert.match(code, /const removeParticle = \(index: number\)/, "should keep a dedicated particle removal helper");
   assert.match(code, /particles\[index\]\s*=\s*particles\[particles\.length - 1\]/, "should use swap-and-pop removal");
   assert.match(code, /particles\.pop\(\)/, "should pop the swapped tail particle");
 });
 
-test("coder.js uses an independent throttle for resize progress updates", async () => {
-  const code = await readFile(join(ROOT, "js", "coder.js"), "utf8");
+test("article reading runtime uses an independent throttle for resize progress updates", async () => {
+  const code = await readFile(join(ROOT, "src", "client", "article-reading.ts"), "utf8");
 
-  assert.match(code, /RESIZE_THROTTLE:\s*200/, "resize should have its own throttle interval");
-  assert.match(code, /const throttledResize =[\s\S]*?CWLUtils\.throttle\(onScroll, SCROLL_CONSTANTS\.RESIZE_THROTTLE\)/);
+  assert.match(code, /RESIZE_THROTTLE\s*=\s*200/, "resize should have its own throttle interval");
+  assert.match(code, /const throttledResize =[\s\S]*?throttle\?\.\(update, RESIZE_THROTTLE\)/);
   assert.match(code, /addEventListener\("resize", throttledResize\)/);
   assert.doesNotMatch(code, /addEventListener\("resize", throttledScroll\)/);
 });

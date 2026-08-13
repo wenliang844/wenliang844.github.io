@@ -6,6 +6,7 @@
 // 用法：
 //   node scripts/build.mjs            # 输出到项目根（覆盖现有产物）
 //   node scripts/build.mjs --out dist # 输出到 dist/（用于对齐验证）
+//   node scripts/build.mjs --skip-astro-html # 跳过已由 Astro 接管的内容 HTML
 
 import { existsSync } from "node:fs";
 import { readdir, readFile, mkdir, stat, writeFile } from "node:fs/promises";
@@ -43,6 +44,7 @@ const COVER_FORMATS = new Set(["png", "jpeg", "webp", "avif"]);
 // 输出目录：--out <dir>，默认项目根。
 const outIdx = process.argv.indexOf("--out");
 const OUT_DIR = resolveOutDir(outIdx);
+const SKIP_ASTRO_HTML = process.argv.includes("--skip-astro-html");
 
 marked.setOptions({ gfm: true, breaks: false });
 marked.use({
@@ -743,7 +745,7 @@ Sitemap: ${SITE.baseURL}/sitemap.xml`;
 }
 
 // 统计所有文章的标签及出现次数，按文章数降序、同数按名称升序排列。
-function collectTags(posts) {
+export function collectTags(posts) {
   const counts = new Map();
   const namesEn = new Map();
   for (const post of posts) {
@@ -1181,38 +1183,31 @@ async function main() {
   const contentHealth = buildContentHealth(posts, knowledgeGraph);
   const knowledgeChunks = buildKnowledgeChunks(posts);
 
-  // 单篇页
-  for (let i = 0; i < posts.length; i++) {
-    const post = posts[i];
-    const nav = {
-      prev: posts[i - 1] || null,
-      next: posts[i + 1] || null,
-      related: relatedPosts(post, posts),
-      backlinks: post.backlinks,
-      series: buildSeriesContext(post, seriesGroups),
-    };
-    await writeFileEnsured(`post/${post.slug}/index.html`, renderPostPage(post, nav) + "\n");
+  if (!SKIP_ASTRO_HTML) {
+    // 兼容独立构建与隔离测试；混合生产构建中的这些路由由 Astro 唯一生成。
+    for (let i = 0; i < posts.length; i++) {
+      const post = posts[i];
+      const nav = {
+        prev: posts[i - 1] || null,
+        next: posts[i + 1] || null,
+        related: relatedPosts(post, posts),
+        backlinks: post.backlinks,
+        series: buildSeriesContext(post, seriesGroups),
+      };
+      await writeFileEnsured(`post/${post.slug}/index.html`, renderPostPage(post, nav) + "\n");
+    }
+    await writeFileEnsured("post/index.html", renderPostList(posts, stats) + "\n");
+    await writeFileEnsured("tags/index.html", renderTagsPage(collectTags(posts)) + "\n");
+    await writeFileEnsured("categories/index.html", renderCategoriesPage(posts, stats, categories) + "\n");
+    for (const group of categories) {
+      await writeFileEnsured(`categories/${group.id}/index.html`, renderTaxonomyDetail(group, "category") + "\n");
+    }
+    await writeFileEnsured("series/index.html", renderSeriesIndex(seriesGroups) + "\n");
+    for (const group of seriesGroups) {
+      await writeFileEnsured(`series/${group.id}/index.html`, renderTaxonomyDetail(group, "series") + "\n");
+    }
+    await writeFileEnsured("knowledge/index.html", renderKnowledgePage(knowledgeGraph, contentHealth) + "\n");
   }
-
-  // 列表页
-  await writeFileEnsured("post/index.html", renderPostList(posts, stats) + "\n");
-
-  // 标签云页
-  await writeFileEnsured("tags/index.html", renderTagsPage(collectTags(posts)) + "\n");
-
-  // 时间归档页
-  await writeFileEnsured("categories/index.html", renderCategoriesPage(posts, stats, categories) + "\n");
-  for (const group of categories) {
-    await writeFileEnsured(`categories/${group.id}/index.html`, renderTaxonomyDetail(group, "category") + "\n");
-  }
-
-  // 系列页按 order 提供连续阅读路径。
-  await writeFileEnsured("series/index.html", renderSeriesIndex(seriesGroups) + "\n");
-  for (const group of seriesGroups) {
-    await writeFileEnsured(`series/${group.id}/index.html`, renderTaxonomyDetail(group, "series") + "\n");
-  }
-
-  await writeFileEnsured("knowledge/index.html", renderKnowledgePage(knowledgeGraph, contentHealth) + "\n");
   await writeFileEnsured("knowledge/graph.json", JSON.stringify(knowledgeGraph, null, 2) + "\n");
   await writeFileEnsured("knowledge/health.json", JSON.stringify(contentHealth, null, 2) + "\n");
   await writeFileEnsured("knowledge/chunks.json", JSON.stringify(knowledgeChunks) + "\n");

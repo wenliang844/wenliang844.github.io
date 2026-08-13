@@ -24,6 +24,7 @@ test("service worker caches only public content and static assets", async () => 
   assert.match(source, /request\.referrer/);
   assert.match(source, /request\.mode === "navigate" && hasPrefix\(url\.pathname, CONTENT_PREFIXES\)/);
   assert.match(source, /hasPrefix\(url\.pathname, STATIC_PREFIXES\)/);
+  assert.match(source, /STATIC_PREFIXES = \["\/_astro\/"/);
   const precache = source.match(/const PRECACHE = \[[\s\S]*?\];/)?.[0] || "";
   assert.doesNotMatch(precache, /\/editor\/|\/overleaf\/|\/chat\/|\/api\//);
   assert.doesNotMatch(source, /localStorage|indexedDB/);

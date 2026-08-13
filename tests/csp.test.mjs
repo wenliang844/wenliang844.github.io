@@ -78,7 +78,7 @@ test("CSP hardener grants network origins by page capability", () => {
   const contactHtml = publicHtml + '<script src="/js/feedback.js"></script>';
   assert.equal(connectSourcesForHtml(contactHtml).includes("https://api.web3forms.com"), true);
 
-  const lazyPostHtml = publicHtml + '<script src="/js/post-extras-loader.js"></script>';
+  const lazyPostHtml = publicHtml.replace("<meta name=", '<body data-cwl-comments="enabled"></body><meta name=');
   assert.match(hardenHtml(lazyPostHtml), /script-src[^;]*https:\/\/giscus\.app/);
 
   const toolsHtml = publicHtml + '<script src="/js/tools.js"></script>';

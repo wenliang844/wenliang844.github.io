@@ -1,0 +1,15 @@
+---
+import { buildStats, collectCategories } from "../../../scripts/build.mjs";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import CategoriesPage from "../../components/CategoriesPage.astro";
+import { getPublishedPosts } from "../../lib/astro-posts";
+import { buildCategoriesPageMetadata } from "../../templates/categories.mjs";
+
+const posts = await getPublishedPosts();
+const stats = buildStats(posts);
+const categories = collectCategories(posts);
+const page = buildCategoriesPageMetadata(posts);
+---
+<BaseLayout {...page}>
+  <CategoriesPage {posts} {stats} {categories} />
+</BaseLayout>

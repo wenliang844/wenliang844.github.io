@@ -23,10 +23,3 @@ export function getPublishedPosts(): Promise<SitePost[]> {
   });
   return publishedPosts;
 }
-
-export function markAstroOutput(html: string): string {
-  return html.replace(
-    "</head>",
-    '  <meta name="generator" content="Astro Content Collections">\n</head>',
-  );
-}

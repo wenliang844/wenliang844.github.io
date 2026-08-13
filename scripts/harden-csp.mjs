@@ -108,8 +108,7 @@ export function hardenHtml(html, file = "HTML") {
   const match = html.match(CSP_RE);
   if (!match) return html;
   const removedSources = [];
-  const usesGiscus = html.includes('src="/js/giscus.js"')
-    || html.includes('src="/js/post-extras-loader.js"');
+  const usesGiscus = html.includes('data-cwl-comments="enabled"');
   if (!usesGiscus) removedSources.push("https://giscus.app");
   if (!html.includes('src="/js/tools.js"')) removedSources.push("https://cdn.jsdelivr.net");
   const usesPagefind = html.includes('src="/js/search-loader.js"');

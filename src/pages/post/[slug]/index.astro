@@ -4,8 +4,10 @@ import {
   collectSeries,
   relatedPosts,
 } from "../../../../scripts/build.mjs";
-import { renderPostPage } from "../../../templates/post.mjs";
-import { getPublishedPosts, markAstroOutput } from "../../../lib/astro-posts";
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import ArticlePage from "../../../components/ArticlePage.astro";
+import { buildPostPageMetadata } from "../../../templates/post.mjs";
+import { getPublishedPosts } from "../../../lib/astro-posts";
 
 export async function getStaticPaths() {
   const posts = await getPublishedPosts();
@@ -25,6 +27,8 @@ const nav = {
   backlinks: post.backlinks,
   series: buildSeriesContext(post, seriesGroups),
 };
-const html = markAstroOutput(renderPostPage(post, nav));
+const layout = buildPostPageMetadata(post, nav);
 ---
-<Fragment set:html={html} />
+<BaseLayout {...layout}>
+  <ArticlePage {post} {nav} />
+</BaseLayout>

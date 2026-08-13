@@ -1,9 +1,10 @@
-// 行为测试: toc.js — 文章目录交互（展开收起、滚动高亮、链接跳转、hash 导航）
+// 行为测试: article-toc.ts - 文章目录交互（展开收起、滚动高亮、链接跳转、hash 导航）
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { JSDOM } from "jsdom";
+import { evaluateClientModule } from "./helpers/client-module.mjs";
 
 const ROOT = join(import.meta.dirname, "..");
 
@@ -53,9 +54,7 @@ async function loadToc(dom, options = {}) {
   const utilsCode = await readFile(join(ROOT, "js", "utils.js"), "utf8");
   dom.window.eval(utilsCode);
 
-  const code = await readFile(join(ROOT, "js", "toc.js"), "utf8");
-  dom.window.eval(code);
-  return dom;
+  return evaluateClientModule(dom, "src/client/article-toc.ts", "ArticleTocClient", "initArticleToc");
 }
 
 // ─── 展开/收起目录 ────────────────────────────────────────────────────────────
@@ -325,8 +324,7 @@ test("toc.js scrolls to hash target on page load", async () => {
 
   const code = await readFile(join(ROOT, "js", "utils.js"), "utf8");
   dom.window.eval(code);
-  const tocCode = await readFile(join(ROOT, "js", "toc.js"), "utf8");
-  dom.window.eval(tocCode);
+  await evaluateClientModule(dom, "src/client/article-toc.ts", "ArticleTocClient", "initArticleToc");
 
   // Wait for the setTimeout(100ms) in toc.js
   await new Promise((r) => setTimeout(r, 150));
@@ -350,9 +348,7 @@ test("toc.js exits gracefully without toc-sidebar", async () => {
     pretendToBeVisual: true,
   });
 
-  const code = await readFile(join(ROOT, "js", "toc.js"), "utf8");
-  // Should not throw
-  dom.window.eval(code);
+  await evaluateClientModule(dom, "src/client/article-toc.ts", "ArticleTocClient", "initArticleToc");
   assert.ok(true, "should exit without error");
   dom.window.close();
 });
@@ -369,10 +365,7 @@ test("toc.js works without IntersectionObserver support", async () => {
 
   const utilsCode = await readFile(join(ROOT, "js", "utils.js"), "utf8");
   dom.window.eval(utilsCode);
-  const code = await readFile(join(ROOT, "js", "toc.js"), "utf8");
-
-  // Should not throw even without IntersectionObserver
-  // (the script won't install the observer but toggle should still work)
+  await evaluateClientModule(dom, "src/client/article-toc.ts", "ArticleTocClient", "initArticleToc");
   assert.ok(true, "should handle missing IntersectionObserver gracefully");
   dom.window.close();
 });

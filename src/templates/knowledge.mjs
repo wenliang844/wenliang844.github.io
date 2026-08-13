@@ -83,7 +83,7 @@ function renderHealthDashboard(health) {
         </section>`;
 }
 
-export function renderKnowledgePage(graph, health = null) {
+export function buildKnowledgePageModel(graph, health = null) {
   const categoryCounts = Object.entries(CONTENT_CATEGORIES).map(([id, meta]) => {
     const count = graph.nodes.filter((node) => node.category === id).length;
     return `            <button type="button" data-knowledge-filter="${escapeAttr(id)}"><span>${escapeHtml(meta.name)}</span><strong>${count}</strong></button>`;
@@ -120,8 +120,15 @@ ${articleRows}
         </section>
       </section>
     </main>`;
+  return {
+    ...buildKnowledgePageMetadata(),
+    main,
+  };
+}
+
+export function buildKnowledgePageMetadata() {
   const description = "CWLBlog 的个人知识资产地图，展示文章主题覆盖、系列、标签关系和维护状态。";
-  return renderPage({
+  return {
     title: "知识资产 :: CWLBlog",
     description,
     active: "knowledge",
@@ -130,6 +137,9 @@ ${articleRows}
     languageMode: "zh-only",
     jsonLd: buildPageJsonLd({ type: "CollectionPage", name: "CWLBlog 知识资产", description, path: "/knowledge/" }),
     og: { type: "website", title: "知识资产", description, path: "/knowledge/" },
-    main,
-  });
+  };
+}
+
+export function renderKnowledgePage(graph, health = null) {
+  return renderPage(buildKnowledgePageModel(graph, health));
 }

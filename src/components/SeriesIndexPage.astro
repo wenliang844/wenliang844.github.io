@@ -1,0 +1,19 @@
+---
+const { groups } = Astro.props;
+---
+<main id="main-content" class="content" data-pagefind-body>
+  <section class="list-page container taxonomy-page">
+    <span class="eyebrow">Reading Paths</span>
+    <h1>文章系列</h1>
+    <p class="lead">按主题和推荐顺序连续阅读，建立从背景、架构到实现细节的完整上下文。</p>
+    <div class="taxonomy-grid">
+      {groups.map((group) => (
+        <a class="taxonomy-card" href={`/series/${group.id}/`}>
+          <span class="eyebrow">{group.posts.length} 篇</span>
+          <strong>{group.name}</strong>
+          <span>{group.description}</span>
+        </a>
+      ))}
+    </div>
+  </section>
+</main>

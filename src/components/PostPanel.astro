@@ -1,0 +1,52 @@
+---
+import { isoDate, longDate } from "../lib/format.mjs";
+import MarkdownContent from "./MarkdownContent.astro";
+import PostShare from "./PostShare.astro";
+
+type Post = Record<string, any>;
+
+interface Props {
+  post: Post;
+  active?: boolean;
+}
+
+const { post, active = false } = Astro.props;
+const hasEnglishContent = Boolean(post.contentHtmlEn);
+const englishValue = (key: string) => post[`${key}En`] || post[key] || "";
+const englishTag = (tag: string, index: number) => post.tagsEn?.[index] || tag;
+const basePrefix = `post-${post.slug}`;
+---
+<span class="post-anchor" id={post.slug} aria-hidden="true"></span>
+<article
+  class:list={["article", "blog-article", { active }]}
+  id={`post-${post.slug}`}
+  data-post-slug={post.slug}
+>
+  <header class="article-header">
+    <span class="eyebrow">{post.eyebrow}</span>
+    <h2 data-i18n={`post.${post.slug}.title`} data-i18n-en={englishValue("title")}>{post.title}</h2>
+    <div class="article-meta">
+      <time datetime={isoDate(post.date)}>{longDate(post.date)}</time>
+      <span>·</span>
+      <span class="reading-time">
+        <i class="fas fa-clock" aria-hidden="true"></i>
+        <span data-i18n="dyn.readingPrefix">约</span> {post.readMinutes || 1} <span data-i18n="dyn.readingSuffix">分钟</span>
+      </span>
+    </div>
+    <p class="article-summary" data-i18n={`post.${post.slug}.summary`} data-i18n-en={englishValue("summary")}>{post.summary}</p>
+    <div class="post-tags" aria-label="文章标签">
+      {post.tags.map((tag: string, index: number) => (
+        <span data-tag={tag} data-i18n={`post.${post.slug}.tag.${index}`} data-i18n-en={englishTag(tag, index)}>{tag}</span>
+      ))}
+    </div>
+  </header>
+
+  {hasEnglishContent ? (
+    <>
+      <MarkdownContent html={post.contentHtml} lang="zh" headingIdPrefix={`${basePrefix}-zh`} />
+      <MarkdownContent html={post.contentHtmlEn} lang="en" headingIdPrefix={`${basePrefix}-en`} hidden />
+    </>
+  ) : <MarkdownContent html={post.contentHtml} headingIdPrefix={basePrefix} />}
+
+  <PostShare slug={post.slug} title={post.shortTitle} titleEn={englishValue("shortTitle")} />
+</article>

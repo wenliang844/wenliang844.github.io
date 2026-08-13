@@ -1,11 +1,8 @@
-// Deep test: post-next.js — 下一篇浮动推荐卡
+// Deep test: next-post.ts — 下一篇浮动推荐卡
 import test from "node:test";
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
-import { join } from "node:path";
 import { JSDOM } from "jsdom";
-
-const ROOT = join(import.meta.dirname, "..");
+import { loadClientModule } from "./helpers/client-module.mjs";
 
 function buildNextHtml(options = {}) {
   const nextUrl = options.nextUrl || "/post/next-post/";
@@ -23,16 +20,14 @@ function buildNextHtml(options = {}) {
 }
 
 async function loadPostNext(dom) {
-  const utilsCode = await readFile(join(ROOT, "js", "utils.js"), "utf8");
-  const code = await readFile(join(ROOT, "js", "post-next.js"), "utf8");
-  dom.window.eval(utilsCode);
-  dom.window.eval(code);
+  const module = await loadClientModule(dom, "src/client/next-post.ts", "NextPostClient");
+  module.initNextPost();
   return dom;
 }
 
 // ─── 初始状态（无 sessionStorage 关闭记录时注册滚动监听） ──────────────────
 
-test("post-next.js registers scroll listener when not dismissed", async () => {
+test("next-post module initializes when not dismissed", async () => {
   const dom = new JSDOM(buildNextHtml(), {
     runScripts: "outside-only",
     url: "https://wenliang844.github.io/post/test/",
@@ -48,7 +43,7 @@ test("post-next.js registers scroll listener when not dismissed", async () => {
 
 // ─── 关闭按钮隐藏弹窗 ─────────────────────────────────────────────────────
 
-test("post-next.js close button hides popup and persists dismissal", async () => {
+test("next-post module close button hides popup and persists dismissal", async () => {
   const dom = new JSDOM(buildNextHtml(), {
     runScripts: "outside-only",
     url: "https://wenliang844.github.io/post/test/",
@@ -72,7 +67,7 @@ test("post-next.js close button hides popup and persists dismissal", async () =>
 
 // ─── 链接点击记住关闭状态 ───────────────────────────────────────────────────
 
-test("post-next.js link click remembers dismissal", async () => {
+test("next-post module link click remembers dismissal", async () => {
   const nextUrl = "/post/next-post/";
   const dom = new JSDOM(buildNextHtml({ nextUrl }), {
     runScripts: "outside-only",
@@ -93,7 +88,7 @@ test("post-next.js link click remembers dismissal", async () => {
 
 // ─── 关闭后记住状态，重新加载不再显示 ───────────────────────────────────────
 
-test("post-next.js respects stored dismissal on reload", async () => {
+test("next-post module respects stored dismissal on reload", async () => {
   const nextUrl = "/post/next-post/";
   const dismissKey = "cwl-next-dismissed:" + nextUrl;
 
@@ -114,7 +109,7 @@ test("post-next.js respects stored dismissal on reload", async () => {
 
 // ─── data-next-url 属性正确读取 ─────────────────────────────────────────────
 
-test("post-next.js reads next URL from data attribute", async () => {
+test("next-post module reads next URL from data attribute", async () => {
   const dom = new JSDOM(buildNextHtml({ nextUrl: "/post/custom-next/" }), {
     runScripts: "outside-only",
     url: "https://wenliang844.github.io/post/test/",
@@ -128,7 +123,7 @@ test("post-next.js reads next URL from data attribute", async () => {
 
 // ─── 无 .next-popup 时静默退出 ─────────────────────────────────────────────
 
-test("post-next.js exits gracefully without next-popup", async () => {
+test("next-post module exits gracefully without next-popup", async () => {
   const dom = new JSDOM(`<!doctype html><html><body>
     <article class="article"><p>Content</p></article>
   </body></html>`, {
@@ -136,17 +131,14 @@ test("post-next.js exits gracefully without next-popup", async () => {
     url: "https://wenliang844.github.io/post/test/",
     pretendToBeVisual: true,
   });
-  const utilsCode = await readFile(join(ROOT, "js", "utils.js"), "utf8");
-  const code = await readFile(join(ROOT, "js", "post-next.js"), "utf8");
-  dom.window.eval(utilsCode);
-  dom.window.eval(code);
+  await loadPostNext(dom);
   assert.ok(true, "should exit gracefully");
   dom.window.close();
 });
 
 // ─── 无 article 时静默退出 ──────────────────────────────────────────────────
 
-test("post-next.js exits gracefully without article element", async () => {
+test("next-post module exits gracefully without article element", async () => {
   const dom = new JSDOM(`<!doctype html><html><body>
     <div class="next-popup" hidden data-next-url="/post/x/">
       <button class="next-popup-close">×</button>
@@ -157,17 +149,14 @@ test("post-next.js exits gracefully without article element", async () => {
     url: "https://wenliang844.github.io/post/test/",
     pretendToBeVisual: true,
   });
-  const utilsCode = await readFile(join(ROOT, "js", "utils.js"), "utf8");
-  const code = await readFile(join(ROOT, "js", "post-next.js"), "utf8");
-  dom.window.eval(utilsCode);
-  dom.window.eval(code);
+  await loadPostNext(dom);
   assert.ok(true, "should exit gracefully without article");
   dom.window.close();
 });
 
 // ─── close 按钮的 sessionStorage 持久化 ────────────────────────────────────
 
-test("post-next.js close button persists to sessionStorage", async () => {
+test("next-post module close button persists to sessionStorage", async () => {
   const nextUrl = "/post/abc/";
   const dom = new JSDOM(buildNextHtml({ nextUrl }), {
     runScripts: "outside-only",

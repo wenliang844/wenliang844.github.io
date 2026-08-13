@@ -1,212 +1,187 @@
-<!doctype html>
+<!DOCTYPE html>
+<script type="module" src="/_astro/BaseLayout.astro_astro_type_script_index_0_lang.DZrDTd44.js"></script>
+
 <html lang="zh-CN">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' https://cloud.umami.is https://plausible.io https://giscus.app 'wasm-unsafe-eval' 'sha256-QWVB/xIZymfDkRcD3KFk5/Ul8fNDPmNcFtfcaT4K4WU='; script-src-attr 'none'; style-src 'self'; style-src-attr 'none'; img-src 'self' data: https:; font-src 'self' data:; worker-src 'self'; connect-src 'self' https://cloud.umami.is https://plausible.io https://buttondown.com https://muyuan.do https://token-plan-cn.xiaomimimo.com; frame-src https://giscus.app; form-action 'self' https://buttondown.com https://api.web3forms.com">
-  <meta name="cwl-api-base" content="">
-  <meta name="description" content="按时间线整理项目复盘：覆盖 Codex 与 Claude 协作、低代码引擎、Activiti 工作流、企顾 SaaS、智能分析预警平台与规则引擎告警闭环。">
-  <meta name="theme-color" content="#171717">
-  <link rel="icon" href="/images/favicon.png" type="image/png">
-  <link rel="preconnect" href="https://giscus.app">
-  <link rel="dns-prefetch" href="https://giscus.app">
-  <link rel="preconnect" href="https://buttondown.com">
-  <link rel="dns-prefetch" href="https://buttondown.com">
-  <link rel="dns-prefetch" href="https://www.ifdian.net">
-  <link rel="dns-prefetch" href="https://paypal.me">
-  <link rel="stylesheet" href="/css/fontawesome-all.min.css">
-  <link rel="stylesheet" href="/css/coder-post.min.css">
-  <link rel="stylesheet" href="/css/content.min.css">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' https://cloud.umami.is https://plausible.io https://giscus.app 'wasm-unsafe-eval' 'sha256-QWVB/xIZymfDkRcD3KFk5/Ul8fNDPmNcFtfcaT4K4WU='; script-src-attr 'none'; style-src 'self'; style-src-attr 'none'; img-src 'self' data: https:; font-src 'self' data:; worker-src 'self'; connect-src 'self' https://cloud.umami.is https://plausible.io https://buttondown.com https://muyuan.do https://token-plan-cn.xiaomimimo.com; frame-src https://giscus.app; form-action 'self' https://buttondown.com https://api.web3forms.com">
+    <meta name="cwl-api-base" content>
+    <meta name="description" content="按时间线整理项目复盘：覆盖 Codex 与 Claude 协作、低代码引擎、Activiti 工作流、企顾 SaaS、智能分析预警平台与规则引擎告警闭环。">
+    <meta name="theme-color" content="#171717">
+    <meta name="generator" content="Astro Content Collections">
+    <link rel="icon" href="/images/favicon.png" type="image/png">
+    <link rel="preconnect" href="https://giscus.app"><link rel="dns-prefetch" href="https://giscus.app"><link rel="preconnect" href="https://buttondown.com"><link rel="dns-prefetch" href="https://buttondown.com"><link rel="dns-prefetch" href="https://www.ifdian.net"><link rel="dns-prefetch" href="https://paypal.me">
+    <link rel="stylesheet" href="/css/fontawesome-all.min.css">
+    <link rel="stylesheet" href="/css/coder-post.min.css">
+    <link rel="stylesheet" href="/css/content.min.css">
+    <link rel="manifest" href="/manifest.webmanifest">
+    <link rel="apple-touch-icon" href="/images/pwa-192.png">
+    <script src="/js/error-handler.js" defer></script><script src="/js/utils.js" defer></script><script src="/js/pwa.js" defer></script><script src="/js/analytics.js" defer></script><script src="/js/i18n.js" defer></script><script src="/js/search-loader.js" defer></script><script src="/js/subscribe.js" defer></script><script src="/js/assistant-loader.js" defer></script>
+    <link rel="canonical" href="https://wenliang844.github.io/post/"><meta property="og:type" content="website"><meta property="og:site_name" content="CWLBlog"><meta property="og:title" content="Posts"><meta property="og:description" content="按时间线整理项目复盘：覆盖 Codex 与 Claude 协作、低代码引擎、Activiti 工作流、企顾 SaaS、智能分析预警平台与规则引擎告警闭环。"><meta property="og:url" content="https://wenliang844.github.io/post/"><meta property="og:image" content="https://wenliang844.github.io/images/favicon.png"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://wenliang844.github.io/images/favicon.png"><meta name="twitter:title" content="Posts"><meta name="twitter:description" content="按时间线整理项目复盘：覆盖 Codex 与 Claude 协作、低代码引擎、Activiti 工作流、企顾 SaaS、智能分析预警平台与规则引擎告警闭环。">
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"CollectionPage","name":"CWLBlog 文章","description":"按时间线整理项目复盘：覆盖 Codex 与 Claude 协作、低代码引擎、Activiti 工作流、企顾 SaaS、智能分析预警平台与规则引擎告警闭环。","url":"https://wenliang844.github.io/post/","inLanguage":"zh-CN","isPartOf":{"@type":"WebSite","name":"CWLBlog","url":"https://wenliang844.github.io/"},"mainEntity":{"@type":"ItemList","numberOfItems":6,"itemListElement":[{"@type":"ListItem","position":1,"name":"规则引擎与告警闭环","url":"https://wenliang844.github.io/post/rule-engine-alerts/"},{"@type":"ListItem","position":2,"name":"Codex 与 Claude 的 Vibe Coding","url":"https://wenliang844.github.io/post/codex-claude-vibe-coding/"},{"@type":"ListItem","position":3,"name":"智能分析预警平台重构","url":"https://wenliang844.github.io/post/manage-system/"},{"@type":"ListItem","position":4,"name":"企顾 SaaS 多模块平台","url":"https://wenliang844.github.io/post/finance-saas-backend/"},{"@type":"ListItem","position":5,"name":"Activiti BPM 引擎实践","url":"https://wenliang844.github.io/post/activiti-workflow-engine/"},{"@type":"ListItem","position":6,"name":"LowCode Engine 实践","url":"https://wenliang844.github.io/post/lowcode-schema-codegen/"}]}}</script>
+    <title>文章 :: CWLBlog</title>
+  </head>
+  <body class="colorscheme-dark" data-i18n-page="posts" data-i18n-title-en="Posts :: CWLBlog" data-language-mode="bilingual" data-cwl-comments="enabled">
+    <a class="skip-link" href="#main-content" data-i18n="nav.skip">跳到主要内容</a>
+    <div class="cursor-glow" aria-hidden="true"></div>
+    <canvas class="cursor-canvas" aria-hidden="true"></canvas>
+    <div class="site-shell">
+      <header class="navigation">
+  <section class="container">
+    <a class="navigation-title" href="/">CWLBlog</a>
+    <input type="checkbox" id="menu-toggle" class="menu-toggle" aria-label="Toggle menu" data-i18n-aria="nav.menu">
+    <label class="menu-button" for="menu-toggle"><i class="fas fa-bars"></i></label>
+    <label class="menu-overlay" for="menu-toggle" aria-hidden="true"></label>
+    <nav class="navigation-list" aria-label="Main navigation" data-i18n-aria="nav.main">
+      <ul>
+        <li>
+            <a class="active nav-blog-main" href="/post/" data-i18n="nav.blog" data-i18n-html data-i18n-en-html="<i class=&quot;fas fa-book-open&quot; aria-hidden=&quot;true&quot;></i> Blog">
+              <i class="fas fa-book-open" aria-hidden="true"></i> 博客
+            </a>
+          </li><li>
+            <a href="/ai/" data-i18n="nav.ai">
+              AI中转站排名
+            </a>
+          </li><li>
+            <a href="/appreciation/" data-i18n="nav.appreciation">
+              观察家
+            </a>
+          </li>
+        <li class="nav-more">
+          <details>
+            <summary class="nav-more-toggle" data-i18n="nav.more" data-i18n-html data-i18n-en-html="<i class=&quot;fas fa-ellipsis-h&quot; aria-hidden=&quot;true&quot;></i> More">
+              <i class="fas fa-ellipsis-h" aria-hidden="true"></i> 更多
+            </summary>
+            <ul class="nav-more-menu">
+              <li><a href="/knowledge/" data-i18n="nav.knowledge">知识资产</a></li><li><a href="/tools/" data-i18n="nav.tools">工具箱</a></li><li><a href="/overleaf/" data-i18n="nav.overleaf">简历模版</a></li>
+            </ul>
+          </details>
+        </li>
+        <li><a class="nav-feedback" href="/contact/" data-i18n="nav.feedback" data-i18n-html><i class="fas fa-comment-dots" aria-hidden="true"></i> 留言反馈</a></li>
+        <li><button class="nav-subscribe" type="button" data-subscribe-open data-i18n="nav.subscribe" data-i18n-html><i class="fas fa-envelope" aria-hidden="true"></i> 订阅</button></li>
+        <li><a class="nav-sponsor" href="/sponsor/" data-i18n="nav.sponsor" data-i18n-html><i class="fas fa-heart" aria-hidden="true"></i> 赞助</a></li>
+        <li><a class="nav-chat" href="/chat/" aria-label="打开在线聊天室" title="打开在线聊天室" data-i18n-aria="nav.chat" data-i18n-title="nav.chat"><i class="fas fa-comments" aria-hidden="true"></i></a></li>
+        <li><button class="theme-toggle" type="button" aria-label="切换主题" data-i18n-aria="nav.theme"><i class="fas fa-adjust"></i></button></li><li><button class="lang-toggle" type="button" aria-label="Switch language">EN</button></li>
+        <li><button class="nav-search-trigger" type="button" aria-label="全局搜索（Ctrl+K 或 /）" title="全局搜索（Ctrl+K 或 /）" data-i18n-aria="nav.searchHint" data-i18n-title="nav.searchHint"><i class="fas fa-search"></i></button></li>
+        <li><button class="nav-ai-experience assistant-nav-trigger" type="button" aria-label="打开 AI 助手" title="打开 AI 助手" data-assistant-toggle data-i18n-aria="assistant.open" data-i18n-title="assistant.open"><span aria-hidden="true">AI</span></button></li>
+      </ul>
+    </nav>
+  </section>
+</header>
+  <main id="main-content" class="content" data-pagefind-body>
+  <section class="blog-layout container" aria-label="Blog">
+    <aside class="post-tree" id="post-tree-sidebar" aria-label="文章目录" data-i18n-aria="post.tree.aria">
+      <div class="post-tree-header">
+        <span class="eyebrow">2022-2026 Timeline</span>
+        <h1 data-i18n="post.list.title" data-i18n-en="Posts">文章</h1>
+        <p class="lead" data-i18n="post.tree.lead">按时间线整理 AI Coding、低代码、工作流、SaaS 后台与智能分析预警相关实践，重点记录系统边界、数据流转、规则运行时和平台化落地。</p>
+      </div>
+      <div class="timeline-stats" aria-label="内容概览" data-i18n-aria="post.stats.aria">
+        <div><strong>6</strong><span data-i18n="post.stats.posts">篇复盘</span></div>
+        <div><strong>6</strong><span data-i18n="post.stats.systems">类主题</span></div>
+        <div><strong>2022-2026</strong><span data-i18n="post.stats.year">时间跨度</span></div>
+      </div>
+      <nav class="post-tree-nav">
+        <details class="tree-group" open>
+            <summary>
+              <span><i class="fas fa-folder-open" aria-hidden="true"></i> 2026</span>
+              <span class="tree-count">2</span>
+            </summary>
+            <ul>
+              <li>
+                    <a class="post-tree-link active" href="#rule-engine-alerts" data-post-target="post-rule-engine-alerts" aria-current="page">
+                      <span class="tree-title" data-i18n="post.rule-engine-alerts.shortTitle" data-i18n-en="Rule Engine and Alert Loop">规则引擎与告警闭环</span>
+                      <time datetime="2026-06-16">2026-06-16</time>
+                    </a>
+                  </li><li>
+                    <a class="post-tree-link" href="#codex-claude-vibe-coding" data-post-target="post-codex-claude-vibe-coding">
+                      <span class="tree-title" data-i18n="post.codex-claude-vibe-coding.shortTitle" data-i18n-en="Codex and Claude Vibe Coding">Codex 与 Claude 的 Vibe Coding</span>
+                      <time datetime="2026-02-01">2026-02-01</time>
+                    </a>
+                  </li>
+            </ul>
+          </details><details class="tree-group" open>
+            <summary>
+              <span><i class="fas fa-folder-open" aria-hidden="true"></i> 2025</span>
+              <span class="tree-count">1</span>
+            </summary>
+            <ul>
+              <li>
+                    <a class="post-tree-link" href="#manage-system" data-post-target="post-manage-system">
+                      <span class="tree-title" data-i18n="post.manage-system.shortTitle" data-i18n-en="Alert Platform Refactor">智能分析预警平台重构</span>
+                      <time datetime="2025-09-16">2025-09-16</time>
+                    </a>
+                  </li>
+            </ul>
+          </details><details class="tree-group" open>
+            <summary>
+              <span><i class="fas fa-folder-open" aria-hidden="true"></i> 2023</span>
+              <span class="tree-count">1</span>
+            </summary>
+            <ul>
+              <li>
+                    <a class="post-tree-link" href="#finance-saas-backend" data-post-target="post-finance-saas-backend">
+                      <span class="tree-title" data-i18n="post.finance-saas-backend.shortTitle" data-i18n-en="Qigu SaaS Platform">企顾 SaaS 多模块平台</span>
+                      <time datetime="2023-08-18">2023-08-18</time>
+                    </a>
+                  </li>
+            </ul>
+          </details><details class="tree-group" open>
+            <summary>
+              <span><i class="fas fa-folder-open" aria-hidden="true"></i> 2022</span>
+              <span class="tree-count">2</span>
+            </summary>
+            <ul>
+              <li>
+                    <a class="post-tree-link" href="#activiti-workflow-engine" data-post-target="post-activiti-workflow-engine">
+                      <span class="tree-title" data-i18n="post.activiti-workflow-engine.shortTitle" data-i18n-en="Activiti BPM Engine Practice">Activiti BPM 引擎实践</span>
+                      <time datetime="2022-02-09">2022-02-09</time>
+                    </a>
+                  </li><li>
+                    <a class="post-tree-link" href="#lowcode-schema-codegen" data-post-target="post-lowcode-schema-codegen">
+                      <span class="tree-title" data-i18n="post.lowcode-schema-codegen.shortTitle" data-i18n-en="LowCode Engine Practice">LowCode Engine 实践</span>
+                      <time datetime="2022-02-01">2022-02-01</time>
+                    </a>
+                  </li>
+            </ul>
+          </details>
+      </nav>
+      <div class="post-search">
+        <i class="fas fa-search" aria-hidden="true"></i>
+        <input type="search" id="post-search-input" placeholder="搜索文章 / 标签…" aria-label="搜索文章" data-i18n-ph="post.search.ph" data-i18n-aria="post.search.aria">
+      </div>
+      <div class="tag-filter" id="tag-filter" aria-label="按标签筛选" data-i18n-aria="post.tagfilter.aria"></div>
+    </aside>
 
-  <link rel="manifest" href="/manifest.webmanifest">
-  <link rel="apple-touch-icon" href="/images/pwa-192.png">
-  <script src="/js/error-handler.js" defer></script>
-  <script src="/js/utils.js" defer></script>
-  <script src="/js/pwa.js" defer></script>
-  <script src="/js/analytics.js" defer></script>
-  <script src="/js/i18n.js" defer></script>
-  <script src="/js/coder.js" defer></script>
-  <script src="/js/search-loader.js" defer></script>
-  <script src="/js/subscribe.js" defer></script>
-  <script src="/js/assistant-loader.js" defer></script>
-  <script src="/js/blog.js?v=20260810" defer></script>
-  <script src="/js/post-extras-loader.js" defer></script>
-  <link rel="canonical" href="https://wenliang844.github.io/post/">
-  <meta property="og:type" content="website">
-  <meta property="og:site_name" content="CWLBlog">
-  <meta property="og:title" content="Posts">
-  <meta property="og:description" content="按时间线整理项目复盘：覆盖 Codex 与 Claude 协作、低代码引擎、Activiti 工作流、企顾 SaaS、智能分析预警平台与规则引擎告警闭环。">
-  <meta property="og:url" content="https://wenliang844.github.io/post/">
-  <meta property="og:image" content="https://wenliang844.github.io/images/favicon.png">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:image" content="https://wenliang844.github.io/images/favicon.png">
-  <meta name="twitter:title" content="Posts">
-  <meta name="twitter:description" content="按时间线整理项目复盘：覆盖 Codex 与 Claude 协作、低代码引擎、Activiti 工作流、企顾 SaaS、智能分析预警平台与规则引擎告警闭环。">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"CollectionPage","name":"CWLBlog 文章","description":"按时间线整理项目复盘：覆盖 Codex 与 Claude 协作、低代码引擎、Activiti 工作流、企顾 SaaS、智能分析预警平台与规则引擎告警闭环。","url":"https://wenliang844.github.io/post/","inLanguage":"zh-CN","isPartOf":{"@type":"WebSite","name":"CWLBlog","url":"https://wenliang844.github.io/"},"mainEntity":{"@type":"ItemList","numberOfItems":6,"itemListElement":[{"@type":"ListItem","position":1,"name":"规则引擎与告警闭环","url":"https://wenliang844.github.io/post/rule-engine-alerts/"},{"@type":"ListItem","position":2,"name":"Codex 与 Claude 的 Vibe Coding","url":"https://wenliang844.github.io/post/codex-claude-vibe-coding/"},{"@type":"ListItem","position":3,"name":"智能分析预警平台重构","url":"https://wenliang844.github.io/post/manage-system/"},{"@type":"ListItem","position":4,"name":"企顾 SaaS 多模块平台","url":"https://wenliang844.github.io/post/finance-saas-backend/"},{"@type":"ListItem","position":5,"name":"Activiti BPM 引擎实践","url":"https://wenliang844.github.io/post/activiti-workflow-engine/"},{"@type":"ListItem","position":6,"name":"LowCode Engine 实践","url":"https://wenliang844.github.io/post/lowcode-schema-codegen/"}]}}</script>
-  <title>文章 :: CWLBlog</title>
-  <meta name="generator" content="Astro Content Collections">
-</head>
-<body class="colorscheme-dark" data-i18n-page="posts" data-i18n-title-en="Posts :: CWLBlog" data-language-mode="bilingual">
-  <a class="skip-link" href="#main-content" data-i18n="nav.skip">跳到主要内容</a>
-  <div class="cursor-glow" aria-hidden="true"></div>
-  <canvas class="cursor-canvas" aria-hidden="true"></canvas>
-  <div class="site-shell">
-    <header class="navigation">
-      <section class="container">
-        <a class="navigation-title" href="/">CWLBlog</a>
-        <input type="checkbox" id="menu-toggle" class="menu-toggle" aria-label="Toggle menu" data-i18n-aria="nav.menu">
-        <label class="menu-button" for="menu-toggle"><i class="fas fa-bars"></i></label>
-        <label class="menu-overlay" for="menu-toggle" aria-hidden="true"></label>
-        <nav class="navigation-list" aria-label="Main navigation" data-i18n-aria="nav.main">
-          <ul>
-          <li><a class="active nav-blog-main" href="/post/" data-i18n="nav.blog" data-i18n-html data-i18n-en-html="&lt;i class=&quot;fas fa-book-open&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt; Blog"><i class="fas fa-book-open" aria-hidden="true"></i> 博客</a></li>
-          <li><a href="/ai/" data-i18n="nav.ai">AI中转站排名</a></li>
-          <li><a href="/appreciation/" data-i18n="nav.appreciation">观察家</a></li>
-            <li class="nav-more">
-              <details>
-                <summary class="nav-more-toggle" data-i18n="nav.more" data-i18n-html data-i18n-en-html="&lt;i class=&quot;fas fa-ellipsis-h&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt; More"><i class="fas fa-ellipsis-h" aria-hidden="true"></i> 更多</summary>
-                <ul class="nav-more-menu">
-              <li><a href="/knowledge/" data-i18n="nav.knowledge">知识资产</a></li>
-              <li><a href="/tools/" data-i18n="nav.tools">工具箱</a></li>
-              <li><a href="/overleaf/" data-i18n="nav.overleaf">简历模版</a></li>
-                </ul>
-              </details>
-            </li>
-            <li><a class="nav-feedback" href="/contact/" data-i18n="nav.feedback" data-i18n-html><i class="fas fa-comment-dots" aria-hidden="true"></i> 留言反馈</a></li>
-            <li><button class="nav-subscribe" type="button" data-subscribe-open data-i18n="nav.subscribe" data-i18n-html><i class="fas fa-envelope" aria-hidden="true"></i> 订阅</button></li>
-            <li><a class="nav-sponsor" href="/sponsor/" data-i18n="nav.sponsor" data-i18n-html><i class="fas fa-heart" aria-hidden="true"></i> 赞助</a></li>
-            <li><a class="nav-chat" href="/chat/" aria-label="打开在线聊天室" title="打开在线聊天室" data-i18n-aria="nav.chat" data-i18n-title="nav.chat"><i class="fas fa-comments" aria-hidden="true"></i></a></li>
-            <li><button class="theme-toggle" type="button" aria-label="切换主题" data-i18n-aria="nav.theme"><i class="fas fa-adjust"></i></button></li>
-            <li><button class="lang-toggle" type="button" aria-label="Switch language">EN</button></li>
-            <li><button class="nav-search-trigger" type="button" aria-label="全局搜索（Ctrl+K 或 /）" title="全局搜索（Ctrl+K 或 /）" data-i18n-aria="nav.searchHint" data-i18n-title="nav.searchHint"><i class="fas fa-search"></i></button></li>
-            <li><button class="nav-ai-experience assistant-nav-trigger" type="button" aria-label="打开 AI 助手" title="打开 AI 助手" data-assistant-toggle data-i18n-aria="assistant.open" data-i18n-title="assistant.open"><span aria-hidden="true">AI</span></button></li>
-          </ul>
-        </nav>
-      </section>
-    </header>
-    <main data-pagefind-body id="main-content" class="content">
-      <section class="blog-layout container" aria-label="Blog">
-        <aside class="post-tree" id="post-tree-sidebar" aria-label="文章目录" data-i18n-aria="post.tree.aria">
-          <div class="post-tree-header">
-            <span class="eyebrow">2022-2026 Timeline</span>
-            <h1 data-i18n="post.list.title" data-i18n-en="Posts">文章</h1>
-            <p class="lead" data-i18n="post.tree.lead">按时间线整理 AI Coding、低代码、工作流、SaaS 后台与智能分析预警相关实践，重点记录系统边界、数据流转、规则运行时和平台化落地。</p>
-          </div>
-          <div class="timeline-stats" aria-label="内容概览" data-i18n-aria="post.stats.aria">
-            <div>
-              <strong>6</strong>
-              <span data-i18n="post.stats.posts">篇复盘</span>
-            </div>
-            <div>
-              <strong>6</strong>
-              <span data-i18n="post.stats.systems">类主题</span>
-            </div>
-            <div>
-              <strong>2022-2026</strong>
-              <span data-i18n="post.stats.year">时间跨度</span>
-            </div>
-          </div>
-          <nav class="post-tree-nav">
-            <details class="tree-group" open>
-              <summary>
-                <span><i class="fas fa-folder-open" aria-hidden="true"></i> 2026</span>
-                <span class="tree-count">2</span>
-              </summary>
-              <ul>
-                <li>
-                  <a class="post-tree-link active" href="#rule-engine-alerts" data-post-target="post-rule-engine-alerts" aria-current="page">
-                    <span class="tree-title" data-i18n="post.rule-engine-alerts.shortTitle" data-i18n-en="Rule Engine and Alert Loop">规则引擎与告警闭环</span>
-                    <time datetime="2026-06-16">2026-06-16</time>
-                  </a>
-                </li>
-                <li>
-                  <a class="post-tree-link" href="#codex-claude-vibe-coding" data-post-target="post-codex-claude-vibe-coding">
-                    <span class="tree-title" data-i18n="post.codex-claude-vibe-coding.shortTitle" data-i18n-en="Codex and Claude Vibe Coding">Codex 与 Claude 的 Vibe Coding</span>
-                    <time datetime="2026-02-01">2026-02-01</time>
-                  </a>
-                </li>
-              </ul>
-            </details>
-            <details class="tree-group" open>
-              <summary>
-                <span><i class="fas fa-folder-open" aria-hidden="true"></i> 2025</span>
-                <span class="tree-count">1</span>
-              </summary>
-              <ul>
-                <li>
-                  <a class="post-tree-link" href="#manage-system" data-post-target="post-manage-system">
-                    <span class="tree-title" data-i18n="post.manage-system.shortTitle" data-i18n-en="Alert Platform Refactor">智能分析预警平台重构</span>
-                    <time datetime="2025-09-16">2025-09-16</time>
-                  </a>
-                </li>
-              </ul>
-            </details>
-            <details class="tree-group" open>
-              <summary>
-                <span><i class="fas fa-folder-open" aria-hidden="true"></i> 2023</span>
-                <span class="tree-count">1</span>
-              </summary>
-              <ul>
-                <li>
-                  <a class="post-tree-link" href="#finance-saas-backend" data-post-target="post-finance-saas-backend">
-                    <span class="tree-title" data-i18n="post.finance-saas-backend.shortTitle" data-i18n-en="Qigu SaaS Platform">企顾 SaaS 多模块平台</span>
-                    <time datetime="2023-08-18">2023-08-18</time>
-                  </a>
-                </li>
-              </ul>
-            </details>
-            <details class="tree-group" open>
-              <summary>
-                <span><i class="fas fa-folder-open" aria-hidden="true"></i> 2022</span>
-                <span class="tree-count">2</span>
-              </summary>
-              <ul>
-                <li>
-                  <a class="post-tree-link" href="#activiti-workflow-engine" data-post-target="post-activiti-workflow-engine">
-                    <span class="tree-title" data-i18n="post.activiti-workflow-engine.shortTitle" data-i18n-en="Activiti BPM Engine Practice">Activiti BPM 引擎实践</span>
-                    <time datetime="2022-02-09">2022-02-09</time>
-                  </a>
-                </li>
-                <li>
-                  <a class="post-tree-link" href="#lowcode-schema-codegen" data-post-target="post-lowcode-schema-codegen">
-                    <span class="tree-title" data-i18n="post.lowcode-schema-codegen.shortTitle" data-i18n-en="LowCode Engine Practice">LowCode Engine 实践</span>
-                    <time datetime="2022-02-01">2022-02-01</time>
-                  </a>
-                </li>
-              </ul>
-            </details>
-          </nav>
-          <div class="post-search">
-            <i class="fas fa-search" aria-hidden="true"></i>
-            <input type="search" id="post-search-input" placeholder="搜索文章 / 标签…" aria-label="搜索文章" data-i18n-ph="post.search.ph" data-i18n-aria="post.search.aria">
-          </div>
-          <div class="tag-filter" id="tag-filter" aria-label="按标签筛选" data-i18n-aria="post.tagfilter.aria"></div>
-        </aside>
+    <section class="post-detail" aria-live="polite">
+      <button class="post-tree-fab" type="button" aria-controls="post-tree-sidebar" aria-expanded="false" aria-label="展开文章目录" title="展开文章目录">
+        <svg class="post-tree-fab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+          <path d="M8 3H5a2 2 0 0 0-2 2v3"></path><path d="M16 3h3a2 2 0 0 1 2 2v3"></path><path d="M21 16v3a2 2 0 0 1-2 2h-3"></path><path d="M8 21H5a2 2 0 0 1-2-2v-3"></path>
+        </svg>
+        <span class="post-tree-control-label">展开文章目录</span>
+      </button>
+      <span class="post-anchor" id="rule-engine-alerts" aria-hidden="true"></span>
+<article class="article blog-article active" id="post-rule-engine-alerts" data-post-slug="rule-engine-alerts">
+  <header class="article-header">
+    <span class="eyebrow">Runtime Design</span>
+    <h2 data-i18n="post.rule-engine-alerts.title" data-i18n-en="Rule Engine and Alert Loop: Runtime Design for an Intelligent Analysis Platform">规则引擎与告警闭环：智能分析预警平台的运行时设计</h2>
+    <div class="article-meta">
+      <time datetime="2026-06-16">June 16, 2026</time>
+      <span>·</span>
+      <span class="reading-time">
+        <i class="fas fa-clock" aria-hidden="true"></i>
+        <span data-i18n="dyn.readingPrefix">约</span> 5 <span data-i18n="dyn.readingSuffix">分钟</span>
+      </span>
+    </div>
+    <p class="article-summary" data-i18n="post.rule-engine-alerts.summary" data-i18n-en="Design notes on the rule engine and alert loop, from standard facts and rule context to window aggregation and formal alerts.">从标准事实、规则上下文、窗口聚合到正式告警，梳理智能分析平台中规则引擎和告警闭环的设计。</p>
+    <div class="post-tags" aria-label="文章标签">
+      <span data-tag="规则引擎" data-i18n="post.rule-engine-alerts.tag.0" data-i18n-en="Rule Engine">规则引擎</span><span data-tag="告警系统" data-i18n="post.rule-engine-alerts.tag.1" data-i18n-en="Alert System">告警系统</span><span data-tag="视频分析" data-i18n="post.rule-engine-alerts.tag.2" data-i18n-en="Video Analysis">视频分析</span><span data-tag="RabbitMQ" data-i18n="post.rule-engine-alerts.tag.3" data-i18n-en="RabbitMQ">RabbitMQ</span><span data-tag="Redis" data-i18n="post.rule-engine-alerts.tag.4" data-i18n-en="Redis">Redis</span>
+    </div>
+  </header>
 
-        <section class="post-detail" aria-live="polite">
-          <button class="post-tree-fab" type="button" aria-controls="post-tree-sidebar" aria-expanded="false" aria-label="展开文章目录" title="展开文章目录">
-            <svg class="post-tree-fab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-              <path d="M8 3H5a2 2 0 0 0-2 2v3"></path><path d="M16 3h3a2 2 0 0 1 2 2v3"></path><path d="M21 16v3a2 2 0 0 1-2 2h-3"></path><path d="M8 21H5a2 2 0 0 1-2-2v-3"></path>
-            </svg>
-            <span class="post-tree-control-label">展开文章目录</span>
-          </button>
-          <span class="post-anchor" id="rule-engine-alerts" aria-hidden="true"></span>
-          <article class="article blog-article active" id="post-rule-engine-alerts" data-post-slug="rule-engine-alerts">
-            <header class="article-header">
-              <span class="eyebrow">Runtime Design</span>
-              <h2 data-i18n="post.rule-engine-alerts.title" data-i18n-en="Rule Engine and Alert Loop: Runtime Design for an Intelligent Analysis Platform">规则引擎与告警闭环：智能分析预警平台的运行时设计</h2>
-              <div class="article-meta">
-              <time datetime="2026-06-16">June 16, 2026</time>
-                <span>·</span>
-              <span class="reading-time"><i class="fas fa-clock" aria-hidden="true"></i> <span data-i18n="dyn.readingPrefix">约</span> 5 <span data-i18n="dyn.readingSuffix">分钟</span></span>
-              </div>
-            <p class="article-summary" data-i18n="post.rule-engine-alerts.summary" data-i18n-en="Design notes on the rule engine and alert loop, from standard facts and rule context to window aggregation and formal alerts.">从标准事实、规则上下文、窗口聚合到正式告警，梳理智能分析平台中规则引擎和告警闭环的设计。</p>
-              <div class="post-tags" aria-label="文章标签">
-                <span data-tag="规则引擎" data-i18n="post.rule-engine-alerts.tag.0" data-i18n-en="Rule Engine">规则引擎</span><span data-tag="告警系统" data-i18n="post.rule-engine-alerts.tag.1" data-i18n-en="Alert System">告警系统</span><span data-tag="视频分析" data-i18n="post.rule-engine-alerts.tag.2" data-i18n-en="Video Analysis">视频分析</span><span data-tag="RabbitMQ" data-i18n="post.rule-engine-alerts.tag.3" data-i18n-en="RabbitMQ">RabbitMQ</span><span data-tag="Redis" data-i18n="post.rule-engine-alerts.tag.4" data-i18n-en="Redis">Redis</span>
-              </div>
-            </header>
-            <div class="article-content">
-          <h2 id="post-rule-engine-alerts-toc-1-一-项目概述">一、项目概述</h2>
+  <div class="article-content">
+            <h2 id="post-rule-engine-alerts-toc-1-一-项目概述">一、项目概述</h2>
           <p><code>znfx-backend-restruct</code> 是一个面向重点场所智能视频分析预警的后端重构项目。项目从 <code>QtCollection</code>、<code>intelligent-analysis</code>、<code>wsdc-znfx-intelligentAnalysis</code>、<code>wsdc-znfx-web</code> 等多个历史工程中演进而来，目标是把原本分散的采集、算法、规则、告警和业务展示能力，收敛成一条职责清晰、可独立构建、可独立部署、可持续演进的后端主链路。</p>
           <p>项目核心链路可以概括为：</p>
           <pre><code class="language-text">视频/图片采集 -&gt; 算法识别 -&gt; 标准事实落库 -&gt; 规则引擎判定 -&gt; 正式告警生成 -&gt; 业务展示与处置
@@ -311,33 +286,47 @@
           <ul>
           <li><a class="wiki-link" href="/post/manage-system/">智能视频分析平台设计</a> 回到采集、算法调度和标准事实落库的上游链路。</li>
           </ul>
-            </div>
-            <div class="post-share" data-share-url="/post/rule-engine-alerts/" data-share-title="规则引擎与告警闭环" data-share-title-en="Rule Engine and Alert Loop">
-              <span class="share-label" data-i18n="post.share"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg> 分享</span>
-              <a class="share-btn" data-share="x" href="#" target="_blank" rel="noopener" aria-label="分享到 X" data-i18n-aria="post.share.x"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
-              <button class="share-btn" type="button" data-share="weibo" aria-label="分享到微博" data-i18n-aria="post.share.weibo"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M10.098 20.323c-3.977.391-7.414-1.406-7.672-4.02-.259-2.609 2.759-5.047 6.74-5.441 3.979-.394 7.413 1.404 7.671 4.018.259 2.6-2.759 5.049-6.737 5.439l-.002.004zM9.05 17.219c-.384.616-1.208.884-1.829.602-.612-.279-.793-.991-.406-1.593.379-.595 1.176-.861 1.793-.601.622.263.82.972.442 1.592zm1.27-1.627c-.141.237-.449.353-.689.253-.236-.09-.312-.359-.177-.586.138-.227.436-.346.672-.24.239.09.315.36.18.601l.014-.028zm.176-2.719c-1.893-.493-4.033.451-4.857 2.118-.836 1.704-.026 3.603 1.886 4.21 1.983.63 4.318-.354 5.132-2.179.8-1.793-.247-3.667-2.161-4.149zm7.563-1.224c-.346-.105-.57-.18-.405-.615.375-.977.42-1.829-.01-2.448-.81-1.155-3.027-1.092-5.567-.03 0 0-.795.346-.591-.284.39-1.26.33-2.31-.27-2.913-1.365-1.365-4.992.045-8.103 3.157C-.21 11.84-.96 14.61.04 16.7c1.62 3.405 6.99 3.585 11.52 1.875 4.53-1.71 8.42-5.97 6.78-9.45-.36-.78-1.05-1.32-1.86-1.626.18-.27.35-.54.4-.825.05-.36-.18-.54-.45-.39-.045.075-.075.165-.09.255-.054.21-.139.435-.27.63zm1.5-3.99c-.165-.5-.434-.945-.794-1.305-.36-.36-.81-.629-1.305-.794-.165-.06-.345.029-.405.194-.06.165.03.345.195.405.36.12.69.314.96.585.27.27.464.6.585.96.06.165.225.255.39.21.165-.045.255-.225.21-.39l-.031-.06zm2.355-.766c-.345-1.035-.93-1.965-1.71-2.745-.78-.781-1.71-1.366-2.746-1.711-.27-.09-.539.06-.629.33-.09.27.06.539.33.629.825.27 1.575.735 2.205 1.365.63.63 1.095 1.38 1.365 2.205.09.27.359.42.629.33.27-.09.42-.36.33-.629l.001-.024z"/></svg></button>
-              <button class="share-btn" type="button" data-share="wechat" aria-label="微信扫码分享" data-i18n-aria="post.share.wechat"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M8.691 2.188C3.891 2.188 0 5.476 0 9.53c0 2.212 1.17 4.203 3.002 5.55a.59.59 0 0 1 .213.665l-.39 1.48c-.019.07-.048.141-.048.213 0 .163.13.295.29.295a.326.326 0 0 0 .167-.054l1.903-1.114a.864.864 0 0 1 .717-.098 10.16 10.16 0 0 0 2.837.403c.276 0 .543-.027.811-.05-.857-2.578.157-4.972 1.932-6.446 1.703-1.415 3.882-1.98 5.853-1.838-.576-3.583-4.196-6.348-8.596-6.348zM5.785 5.991c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178A1.17 1.17 0 0 1 4.623 7.17c0-.651.52-1.18 1.162-1.18zm5.813 0c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178 1.17 1.17 0 0 1-1.162-1.178c0-.651.52-1.18 1.162-1.18zm5.34 2.867c-1.797-.052-3.746.512-5.28 1.786-1.72 1.428-2.687 3.72-1.78 6.22.942 2.453 3.666 4.229 6.884 4.229.826 0 1.622-.12 2.361-.336a.722.722 0 0 1 .598.082l1.584.926a.272.272 0 0 0 .14.047c.134 0 .24-.111.24-.247 0-.06-.023-.12-.038-.177l-.327-1.233a.582.582 0 0 1-.023-.156.49.49 0 0 1 .201-.398C23.024 18.48 24 16.82 24 14.98c0-3.21-2.931-5.837-6.656-6.088V8.89c-.135-.01-.27-.027-.406-.032zm-3.39 2.927c.535 0 .969.44.969.982a.976.976 0 0 1-.969.983.976.976 0 0 1-.969-.983c0-.542.434-.982.969-.982zm4.844 0c.535 0 .969.44.969.982a.976.976 0 0 1-.969.983.976.976 0 0 1-.969-.983c0-.542.434-.982.969-.982z"/></svg></button>
-              <button class="share-btn" type="button" data-share="copy" aria-label="复制链接" data-i18n-aria="post.share.copy"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/></svg></button>
-            </div>
-          </article>
+</div>
 
-          <span class="post-anchor" id="codex-claude-vibe-coding" aria-hidden="true"></span>
-          <article class="article blog-article" id="post-codex-claude-vibe-coding" data-post-slug="codex-claude-vibe-coding">
-            <header class="article-header">
-              <span class="eyebrow">AI Coding</span>
-              <h2 data-i18n="post.codex-claude-vibe-coding.title" data-i18n-en="Vibe Coding with Codex and Claude: From Idea to Running System">Codex 与 Claude 一起做 Vibe Coding：从灵感到可运行系统</h2>
-              <div class="article-meta">
-              <time datetime="2026-02-01">February 1, 2026</time>
-                <span>·</span>
-              <span class="reading-time"><i class="fas fa-clock" aria-hidden="true"></i> <span data-i18n="dyn.readingPrefix">约</span> 7 <span data-i18n="dyn.readingSuffix">分钟</span></span>
-              </div>
-            <p class="article-summary" data-i18n="post.codex-claude-vibe-coding.summary" data-i18n-en="A note on combining Codex's engineering execution with Claude's long-context reasoning to turn vibe coding into a shippable workflow.">记录如何把 Codex 的工程执行力与 Claude 的长上下文理解结合起来，让 Vibe Coding 从随手试验变成可交付的开发流程。</p>
-              <div class="post-tags" aria-label="文章标签">
-                <span data-tag="Codex" data-i18n="post.codex-claude-vibe-coding.tag.0" data-i18n-en="Codex">Codex</span><span data-tag="Claude" data-i18n="post.codex-claude-vibe-coding.tag.1" data-i18n-en="Claude">Claude</span><span data-tag="AI Coding" data-i18n="post.codex-claude-vibe-coding.tag.2" data-i18n-en="AI Coding">AI Coding</span><span data-tag="Vibe Coding" data-i18n="post.codex-claude-vibe-coding.tag.3" data-i18n-en="Vibe Coding">Vibe Coding</span><span data-tag="工程效率" data-i18n="post.codex-claude-vibe-coding.tag.4" data-i18n-en="Engineering Efficiency">工程效率</span>
-              </div>
-            </header>
-            <div class="article-content">
-          <h2 id="post-codex-claude-vibe-coding-toc-1-一-为什么是-codex-claude">一、为什么是 Codex + Claude</h2>
+  <div class="post-share" data-share-url="/post/rule-engine-alerts/" data-share-title="规则引擎与告警闭环" data-share-title-en="Rule Engine and Alert Loop">
+  <span class="share-label" data-i18n="post.share">
+    <svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"></path></svg>
+    分享
+  </span>
+  <a class="share-btn" data-share="x" href="#" target="_blank" rel="noopener" aria-label="分享到 X" data-i18n-aria="post.share.x">
+    <svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path></svg>
+  </a>
+  <button class="share-btn" type="button" data-share="weibo" aria-label="分享到微博" data-i18n-aria="post.share.weibo">
+    <svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M10.098 20.323c-3.977.391-7.414-1.406-7.672-4.02-.259-2.609 2.759-5.047 6.74-5.441 3.979-.394 7.413 1.404 7.671 4.018.259 2.6-2.759 5.049-6.737 5.439l-.002.004zM9.05 17.219c-.384.616-1.208.884-1.829.602-.612-.279-.793-.991-.406-1.593.379-.595 1.176-.861 1.793-.601.622.263.82.972.442 1.592zm1.27-1.627c-.141.237-.449.353-.689.253-.236-.09-.312-.359-.177-.586.138-.227.436-.346.672-.24.239.09.315.36.18.601l.014-.028zm.176-2.719c-1.893-.493-4.033.451-4.857 2.118-.836 1.704-.026 3.603 1.886 4.21 1.983.63 4.318-.354 5.132-2.179.8-1.793-.247-3.667-2.161-4.149zm7.563-1.224c-.346-.105-.57-.18-.405-.615.375-.977.42-1.829-.01-2.448-.81-1.155-3.027-1.092-5.567-.03 0 0-.795.346-.591-.284.39-1.26.33-2.31-.27-2.913-1.365-1.365-4.992.045-8.103 3.157C-.21 11.84-.96 14.61.04 16.7c1.62 3.405 6.99 3.585 11.52 1.875 4.53-1.71 8.42-5.97 6.78-9.45-.36-.78-1.05-1.32-1.86-1.626.18-.27.35-.54.4-.825.05-.36-.18-.54-.45-.39-.045.075-.075.165-.09.255-.054.21-.139.435-.27.63zm1.5-3.99c-.165-.5-.434-.945-.794-1.305-.36-.36-.81-.629-1.305-.794-.165-.06-.345.029-.405.194-.06.165.03.345.195.405.36.12.69.314.96.585.27.27.464.6.585.96.06.165.225.255.39.21.165-.045.255-.225.21-.39l-.031-.06zm2.355-.766c-.345-1.035-.93-1.965-1.71-2.745-.78-.781-1.71-1.366-2.746-1.711-.27-.09-.539.06-.629.33-.09.27.06.539.33.629.825.27 1.575.735 2.205 1.365.63.63 1.095 1.38 1.365 2.205.09.27.359.42.629.33.27-.09.42-.36.33-.629l.001-.024z"></path></svg>
+  </button>
+  <button class="share-btn" type="button" data-share="wechat" aria-label="微信扫码分享" data-i18n-aria="post.share.wechat">
+    <svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M8.691 2.188C3.891 2.188 0 5.476 0 9.53c0 2.212 1.17 4.203 3.002 5.55a.59.59 0 0 1 .213.665l-.39 1.48c-.019.07-.048.141-.048.213 0 .163.13.295.29.295a.326.326 0 0 0 .167-.054l1.903-1.114a.864.864 0 0 1 .717-.098 10.16 10.16 0 0 0 2.837.403c.276 0 .543-.027.811-.05-.857-2.578.157-4.972 1.932-6.446 1.703-1.415 3.882-1.98 5.853-1.838-.576-3.583-4.196-6.348-8.596-6.348zM5.785 5.991c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178A1.17 1.17 0 0 1 4.623 7.17c0-.651.52-1.18 1.162-1.18zm5.813 0c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178 1.17 1.17 0 0 1-1.162-1.178c0-.651.52-1.18 1.162-1.18zm5.34 2.867c-1.797-.052-3.746.512-5.28 1.786-1.72 1.428-2.687 3.72-1.78 6.22.942 2.453 3.666 4.229 6.884 4.229.826 0 1.622-.12 2.361-.336a.722.722 0 0 1 .598.082l1.584.926a.272.272 0 0 0 .14.047c.134 0 .24-.111.24-.247 0-.06-.023-.12-.038-.177l-.327-1.233a.582.582 0 0 1-.023-.156.49.49 0 0 1 .201-.398C23.024 18.48 24 16.82 24 14.98c0-3.21-2.931-5.837-6.656-6.088V8.89c-.135-.01-.27-.027-.406-.032zm-3.39 2.927c.535 0 .969.44.969.982a.976.976 0 0 1-.969.983.976.976 0 0 1-.969-.983c0-.542.434-.982.969-.982zm4.844 0c.535 0 .969.44.969.982a.976.976 0 0 1-.969.983.976.976 0 0 1-.969-.983c0-.542.434-.982.969-.982z"></path></svg>
+  </button>
+  <button class="share-btn" type="button" data-share="copy" aria-label="复制链接" data-i18n-aria="post.share.copy">
+    <svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg>
+  </button>
+</div>
+</article><span class="post-anchor" id="codex-claude-vibe-coding" aria-hidden="true"></span>
+<article class="article blog-article" id="post-codex-claude-vibe-coding" data-post-slug="codex-claude-vibe-coding">
+  <header class="article-header">
+    <span class="eyebrow">AI Coding</span>
+    <h2 data-i18n="post.codex-claude-vibe-coding.title" data-i18n-en="Vibe Coding with Codex and Claude: From Idea to Running System">Codex 与 Claude 一起做 Vibe Coding：从灵感到可运行系统</h2>
+    <div class="article-meta">
+      <time datetime="2026-02-01">February 1, 2026</time>
+      <span>·</span>
+      <span class="reading-time">
+        <i class="fas fa-clock" aria-hidden="true"></i>
+        <span data-i18n="dyn.readingPrefix">约</span> 7 <span data-i18n="dyn.readingSuffix">分钟</span>
+      </span>
+    </div>
+    <p class="article-summary" data-i18n="post.codex-claude-vibe-coding.summary" data-i18n-en="A note on combining Codex's engineering execution with Claude's long-context reasoning to turn vibe coding into a shippable workflow.">记录如何把 Codex 的工程执行力与 Claude 的长上下文理解结合起来，让 Vibe Coding 从随手试验变成可交付的开发流程。</p>
+    <div class="post-tags" aria-label="文章标签">
+      <span data-tag="Codex" data-i18n="post.codex-claude-vibe-coding.tag.0" data-i18n-en="Codex">Codex</span><span data-tag="Claude" data-i18n="post.codex-claude-vibe-coding.tag.1" data-i18n-en="Claude">Claude</span><span data-tag="AI Coding" data-i18n="post.codex-claude-vibe-coding.tag.2" data-i18n-en="AI Coding">AI Coding</span><span data-tag="Vibe Coding" data-i18n="post.codex-claude-vibe-coding.tag.3" data-i18n-en="Vibe Coding">Vibe Coding</span><span data-tag="工程效率" data-i18n="post.codex-claude-vibe-coding.tag.4" data-i18n-en="Engineering Efficiency">工程效率</span>
+    </div>
+  </header>
+
+  <div class="article-content">
+            <h2 id="post-codex-claude-vibe-coding-toc-1-一-为什么是-codex-claude">一、为什么是 Codex + Claude</h2>
           <p>Vibe Coding 最迷人的地方，是它把编程从「先写完整规格，再机械实现」变成了「带着感觉快速逼近系统形状」。但真正落到项目里，只有感觉是不够的。代码需要能运行，设计需要能收敛，边界需要被照亮，测试也需要把风险关进笼子里。</p>
           <p>Codex 和 Claude 适合放在同一个工作流里，是因为它们擅长的部分刚好互补：</p>
           <ul>
@@ -442,33 +431,47 @@
           <ul>
           <li><a class="wiki-link" href="/post/lowcode-schema-codegen/">低代码引擎与 Schema 出码实践</a> 展示了如何把平台级设计判断落到可验证的工程结构中。</li>
           </ul>
-            </div>
-            <div class="post-share" data-share-url="/post/codex-claude-vibe-coding/" data-share-title="Codex 与 Claude 的 Vibe Coding" data-share-title-en="Codex and Claude Vibe Coding">
-              <span class="share-label" data-i18n="post.share"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg> 分享</span>
-              <a class="share-btn" data-share="x" href="#" target="_blank" rel="noopener" aria-label="分享到 X" data-i18n-aria="post.share.x"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
-              <button class="share-btn" type="button" data-share="weibo" aria-label="分享到微博" data-i18n-aria="post.share.weibo"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M10.098 20.323c-3.977.391-7.414-1.406-7.672-4.02-.259-2.609 2.759-5.047 6.74-5.441 3.979-.394 7.413 1.404 7.671 4.018.259 2.6-2.759 5.049-6.737 5.439l-.002.004zM9.05 17.219c-.384.616-1.208.884-1.829.602-.612-.279-.793-.991-.406-1.593.379-.595 1.176-.861 1.793-.601.622.263.82.972.442 1.592zm1.27-1.627c-.141.237-.449.353-.689.253-.236-.09-.312-.359-.177-.586.138-.227.436-.346.672-.24.239.09.315.36.18.601l.014-.028zm.176-2.719c-1.893-.493-4.033.451-4.857 2.118-.836 1.704-.026 3.603 1.886 4.21 1.983.63 4.318-.354 5.132-2.179.8-1.793-.247-3.667-2.161-4.149zm7.563-1.224c-.346-.105-.57-.18-.405-.615.375-.977.42-1.829-.01-2.448-.81-1.155-3.027-1.092-5.567-.03 0 0-.795.346-.591-.284.39-1.26.33-2.31-.27-2.913-1.365-1.365-4.992.045-8.103 3.157C-.21 11.84-.96 14.61.04 16.7c1.62 3.405 6.99 3.585 11.52 1.875 4.53-1.71 8.42-5.97 6.78-9.45-.36-.78-1.05-1.32-1.86-1.626.18-.27.35-.54.4-.825.05-.36-.18-.54-.45-.39-.045.075-.075.165-.09.255-.054.21-.139.435-.27.63zm1.5-3.99c-.165-.5-.434-.945-.794-1.305-.36-.36-.81-.629-1.305-.794-.165-.06-.345.029-.405.194-.06.165.03.345.195.405.36.12.69.314.96.585.27.27.464.6.585.96.06.165.225.255.39.21.165-.045.255-.225.21-.39l-.031-.06zm2.355-.766c-.345-1.035-.93-1.965-1.71-2.745-.78-.781-1.71-1.366-2.746-1.711-.27-.09-.539.06-.629.33-.09.27.06.539.33.629.825.27 1.575.735 2.205 1.365.63.63 1.095 1.38 1.365 2.205.09.27.359.42.629.33.27-.09.42-.36.33-.629l.001-.024z"/></svg></button>
-              <button class="share-btn" type="button" data-share="wechat" aria-label="微信扫码分享" data-i18n-aria="post.share.wechat"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M8.691 2.188C3.891 2.188 0 5.476 0 9.53c0 2.212 1.17 4.203 3.002 5.55a.59.59 0 0 1 .213.665l-.39 1.48c-.019.07-.048.141-.048.213 0 .163.13.295.29.295a.326.326 0 0 0 .167-.054l1.903-1.114a.864.864 0 0 1 .717-.098 10.16 10.16 0 0 0 2.837.403c.276 0 .543-.027.811-.05-.857-2.578.157-4.972 1.932-6.446 1.703-1.415 3.882-1.98 5.853-1.838-.576-3.583-4.196-6.348-8.596-6.348zM5.785 5.991c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178A1.17 1.17 0 0 1 4.623 7.17c0-.651.52-1.18 1.162-1.18zm5.813 0c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178 1.17 1.17 0 0 1-1.162-1.178c0-.651.52-1.18 1.162-1.18zm5.34 2.867c-1.797-.052-3.746.512-5.28 1.786-1.72 1.428-2.687 3.72-1.78 6.22.942 2.453 3.666 4.229 6.884 4.229.826 0 1.622-.12 2.361-.336a.722.722 0 0 1 .598.082l1.584.926a.272.272 0 0 0 .14.047c.134 0 .24-.111.24-.247 0-.06-.023-.12-.038-.177l-.327-1.233a.582.582 0 0 1-.023-.156.49.49 0 0 1 .201-.398C23.024 18.48 24 16.82 24 14.98c0-3.21-2.931-5.837-6.656-6.088V8.89c-.135-.01-.27-.027-.406-.032zm-3.39 2.927c.535 0 .969.44.969.982a.976.976 0 0 1-.969.983.976.976 0 0 1-.969-.983c0-.542.434-.982.969-.982zm4.844 0c.535 0 .969.44.969.982a.976.976 0 0 1-.969.983.976.976 0 0 1-.969-.983c0-.542.434-.982.969-.982z"/></svg></button>
-              <button class="share-btn" type="button" data-share="copy" aria-label="复制链接" data-i18n-aria="post.share.copy"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/></svg></button>
-            </div>
-          </article>
+</div>
 
-          <span class="post-anchor" id="manage-system" aria-hidden="true"></span>
-          <article class="article blog-article" id="post-manage-system" data-post-slug="manage-system">
-            <header class="article-header">
-              <span class="eyebrow">System Refactor</span>
-              <h2 data-i18n="post.manage-system.title" data-i18n-en="Intelligent Analysis Alert Platform: Backend Refactor from Video Capture to Business Alerts">智能分析预警平台：从视频采集到业务告警的后端重构实践</h2>
-              <div class="article-meta">
-              <time datetime="2025-09-16">September 16, 2025</time>
-                <span>·</span>
-              <span class="reading-time"><i class="fas fa-clock" aria-hidden="true"></i> <span data-i18n="dyn.readingPrefix">约</span> 5 <span data-i18n="dyn.readingSuffix">分钟</span></span>
-              </div>
-            <p class="article-summary" data-i18n="post.manage-system.summary" data-i18n-en="A backend refactor retrospective covering video capture, algorithm recognition, standard fact persistence, rule judgment and formal alert creation.">围绕视频采集、算法识别、标准事实落库、规则判定和正式告警生成，复盘智能分析预警平台后端重构。</p>
-              <div class="post-tags" aria-label="文章标签">
-                <span data-tag="Java" data-i18n="post.manage-system.tag.0" data-i18n-en="Java">Java</span><span data-tag="Spring Boot" data-i18n="post.manage-system.tag.1" data-i18n-en="Spring Boot">Spring Boot</span><span data-tag="视频分析" data-i18n="post.manage-system.tag.2" data-i18n-en="Video Analysis">视频分析</span><span data-tag="规则引擎" data-i18n="post.manage-system.tag.3" data-i18n-en="Rule Engine">规则引擎</span><span data-tag="ONNX Runtime" data-i18n="post.manage-system.tag.4" data-i18n-en="ONNX Runtime">ONNX Runtime</span>
-              </div>
-            </header>
-            <div class="article-content">
-          <h2 id="post-manage-system-toc-1-一-项目概述">一、项目概述</h2>
+  <div class="post-share" data-share-url="/post/codex-claude-vibe-coding/" data-share-title="Codex 与 Claude 的 Vibe Coding" data-share-title-en="Codex and Claude Vibe Coding">
+  <span class="share-label" data-i18n="post.share">
+    <svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"></path></svg>
+    分享
+  </span>
+  <a class="share-btn" data-share="x" href="#" target="_blank" rel="noopener" aria-label="分享到 X" data-i18n-aria="post.share.x">
+    <svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path></svg>
+  </a>
+  <button class="share-btn" type="button" data-share="weibo" aria-label="分享到微博" data-i18n-aria="post.share.weibo">
+    <svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M10.098 20.323c-3.977.391-7.414-1.406-7.672-4.02-.259-2.609 2.759-5.047 6.74-5.441 3.979-.394 7.413 1.404 7.671 4.018.259 2.6-2.759 5.049-6.737 5.439l-.002.004zM9.05 17.219c-.384.616-1.208.884-1.829.602-.612-.279-.793-.991-.406-1.593.379-.595 1.176-.861 1.793-.601.622.263.82.972.442 1.592zm1.27-1.627c-.141.237-.449.353-.689.253-.236-.09-.312-.359-.177-.586.138-.227.436-.346.672-.24.239.09.315.36.18.601l.014-.028zm.176-2.719c-1.893-.493-4.033.451-4.857 2.118-.836 1.704-.026 3.603 1.886 4.21 1.983.63 4.318-.354 5.132-2.179.8-1.793-.247-3.667-2.161-4.149zm7.563-1.224c-.346-.105-.57-.18-.405-.615.375-.977.42-1.829-.01-2.448-.81-1.155-3.027-1.092-5.567-.03 0 0-.795.346-.591-.284.39-1.26.33-2.31-.27-2.913-1.365-1.365-4.992.045-8.103 3.157C-.21 11.84-.96 14.61.04 16.7c1.62 3.405 6.99 3.585 11.52 1.875 4.53-1.71 8.42-5.97 6.78-9.45-.36-.78-1.05-1.32-1.86-1.626.18-.27.35-.54.4-.825.05-.36-.18-.54-.45-.39-.045.075-.075.165-.09.255-.054.21-.139.435-.27.63zm1.5-3.99c-.165-.5-.434-.945-.794-1.305-.36-.36-.81-.629-1.305-.794-.165-.06-.345.029-.405.194-.06.165.03.345.195.405.36.12.69.314.96.585.27.27.464.6.585.96.06.165.225.255.39.21.165-.045.255-.225.21-.39l-.031-.06zm2.355-.766c-.345-1.035-.93-1.965-1.71-2.745-.78-.781-1.71-1.366-2.746-1.711-.27-.09-.539.06-.629.33-.09.27.06.539.33.629.825.27 1.575.735 2.205 1.365.63.63 1.095 1.38 1.365 2.205.09.27.359.42.629.33.27-.09.42-.36.33-.629l.001-.024z"></path></svg>
+  </button>
+  <button class="share-btn" type="button" data-share="wechat" aria-label="微信扫码分享" data-i18n-aria="post.share.wechat">
+    <svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M8.691 2.188C3.891 2.188 0 5.476 0 9.53c0 2.212 1.17 4.203 3.002 5.55a.59.59 0 0 1 .213.665l-.39 1.48c-.019.07-.048.141-.048.213 0 .163.13.295.29.295a.326.326 0 0 0 .167-.054l1.903-1.114a.864.864 0 0 1 .717-.098 10.16 10.16 0 0 0 2.837.403c.276 0 .543-.027.811-.05-.857-2.578.157-4.972 1.932-6.446 1.703-1.415 3.882-1.98 5.853-1.838-.576-3.583-4.196-6.348-8.596-6.348zM5.785 5.991c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178A1.17 1.17 0 0 1 4.623 7.17c0-.651.52-1.18 1.162-1.18zm5.813 0c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178 1.17 1.17 0 0 1-1.162-1.178c0-.651.52-1.18 1.162-1.18zm5.34 2.867c-1.797-.052-3.746.512-5.28 1.786-1.72 1.428-2.687 3.72-1.78 6.22.942 2.453 3.666 4.229 6.884 4.229.826 0 1.622-.12 2.361-.336a.722.722 0 0 1 .598.082l1.584.926a.272.272 0 0 0 .14.047c.134 0 .24-.111.24-.247 0-.06-.023-.12-.038-.177l-.327-1.233a.582.582 0 0 1-.023-.156.49.49 0 0 1 .201-.398C23.024 18.48 24 16.82 24 14.98c0-3.21-2.931-5.837-6.656-6.088V8.89c-.135-.01-.27-.027-.406-.032zm-3.39 2.927c.535 0 .969.44.969.982a.976.976 0 0 1-.969.983.976.976 0 0 1-.969-.983c0-.542.434-.982.969-.982zm4.844 0c.535 0 .969.44.969.982a.976.976 0 0 1-.969.983.976.976 0 0 1-.969-.983c0-.542.434-.982.969-.982z"></path></svg>
+  </button>
+  <button class="share-btn" type="button" data-share="copy" aria-label="复制链接" data-i18n-aria="post.share.copy">
+    <svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg>
+  </button>
+</div>
+</article><span class="post-anchor" id="manage-system" aria-hidden="true"></span>
+<article class="article blog-article" id="post-manage-system" data-post-slug="manage-system">
+  <header class="article-header">
+    <span class="eyebrow">System Refactor</span>
+    <h2 data-i18n="post.manage-system.title" data-i18n-en="Intelligent Analysis Alert Platform: Backend Refactor from Video Capture to Business Alerts">智能分析预警平台：从视频采集到业务告警的后端重构实践</h2>
+    <div class="article-meta">
+      <time datetime="2025-09-16">September 16, 2025</time>
+      <span>·</span>
+      <span class="reading-time">
+        <i class="fas fa-clock" aria-hidden="true"></i>
+        <span data-i18n="dyn.readingPrefix">约</span> 5 <span data-i18n="dyn.readingSuffix">分钟</span>
+      </span>
+    </div>
+    <p class="article-summary" data-i18n="post.manage-system.summary" data-i18n-en="A backend refactor retrospective covering video capture, algorithm recognition, standard fact persistence, rule judgment and formal alert creation.">围绕视频采集、算法识别、标准事实落库、规则判定和正式告警生成，复盘智能分析预警平台后端重构。</p>
+    <div class="post-tags" aria-label="文章标签">
+      <span data-tag="Java" data-i18n="post.manage-system.tag.0" data-i18n-en="Java">Java</span><span data-tag="Spring Boot" data-i18n="post.manage-system.tag.1" data-i18n-en="Spring Boot">Spring Boot</span><span data-tag="视频分析" data-i18n="post.manage-system.tag.2" data-i18n-en="Video Analysis">视频分析</span><span data-tag="规则引擎" data-i18n="post.manage-system.tag.3" data-i18n-en="Rule Engine">规则引擎</span><span data-tag="ONNX Runtime" data-i18n="post.manage-system.tag.4" data-i18n-en="ONNX Runtime">ONNX Runtime</span>
+    </div>
+  </header>
+
+  <div class="article-content">
+            <h2 id="post-manage-system-toc-1-一-项目概述">一、项目概述</h2>
           <p><code>znfx-backend-restruct</code> 是一个面向重点场所智能视频分析预警的后端重构项目。项目从 <code>QtCollection</code>、<code>intelligent-analysis</code>、<code>wsdc-znfx-intelligentAnalysis</code>、<code>wsdc-znfx-web</code> 等多个历史工程中演进而来，目标是把原本分散的采集、算法、规则、告警和业务展示能力，收敛成一条职责清晰、可独立构建、可独立部署、可持续演进的后端主链路。</p>
           <p>项目核心链路可以概括为：</p>
           <pre><code class="language-text">视频/图片采集 -&gt; 算法识别 -&gt; 标准事实落库 -&gt; 规则引擎判定 -&gt; 正式告警生成 -&gt; 业务展示与处置
@@ -573,33 +576,47 @@
           <ul>
           <li><a class="wiki-link" href="/post/rule-engine-alerts/">规则引擎与智能告警闭环</a> 继续展开标准事实进入规则运行时后的判定与通知过程。</li>
           </ul>
-            </div>
-            <div class="post-share" data-share-url="/post/manage-system/" data-share-title="智能分析预警平台重构" data-share-title-en="Alert Platform Refactor">
-              <span class="share-label" data-i18n="post.share"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg> 分享</span>
-              <a class="share-btn" data-share="x" href="#" target="_blank" rel="noopener" aria-label="分享到 X" data-i18n-aria="post.share.x"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
-              <button class="share-btn" type="button" data-share="weibo" aria-label="分享到微博" data-i18n-aria="post.share.weibo"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M10.098 20.323c-3.977.391-7.414-1.406-7.672-4.02-.259-2.609 2.759-5.047 6.74-5.441 3.979-.394 7.413 1.404 7.671 4.018.259 2.6-2.759 5.049-6.737 5.439l-.002.004zM9.05 17.219c-.384.616-1.208.884-1.829.602-.612-.279-.793-.991-.406-1.593.379-.595 1.176-.861 1.793-.601.622.263.82.972.442 1.592zm1.27-1.627c-.141.237-.449.353-.689.253-.236-.09-.312-.359-.177-.586.138-.227.436-.346.672-.24.239.09.315.36.18.601l.014-.028zm.176-2.719c-1.893-.493-4.033.451-4.857 2.118-.836 1.704-.026 3.603 1.886 4.21 1.983.63 4.318-.354 5.132-2.179.8-1.793-.247-3.667-2.161-4.149zm7.563-1.224c-.346-.105-.57-.18-.405-.615.375-.977.42-1.829-.01-2.448-.81-1.155-3.027-1.092-5.567-.03 0 0-.795.346-.591-.284.39-1.26.33-2.31-.27-2.913-1.365-1.365-4.992.045-8.103 3.157C-.21 11.84-.96 14.61.04 16.7c1.62 3.405 6.99 3.585 11.52 1.875 4.53-1.71 8.42-5.97 6.78-9.45-.36-.78-1.05-1.32-1.86-1.626.18-.27.35-.54.4-.825.05-.36-.18-.54-.45-.39-.045.075-.075.165-.09.255-.054.21-.139.435-.27.63zm1.5-3.99c-.165-.5-.434-.945-.794-1.305-.36-.36-.81-.629-1.305-.794-.165-.06-.345.029-.405.194-.06.165.03.345.195.405.36.12.69.314.96.585.27.27.464.6.585.96.06.165.225.255.39.21.165-.045.255-.225.21-.39l-.031-.06zm2.355-.766c-.345-1.035-.93-1.965-1.71-2.745-.78-.781-1.71-1.366-2.746-1.711-.27-.09-.539.06-.629.33-.09.27.06.539.33.629.825.27 1.575.735 2.205 1.365.63.63 1.095 1.38 1.365 2.205.09.27.359.42.629.33.27-.09.42-.36.33-.629l.001-.024z"/></svg></button>
-              <button class="share-btn" type="button" data-share="wechat" aria-label="微信扫码分享" data-i18n-aria="post.share.wechat"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M8.691 2.188C3.891 2.188 0 5.476 0 9.53c0 2.212 1.17 4.203 3.002 5.55a.59.59 0 0 1 .213.665l-.39 1.48c-.019.07-.048.141-.048.213 0 .163.13.295.29.295a.326.326 0 0 0 .167-.054l1.903-1.114a.864.864 0 0 1 .717-.098 10.16 10.16 0 0 0 2.837.403c.276 0 .543-.027.811-.05-.857-2.578.157-4.972 1.932-6.446 1.703-1.415 3.882-1.98 5.853-1.838-.576-3.583-4.196-6.348-8.596-6.348zM5.785 5.991c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178A1.17 1.17 0 0 1 4.623 7.17c0-.651.52-1.18 1.162-1.18zm5.813 0c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178 1.17 1.17 0 0 1-1.162-1.178c0-.651.52-1.18 1.162-1.18zm5.34 2.867c-1.797-.052-3.746.512-5.28 1.786-1.72 1.428-2.687 3.72-1.78 6.22.942 2.453 3.666 4.229 6.884 4.229.826 0 1.622-.12 2.361-.336a.722.722 0 0 1 .598.082l1.584.926a.272.272 0 0 0 .14.047c.134 0 .24-.111.24-.247 0-.06-.023-.12-.038-.177l-.327-1.233a.582.582 0 0 1-.023-.156.49.49 0 0 1 .201-.398C23.024 18.48 24 16.82 24 14.98c0-3.21-2.931-5.837-6.656-6.088V8.89c-.135-.01-.27-.027-.406-.032zm-3.39 2.927c.535 0 .969.44.969.982a.976.976 0 0 1-.969.983.976.976 0 0 1-.969-.983c0-.542.434-.982.969-.982zm4.844 0c.535 0 .969.44.969.982a.976.976 0 0 1-.969.983.976.976 0 0 1-.969-.983c0-.542.434-.982.969-.982z"/></svg></button>
-              <button class="share-btn" type="button" data-share="copy" aria-label="复制链接" data-i18n-aria="post.share.copy"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/></svg></button>
-            </div>
-          </article>
+</div>
 
-          <span class="post-anchor" id="finance-saas-backend" aria-hidden="true"></span>
-          <article class="article blog-article" id="post-finance-saas-backend" data-post-slug="finance-saas-backend">
-            <header class="article-header">
-              <span class="eyebrow">SaaS Backend</span>
-              <h2 data-i18n="post.finance-saas-backend.title" data-i18n-en="Qigu SaaS Multi-Module Platform Project Overview">企顾 SaaS 多模块平台项目介绍</h2>
-              <div class="article-meta">
-              <time datetime="2023-08-18">August 18, 2023</time>
-                <span>·</span>
-              <span class="reading-time"><i class="fas fa-clock" aria-hidden="true"></i> <span data-i18n="dyn.readingPrefix">约</span> 5 <span data-i18n="dyn.readingSuffix">分钟</span></span>
-              </div>
-            <p class="article-summary" data-i18n="post.finance-saas-backend.summary" data-i18n-en="A backend platform retrospective covering customer data assets, finance reports, notification delivery and search for enterprise-service SaaS.">围绕客户数据资产、财税报表处理、通知触达和搜索检索，复盘企业服务 SaaS 多模块后端平台建设。</p>
-              <div class="post-tags" aria-label="文章标签">
-                <span data-tag="Java" data-i18n="post.finance-saas-backend.tag.0" data-i18n-en="Java">Java</span><span data-tag="Spring Boot" data-i18n="post.finance-saas-backend.tag.1" data-i18n-en="Spring Boot">Spring Boot</span><span data-tag="Dubbo" data-i18n="post.finance-saas-backend.tag.2" data-i18n-en="Dubbo">Dubbo</span><span data-tag="RocketMQ" data-i18n="post.finance-saas-backend.tag.3" data-i18n-en="RocketMQ">RocketMQ</span><span data-tag="Elasticsearch" data-i18n="post.finance-saas-backend.tag.4" data-i18n-en="Elasticsearch">Elasticsearch</span>
-              </div>
-            </header>
-            <div class="article-content">
-          <h2 id="post-finance-saas-backend-toc-1-1-项目概述">1. 项目概述</h2>
+  <div class="post-share" data-share-url="/post/manage-system/" data-share-title="智能分析预警平台重构" data-share-title-en="Alert Platform Refactor">
+  <span class="share-label" data-i18n="post.share">
+    <svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"></path></svg>
+    分享
+  </span>
+  <a class="share-btn" data-share="x" href="#" target="_blank" rel="noopener" aria-label="分享到 X" data-i18n-aria="post.share.x">
+    <svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path></svg>
+  </a>
+  <button class="share-btn" type="button" data-share="weibo" aria-label="分享到微博" data-i18n-aria="post.share.weibo">
+    <svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M10.098 20.323c-3.977.391-7.414-1.406-7.672-4.02-.259-2.609 2.759-5.047 6.74-5.441 3.979-.394 7.413 1.404 7.671 4.018.259 2.6-2.759 5.049-6.737 5.439l-.002.004zM9.05 17.219c-.384.616-1.208.884-1.829.602-.612-.279-.793-.991-.406-1.593.379-.595 1.176-.861 1.793-.601.622.263.82.972.442 1.592zm1.27-1.627c-.141.237-.449.353-.689.253-.236-.09-.312-.359-.177-.586.138-.227.436-.346.672-.24.239.09.315.36.18.601l.014-.028zm.176-2.719c-1.893-.493-4.033.451-4.857 2.118-.836 1.704-.026 3.603 1.886 4.21 1.983.63 4.318-.354 5.132-2.179.8-1.793-.247-3.667-2.161-4.149zm7.563-1.224c-.346-.105-.57-.18-.405-.615.375-.977.42-1.829-.01-2.448-.81-1.155-3.027-1.092-5.567-.03 0 0-.795.346-.591-.284.39-1.26.33-2.31-.27-2.913-1.365-1.365-4.992.045-8.103 3.157C-.21 11.84-.96 14.61.04 16.7c1.62 3.405 6.99 3.585 11.52 1.875 4.53-1.71 8.42-5.97 6.78-9.45-.36-.78-1.05-1.32-1.86-1.626.18-.27.35-.54.4-.825.05-.36-.18-.54-.45-.39-.045.075-.075.165-.09.255-.054.21-.139.435-.27.63zm1.5-3.99c-.165-.5-.434-.945-.794-1.305-.36-.36-.81-.629-1.305-.794-.165-.06-.345.029-.405.194-.06.165.03.345.195.405.36.12.69.314.96.585.27.27.464.6.585.96.06.165.225.255.39.21.165-.045.255-.225.21-.39l-.031-.06zm2.355-.766c-.345-1.035-.93-1.965-1.71-2.745-.78-.781-1.71-1.366-2.746-1.711-.27-.09-.539.06-.629.33-.09.27.06.539.33.629.825.27 1.575.735 2.205 1.365.63.63 1.095 1.38 1.365 2.205.09.27.359.42.629.33.27-.09.42-.36.33-.629l.001-.024z"></path></svg>
+  </button>
+  <button class="share-btn" type="button" data-share="wechat" aria-label="微信扫码分享" data-i18n-aria="post.share.wechat">
+    <svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M8.691 2.188C3.891 2.188 0 5.476 0 9.53c0 2.212 1.17 4.203 3.002 5.55a.59.59 0 0 1 .213.665l-.39 1.48c-.019.07-.048.141-.048.213 0 .163.13.295.29.295a.326.326 0 0 0 .167-.054l1.903-1.114a.864.864 0 0 1 .717-.098 10.16 10.16 0 0 0 2.837.403c.276 0 .543-.027.811-.05-.857-2.578.157-4.972 1.932-6.446 1.703-1.415 3.882-1.98 5.853-1.838-.576-3.583-4.196-6.348-8.596-6.348zM5.785 5.991c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178A1.17 1.17 0 0 1 4.623 7.17c0-.651.52-1.18 1.162-1.18zm5.813 0c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178 1.17 1.17 0 0 1-1.162-1.178c0-.651.52-1.18 1.162-1.18zm5.34 2.867c-1.797-.052-3.746.512-5.28 1.786-1.72 1.428-2.687 3.72-1.78 6.22.942 2.453 3.666 4.229 6.884 4.229.826 0 1.622-.12 2.361-.336a.722.722 0 0 1 .598.082l1.584.926a.272.272 0 0 0 .14.047c.134 0 .24-.111.24-.247 0-.06-.023-.12-.038-.177l-.327-1.233a.582.582 0 0 1-.023-.156.49.49 0 0 1 .201-.398C23.024 18.48 24 16.82 24 14.98c0-3.21-2.931-5.837-6.656-6.088V8.89c-.135-.01-.27-.027-.406-.032zm-3.39 2.927c.535 0 .969.44.969.982a.976.976 0 0 1-.969.983.976.976 0 0 1-.969-.983c0-.542.434-.982.969-.982zm4.844 0c.535 0 .969.44.969.982a.976.976 0 0 1-.969.983.976.976 0 0 1-.969-.983c0-.542.434-.982.969-.982z"></path></svg>
+  </button>
+  <button class="share-btn" type="button" data-share="copy" aria-label="复制链接" data-i18n-aria="post.share.copy">
+    <svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg>
+  </button>
+</div>
+</article><span class="post-anchor" id="finance-saas-backend" aria-hidden="true"></span>
+<article class="article blog-article" id="post-finance-saas-backend" data-post-slug="finance-saas-backend">
+  <header class="article-header">
+    <span class="eyebrow">SaaS Backend</span>
+    <h2 data-i18n="post.finance-saas-backend.title" data-i18n-en="Qigu SaaS Multi-Module Platform Project Overview">企顾 SaaS 多模块平台项目介绍</h2>
+    <div class="article-meta">
+      <time datetime="2023-08-18">August 18, 2023</time>
+      <span>·</span>
+      <span class="reading-time">
+        <i class="fas fa-clock" aria-hidden="true"></i>
+        <span data-i18n="dyn.readingPrefix">约</span> 5 <span data-i18n="dyn.readingSuffix">分钟</span>
+      </span>
+    </div>
+    <p class="article-summary" data-i18n="post.finance-saas-backend.summary" data-i18n-en="A backend platform retrospective covering customer data assets, finance reports, notification delivery and search for enterprise-service SaaS.">围绕客户数据资产、财税报表处理、通知触达和搜索检索，复盘企业服务 SaaS 多模块后端平台建设。</p>
+    <div class="post-tags" aria-label="文章标签">
+      <span data-tag="Java" data-i18n="post.finance-saas-backend.tag.0" data-i18n-en="Java">Java</span><span data-tag="Spring Boot" data-i18n="post.finance-saas-backend.tag.1" data-i18n-en="Spring Boot">Spring Boot</span><span data-tag="Dubbo" data-i18n="post.finance-saas-backend.tag.2" data-i18n-en="Dubbo">Dubbo</span><span data-tag="RocketMQ" data-i18n="post.finance-saas-backend.tag.3" data-i18n-en="RocketMQ">RocketMQ</span><span data-tag="Elasticsearch" data-i18n="post.finance-saas-backend.tag.4" data-i18n-en="Elasticsearch">Elasticsearch</span>
+    </div>
+  </header>
+
+  <div class="article-content">
+            <h2 id="post-finance-saas-backend-toc-1-1-项目概述">1. 项目概述</h2>
           <p>企顾 SaaS 多模块平台面向企业服务场景，围绕「客户数据资产、财税报表处理、通知触达、搜索检索」四类高频能力构建统一的业务中台。项目采用 Java 8 + Spring Boot 2.4.1 技术体系，并结合 Dubbo、RocketMQ、Redis/Redisson、JetCache、Elasticsearch、MyBatis、Druid、Nacos 等组件，形成可独立演进、可复用、可扩展的多模块微服务架构。</p>
           <p>从代码结构看，项目由 4 个主项目、26 个 Maven POM、22+ 个业务/能力子模块组成，覆盖 API、实现、Starter、Runtime、SDK、DAO、Web、Export SDK 等不同层次。仓库中共有 1,362 个 Java 文件，其中通知中心与报表模块占比最高，体现出平台在业务编排、异步处理、缓存一致性、导出性能和三方集成方面的工程复杂度。</p>
           <p>核心模块包括：</p>
@@ -707,33 +724,47 @@
           <li><a class="wiki-link" href="/post/activiti-workflow-engine/">Activiti 工作流引擎深度分析</a> 解释流程运行时、任务和事务内缓存的实现细节。</li>
           <li><a class="wiki-link" href="/post/manage-system/">智能视频分析平台设计</a> 展示异步分析、规则判断和告警闭环的另一种平台形态。</li>
           </ul>
-            </div>
-            <div class="post-share" data-share-url="/post/finance-saas-backend/" data-share-title="企顾 SaaS 多模块平台" data-share-title-en="Qigu SaaS Platform">
-              <span class="share-label" data-i18n="post.share"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg> 分享</span>
-              <a class="share-btn" data-share="x" href="#" target="_blank" rel="noopener" aria-label="分享到 X" data-i18n-aria="post.share.x"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
-              <button class="share-btn" type="button" data-share="weibo" aria-label="分享到微博" data-i18n-aria="post.share.weibo"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M10.098 20.323c-3.977.391-7.414-1.406-7.672-4.02-.259-2.609 2.759-5.047 6.74-5.441 3.979-.394 7.413 1.404 7.671 4.018.259 2.6-2.759 5.049-6.737 5.439l-.002.004zM9.05 17.219c-.384.616-1.208.884-1.829.602-.612-.279-.793-.991-.406-1.593.379-.595 1.176-.861 1.793-.601.622.263.82.972.442 1.592zm1.27-1.627c-.141.237-.449.353-.689.253-.236-.09-.312-.359-.177-.586.138-.227.436-.346.672-.24.239.09.315.36.18.601l.014-.028zm.176-2.719c-1.893-.493-4.033.451-4.857 2.118-.836 1.704-.026 3.603 1.886 4.21 1.983.63 4.318-.354 5.132-2.179.8-1.793-.247-3.667-2.161-4.149zm7.563-1.224c-.346-.105-.57-.18-.405-.615.375-.977.42-1.829-.01-2.448-.81-1.155-3.027-1.092-5.567-.03 0 0-.795.346-.591-.284.39-1.26.33-2.31-.27-2.913-1.365-1.365-4.992.045-8.103 3.157C-.21 11.84-.96 14.61.04 16.7c1.62 3.405 6.99 3.585 11.52 1.875 4.53-1.71 8.42-5.97 6.78-9.45-.36-.78-1.05-1.32-1.86-1.626.18-.27.35-.54.4-.825.05-.36-.18-.54-.45-.39-.045.075-.075.165-.09.255-.054.21-.139.435-.27.63zm1.5-3.99c-.165-.5-.434-.945-.794-1.305-.36-.36-.81-.629-1.305-.794-.165-.06-.345.029-.405.194-.06.165.03.345.195.405.36.12.69.314.96.585.27.27.464.6.585.96.06.165.225.255.39.21.165-.045.255-.225.21-.39l-.031-.06zm2.355-.766c-.345-1.035-.93-1.965-1.71-2.745-.78-.781-1.71-1.366-2.746-1.711-.27-.09-.539.06-.629.33-.09.27.06.539.33.629.825.27 1.575.735 2.205 1.365.63.63 1.095 1.38 1.365 2.205.09.27.359.42.629.33.27-.09.42-.36.33-.629l.001-.024z"/></svg></button>
-              <button class="share-btn" type="button" data-share="wechat" aria-label="微信扫码分享" data-i18n-aria="post.share.wechat"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M8.691 2.188C3.891 2.188 0 5.476 0 9.53c0 2.212 1.17 4.203 3.002 5.55a.59.59 0 0 1 .213.665l-.39 1.48c-.019.07-.048.141-.048.213 0 .163.13.295.29.295a.326.326 0 0 0 .167-.054l1.903-1.114a.864.864 0 0 1 .717-.098 10.16 10.16 0 0 0 2.837.403c.276 0 .543-.027.811-.05-.857-2.578.157-4.972 1.932-6.446 1.703-1.415 3.882-1.98 5.853-1.838-.576-3.583-4.196-6.348-8.596-6.348zM5.785 5.991c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178A1.17 1.17 0 0 1 4.623 7.17c0-.651.52-1.18 1.162-1.18zm5.813 0c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178 1.17 1.17 0 0 1-1.162-1.178c0-.651.52-1.18 1.162-1.18zm5.34 2.867c-1.797-.052-3.746.512-5.28 1.786-1.72 1.428-2.687 3.72-1.78 6.22.942 2.453 3.666 4.229 6.884 4.229.826 0 1.622-.12 2.361-.336a.722.722 0 0 1 .598.082l1.584.926a.272.272 0 0 0 .14.047c.134 0 .24-.111.24-.247 0-.06-.023-.12-.038-.177l-.327-1.233a.582.582 0 0 1-.023-.156.49.49 0 0 1 .201-.398C23.024 18.48 24 16.82 24 14.98c0-3.21-2.931-5.837-6.656-6.088V8.89c-.135-.01-.27-.027-.406-.032zm-3.39 2.927c.535 0 .969.44.969.982a.976.976 0 0 1-.969.983.976.976 0 0 1-.969-.983c0-.542.434-.982.969-.982zm4.844 0c.535 0 .969.44.969.982a.976.976 0 0 1-.969.983.976.976 0 0 1-.969-.983c0-.542.434-.982.969-.982z"/></svg></button>
-              <button class="share-btn" type="button" data-share="copy" aria-label="复制链接" data-i18n-aria="post.share.copy"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/></svg></button>
-            </div>
-          </article>
+</div>
 
-          <span class="post-anchor" id="activiti-workflow-engine" aria-hidden="true"></span>
-          <article class="article blog-article" id="post-activiti-workflow-engine" data-post-slug="activiti-workflow-engine">
-            <header class="article-header">
-              <span class="eyebrow">Workflow</span>
-              <h2 data-i18n="post.activiti-workflow-engine.title" data-i18n-en="Terminus Activiti: Lightweight BPM Engine Practice for Digital Business Processes">Terminus Activiti：面向业务流程数字化的轻量级 BPM 引擎实践</h2>
-              <div class="article-meta">
-              <time datetime="2022-02-09">February 9, 2022</time>
-                <span>·</span>
-              <span class="reading-time"><i class="fas fa-clock" aria-hidden="true"></i> <span data-i18n="dyn.readingPrefix">约</span> 7 <span data-i18n="dyn.readingSuffix">分钟</span></span>
-              </div>
-            <p class="article-summary" data-i18n="post.activiti-workflow-engine.summary" data-i18n-en="Engineering notes on enterprise workflow infrastructure around Activiti 7, BPMN 2.0, runtime APIs and Spring Boot auto-configuration.">围绕 Activiti 7、BPMN 2.0、运行时 API 和 Spring Boot 自动装配，梳理企业审批流与流程基础设施的工程实践。</p>
-              <div class="post-tags" aria-label="文章标签">
-                <span data-tag="Java" data-i18n="post.activiti-workflow-engine.tag.0" data-i18n-en="Java">Java</span><span data-tag="Spring Boot" data-i18n="post.activiti-workflow-engine.tag.1" data-i18n-en="Spring Boot">Spring Boot</span><span data-tag="Activiti 7" data-i18n="post.activiti-workflow-engine.tag.2" data-i18n-en="Activiti 7">Activiti 7</span><span data-tag="BPMN 2.0" data-i18n="post.activiti-workflow-engine.tag.3" data-i18n-en="BPMN 2.0">BPMN 2.0</span><span data-tag="工作流" data-i18n="post.activiti-workflow-engine.tag.4" data-i18n-en="Workflow">工作流</span>
-              </div>
-            </header>
-            <div class="article-content">
-          <h2 id="post-activiti-workflow-engine-toc-1-项目概述">项目概述</h2>
+  <div class="post-share" data-share-url="/post/finance-saas-backend/" data-share-title="企顾 SaaS 多模块平台" data-share-title-en="Qigu SaaS Platform">
+  <span class="share-label" data-i18n="post.share">
+    <svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"></path></svg>
+    分享
+  </span>
+  <a class="share-btn" data-share="x" href="#" target="_blank" rel="noopener" aria-label="分享到 X" data-i18n-aria="post.share.x">
+    <svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path></svg>
+  </a>
+  <button class="share-btn" type="button" data-share="weibo" aria-label="分享到微博" data-i18n-aria="post.share.weibo">
+    <svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M10.098 20.323c-3.977.391-7.414-1.406-7.672-4.02-.259-2.609 2.759-5.047 6.74-5.441 3.979-.394 7.413 1.404 7.671 4.018.259 2.6-2.759 5.049-6.737 5.439l-.002.004zM9.05 17.219c-.384.616-1.208.884-1.829.602-.612-.279-.793-.991-.406-1.593.379-.595 1.176-.861 1.793-.601.622.263.82.972.442 1.592zm1.27-1.627c-.141.237-.449.353-.689.253-.236-.09-.312-.359-.177-.586.138-.227.436-.346.672-.24.239.09.315.36.18.601l.014-.028zm.176-2.719c-1.893-.493-4.033.451-4.857 2.118-.836 1.704-.026 3.603 1.886 4.21 1.983.63 4.318-.354 5.132-2.179.8-1.793-.247-3.667-2.161-4.149zm7.563-1.224c-.346-.105-.57-.18-.405-.615.375-.977.42-1.829-.01-2.448-.81-1.155-3.027-1.092-5.567-.03 0 0-.795.346-.591-.284.39-1.26.33-2.31-.27-2.913-1.365-1.365-4.992.045-8.103 3.157C-.21 11.84-.96 14.61.04 16.7c1.62 3.405 6.99 3.585 11.52 1.875 4.53-1.71 8.42-5.97 6.78-9.45-.36-.78-1.05-1.32-1.86-1.626.18-.27.35-.54.4-.825.05-.36-.18-.54-.45-.39-.045.075-.075.165-.09.255-.054.21-.139.435-.27.63zm1.5-3.99c-.165-.5-.434-.945-.794-1.305-.36-.36-.81-.629-1.305-.794-.165-.06-.345.029-.405.194-.06.165.03.345.195.405.36.12.69.314.96.585.27.27.464.6.585.96.06.165.225.255.39.21.165-.045.255-.225.21-.39l-.031-.06zm2.355-.766c-.345-1.035-.93-1.965-1.71-2.745-.78-.781-1.71-1.366-2.746-1.711-.27-.09-.539.06-.629.33-.09.27.06.539.33.629.825.27 1.575.735 2.205 1.365.63.63 1.095 1.38 1.365 2.205.09.27.359.42.629.33.27-.09.42-.36.33-.629l.001-.024z"></path></svg>
+  </button>
+  <button class="share-btn" type="button" data-share="wechat" aria-label="微信扫码分享" data-i18n-aria="post.share.wechat">
+    <svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M8.691 2.188C3.891 2.188 0 5.476 0 9.53c0 2.212 1.17 4.203 3.002 5.55a.59.59 0 0 1 .213.665l-.39 1.48c-.019.07-.048.141-.048.213 0 .163.13.295.29.295a.326.326 0 0 0 .167-.054l1.903-1.114a.864.864 0 0 1 .717-.098 10.16 10.16 0 0 0 2.837.403c.276 0 .543-.027.811-.05-.857-2.578.157-4.972 1.932-6.446 1.703-1.415 3.882-1.98 5.853-1.838-.576-3.583-4.196-6.348-8.596-6.348zM5.785 5.991c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178A1.17 1.17 0 0 1 4.623 7.17c0-.651.52-1.18 1.162-1.18zm5.813 0c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178 1.17 1.17 0 0 1-1.162-1.178c0-.651.52-1.18 1.162-1.18zm5.34 2.867c-1.797-.052-3.746.512-5.28 1.786-1.72 1.428-2.687 3.72-1.78 6.22.942 2.453 3.666 4.229 6.884 4.229.826 0 1.622-.12 2.361-.336a.722.722 0 0 1 .598.082l1.584.926a.272.272 0 0 0 .14.047c.134 0 .24-.111.24-.247 0-.06-.023-.12-.038-.177l-.327-1.233a.582.582 0 0 1-.023-.156.49.49 0 0 1 .201-.398C23.024 18.48 24 16.82 24 14.98c0-3.21-2.931-5.837-6.656-6.088V8.89c-.135-.01-.27-.027-.406-.032zm-3.39 2.927c.535 0 .969.44.969.982a.976.976 0 0 1-.969.983.976.976 0 0 1-.969-.983c0-.542.434-.982.969-.982zm4.844 0c.535 0 .969.44.969.982a.976.976 0 0 1-.969.983.976.976 0 0 1-.969-.983c0-.542.434-.982.969-.982z"></path></svg>
+  </button>
+  <button class="share-btn" type="button" data-share="copy" aria-label="复制链接" data-i18n-aria="post.share.copy">
+    <svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg>
+  </button>
+</div>
+</article><span class="post-anchor" id="activiti-workflow-engine" aria-hidden="true"></span>
+<article class="article blog-article" id="post-activiti-workflow-engine" data-post-slug="activiti-workflow-engine">
+  <header class="article-header">
+    <span class="eyebrow">Workflow</span>
+    <h2 data-i18n="post.activiti-workflow-engine.title" data-i18n-en="Terminus Activiti: Lightweight BPM Engine Practice for Digital Business Processes">Terminus Activiti：面向业务流程数字化的轻量级 BPM 引擎实践</h2>
+    <div class="article-meta">
+      <time datetime="2022-02-09">February 9, 2022</time>
+      <span>·</span>
+      <span class="reading-time">
+        <i class="fas fa-clock" aria-hidden="true"></i>
+        <span data-i18n="dyn.readingPrefix">约</span> 7 <span data-i18n="dyn.readingSuffix">分钟</span>
+      </span>
+    </div>
+    <p class="article-summary" data-i18n="post.activiti-workflow-engine.summary" data-i18n-en="Engineering notes on enterprise workflow infrastructure around Activiti 7, BPMN 2.0, runtime APIs and Spring Boot auto-configuration.">围绕 Activiti 7、BPMN 2.0、运行时 API 和 Spring Boot 自动装配，梳理企业审批流与流程基础设施的工程实践。</p>
+    <div class="post-tags" aria-label="文章标签">
+      <span data-tag="Java" data-i18n="post.activiti-workflow-engine.tag.0" data-i18n-en="Java">Java</span><span data-tag="Spring Boot" data-i18n="post.activiti-workflow-engine.tag.1" data-i18n-en="Spring Boot">Spring Boot</span><span data-tag="Activiti 7" data-i18n="post.activiti-workflow-engine.tag.2" data-i18n-en="Activiti 7">Activiti 7</span><span data-tag="BPMN 2.0" data-i18n="post.activiti-workflow-engine.tag.3" data-i18n-en="BPMN 2.0">BPMN 2.0</span><span data-tag="工作流" data-i18n="post.activiti-workflow-engine.tag.4" data-i18n-en="Workflow">工作流</span>
+    </div>
+  </header>
+
+  <div class="article-content">
+            <h2 id="post-activiti-workflow-engine-toc-1-项目概述">项目概述</h2>
           <p>Terminus Activiti 是一个基于 Activiti 7.1.0-SNAPSHOT 的企业级工作流与 BPM（Business Process Management）项目。项目以 BPMN 2.0 流程引擎为核心，围绕流程定义、流程实例、人工任务、变量管理、事件监听、异步作业、连接器扩展和 Spring Boot 自动装配构建了一套可嵌入业务系统、可扩展到微服务架构的流程基础设施。</p>
           <p>从业务视角看，它解决的是企业系统中大量“状态流转 + 人工审批 + 系统协同 + 过程留痕”的通用问题，例如审批流、订单履约、内容审核、工单处理、任务协同、跨系统回调等。传统做法往往把流程逻辑硬编码在业务服务中，后续规则变更需要频繁发版；本项目通过 BPMN 建模和统一 Runtime API，把流程从业务代码中剥离出来，使业务人员、开发人员和系统管理员可以围绕同一套流程模型协作。</p>
           <h2 id="post-activiti-workflow-engine-toc-2-业务价值">业务价值</h2>
@@ -862,33 +893,47 @@
           <ul>
           <li><a class="wiki-link" href="/post/finance-saas-backend/">金融 SaaS 后端平台设计</a> 展示流程能力在多模块 SaaS 系统中的服务化边界。</li>
           </ul>
-            </div>
-            <div class="post-share" data-share-url="/post/activiti-workflow-engine/" data-share-title="Activiti BPM 引擎实践" data-share-title-en="Activiti BPM Engine Practice">
-              <span class="share-label" data-i18n="post.share"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg> 分享</span>
-              <a class="share-btn" data-share="x" href="#" target="_blank" rel="noopener" aria-label="分享到 X" data-i18n-aria="post.share.x"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
-              <button class="share-btn" type="button" data-share="weibo" aria-label="分享到微博" data-i18n-aria="post.share.weibo"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M10.098 20.323c-3.977.391-7.414-1.406-7.672-4.02-.259-2.609 2.759-5.047 6.74-5.441 3.979-.394 7.413 1.404 7.671 4.018.259 2.6-2.759 5.049-6.737 5.439l-.002.004zM9.05 17.219c-.384.616-1.208.884-1.829.602-.612-.279-.793-.991-.406-1.593.379-.595 1.176-.861 1.793-.601.622.263.82.972.442 1.592zm1.27-1.627c-.141.237-.449.353-.689.253-.236-.09-.312-.359-.177-.586.138-.227.436-.346.672-.24.239.09.315.36.18.601l.014-.028zm.176-2.719c-1.893-.493-4.033.451-4.857 2.118-.836 1.704-.026 3.603 1.886 4.21 1.983.63 4.318-.354 5.132-2.179.8-1.793-.247-3.667-2.161-4.149zm7.563-1.224c-.346-.105-.57-.18-.405-.615.375-.977.42-1.829-.01-2.448-.81-1.155-3.027-1.092-5.567-.03 0 0-.795.346-.591-.284.39-1.26.33-2.31-.27-2.913-1.365-1.365-4.992.045-8.103 3.157C-.21 11.84-.96 14.61.04 16.7c1.62 3.405 6.99 3.585 11.52 1.875 4.53-1.71 8.42-5.97 6.78-9.45-.36-.78-1.05-1.32-1.86-1.626.18-.27.35-.54.4-.825.05-.36-.18-.54-.45-.39-.045.075-.075.165-.09.255-.054.21-.139.435-.27.63zm1.5-3.99c-.165-.5-.434-.945-.794-1.305-.36-.36-.81-.629-1.305-.794-.165-.06-.345.029-.405.194-.06.165.03.345.195.405.36.12.69.314.96.585.27.27.464.6.585.96.06.165.225.255.39.21.165-.045.255-.225.21-.39l-.031-.06zm2.355-.766c-.345-1.035-.93-1.965-1.71-2.745-.78-.781-1.71-1.366-2.746-1.711-.27-.09-.539.06-.629.33-.09.27.06.539.33.629.825.27 1.575.735 2.205 1.365.63.63 1.095 1.38 1.365 2.205.09.27.359.42.629.33.27-.09.42-.36.33-.629l.001-.024z"/></svg></button>
-              <button class="share-btn" type="button" data-share="wechat" aria-label="微信扫码分享" data-i18n-aria="post.share.wechat"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M8.691 2.188C3.891 2.188 0 5.476 0 9.53c0 2.212 1.17 4.203 3.002 5.55a.59.59 0 0 1 .213.665l-.39 1.48c-.019.07-.048.141-.048.213 0 .163.13.295.29.295a.326.326 0 0 0 .167-.054l1.903-1.114a.864.864 0 0 1 .717-.098 10.16 10.16 0 0 0 2.837.403c.276 0 .543-.027.811-.05-.857-2.578.157-4.972 1.932-6.446 1.703-1.415 3.882-1.98 5.853-1.838-.576-3.583-4.196-6.348-8.596-6.348zM5.785 5.991c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178A1.17 1.17 0 0 1 4.623 7.17c0-.651.52-1.18 1.162-1.18zm5.813 0c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178 1.17 1.17 0 0 1-1.162-1.178c0-.651.52-1.18 1.162-1.18zm5.34 2.867c-1.797-.052-3.746.512-5.28 1.786-1.72 1.428-2.687 3.72-1.78 6.22.942 2.453 3.666 4.229 6.884 4.229.826 0 1.622-.12 2.361-.336a.722.722 0 0 1 .598.082l1.584.926a.272.272 0 0 0 .14.047c.134 0 .24-.111.24-.247 0-.06-.023-.12-.038-.177l-.327-1.233a.582.582 0 0 1-.023-.156.49.49 0 0 1 .201-.398C23.024 18.48 24 16.82 24 14.98c0-3.21-2.931-5.837-6.656-6.088V8.89c-.135-.01-.27-.027-.406-.032zm-3.39 2.927c.535 0 .969.44.969.982a.976.976 0 0 1-.969.983.976.976 0 0 1-.969-.983c0-.542.434-.982.969-.982zm4.844 0c.535 0 .969.44.969.982a.976.976 0 0 1-.969.983.976.976 0 0 1-.969-.983c0-.542.434-.982.969-.982z"/></svg></button>
-              <button class="share-btn" type="button" data-share="copy" aria-label="复制链接" data-i18n-aria="post.share.copy"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/></svg></button>
-            </div>
-          </article>
+</div>
 
-          <span class="post-anchor" id="lowcode-schema-codegen" aria-hidden="true"></span>
-          <article class="article blog-article" id="post-lowcode-schema-codegen" data-post-slug="lowcode-schema-codegen">
-            <header class="article-header">
-              <span class="eyebrow">LowCode</span>
-              <h2 data-i18n="post.lowcode-schema-codegen.title" data-i18n-en="Terminus LowCode Engine: Enterprise Middle- and Back-Office Low-Code Practice">Terminus LowCode Engine 项目介绍：面向企业级中后台的低代码引擎实践</h2>
-              <div class="article-meta">
-              <time datetime="2022-02-01">February 1, 2022</time>
-                <span>·</span>
-              <span class="reading-time"><i class="fas fa-clock" aria-hidden="true"></i> <span data-i18n="dyn.readingPrefix">约</span> 7 <span data-i18n="dyn.readingSuffix">分钟</span></span>
-              </div>
-            <p class="article-summary" data-i18n="post.lowcode-schema-codegen.summary" data-i18n-en="A low-code platform foundation covering protocol design, designer core, materials, renderers and code generation tooling.">从低代码协议、设计器内核、物料体系、渲染器到出码工具链，梳理企业级中后台低代码平台底座。</p>
-              <div class="post-tags" aria-label="文章标签">
-                <span data-tag="TypeScript" data-i18n="post.lowcode-schema-codegen.tag.0" data-i18n-en="TypeScript">TypeScript</span><span data-tag="React" data-i18n="post.lowcode-schema-codegen.tag.1" data-i18n-en="React">React</span><span data-tag="低代码" data-i18n="post.lowcode-schema-codegen.tag.2" data-i18n-en="Low-Code">低代码</span><span data-tag="Schema" data-i18n="post.lowcode-schema-codegen.tag.3" data-i18n-en="Schema">Schema</span><span data-tag="代码生成" data-i18n="post.lowcode-schema-codegen.tag.4" data-i18n-en="Code Generation">代码生成</span>
-              </div>
-            </header>
-            <div class="article-content">
-          <h2 id="post-lowcode-schema-codegen-toc-1-一-项目概述">一、项目概述</h2>
+  <div class="post-share" data-share-url="/post/activiti-workflow-engine/" data-share-title="Activiti BPM 引擎实践" data-share-title-en="Activiti BPM Engine Practice">
+  <span class="share-label" data-i18n="post.share">
+    <svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"></path></svg>
+    分享
+  </span>
+  <a class="share-btn" data-share="x" href="#" target="_blank" rel="noopener" aria-label="分享到 X" data-i18n-aria="post.share.x">
+    <svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path></svg>
+  </a>
+  <button class="share-btn" type="button" data-share="weibo" aria-label="分享到微博" data-i18n-aria="post.share.weibo">
+    <svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M10.098 20.323c-3.977.391-7.414-1.406-7.672-4.02-.259-2.609 2.759-5.047 6.74-5.441 3.979-.394 7.413 1.404 7.671 4.018.259 2.6-2.759 5.049-6.737 5.439l-.002.004zM9.05 17.219c-.384.616-1.208.884-1.829.602-.612-.279-.793-.991-.406-1.593.379-.595 1.176-.861 1.793-.601.622.263.82.972.442 1.592zm1.27-1.627c-.141.237-.449.353-.689.253-.236-.09-.312-.359-.177-.586.138-.227.436-.346.672-.24.239.09.315.36.18.601l.014-.028zm.176-2.719c-1.893-.493-4.033.451-4.857 2.118-.836 1.704-.026 3.603 1.886 4.21 1.983.63 4.318-.354 5.132-2.179.8-1.793-.247-3.667-2.161-4.149zm7.563-1.224c-.346-.105-.57-.18-.405-.615.375-.977.42-1.829-.01-2.448-.81-1.155-3.027-1.092-5.567-.03 0 0-.795.346-.591-.284.39-1.26.33-2.31-.27-2.913-1.365-1.365-4.992.045-8.103 3.157C-.21 11.84-.96 14.61.04 16.7c1.62 3.405 6.99 3.585 11.52 1.875 4.53-1.71 8.42-5.97 6.78-9.45-.36-.78-1.05-1.32-1.86-1.626.18-.27.35-.54.4-.825.05-.36-.18-.54-.45-.39-.045.075-.075.165-.09.255-.054.21-.139.435-.27.63zm1.5-3.99c-.165-.5-.434-.945-.794-1.305-.36-.36-.81-.629-1.305-.794-.165-.06-.345.029-.405.194-.06.165.03.345.195.405.36.12.69.314.96.585.27.27.464.6.585.96.06.165.225.255.39.21.165-.045.255-.225.21-.39l-.031-.06zm2.355-.766c-.345-1.035-.93-1.965-1.71-2.745-.78-.781-1.71-1.366-2.746-1.711-.27-.09-.539.06-.629.33-.09.27.06.539.33.629.825.27 1.575.735 2.205 1.365.63.63 1.095 1.38 1.365 2.205.09.27.359.42.629.33.27-.09.42-.36.33-.629l.001-.024z"></path></svg>
+  </button>
+  <button class="share-btn" type="button" data-share="wechat" aria-label="微信扫码分享" data-i18n-aria="post.share.wechat">
+    <svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M8.691 2.188C3.891 2.188 0 5.476 0 9.53c0 2.212 1.17 4.203 3.002 5.55a.59.59 0 0 1 .213.665l-.39 1.48c-.019.07-.048.141-.048.213 0 .163.13.295.29.295a.326.326 0 0 0 .167-.054l1.903-1.114a.864.864 0 0 1 .717-.098 10.16 10.16 0 0 0 2.837.403c.276 0 .543-.027.811-.05-.857-2.578.157-4.972 1.932-6.446 1.703-1.415 3.882-1.98 5.853-1.838-.576-3.583-4.196-6.348-8.596-6.348zM5.785 5.991c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178A1.17 1.17 0 0 1 4.623 7.17c0-.651.52-1.18 1.162-1.18zm5.813 0c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178 1.17 1.17 0 0 1-1.162-1.178c0-.651.52-1.18 1.162-1.18zm5.34 2.867c-1.797-.052-3.746.512-5.28 1.786-1.72 1.428-2.687 3.72-1.78 6.22.942 2.453 3.666 4.229 6.884 4.229.826 0 1.622-.12 2.361-.336a.722.722 0 0 1 .598.082l1.584.926a.272.272 0 0 0 .14.047c.134 0 .24-.111.24-.247 0-.06-.023-.12-.038-.177l-.327-1.233a.582.582 0 0 1-.023-.156.49.49 0 0 1 .201-.398C23.024 18.48 24 16.82 24 14.98c0-3.21-2.931-5.837-6.656-6.088V8.89c-.135-.01-.27-.027-.406-.032zm-3.39 2.927c.535 0 .969.44.969.982a.976.976 0 0 1-.969.983.976.976 0 0 1-.969-.983c0-.542.434-.982.969-.982zm4.844 0c.535 0 .969.44.969.982a.976.976 0 0 1-.969.983.976.976 0 0 1-.969-.983c0-.542.434-.982.969-.982z"></path></svg>
+  </button>
+  <button class="share-btn" type="button" data-share="copy" aria-label="复制链接" data-i18n-aria="post.share.copy">
+    <svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg>
+  </button>
+</div>
+</article><span class="post-anchor" id="lowcode-schema-codegen" aria-hidden="true"></span>
+<article class="article blog-article" id="post-lowcode-schema-codegen" data-post-slug="lowcode-schema-codegen">
+  <header class="article-header">
+    <span class="eyebrow">LowCode</span>
+    <h2 data-i18n="post.lowcode-schema-codegen.title" data-i18n-en="Terminus LowCode Engine: Enterprise Middle- and Back-Office Low-Code Practice">Terminus LowCode Engine 项目介绍：面向企业级中后台的低代码引擎实践</h2>
+    <div class="article-meta">
+      <time datetime="2022-02-01">February 1, 2022</time>
+      <span>·</span>
+      <span class="reading-time">
+        <i class="fas fa-clock" aria-hidden="true"></i>
+        <span data-i18n="dyn.readingPrefix">约</span> 7 <span data-i18n="dyn.readingSuffix">分钟</span>
+      </span>
+    </div>
+    <p class="article-summary" data-i18n="post.lowcode-schema-codegen.summary" data-i18n-en="A low-code platform foundation covering protocol design, designer core, materials, renderers and code generation tooling.">从低代码协议、设计器内核、物料体系、渲染器到出码工具链，梳理企业级中后台低代码平台底座。</p>
+    <div class="post-tags" aria-label="文章标签">
+      <span data-tag="TypeScript" data-i18n="post.lowcode-schema-codegen.tag.0" data-i18n-en="TypeScript">TypeScript</span><span data-tag="React" data-i18n="post.lowcode-schema-codegen.tag.1" data-i18n-en="React">React</span><span data-tag="低代码" data-i18n="post.lowcode-schema-codegen.tag.2" data-i18n-en="Low-Code">低代码</span><span data-tag="Schema" data-i18n="post.lowcode-schema-codegen.tag.3" data-i18n-en="Schema">Schema</span><span data-tag="代码生成" data-i18n="post.lowcode-schema-codegen.tag.4" data-i18n-en="Code Generation">代码生成</span>
+    </div>
+  </header>
+
+  <div class="article-content">
+            <h2 id="post-lowcode-schema-codegen-toc-1-一-项目概述">一、项目概述</h2>
           <p>Terminus LowCode Engine 是一套面向企业级中后台场景的低代码技术体系，核心目标是通过统一的低代码协议、可扩展的设计器内核、物料体系、渲染器和出码工具链，帮助业务团队快速搭建页面、沉淀组件资产，并将低代码编排结果转化为可运行、可维护、可交付的前端工程。</p>
           <p>从项目结构看，该工程采用 TypeScript + Lerna + Yarn Workspaces 的 monorepo 架构，将低代码平台拆分为引擎内核、设计器、编辑器骨架、插件体系、React/Rax 渲染器、模拟器、物料解析、代码生成等多个独立模块。整体设计遵循“最小内核、最强生态”的思路：内核只负责稳定的协议、生命周期、事件和扩展点，业务差异通过插件、物料和出码方案完成定制。</p>
           <p>项目定位不是单一页面搭建工具，而是一个低代码平台底座。它可以支撑多个垂直业务低代码平台复用同一套引擎能力，降低重复造轮子的成本，并通过协议化资产流通提升企业内部研发效率。</p>
@@ -972,42 +1017,56 @@
           <li><a class="wiki-link" href="/post/manage-system/">智能视频分析平台设计</a> 进一步说明统一协议如何连接采集、算法和业务规则。</li>
           <li><a class="wiki-link" href="/post/codex-claude-vibe-coding/">Codex + Claude 协作开发实践</a> 记录复杂仓库分析与验证闭环的方法。</li>
           </ul>
-            </div>
-            <div class="post-share" data-share-url="/post/lowcode-schema-codegen/" data-share-title="LowCode Engine 实践" data-share-title-en="LowCode Engine Practice">
-              <span class="share-label" data-i18n="post.share"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg> 分享</span>
-              <a class="share-btn" data-share="x" href="#" target="_blank" rel="noopener" aria-label="分享到 X" data-i18n-aria="post.share.x"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
-              <button class="share-btn" type="button" data-share="weibo" aria-label="分享到微博" data-i18n-aria="post.share.weibo"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M10.098 20.323c-3.977.391-7.414-1.406-7.672-4.02-.259-2.609 2.759-5.047 6.74-5.441 3.979-.394 7.413 1.404 7.671 4.018.259 2.6-2.759 5.049-6.737 5.439l-.002.004zM9.05 17.219c-.384.616-1.208.884-1.829.602-.612-.279-.793-.991-.406-1.593.379-.595 1.176-.861 1.793-.601.622.263.82.972.442 1.592zm1.27-1.627c-.141.237-.449.353-.689.253-.236-.09-.312-.359-.177-.586.138-.227.436-.346.672-.24.239.09.315.36.18.601l.014-.028zm.176-2.719c-1.893-.493-4.033.451-4.857 2.118-.836 1.704-.026 3.603 1.886 4.21 1.983.63 4.318-.354 5.132-2.179.8-1.793-.247-3.667-2.161-4.149zm7.563-1.224c-.346-.105-.57-.18-.405-.615.375-.977.42-1.829-.01-2.448-.81-1.155-3.027-1.092-5.567-.03 0 0-.795.346-.591-.284.39-1.26.33-2.31-.27-2.913-1.365-1.365-4.992.045-8.103 3.157C-.21 11.84-.96 14.61.04 16.7c1.62 3.405 6.99 3.585 11.52 1.875 4.53-1.71 8.42-5.97 6.78-9.45-.36-.78-1.05-1.32-1.86-1.626.18-.27.35-.54.4-.825.05-.36-.18-.54-.45-.39-.045.075-.075.165-.09.255-.054.21-.139.435-.27.63zm1.5-3.99c-.165-.5-.434-.945-.794-1.305-.36-.36-.81-.629-1.305-.794-.165-.06-.345.029-.405.194-.06.165.03.345.195.405.36.12.69.314.96.585.27.27.464.6.585.96.06.165.225.255.39.21.165-.045.255-.225.21-.39l-.031-.06zm2.355-.766c-.345-1.035-.93-1.965-1.71-2.745-.78-.781-1.71-1.366-2.746-1.711-.27-.09-.539.06-.629.33-.09.27.06.539.33.629.825.27 1.575.735 2.205 1.365.63.63 1.095 1.38 1.365 2.205.09.27.359.42.629.33.27-.09.42-.36.33-.629l.001-.024z"/></svg></button>
-              <button class="share-btn" type="button" data-share="wechat" aria-label="微信扫码分享" data-i18n-aria="post.share.wechat"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M8.691 2.188C3.891 2.188 0 5.476 0 9.53c0 2.212 1.17 4.203 3.002 5.55a.59.59 0 0 1 .213.665l-.39 1.48c-.019.07-.048.141-.048.213 0 .163.13.295.29.295a.326.326 0 0 0 .167-.054l1.903-1.114a.864.864 0 0 1 .717-.098 10.16 10.16 0 0 0 2.837.403c.276 0 .543-.027.811-.05-.857-2.578.157-4.972 1.932-6.446 1.703-1.415 3.882-1.98 5.853-1.838-.576-3.583-4.196-6.348-8.596-6.348zM5.785 5.991c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178A1.17 1.17 0 0 1 4.623 7.17c0-.651.52-1.18 1.162-1.18zm5.813 0c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178 1.17 1.17 0 0 1-1.162-1.178c0-.651.52-1.18 1.162-1.18zm5.34 2.867c-1.797-.052-3.746.512-5.28 1.786-1.72 1.428-2.687 3.72-1.78 6.22.942 2.453 3.666 4.229 6.884 4.229.826 0 1.622-.12 2.361-.336a.722.722 0 0 1 .598.082l1.584.926a.272.272 0 0 0 .14.047c.134 0 .24-.111.24-.247 0-.06-.023-.12-.038-.177l-.327-1.233a.582.582 0 0 1-.023-.156.49.49 0 0 1 .201-.398C23.024 18.48 24 16.82 24 14.98c0-3.21-2.931-5.837-6.656-6.088V8.89c-.135-.01-.27-.027-.406-.032zm-3.39 2.927c.535 0 .969.44.969.982a.976.976 0 0 1-.969.983.976.976 0 0 1-.969-.983c0-.542.434-.982.969-.982zm4.844 0c.535 0 .969.44.969.982a.976.976 0 0 1-.969.983.976.976 0 0 1-.969-.983c0-.542.434-.982.969-.982z"/></svg></button>
-              <button class="share-btn" type="button" data-share="copy" aria-label="复制链接" data-i18n-aria="post.share.copy"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/></svg></button>
-            </div>
-          </article>
-          <section class="comments" aria-label="评论" data-i18n-aria="post.comments.aria">
-            <h2 data-i18n="post.comments" data-i18n-html><i class="fas fa-comments" aria-hidden="true"></i> 评论</h2>
-            <div id="giscus-thread" data-giscus-mode="switch"></div>
-          </section>
-        </section>
+</div>
+
+  <div class="post-share" data-share-url="/post/lowcode-schema-codegen/" data-share-title="LowCode Engine 实践" data-share-title-en="LowCode Engine Practice">
+  <span class="share-label" data-i18n="post.share">
+    <svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"></path></svg>
+    分享
+  </span>
+  <a class="share-btn" data-share="x" href="#" target="_blank" rel="noopener" aria-label="分享到 X" data-i18n-aria="post.share.x">
+    <svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path></svg>
+  </a>
+  <button class="share-btn" type="button" data-share="weibo" aria-label="分享到微博" data-i18n-aria="post.share.weibo">
+    <svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M10.098 20.323c-3.977.391-7.414-1.406-7.672-4.02-.259-2.609 2.759-5.047 6.74-5.441 3.979-.394 7.413 1.404 7.671 4.018.259 2.6-2.759 5.049-6.737 5.439l-.002.004zM9.05 17.219c-.384.616-1.208.884-1.829.602-.612-.279-.793-.991-.406-1.593.379-.595 1.176-.861 1.793-.601.622.263.82.972.442 1.592zm1.27-1.627c-.141.237-.449.353-.689.253-.236-.09-.312-.359-.177-.586.138-.227.436-.346.672-.24.239.09.315.36.18.601l.014-.028zm.176-2.719c-1.893-.493-4.033.451-4.857 2.118-.836 1.704-.026 3.603 1.886 4.21 1.983.63 4.318-.354 5.132-2.179.8-1.793-.247-3.667-2.161-4.149zm7.563-1.224c-.346-.105-.57-.18-.405-.615.375-.977.42-1.829-.01-2.448-.81-1.155-3.027-1.092-5.567-.03 0 0-.795.346-.591-.284.39-1.26.33-2.31-.27-2.913-1.365-1.365-4.992.045-8.103 3.157C-.21 11.84-.96 14.61.04 16.7c1.62 3.405 6.99 3.585 11.52 1.875 4.53-1.71 8.42-5.97 6.78-9.45-.36-.78-1.05-1.32-1.86-1.626.18-.27.35-.54.4-.825.05-.36-.18-.54-.45-.39-.045.075-.075.165-.09.255-.054.21-.139.435-.27.63zm1.5-3.99c-.165-.5-.434-.945-.794-1.305-.36-.36-.81-.629-1.305-.794-.165-.06-.345.029-.405.194-.06.165.03.345.195.405.36.12.69.314.96.585.27.27.464.6.585.96.06.165.225.255.39.21.165-.045.255-.225.21-.39l-.031-.06zm2.355-.766c-.345-1.035-.93-1.965-1.71-2.745-.78-.781-1.71-1.366-2.746-1.711-.27-.09-.539.06-.629.33-.09.27.06.539.33.629.825.27 1.575.735 2.205 1.365.63.63 1.095 1.38 1.365 2.205.09.27.359.42.629.33.27-.09.42-.36.33-.629l.001-.024z"></path></svg>
+  </button>
+  <button class="share-btn" type="button" data-share="wechat" aria-label="微信扫码分享" data-i18n-aria="post.share.wechat">
+    <svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M8.691 2.188C3.891 2.188 0 5.476 0 9.53c0 2.212 1.17 4.203 3.002 5.55a.59.59 0 0 1 .213.665l-.39 1.48c-.019.07-.048.141-.048.213 0 .163.13.295.29.295a.326.326 0 0 0 .167-.054l1.903-1.114a.864.864 0 0 1 .717-.098 10.16 10.16 0 0 0 2.837.403c.276 0 .543-.027.811-.05-.857-2.578.157-4.972 1.932-6.446 1.703-1.415 3.882-1.98 5.853-1.838-.576-3.583-4.196-6.348-8.596-6.348zM5.785 5.991c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178A1.17 1.17 0 0 1 4.623 7.17c0-.651.52-1.18 1.162-1.18zm5.813 0c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178 1.17 1.17 0 0 1-1.162-1.178c0-.651.52-1.18 1.162-1.18zm5.34 2.867c-1.797-.052-3.746.512-5.28 1.786-1.72 1.428-2.687 3.72-1.78 6.22.942 2.453 3.666 4.229 6.884 4.229.826 0 1.622-.12 2.361-.336a.722.722 0 0 1 .598.082l1.584.926a.272.272 0 0 0 .14.047c.134 0 .24-.111.24-.247 0-.06-.023-.12-.038-.177l-.327-1.233a.582.582 0 0 1-.023-.156.49.49 0 0 1 .201-.398C23.024 18.48 24 16.82 24 14.98c0-3.21-2.931-5.837-6.656-6.088V8.89c-.135-.01-.27-.027-.406-.032zm-3.39 2.927c.535 0 .969.44.969.982a.976.976 0 0 1-.969.983.976.976 0 0 1-.969-.983c0-.542.434-.982.969-.982zm4.844 0c.535 0 .969.44.969.982a.976.976 0 0 1-.969.983.976.976 0 0 1-.969-.983c0-.542.434-.982.969-.982z"></path></svg>
+  </button>
+  <button class="share-btn" type="button" data-share="copy" aria-label="复制链接" data-i18n-aria="post.share.copy">
+    <svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg>
+  </button>
+</div>
+</article>
+      <section class="comments" aria-label="评论" data-i18n-aria="post.comments.aria">
+        <h2 data-i18n="post.comments" data-i18n-html=""><i class="fas fa-comments" aria-hidden="true"></i> 评论</h2>
+        <div id="giscus-thread" data-giscus-mode="switch"></div>
       </section>
-    </main>
-    <footer class="footer">
-      <section class="container">
-        <div class="subscribe">
-          <p class="subscribe-title" data-i18n="subscribe.title">订阅更新 · 新文章邮件提醒</p>
-          <form class="subscribe-form" novalidate>
-            <input class="subscribe-input" type="email" name="email" required autocomplete="email" placeholder="输入你的邮箱" data-i18n-ph="subscribe.ph" aria-label="Email">
-            <button class="subscribe-btn" type="submit" data-i18n="subscribe.btn">订阅</button>
-          </form>
-          <p class="subscribe-status" role="status" aria-live="polite"></p>
-        </div>
-        <div class="sponsor-mini" aria-label="赞助支持选项" data-i18n-aria="sponsorMini.aria">
-          <p class="sponsor-mini-text" data-i18n="sponsorMini.text">如果内容对你有帮助，可以支持我继续更新。</p>
-          <div class="sponsor-mini-actions">
-            <a class="sponsor-mini-btn sponsor-mini-primary" href="https://www.ifdian.net/order/create?plan_id=047bc28a6a1c11f182c452540025c377&product_type=0&remark=&affiliate_code=" target="_blank" rel="noopener noreferrer" data-i18n="sponsorMini.afdian">☕ 赞助</a>
-            <a class="sponsor-mini-btn sponsor-mini-secondary" href="https://PayPal.Me/chenwenliang4212" target="_blank" rel="noopener noreferrer" data-i18n="sponsorMini.paypal">💳 PayPal 支持</a>
-          </div>
-        </div>
-        <p data-i18n="footer.text">© 2021 - 2026 CWL · Powered by Cwl · Theme inspired by Coder</p>
-      </section>
-    </footer>
-  </div>
-</body>
+    </section>
+  </section>
+</main>
+
+<script type="module" src="/_astro/PostListPage.astro_astro_type_script_index_0_lang.BPE1NL1s.js"></script>
+<footer class="footer">
+  <section class="container">
+    <div class="subscribe">
+      <p class="subscribe-title" data-i18n="subscribe.title">订阅更新 · 新文章邮件提醒</p>
+      <form class="subscribe-form" novalidate>
+        <input class="subscribe-input" type="email" name="email" required autocomplete="email" placeholder="输入你的邮箱" data-i18n-ph="subscribe.ph" aria-label="Email">
+        <button class="subscribe-btn" type="submit" data-i18n="subscribe.btn">订阅</button>
+      </form>
+      <p class="subscribe-status" role="status" aria-live="polite"></p>
+    </div>
+    <div class="sponsor-mini" aria-label="赞助支持选项" data-i18n-aria="sponsorMini.aria">
+      <p class="sponsor-mini-text" data-i18n="sponsorMini.text">如果内容对你有帮助，可以支持我继续更新。</p>
+      <div class="sponsor-mini-actions">
+        <a class="sponsor-mini-btn sponsor-mini-primary" href="https://www.ifdian.net/order/create?plan_id=047bc28a6a1c11f182c452540025c377&amp;product_type=0&amp;remark=&amp;affiliate_code=" target="_blank" rel="noopener noreferrer" data-i18n="sponsorMini.afdian">☕ 赞助</a>
+        <a class="sponsor-mini-btn sponsor-mini-secondary" href="https://PayPal.Me/chenwenliang4212" target="_blank" rel="noopener noreferrer" data-i18n="sponsorMini.paypal">💳 PayPal 支持</a>
+      </div>
+    </div>
+    <p data-i18n="footer.text">© 2021 - 2026 CWL · Powered by Cwl · Theme inspired by Coder</p>
+  </section>
+</footer>
+    </div>
+  </body>
 </html>

@@ -172,7 +172,7 @@ test("build writes the expected static artifacts", async () => {
     assert.match(singlePostHtml, /"@type":"BreadcrumbList"/);
     assert.match(singlePostHtml, /class="post-related"/);
     assert.match(singlePostHtml, /class="next-popup"/);
-    assert.match(singlePostHtml, /\/js\/post-next\.js/);
+    assert.doesNotMatch(singlePostHtml, /\/js\/post-next\.js/);
     assert.match(rss, /<rss version="2.0"/);
     assert.match(rss, /<content:encoded><!\[CDATA\[/);
     assert.doesNotMatch(rss, /Hugo/);

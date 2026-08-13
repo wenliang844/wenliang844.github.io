@@ -4,6 +4,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { JSDOM } from "jsdom";
+import { loadClientModule } from "./helpers/client-module.mjs";
 
 const ROOT = join(import.meta.dirname, "..");
 
@@ -18,35 +19,36 @@ function buildDom(html, opts = {}) {
 async function loadCoder(dom, options = {}) {
   const utilsCode = await readFile(join(ROOT, "js", "utils.js"), "utf8");
   const i18nCode = await readFile(join(ROOT, "js", "i18n.js"), "utf8");
-  const coderCode = await readFile(join(ROOT, "js", "coder.js"), "utf8");
   dom.window.eval(utilsCode);
   dom.window.eval(i18nCode);
-  dom.window.eval(coderCode);
+  const runtime = await loadClientModule(dom, "src/client/site-runtime.ts", "SiteRuntimeClient");
+  runtime.initSiteRuntime();
+  const enhancements = await loadClientModule(dom, "src/client/article-enhancements.ts", "ArticleEnhancementsClient");
+  const reading = await loadClientModule(dom, "src/client/article-reading.ts", "ArticleReadingClient");
+  enhancements.initArticleEnhancements();
+  reading.initArticleReading();
   return dom;
 }
 
 // ─── readingMinutes (client-side) ─────────────────────────────────────────
 
-test("coder.js readingMinutes returns 1 for empty text", async () => {
+test("site runtime loads alongside article reading on empty text", async () => {
   const dom = buildDom(`<!doctype html><html lang="zh-CN"><body class="colorscheme-dark">
     <article class="article"><div class="article-content"><div class="article-meta"></div></div></article>
   </body></html>`);
   await loadCoder(dom);
   // The function is internal; we test through reading-time span rendering
   dom.window.close();
-  assert.ok(true, "coder.js loaded without errors");
+  assert.ok(true, "site runtime loaded without errors");
 });
 
 // ─── Theme toggle ─────────────────────────────────────────────────────────
 
-test("coder.js theme toggle switches between dark and light", async () => {
+test("site runtime theme toggle switches between dark and light", async () => {
   const dom = buildDom(`<!doctype html><html lang="zh-CN"><body class="colorscheme-dark">
     <button class="theme-toggle" type="button" aria-label="Toggle theme"></button>
   </body></html>`);
-  const utilsCode = await readFile(join(ROOT, "js", "utils.js"), "utf8");
-  const coderCode = await readFile(join(ROOT, "js", "coder.js"), "utf8");
-  dom.window.eval(utilsCode);
-  dom.window.eval(coderCode);
+  await loadCoder(dom);
   const { document } = dom.window;
 
   const btn = document.querySelector(".theme-toggle");
@@ -63,7 +65,7 @@ test("coder.js theme toggle switches between dark and light", async () => {
 
 // ─── slugify (client-side) ────────────────────────────────────────────────
 
-test("coder.js slugify converts text to URL-safe slug", async () => {
+test("article runtime slugifies headings into URL-safe TOC ids", async () => {
   // coder.js slugify is internal, but we can verify it through heading ID generation
   const dom = buildDom(`<!doctype html><html lang="zh-CN"><body class="colorscheme-dark">
     <article class="article">
@@ -76,10 +78,7 @@ test("coder.js slugify converts text to URL-safe slug", async () => {
       </div>
     </article>
   </body></html>`);
-  const utilsCode = await readFile(join(ROOT, "js", "utils.js"), "utf8");
-  const coderCode = await readFile(join(ROOT, "js", "coder.js"), "utf8");
-  dom.window.eval(utilsCode);
-  dom.window.eval(coderCode);
+  await loadCoder(dom);
   const { document } = dom.window;
 
   // With 3+ headings, a TOC should be built
@@ -100,7 +99,7 @@ test("coder.js slugify converts text to URL-safe slug", async () => {
 
 // ─── TOC building with < 3 headings ──────────────────────────────────────
 
-test("coder.js does not build TOC for fewer than 3 headings", async () => {
+test("article runtime does not build TOC for fewer than 3 headings", async () => {
   const dom = buildDom(`<!doctype html><html lang="zh-CN"><body class="colorscheme-dark">
     <article class="article">
       <div class="article-meta"></div>
@@ -110,10 +109,7 @@ test("coder.js does not build TOC for fewer than 3 headings", async () => {
       </div>
     </article>
   </body></html>`);
-  const utilsCode = await readFile(join(ROOT, "js", "utils.js"), "utf8");
-  const coderCode = await readFile(join(ROOT, "js", "coder.js"), "utf8");
-  dom.window.eval(utilsCode);
-  dom.window.eval(coderCode);
+  await loadCoder(dom);
 
   const toc = dom.window.document.querySelector(".article-toc");
   assert.equal(toc, null, "TOC should not be built for < 3 headings");
@@ -122,7 +118,7 @@ test("coder.js does not build TOC for fewer than 3 headings", async () => {
 
 // ─── TOC toggle open/close ────────────────────────────────────────────────
 
-test("coder.js TOC toggle button toggles open/closed state", async () => {
+test("article runtime TOC toggle button toggles open and closed", async () => {
   const dom = buildDom(`<!doctype html><html lang="zh-CN"><body class="colorscheme-dark">
     <article class="article">
       <div class="article-meta"></div>
@@ -134,10 +130,7 @@ test("coder.js TOC toggle button toggles open/closed state", async () => {
       </div>
     </article>
   </body></html>`);
-  const utilsCode = await readFile(join(ROOT, "js", "utils.js"), "utf8");
-  const coderCode = await readFile(join(ROOT, "js", "coder.js"), "utf8");
-  dom.window.eval(utilsCode);
-  dom.window.eval(coderCode);
+  await loadCoder(dom);
   const { document } = dom.window;
 
   const toc = document.querySelector(".article-toc");
@@ -160,12 +153,12 @@ test("coder.js TOC toggle button toggles open/closed state", async () => {
 
 // ─── Back-to-top button ──────────────────────────────────────────────────
 
-test("coder.js creates back-to-top button", async () => {
+test("site runtime creates back-to-top button", async () => {
   const dom = buildDom(`<!doctype html><html lang="zh-CN"><body class="colorscheme-dark"></body></html>`);
   const utilsCode = await readFile(join(ROOT, "js", "utils.js"), "utf8");
-  const coderCode = await readFile(join(ROOT, "js", "coder.js"), "utf8");
   dom.window.eval(utilsCode);
-  dom.window.eval(coderCode);
+  const runtime = await loadClientModule(dom, "src/client/site-runtime.ts", "SiteRuntimeClient");
+  runtime.initSiteRuntime();
 
   const toTop = dom.window.document.querySelector(".to-top");
   assert.ok(toTop, "back-to-top button created");
@@ -176,32 +169,28 @@ test("coder.js creates back-to-top button", async () => {
 
 // ─── Progress bar ─────────────────────────────────────────────────────────
 
-test("coder.js hides reading progress bar on non-article pages", async () => {
+test("article reading runtime stays absent on non-article pages", async () => {
   const dom = buildDom(`<!doctype html><html lang="zh-CN"><body class="colorscheme-dark"></body></html>`);
   const utilsCode = await readFile(join(ROOT, "js", "utils.js"), "utf8");
-  const coderCode = await readFile(join(ROOT, "js", "coder.js"), "utf8");
   dom.window.eval(utilsCode);
-  dom.window.eval(coderCode);
+  const runtime = await loadClientModule(dom, "src/client/site-runtime.ts", "SiteRuntimeClient");
+  runtime.initSiteRuntime();
 
   const progress = dom.window.document.querySelector(".read-progress");
-  assert.ok(progress, "progress bar created");
-  assert.equal(progress.hidden, true, "progress bar is hidden without an article");
+  assert.equal(progress, null, "progress bar should only exist on article routes");
   dom.window.close();
 });
 
 // ─── Copy button on code blocks ──────────────────────────────────────────
 
-test("coder.js adds copy buttons to code blocks", async () => {
+test("article runtime adds copy buttons to code blocks", async () => {
   const dom = buildDom(`<!doctype html><html lang="zh-CN"><body class="colorscheme-dark">
-    <div class="article-content">
+    <article class="article"><div class="article-content">
       <pre><code>console.log("hello");</code></pre>
       <pre><code>another block</code></pre>
-    </div>
+    </div></article>
   </body></html>`);
-  const utilsCode = await readFile(join(ROOT, "js", "utils.js"), "utf8");
-  const coderCode = await readFile(join(ROOT, "js", "coder.js"), "utf8");
-  dom.window.eval(utilsCode);
-  dom.window.eval(coderCode);
+  await loadCoder(dom);
   const { document } = dom.window;
 
   const copyBtns = document.querySelectorAll(".code-copy");
@@ -210,55 +199,9 @@ test("coder.js adds copy buttons to code blocks", async () => {
   dom.window.close();
 });
 
-// ─── coderShowPost exposed ────────────────────────────────────────────────
-
-test("coder.js exposes coderShowPost function", async () => {
-  const dom = buildDom(`<!doctype html><html lang="zh-CN"><body class="colorscheme-dark"></body></html>`);
-  const utilsCode = await readFile(join(ROOT, "js", "utils.js"), "utf8");
-  const coderCode = await readFile(join(ROOT, "js", "coder.js"), "utf8");
-  dom.window.eval(utilsCode);
-  dom.window.eval(coderCode);
-
-  assert.equal(typeof dom.window.coderShowPost, "function", "coderShowPost should be exposed");
-  dom.window.close();
-});
-
-// ─── Blog post panel switching ────────────────────────────────────────────
-
-test("coder.js showPost switches active panel and updates aria-current", async () => {
-  const dom = buildDom(`<!doctype html><html lang="zh-CN"><body class="colorscheme-dark">
-    <a class="post-tree-link" data-post-target="panel-a" href="#">Post A</a>
-    <a class="post-tree-link active" data-post-target="panel-b" href="#">Post B</a>
-    <div class="blog-article active" id="panel-a" data-post-slug="post-a"></div>
-    <div class="blog-article" id="panel-b" data-post-slug="post-b"></div>
-  </body></html>`);
-  const utilsCode = await readFile(join(ROOT, "js", "utils.js"), "utf8");
-  const coderCode = await readFile(join(ROOT, "js", "coder.js"), "utf8");
-  dom.window.eval(utilsCode);
-  dom.window.eval(coderCode);
-  const { document } = dom.window;
-
-  // Click on Post B link
-  document.querySelector('[data-post-target="panel-b"]').click();
-
-  assert.ok(document.getElementById("panel-b").classList.contains("active"), "panel-b should be active");
-  assert.ok(!document.getElementById("panel-a").classList.contains("active"), "panel-a should not be active");
-  assert.equal(
-    document.querySelector('[data-post-target="panel-b"]').getAttribute("aria-current"),
-    "page",
-    "panel-b link should have aria-current=page",
-  );
-  assert.equal(
-    document.querySelector('[data-post-target="panel-a"]').getAttribute("aria-current"),
-    null,
-    "panel-a link should not have aria-current",
-  );
-  dom.window.close();
-});
-
 // ─── Scroll reveal (prefers-reduced-motion) ───────────────────────────────
 
-test("coder.js does not add reveal class when prefers-reduced-motion", async () => {
+test("site runtime does not add reveal class when reduced motion is preferred", async () => {
   const dom = new JSDOM(`<!doctype html><html lang="zh-CN"><body class="colorscheme-dark">
     <div class="card">Card 1</div>
     <div class="card">Card 2</div>
@@ -274,9 +217,9 @@ test("coder.js does not add reveal class when prefers-reduced-motion", async () 
     removeListener: () => {},
   });
   const utilsCode = await readFile(join(ROOT, "js", "utils.js"), "utf8");
-  const coderCode = await readFile(join(ROOT, "js", "coder.js"), "utf8");
   dom.window.eval(utilsCode);
-  dom.window.eval(coderCode);
+  const runtime = await loadClientModule(dom, "src/client/site-runtime.ts", "SiteRuntimeClient");
+  runtime.initSiteRuntime();
 
   const cards = dom.window.document.querySelectorAll(".card");
   cards.forEach((card) => {
@@ -287,15 +230,15 @@ test("coder.js does not add reveal class when prefers-reduced-motion", async () 
 
 // ─── Skill bar animation ─────────────────────────────────────────────────
 
-test("coder.js leaves skill levels in CSP-safe data attributes", async () => {
+test("site runtime leaves skill levels in CSP-safe data attributes", async () => {
   const dom = buildDom(`<!doctype html><html lang="zh-CN"><body class="colorscheme-dark">
     <div class="skill-fill" data-level="85"></div>
     <div class="skill-fill" data-level="60"></div>
   </body></html>`);
   const utilsCode = await readFile(join(ROOT, "js", "utils.js"), "utf8");
-  const coderCode = await readFile(join(ROOT, "js", "coder.js"), "utf8");
   dom.window.eval(utilsCode);
-  dom.window.eval(coderCode);
+  const runtime = await loadClientModule(dom, "src/client/site-runtime.ts", "SiteRuntimeClient");
+  runtime.initSiteRuntime();
 
   const fills = dom.window.document.querySelectorAll(".skill-fill");
   assert.equal(fills[0].dataset.level, "85");
@@ -307,17 +250,17 @@ test("coder.js leaves skill levels in CSP-safe data attributes", async () => {
 
 // ─── Dynamic text update on lang change ───────────────────────────────────
 
-test("coder.js updates dynamic text on cwl:langchange", async () => {
+test("site runtime updates dynamic text on cwl:langchange", async () => {
   const dom = buildDom(`<!doctype html><html lang="zh-CN"><body class="colorscheme-dark">
     <button class="to-top" type="button"></button>
     <button class="code-copy" type="button"><i class="fas fa-copy"></i> 复制</button>
   </body></html>`);
   const utilsCode = await readFile(join(ROOT, "js", "utils.js"), "utf8");
   const i18nCode = await readFile(join(ROOT, "js", "i18n.js"), "utf8");
-  const coderCode = await readFile(join(ROOT, "js", "coder.js"), "utf8");
   dom.window.eval(utilsCode);
   dom.window.eval(i18nCode);
-  dom.window.eval(coderCode);
+  const runtime = await loadClientModule(dom, "src/client/site-runtime.ts", "SiteRuntimeClient");
+  runtime.initSiteRuntime();
 
   const toTop = dom.window.document.querySelector(".to-top");
   assert.equal(toTop.getAttribute("aria-label"), "返回顶部", "default Chinese label");
@@ -325,5 +268,28 @@ test("coder.js updates dynamic text on cwl:langchange", async () => {
   // Switch to English
   dom.window.cwlSetLang("en");
   assert.equal(toTop.getAttribute("aria-label"), "Back to top", "English label after lang change");
+  dom.window.close();
+});
+
+test("site runtime is idempotent and reinitializes after bfcache restore", async () => {
+  const dom = buildDom(`<!doctype html><html lang="zh-CN"><body class="colorscheme-dark">
+    <button class="theme-toggle" type="button"></button>
+  </body></html>`);
+  const utilsCode = await readFile(join(ROOT, "js", "utils.js"), "utf8");
+  dom.window.eval(utilsCode);
+  const runtime = await loadClientModule(dom, "src/client/site-runtime.ts", "SiteRuntimeClient");
+  runtime.initSiteRuntime();
+  runtime.initSiteRuntime();
+
+  const button = dom.window.document.querySelector(".theme-toggle");
+  button.click();
+  assert.equal(dom.window.localStorage.getItem("coder-color-scheme"), "light");
+  dom.window.dispatchEvent(new dom.window.Event("pagehide"));
+  const restore = new dom.window.Event("pageshow");
+  Object.defineProperty(restore, "persisted", { value: true });
+  dom.window.dispatchEvent(restore);
+  button.click();
+  assert.equal(dom.window.localStorage.getItem("coder-color-scheme"), "dark");
+  assert.equal(dom.window.document.querySelectorAll(".to-top").length, 1);
   dom.window.close();
 });

@@ -4,6 +4,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { JSDOM } from "jsdom";
+import { loadClientModule } from "./helpers/client-module.mjs";
 
 const ROOT = join(import.meta.dirname, "..");
 
@@ -23,9 +24,9 @@ function buildShareHtml(options = {}) {
 
 async function loadShare(dom) {
   const utilsCode = await readFile(join(ROOT, "js", "utils.js"), "utf8");
-  const code = await readFile(join(ROOT, "js", "share.js"), "utf8");
   dom.window.eval(utilsCode);
-  dom.window.eval(code);
+  const module = await loadClientModule(dom, "src/client/share.ts", "ShareClient");
+  module.initShare(dom.window.document, dom.window);
   return dom;
 }
 
@@ -73,7 +74,7 @@ test("share.js uses English title for X share in English mode", async () => {
 // ─── 复制链接使用 textContent 而非 innerHTML ─────────────────────────────────
 
 test("share.js uses safe DOM for QR code title", async () => {
-  const code = await readFile(join(ROOT, "js", "share.js"), "utf8");
+  const code = await readFile(join(ROOT, "src", "client", "share.ts"), "utf8");
   // 确保使用 textContent 而非 innerHTML 写入标题
   assert.ok(code.includes(".textContent"), "should use textContent for safe rendering");
   // 确保 QR overlay 标题使用 textContent
@@ -88,8 +89,8 @@ test("share.js exits gracefully when no share bars exist", async () => {
     runScripts: "outside-only",
     url: "https://wenliang844.github.io/",
   });
-  const code = await readFile(join(ROOT, "js", "share.js"), "utf8");
-  dom.window.eval(code);
+  const module = await loadClientModule(dom, "src/client/share.ts", "ShareClient");
+  module.initShare(dom.window.document, dom.window);
   assert.ok(true, "share.js should not throw without share bars");
   dom.window.close();
 });
@@ -238,7 +239,7 @@ test("share.js QR overlay escapes translated labels", async () => {
 // ─── share.js 不使用 innerHTML 写入用户可控内容 ──────────────────────────────
 
 test("share.js does not use innerHTML for user-controlled content", async () => {
-  const code = await readFile(join(ROOT, "js", "share.js"), "utf8");
+  const code = await readFile(join(ROOT, "src", "client", "share.ts"), "utf8");
   // QR overlay 的标题通过 textContent 设置
   assert.match(code, /\.textContent\s*=\s*title/, "should set QR title via textContent");
 });

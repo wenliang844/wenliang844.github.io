@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { readFile, readdir, writeFile } from "node:fs/promises";
-import { dirname, join, relative, resolve } from "node:path";
+import { dirname, extname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { transform } from "esbuild";
 import { PurgeCSS } from "purgecss";
@@ -14,19 +14,22 @@ const CORE_SCRIPTS = [
   "js/pwa.js",
   "js/analytics.js",
   "js/i18n.js",
-  "js/coder.js",
+  "src/client/site-runtime.ts",
   "js/search-loader.js",
   "js/subscribe.js",
   "js/assistant-loader.js",
 ];
 const POST_SCRIPTS = [
-  "js/blog.js",
-  "js/post-extras-loader.js",
-  "js/toc.js",
-  "js/post-next.js",
-  "js/share.js",
-  "js/giscus.js",
-  "js/highlight-loader.js",
+  "src/client/post-list.ts",
+  "src/client/post-extras.ts",
+  "src/client/article-runtime.ts",
+  "src/client/article-reading.ts",
+  "src/client/article-enhancements.ts",
+  "src/client/code-highlight.ts",
+  "src/client/next-post.ts",
+  "src/client/article-toc.ts",
+  "src/client/share.ts",
+  "src/client/giscus.ts",
 ];
 const DYNAMIC_STATES = [
   "active",
@@ -60,7 +63,7 @@ async function listHtmlFiles(directory) {
 async function contentEntries(paths, extension) {
   return Promise.all(paths.map(async (path) => ({
     raw: await readFile(resolve(ROOT, path), "utf8"),
-    extension,
+    extension: extension || extname(path).slice(1),
   })));
 }
 
@@ -79,7 +82,7 @@ async function writeMinified(name, css) {
 async function writePageStyles(name, htmlPaths, scriptPaths, source) {
   const content = [
     ...(await contentEntries(htmlPaths, "html")),
-    ...(await contentEntries(scriptPaths, "js")),
+    ...(await contentEntries(scriptPaths)),
   ];
   const [result] = await new PurgeCSS().purge({
     content,

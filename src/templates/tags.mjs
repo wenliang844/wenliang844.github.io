@@ -1,6 +1,6 @@
 // 标签云页 → tags/index.html
 // 复用现有 .list-page / .tag-filter / .tag-chip 样式，零新增 CSS。
-// 每个标签链接到 /post/?tag=<标签>，由 blog.js 在列表页就地激活筛选。
+// 每个标签链接到 /post/?tag=<标签>，由 Astro 列表客户端在页面内激活筛选。
 import { buildPageJsonLd, renderPage, siteUrl } from "./layout.mjs";
 import { escapeAttr, escapeHtml } from "../lib/format.mjs";
 
@@ -12,7 +12,7 @@ function tagHref(tag) {
 /**
  * @param {Array<{tag: string, count: number}>} tagStats 已排序的标签及其文章数
  */
-export function renderTagsPage(tagStats) {
+export function buildTagsPageModel(tagStats) {
   const chips = tagStats
     .map(
       ({ tag, tagEn, count }) =>
@@ -30,8 +30,15 @@ ${chips}
       </section>
     </main>`;
 
+  return {
+    ...buildTagsPageMetadata(tagStats),
+    main,
+  };
+}
+
+export function buildTagsPageMetadata(tagStats) {
   const description = "博客标签：按技术主题浏览CWL的项目复盘与工程实践文章。";
-  return renderPage({
+  return {
     title: "标签 :: CWLBlog",
     description,
     titleEn: "Tags :: CWLBlog",
@@ -55,6 +62,9 @@ ${chips}
       },
     }),
     og: { type: "website", title: "Tags", description, path: "/tags/" },
-    main,
-  });
+  };
+}
+
+export function renderTagsPage(tagStats) {
+  return renderPage(buildTagsPageModel(tagStats));
 }

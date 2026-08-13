@@ -1,0 +1,13 @@
+---
+import { collectSeries } from "../../../scripts/build.mjs";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import SeriesIndexPage from "../../components/SeriesIndexPage.astro";
+import { getPublishedPosts } from "../../lib/astro-posts";
+import { buildSeriesIndexPageMetadata } from "../../templates/taxonomy.mjs";
+
+const groups = collectSeries(await getPublishedPosts());
+const page = buildSeriesIndexPageMetadata(groups);
+---
+<BaseLayout {...page}>
+  <SeriesIndexPage {groups} />
+</BaseLayout>

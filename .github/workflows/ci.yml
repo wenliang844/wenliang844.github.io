@@ -47,8 +47,8 @@ jobs:
       - name: Validate posts
         run: npm run validate:posts
 
-      - name: Build site
-        run: npm run build
+      - name: Build site and verify generated artifacts
+        run: npm run check:generated
 
       - name: Scan tracked files for secrets
         run: npm run security:secrets

@@ -12,8 +12,10 @@ test("PWA cache version follows public static content and stays idempotent", asy
   const sandbox = await mkdtemp(join(tempRoot, "pwa-version-"));
   try {
     await mkdir(join(sandbox, "css"));
+    await mkdir(join(sandbox, "_astro"));
     await writeFile(join(sandbox, "service-worker.js"), 'const CACHE_PREFIX = "cwlblog-public-";\nconst CACHE_NAME = `${CACHE_PREFIX}old`;\n', "utf8");
     await writeFile(join(sandbox, "css", "content.css"), ".before { color: red; }", "utf8");
+    await writeFile(join(sandbox, "_astro", "reader.hash.js"), "export {};", "utf8");
     await writeFile(join(sandbox, "offline.html"), "offline", "utf8");
 
     const first = await versionServiceWorker(sandbox);
@@ -21,6 +23,7 @@ test("PWA cache version follows public static content and stays idempotent", asy
     assert.equal(first.updated, true);
     assert.equal(second.updated, false);
     assert.equal(second.cacheVersion, first.cacheVersion);
+    assert.equal(second.files, 3);
 
     await writeFile(join(sandbox, "css", "content.css"), ".after { color: blue; }", "utf8");
     const changed = await versionServiceWorker(sandbox);

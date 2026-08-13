@@ -1,10 +1,15 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { execFile } from "node:child_process";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { promisify } from "node:util";
 import { parse } from "yaml";
+import { captureWorktree, checkGeneratedArtifacts, parseChangedPaths } from "../scripts/check-generated.mjs";
 
 const ROOT = join(import.meta.dirname, "..");
+const execFileAsync = promisify(execFile);
 
 test("GitHub Pages branch publishing bypasses Jekyll for Astro sources", async () => {
   const marker = await readFile(join(ROOT, ".nojekyll"), "utf8");
@@ -39,7 +44,7 @@ test("CI workflow runs quality gates without write permissions", async () => {
     "npm run check:worker",
     "npm test",
     "npm run validate:posts",
-    "npm run build",
+    "npm run check:generated",
     "npm run validate:production",
     "npm run test:coverage",
     "npm audit --audit-level=moderate --registry=https://registry.npmjs.org",
@@ -48,8 +53,51 @@ test("CI workflow runs quality gates without write permissions", async () => {
   });
 
   assert.equal(packageJson.scripts["lint:check"], "eslint js/*.js");
+  assert.equal(packageJson.scripts["check:generated"], "node scripts/check-generated.mjs");
   assert.equal(packageJson.scripts["validate:posts"], "node scripts/validate-posts.mjs");
   assert.match(packageJson.scripts.validate, /npm run validate:posts/);
+});
+
+test("generated artifact verification checks tracked and untracked build output", async () => {
+  const source = await readFile(join(ROOT, "scripts", "check-generated.mjs"), "utf8");
+
+  assert.match(source, /git/);
+  assert.match(source, /status/);
+  assert.match(source, /--porcelain=v1/);
+  assert.match(source, /--untracked-files=all/);
+  assert.match(source, /production build changed the worktree/);
+  assert.match(source, /--binary/);
+  assert.match(source, /MAX_GIT_OUTPUT_BYTES = 64 \* 1024 \* 1024/);
+  assert.match(source, /ls-files/);
+  assert.deepEqual(
+    parseChangedPaths(" M index.html\r\n?? pagefind/new-index.pf_index\r\n"),
+    [" M index.html", "?? pagefind/new-index.pf_index"],
+  );
+});
+
+test("generated artifact verification permits existing changes but rejects build drift", async (t) => {
+  const repository = await mkdtemp(join(tmpdir(), "cwl-generated-check-"));
+  t.after(() => rm(repository, { recursive: true, force: true }));
+  await execFileAsync("git", ["init", "--quiet"], { cwd: repository, windowsHide: true });
+  await execFileAsync("git", ["config", "user.email", "test@example.invalid"], { cwd: repository, windowsHide: true });
+  await execFileAsync("git", ["config", "user.name", "CWLBlog Test"], { cwd: repository, windowsHide: true });
+  await writeFile(join(repository, "index.html"), "initial\n", "utf8");
+  await execFileAsync("git", ["add", "index.html"], { cwd: repository, windowsHide: true });
+  await execFileAsync("git", ["commit", "--quiet", "-m", "fixture"], { cwd: repository, windowsHide: true });
+
+  const clean = await captureWorktree(repository);
+  await checkGeneratedArtifacts({ root: repository, build: async () => {} });
+  await writeFile(join(repository, "index.html"), "changed\n", "utf8");
+  const dirty = await captureWorktree(repository);
+  assert.notEqual(clean.fingerprint, dirty.fingerprint);
+  await checkGeneratedArtifacts({ root: repository, build: async () => {} });
+  await assert.rejects(
+    checkGeneratedArtifacts({
+      root: repository,
+      build: () => writeFile(join(repository, "index.html"), "generated\n", "utf8"),
+    }),
+    /M index\.html/,
+  );
 });
 
 test("commercial relay sync workflow skips safely when source secret is absent", async () => {

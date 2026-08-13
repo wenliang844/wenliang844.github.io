@@ -1,7 +1,7 @@
 "use strict";
 
 const CACHE_PREFIX = "cwlblog-public-";
-const CACHE_NAME = `${CACHE_PREFIX}7b73a5d4422c2ac3`;
+const CACHE_NAME = `${CACHE_PREFIX}4a67ed551dce795e`;
 const OFFLINE_URL = "/offline.html";
 const PRECACHE = [
   OFFLINE_URL,
@@ -15,7 +15,7 @@ const PRECACHE = [
 ];
 const PRIVATE_PREFIXES = ["/editor/", "/overleaf/", "/chat/", "/api/"];
 const CONTENT_PREFIXES = ["/post/", "/categories/", "/series/", "/tags/", "/knowledge/"];
-const STATIC_PREFIXES = ["/css/", "/js/", "/images/", "/fonts/", "/pagefind/"];
+const STATIC_PREFIXES = ["/_astro/", "/css/", "/js/", "/images/", "/fonts/", "/pagefind/"];
 
 function hasPrefix(pathname, prefixes) {
   return prefixes.some((prefix) => pathname.startsWith(prefix));

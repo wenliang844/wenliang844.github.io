@@ -1,8 +1,10 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { access, readFile } from "node:fs/promises";
+import { access, mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { JSDOM } from "jsdom";
+import { assertSearchOutputPath, cleanSearchOutput } from "../scripts/build-search.mjs";
 
 const ROOT = join(import.meta.dirname, "..");
 
@@ -12,18 +14,39 @@ test("Pagefind build artifacts and scripts are committed", async () => {
   await access(join(ROOT, "pagefind", "pagefind-entry.json"));
 
   assert.match(pkg.scripts.build, /build:content.*build:search/);
-  assert.match(pkg.scripts["build:search"], /pagefind --site/);
-  assert.match(pkg.scripts["build:search"], /--force-language zh/);
+  assert.equal(pkg.scripts["build:search"], "node scripts/build-search.mjs");
+  const buildSearch = await readFile(join(ROOT, "scripts", "build-search.mjs"), "utf8");
+  assert.match(buildSearch, /"--force-language", "zh"/);
+  assert.match(buildSearch, /"--include-characters", "\+#_\."/);
+});
+
+test("Pagefind build cleanup removes only the validated output directory", async () => {
+  const root = await mkdtemp(join(tmpdir(), "cwlblog-pagefind-"));
+  const output = join(root, "pagefind");
+  const neighbor = join(root, "keep.txt");
+  try {
+    await mkdir(output, { recursive: true });
+    await writeFile(join(output, "stale.pf_meta"), "stale", "utf8");
+    await writeFile(neighbor, "keep", "utf8");
+    await cleanSearchOutput(root, output);
+    await assert.rejects(access(output));
+    assert.equal(await readFile(neighbor, "utf8"), "keep");
+    assert.throws(() => assertSearchOutputPath(root, join(root, "other")), /Refusing to clean/);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
 });
 
 test("generated pages mark the main content as the Pagefind body", async () => {
   const list = await readFile(join(ROOT, "post", "index.html"), "utf8");
   const article = await readFile(join(ROOT, "post", "rule-engine-alerts", "index.html"), "utf8");
+  const listDocument = new JSDOM(list).window.document;
+  const articleDocument = new JSDOM(article).window.document;
 
-  assert.match(list, /<main data-pagefind-body/);
-  assert.match(article, /<main data-pagefind-body/);
-  assert.match(article, /data-pagefind-meta="title"/);
-  assert.match(article, /data-pagefind-meta="date\[datetime\]"/);
+  assert.ok(listDocument.querySelector("main[data-pagefind-body]"));
+  assert.ok(articleDocument.querySelector("main[data-pagefind-body]"));
+  assert.ok(articleDocument.querySelector('[data-pagefind-meta="title"]'));
+  assert.ok(articleDocument.querySelector('[data-pagefind-meta="date[datetime]"]'));
 });
 
 test("global search prefers Pagefind results with source snippets", async () => {

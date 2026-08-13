@@ -113,7 +113,8 @@ test("layout grants external script sources only to pages that use them", () => 
     title: "Post",
     description: "Post CSP",
     page: "posts",
-    scripts: ["/js/giscus.js"],
+    scripts: [],
+    comments: true,
     main: "<main></main>",
   });
   const toolsHtml = renderPage({
@@ -211,7 +212,7 @@ test("post template renders next popup, related posts, bilingual body and JSON-L
   const html = renderPostPage(post, { prev, next, related });
 
   assert.match(html, /<span data-i18n="dyn\.readingPrefix">约<\/span> 3 <span data-i18n="dyn\.readingSuffix">分钟<\/span>/);
-  assert.match(html, /src="\/js\/post-next\.js"/);
+  assert.doesNotMatch(html, /src="\/js\/post-next\.js"/);
   assert.match(html, /class="next-popup"/);
   assert.match(html, /data-next-url="\/post\/next-post\/"/);
   assert.match(html, /data-prev-url="\/post\/previous-post\/"/);

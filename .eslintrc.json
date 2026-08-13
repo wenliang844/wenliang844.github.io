@@ -42,7 +42,6 @@
     "cwlT": "readonly",
     "cwlLang": "readonly",
     "cwlOpenSearch": "readonly",
-    "coderShowPost": "readonly",
     "Fuse": "readonly",
     "marked": "readonly",
     "DOMPurify": "readonly",

@@ -42,7 +42,7 @@ test("assistant.js does not use innerHTML for user input rendering", async () =>
 
 test("first-party runtime scripts do not create inline styles", async () => {
   const files = [
-    "js/assistant.js", "js/coder.js", "js/error-handler.js", "js/galaxy.js", "js/gesture.js",
+    "js/assistant.js", "src/client/site-runtime.ts", "js/error-handler.js", "js/galaxy.js", "js/gesture.js",
     "js/object-search.js", "js/relay.js", "js/search.js", "js/subscribe.js",
     "js/tools.js", "js/utils.js",
   ];

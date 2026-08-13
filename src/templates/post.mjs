@@ -15,7 +15,7 @@ function tagEn(post, tag, index) {
   return (post.tagsEn && post.tagsEn[index]) || tag;
 }
 
-// 阅读时长占位：SSR 输出静态值作为无 JS 兜底；coder.js 会在运行时
+// 阅读时长占位：SSR 输出静态值作为无 JS 兜底；article-enhancements.ts 会在运行时
 // 按当前语言重算并刷新（querySelectorAll(".reading-time")），
 // 且检测到已有 .reading-time 时不再重复追加。
 function renderReadingTime(post) {
@@ -35,7 +35,7 @@ function renderRevision(post) {
   return `<div class="article-revision"><span>发布于 <time datetime="${published}">${longDate(published)}</time></span>${updated}${history}</div>`;
 }
 
-// 博客总览用：标签由 blog.js 接管就地筛选。
+// 博客总览用：标签由 Astro 客户端模块接管就地筛选。
 function renderPanelTags(post) {
   return post.tags.map((tag, index) => {
     return `<span data-tag="${escapeAttr(tag)}" data-i18n="post.${post.slug}.tag.${index}" data-i18n-en="${escapeAttr(tagEn(post, tag, index))}">${escapeHtml(tag)}</span>`;
@@ -52,7 +52,7 @@ function prefixTocIds(html, prefix) {
 }
 
 // 单篇页用：tags 渲染为链接，点击跳转到 /post/?tag= 并自动筛选
-//（单篇页不加载 blog.js，因此用真链接而非就地筛选）。
+//（单篇页不加载列表模块，因此用真链接而非就地筛选）。
 function renderTagLinks(post) {
   return post.tags
     .map((tag, index) => `<a href="/post/?tag=${encodeURIComponent(tag)}" data-tag="${escapeAttr(tag)}" data-i18n="post.${post.slug}.tag.${index}" data-i18n-en="${escapeAttr(tagEn(post, tag, index))}">${escapeHtml(tag)}</a>`)
@@ -133,7 +133,7 @@ const SHARE_ICONS = {
 };
 
 // 文章分享条：分享到 X、微博、微信二维码、复制链接。
-// share.js 读取 data-share-url / data-share-title 生成各渠道行为；
+// share.ts 读取 data-share-url / data-share-title 生成各渠道行为；
 // 列表页每篇 panel 各有一条（数据随文章不同），切换文章即用对应那条。
 function renderShare(post) {
   const url = `/post/${post.slug}/`;
@@ -188,8 +188,8 @@ function renderPager(prev, next) {
       </nav>`;
 }
 
-// 下一篇浮动推荐卡：默认隐藏，post-next.js 在滚动接近底部时滑入。
-// next = 更老的一篇；无 next 时不渲染（renderPostPage 也不挂脚本）。
+// 下一篇浮动推荐卡：默认隐藏，next-post.ts 在文章末尾接近视口时滑入。
+// next = 更老的一篇；无 next 时不渲染。
 function renderNextPopup(next, prev) {
   if (!next) return "";
   const prevAttrs = prev
@@ -334,7 +334,31 @@ function buildPostListJsonLd(posts, description) {
  * @param {object} post 文章对象（含 contentHtml）
  * @param {object} nav  { prev, next, related, backlinks } 相邻文章 + 相关文章 + 反向链接
  */
-export function renderPostPage(post, nav) {
+export function buildPostPageMetadata(post, nav) {
+  const hasEnglishContent = Boolean(post.contentHtmlEn);
+
+  return {
+    title: `${post.shortTitle} :: CWLBlog`,
+    description: post.description,
+    titleEn: `${enValue(post, "shortTitle")} :: CWLBlog`,
+    descriptionEn: enValue(post, "description"),
+    active: "blog",
+    page: "posts",
+    comments: true,
+    scripts: [],
+    jsonLd: buildArticleJsonLd(post),
+    languageMode: hasEnglishContent ? "bilingual" : "zh-only",
+    og: {
+      type: "article",
+      title: post.shortTitle,
+      description: post.description,
+      path: `/post/${post.slug}/`,
+      image: post.cover,
+    },
+  };
+}
+
+export function buildPostPageModel(post, nav) {
   const hasEnglishContent = Boolean(post.contentHtmlEn);
   const tocHtml = renderToc(post.toc, post.tocEn);
   const main = `    <main id="main-content" class="content container">
@@ -374,28 +398,14 @@ ${renderPager(nav.prev, nav.next)}
 ${renderNextPopup(nav.next, nav.prev)}
     </main>`;
 
-  const scripts = ["/js/post-extras-loader.js", "/js/toc.js"];
-  if (nav.next) scripts.push("/js/post-next.js");
-
-  return renderPage({
-    title: `${post.shortTitle} :: CWLBlog`,
-    description: post.description,
-    titleEn: `${enValue(post, "shortTitle")} :: CWLBlog`,
-    descriptionEn: enValue(post, "description"),
-    active: "blog",
-    page: "posts",
-    scripts,
-    jsonLd: buildArticleJsonLd(post),
-    languageMode: hasEnglishContent ? "bilingual" : "zh-only",
-    og: {
-      type: "article",
-      title: post.shortTitle,
-      description: post.description,
-      path: `/post/${post.slug}/`,
-      image: post.cover,
-    },
+  return {
+    ...buildPostPageMetadata(post, nav),
     main,
-  });
+  };
+}
+
+export function renderPostPage(post, nav) {
+  return renderPage(buildPostPageModel(post, nav));
 }
 
 // 列表页左侧树形导航中的单条链接。
@@ -448,7 +458,7 @@ function renderPostTreeFab() {
           </button>`;
 }
 
-// 博客总览中的完整文章面板。左侧时间轴切换面板，coder.js 按正文生成右侧目录。
+// 博客总览中的完整文章面板。左侧时间轴切换面板，article-enhancements.ts 按正文生成右侧目录。
 function renderArticlePanel(post, isFirst) {
   const activeClass = isFirst ? " active" : "";
   return `          <span class="post-anchor" id="${escapeAttr(post.slug)}" aria-hidden="true"></span>
@@ -476,7 +486,23 @@ ${renderShare(post)}
  * @param {object[]} posts 已按日期倒序排列的文章
  * @param {object} stats   { count, systems, year } 顶部统计
  */
-export function renderPostList(posts, stats) {
+export function buildPostListPageMetadata(posts) {
+  const description =
+    "按时间线整理项目复盘：覆盖 Codex 与 Claude 协作、低代码引擎、Activiti 工作流、企顾 SaaS、智能分析预警平台与规则引擎告警闭环。";
+  return {
+    title: "文章 :: CWLBlog",
+    description,
+    titleEn: "Posts :: CWLBlog",
+    active: "blog",
+    page: "posts",
+    scripts: [],
+    comments: true,
+    jsonLd: buildPostListJsonLd(posts, description),
+    og: { type: "website", title: "Posts", description, path: "/post/" },
+  };
+}
+
+export function buildPostListPageModel(posts, stats) {
   const treeGroups = groupPostsByYear(posts)
     .map((group) => renderTreeGroup(group, posts[0].slug))
     .join("\n");
@@ -527,17 +553,12 @@ ${panels}
       </section>
     </main>`;
 
-  const description =
-    "按时间线整理项目复盘：覆盖 Codex 与 Claude 协作、低代码引擎、Activiti 工作流、企顾 SaaS、智能分析预警平台与规则引擎告警闭环。";
-  return renderPage({
-    title: "文章 :: CWLBlog",
-    description,
-    titleEn: "Posts :: CWLBlog",
-    active: "blog",
-    page: "posts",
-    scripts: ["/js/blog.js?v=20260810", "/js/post-extras-loader.js"],
-    jsonLd: buildPostListJsonLd(posts, description),
-    og: { type: "website", title: "Posts", description, path: "/post/" },
+  return {
+    ...buildPostListPageMetadata(posts),
     main,
-  });
+  };
+}
+
+export function renderPostList(posts, stats) {
+  return renderPage(buildPostListPageModel(posts, stats));
 }

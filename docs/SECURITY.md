@@ -16,7 +16,7 @@
 #### 关键防护点
 - 搜索功能：`js/search.js` - 搜索结果渲染使用 DOM API
 - 编辑器：`js/editor.js` - Front matter 转义特殊字符
-- 标签过滤：`js/blog.js` - 标签名称安全渲染
+- 标签过滤：`src/client/post-list.ts` - 标签名称通过 DOM API 安全渲染
 - 反馈表单：`js/feedback.js` - 用户输入使用 `textContent`
 
 #### 测试覆盖
@@ -76,7 +76,7 @@ export function validatePost(data, filename)  // 验证文章字段
 
 #### 客户端密钥
 - **Web3Forms API Key**：`js/feedback.js` 中默认为空
-- **Giscus 配置**：`js/giscus.js` 中已配置，公开可见
+- **Giscus 配置**：`src/client/giscus.ts` 中已配置，公开可见
 - **BYOK API Key**：只保留在当前页面的密码输入框/请求对象中，刷新即消失；配置保存与旧配置迁移都会把 `apiKey` 写成空字符串
 - ⚠️ 不在客户端代码中硬编码任何私密密钥
 

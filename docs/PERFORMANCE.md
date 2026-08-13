@@ -20,8 +20,8 @@
 对高频事件使用防抖和节流优化：
 
 ```javascript
-// js/blog.js - 搜索输入防抖（200ms）
-var debouncedSearch = CWLUtils.debounce(function() {
+// src/client/post-list.ts - 搜索输入防抖（200ms）
+const debouncedSearch = CWLUtils.debounce(() => {
   query = searchInput.value.trim().toLowerCase();
   apply();
 }, 200);
@@ -32,8 +32,9 @@ var debouncedRender = CWLUtils.debounce(render, 150);
 // js/editor.js - 编辑器输入防抖（150ms）
 var debouncedRender = CWLUtils.debounce(render, 150);
 
-// js/coder.js - 滚动事件节流（100ms）
-var throttledScroll = CWLUtils.throttle(onScroll, 100);
+// src/client/article-reading.ts - 阅读进度滚动/尺寸更新分别节流
+const throttledScroll = CWLUtils.throttle(update, 100);
+const throttledResize = CWLUtils.throttle(update, 200);
 ```
 
 **优化效果**：
@@ -51,9 +52,10 @@ function loadIndex() {
   // Pagefind 返回完整正文的匹配片段与页面元数据
 }
 
-// js/highlight-loader.js - 代码高亮按需加载
-function loadHighlightJs() {
-  // 仅在页面有代码块时加载 highlight.js
+// src/client/code-highlight.ts - 代码高亮近视口加载
+function initCodeHighlight() {
+  // 无代码文章零请求；首个代码块进入 800px 预取区后才加载本地 vendor
+  // 已加载或正在加载的脚本会被复用，highlight.js 不进入文章入口 chunk
 }
 ```
 
@@ -93,16 +95,9 @@ list.addEventListener("click", function (e) {
 最小化 DOM 操作和重排：
 
 ```javascript
-// js/blog.js - 使用 DocumentFragment 批量添加元素
+// src/client/post-list.ts - 一次性替换标签按钮集合
 function rebuildTagFilter() {
-  while (tagFilter.firstChild) {
-    tagFilter.removeChild(tagFilter.firstChild);
-  }
-  data.tags.forEach(function (tag) {
-    var chip = document.createElement("button");
-    // 配置 chip
-    tagFilter.appendChild(chip);
-  });
+  tagFilter.replaceChildren(...tags.map(buildTagChip));
 }
 
 // js/feedback.js - 使用 replaceChildren 清空列表
@@ -113,13 +108,15 @@ listEl.replaceChildren();
 对长列表实施滚动优化：
 
 ```javascript
-// js/coder.js - 滚动监听使用 passive 标志
+// src/client/article-reading.ts - 滚动监听使用 passive 标志
 window.addEventListener("scroll", throttledScroll, { passive: true });
 ```
 
 **优化效果**：
 - 允许浏览器优化滚动性能
 - 减少主线程阻塞
+- 阅读位置仅在进度变化至少 1% 时写入，并在 `pagehide` 最终刷新，避免滚动期间高频写 `localStorage`
+- 文章专属逻辑只进入 `/post/` 的 Vite 运行时块，非文章页面不再创建阅读进度 DOM 或扫描正文
 
 #### CSS 动画
 使用 GPU 加速的 CSS 属性：
@@ -145,11 +142,13 @@ window.addEventListener("scroll", throttledScroll, { passive: true });
 <script src="/js/utils.js"></script>
 <script src="/js/error-handler.js"></script>
 
-<!-- 非关键脚本：延迟加载 -->
+<!-- 非关键全站脚本：延迟加载 -->
 <script src="/js/search-loader.js" defer></script>
-<script src="/js/highlight-loader.js" defer></script>
 
-<!-- 第三方库：异步加载 -->
+<!-- 路由客户端模块按需协调独立 vendor，不在 HTML 中直挂 -->
+<!-- /js/vendor/highlight.min.js 仅在代码块接近视口时请求 -->
+
+<!-- 工具页仍可按其独立能力加载第三方库 -->
 <script src="https://cdn.jsdelivr.net/npm/marked@18.0.5/marked.min.js" async></script>
 ```
 

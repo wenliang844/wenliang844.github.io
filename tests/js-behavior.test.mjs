@@ -131,17 +131,19 @@ test("utils.js isEditing function exists", async () => {
   assert.equal(typeof dom.window.CWLUtils.isEditing, "function");
 });
 
-test("keyboard shortcut modules reuse CWLUtils.isEditing", async () => {
-  const files = ["blog.js", "search-loader.js", "search.js"];
+test("keyboard shortcut modules reuse the shared editing helper", async () => {
+  const files = ["search-loader.js", "search.js"];
   for (const file of files) {
     const code = await readFile(join(ROOT, "js", file), "utf8");
     assert.ok(code.includes("CWLUtils.isEditing"), `${file} should call shared editing helper`);
     assert.equal(code.includes('tag === "INPUT"'), false, `${file} should not duplicate input tag checks`);
   }
+  const postList = await readFile(join(ROOT, "src", "client", "post-list.ts"), "utf8");
+  assert.match(postList, /utils\?\.isEditing\?\.\(\)/);
 });
 
 test("application modules use Array.from for DOM collection conversion", async () => {
-  const files = ["blog.js", "coder.js", "overleaf.js", "tools.js"];
+  const files = ["overleaf.js", "tools.js"];
   for (const file of files) {
     const code = await readFile(join(ROOT, "js", file), "utf8");
     assert.doesNotMatch(code, /Array\.prototype\.slice\.call/, `${file} should avoid legacy collection conversion`);
@@ -149,13 +151,21 @@ test("application modules use Array.from for DOM collection conversion", async (
 });
 
 test("copy consumers delegate fallback logic to CWLUtils.copyText", async () => {
-  const files = ["coder.js", "editor.js", "share.js"];
+  const files = ["editor.js"];
   for (const file of files) {
     const code = await readFile(join(ROOT, "js", file), "utf8");
     assert.match(code, /CWLUtils\.copyText/, `${file} should use the shared copy helper`);
     assert.doesNotMatch(code, /document\.execCommand\("copy"\)/, `${file} should not duplicate legacy copy fallback`);
     assert.doesNotMatch(code, /document\.createElement\("textarea"\)/, `${file} should not duplicate textarea fallback`);
   }
+  const share = await readFile(join(ROOT, "src", "client", "share.ts"), "utf8");
+  assert.match(share, /CWLUtils\?\.copyText/);
+  assert.doesNotMatch(share, /execCommand\("copy"\)|createElement\("textarea"\)/);
+  const article = await readFile(join(ROOT, "src", "client", "article-enhancements.ts"), "utf8");
+  assert.match(article, /CWLUtils\?\.copyText/);
+  assert.doesNotMatch(article, /execCommand\("copy"\)|createElement\("textarea"\)/);
+  const siteRuntime = await readFile(join(ROOT, "src", "client", "site-runtime.ts"), "utf8");
+  assert.doesNotMatch(siteRuntime, /copyText|code-copy/, "global shell must not regain article copy behavior");
 });
 
 test("search.js no longer duplicates escapeHtml", async () => {
@@ -196,20 +206,21 @@ test("search.js gives the nav trigger a shortcut hint", async () => {
 
 test("i18n consumers use CWLUtils.t instead of local wrappers", async () => {
   const files = [
-    "blog.js",
-    "coder.js",
     "editor.js",
     "feedback.js",
-    "giscus.js",
     "overleaf.js",
     "search.js",
-    "share.js",
     "subscribe.js",
     "tools.js",
   ];
   for (const file of files) {
     const code = await readFile(join(ROOT, "js", file), "utf8");
     assert.match(code, /CWLUtils\.t/, `${file} should use the shared i18n helper`);
+    assert.doesNotMatch(code, /function\s+t\s*\(/, `${file} should not define a local t() wrapper`);
+  }
+  for (const file of ["giscus.ts", "share.ts", "site-runtime.ts"]) {
+    const code = await readFile(join(ROOT, "src", "client", file), "utf8");
+    assert.match(code, /CWLUtils\?\.t/, `${file} should use the shared i18n helper`);
     assert.doesNotMatch(code, /function\s+t\s*\(/, `${file} should not define a local t() wrapper`);
   }
 });
@@ -281,8 +292,8 @@ test("search-loader.js preloads search only after user intent", async () => {
 
 // ─── share.js 测试 ────────────────────────────────────────────────────────────
 
-test("share.js handles multiple share targets", async () => {
-  const code = await readFile(join(ROOT, "js", "share.js"), "utf8");
+test("share module handles multiple share targets", async () => {
+  const code = await readFile(join(ROOT, "src", "client", "share.ts"), "utf8");
   assert.ok(code.includes("data-share"), "should handle data-share attributes");
   assert.ok(code.includes("x") || code.includes("twitter"), "should support X/Twitter sharing");
   assert.ok(code.includes("weibo"), "should support Weibo sharing");
@@ -290,10 +301,10 @@ test("share.js handles multiple share targets", async () => {
   assert.ok(code.includes("copy"), "should support copy link");
 });
 
-// ─── blog.js 测试 ─────────────────────────────────────────────────────────────
+// ─── Astro client module tests ───────────────────────────────────────────────
 
-test("blog.js handles post tree navigation", async () => {
-  const code = await readFile(join(ROOT, "js", "blog.js"), "utf8");
+test("post-list module handles post tree navigation", async () => {
+  const code = await readFile(join(ROOT, "src", "client", "post-list.ts"), "utf8");
   assert.ok(code.includes("post-tree"), "should handle post tree");
   assert.ok(code.includes("post-search") || code.includes("search"), "should handle post search");
   assert.ok(code.includes("tag-filter") || code.includes("tag"), "should handle tag filtering");
@@ -301,47 +312,47 @@ test("blog.js handles post tree navigation", async () => {
 
 // ─── toc.js 测试 ──────────────────────────────────────────────────────────────
 
-test("toc.js handles table of contents interactions", async () => {
-  const code = await readFile(join(ROOT, "js", "toc.js"), "utf8");
+test("article-toc module handles table of contents interactions", async () => {
+  const code = await readFile(join(ROOT, "src", "client", "article-toc.ts"), "utf8");
   assert.ok(code.includes("toc-sidebar") || code.includes("toc"), "should reference TOC elements");
   assert.ok(code.includes("toc-toggle") || code.includes("toggle"), "should handle TOC toggle");
 });
 
-// ─── post-next.js 测试 ────────────────────────────────────────────────────────
+// ─── next-post.ts 测试 ───────────────────────────────────────────────────────
 
-test("post-next.js handles next post popup", async () => {
-  const code = await readFile(join(ROOT, "js", "post-next.js"), "utf8");
+test("next-post module handles next post popup", async () => {
+  const code = await readFile(join(ROOT, "src", "client", "next-post.ts"), "utf8");
   assert.ok(code.includes("next-popup"), "should reference next popup element");
   assert.ok(code.includes("scroll") || code.includes("IntersectionObserver"), "should handle scroll-based triggering");
 });
 
 // ─── giscus.js 测试 ───────────────────────────────────────────────────────────
 
-test("giscus.js loads Giscus comments widget", async () => {
-  const code = await readFile(join(ROOT, "js", "giscus.js"), "utf8");
+test("giscus module loads Giscus comments widget", async () => {
+  const code = await readFile(join(ROOT, "src", "client", "giscus.ts"), "utf8");
   assert.ok(code.includes("giscus"), "should reference Giscus");
   assert.ok(code.includes("giscus-thread") || code.includes("giscus.app"), "should reference Giscus container or API");
 });
 
-test("giscus.js renders placeholder without innerHTML", async () => {
-  const code = await readFile(join(ROOT, "js", "giscus.js"), "utf8");
+test("giscus module renders placeholder without innerHTML", async () => {
+  const code = await readFile(join(ROOT, "src", "client", "giscus.ts"), "utf8");
   assert.doesNotMatch(code, /thread\.innerHTML\s*=/, "should not assign placeholder HTML directly");
   assert.match(code, /replaceChildren\(createPlaceholder\(\)\)/, "should replace placeholder with DOM nodes");
 });
 
-test("giscus.js cleans observer up on pagehide", async () => {
-  const code = await readFile(join(ROOT, "js", "giscus.js"), "utf8");
+test("giscus module cleans observer up on pagehide", async () => {
+  const code = await readFile(join(ROOT, "src", "client", "giscus.ts"), "utf8");
   assert.match(code, /addEventListener\("pagehide"/, "should use pagehide for bfcache-friendly cleanup");
   assert.doesNotMatch(code, /addEventListener\("unload"/, "should avoid unload cleanup");
 });
 
 test("post extras load only when sharing or comments approach the viewport", async () => {
-  const code = await readFile(join(ROOT, "js", "post-extras-loader.js"), "utf8");
+  const code = await readFile(join(ROOT, "src", "client", "post-extras.ts"), "utf8");
   assert.match(code, /IntersectionObserver/);
   assert.match(code, /rootMargin:\s*"800px 0px"/);
-  assert.match(code, /loadScript\("\/js\/vendor\/qrcode\.min\.js"\)/);
-  assert.match(code, /loadScript\("\/js\/share\.js"\)/);
-  assert.match(code, /loadScript\("\/js\/giscus\.js"\)/);
+  assert.match(code, /createScriptLoader\(doc, "\/js\/vendor\/qrcode\.min\.js"\)/);
+  assert.match(code, /import\("\.\/share"\)/);
+  assert.match(code, /import\("\.\/giscus"\)/);
 });
 
 test("assistant implementation loads only after user intent or a deep link", async () => {

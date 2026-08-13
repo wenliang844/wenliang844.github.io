@@ -1,0 +1,14 @@
+---
+import { collectTags } from "../../../scripts/build.mjs";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import TagsPage from "../../components/TagsPage.astro";
+import { getPublishedPosts } from "../../lib/astro-posts";
+import { buildTagsPageMetadata } from "../../templates/tags.mjs";
+
+const posts = await getPublishedPosts();
+const tags = collectTags(posts);
+const page = buildTagsPageMetadata(tags);
+---
+<BaseLayout {...page}>
+  <TagsPage {tags} />
+</BaseLayout>

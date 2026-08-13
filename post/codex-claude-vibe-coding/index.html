@@ -1,115 +1,115 @@
-<!doctype html>
+<!DOCTYPE html>
+<script type="module" src="/_astro/BaseLayout.astro_astro_type_script_index_0_lang.DZrDTd44.js"></script>
+
 <html lang="zh-CN">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' https://cloud.umami.is https://plausible.io https://giscus.app 'wasm-unsafe-eval' 'sha256-sPEmQ7qIJaV5bcwKU3CSR3SrmHsdFU1Q4n3yNGMpZIw='; script-src-attr 'none'; style-src 'self'; style-src-attr 'none'; img-src 'self' data: https:; font-src 'self' data:; worker-src 'self'; connect-src 'self' https://cloud.umami.is https://plausible.io https://buttondown.com https://muyuan.do https://token-plan-cn.xiaomimimo.com; frame-src https://giscus.app; form-action 'self' https://buttondown.com https://api.web3forms.com">
-  <meta name="cwl-api-base" content="">
-  <meta name="description" content="Codex 和 Claude 协作进行 Vibe Coding 的实践方法：需求澄清、方案探索、代码落地、测试验证与迭代节奏。">
-  <meta name="theme-color" content="#171717">
-  <link rel="icon" href="/images/favicon.png" type="image/png">
-  <link rel="preconnect" href="https://giscus.app">
-  <link rel="dns-prefetch" href="https://giscus.app">
-  <link rel="preconnect" href="https://buttondown.com">
-  <link rel="dns-prefetch" href="https://buttondown.com">
-  <link rel="dns-prefetch" href="https://www.ifdian.net">
-  <link rel="dns-prefetch" href="https://paypal.me">
-  <link rel="stylesheet" href="/css/fontawesome-all.min.css">
-  <link rel="stylesheet" href="/css/coder-post.min.css">
-  <link rel="stylesheet" href="/css/content.min.css">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' https://cloud.umami.is https://plausible.io https://giscus.app 'wasm-unsafe-eval' 'sha256-sPEmQ7qIJaV5bcwKU3CSR3SrmHsdFU1Q4n3yNGMpZIw='; script-src-attr 'none'; style-src 'self'; style-src-attr 'none'; img-src 'self' data: https:; font-src 'self' data:; worker-src 'self'; connect-src 'self' https://cloud.umami.is https://plausible.io https://buttondown.com https://muyuan.do https://token-plan-cn.xiaomimimo.com; frame-src https://giscus.app; form-action 'self' https://buttondown.com https://api.web3forms.com">
+    <meta name="cwl-api-base" content>
+    <meta name="description" content="Codex 和 Claude 协作进行 Vibe Coding 的实践方法：需求澄清、方案探索、代码落地、测试验证与迭代节奏。">
+    <meta name="theme-color" content="#171717">
+    <meta name="generator" content="Astro Content Collections">
+    <link rel="icon" href="/images/favicon.png" type="image/png">
+    <link rel="preconnect" href="https://giscus.app"><link rel="dns-prefetch" href="https://giscus.app"><link rel="preconnect" href="https://buttondown.com"><link rel="dns-prefetch" href="https://buttondown.com"><link rel="dns-prefetch" href="https://www.ifdian.net"><link rel="dns-prefetch" href="https://paypal.me">
+    <link rel="stylesheet" href="/css/fontawesome-all.min.css">
+    <link rel="stylesheet" href="/css/coder-post.min.css">
+    <link rel="stylesheet" href="/css/content.min.css">
+    <link rel="manifest" href="/manifest.webmanifest">
+    <link rel="apple-touch-icon" href="/images/pwa-192.png">
+    <script src="/js/error-handler.js" defer></script><script src="/js/utils.js" defer></script><script src="/js/pwa.js" defer></script><script src="/js/analytics.js" defer></script><script src="/js/i18n.js" defer></script><script src="/js/search-loader.js" defer></script><script src="/js/subscribe.js" defer></script><script src="/js/assistant-loader.js" defer></script>
+    <link rel="canonical" href="https://wenliang844.github.io/post/codex-claude-vibe-coding/"><meta property="og:type" content="article"><meta property="og:site_name" content="CWLBlog"><meta property="og:title" content="Codex 与 Claude 的 Vibe Coding"><meta property="og:description" content="Codex 和 Claude 协作进行 Vibe Coding 的实践方法：需求澄清、方案探索、代码落地、测试验证与迭代节奏。"><meta property="og:url" content="https://wenliang844.github.io/post/codex-claude-vibe-coding/"><meta property="og:image" content="https://wenliang844.github.io/images/posts/codex-claude-vibe-coding.png"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://wenliang844.github.io/images/posts/codex-claude-vibe-coding.png"><meta name="twitter:title" content="Codex 与 Claude 的 Vibe Coding"><meta name="twitter:description" content="Codex 和 Claude 协作进行 Vibe Coding 的实践方法：需求澄清、方案探索、代码落地、测试验证与迭代节奏。">
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"Codex 与 Claude 的 Vibe Coding","name":"Codex 与 Claude 一起做 Vibe Coding：从灵感到可运行系统","description":"Codex 和 Claude 协作进行 Vibe Coding 的实践方法：需求澄清、方案探索、代码落地、测试验证与迭代节奏。","datePublished":"2026-02-01","dateModified":"2026-08-06","inLanguage":"zh-CN","keywords":"Codex, Claude, AI Coding, Vibe Coding, 工程效率","mainEntityOfPage":{"@type":"WebPage","@id":"https://wenliang844.github.io/post/codex-claude-vibe-coding/"},"url":"https://wenliang844.github.io/post/codex-claude-vibe-coding/","author":{"@type":"Person","name":"CWL"},"publisher":{"@type":"Organization","name":"CWLBlog","logo":{"@type":"ImageObject","url":"https://wenliang844.github.io/images/favicon.png"}},"breadcrumb":{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"首页","item":"https://wenliang844.github.io/"},{"@type":"ListItem","position":2,"name":"文章","item":"https://wenliang844.github.io/post/"},{"@type":"ListItem","position":3,"name":"Codex 与 Claude 的 Vibe Coding","item":"https://wenliang844.github.io/post/codex-claude-vibe-coding/"}]},"image":["https://wenliang844.github.io/images/posts/codex-claude-vibe-coding.png"]}</script>
+    <title>Codex 与 Claude 的 Vibe Coding :: CWLBlog</title>
+  </head>
+  <body class="colorscheme-dark" data-i18n-page="posts" data-i18n-title-en="Codex and Claude Vibe Coding :: CWLBlog" data-i18n-desc-en="A practical workflow for vibe coding with Codex and Claude across requirement shaping, exploration, implementation, testing and iteration." data-language-mode="zh-only" data-cwl-comments="enabled">
+    <a class="skip-link" href="#main-content" data-i18n="nav.skip">跳到主要内容</a>
+    <div class="cursor-glow" aria-hidden="true"></div>
+    <canvas class="cursor-canvas" aria-hidden="true"></canvas>
+    <div class="site-shell">
+      <header class="navigation">
+  <section class="container">
+    <a class="navigation-title" href="/">CWLBlog</a>
+    <input type="checkbox" id="menu-toggle" class="menu-toggle" aria-label="Toggle menu" data-i18n-aria="nav.menu">
+    <label class="menu-button" for="menu-toggle"><i class="fas fa-bars"></i></label>
+    <label class="menu-overlay" for="menu-toggle" aria-hidden="true"></label>
+    <nav class="navigation-list" aria-label="Main navigation" data-i18n-aria="nav.main">
+      <ul>
+        <li>
+            <a class="active nav-blog-main" href="/post/" data-i18n="nav.blog" data-i18n-html data-i18n-en-html="<i class=&quot;fas fa-book-open&quot; aria-hidden=&quot;true&quot;></i> Blog">
+              <i class="fas fa-book-open" aria-hidden="true"></i> 博客
+            </a>
+          </li><li>
+            <a href="/ai/" data-i18n="nav.ai">
+              AI中转站排名
+            </a>
+          </li><li>
+            <a href="/appreciation/" data-i18n="nav.appreciation">
+              观察家
+            </a>
+          </li>
+        <li class="nav-more">
+          <details>
+            <summary class="nav-more-toggle" data-i18n="nav.more" data-i18n-html data-i18n-en-html="<i class=&quot;fas fa-ellipsis-h&quot; aria-hidden=&quot;true&quot;></i> More">
+              <i class="fas fa-ellipsis-h" aria-hidden="true"></i> 更多
+            </summary>
+            <ul class="nav-more-menu">
+              <li><a href="/knowledge/" data-i18n="nav.knowledge">知识资产</a></li><li><a href="/tools/" data-i18n="nav.tools">工具箱</a></li><li><a href="/overleaf/" data-i18n="nav.overleaf">简历模版</a></li>
+            </ul>
+          </details>
+        </li>
+        <li><a class="nav-feedback" href="/contact/" data-i18n="nav.feedback" data-i18n-html><i class="fas fa-comment-dots" aria-hidden="true"></i> 留言反馈</a></li>
+        <li><button class="nav-subscribe" type="button" data-subscribe-open data-i18n="nav.subscribe" data-i18n-html><i class="fas fa-envelope" aria-hidden="true"></i> 订阅</button></li>
+        <li><a class="nav-sponsor" href="/sponsor/" data-i18n="nav.sponsor" data-i18n-html><i class="fas fa-heart" aria-hidden="true"></i> 赞助</a></li>
+        <li><a class="nav-chat" href="/chat/" aria-label="打开在线聊天室" title="打开在线聊天室" data-i18n-aria="nav.chat" data-i18n-title="nav.chat"><i class="fas fa-comments" aria-hidden="true"></i></a></li>
+        <li><button class="theme-toggle" type="button" aria-label="切换主题" data-i18n-aria="nav.theme"><i class="fas fa-adjust"></i></button></li>
+        <li><button class="nav-search-trigger" type="button" aria-label="全局搜索（Ctrl+K 或 /）" title="全局搜索（Ctrl+K 或 /）" data-i18n-aria="nav.searchHint" data-i18n-title="nav.searchHint"><i class="fas fa-search"></i></button></li>
+        <li><button class="nav-ai-experience assistant-nav-trigger" type="button" aria-label="打开 AI 助手" title="打开 AI 助手" data-assistant-toggle data-i18n-aria="assistant.open" data-i18n-title="assistant.open"><span aria-hidden="true">AI</span></button></li>
+      </ul>
+    </nav>
+  </section>
+</header>
+  <main id="main-content" class="content container" data-pagefind-body>
+  <div class="post-layout">
+    <article class="article" data-post-slug="codex-claude-vibe-coding">
+      <header class="article-header">
+        <span class="eyebrow">AI Coding</span>
+        <h1 data-pagefind-meta="title">Codex 与 Claude 一起做 Vibe Coding：从灵感到可运行系统</h1>
+        <div class="article-meta">
+          <time datetime="2026-02-01" data-pagefind-meta="date[datetime]">February 1, 2026</time>
+          <span>·</span>
+          <a href="/post/#codex-claude-vibe-coding" data-i18n="post.meta.posts" data-i18n-en="Posts">文章</a>
+          <span>·</span>
+          <span class="reading-time">
+            <i class="fas fa-clock" aria-hidden="true"></i>
+            <span data-i18n="dyn.readingPrefix">约</span> 7 <span data-i18n="dyn.readingSuffix">分钟</span>
+          </span>
+        </div>
+        <div class="article-revision">
+          <span>发布于 <time datetime="2026-02-01">February 1, 2026</time></span>
+          <span>最后更新 <time datetime="2026-08-06">August 6, 2026</time></span>
+          <a href="https://github.com/wenliang844/wenliang844.github.io/commits/master/src/posts/codex-claude-vibe-coding.md" target="_blank" rel="noopener noreferrer">修订历史</a>
+        </div>
+        <p class="article-summary">记录如何把 Codex 的工程执行力与 Claude 的长上下文理解结合起来，让 Vibe Coding 从随手试验变成可交付的开发流程。</p>
+        <div class="post-tags">
+          <a href="/post/?tag=Codex" data-tag="Codex" data-i18n="post.codex-claude-vibe-coding.tag.0" data-i18n-en="Codex">Codex</a><a href="/post/?tag=Claude" data-tag="Claude" data-i18n="post.codex-claude-vibe-coding.tag.1" data-i18n-en="Claude">Claude</a><a href="/post/?tag=AI%20Coding" data-tag="AI Coding" data-i18n="post.codex-claude-vibe-coding.tag.2" data-i18n-en="AI Coding">AI Coding</a><a href="/post/?tag=Vibe%20Coding" data-tag="Vibe Coding" data-i18n="post.codex-claude-vibe-coding.tag.3" data-i18n-en="Vibe Coding">Vibe Coding</a><a href="/post/?tag=%E5%B7%A5%E7%A8%8B%E6%95%88%E7%8E%87" data-tag="工程效率" data-i18n="post.codex-claude-vibe-coding.tag.4" data-i18n-en="Engineering Efficiency">工程效率</a>
+        </div>
+        <nav class="post-taxonomy" aria-label="内容分类与系列">
+            <a href="/categories/ai-coding/"><span>分类</span>AI 协作开发</a>
+            <a href="/series/ai-collaboration/"><span>系列 1</span>AI 协作开发实践</a>
+          </nav>
+      </header>
 
-  <link rel="manifest" href="/manifest.webmanifest">
-  <link rel="apple-touch-icon" href="/images/pwa-192.png">
-  <script src="/js/error-handler.js" defer></script>
-  <script src="/js/utils.js" defer></script>
-  <script src="/js/pwa.js" defer></script>
-  <script src="/js/analytics.js" defer></script>
-  <script src="/js/i18n.js" defer></script>
-  <script src="/js/coder.js" defer></script>
-  <script src="/js/search-loader.js" defer></script>
-  <script src="/js/subscribe.js" defer></script>
-  <script src="/js/assistant-loader.js" defer></script>
-  <script src="/js/post-extras-loader.js" defer></script>
-  <script src="/js/toc.js" defer></script>
-  <script src="/js/post-next.js" defer></script>
-  <link rel="canonical" href="https://wenliang844.github.io/post/codex-claude-vibe-coding/">
-  <meta property="og:type" content="article">
-  <meta property="og:site_name" content="CWLBlog">
-  <meta property="og:title" content="Codex 与 Claude 的 Vibe Coding">
-  <meta property="og:description" content="Codex 和 Claude 协作进行 Vibe Coding 的实践方法：需求澄清、方案探索、代码落地、测试验证与迭代节奏。">
-  <meta property="og:url" content="https://wenliang844.github.io/post/codex-claude-vibe-coding/">
-  <meta property="og:image" content="https://wenliang844.github.io/images/posts/codex-claude-vibe-coding.png">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:image" content="https://wenliang844.github.io/images/posts/codex-claude-vibe-coding.png">
-  <meta name="twitter:title" content="Codex 与 Claude 的 Vibe Coding">
-  <meta name="twitter:description" content="Codex 和 Claude 协作进行 Vibe Coding 的实践方法：需求澄清、方案探索、代码落地、测试验证与迭代节奏。">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"Codex 与 Claude 的 Vibe Coding","name":"Codex 与 Claude 一起做 Vibe Coding：从灵感到可运行系统","description":"Codex 和 Claude 协作进行 Vibe Coding 的实践方法：需求澄清、方案探索、代码落地、测试验证与迭代节奏。","datePublished":"2026-02-01","dateModified":"2026-08-06","inLanguage":"zh-CN","keywords":"Codex, Claude, AI Coding, Vibe Coding, 工程效率","mainEntityOfPage":{"@type":"WebPage","@id":"https://wenliang844.github.io/post/codex-claude-vibe-coding/"},"url":"https://wenliang844.github.io/post/codex-claude-vibe-coding/","author":{"@type":"Person","name":"CWL"},"publisher":{"@type":"Organization","name":"CWLBlog","logo":{"@type":"ImageObject","url":"https://wenliang844.github.io/images/favicon.png"}},"breadcrumb":{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"首页","item":"https://wenliang844.github.io/"},{"@type":"ListItem","position":2,"name":"文章","item":"https://wenliang844.github.io/post/"},{"@type":"ListItem","position":3,"name":"Codex 与 Claude 的 Vibe Coding","item":"https://wenliang844.github.io/post/codex-claude-vibe-coding/"}]},"image":["https://wenliang844.github.io/images/posts/codex-claude-vibe-coding.png"]}</script>
-  <title>Codex 与 Claude 的 Vibe Coding :: CWLBlog</title>
-  <meta name="generator" content="Astro Content Collections">
-</head>
-<body class="colorscheme-dark" data-i18n-page="posts" data-i18n-title-en="Codex and Claude Vibe Coding :: CWLBlog" data-i18n-desc-en="A practical workflow for vibe coding with Codex and Claude across requirement shaping, exploration, implementation, testing and iteration." data-language-mode="zh-only">
-  <a class="skip-link" href="#main-content" data-i18n="nav.skip">跳到主要内容</a>
-  <div class="cursor-glow" aria-hidden="true"></div>
-  <canvas class="cursor-canvas" aria-hidden="true"></canvas>
-  <div class="site-shell">
-    <header class="navigation">
-      <section class="container">
-        <a class="navigation-title" href="/">CWLBlog</a>
-        <input type="checkbox" id="menu-toggle" class="menu-toggle" aria-label="Toggle menu" data-i18n-aria="nav.menu">
-        <label class="menu-button" for="menu-toggle"><i class="fas fa-bars"></i></label>
-        <label class="menu-overlay" for="menu-toggle" aria-hidden="true"></label>
-        <nav class="navigation-list" aria-label="Main navigation" data-i18n-aria="nav.main">
-          <ul>
-          <li><a class="active nav-blog-main" href="/post/" data-i18n="nav.blog" data-i18n-html data-i18n-en-html="&lt;i class=&quot;fas fa-book-open&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt; Blog"><i class="fas fa-book-open" aria-hidden="true"></i> 博客</a></li>
-          <li><a href="/ai/" data-i18n="nav.ai">AI中转站排名</a></li>
-          <li><a href="/appreciation/" data-i18n="nav.appreciation">观察家</a></li>
-            <li class="nav-more">
-              <details>
-                <summary class="nav-more-toggle" data-i18n="nav.more" data-i18n-html data-i18n-en-html="&lt;i class=&quot;fas fa-ellipsis-h&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt; More"><i class="fas fa-ellipsis-h" aria-hidden="true"></i> 更多</summary>
-                <ul class="nav-more-menu">
-              <li><a href="/knowledge/" data-i18n="nav.knowledge">知识资产</a></li>
-              <li><a href="/tools/" data-i18n="nav.tools">工具箱</a></li>
-              <li><a href="/overleaf/" data-i18n="nav.overleaf">简历模版</a></li>
-                </ul>
-              </details>
-            </li>
-            <li><a class="nav-feedback" href="/contact/" data-i18n="nav.feedback" data-i18n-html><i class="fas fa-comment-dots" aria-hidden="true"></i> 留言反馈</a></li>
-            <li><button class="nav-subscribe" type="button" data-subscribe-open data-i18n="nav.subscribe" data-i18n-html><i class="fas fa-envelope" aria-hidden="true"></i> 订阅</button></li>
-            <li><a class="nav-sponsor" href="/sponsor/" data-i18n="nav.sponsor" data-i18n-html><i class="fas fa-heart" aria-hidden="true"></i> 赞助</a></li>
-            <li><a class="nav-chat" href="/chat/" aria-label="打开在线聊天室" title="打开在线聊天室" data-i18n-aria="nav.chat" data-i18n-title="nav.chat"><i class="fas fa-comments" aria-hidden="true"></i></a></li>
-            <li><button class="theme-toggle" type="button" aria-label="切换主题" data-i18n-aria="nav.theme"><i class="fas fa-adjust"></i></button></li>
+      <figure class="post-cover post-cover-hero">
+          <picture>
+            <source srcset="/images/generated/codex-claude-vibe-coding-cover.avif" type="image/avif">
+            <source srcset="/images/generated/codex-claude-vibe-coding-cover.webp" type="image/webp">
+            <img src="/images/posts/codex-claude-vibe-coding.png" width="1200" height="630" alt="Codex 与 Claude 协同开发工作流封面" loading="eager" decoding="async" fetchpriority="high">
+          </picture>
+        </figure>
 
-            <li><button class="nav-search-trigger" type="button" aria-label="全局搜索（Ctrl+K 或 /）" title="全局搜索（Ctrl+K 或 /）" data-i18n-aria="nav.searchHint" data-i18n-title="nav.searchHint"><i class="fas fa-search"></i></button></li>
-            <li><button class="nav-ai-experience assistant-nav-trigger" type="button" aria-label="打开 AI 助手" title="打开 AI 助手" data-assistant-toggle data-i18n-aria="assistant.open" data-i18n-title="assistant.open"><span aria-hidden="true">AI</span></button></li>
-          </ul>
-        </nav>
-      </section>
-    </header>
-    <main data-pagefind-body id="main-content" class="content container">
-      <div class="post-layout">
-        <article class="article" data-post-slug="codex-claude-vibe-coding">
-          <header class="article-header">
-            <span class="eyebrow">AI Coding</span>
-            <h1 data-pagefind-meta="title">Codex 与 Claude 一起做 Vibe Coding：从灵感到可运行系统</h1>
-            <div class="article-meta">
-              <time datetime="2026-02-01" data-pagefind-meta="date[datetime]">February 1, 2026</time>
-              <span>·</span>
-              <a href="/post/#codex-claude-vibe-coding" data-i18n="post.meta.posts" data-i18n-en="Posts">文章</a>
-              <span>·</span>
-              <span class="reading-time"><i class="fas fa-clock" aria-hidden="true"></i> <span data-i18n="dyn.readingPrefix">约</span> 7 <span data-i18n="dyn.readingSuffix">分钟</span></span>
-            </div>
-            <div class="article-revision"><span>发布于 <time datetime="2026-02-01">February 1, 2026</time></span><span>最后更新 <time datetime="2026-08-06">August 6, 2026</time></span><a href="https://github.com/wenliang844/wenliang844.github.io/commits/master/src/posts/codex-claude-vibe-coding.md" target="_blank" rel="noopener noreferrer">修订历史</a></div>
-            <p class="article-summary">记录如何把 Codex 的工程执行力与 Claude 的长上下文理解结合起来，让 Vibe Coding 从随手试验变成可交付的开发流程。</p>
-            <div class="post-tags">
-              <a href="/post/?tag=Codex" data-tag="Codex" data-i18n="post.codex-claude-vibe-coding.tag.0" data-i18n-en="Codex">Codex</a><a href="/post/?tag=Claude" data-tag="Claude" data-i18n="post.codex-claude-vibe-coding.tag.1" data-i18n-en="Claude">Claude</a><a href="/post/?tag=AI%20Coding" data-tag="AI Coding" data-i18n="post.codex-claude-vibe-coding.tag.2" data-i18n-en="AI Coding">AI Coding</a><a href="/post/?tag=Vibe%20Coding" data-tag="Vibe Coding" data-i18n="post.codex-claude-vibe-coding.tag.3" data-i18n-en="Vibe Coding">Vibe Coding</a><a href="/post/?tag=%E5%B7%A5%E7%A8%8B%E6%95%88%E7%8E%87" data-tag="工程效率" data-i18n="post.codex-claude-vibe-coding.tag.4" data-i18n-en="Engineering Efficiency">工程效率</a>
-            </div>
-            <nav class="post-taxonomy" aria-label="内容分类与系列">
-              <a href="/categories/ai-coding/"><span>分类</span>AI 协作开发</a><a href="/series/ai-collaboration/"><span>系列 1</span>AI 协作开发实践</a>
-            </nav>
-          </header>
-          <figure class="post-cover post-cover-hero"><picture><source srcset="/images/generated/codex-claude-vibe-coding-cover.avif" type="image/avif"><source srcset="/images/generated/codex-claude-vibe-coding-cover.webp" type="image/webp"><img src="/images/posts/codex-claude-vibe-coding.png" width="1200" height="630" alt="Codex 与 Claude 协同开发工作流封面" loading="eager" decoding="async" fetchpriority="high"></picture></figure>
-          <div class="article-content">
-          <h2 id="toc-1-一-为什么是-codex-claude">一、为什么是 Codex + Claude</h2>
+      <div class="article-content">
+            <h2 id="toc-1-一-为什么是-codex-claude">一、为什么是 Codex + Claude</h2>
           <p>Vibe Coding 最迷人的地方，是它把编程从「先写完整规格，再机械实现」变成了「带着感觉快速逼近系统形状」。但真正落到项目里，只有感觉是不够的。代码需要能运行，设计需要能收敛，边界需要被照亮，测试也需要把风险关进笼子里。</p>
           <p>Codex 和 Claude 适合放在同一个工作流里，是因为它们擅长的部分刚好互补：</p>
           <ul>
@@ -214,113 +214,144 @@
           <ul>
           <li><a class="wiki-link" href="/post/lowcode-schema-codegen/">低代码引擎与 Schema 出码实践</a> 展示了如何把平台级设计判断落到可验证的工程结构中。</li>
           </ul>
-          </div>
-            <div class="post-share" data-share-url="/post/codex-claude-vibe-coding/" data-share-title="Codex 与 Claude 的 Vibe Coding" data-share-title-en="Codex and Claude Vibe Coding">
-              <span class="share-label" data-i18n="post.share"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg> 分享</span>
-              <a class="share-btn" data-share="x" href="#" target="_blank" rel="noopener" aria-label="分享到 X" data-i18n-aria="post.share.x"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
-              <button class="share-btn" type="button" data-share="weibo" aria-label="分享到微博" data-i18n-aria="post.share.weibo"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M10.098 20.323c-3.977.391-7.414-1.406-7.672-4.02-.259-2.609 2.759-5.047 6.74-5.441 3.979-.394 7.413 1.404 7.671 4.018.259 2.6-2.759 5.049-6.737 5.439l-.002.004zM9.05 17.219c-.384.616-1.208.884-1.829.602-.612-.279-.793-.991-.406-1.593.379-.595 1.176-.861 1.793-.601.622.263.82.972.442 1.592zm1.27-1.627c-.141.237-.449.353-.689.253-.236-.09-.312-.359-.177-.586.138-.227.436-.346.672-.24.239.09.315.36.18.601l.014-.028zm.176-2.719c-1.893-.493-4.033.451-4.857 2.118-.836 1.704-.026 3.603 1.886 4.21 1.983.63 4.318-.354 5.132-2.179.8-1.793-.247-3.667-2.161-4.149zm7.563-1.224c-.346-.105-.57-.18-.405-.615.375-.977.42-1.829-.01-2.448-.81-1.155-3.027-1.092-5.567-.03 0 0-.795.346-.591-.284.39-1.26.33-2.31-.27-2.913-1.365-1.365-4.992.045-8.103 3.157C-.21 11.84-.96 14.61.04 16.7c1.62 3.405 6.99 3.585 11.52 1.875 4.53-1.71 8.42-5.97 6.78-9.45-.36-.78-1.05-1.32-1.86-1.626.18-.27.35-.54.4-.825.05-.36-.18-.54-.45-.39-.045.075-.075.165-.09.255-.054.21-.139.435-.27.63zm1.5-3.99c-.165-.5-.434-.945-.794-1.305-.36-.36-.81-.629-1.305-.794-.165-.06-.345.029-.405.194-.06.165.03.345.195.405.36.12.69.314.96.585.27.27.464.6.585.96.06.165.225.255.39.21.165-.045.255-.225.21-.39l-.031-.06zm2.355-.766c-.345-1.035-.93-1.965-1.71-2.745-.78-.781-1.71-1.366-2.746-1.711-.27-.09-.539.06-.629.33-.09.27.06.539.33.629.825.27 1.575.735 2.205 1.365.63.63 1.095 1.38 1.365 2.205.09.27.359.42.629.33.27-.09.42-.36.33-.629l.001-.024z"/></svg></button>
-              <button class="share-btn" type="button" data-share="wechat" aria-label="微信扫码分享" data-i18n-aria="post.share.wechat"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M8.691 2.188C3.891 2.188 0 5.476 0 9.53c0 2.212 1.17 4.203 3.002 5.55a.59.59 0 0 1 .213.665l-.39 1.48c-.019.07-.048.141-.048.213 0 .163.13.295.29.295a.326.326 0 0 0 .167-.054l1.903-1.114a.864.864 0 0 1 .717-.098 10.16 10.16 0 0 0 2.837.403c.276 0 .543-.027.811-.05-.857-2.578.157-4.972 1.932-6.446 1.703-1.415 3.882-1.98 5.853-1.838-.576-3.583-4.196-6.348-8.596-6.348zM5.785 5.991c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178A1.17 1.17 0 0 1 4.623 7.17c0-.651.52-1.18 1.162-1.18zm5.813 0c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178 1.17 1.17 0 0 1-1.162-1.178c0-.651.52-1.18 1.162-1.18zm5.34 2.867c-1.797-.052-3.746.512-5.28 1.786-1.72 1.428-2.687 3.72-1.78 6.22.942 2.453 3.666 4.229 6.884 4.229.826 0 1.622-.12 2.361-.336a.722.722 0 0 1 .598.082l1.584.926a.272.272 0 0 0 .14.047c.134 0 .24-.111.24-.247 0-.06-.023-.12-.038-.177l-.327-1.233a.582.582 0 0 1-.023-.156.49.49 0 0 1 .201-.398C23.024 18.48 24 16.82 24 14.98c0-3.21-2.931-5.837-6.656-6.088V8.89c-.135-.01-.27-.027-.406-.032zm-3.39 2.927c.535 0 .969.44.969.982a.976.976 0 0 1-.969.983.976.976 0 0 1-.969-.983c0-.542.434-.982.969-.982zm4.844 0c.535 0 .969.44.969.982a.976.976 0 0 1-.969.983.976.976 0 0 1-.969-.983c0-.542.434-.982.969-.982z"/></svg></button>
-              <button class="share-btn" type="button" data-share="copy" aria-label="复制链接" data-i18n-aria="post.share.copy"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/></svg></button>
-            </div>
-        </article>
-        <aside class="toc-sidebar is-collapsed" aria-label="目录" data-i18n-aria="toc.aria">
-          <div class="toc-header">
-            <button class="toc-toggle" type="button" aria-expanded="false" aria-label="展开/收起目录" data-i18n-aria="toc.toggle">
-              <i class="fas fa-list" aria-hidden="true"></i>
-              <span data-i18n="toc.title">目录</span>
-              <i class="fas fa-chevron-down toc-chevron" aria-hidden="true"></i>
-            </button>
-          </div>
-          <nav class="toc-nav">
-            <ul>
-            <li><a href="#toc-1-一-为什么是-codex-claude" data-toc-id="toc-1-一-为什么是-codex-claude" data-i18n="toc.toc-1-一-为什么是-codex-claude" data-i18n-en="一、为什么是 Codex + Claude">一、为什么是 Codex + Claude</a></li>
-            <li><a href="#toc-2-二-vibe-coding-的工作节奏" data-toc-id="toc-2-二-vibe-coding-的工作节奏" data-i18n="toc.toc-2-二-vibe-coding-的工作节奏" data-i18n-en="二、Vibe Coding 的工作节奏">二、Vibe Coding 的工作节奏</a></li>
-            <li class="toc-sub"><a href="#toc-2-1-用-claude-扩展问题空间" data-toc-id="toc-2-1-用-claude-扩展问题空间" data-i18n="toc.toc-2-1-用-claude-扩展问题空间" data-i18n-en="1. 用 Claude 扩展问题空间">1. 用 Claude 扩展问题空间</a></li>
-            <li class="toc-sub"><a href="#toc-2-2-用-codex-进入代码现场" data-toc-id="toc-2-2-用-codex-进入代码现场" data-i18n="toc.toc-2-2-用-codex-进入代码现场" data-i18n-en="2. 用 Codex 进入代码现场">2. 用 Codex 进入代码现场</a></li>
-            <li class="toc-sub"><a href="#toc-2-3-让运行结果反过来约束想象" data-toc-id="toc-2-3-让运行结果反过来约束想象" data-i18n="toc.toc-2-3-让运行结果反过来约束想象" data-i18n-en="3. 让运行结果反过来约束想象">3. 让运行结果反过来约束想象</a></li>
-            <li><a href="#toc-3-三-适合分工的场景" data-toc-id="toc-3-三-适合分工的场景" data-i18n="toc.toc-3-三-适合分工的场景" data-i18n-en="三、适合分工的场景">三、适合分工的场景</a></li>
-            <li class="toc-sub"><a href="#toc-3-1-需求和文档阶段" data-toc-id="toc-3-1-需求和文档阶段" data-i18n="toc.toc-3-1-需求和文档阶段" data-i18n-en="1. 需求和文档阶段">1. 需求和文档阶段</a></li>
-            <li class="toc-sub"><a href="#toc-3-2-代码实现阶段" data-toc-id="toc-3-2-代码实现阶段" data-i18n="toc.toc-3-2-代码实现阶段" data-i18n-en="2. 代码实现阶段">2. 代码实现阶段</a></li>
-            <li class="toc-sub"><a href="#toc-3-3-复盘和沉淀阶段" data-toc-id="toc-3-3-复盘和沉淀阶段" data-i18n="toc.toc-3-3-复盘和沉淀阶段" data-i18n-en="3. 复盘和沉淀阶段">3. 复盘和沉淀阶段</a></li>
-            <li><a href="#toc-4-四-提示词不如反馈闭环重要" data-toc-id="toc-4-四-提示词不如反馈闭环重要" data-i18n="toc.toc-4-四-提示词不如反馈闭环重要" data-i18n-en="四、提示词不如反馈闭环重要">四、提示词不如反馈闭环重要</a></li>
-            <li><a href="#toc-5-五-开发者仍然是方向盘" data-toc-id="toc-5-五-开发者仍然是方向盘" data-i18n="toc.toc-5-五-开发者仍然是方向盘" data-i18n-en="五、开发者仍然是方向盘">五、开发者仍然是方向盘</a></li>
-            <li><a href="#toc-6-六-一种推荐实践" data-toc-id="toc-6-六-一种推荐实践" data-i18n="toc.toc-6-六-一种推荐实践" data-i18n-en="六、一种推荐实践">六、一种推荐实践</a></li>
-            <li><a href="#toc-7-七-总结" data-toc-id="toc-7-七-总结" data-i18n="toc.toc-7-七-总结" data-i18n-en="七、总结">七、总结</a></li>
-            <li><a href="#toc-8-延伸阅读" data-toc-id="toc-8-延伸阅读" data-i18n="toc.toc-8-延伸阅读" data-i18n-en="延伸阅读">延伸阅读</a></li>
-            </ul>
-          </nav>
-        </aside>
-      </div>
-      <section class="comments container" aria-label="评论" data-i18n-aria="post.comments.aria">
-        <h2 data-i18n="post.comments" data-i18n-html><i class="fas fa-comments" aria-hidden="true"></i> 评论</h2>
-        <div id="giscus-thread"></div>
-      </section>
-      <section class="post-backlinks" aria-labelledby="post-backlinks-title">
-        <div>
-          <span class="eyebrow">Backlinks</span>
-          <h2 id="post-backlinks-title">哪些文章提到了这里</h2>
+</div>
+
+      <div class="post-share" data-share-url="/post/codex-claude-vibe-coding/" data-share-title="Codex 与 Claude 的 Vibe Coding" data-share-title-en="Codex and Claude Vibe Coding">
+  <span class="share-label" data-i18n="post.share">
+    <svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"></path></svg>
+    分享
+  </span>
+  <a class="share-btn" data-share="x" href="#" target="_blank" rel="noopener" aria-label="分享到 X" data-i18n-aria="post.share.x">
+    <svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path></svg>
+  </a>
+  <button class="share-btn" type="button" data-share="weibo" aria-label="分享到微博" data-i18n-aria="post.share.weibo">
+    <svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M10.098 20.323c-3.977.391-7.414-1.406-7.672-4.02-.259-2.609 2.759-5.047 6.74-5.441 3.979-.394 7.413 1.404 7.671 4.018.259 2.6-2.759 5.049-6.737 5.439l-.002.004zM9.05 17.219c-.384.616-1.208.884-1.829.602-.612-.279-.793-.991-.406-1.593.379-.595 1.176-.861 1.793-.601.622.263.82.972.442 1.592zm1.27-1.627c-.141.237-.449.353-.689.253-.236-.09-.312-.359-.177-.586.138-.227.436-.346.672-.24.239.09.315.36.18.601l.014-.028zm.176-2.719c-1.893-.493-4.033.451-4.857 2.118-.836 1.704-.026 3.603 1.886 4.21 1.983.63 4.318-.354 5.132-2.179.8-1.793-.247-3.667-2.161-4.149zm7.563-1.224c-.346-.105-.57-.18-.405-.615.375-.977.42-1.829-.01-2.448-.81-1.155-3.027-1.092-5.567-.03 0 0-.795.346-.591-.284.39-1.26.33-2.31-.27-2.913-1.365-1.365-4.992.045-8.103 3.157C-.21 11.84-.96 14.61.04 16.7c1.62 3.405 6.99 3.585 11.52 1.875 4.53-1.71 8.42-5.97 6.78-9.45-.36-.78-1.05-1.32-1.86-1.626.18-.27.35-.54.4-.825.05-.36-.18-.54-.45-.39-.045.075-.075.165-.09.255-.054.21-.139.435-.27.63zm1.5-3.99c-.165-.5-.434-.945-.794-1.305-.36-.36-.81-.629-1.305-.794-.165-.06-.345.029-.405.194-.06.165.03.345.195.405.36.12.69.314.96.585.27.27.464.6.585.96.06.165.225.255.39.21.165-.045.255-.225.21-.39l-.031-.06zm2.355-.766c-.345-1.035-.93-1.965-1.71-2.745-.78-.781-1.71-1.366-2.746-1.711-.27-.09-.539.06-.629.33-.09.27.06.539.33.629.825.27 1.575.735 2.205 1.365.63.63 1.095 1.38 1.365 2.205.09.27.359.42.629.33.27-.09.42-.36.33-.629l.001-.024z"></path></svg>
+  </button>
+  <button class="share-btn" type="button" data-share="wechat" aria-label="微信扫码分享" data-i18n-aria="post.share.wechat">
+    <svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M8.691 2.188C3.891 2.188 0 5.476 0 9.53c0 2.212 1.17 4.203 3.002 5.55a.59.59 0 0 1 .213.665l-.39 1.48c-.019.07-.048.141-.048.213 0 .163.13.295.29.295a.326.326 0 0 0 .167-.054l1.903-1.114a.864.864 0 0 1 .717-.098 10.16 10.16 0 0 0 2.837.403c.276 0 .543-.027.811-.05-.857-2.578.157-4.972 1.932-6.446 1.703-1.415 3.882-1.98 5.853-1.838-.576-3.583-4.196-6.348-8.596-6.348zM5.785 5.991c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178A1.17 1.17 0 0 1 4.623 7.17c0-.651.52-1.18 1.162-1.18zm5.813 0c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178 1.17 1.17 0 0 1-1.162-1.178c0-.651.52-1.18 1.162-1.18zm5.34 2.867c-1.797-.052-3.746.512-5.28 1.786-1.72 1.428-2.687 3.72-1.78 6.22.942 2.453 3.666 4.229 6.884 4.229.826 0 1.622-.12 2.361-.336a.722.722 0 0 1 .598.082l1.584.926a.272.272 0 0 0 .14.047c.134 0 .24-.111.24-.247 0-.06-.023-.12-.038-.177l-.327-1.233a.582.582 0 0 1-.023-.156.49.49 0 0 1 .201-.398C23.024 18.48 24 16.82 24 14.98c0-3.21-2.931-5.837-6.656-6.088V8.89c-.135-.01-.27-.027-.406-.032zm-3.39 2.927c.535 0 .969.44.969.982a.976.976 0 0 1-.969.983.976.976 0 0 1-.969-.983c0-.542.434-.982.969-.982zm4.844 0c.535 0 .969.44.969.982a.976.976 0 0 1-.969.983.976.976 0 0 1-.969-.983c0-.542.434-.982.969-.982z"></path></svg>
+  </button>
+  <button class="share-btn" type="button" data-share="copy" aria-label="复制链接" data-i18n-aria="post.share.copy">
+    <svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor" aria-hidden="true"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"></path></svg>
+  </button>
+</div>
+    </article>
+
+    <aside class="toc-sidebar is-collapsed" aria-label="目录" data-i18n-aria="toc.aria">
+        <div class="toc-header">
+          <button class="toc-toggle" type="button" aria-expanded="false" aria-label="展开/收起目录" data-i18n-aria="toc.toggle">
+            <i class="fas fa-list" aria-hidden="true"></i>
+            <span data-i18n="toc.title">目录</span>
+            <i class="fas fa-chevron-down toc-chevron" aria-hidden="true"></i>
+          </button>
         </div>
-        <ul>
-          <li>
-            <a href="/post/lowcode-schema-codegen/">
-              <strong>LowCode Engine 实践</strong>
-              <span>从低代码协议、设计器内核、物料体系、渲染器到出码工具链，梳理企业级中后台低代码平台底座。</span>
-            </a>
-          </li>
-        </ul>
-      </section>
-      <nav class="post-related" aria-label="相关文章" data-i18n-aria="post.related.aria">
-        <h2 class="post-related-title" data-i18n="post.related.title" data-i18n-en="Related posts">相关文章</h2>
-        <ul class="related-list">
-        <li>
-          <a class="related-card" href="/post/lowcode-schema-codegen/" data-analytics-event="related_click" data-analytics-target="lowcode-schema-codegen">
-            <span class="related-eyebrow">LowCode</span>
-            <span class="related-title" data-i18n="post.lowcode-schema-codegen.shortTitle" data-i18n-en="LowCode Engine Practice">LowCode Engine 实践</span>
-            <span class="related-reason" data-i18n-en="Linked content">正文引用</span>
-            <time datetime="2022-02-01">2022-02-01</time>
-          </a>
-        </li>
-        </ul>
-      </nav>
-      <nav class="series-navigation" aria-label="系列连续阅读">
-        <div>
-          <span class="eyebrow">系列 1 / 1</span>
-          <a class="series-navigation-title" href="/series/ai-collaboration/">AI 协作开发实践</a>
-        </div>
-        <div class="series-navigation-links"><span></span><span></span></div>
-      </nav>
-      <nav class="post-pager" aria-label="Post pagination">
-        <a class="pager-prev" href="/post/rule-engine-alerts/">← <span data-i18n="post.rule-engine-alerts.shortTitle" data-i18n-en="Rule Engine and Alert Loop">规则引擎与告警闭环</span></a>
-        <a class="pager-next" href="/post/manage-system/"><span data-i18n="post.manage-system.shortTitle" data-i18n-en="Alert Platform Refactor">智能分析预警平台重构</span> →</a>
-      </nav>
-      <aside class="next-popup" hidden aria-label="下一篇推荐" data-i18n-aria="post.next.aria" data-next-url="/post/manage-system/" data-next-title="智能分析预警平台重构" data-next-title-en="Alert Platform Refactor" data-prev-url="/post/rule-engine-alerts/" data-prev-title="规则引擎与告警闭环" data-prev-title-en="Rule Engine and Alert Loop">
-        <button class="next-popup-close" type="button" aria-label="关闭" data-i18n-aria="post.next.close"><i class="fas fa-times" aria-hidden="true"></i></button>
-        <span class="next-popup-eyebrow" data-i18n="post.next.eyebrow" data-i18n-en="Up next">下一篇</span>
-        <a class="next-popup-link" href="/post/manage-system/">
-          <span class="next-popup-title" data-i18n="post.manage-system.shortTitle" data-i18n-en="Alert Platform Refactor">智能分析预警平台重构</span>
-        </a>
+        <nav class="toc-nav">
+          <ul>
+            <li>
+                <a href="#toc-1-一-为什么是-codex-claude" data-toc-id="toc-1-一-为什么是-codex-claude" data-i18n="toc.toc-1-一-为什么是-codex-claude" data-i18n-en="一、为什么是 Codex + Claude">一、为什么是 Codex + Claude</a>
+              </li><li>
+                <a href="#toc-2-二-vibe-coding-的工作节奏" data-toc-id="toc-2-二-vibe-coding-的工作节奏" data-i18n="toc.toc-2-二-vibe-coding-的工作节奏" data-i18n-en="二、Vibe Coding 的工作节奏">二、Vibe Coding 的工作节奏</a>
+              </li><li class="toc-sub">
+                <a href="#toc-2-1-用-claude-扩展问题空间" data-toc-id="toc-2-1-用-claude-扩展问题空间" data-i18n="toc.toc-2-1-用-claude-扩展问题空间" data-i18n-en="1. 用 Claude 扩展问题空间">1. 用 Claude 扩展问题空间</a>
+              </li><li class="toc-sub">
+                <a href="#toc-2-2-用-codex-进入代码现场" data-toc-id="toc-2-2-用-codex-进入代码现场" data-i18n="toc.toc-2-2-用-codex-进入代码现场" data-i18n-en="2. 用 Codex 进入代码现场">2. 用 Codex 进入代码现场</a>
+              </li><li class="toc-sub">
+                <a href="#toc-2-3-让运行结果反过来约束想象" data-toc-id="toc-2-3-让运行结果反过来约束想象" data-i18n="toc.toc-2-3-让运行结果反过来约束想象" data-i18n-en="3. 让运行结果反过来约束想象">3. 让运行结果反过来约束想象</a>
+              </li><li>
+                <a href="#toc-3-三-适合分工的场景" data-toc-id="toc-3-三-适合分工的场景" data-i18n="toc.toc-3-三-适合分工的场景" data-i18n-en="三、适合分工的场景">三、适合分工的场景</a>
+              </li><li class="toc-sub">
+                <a href="#toc-3-1-需求和文档阶段" data-toc-id="toc-3-1-需求和文档阶段" data-i18n="toc.toc-3-1-需求和文档阶段" data-i18n-en="1. 需求和文档阶段">1. 需求和文档阶段</a>
+              </li><li class="toc-sub">
+                <a href="#toc-3-2-代码实现阶段" data-toc-id="toc-3-2-代码实现阶段" data-i18n="toc.toc-3-2-代码实现阶段" data-i18n-en="2. 代码实现阶段">2. 代码实现阶段</a>
+              </li><li class="toc-sub">
+                <a href="#toc-3-3-复盘和沉淀阶段" data-toc-id="toc-3-3-复盘和沉淀阶段" data-i18n="toc.toc-3-3-复盘和沉淀阶段" data-i18n-en="3. 复盘和沉淀阶段">3. 复盘和沉淀阶段</a>
+              </li><li>
+                <a href="#toc-4-四-提示词不如反馈闭环重要" data-toc-id="toc-4-四-提示词不如反馈闭环重要" data-i18n="toc.toc-4-四-提示词不如反馈闭环重要" data-i18n-en="四、提示词不如反馈闭环重要">四、提示词不如反馈闭环重要</a>
+              </li><li>
+                <a href="#toc-5-五-开发者仍然是方向盘" data-toc-id="toc-5-五-开发者仍然是方向盘" data-i18n="toc.toc-5-五-开发者仍然是方向盘" data-i18n-en="五、开发者仍然是方向盘">五、开发者仍然是方向盘</a>
+              </li><li>
+                <a href="#toc-6-六-一种推荐实践" data-toc-id="toc-6-六-一种推荐实践" data-i18n="toc.toc-6-六-一种推荐实践" data-i18n-en="六、一种推荐实践">六、一种推荐实践</a>
+              </li><li>
+                <a href="#toc-7-七-总结" data-toc-id="toc-7-七-总结" data-i18n="toc.toc-7-七-总结" data-i18n-en="七、总结">七、总结</a>
+              </li><li>
+                <a href="#toc-8-延伸阅读" data-toc-id="toc-8-延伸阅读" data-i18n="toc.toc-8-延伸阅读" data-i18n-en="延伸阅读">延伸阅读</a>
+              </li>
+          </ul>
+        </nav>
       </aside>
-    </main>
-    <footer class="footer">
-      <section class="container">
-        <div class="subscribe">
-          <p class="subscribe-title" data-i18n="subscribe.title">订阅更新 · 新文章邮件提醒</p>
-          <form class="subscribe-form" novalidate>
-            <input class="subscribe-input" type="email" name="email" required autocomplete="email" placeholder="输入你的邮箱" data-i18n-ph="subscribe.ph" aria-label="Email">
-            <button class="subscribe-btn" type="submit" data-i18n="subscribe.btn">订阅</button>
-          </form>
-          <p class="subscribe-status" role="status" aria-live="polite"></p>
-        </div>
-        <div class="sponsor-mini" aria-label="赞助支持选项" data-i18n-aria="sponsorMini.aria">
-          <p class="sponsor-mini-text" data-i18n="sponsorMini.text">如果内容对你有帮助，可以支持我继续更新。</p>
-          <div class="sponsor-mini-actions">
-            <a class="sponsor-mini-btn sponsor-mini-primary" href="https://www.ifdian.net/order/create?plan_id=047bc28a6a1c11f182c452540025c377&product_type=0&remark=&affiliate_code=" target="_blank" rel="noopener noreferrer" data-i18n="sponsorMini.afdian">☕ 赞助</a>
-            <a class="sponsor-mini-btn sponsor-mini-secondary" href="https://PayPal.Me/chenwenliang4212" target="_blank" rel="noopener noreferrer" data-i18n="sponsorMini.paypal">💳 PayPal 支持</a>
-          </div>
-        </div>
-        <p data-i18n="footer.text">© 2021 - 2026 CWL · Powered by Cwl · Theme inspired by Coder</p>
-      </section>
-    </footer>
   </div>
-</body>
+
+  <section class="comments container" aria-label="评论" data-i18n-aria="post.comments.aria">
+    <h2 data-i18n="post.comments" data-i18n-html=""><i class="fas fa-comments" aria-hidden="true"></i> 评论</h2>
+    <div id="giscus-thread"></div>
+  </section>
+
+  <section class="post-backlinks" aria-labelledby="post-backlinks-title">
+      <div><span class="eyebrow">Backlinks</span><h2 id="post-backlinks-title">哪些文章提到了这里</h2></div>
+      <ul>
+        <li><a href="/post/lowcode-schema-codegen/"><strong>LowCode Engine 实践</strong><span>从低代码协议、设计器内核、物料体系、渲染器到出码工具链，梳理企业级中后台低代码平台底座。</span></a></li>
+      </ul>
+    </section>
+
+  <nav class="post-related" aria-label="相关文章" data-i18n-aria="post.related.aria">
+      <h2 class="post-related-title" data-i18n="post.related.title" data-i18n-en="Related posts">相关文章</h2>
+      <ul class="related-list">
+        <li>
+              <a class="related-card" href="/post/lowcode-schema-codegen/" data-analytics-event="related_click" data-analytics-target="lowcode-schema-codegen">
+                <span class="related-eyebrow">LowCode</span>
+                <span class="related-title" data-i18n="post.lowcode-schema-codegen.shortTitle" data-i18n-en="LowCode Engine Practice">LowCode Engine 实践</span>
+                <span class="related-reason" data-i18n-en="Linked content">正文引用</span>
+                <time datetime="2022-02-01">2022-02-01</time>
+              </a>
+            </li>
+      </ul>
+    </nav>
+
+  <nav class="series-navigation" aria-label="系列连续阅读">
+      <div>
+        <span class="eyebrow">系列 1 / 1</span>
+        <a class="series-navigation-title" href="/series/ai-collaboration/">AI 协作开发实践</a>
+      </div>
+      <div class="series-navigation-links">
+        <span></span>
+        <span></span>
+      </div>
+    </nav>
+
+  <nav class="post-pager" aria-label="Post pagination">
+    <a class="pager-prev" href="/post/rule-engine-alerts/">← <span data-i18n="post.rule-engine-alerts.shortTitle" data-i18n-en="Rule Engine and Alert Loop">规则引擎与告警闭环</span></a>
+    <a class="pager-next" href="/post/manage-system/"><span data-i18n="post.manage-system.shortTitle" data-i18n-en="Alert Platform Refactor">智能分析预警平台重构</span> →</a>
+  </nav>
+
+<aside class="next-popup" hidden aria-label="下一篇推荐" data-i18n-aria="post.next.aria" data-next-url="/post/manage-system/" data-next-title="智能分析预警平台重构" data-next-title-en="Alert Platform Refactor" data-prev-url="/post/rule-engine-alerts/" data-prev-title="规则引擎与告警闭环" data-prev-title-en="Rule Engine and Alert Loop">
+      <button class="next-popup-close" type="button" aria-label="关闭" data-i18n-aria="post.next.close"><i class="fas fa-times" aria-hidden="true"></i></button>
+      <span class="next-popup-eyebrow" data-i18n="post.next.eyebrow" data-i18n-en="Up next">下一篇</span>
+      <a class="next-popup-link" href="/post/manage-system/">
+        <span class="next-popup-title" data-i18n="post.manage-system.shortTitle" data-i18n-en="Alert Platform Refactor">智能分析预警平台重构</span>
+      </a>
+    </aside>
+</main>
+
+<script type="module" src="/_astro/ArticlePage.astro_astro_type_script_index_0_lang.BRWcWOfZ.js"></script>
+<footer class="footer">
+  <section class="container">
+    <div class="subscribe">
+      <p class="subscribe-title" data-i18n="subscribe.title">订阅更新 · 新文章邮件提醒</p>
+      <form class="subscribe-form" novalidate>
+        <input class="subscribe-input" type="email" name="email" required autocomplete="email" placeholder="输入你的邮箱" data-i18n-ph="subscribe.ph" aria-label="Email">
+        <button class="subscribe-btn" type="submit" data-i18n="subscribe.btn">订阅</button>
+      </form>
+      <p class="subscribe-status" role="status" aria-live="polite"></p>
+    </div>
+    <div class="sponsor-mini" aria-label="赞助支持选项" data-i18n-aria="sponsorMini.aria">
+      <p class="sponsor-mini-text" data-i18n="sponsorMini.text">如果内容对你有帮助，可以支持我继续更新。</p>
+      <div class="sponsor-mini-actions">
+        <a class="sponsor-mini-btn sponsor-mini-primary" href="https://www.ifdian.net/order/create?plan_id=047bc28a6a1c11f182c452540025c377&amp;product_type=0&amp;remark=&amp;affiliate_code=" target="_blank" rel="noopener noreferrer" data-i18n="sponsorMini.afdian">☕ 赞助</a>
+        <a class="sponsor-mini-btn sponsor-mini-secondary" href="https://PayPal.Me/chenwenliang4212" target="_blank" rel="noopener noreferrer" data-i18n="sponsorMini.paypal">💳 PayPal 支持</a>
+      </div>
+    </div>
+    <p data-i18n="footer.text">© 2021 - 2026 CWL · Powered by Cwl · Theme inspired by Coder</p>
+  </section>
+</footer>
+    </div>
+  </body>
 </html>

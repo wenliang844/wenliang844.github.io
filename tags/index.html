@@ -1,138 +1,151 @@
-<!doctype html>
-<html lang="zh-CN">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' https://cloud.umami.is https://plausible.io 'wasm-unsafe-eval' 'sha256-25l2TtfrKWDtP86LQO25nW6ZWt6n+kAgxiImEkoNm8w='; script-src-attr 'none'; style-src 'self'; style-src-attr 'none'; img-src 'self' data: https:; font-src 'self' data:; worker-src 'self'; connect-src 'self' https://cloud.umami.is https://plausible.io https://buttondown.com https://muyuan.do https://token-plan-cn.xiaomimimo.com; frame-src https://giscus.app; form-action 'self' https://buttondown.com https://api.web3forms.com">
-  <meta name="cwl-api-base" content="">
-  <meta name="description" content="博客标签：按技术主题浏览CWL的项目复盘与工程实践文章。">
-  <meta name="theme-color" content="#171717">
-  <link rel="icon" href="/images/favicon.png" type="image/png">
-  <link rel="preconnect" href="https://giscus.app">
-  <link rel="dns-prefetch" href="https://giscus.app">
-  <link rel="preconnect" href="https://buttondown.com">
-  <link rel="dns-prefetch" href="https://buttondown.com">
-  <link rel="dns-prefetch" href="https://www.ifdian.net">
-  <link rel="dns-prefetch" href="https://paypal.me">
-  <link rel="stylesheet" href="/css/fontawesome-all.min.css">
-  <link rel="stylesheet" href="/css/coder.min.css">
-  <link rel="stylesheet" href="/css/content.min.css">
+<!DOCTYPE html>
+<script type="module" src="/_astro/BaseLayout.astro_astro_type_script_index_0_lang.DZrDTd44.js"></script>
 
-  <link rel="manifest" href="/manifest.webmanifest">
-  <link rel="apple-touch-icon" href="/images/pwa-192.png">
-  <script src="/js/error-handler.js" defer></script>
-  <script src="/js/utils.js" defer></script>
-  <script src="/js/pwa.js" defer></script>
-  <script src="/js/analytics.js" defer></script>
-  <script src="/js/i18n.js" defer></script>
-  <script src="/js/coder.js" defer></script>
-  <script src="/js/search-loader.js" defer></script>
-  <script src="/js/subscribe.js" defer></script>
-  <script src="/js/assistant-loader.js" defer></script>
-  <link rel="canonical" href="https://wenliang844.github.io/tags/">
-  <meta property="og:type" content="website">
-  <meta property="og:site_name" content="CWLBlog">
-  <meta property="og:title" content="Tags">
-  <meta property="og:description" content="博客标签：按技术主题浏览CWL的项目复盘与工程实践文章。">
-  <meta property="og:url" content="https://wenliang844.github.io/tags/">
-  <meta property="og:image" content="https://wenliang844.github.io/images/favicon.png">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:image" content="https://wenliang844.github.io/images/favicon.png">
-  <meta name="twitter:title" content="Tags">
-  <meta name="twitter:description" content="博客标签：按技术主题浏览CWL的项目复盘与工程实践文章。">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"CollectionPage","name":"CWLBlog 标签","description":"博客标签：按技术主题浏览CWL的项目复盘与工程实践文章。","url":"https://wenliang844.github.io/tags/","inLanguage":"zh-CN","isPartOf":{"@type":"WebSite","name":"CWLBlog","url":"https://wenliang844.github.io/"},"mainEntity":{"@type":"ItemList","numberOfItems":24,"itemListElement":[{"@type":"ListItem","position":1,"name":"Java","url":"https://wenliang844.github.io/post/?tag=Java","item":{"@type":"Thing","name":"Java","alternateName":"Java","additionalProperty":{"@type":"PropertyValue","name":"postCount","value":3}}},{"@type":"ListItem","position":2,"name":"Spring Boot","url":"https://wenliang844.github.io/post/?tag=Spring%20Boot","item":{"@type":"Thing","name":"Spring Boot","alternateName":"Spring Boot","additionalProperty":{"@type":"PropertyValue","name":"postCount","value":3}}},{"@type":"ListItem","position":3,"name":"Rule Engine","url":"https://wenliang844.github.io/post/?tag=%E8%A7%84%E5%88%99%E5%BC%95%E6%93%8E","item":{"@type":"Thing","name":"规则引擎","alternateName":"Rule Engine","additionalProperty":{"@type":"PropertyValue","name":"postCount","value":2}}},{"@type":"ListItem","position":4,"name":"Video Analysis","url":"https://wenliang844.github.io/post/?tag=%E8%A7%86%E9%A2%91%E5%88%86%E6%9E%90","item":{"@type":"Thing","name":"视频分析","alternateName":"Video Analysis","additionalProperty":{"@type":"PropertyValue","name":"postCount","value":2}}},{"@type":"ListItem","position":5,"name":"Code Generation","url":"https://wenliang844.github.io/post/?tag=%E4%BB%A3%E7%A0%81%E7%94%9F%E6%88%90","item":{"@type":"Thing","name":"代码生成","alternateName":"Code Generation","additionalProperty":{"@type":"PropertyValue","name":"postCount","value":1}}},{"@type":"ListItem","position":6,"name":"Low-Code","url":"https://wenliang844.github.io/post/?tag=%E4%BD%8E%E4%BB%A3%E7%A0%81","item":{"@type":"Thing","name":"低代码","alternateName":"Low-Code","additionalProperty":{"@type":"PropertyValue","name":"postCount","value":1}}},{"@type":"ListItem","position":7,"name":"Alert System","url":"https://wenliang844.github.io/post/?tag=%E5%91%8A%E8%AD%A6%E7%B3%BB%E7%BB%9F","item":{"@type":"Thing","name":"告警系统","alternateName":"Alert System","additionalProperty":{"@type":"PropertyValue","name":"postCount","value":1}}},{"@type":"ListItem","position":8,"name":"Engineering Efficiency","url":"https://wenliang844.github.io/post/?tag=%E5%B7%A5%E7%A8%8B%E6%95%88%E7%8E%87","item":{"@type":"Thing","name":"工程效率","alternateName":"Engineering Efficiency","additionalProperty":{"@type":"PropertyValue","name":"postCount","value":1}}},{"@type":"ListItem","position":9,"name":"Workflow","url":"https://wenliang844.github.io/post/?tag=%E5%B7%A5%E4%BD%9C%E6%B5%81","item":{"@type":"Thing","name":"工作流","alternateName":"Workflow","additionalProperty":{"@type":"PropertyValue","name":"postCount","value":1}}},{"@type":"ListItem","position":10,"name":"Activiti 7","url":"https://wenliang844.github.io/post/?tag=Activiti%207","item":{"@type":"Thing","name":"Activiti 7","alternateName":"Activiti 7","additionalProperty":{"@type":"PropertyValue","name":"postCount","value":1}}},{"@type":"ListItem","position":11,"name":"AI Coding","url":"https://wenliang844.github.io/post/?tag=AI%20Coding","item":{"@type":"Thing","name":"AI Coding","alternateName":"AI Coding","additionalProperty":{"@type":"PropertyValue","name":"postCount","value":1}}},{"@type":"ListItem","position":12,"name":"BPMN 2.0","url":"https://wenliang844.github.io/post/?tag=BPMN%202.0","item":{"@type":"Thing","name":"BPMN 2.0","alternateName":"BPMN 2.0","additionalProperty":{"@type":"PropertyValue","name":"postCount","value":1}}},{"@type":"ListItem","position":13,"name":"Claude","url":"https://wenliang844.github.io/post/?tag=Claude","item":{"@type":"Thing","name":"Claude","alternateName":"Claude","additionalProperty":{"@type":"PropertyValue","name":"postCount","value":1}}},{"@type":"ListItem","position":14,"name":"Codex","url":"https://wenliang844.github.io/post/?tag=Codex","item":{"@type":"Thing","name":"Codex","alternateName":"Codex","additionalProperty":{"@type":"PropertyValue","name":"postCount","value":1}}},{"@type":"ListItem","position":15,"name":"Dubbo","url":"https://wenliang844.github.io/post/?tag=Dubbo","item":{"@type":"Thing","name":"Dubbo","alternateName":"Dubbo","additionalProperty":{"@type":"PropertyValue","name":"postCount","value":1}}},{"@type":"ListItem","position":16,"name":"Elasticsearch","url":"https://wenliang844.github.io/post/?tag=Elasticsearch","item":{"@type":"Thing","name":"Elasticsearch","alternateName":"Elasticsearch","additionalProperty":{"@type":"PropertyValue","name":"postCount","value":1}}},{"@type":"ListItem","position":17,"name":"ONNX Runtime","url":"https://wenliang844.github.io/post/?tag=ONNX%20Runtime","item":{"@type":"Thing","name":"ONNX Runtime","alternateName":"ONNX Runtime","additionalProperty":{"@type":"PropertyValue","name":"postCount","value":1}}},{"@type":"ListItem","position":18,"name":"RabbitMQ","url":"https://wenliang844.github.io/post/?tag=RabbitMQ","item":{"@type":"Thing","name":"RabbitMQ","alternateName":"RabbitMQ","additionalProperty":{"@type":"PropertyValue","name":"postCount","value":1}}},{"@type":"ListItem","position":19,"name":"React","url":"https://wenliang844.github.io/post/?tag=React","item":{"@type":"Thing","name":"React","alternateName":"React","additionalProperty":{"@type":"PropertyValue","name":"postCount","value":1}}},{"@type":"ListItem","position":20,"name":"Redis","url":"https://wenliang844.github.io/post/?tag=Redis","item":{"@type":"Thing","name":"Redis","alternateName":"Redis","additionalProperty":{"@type":"PropertyValue","name":"postCount","value":1}}},{"@type":"ListItem","position":21,"name":"RocketMQ","url":"https://wenliang844.github.io/post/?tag=RocketMQ","item":{"@type":"Thing","name":"RocketMQ","alternateName":"RocketMQ","additionalProperty":{"@type":"PropertyValue","name":"postCount","value":1}}},{"@type":"ListItem","position":22,"name":"Schema","url":"https://wenliang844.github.io/post/?tag=Schema","item":{"@type":"Thing","name":"Schema","alternateName":"Schema","additionalProperty":{"@type":"PropertyValue","name":"postCount","value":1}}},{"@type":"ListItem","position":23,"name":"TypeScript","url":"https://wenliang844.github.io/post/?tag=TypeScript","item":{"@type":"Thing","name":"TypeScript","alternateName":"TypeScript","additionalProperty":{"@type":"PropertyValue","name":"postCount","value":1}}},{"@type":"ListItem","position":24,"name":"Vibe Coding","url":"https://wenliang844.github.io/post/?tag=Vibe%20Coding","item":{"@type":"Thing","name":"Vibe Coding","alternateName":"Vibe Coding","additionalProperty":{"@type":"PropertyValue","name":"postCount","value":1}}}]}}</script>
-  <title>标签 :: CWLBlog</title>
-</head>
-<body class="colorscheme-dark" data-i18n-page="tags" data-i18n-title-en="Tags :: CWLBlog" data-language-mode="bilingual">
-  <a class="skip-link" href="#main-content" data-i18n="nav.skip">跳到主要内容</a>
-  <div class="cursor-glow" aria-hidden="true"></div>
-  <canvas class="cursor-canvas" aria-hidden="true"></canvas>
-  <div class="site-shell">
-    <header class="navigation">
-      <section class="container">
-        <a class="navigation-title" href="/">CWLBlog</a>
-        <input type="checkbox" id="menu-toggle" class="menu-toggle" aria-label="Toggle menu" data-i18n-aria="nav.menu">
-        <label class="menu-button" for="menu-toggle"><i class="fas fa-bars"></i></label>
-        <label class="menu-overlay" for="menu-toggle" aria-hidden="true"></label>
-        <nav class="navigation-list" aria-label="Main navigation" data-i18n-aria="nav.main">
-          <ul>
-          <li><a class="active nav-blog-main" href="/post/" data-i18n="nav.blog" data-i18n-html data-i18n-en-html="&lt;i class=&quot;fas fa-book-open&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt; Blog"><i class="fas fa-book-open" aria-hidden="true"></i> 博客</a></li>
-          <li><a href="/ai/" data-i18n="nav.ai">AI中转站排名</a></li>
-          <li><a href="/appreciation/" data-i18n="nav.appreciation">观察家</a></li>
-            <li class="nav-more">
-              <details>
-                <summary class="nav-more-toggle" data-i18n="nav.more" data-i18n-html data-i18n-en-html="&lt;i class=&quot;fas fa-ellipsis-h&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt; More"><i class="fas fa-ellipsis-h" aria-hidden="true"></i> 更多</summary>
-                <ul class="nav-more-menu">
-              <li><a href="/knowledge/" data-i18n="nav.knowledge">知识资产</a></li>
-              <li><a href="/tools/" data-i18n="nav.tools">工具箱</a></li>
-              <li><a href="/overleaf/" data-i18n="nav.overleaf">简历模版</a></li>
-                </ul>
-              </details>
-            </li>
-            <li><a class="nav-feedback" href="/contact/" data-i18n="nav.feedback" data-i18n-html><i class="fas fa-comment-dots" aria-hidden="true"></i> 留言反馈</a></li>
-            <li><button class="nav-subscribe" type="button" data-subscribe-open data-i18n="nav.subscribe" data-i18n-html><i class="fas fa-envelope" aria-hidden="true"></i> 订阅</button></li>
-            <li><a class="nav-sponsor" href="/sponsor/" data-i18n="nav.sponsor" data-i18n-html><i class="fas fa-heart" aria-hidden="true"></i> 赞助</a></li>
-            <li><a class="nav-chat" href="/chat/" aria-label="打开在线聊天室" title="打开在线聊天室" data-i18n-aria="nav.chat" data-i18n-title="nav.chat"><i class="fas fa-comments" aria-hidden="true"></i></a></li>
-            <li><button class="theme-toggle" type="button" aria-label="切换主题" data-i18n-aria="nav.theme"><i class="fas fa-adjust"></i></button></li>
-            <li><button class="lang-toggle" type="button" aria-label="Switch language">EN</button></li>
-            <li><button class="nav-search-trigger" type="button" aria-label="全局搜索（Ctrl+K 或 /）" title="全局搜索（Ctrl+K 或 /）" data-i18n-aria="nav.searchHint" data-i18n-title="nav.searchHint"><i class="fas fa-search"></i></button></li>
-            <li><button class="nav-ai-experience assistant-nav-trigger" type="button" aria-label="打开 AI 助手" title="打开 AI 助手" data-assistant-toggle data-i18n-aria="assistant.open" data-i18n-title="assistant.open"><span aria-hidden="true">AI</span></button></li>
-          </ul>
-        </nav>
-      </section>
-    </header>
-    <main data-pagefind-body id="main-content" class="content">
-      <section class="list-page container">
-        <h1 data-i18n="tags.title" data-i18n-en="Tags">标签</h1>
-        <p class="lead" data-i18n="tags.lead">按技术标签浏览文章，点击任意标签跳转到博客列表并自动筛选。</p>
-        <div class="tag-filter tag-cloud" aria-label="标签云" data-i18n-aria="tags.cloud.aria">
-          <a class="tag-chip" href="/post/?tag=Java"><span data-i18n="tag.Java" data-i18n-en="Java">Java</span> <span class="tag-count">3</span></a>
-          <a class="tag-chip" href="/post/?tag=Spring%20Boot"><span data-i18n="tag.Spring Boot" data-i18n-en="Spring Boot">Spring Boot</span> <span class="tag-count">3</span></a>
-          <a class="tag-chip" href="/post/?tag=%E8%A7%84%E5%88%99%E5%BC%95%E6%93%8E"><span data-i18n="tag.规则引擎" data-i18n-en="Rule Engine">规则引擎</span> <span class="tag-count">2</span></a>
-          <a class="tag-chip" href="/post/?tag=%E8%A7%86%E9%A2%91%E5%88%86%E6%9E%90"><span data-i18n="tag.视频分析" data-i18n-en="Video Analysis">视频分析</span> <span class="tag-count">2</span></a>
-          <a class="tag-chip" href="/post/?tag=%E4%BB%A3%E7%A0%81%E7%94%9F%E6%88%90"><span data-i18n="tag.代码生成" data-i18n-en="Code Generation">代码生成</span> <span class="tag-count">1</span></a>
-          <a class="tag-chip" href="/post/?tag=%E4%BD%8E%E4%BB%A3%E7%A0%81"><span data-i18n="tag.低代码" data-i18n-en="Low-Code">低代码</span> <span class="tag-count">1</span></a>
-          <a class="tag-chip" href="/post/?tag=%E5%91%8A%E8%AD%A6%E7%B3%BB%E7%BB%9F"><span data-i18n="tag.告警系统" data-i18n-en="Alert System">告警系统</span> <span class="tag-count">1</span></a>
-          <a class="tag-chip" href="/post/?tag=%E5%B7%A5%E7%A8%8B%E6%95%88%E7%8E%87"><span data-i18n="tag.工程效率" data-i18n-en="Engineering Efficiency">工程效率</span> <span class="tag-count">1</span></a>
-          <a class="tag-chip" href="/post/?tag=%E5%B7%A5%E4%BD%9C%E6%B5%81"><span data-i18n="tag.工作流" data-i18n-en="Workflow">工作流</span> <span class="tag-count">1</span></a>
-          <a class="tag-chip" href="/post/?tag=Activiti%207"><span data-i18n="tag.Activiti 7" data-i18n-en="Activiti 7">Activiti 7</span> <span class="tag-count">1</span></a>
-          <a class="tag-chip" href="/post/?tag=AI%20Coding"><span data-i18n="tag.AI Coding" data-i18n-en="AI Coding">AI Coding</span> <span class="tag-count">1</span></a>
-          <a class="tag-chip" href="/post/?tag=BPMN%202.0"><span data-i18n="tag.BPMN 2.0" data-i18n-en="BPMN 2.0">BPMN 2.0</span> <span class="tag-count">1</span></a>
-          <a class="tag-chip" href="/post/?tag=Claude"><span data-i18n="tag.Claude" data-i18n-en="Claude">Claude</span> <span class="tag-count">1</span></a>
-          <a class="tag-chip" href="/post/?tag=Codex"><span data-i18n="tag.Codex" data-i18n-en="Codex">Codex</span> <span class="tag-count">1</span></a>
-          <a class="tag-chip" href="/post/?tag=Dubbo"><span data-i18n="tag.Dubbo" data-i18n-en="Dubbo">Dubbo</span> <span class="tag-count">1</span></a>
-          <a class="tag-chip" href="/post/?tag=Elasticsearch"><span data-i18n="tag.Elasticsearch" data-i18n-en="Elasticsearch">Elasticsearch</span> <span class="tag-count">1</span></a>
-          <a class="tag-chip" href="/post/?tag=ONNX%20Runtime"><span data-i18n="tag.ONNX Runtime" data-i18n-en="ONNX Runtime">ONNX Runtime</span> <span class="tag-count">1</span></a>
-          <a class="tag-chip" href="/post/?tag=RabbitMQ"><span data-i18n="tag.RabbitMQ" data-i18n-en="RabbitMQ">RabbitMQ</span> <span class="tag-count">1</span></a>
-          <a class="tag-chip" href="/post/?tag=React"><span data-i18n="tag.React" data-i18n-en="React">React</span> <span class="tag-count">1</span></a>
-          <a class="tag-chip" href="/post/?tag=Redis"><span data-i18n="tag.Redis" data-i18n-en="Redis">Redis</span> <span class="tag-count">1</span></a>
-          <a class="tag-chip" href="/post/?tag=RocketMQ"><span data-i18n="tag.RocketMQ" data-i18n-en="RocketMQ">RocketMQ</span> <span class="tag-count">1</span></a>
-          <a class="tag-chip" href="/post/?tag=Schema"><span data-i18n="tag.Schema" data-i18n-en="Schema">Schema</span> <span class="tag-count">1</span></a>
-          <a class="tag-chip" href="/post/?tag=TypeScript"><span data-i18n="tag.TypeScript" data-i18n-en="TypeScript">TypeScript</span> <span class="tag-count">1</span></a>
-          <a class="tag-chip" href="/post/?tag=Vibe%20Coding"><span data-i18n="tag.Vibe Coding" data-i18n-en="Vibe Coding">Vibe Coding</span> <span class="tag-count">1</span></a>
-        </div>
-      </section>
-    </main>
-    <footer class="footer">
-      <section class="container">
-        <div class="subscribe">
-          <p class="subscribe-title" data-i18n="subscribe.title">订阅更新 · 新文章邮件提醒</p>
-          <form class="subscribe-form" novalidate>
-            <input class="subscribe-input" type="email" name="email" required autocomplete="email" placeholder="输入你的邮箱" data-i18n-ph="subscribe.ph" aria-label="Email">
-            <button class="subscribe-btn" type="submit" data-i18n="subscribe.btn">订阅</button>
-          </form>
-          <p class="subscribe-status" role="status" aria-live="polite"></p>
-        </div>
-        <div class="sponsor-mini" aria-label="赞助支持选项" data-i18n-aria="sponsorMini.aria">
-          <p class="sponsor-mini-text" data-i18n="sponsorMini.text">如果内容对你有帮助，可以支持我继续更新。</p>
-          <div class="sponsor-mini-actions">
-            <a class="sponsor-mini-btn sponsor-mini-primary" href="https://www.ifdian.net/order/create?plan_id=047bc28a6a1c11f182c452540025c377&product_type=0&remark=&affiliate_code=" target="_blank" rel="noopener noreferrer" data-i18n="sponsorMini.afdian">☕ 赞助</a>
-            <a class="sponsor-mini-btn sponsor-mini-secondary" href="https://PayPal.Me/chenwenliang4212" target="_blank" rel="noopener noreferrer" data-i18n="sponsorMini.paypal">💳 PayPal 支持</a>
-          </div>
-        </div>
-        <p data-i18n="footer.text">© 2021 - 2026 CWL · Powered by Cwl · Theme inspired by Coder</p>
-      </section>
-    </footer>
-  </div>
-</body>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' https://cloud.umami.is https://plausible.io 'wasm-unsafe-eval' 'sha256-25l2TtfrKWDtP86LQO25nW6ZWt6n+kAgxiImEkoNm8w='; script-src-attr 'none'; style-src 'self'; style-src-attr 'none'; img-src 'self' data: https:; font-src 'self' data:; worker-src 'self'; connect-src 'self' https://cloud.umami.is https://plausible.io https://buttondown.com https://muyuan.do https://token-plan-cn.xiaomimimo.com; frame-src https://giscus.app; form-action 'self' https://buttondown.com https://api.web3forms.com">
+    <meta name="cwl-api-base" content>
+    <meta name="description" content="博客标签：按技术主题浏览CWL的项目复盘与工程实践文章。">
+    <meta name="theme-color" content="#171717">
+    <meta name="generator" content="Astro Content Collections">
+    <link rel="icon" href="/images/favicon.png" type="image/png">
+    <link rel="preconnect" href="https://giscus.app"><link rel="dns-prefetch" href="https://giscus.app"><link rel="preconnect" href="https://buttondown.com"><link rel="dns-prefetch" href="https://buttondown.com"><link rel="dns-prefetch" href="https://www.ifdian.net"><link rel="dns-prefetch" href="https://paypal.me">
+    <link rel="stylesheet" href="/css/fontawesome-all.min.css">
+    <link rel="stylesheet" href="/css/coder.min.css">
+    <link rel="stylesheet" href="/css/content.min.css">
+    <link rel="manifest" href="/manifest.webmanifest">
+    <link rel="apple-touch-icon" href="/images/pwa-192.png">
+    <script src="/js/error-handler.js" defer></script><script src="/js/utils.js" defer></script><script src="/js/pwa.js" defer></script><script src="/js/analytics.js" defer></script><script src="/js/i18n.js" defer></script><script src="/js/search-loader.js" defer></script><script src="/js/subscribe.js" defer></script><script src="/js/assistant-loader.js" defer></script>
+    <link rel="canonical" href="https://wenliang844.github.io/tags/"><meta property="og:type" content="website"><meta property="og:site_name" content="CWLBlog"><meta property="og:title" content="Tags"><meta property="og:description" content="博客标签：按技术主题浏览CWL的项目复盘与工程实践文章。"><meta property="og:url" content="https://wenliang844.github.io/tags/"><meta property="og:image" content="https://wenliang844.github.io/images/favicon.png"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://wenliang844.github.io/images/favicon.png"><meta name="twitter:title" content="Tags"><meta name="twitter:description" content="博客标签：按技术主题浏览CWL的项目复盘与工程实践文章。">
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"CollectionPage","name":"CWLBlog 标签","description":"博客标签：按技术主题浏览CWL的项目复盘与工程实践文章。","url":"https://wenliang844.github.io/tags/","inLanguage":"zh-CN","isPartOf":{"@type":"WebSite","name":"CWLBlog","url":"https://wenliang844.github.io/"},"mainEntity":{"@type":"ItemList","numberOfItems":24,"itemListElement":[{"@type":"ListItem","position":1,"name":"Java","url":"https://wenliang844.github.io/post/?tag=Java","item":{"@type":"Thing","name":"Java","alternateName":"Java","additionalProperty":{"@type":"PropertyValue","name":"postCount","value":3}}},{"@type":"ListItem","position":2,"name":"Spring Boot","url":"https://wenliang844.github.io/post/?tag=Spring%20Boot","item":{"@type":"Thing","name":"Spring Boot","alternateName":"Spring Boot","additionalProperty":{"@type":"PropertyValue","name":"postCount","value":3}}},{"@type":"ListItem","position":3,"name":"Rule Engine","url":"https://wenliang844.github.io/post/?tag=%E8%A7%84%E5%88%99%E5%BC%95%E6%93%8E","item":{"@type":"Thing","name":"规则引擎","alternateName":"Rule Engine","additionalProperty":{"@type":"PropertyValue","name":"postCount","value":2}}},{"@type":"ListItem","position":4,"name":"Video Analysis","url":"https://wenliang844.github.io/post/?tag=%E8%A7%86%E9%A2%91%E5%88%86%E6%9E%90","item":{"@type":"Thing","name":"视频分析","alternateName":"Video Analysis","additionalProperty":{"@type":"PropertyValue","name":"postCount","value":2}}},{"@type":"ListItem","position":5,"name":"Code Generation","url":"https://wenliang844.github.io/post/?tag=%E4%BB%A3%E7%A0%81%E7%94%9F%E6%88%90","item":{"@type":"Thing","name":"代码生成","alternateName":"Code Generation","additionalProperty":{"@type":"PropertyValue","name":"postCount","value":1}}},{"@type":"ListItem","position":6,"name":"Low-Code","url":"https://wenliang844.github.io/post/?tag=%E4%BD%8E%E4%BB%A3%E7%A0%81","item":{"@type":"Thing","name":"低代码","alternateName":"Low-Code","additionalProperty":{"@type":"PropertyValue","name":"postCount","value":1}}},{"@type":"ListItem","position":7,"name":"Alert System","url":"https://wenliang844.github.io/post/?tag=%E5%91%8A%E8%AD%A6%E7%B3%BB%E7%BB%9F","item":{"@type":"Thing","name":"告警系统","alternateName":"Alert System","additionalProperty":{"@type":"PropertyValue","name":"postCount","value":1}}},{"@type":"ListItem","position":8,"name":"Engineering Efficiency","url":"https://wenliang844.github.io/post/?tag=%E5%B7%A5%E7%A8%8B%E6%95%88%E7%8E%87","item":{"@type":"Thing","name":"工程效率","alternateName":"Engineering Efficiency","additionalProperty":{"@type":"PropertyValue","name":"postCount","value":1}}},{"@type":"ListItem","position":9,"name":"Workflow","url":"https://wenliang844.github.io/post/?tag=%E5%B7%A5%E4%BD%9C%E6%B5%81","item":{"@type":"Thing","name":"工作流","alternateName":"Workflow","additionalProperty":{"@type":"PropertyValue","name":"postCount","value":1}}},{"@type":"ListItem","position":10,"name":"Activiti 7","url":"https://wenliang844.github.io/post/?tag=Activiti%207","item":{"@type":"Thing","name":"Activiti 7","alternateName":"Activiti 7","additionalProperty":{"@type":"PropertyValue","name":"postCount","value":1}}},{"@type":"ListItem","position":11,"name":"AI Coding","url":"https://wenliang844.github.io/post/?tag=AI%20Coding","item":{"@type":"Thing","name":"AI Coding","alternateName":"AI Coding","additionalProperty":{"@type":"PropertyValue","name":"postCount","value":1}}},{"@type":"ListItem","position":12,"name":"BPMN 2.0","url":"https://wenliang844.github.io/post/?tag=BPMN%202.0","item":{"@type":"Thing","name":"BPMN 2.0","alternateName":"BPMN 2.0","additionalProperty":{"@type":"PropertyValue","name":"postCount","value":1}}},{"@type":"ListItem","position":13,"name":"Claude","url":"https://wenliang844.github.io/post/?tag=Claude","item":{"@type":"Thing","name":"Claude","alternateName":"Claude","additionalProperty":{"@type":"PropertyValue","name":"postCount","value":1}}},{"@type":"ListItem","position":14,"name":"Codex","url":"https://wenliang844.github.io/post/?tag=Codex","item":{"@type":"Thing","name":"Codex","alternateName":"Codex","additionalProperty":{"@type":"PropertyValue","name":"postCount","value":1}}},{"@type":"ListItem","position":15,"name":"Dubbo","url":"https://wenliang844.github.io/post/?tag=Dubbo","item":{"@type":"Thing","name":"Dubbo","alternateName":"Dubbo","additionalProperty":{"@type":"PropertyValue","name":"postCount","value":1}}},{"@type":"ListItem","position":16,"name":"Elasticsearch","url":"https://wenliang844.github.io/post/?tag=Elasticsearch","item":{"@type":"Thing","name":"Elasticsearch","alternateName":"Elasticsearch","additionalProperty":{"@type":"PropertyValue","name":"postCount","value":1}}},{"@type":"ListItem","position":17,"name":"ONNX Runtime","url":"https://wenliang844.github.io/post/?tag=ONNX%20Runtime","item":{"@type":"Thing","name":"ONNX Runtime","alternateName":"ONNX Runtime","additionalProperty":{"@type":"PropertyValue","name":"postCount","value":1}}},{"@type":"ListItem","position":18,"name":"RabbitMQ","url":"https://wenliang844.github.io/post/?tag=RabbitMQ","item":{"@type":"Thing","name":"RabbitMQ","alternateName":"RabbitMQ","additionalProperty":{"@type":"PropertyValue","name":"postCount","value":1}}},{"@type":"ListItem","position":19,"name":"React","url":"https://wenliang844.github.io/post/?tag=React","item":{"@type":"Thing","name":"React","alternateName":"React","additionalProperty":{"@type":"PropertyValue","name":"postCount","value":1}}},{"@type":"ListItem","position":20,"name":"Redis","url":"https://wenliang844.github.io/post/?tag=Redis","item":{"@type":"Thing","name":"Redis","alternateName":"Redis","additionalProperty":{"@type":"PropertyValue","name":"postCount","value":1}}},{"@type":"ListItem","position":21,"name":"RocketMQ","url":"https://wenliang844.github.io/post/?tag=RocketMQ","item":{"@type":"Thing","name":"RocketMQ","alternateName":"RocketMQ","additionalProperty":{"@type":"PropertyValue","name":"postCount","value":1}}},{"@type":"ListItem","position":22,"name":"Schema","url":"https://wenliang844.github.io/post/?tag=Schema","item":{"@type":"Thing","name":"Schema","alternateName":"Schema","additionalProperty":{"@type":"PropertyValue","name":"postCount","value":1}}},{"@type":"ListItem","position":23,"name":"TypeScript","url":"https://wenliang844.github.io/post/?tag=TypeScript","item":{"@type":"Thing","name":"TypeScript","alternateName":"TypeScript","additionalProperty":{"@type":"PropertyValue","name":"postCount","value":1}}},{"@type":"ListItem","position":24,"name":"Vibe Coding","url":"https://wenliang844.github.io/post/?tag=Vibe%20Coding","item":{"@type":"Thing","name":"Vibe Coding","alternateName":"Vibe Coding","additionalProperty":{"@type":"PropertyValue","name":"postCount","value":1}}}]}}</script>
+    <title>标签 :: CWLBlog</title>
+  </head>
+  <body class="colorscheme-dark" data-i18n-page="tags" data-i18n-title-en="Tags :: CWLBlog" data-language-mode="bilingual">
+    <a class="skip-link" href="#main-content" data-i18n="nav.skip">跳到主要内容</a>
+    <div class="cursor-glow" aria-hidden="true"></div>
+    <canvas class="cursor-canvas" aria-hidden="true"></canvas>
+    <div class="site-shell">
+      <header class="navigation">
+  <section class="container">
+    <a class="navigation-title" href="/">CWLBlog</a>
+    <input type="checkbox" id="menu-toggle" class="menu-toggle" aria-label="Toggle menu" data-i18n-aria="nav.menu">
+    <label class="menu-button" for="menu-toggle"><i class="fas fa-bars"></i></label>
+    <label class="menu-overlay" for="menu-toggle" aria-hidden="true"></label>
+    <nav class="navigation-list" aria-label="Main navigation" data-i18n-aria="nav.main">
+      <ul>
+        <li>
+            <a class="active nav-blog-main" href="/post/" data-i18n="nav.blog" data-i18n-html data-i18n-en-html="<i class=&quot;fas fa-book-open&quot; aria-hidden=&quot;true&quot;></i> Blog">
+              <i class="fas fa-book-open" aria-hidden="true"></i> 博客
+            </a>
+          </li><li>
+            <a href="/ai/" data-i18n="nav.ai">
+              AI中转站排名
+            </a>
+          </li><li>
+            <a href="/appreciation/" data-i18n="nav.appreciation">
+              观察家
+            </a>
+          </li>
+        <li class="nav-more">
+          <details>
+            <summary class="nav-more-toggle" data-i18n="nav.more" data-i18n-html data-i18n-en-html="<i class=&quot;fas fa-ellipsis-h&quot; aria-hidden=&quot;true&quot;></i> More">
+              <i class="fas fa-ellipsis-h" aria-hidden="true"></i> 更多
+            </summary>
+            <ul class="nav-more-menu">
+              <li><a href="/knowledge/" data-i18n="nav.knowledge">知识资产</a></li><li><a href="/tools/" data-i18n="nav.tools">工具箱</a></li><li><a href="/overleaf/" data-i18n="nav.overleaf">简历模版</a></li>
+            </ul>
+          </details>
+        </li>
+        <li><a class="nav-feedback" href="/contact/" data-i18n="nav.feedback" data-i18n-html><i class="fas fa-comment-dots" aria-hidden="true"></i> 留言反馈</a></li>
+        <li><button class="nav-subscribe" type="button" data-subscribe-open data-i18n="nav.subscribe" data-i18n-html><i class="fas fa-envelope" aria-hidden="true"></i> 订阅</button></li>
+        <li><a class="nav-sponsor" href="/sponsor/" data-i18n="nav.sponsor" data-i18n-html><i class="fas fa-heart" aria-hidden="true"></i> 赞助</a></li>
+        <li><a class="nav-chat" href="/chat/" aria-label="打开在线聊天室" title="打开在线聊天室" data-i18n-aria="nav.chat" data-i18n-title="nav.chat"><i class="fas fa-comments" aria-hidden="true"></i></a></li>
+        <li><button class="theme-toggle" type="button" aria-label="切换主题" data-i18n-aria="nav.theme"><i class="fas fa-adjust"></i></button></li><li><button class="lang-toggle" type="button" aria-label="Switch language">EN</button></li>
+        <li><button class="nav-search-trigger" type="button" aria-label="全局搜索（Ctrl+K 或 /）" title="全局搜索（Ctrl+K 或 /）" data-i18n-aria="nav.searchHint" data-i18n-title="nav.searchHint"><i class="fas fa-search"></i></button></li>
+        <li><button class="nav-ai-experience assistant-nav-trigger" type="button" aria-label="打开 AI 助手" title="打开 AI 助手" data-assistant-toggle data-i18n-aria="assistant.open" data-i18n-title="assistant.open"><span aria-hidden="true">AI</span></button></li>
+      </ul>
+    </nav>
+  </section>
+</header>
+  <main id="main-content" class="content" data-pagefind-body>
+  <section class="list-page container">
+    <h1 data-i18n="tags.title" data-i18n-en="Tags">标签</h1>
+    <p class="lead" data-i18n="tags.lead">按技术标签浏览文章，点击任意标签跳转到博客列表并自动筛选。</p>
+    <div class="tag-filter tag-cloud" aria-label="标签云" data-i18n-aria="tags.cloud.aria">
+      <a class="tag-chip" href="/post/?tag=Java">
+          <span data-i18n="tag.Java" data-i18n-en="Java">Java</span> <span class="tag-count">3</span>
+        </a><a class="tag-chip" href="/post/?tag=Spring%20Boot">
+          <span data-i18n="tag.Spring Boot" data-i18n-en="Spring Boot">Spring Boot</span> <span class="tag-count">3</span>
+        </a><a class="tag-chip" href="/post/?tag=%E8%A7%84%E5%88%99%E5%BC%95%E6%93%8E">
+          <span data-i18n="tag.规则引擎" data-i18n-en="Rule Engine">规则引擎</span> <span class="tag-count">2</span>
+        </a><a class="tag-chip" href="/post/?tag=%E8%A7%86%E9%A2%91%E5%88%86%E6%9E%90">
+          <span data-i18n="tag.视频分析" data-i18n-en="Video Analysis">视频分析</span> <span class="tag-count">2</span>
+        </a><a class="tag-chip" href="/post/?tag=%E4%BB%A3%E7%A0%81%E7%94%9F%E6%88%90">
+          <span data-i18n="tag.代码生成" data-i18n-en="Code Generation">代码生成</span> <span class="tag-count">1</span>
+        </a><a class="tag-chip" href="/post/?tag=%E4%BD%8E%E4%BB%A3%E7%A0%81">
+          <span data-i18n="tag.低代码" data-i18n-en="Low-Code">低代码</span> <span class="tag-count">1</span>
+        </a><a class="tag-chip" href="/post/?tag=%E5%91%8A%E8%AD%A6%E7%B3%BB%E7%BB%9F">
+          <span data-i18n="tag.告警系统" data-i18n-en="Alert System">告警系统</span> <span class="tag-count">1</span>
+        </a><a class="tag-chip" href="/post/?tag=%E5%B7%A5%E7%A8%8B%E6%95%88%E7%8E%87">
+          <span data-i18n="tag.工程效率" data-i18n-en="Engineering Efficiency">工程效率</span> <span class="tag-count">1</span>
+        </a><a class="tag-chip" href="/post/?tag=%E5%B7%A5%E4%BD%9C%E6%B5%81">
+          <span data-i18n="tag.工作流" data-i18n-en="Workflow">工作流</span> <span class="tag-count">1</span>
+        </a><a class="tag-chip" href="/post/?tag=Activiti%207">
+          <span data-i18n="tag.Activiti 7" data-i18n-en="Activiti 7">Activiti 7</span> <span class="tag-count">1</span>
+        </a><a class="tag-chip" href="/post/?tag=AI%20Coding">
+          <span data-i18n="tag.AI Coding" data-i18n-en="AI Coding">AI Coding</span> <span class="tag-count">1</span>
+        </a><a class="tag-chip" href="/post/?tag=BPMN%202.0">
+          <span data-i18n="tag.BPMN 2.0" data-i18n-en="BPMN 2.0">BPMN 2.0</span> <span class="tag-count">1</span>
+        </a><a class="tag-chip" href="/post/?tag=Claude">
+          <span data-i18n="tag.Claude" data-i18n-en="Claude">Claude</span> <span class="tag-count">1</span>
+        </a><a class="tag-chip" href="/post/?tag=Codex">
+          <span data-i18n="tag.Codex" data-i18n-en="Codex">Codex</span> <span class="tag-count">1</span>
+        </a><a class="tag-chip" href="/post/?tag=Dubbo">
+          <span data-i18n="tag.Dubbo" data-i18n-en="Dubbo">Dubbo</span> <span class="tag-count">1</span>
+        </a><a class="tag-chip" href="/post/?tag=Elasticsearch">
+          <span data-i18n="tag.Elasticsearch" data-i18n-en="Elasticsearch">Elasticsearch</span> <span class="tag-count">1</span>
+        </a><a class="tag-chip" href="/post/?tag=ONNX%20Runtime">
+          <span data-i18n="tag.ONNX Runtime" data-i18n-en="ONNX Runtime">ONNX Runtime</span> <span class="tag-count">1</span>
+        </a><a class="tag-chip" href="/post/?tag=RabbitMQ">
+          <span data-i18n="tag.RabbitMQ" data-i18n-en="RabbitMQ">RabbitMQ</span> <span class="tag-count">1</span>
+        </a><a class="tag-chip" href="/post/?tag=React">
+          <span data-i18n="tag.React" data-i18n-en="React">React</span> <span class="tag-count">1</span>
+        </a><a class="tag-chip" href="/post/?tag=Redis">
+          <span data-i18n="tag.Redis" data-i18n-en="Redis">Redis</span> <span class="tag-count">1</span>
+        </a><a class="tag-chip" href="/post/?tag=RocketMQ">
+          <span data-i18n="tag.RocketMQ" data-i18n-en="RocketMQ">RocketMQ</span> <span class="tag-count">1</span>
+        </a><a class="tag-chip" href="/post/?tag=Schema">
+          <span data-i18n="tag.Schema" data-i18n-en="Schema">Schema</span> <span class="tag-count">1</span>
+        </a><a class="tag-chip" href="/post/?tag=TypeScript">
+          <span data-i18n="tag.TypeScript" data-i18n-en="TypeScript">TypeScript</span> <span class="tag-count">1</span>
+        </a><a class="tag-chip" href="/post/?tag=Vibe%20Coding">
+          <span data-i18n="tag.Vibe Coding" data-i18n-en="Vibe Coding">Vibe Coding</span> <span class="tag-count">1</span>
+        </a>
+    </div>
+  </section>
+</main>
+<footer class="footer">
+  <section class="container">
+    <div class="subscribe">
+      <p class="subscribe-title" data-i18n="subscribe.title">订阅更新 · 新文章邮件提醒</p>
+      <form class="subscribe-form" novalidate>
+        <input class="subscribe-input" type="email" name="email" required autocomplete="email" placeholder="输入你的邮箱" data-i18n-ph="subscribe.ph" aria-label="Email">
+        <button class="subscribe-btn" type="submit" data-i18n="subscribe.btn">订阅</button>
+      </form>
+      <p class="subscribe-status" role="status" aria-live="polite"></p>
+    </div>
+    <div class="sponsor-mini" aria-label="赞助支持选项" data-i18n-aria="sponsorMini.aria">
+      <p class="sponsor-mini-text" data-i18n="sponsorMini.text">如果内容对你有帮助，可以支持我继续更新。</p>
+      <div class="sponsor-mini-actions">
+        <a class="sponsor-mini-btn sponsor-mini-primary" href="https://www.ifdian.net/order/create?plan_id=047bc28a6a1c11f182c452540025c377&amp;product_type=0&amp;remark=&amp;affiliate_code=" target="_blank" rel="noopener noreferrer" data-i18n="sponsorMini.afdian">☕ 赞助</a>
+        <a class="sponsor-mini-btn sponsor-mini-secondary" href="https://PayPal.Me/chenwenliang4212" target="_blank" rel="noopener noreferrer" data-i18n="sponsorMini.paypal">💳 PayPal 支持</a>
+      </div>
+    </div>
+    <p data-i18n="footer.text">© 2021 - 2026 CWL · Powered by Cwl · Theme inspired by Coder</p>
+  </section>
+</footer>
+    </div>
+  </body>
 </html>

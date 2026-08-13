@@ -4,6 +4,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { JSDOM } from "jsdom";
+import { loadClientModule } from "./helpers/client-module.mjs";
 
 const ROOT = join(import.meta.dirname, "..");
 const GISCUS_TEST_CONFIG = {
@@ -40,8 +41,8 @@ async function loadGiscus(dom, options = {}) {
   if (options.config) {
     dom.window.CWL_GISCUS_CONFIG = options.config;
   }
-  const code = await readFile(join(ROOT, "js", "giscus.js"), "utf8");
-  dom.window.eval(code);
+  const module = await loadClientModule(dom, "src/client/giscus.ts", "GiscusClient");
+  module.initGiscus(dom.window.document, dom.window);
   dom.window.dispatchEvent(new dom.window.Event("load"));
   return dom;
 }
@@ -107,7 +108,7 @@ test("giscus.js createPlaceholder parses <code> tags in message", async () => {
   const codeEl = thread.querySelector("code");
 
   if (codeEl) {
-    assert.equal(codeEl.textContent, "js/giscus.js", "code element should contain the file path");
+    assert.equal(codeEl.textContent, "src/client/giscus.ts", "code element should contain the module path");
   }
   // If no code element, the i18n fallback may not have <code> tags — that's also valid
   assert.ok(true, "placeholder rendered without error");
@@ -258,7 +259,7 @@ test("giscus.js disconnects observer on pagehide in switch mode", async () => {
 
 test("giscus.js switchTerm sends postMessage to iframe", async () => {
   // Verify the source code has the correct postMessage structure
-  const code = await readFile(join(ROOT, "js", "giscus.js"), "utf8");
+  const code = await readFile(join(ROOT, "src", "client", "giscus.ts"), "utf8");
 
   // Check switchTerm uses postMessage with setConfig
   assert.ok(code.includes("postMessage"), "should use postMessage");
@@ -302,8 +303,8 @@ test("giscus.js showTerm skips when term matches loadedTerm", async () => {
   const i18nCode = await readFile(join(ROOT, "js", "i18n.js"), "utf8");
   dom.window.eval(i18nCode);
   dom.window.CWL_GISCUS_CONFIG = GISCUS_TEST_CONFIG;
-  const giscusCode = await readFile(join(ROOT, "js", "giscus.js"), "utf8");
-  dom.window.eval(giscusCode);
+  const module = await loadClientModule(dom, "src/client/giscus.ts", "GiscusClient");
+  module.initGiscus(dom.window.document, dom.window);
   dom.window.dispatchEvent(new dom.window.Event("load"));
 
   // Script should have loaded once for the active article
@@ -328,9 +329,8 @@ test("giscus.js exits gracefully without giscus-thread element", async () => {
   const i18nCode = await readFile(join(ROOT, "js", "i18n.js"), "utf8");
   dom.window.eval(i18nCode);
 
-  const code = await readFile(join(ROOT, "js", "giscus.js"), "utf8");
-  // Should not throw
-  dom.window.eval(code);
+  const module = await loadClientModule(dom, "src/client/giscus.ts", "GiscusClient");
+  module.initGiscus(dom.window.document, dom.window);
   assert.ok(true, "should exit gracefully without giscus-thread");
 
   dom.window.close();

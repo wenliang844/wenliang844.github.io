@@ -1,0 +1,18 @@
+---
+interface Props {
+  html: string;
+  lang?: "zh" | "en";
+  hidden?: boolean;
+  headingIdPrefix?: string;
+}
+
+const { html, lang, hidden = false, headingIdPrefix = "" } = Astro.props;
+const renderedHtml = headingIdPrefix
+  ? html
+      .replace(/\sid="(toc-[^"]+)"/g, ` id="${headingIdPrefix}-$1"`)
+      .replace(/\shref="#(toc-[^"]+)"/g, ` href="#${headingIdPrefix}-$1"`)
+  : html;
+---
+<div class="article-content" data-i18n-lang={lang} hidden={hidden || undefined}>
+  <Fragment set:html={renderedHtml} />
+</div>

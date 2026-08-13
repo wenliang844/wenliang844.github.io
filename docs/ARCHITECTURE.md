@@ -13,7 +13,7 @@ src/posts/*.md + src/content.config.ts + images/posts/*
           |                          |
           v                          v
  Astro Content Collections     scripts/build.mjs
- Schema / /post 路由           图片、RSS、Sitemap、知识派生
+ Schema / 内容路由             图片、RSS、Sitemap、知识派生
           |                          |
           +------------+-------------+
                        v
@@ -23,9 +23,9 @@ src/posts/*.md + src/content.config.ts + images/posts/*
               GitHub Pages / CDN
 ```
 
-Astro Content Collections 已接管 `/post/` 列表和 `/post/{slug}/` 详情路由，并在路由生成前执行类型化 front matter Schema。`scripts/build.mjs` 仍负责统一文章领域模型、`draft: true` 隔离、图片处理，以及分类、系列、标签、知识资产、RSS 和 Sitemap 等派生产物；`scripts/sync-astro-output.mjs` 只允许把 Astro 的 `post/` 输出覆盖到 GitHub Pages 根目录。当前兼容层继续复用成熟的 HTML 模板，因此迁移前后的 URL、canonical、正文和交互保持一致。
+Astro Content Collections 已接管 `/post/`、`/categories/`、`/series/`、`/tags/`、`/knowledge/` 共 18 个内容页面，并在路由生成前执行类型化 front matter Schema。文档骨架、head、导航和页脚由 `BaseLayout.astro` 生成；文章详情、文章列表阅读器，以及分类、系列、标签和知识内容区均已改为结构化 Astro 组件。列表阅读器使用专用 `PostListPage.astro` / `PostPanel.astro` 保留多面板、标题 ID 前缀、筛选、键盘导航和评论线程切换。通用布局只接受组件插槽，不能注入任意正文 HTML；只有 `MarkdownContent.astro` 可以渲染经过构建器处理和测试的 Markdown HTML。`scripts/build.mjs --skip-astro-html` 只负责共享文章领域模型、`draft: true` 隔离、图片处理、RSS、Sitemap、知识 JSON 和其他尚未迁移页面。`scripts/sync-astro-output.mjs` 通过五个目录的显式白名单把 Astro HTML 同步到 GitHub Pages 根目录，同时保留 `categories/index.xml` 与 `knowledge/*.json`，并用当前 Vite `_astro` 目录整体替换旧哈希资产。
 
-Sharp 校验本地封面并生成 960px AVIF/WebP；Pagefind 对最终 HTML 的完整正文建索引；`knowledge/chunks.json` 以稳定哈希输出公开正文分块，供边缘混合检索和向量更新使用。`knowledge/health.json` 派生主题覆盖、内容陈旧度、链接孤立和维护优先级，知识资产页直接消费同一模型。迁移边界和后续拆分顺序见 [Astro 迁移说明](ASTRO_MIGRATION.md)。
+Sharp 校验本地封面并生成 960px AVIF/WebP；Pagefind 对最终 HTML 的完整正文建索引。`scripts/build-search.mjs` 在验证目标路径后清理旧哈希资产再重建，避免历史分片随内容变更持续累积；C++、C# 等技术字符仍显式纳入索引。`knowledge/chunks.json` 以稳定哈希输出公开正文分块，供边缘混合检索和向量更新使用。`knowledge/health.json` 派生主题覆盖、内容陈旧度、链接孤立和维护优先级，知识资产页直接消费同一模型。迁移边界和后续拆分顺序见 [Astro 迁移说明](ASTRO_MIGRATION.md)。
 
 ## 内容模型
 
@@ -40,9 +40,9 @@ Sharp 校验本地封面并生成 960px AVIF/WebP；Pagefind 对最终 HTML 的�
 
 ## 浏览器架构
 
-- `/post/` 路由由 `src/pages/post/` 中的 Astro 页面生成；共享布局暂由 `src/templates/layout.mjs` 兼容输出，下一阶段再拆为原生 Astro 组件。
+- 文章、分类、系列、标签与知识路由由 `src/pages/` 中的 Astro 页面生成；详情页和聚合页内容使用 `src/components/` 下的领域组件，只有文章 Markdown HTML 被隔离在命名明确的 `MarkdownContent.astro` 边界中。布局安全状态仍与兼容构建器共享唯一配置源。
 - `css/coder.css` 承载既有全站样式，`css/content.css` 承载文章、知识页和新增内容组件；后续继续按 token/layout/component/page 拆分。
-- 浏览器脚本大部分仍是全局 IIFE，按页面使用 `defer` 加载；CodeMirror 工作台已使用 TypeScript、esbuild 和严格 `tsc --noEmit` 门禁，其他脚本将渐进迁移为 ES Modules/TypeScript。
+- 浏览器交互已收敛到 `src/client/` TypeScript。`site-runtime.ts` 唯一负责主题、返回顶部、渐显、技能条和指针效果，具备幂等初始化以及 `pagehide`/bfcache 生命周期管理；Astro 路由由 Vite 直接导入，尚未迁移的兼容页使用从同一源码生成的 `/js/coder.js` 小型 IIFE。文章列表模块是面板状态的唯一所有者，已移除 `window.coderShowPost` 全局 API。下一篇推荐用文章尾部 `IntersectionObserver` 触发；分享与评论接近视口时才动态导入，二维码 vendor 也只随分享模块加载。语法高亮只观察首个代码块，在其进入 800px 预取区时复用或加载独立的本地 Highlight.js vendor，不把 123 KB 库打入文章入口模块。
 - 搜索优先使用 Pagefind，保留 `search-index.json` 作为兼容数据源。
 - 编辑器使用 CodeMirror 6 和 IndexedDB 保存多草稿，支持 Markdown 诊断、快捷格式、WikiLink 与预览同步；草稿数据不上传、不进入 Service Worker 缓存。认证作者可申请短期图片上传许可，许可与 CSRF 只存在页面内存。
 
@@ -51,12 +51,12 @@ Sharp 校验本地封面并生成 960px AVIF/WebP；Pagefind 对最终 HTML 的�
 `service-worker.js` 只处理同源 GET 请求：
 
 - 文章、分类、系列、标签和知识页：网络优先，离线时回退到已访问版本。
-- CSS、JavaScript、图片、字体和 Pagefind：缓存命中后立即返回，并在后台更新。
+- CSS、`/_astro/` 哈希模块、传统 JavaScript、图片、字体和 Pagefind：缓存命中后立即返回，并在后台更新。
 - `/editor/`、`/overleaf/`、`/api/`：页面请求以及由这些页面发起的同源子资源请求全部绕过 Service Worker。
 
 私有边界同时检查请求 URL 与 `request.referrer`，避免已控制页面把 `/js/editor*.js` 等创作资源写入共享缓存。缓存有显式版本号，激活新版本时仅清理带 `cwlblog-public-` 前缀的旧缓存，不触碰其他站点数据。
 
-`build:pwa` 会对 Service Worker 逻辑以及公开 `css/js/images/fonts`、离线页和 Manifest 计算内容哈希并写入缓存名。新 HTML 与旧 CSS/JS 因部署顺序混用的窗口因此受控；相同输入重复构建保持同一版本。
+`build:pwa` 会对 Service Worker 逻辑以及公开 `_astro/css/js/images/fonts`、离线页和 Manifest 计算内容哈希并写入缓存名。新 HTML 与旧 CSS/JS 因部署顺序混用的窗口因此受控；相同输入重复构建保持同一版本。
 
 ## 内容关系
 
@@ -94,6 +94,6 @@ Markdown 支持 `[[slug|显示文字]]` 和普通站内文章链接。构建器�
 
 ## 目标演进
 
-近期继续保持静态优先：文章集合和路由已迁移到 Astro Content Collections/TypeScript，下一步迁移公共布局并拆分浏览器 IIFE。Git 仍是唯一内容源。只有资源上传、Git PR 发布、带引用的 AI 问答等动态请求进入版本化边缘 API。向量分块、资源元数据和审计日志可使用独立数据库，文章正文不得与 Git 双写。
+近期继续保持静态优先：核心内容路由、公共文档骨架、文章详情、文章列表阅读器、阅读器交互、全站主题/视觉入口和聚合内容区已迁移到 Astro Content Collections/TypeScript。下一步逐步迁移工具箱及其他公共页面，缩小并最终删除兼容静态 bundle。Git 仍是唯一内容源。只有资源上传、Git PR 发布、带引用的 AI 问答等动态请求进入版本化边缘 API。向量分块、资源元数据和审计日志可使用独立数据库，文章正文不得与 Git 双写。
 
 多用户、租户、会员、主题市场和插件市场不在当前系统边界内；达到明确用户规模后再评估平台化。

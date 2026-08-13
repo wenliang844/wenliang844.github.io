@@ -4,6 +4,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { JSDOM } from "jsdom";
+import { loadClientModule } from "./helpers/client-module.mjs";
 
 const ROOT = join(import.meta.dirname, "..");
 
@@ -27,8 +28,8 @@ async function loadShare(dom) {
   dom.window.eval(utilsCode);
   const i18nCode = await readFile(join(ROOT, "js", "i18n.js"), "utf8");
   dom.window.eval(i18nCode);
-  const code = await readFile(join(ROOT, "js", "share.js"), "utf8");
-  dom.window.eval(code);
+  const module = await loadClientModule(dom, "src/client/share.ts", "ShareClient");
+  module.initShare(dom.window.document, dom.window);
 }
 
 test("share.js converts relative URL to absolute using origin", async () => {
@@ -84,8 +85,8 @@ test("share.js English title uses data-share-title-en", async () => {
   await loadAssistantDepsFn(dom);
   dom.window.cwlSetLang("en");
 
-  const shareCode = await readFile(join(ROOT, "js", "share.js"), "utf8");
-  dom.window.eval(shareCode);
+  const module = await loadClientModule(dom, "src/client/share.ts", "ShareClient");
+  module.initShare(dom.window.document, dom.window);
 
   const xLink = dom.window.document.querySelector('[data-share="x"]');
   const href = xLink.getAttribute("href");
@@ -230,8 +231,8 @@ test("share.js flashCopied prevents double-click", async () => {
 
   const i18nCode = await readFile(join(ROOT, "js", "i18n.js"), "utf8");
   dom.window.eval(i18nCode);
-  const shareCode = await readFile(join(ROOT, "js", "share.js"), "utf8");
-  dom.window.eval(shareCode);
+  const module = await loadClientModule(dom, "src/client/share.ts", "ShareClient");
+  module.initShare(dom.window.document, dom.window);
 
   const copyBtn = dom.window.document.querySelector('[data-share="copy"]');
 
@@ -294,9 +295,8 @@ test("share.js exits without share bars", async () => {
   const i18nCode = await readFile(join(ROOT, "js", "i18n.js"), "utf8");
   dom.window.eval(i18nCode);
 
-  const code = await readFile(join(ROOT, "js", "share.js"), "utf8");
-  // Should not throw
-  dom.window.eval(code);
+  const module = await loadClientModule(dom, "src/client/share.ts", "ShareClient");
+  module.initShare(dom.window.document, dom.window);
   assert.ok(true, "should exit gracefully without share bars");
 
   dom.window.close();

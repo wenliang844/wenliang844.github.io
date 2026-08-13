@@ -1,0 +1,18 @@
+---
+import { collectSeries } from "../../../../scripts/build.mjs";
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import TaxonomyDetailPage from "../../../components/TaxonomyDetailPage.astro";
+import { getPublishedPosts } from "../../../lib/astro-posts";
+import { buildTaxonomyDetailPageMetadata } from "../../../templates/taxonomy.mjs";
+
+export async function getStaticPaths() {
+  const groups = collectSeries(await getPublishedPosts());
+  return groups.map((group) => ({ params: { series: group.id }, props: { group } }));
+}
+
+const group = Astro.props.group;
+const page = buildTaxonomyDetailPageMetadata(group, "series");
+---
+<BaseLayout {...page}>
+  <TaxonomyDetailPage {group} kind="series" />
+</BaseLayout>

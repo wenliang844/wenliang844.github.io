@@ -13,11 +13,10 @@ function renderPostRow(post, index, kind) {
           </li>`;
 }
 
-export function renderTaxonomyDetail(group, kind) {
+export function buildTaxonomyDetailPageModel(group, kind) {
   const noun = kind === "series" ? "系列" : "分类";
   const base = kind === "series" ? "/series/" : "/categories/";
   const rows = group.posts.map((post, index) => renderPostRow(post, index, kind)).join("\n");
-  const description = `${group.name}：${group.description}`;
   const main = `    <main id="main-content" class="content">
       <section class="list-page container taxonomy-page">
         <a class="taxonomy-back" href="${base}">← 返回${noun}</a>
@@ -30,7 +29,17 @@ ${rows}
       </section>
     </main>`;
 
-  return renderPage({
+  return {
+    ...buildTaxonomyDetailPageMetadata(group, kind),
+    main,
+  };
+}
+
+export function buildTaxonomyDetailPageMetadata(group, kind) {
+  const noun = kind === "series" ? "系列" : "分类";
+  const base = kind === "series" ? "/series/" : "/categories/";
+  const description = `${group.name}：${group.description}`;
+  return {
     title: `${group.name} :: CWLBlog`,
     description,
     active: "blog",
@@ -53,17 +62,19 @@ ${rows}
       },
     }),
     og: { type: "website", title: group.name, description, path: `${base}${group.id}/` },
-    main,
-  });
+  };
 }
 
-export function renderSeriesIndex(groups) {
+export function renderTaxonomyDetail(group, kind) {
+  return renderPage(buildTaxonomyDetailPageModel(group, kind));
+}
+
+export function buildSeriesIndexPageModel(groups) {
   const cards = groups.map((group) => `          <a class="taxonomy-card" href="/series/${escapeAttr(group.id)}/">
             <span class="eyebrow">${group.posts.length} 篇</span>
             <strong>${escapeHtml(group.name)}</strong>
             <span>${escapeHtml(group.description)}</span>
           </a>`).join("\n");
-  const description = "按连续阅读顺序整理 CWLBlog 的技术文章系列。";
   const main = `    <main id="main-content" class="content">
       <section class="list-page container taxonomy-page">
         <span class="eyebrow">Reading Paths</span>
@@ -74,7 +85,15 @@ ${cards}
         </div>
       </section>
     </main>`;
-  return renderPage({
+  return {
+    ...buildSeriesIndexPageMetadata(groups),
+    main,
+  };
+}
+
+export function buildSeriesIndexPageMetadata(groups) {
+  const description = "按连续阅读顺序整理 CWLBlog 的技术文章系列。";
+  return {
     title: "文章系列 :: CWLBlog",
     description,
     active: "blog",
@@ -97,6 +116,9 @@ ${cards}
       },
     }),
     og: { type: "website", title: "文章系列", description, path: "/series/" },
-    main,
-  });
+  };
+}
+
+export function renderSeriesIndex(groups) {
+  return renderPage(buildSeriesIndexPageModel(groups));
 }

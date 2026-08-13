@@ -2,7 +2,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { buildAssetReferences, collectCategories, collectSeries, normalizeDate, validateContentTaxonomy, validateSlug, validatePost, tidyHtml, renderContent, readingMinutes, relatedPosts, isDraftPost } from "../scripts/build.mjs";
-import { readFile, mkdir, mkdtemp, rm } from "node:fs/promises";
+import { access, readFile, mkdir, mkdtemp, rm } from "node:fs/promises";
 import { join } from "node:path";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
@@ -70,6 +70,27 @@ function extractJsonLd(html) {
   assert.ok(ldMatch, "page should include JSON-LD script");
   return JSON.parse(ldMatch[1]);
 }
+
+test("hybrid content build leaves Astro-owned HTML to Astro", async () => {
+  const tempRoot = join(ROOT, "temp");
+  await mkdir(tempRoot, { recursive: true });
+  const outDir = await mkdtemp(join(tempRoot, "cwlblog-derived-"));
+  try {
+    await runBuild(["--out", outDir, "--skip-astro-html"]);
+    await assert.rejects(access(join(outDir, "post", "index.html")));
+    await assert.rejects(access(join(outDir, "categories", "index.html")));
+    await assert.rejects(access(join(outDir, "series", "index.html")));
+    await assert.rejects(access(join(outDir, "tags", "index.html")));
+    await assert.rejects(access(join(outDir, "knowledge", "index.html")));
+    await access(join(outDir, "knowledge", "graph.json"));
+    await access(join(outDir, "knowledge", "health.json"));
+    await access(join(outDir, "knowledge", "chunks.json"));
+    await access(join(outDir, "post", "index.xml"));
+    await access(join(outDir, "sitemap.xml"));
+  } finally {
+    await rm(outDir, { recursive: true, force: true });
+  }
+});
 
 // ─── collectTags 排序与去重 ─────────────────────────────────────────────────
 

@@ -416,7 +416,7 @@ tar -xzf blog-backup-YYYYMMDD-HHMMSS.tar.gz
 
 本项目不使用服务器端环境变量。客户端配置：
 
-- `js/giscus.js` - Giscus 评论配置
+- `src/client/giscus.ts` - Giscus 评论公开配置
 - `js/feedback.js` - Web3Forms API Key（可选）
 - `src/config.mjs` - 站点配置
 

@@ -248,6 +248,10 @@ async function checkBuild() {
       // 检查输出文件
       const outputs = [
         'post/index.html',
+        'categories/index.html',
+        'series/index.html',
+        'tags/index.html',
+        'knowledge/index.html',
         'sitemap.xml',
         'index.xml',
         'search-index.json',
@@ -264,11 +268,14 @@ async function checkBuild() {
         }
       }
 
-      const postIndex = await readFile(join(ROOT, 'post/index.html'), 'utf8');
-      if (postIndex.includes('<meta name="generator" content="Astro Content Collections">')) {
-        pass('文章路由由 Astro Content Collections 生成');
-      } else {
-        fail('文章路由缺少 Astro 生成标记');
+      const astroPages = ['post/index.html', 'categories/index.html', 'series/index.html', 'tags/index.html', 'knowledge/index.html'];
+      for (const page of astroPages) {
+        const html = await readFile(join(ROOT, page), 'utf8');
+        if (html.includes('<meta name="generator" content="Astro Content Collections">')) {
+          pass(`${page}: 由 Astro Content Collections 生成`);
+        } else {
+          fail(`${page}: 缺少 Astro 生成标记`);
+        }
       }
     } else {
       fail('构建失败');
@@ -297,7 +304,7 @@ async function checkPerformanceFeatures() {
   }
 
   // 检查事件优化
-  const coderContent = await readFile(join(ROOT, 'js/coder.js'), 'utf8');
+  const coderContent = await readFile(join(ROOT, 'src/client/site-runtime.ts'), 'utf8');
   if (coderContent.includes('passive: true')) {
     pass('滚动事件使用 passive 监听');
   } else {
@@ -316,7 +323,7 @@ async function checkCodeQuality() {
   }
 
   // 检查 console.log（生产环境应避免）
-  const jsFiles = ['js/coder.js', 'js/blog.js', 'js/search.js'];
+  const jsFiles = ['src/client/site-runtime.ts', 'src/client/post-list.ts', 'js/search.js'];
   let hasDebugLogs = false;
 
   for (const file of jsFiles) {

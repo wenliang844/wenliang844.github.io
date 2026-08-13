@@ -1,9 +1,14 @@
 ---
 import { buildStats } from "../../../scripts/build.mjs";
-import { renderPostList } from "../../templates/post.mjs";
-import { getPublishedPosts, markAstroOutput } from "../../lib/astro-posts";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import PostListPage from "../../components/PostListPage.astro";
+import { buildPostListPageMetadata } from "../../templates/post.mjs";
+import { getPublishedPosts } from "../../lib/astro-posts";
 
 const posts = await getPublishedPosts();
-const html = markAstroOutput(renderPostList(posts, buildStats(posts)));
+const stats = buildStats(posts);
+const layout = buildPostListPageMetadata(posts);
 ---
-<Fragment set:html={html} />
+<BaseLayout {...layout}>
+  <PostListPage {posts} {stats} />
+</BaseLayout>

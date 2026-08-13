@@ -26,6 +26,15 @@ test("CodeMirror bundle stays isolated to the editor and within its size budget"
   assert.doesNotMatch(postHtml, /editor-codemirror\.js/);
 });
 
+test("site runtime bundle is generated from the shared TypeScript source", async () => {
+  const source = await readFile(join(ROOT, "src", "client", "site-runtime.ts"), "utf8");
+  const bundle = await readFile(join(ROOT, "js", "coder.js"), "utf8");
+  assert.match(source, /export function initSiteRuntime/);
+  assert.match(source, /addEventListener\("pagehide"/);
+  assert.match(bundle, /SiteRuntime\.initSiteRuntime\(\)/);
+  assert.ok(Buffer.byteLength(bundle) < 10_000, "compatibility runtime should remain a small shell bundle");
+});
+
 test("editor exposes the optional GitHub PR publishing workflow", async () => {
   const html = await readFile(join(ROOT, "editor", "index.html"), "utf8");
   assert.match(html, /name="cwl-api-base" content=""/);

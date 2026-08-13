@@ -1,0 +1,28 @@
+---
+import { isoDate } from "../lib/format.mjs";
+
+const { group, kind } = Astro.props;
+const isSeries = kind === "series";
+const noun = isSeries ? "系列" : "分类";
+const base = isSeries ? "/series/" : "/categories/";
+---
+<main id="main-content" class="content" data-pagefind-body>
+  <section class="list-page container taxonomy-page">
+    <a class="taxonomy-back" href={base}>← 返回{noun}</a>
+    <span class="eyebrow">{noun} · {group.posts.length} 篇</span>
+    <h1>{group.name}</h1>
+    <p class="lead">{group.description}</p>
+    <ol class="taxonomy-post-list">
+      {group.posts.map((post, index) => (
+        <li>
+          <a class="taxonomy-post" href={`/post/${post.slug}/`}>
+            <span class="taxonomy-post-order">{isSeries ? `第 ${index + 1} 篇` : post.eyebrow}</span>
+            <strong>{post.shortTitle}</strong>
+            <span>{post.summary}</span>
+            <time datetime={isoDate(post.date)}>{isoDate(post.date)}</time>
+          </a>
+        </li>
+      ))}
+    </ol>
+  </section>
+</main>

@@ -1,16 +1,17 @@
-// Deep test: blog.js — search, tag filter, J/K navigation, sidebar FAB
+// Deep test: post-list.ts - search, tag filter, J/K navigation, sidebar FAB
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { JSDOM } from "jsdom";
+import { evaluateClientModule } from "./helpers/client-module.mjs";
 
 const ROOT = join(import.meta.dirname, "..");
 
 const BLOG_HTML = `<!doctype html><html lang="zh-CN"><body class="colorscheme-dark">
   <div class="post-tree">
     <nav class="post-tree-nav">
-      <details class="tree-group" open><span class="tree-count">3</span><ul><li><a class="post-tree-link" data-post-target="post-a" href="#post-a">
+      <details class="tree-group" open><span class="tree-count">3</span><ul><li><a class="post-tree-link active" data-post-target="post-a" href="#post-a" aria-current="page">
         <span class="tree-title">Activiti 工作流引擎</span>
       </a></li><li><a class="post-tree-link" data-post-target="post-b" href="#post-b">
         <span class="tree-title">金融 SaaS 后端实践</span>
@@ -21,7 +22,7 @@ const BLOG_HTML = `<!doctype html><html lang="zh-CN"><body class="colorscheme-da
   </div>
   <input type="text" id="post-search-input" placeholder="搜索...">
   <div id="tag-filter"></div>
-  <section class="post-detail"><article class="post-summary-card" id="post-a" data-post-slug="activiti-workflow-engine">
+  <section class="post-detail"><article class="post-summary-card active" id="post-a" data-post-slug="activiti-workflow-engine">
     <h2><a href="/post/activiti-workflow-engine/">Activiti 工作流引擎</a></h2>
     <div class="article-summary">Activiti 工作流引擎项目复盘</div>
     <div class="post-tags">
@@ -49,13 +50,11 @@ const BLOG_HTML = `<!doctype html><html lang="zh-CN"><body class="colorscheme-da
 
 async function loadBlog(dom) {
   const utilsCode = await readFile(join(ROOT, "js", "utils.js"), "utf8");
-  const blogCode = await readFile(join(ROOT, "js", "blog.js"), "utf8");
   dom.window.eval(utilsCode);
-  dom.window.eval(blogCode);
-  return dom;
+  return evaluateClientModule(dom, "src/client/post-list.ts", "PostListClient", "initPostList");
 }
 
-test("blog.js builds post card cache once during startup", async () => {
+test("post-list module builds post card cache once during startup", async () => {
   const dom = new JSDOM(BLOG_HTML, {
     runScripts: "outside-only",
     url: "https://wenliang844.github.io/post/",
@@ -79,7 +78,7 @@ test("blog.js builds post card cache once during startup", async () => {
 
 // ─── Search filtering ─────────────────────────────────────────────────────
 
-test("blog.js search input filters posts by keyword", async () => {
+test("post-list module search input filters posts by keyword", async () => {
   const dom = new JSDOM(BLOG_HTML, {
     runScripts: "outside-only",
     url: "https://wenliang844.github.io/post/",
@@ -107,7 +106,7 @@ test("blog.js search input filters posts by keyword", async () => {
 
 // ─── Search with no results ───────────────────────────────────────────────
 
-test("blog.js shows empty state when search has no matches", async () => {
+test("post-list module shows empty state when search has no matches", async () => {
   const dom = new JSDOM(BLOG_HTML, {
     runScripts: "outside-only",
     url: "https://wenliang844.github.io/post/",
@@ -128,7 +127,7 @@ test("blog.js shows empty state when search has no matches", async () => {
 
 // ─── Tag filter ───────────────────────────────────────────────────────────
 
-test("blog.js creates tag filter chips from post tags", async () => {
+test("post-list module creates tag filter chips from post tags", async () => {
   const dom = new JSDOM(BLOG_HTML, {
     runScripts: "outside-only",
     url: "https://wenliang844.github.io/post/",
@@ -148,7 +147,7 @@ test("blog.js creates tag filter chips from post tags", async () => {
 
 // ─── Tag filter click toggles active state ────────────────────────────────
 
-test("blog.js tag chip click toggles filter", async () => {
+test("post-list module tag chip click toggles filter", async () => {
   const dom = new JSDOM(BLOG_HTML, {
     runScripts: "outside-only",
     url: "https://wenliang844.github.io/post/",
@@ -170,7 +169,7 @@ test("blog.js tag chip click toggles filter", async () => {
 
 // ─── Tag filter URL sync ──────────────────────────────────────────────────
 
-test("blog.js updates URL with tag parameter when tag is selected", async () => {
+test("post-list module updates URL with tag parameter when tag is selected", async () => {
   const dom = new JSDOM(BLOG_HTML, {
     runScripts: "outside-only",
     url: "https://wenliang844.github.io/post/",
@@ -191,7 +190,7 @@ test("blog.js updates URL with tag parameter when tag is selected", async () => 
 
 // ─── Tag filter from URL parameter ────────────────────────────────────────
 
-test("blog.js activates tag from URL ?tag= parameter on load", async () => {
+test("post-list module activates tag from URL ?tag= parameter on load", async () => {
   const dom = new JSDOM(BLOG_HTML, {
     runScripts: "outside-only",
     url: "https://wenliang844.github.io/post/?tag=TypeScript",
@@ -207,7 +206,7 @@ test("blog.js activates tag from URL ?tag= parameter on load", async () => {
 
 // ─── Mobile sidebar FAB ───────────────────────────────────────────────────
 
-test("blog.js creates mobile sidebar FAB button", async () => {
+test("post-list module creates mobile sidebar FAB button", async () => {
   const dom = new JSDOM(BLOG_HTML, {
     runScripts: "outside-only",
     url: "https://wenliang844.github.io/post/",
@@ -231,7 +230,7 @@ test("blog.js creates mobile sidebar FAB button", async () => {
 
 // ─── Mobile sidebar floating collapse ─────────────────────────────────────
 
-test("blog.js opens the floating sidebar and closes it from the sidebar button", async () => {
+test("post-list module opens the floating sidebar and closes it from the sidebar button", async () => {
   const dom = new JSDOM(BLOG_HTML, {
     runScripts: "outside-only",
     url: "https://wenliang844.github.io/post/",
@@ -259,7 +258,7 @@ test("blog.js opens the floating sidebar and closes it from the sidebar button",
 
 // ─── Escape closes sidebar ────────────────────────────────────────────────
 
-test("blog.js Escape key closes floating sidebar", async () => {
+test("post-list module Escape key closes floating sidebar", async () => {
   const dom = new JSDOM(BLOG_HTML, {
     runScripts: "outside-only",
     url: "https://wenliang844.github.io/post/",
@@ -282,7 +281,7 @@ test("blog.js Escape key closes floating sidebar", async () => {
 
 // ─── Vim J/K navigation ──────────────────────────────────────────────────
 
-test("blog.js J/K keys navigate between posts", async () => {
+test("post-list module J/K keys navigate between posts", async () => {
   const dom = new JSDOM(BLOG_HTML, {
     runScripts: "outside-only",
     url: "https://wenliang844.github.io/post/",
@@ -291,15 +290,13 @@ test("blog.js J/K keys navigate between posts", async () => {
   const { document, KeyboardEvent } = dom.window;
 
   document.dispatchEvent(new KeyboardEvent("keydown", { key: "j", bubbles: true }));
-  assert.ok(document.querySelector('[data-post-target="post-a"]').classList.contains("active"));
-  document.dispatchEvent(new KeyboardEvent("keydown", { key: "j", bubbles: true }));
   assert.ok(document.querySelector('[data-post-target="post-b"]').classList.contains("active"));
   dom.window.close();
 });
 
 // ─── J/K navigation skips when editing ────────────────────────────────────
 
-test("blog.js J/K keys don't navigate when input is focused", async () => {
+test("post-list module J/K keys don't navigate when input is focused", async () => {
   const dom = new JSDOM(BLOG_HTML, {
     runScripts: "outside-only",
     url: "https://wenliang844.github.io/post/",
@@ -312,13 +309,13 @@ test("blog.js J/K keys don't navigate when input is focused", async () => {
   searchInput.focus();
 
   document.dispatchEvent(new KeyboardEvent("keydown", { key: "j", bubbles: true }));
-  assert.equal(document.querySelector(".post-tree-link.active"), null, "focused input should suppress navigation");
+  assert.equal(document.querySelector(".post-tree-link.active")?.dataset.postTarget, "post-a", "focused input should suppress navigation");
   dom.window.close();
 });
 
 // ─── Clickable tags in article ────────────────────────────────────────────
 
-test("blog.js renders semantic tag buttons", async () => {
+test("post-list module renders semantic tag buttons", async () => {
   const dom = new JSDOM(BLOG_HTML, {
     runScripts: "outside-only",
     url: "https://wenliang844.github.io/post/",
@@ -336,7 +333,7 @@ test("blog.js renders semantic tag buttons", async () => {
 
 // ─── Empty state i18n ─────────────────────────────────────────────────────
 
-test("blog.js empty state text updates on language change", async () => {
+test("post-list module empty state text updates on language change", async () => {
   const dom = new JSDOM(BLOG_HTML, {
     runScripts: "outside-only",
     url: "https://wenliang844.github.io/post/",
@@ -351,14 +348,12 @@ test("blog.js empty state text updates on language change", async () => {
 
 // ─── Early exit without tree nav ──────────────────────────────────────────
 
-test("blog.js exits gracefully without post-tree-nav", async () => {
+test("post-list module exits gracefully without post-tree-nav", async () => {
   const dom = new JSDOM(`<!doctype html><html><body></body></html>`, {
     runScripts: "outside-only",
     url: "https://wenliang844.github.io/",
   });
-  const blogCode = await readFile(join(ROOT, "js", "blog.js"), "utf8");
-  // Should not throw
-  dom.window.eval(blogCode);
-  assert.ok(true, "blog.js should exit gracefully without tree nav");
+  await evaluateClientModule(dom, "src/client/post-list.ts", "PostListClient", "initPostList");
+  assert.ok(true, "post-list module should exit gracefully without tree nav");
   dom.window.close();
 });

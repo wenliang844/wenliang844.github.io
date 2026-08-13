@@ -50,6 +50,7 @@ npm run serve
 npm run check:readonly
 npm run check:types
 npm run check:astro
+npm run check:generated
 npm run test:coverage
 npm run test:e2e
 npm run security:secrets
@@ -68,6 +69,7 @@ CI 还会运行 Lighthouse 预算：Performance 不低于 90，Accessibility 和
 - `scripts/build.mjs`：内容、图片和站点产物构建
 - `scripts/sync-astro-output.mjs`：把 Astro 文章产物安全同步到 GitHub Pages 根目录
 - `src/editor-codemirror.ts`：CodeMirror 编辑器源码，构建为仅编辑页加载的独立 bundle
+- `src/client/site-runtime.ts`：全站主题与视觉交互唯一源码；Astro 直接导入，并生成兼容页使用的 `js/coder.js`
 - `worker/src/index.ts`：GitHub OAuth、CSRF、内容校验、PR 发布与审计边缘 API
 - `src/templates/chat.mjs`、`js/chat-embed.js`、`css/chat.css`：Minnit 在线聊天室嵌入页、无障碍增强与响应式样式
 - `js/`、`css/`：浏览器交互、生成后的编辑器 bundle 与样式

@@ -6,7 +6,7 @@ import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const STATIC_DIRECTORIES = ["css", "js", "images", "fonts"];
+const STATIC_DIRECTORIES = ["_astro", "css", "js", "images", "fonts"];
 const STATIC_FILES = ["manifest.webmanifest", "offline.html"];
 const CACHE_LINE = /const CACHE_NAME = `\$\{CACHE_PREFIX\}[^`]+`;/;
 

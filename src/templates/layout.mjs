@@ -4,7 +4,7 @@ import { createHash } from "node:crypto";
 import { SITE } from "../config.mjs";
 import { escapeAttr, escapeHtml } from "../lib/format.mjs";
 
-const NAV_ITEMS = [
+export const NAV_ITEMS = [
   {
     href: "/post/",
     label: "博客",
@@ -18,7 +18,7 @@ const NAV_ITEMS = [
   { href: "/appreciation/", label: "观察家", key: "appreciation", i18n: "nav.appreciation" },
 ];
 
-const MORE_ITEMS = [
+export const MORE_ITEMS = [
   { href: "/knowledge/", label: "知识资产", key: "knowledge", i18n: "nav.knowledge" },
   { href: "/tools/", label: "工具箱", key: "tools", i18n: "nav.tools" },
   { href: "/overleaf/", label: "简历模版", key: "overleaf", i18n: "nav.overleaf" },
@@ -29,7 +29,7 @@ export const SPONSOR_LINKS = {
   paypal: "https://PayPal.Me/chenwenliang4212",
 };
 
-const RESOURCE_HINTS = [
+export const RESOURCE_HINTS = [
   { rel: "preconnect", href: "https://giscus.app" },
   { rel: "dns-prefetch", href: "https://giscus.app" },
   { rel: "preconnect", href: "https://buttondown.com" },
@@ -62,14 +62,14 @@ function websocketOrigin(value) {
   return url.origin;
 }
 
-function contentSecurityPolicy(page, scripts, inlineScripts = []) {
+export function contentSecurityPolicy(page, scripts, inlineScripts = [], capabilities = {}) {
   const scriptSources = [
     "'self'",
     "https://cloud.umami.is",
     "https://plausible.io",
   ];
   const styleSources = ["'self'"];
-  if (scripts.includes("/js/giscus.js") || scripts.includes("/js/post-extras-loader.js")) {
+  if (capabilities.comments) {
     scriptSources.push("https://giscus.app");
   }
   if (page === "chat") {
@@ -128,7 +128,7 @@ function contentSecurityPolicy(page, scripts, inlineScripts = []) {
   ].join("; ");
 }
 
-const CORE_SCRIPTS = [
+export const CORE_SCRIPTS = [
   "/js/error-handler.js",
   "/js/utils.js",
   "/js/pwa.js",
@@ -194,7 +194,7 @@ function renderResourceHints() {
     .join("\n");
 }
 
-function mainStylesheet(page) {
+export function mainStylesheet(page) {
   if (page === "home") return "/css/coder-home.min.css";
   if (page === "posts") return "/css/coder-post.min.css";
   return "/css/coder.min.css";
@@ -216,29 +216,39 @@ function renderSponsorFooterCta() {
  * 无缩略图 → 纯文字卡 summary，避免分享时图裂。
  * @param {{title: string, description: string, path: string, type?: string, image?: string}} og
  */
-function renderMeta(og) {
-  if (!og) return "";
+export function buildOpenGraphMeta(og) {
+  if (!og) return [];
   const url = `${SITE.baseURL}${og.path}`;
   const image = og.image || SITE.ogImage;
-  const lines = [
-    `  <link rel="canonical" href="${escapeAttr(url)}">`,
-    `  <meta property="og:type" content="${escapeAttr(og.type || "website")}">`,
-    `  <meta property="og:site_name" content="${escapeAttr(SITE.title)}">`,
-    `  <meta property="og:title" content="${escapeAttr(og.title)}">`,
-    `  <meta property="og:description" content="${escapeAttr(og.description)}">`,
-    `  <meta property="og:url" content="${escapeAttr(url)}">`,
+  const tags = [
+    { tag: "link", rel: "canonical", href: url },
+    { tag: "meta", property: "og:type", content: og.type || "website" },
+    { tag: "meta", property: "og:site_name", content: SITE.title },
+    { tag: "meta", property: "og:title", content: og.title },
+    { tag: "meta", property: "og:description", content: og.description },
+    { tag: "meta", property: "og:url", content: url },
   ];
   if (image) {
     const img = /^https?:\/\//i.test(image) ? image : `${SITE.baseURL}${image}`;
-    lines.push(`  <meta property="og:image" content="${escapeAttr(img)}">`);
-    lines.push(`  <meta name="twitter:card" content="summary_large_image">`);
-    lines.push(`  <meta name="twitter:image" content="${escapeAttr(img)}">`);
+    tags.push({ tag: "meta", property: "og:image", content: img });
+    tags.push({ tag: "meta", name: "twitter:card", content: "summary_large_image" });
+    tags.push({ tag: "meta", name: "twitter:image", content: img });
   } else {
-    lines.push(`  <meta name="twitter:card" content="summary">`);
+    tags.push({ tag: "meta", name: "twitter:card", content: "summary" });
   }
-  lines.push(`  <meta name="twitter:title" content="${escapeAttr(og.title)}">`);
-  lines.push(`  <meta name="twitter:description" content="${escapeAttr(og.description)}">`);
-  return lines.join("\n");
+  tags.push({ tag: "meta", name: "twitter:title", content: og.title });
+  tags.push({ tag: "meta", name: "twitter:description", content: og.description });
+  return tags;
+}
+
+function renderMeta(og) {
+  return buildOpenGraphMeta(og).map((tag) => {
+    if (tag.tag === "link") {
+      return `  <link rel="${escapeAttr(tag.rel)}" href="${escapeAttr(tag.href)}">`;
+    }
+    const key = tag.property ? "property" : "name";
+    return `  <meta ${key}="${escapeAttr(tag[key])}" content="${escapeAttr(tag.content)}">`;
+  }).join("\n");
 }
 
 export function siteUrl(path) {
@@ -262,23 +272,7 @@ export function buildPageJsonLd({ type = "WebPage", name, description, path, ...
   };
 }
 
-/**
- * 生成完整 HTML 文档。
- * @param {object} opts
- * @param {string} opts.title       <title> 内容
- * @param {string} opts.description  meta description
- * @param {string} [opts.titleEn]    英文 <title>（用于生成内容页）
- * @param {string} [opts.descriptionEn] 英文 meta description
- * @param {string} opts.active       导航高亮 key（blog/editor/contact 或 ""）
- * @param {string[]} opts.scripts    额外 defer 脚本（coder.js 已默认包含）
- * @param {string[]} [opts.styles]   当前页面额外加载的同源样式表
- * @param {string} opts.bodyClass    body 额外 class，默认 colorscheme-light
- * @param {string} opts.page         用于 i18n head 切换（如 "home"/"posts"/"tags"），对应 head.title.* / head.desc.* 键
- * @param {string} opts.main         <main> 内部 HTML
- * @param {object} [opts.og]         OG/Twitter 卡片数据 { title, description, path, type? }；省略则不输出
- * @param {"bilingual"|"zh-only"} [opts.languageMode] 页面语言能力
- */
-export function renderPage(opts) {
+export function buildLayoutState(opts) {
   const {
     title,
     description,
@@ -289,29 +283,91 @@ export function renderPage(opts) {
     styles = [],
     bodyClass = "colorscheme-dark",
     page = "",
-    main,
+    main = "",
     og,
     jsonLd,
     languageMode = "bilingual",
+    comments = false,
   } = opts;
-
   const allScripts = [...new Set([...CORE_SCRIPTS, ...scripts])];
-  const mainStyle = mainStylesheet(page);
-  const meta = renderMeta(og);
-  // JSON-LD 结构化数据：转义 "<" 防止 </script> 提前闭合脚本块。
   const jsonLdSource = jsonLd ? JSON.stringify(jsonLd).replace(/</g, "\\u003c") : "";
+
+  return {
+    title,
+    description,
+    titleEn,
+    descriptionEn,
+    active,
+    scripts: allScripts,
+    styles,
+    bodyClass,
+    page,
+    main,
+    languageMode,
+    comments,
+    mainStyle: mainStylesheet(page),
+    resourceHints: RESOURCE_HINTS,
+    openGraph: buildOpenGraphMeta(og),
+    jsonLdSource,
+    csp: contentSecurityPolicy(page, allScripts, jsonLdSource ? [jsonLdSource] : [], { comments }),
+    apiBase: SITE.apiBase || "",
+  };
+}
+
+export function searchableMain(main) {
+  return main.replace(/<main\b/, "<main data-pagefind-body");
+}
+
+/**
+ * 生成完整 HTML 文档。
+ * @param {object} opts
+ * @param {string} opts.title       <title> 内容
+ * @param {string} opts.description  meta description
+ * @param {string} [opts.titleEn]    英文 <title>（用于生成内容页）
+ * @param {string} [opts.descriptionEn] 英文 meta description
+ * @param {string} opts.active       导航高亮 key（blog/editor/contact 或 ""）
+ * @param {string[]} opts.scripts    额外 defer 脚本（兼容构建的 coder.js 已默认包含）
+ * @param {string[]} [opts.styles]   当前页面额外加载的同源样式表
+ * @param {string} opts.bodyClass    body 额外 class，默认 colorscheme-light
+ * @param {string} opts.page         用于 i18n head 切换（如 "home"/"posts"/"tags"），对应 head.title.* / head.desc.* 键
+ * @param {string} opts.main         <main> 内部 HTML
+ * @param {object} [opts.og]         OG/Twitter 卡片数据 { title, description, path, type? }；省略则不输出
+ * @param {"bilingual"|"zh-only"} [opts.languageMode] 页面语言能力
+ */
+export function renderPage(opts) {
+  const state = buildLayoutState(opts);
+  const {
+    title,
+    description,
+    titleEn = "",
+    descriptionEn = "",
+    active = "",
+    scripts: allScripts,
+    styles = [],
+    bodyClass = "colorscheme-dark",
+    page = "",
+    main,
+    mainStyle,
+    openGraph,
+    jsonLdSource,
+    csp,
+    apiBase,
+    languageMode = "bilingual",
+    comments = false,
+  } = state;
+  const meta = openGraph.length ? renderMeta(opts.og) : "";
   const jsonLdTag = jsonLdSource
     ? `\n  <script type="application/ld+json">${jsonLdSource}</script>`
     : "";
-  const csp = contentSecurityPolicy(page, allScripts, jsonLdSource ? [jsonLdSource] : []);
 
   const bodyI18n = [
     page ? `data-i18n-page="${page}"` : "",
     titleEn ? `data-i18n-title-en="${escapeAttr(titleEn)}"` : "",
     descriptionEn ? `data-i18n-desc-en="${escapeAttr(descriptionEn)}"` : "",
     `data-language-mode="${languageMode}"`,
+    comments ? 'data-cwl-comments="enabled"' : "",
   ].filter(Boolean).join(" ");
-  const searchableMain = main.replace(/<main\b/, "<main data-pagefind-body");
+  const searchableContent = searchableMain(main);
 
   return `<!doctype html>
 <html lang="zh-CN">
@@ -319,7 +375,7 @@ export function renderPage(opts) {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta http-equiv="Content-Security-Policy" content="${escapeAttr(csp)}">
-  <meta name="cwl-api-base" content="${escapeAttr(SITE.apiBase || "")}">
+  <meta name="cwl-api-base" content="${escapeAttr(apiBase)}">
   <meta name="description" content="${escapeAttr(description)}">
   <meta name="theme-color" content="#171717">
   <link rel="icon" href="/images/favicon.png" type="image/png">
@@ -347,7 +403,7 @@ ${renderScripts(allScripts)}${meta ? "\n" + meta : ""}${jsonLdTag}
 ${renderNav(active, languageMode)}
       </section>
     </header>
-${searchableMain}
+${searchableContent}
     <footer class="footer">
       <section class="container">
         <div class="subscribe">

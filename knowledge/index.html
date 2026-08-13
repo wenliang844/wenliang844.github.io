@@ -1,265 +1,224 @@
-<!doctype html>
+<!DOCTYPE html>
+<script type="module" src="/_astro/BaseLayout.astro_astro_type_script_index_0_lang.DZrDTd44.js"></script>
+
 <html lang="zh-CN">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' https://cloud.umami.is https://plausible.io 'wasm-unsafe-eval' 'sha256-kwFgN4hClcAQ5HsGqqh5HSFZVkGlCvZ8r8TIfVXltmU='; script-src-attr 'none'; style-src 'self'; style-src-attr 'none'; img-src 'self' data: https:; font-src 'self' data:; worker-src 'self'; connect-src 'self' https://cloud.umami.is https://plausible.io https://buttondown.com https://muyuan.do https://token-plan-cn.xiaomimimo.com; frame-src https://giscus.app; form-action 'self' https://buttondown.com https://api.web3forms.com">
-  <meta name="cwl-api-base" content="">
-  <meta name="description" content="CWLBlog 的个人知识资产地图，展示文章主题覆盖、系列、标签关系和维护状态。">
-  <meta name="theme-color" content="#171717">
-  <link rel="icon" href="/images/favicon.png" type="image/png">
-  <link rel="preconnect" href="https://giscus.app">
-  <link rel="dns-prefetch" href="https://giscus.app">
-  <link rel="preconnect" href="https://buttondown.com">
-  <link rel="dns-prefetch" href="https://buttondown.com">
-  <link rel="dns-prefetch" href="https://www.ifdian.net">
-  <link rel="dns-prefetch" href="https://paypal.me">
-  <link rel="stylesheet" href="/css/fontawesome-all.min.css">
-  <link rel="stylesheet" href="/css/coder.min.css">
-  <link rel="stylesheet" href="/css/content.min.css">
-
-  <link rel="manifest" href="/manifest.webmanifest">
-  <link rel="apple-touch-icon" href="/images/pwa-192.png">
-  <script src="/js/error-handler.js" defer></script>
-  <script src="/js/utils.js" defer></script>
-  <script src="/js/pwa.js" defer></script>
-  <script src="/js/analytics.js" defer></script>
-  <script src="/js/i18n.js" defer></script>
-  <script src="/js/coder.js" defer></script>
-  <script src="/js/search-loader.js" defer></script>
-  <script src="/js/subscribe.js" defer></script>
-  <script src="/js/assistant-loader.js" defer></script>
-  <script src="/js/knowledge.js" defer></script>
-  <link rel="canonical" href="https://wenliang844.github.io/knowledge/">
-  <meta property="og:type" content="website">
-  <meta property="og:site_name" content="CWLBlog">
-  <meta property="og:title" content="知识资产">
-  <meta property="og:description" content="CWLBlog 的个人知识资产地图，展示文章主题覆盖、系列、标签关系和维护状态。">
-  <meta property="og:url" content="https://wenliang844.github.io/knowledge/">
-  <meta property="og:image" content="https://wenliang844.github.io/images/favicon.png">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:image" content="https://wenliang844.github.io/images/favicon.png">
-  <meta name="twitter:title" content="知识资产">
-  <meta name="twitter:description" content="CWLBlog 的个人知识资产地图，展示文章主题覆盖、系列、标签关系和维护状态。">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"CollectionPage","name":"CWLBlog 知识资产","description":"CWLBlog 的个人知识资产地图，展示文章主题覆盖、系列、标签关系和维护状态。","url":"https://wenliang844.github.io/knowledge/","inLanguage":"zh-CN","isPartOf":{"@type":"WebSite","name":"CWLBlog","url":"https://wenliang844.github.io/"}}</script>
-  <title>知识资产 :: CWLBlog</title>
-</head>
-<body class="colorscheme-dark" data-i18n-page="knowledge" data-language-mode="zh-only">
-  <a class="skip-link" href="#main-content" data-i18n="nav.skip">跳到主要内容</a>
-  <div class="cursor-glow" aria-hidden="true"></div>
-  <canvas class="cursor-canvas" aria-hidden="true"></canvas>
-  <div class="site-shell">
-    <header class="navigation">
-      <section class="container">
-        <a class="navigation-title" href="/">CWLBlog</a>
-        <input type="checkbox" id="menu-toggle" class="menu-toggle" aria-label="Toggle menu" data-i18n-aria="nav.menu">
-        <label class="menu-button" for="menu-toggle"><i class="fas fa-bars"></i></label>
-        <label class="menu-overlay" for="menu-toggle" aria-hidden="true"></label>
-        <nav class="navigation-list" aria-label="Main navigation" data-i18n-aria="nav.main">
-          <ul>
-          <li><a class="nav-blog-main" href="/post/" data-i18n="nav.blog" data-i18n-html data-i18n-en-html="&lt;i class=&quot;fas fa-book-open&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt; Blog"><i class="fas fa-book-open" aria-hidden="true"></i> 博客</a></li>
-          <li><a href="/ai/" data-i18n="nav.ai">AI中转站排名</a></li>
-          <li><a href="/appreciation/" data-i18n="nav.appreciation">观察家</a></li>
-            <li class="nav-more">
-              <details>
-                <summary class="nav-more-toggle active" data-i18n="nav.more" data-i18n-html data-i18n-en-html="&lt;i class=&quot;fas fa-ellipsis-h&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt; More"><i class="fas fa-ellipsis-h" aria-hidden="true"></i> 更多</summary>
-                <ul class="nav-more-menu">
-              <li><a class="active" href="/knowledge/" data-i18n="nav.knowledge">知识资产</a></li>
-              <li><a href="/tools/" data-i18n="nav.tools">工具箱</a></li>
-              <li><a href="/overleaf/" data-i18n="nav.overleaf">简历模版</a></li>
-                </ul>
-              </details>
-            </li>
-            <li><a class="nav-feedback" href="/contact/" data-i18n="nav.feedback" data-i18n-html><i class="fas fa-comment-dots" aria-hidden="true"></i> 留言反馈</a></li>
-            <li><button class="nav-subscribe" type="button" data-subscribe-open data-i18n="nav.subscribe" data-i18n-html><i class="fas fa-envelope" aria-hidden="true"></i> 订阅</button></li>
-            <li><a class="nav-sponsor" href="/sponsor/" data-i18n="nav.sponsor" data-i18n-html><i class="fas fa-heart" aria-hidden="true"></i> 赞助</a></li>
-            <li><a class="nav-chat" href="/chat/" aria-label="打开在线聊天室" title="打开在线聊天室" data-i18n-aria="nav.chat" data-i18n-title="nav.chat"><i class="fas fa-comments" aria-hidden="true"></i></a></li>
-            <li><button class="theme-toggle" type="button" aria-label="切换主题" data-i18n-aria="nav.theme"><i class="fas fa-adjust"></i></button></li>
-
-            <li><button class="nav-search-trigger" type="button" aria-label="全局搜索（Ctrl+K 或 /）" title="全局搜索（Ctrl+K 或 /）" data-i18n-aria="nav.searchHint" data-i18n-title="nav.searchHint"><i class="fas fa-search"></i></button></li>
-            <li><button class="nav-ai-experience assistant-nav-trigger" type="button" aria-label="打开 AI 助手" title="打开 AI 助手" data-assistant-toggle data-i18n-aria="assistant.open" data-i18n-title="assistant.open"><span aria-hidden="true">AI</span></button></li>
-          </ul>
-        </nav>
-      </section>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' https://cloud.umami.is https://plausible.io 'wasm-unsafe-eval' 'sha256-kwFgN4hClcAQ5HsGqqh5HSFZVkGlCvZ8r8TIfVXltmU='; script-src-attr 'none'; style-src 'self'; style-src-attr 'none'; img-src 'self' data: https:; font-src 'self' data:; worker-src 'self'; connect-src 'self' https://cloud.umami.is https://plausible.io https://buttondown.com https://muyuan.do https://token-plan-cn.xiaomimimo.com; frame-src https://giscus.app; form-action 'self' https://buttondown.com https://api.web3forms.com">
+    <meta name="cwl-api-base" content>
+    <meta name="description" content="CWLBlog 的个人知识资产地图，展示文章主题覆盖、系列、标签关系和维护状态。">
+    <meta name="theme-color" content="#171717">
+    <meta name="generator" content="Astro Content Collections">
+    <link rel="icon" href="/images/favicon.png" type="image/png">
+    <link rel="preconnect" href="https://giscus.app"><link rel="dns-prefetch" href="https://giscus.app"><link rel="preconnect" href="https://buttondown.com"><link rel="dns-prefetch" href="https://buttondown.com"><link rel="dns-prefetch" href="https://www.ifdian.net"><link rel="dns-prefetch" href="https://paypal.me">
+    <link rel="stylesheet" href="/css/fontawesome-all.min.css">
+    <link rel="stylesheet" href="/css/coder.min.css">
+    <link rel="stylesheet" href="/css/content.min.css">
+    <link rel="manifest" href="/manifest.webmanifest">
+    <link rel="apple-touch-icon" href="/images/pwa-192.png">
+    <script src="/js/error-handler.js" defer></script><script src="/js/utils.js" defer></script><script src="/js/pwa.js" defer></script><script src="/js/analytics.js" defer></script><script src="/js/i18n.js" defer></script><script src="/js/search-loader.js" defer></script><script src="/js/subscribe.js" defer></script><script src="/js/assistant-loader.js" defer></script><script src="/js/knowledge.js" defer></script>
+    <link rel="canonical" href="https://wenliang844.github.io/knowledge/"><meta property="og:type" content="website"><meta property="og:site_name" content="CWLBlog"><meta property="og:title" content="知识资产"><meta property="og:description" content="CWLBlog 的个人知识资产地图，展示文章主题覆盖、系列、标签关系和维护状态。"><meta property="og:url" content="https://wenliang844.github.io/knowledge/"><meta property="og:image" content="https://wenliang844.github.io/images/favicon.png"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://wenliang844.github.io/images/favicon.png"><meta name="twitter:title" content="知识资产"><meta name="twitter:description" content="CWLBlog 的个人知识资产地图，展示文章主题覆盖、系列、标签关系和维护状态。">
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"CollectionPage","name":"CWLBlog 知识资产","description":"CWLBlog 的个人知识资产地图，展示文章主题覆盖、系列、标签关系和维护状态。","url":"https://wenliang844.github.io/knowledge/","inLanguage":"zh-CN","isPartOf":{"@type":"WebSite","name":"CWLBlog","url":"https://wenliang844.github.io/"}}</script>
+    <title>知识资产 :: CWLBlog</title>
+  </head>
+  <body class="colorscheme-dark" data-i18n-page="knowledge" data-language-mode="zh-only">
+    <a class="skip-link" href="#main-content" data-i18n="nav.skip">跳到主要内容</a>
+    <div class="cursor-glow" aria-hidden="true"></div>
+    <canvas class="cursor-canvas" aria-hidden="true"></canvas>
+    <div class="site-shell">
+      <header class="navigation">
+  <section class="container">
+    <a class="navigation-title" href="/">CWLBlog</a>
+    <input type="checkbox" id="menu-toggle" class="menu-toggle" aria-label="Toggle menu" data-i18n-aria="nav.menu">
+    <label class="menu-button" for="menu-toggle"><i class="fas fa-bars"></i></label>
+    <label class="menu-overlay" for="menu-toggle" aria-hidden="true"></label>
+    <nav class="navigation-list" aria-label="Main navigation" data-i18n-aria="nav.main">
+      <ul>
+        <li>
+            <a class="nav-blog-main" href="/post/" data-i18n="nav.blog" data-i18n-html data-i18n-en-html="<i class=&quot;fas fa-book-open&quot; aria-hidden=&quot;true&quot;></i> Blog">
+              <i class="fas fa-book-open" aria-hidden="true"></i> 博客
+            </a>
+          </li><li>
+            <a href="/ai/" data-i18n="nav.ai">
+              AI中转站排名
+            </a>
+          </li><li>
+            <a href="/appreciation/" data-i18n="nav.appreciation">
+              观察家
+            </a>
+          </li>
+        <li class="nav-more">
+          <details>
+            <summary class="nav-more-toggle active" data-i18n="nav.more" data-i18n-html data-i18n-en-html="<i class=&quot;fas fa-ellipsis-h&quot; aria-hidden=&quot;true&quot;></i> More">
+              <i class="fas fa-ellipsis-h" aria-hidden="true"></i> 更多
+            </summary>
+            <ul class="nav-more-menu">
+              <li><a class="active" href="/knowledge/" data-i18n="nav.knowledge">知识资产</a></li><li><a href="/tools/" data-i18n="nav.tools">工具箱</a></li><li><a href="/overleaf/" data-i18n="nav.overleaf">简历模版</a></li>
+            </ul>
+          </details>
+        </li>
+        <li><a class="nav-feedback" href="/contact/" data-i18n="nav.feedback" data-i18n-html><i class="fas fa-comment-dots" aria-hidden="true"></i> 留言反馈</a></li>
+        <li><button class="nav-subscribe" type="button" data-subscribe-open data-i18n="nav.subscribe" data-i18n-html><i class="fas fa-envelope" aria-hidden="true"></i> 订阅</button></li>
+        <li><a class="nav-sponsor" href="/sponsor/" data-i18n="nav.sponsor" data-i18n-html><i class="fas fa-heart" aria-hidden="true"></i> 赞助</a></li>
+        <li><a class="nav-chat" href="/chat/" aria-label="打开在线聊天室" title="打开在线聊天室" data-i18n-aria="nav.chat" data-i18n-title="nav.chat"><i class="fas fa-comments" aria-hidden="true"></i></a></li>
+        <li><button class="theme-toggle" type="button" aria-label="切换主题" data-i18n-aria="nav.theme"><i class="fas fa-adjust"></i></button></li>
+        <li><button class="nav-search-trigger" type="button" aria-label="全局搜索（Ctrl+K 或 /）" title="全局搜索（Ctrl+K 或 /）" data-i18n-aria="nav.searchHint" data-i18n-title="nav.searchHint"><i class="fas fa-search"></i></button></li>
+        <li><button class="nav-ai-experience assistant-nav-trigger" type="button" aria-label="打开 AI 助手" title="打开 AI 助手" data-assistant-toggle data-i18n-aria="assistant.open" data-i18n-title="assistant.open"><span aria-hidden="true">AI</span></button></li>
+      </ul>
+    </nav>
+  </section>
+</header>
+  <main id="main-content" class="content" data-pagefind-body>
+  <section class="container knowledge-page" aria-labelledby="knowledge-title">
+    <header class="page-hero compact-hero">
+      <span class="eyebrow">Knowledge Assets</span>
+      <h1 id="knowledge-title">知识资产</h1>
+      <p class="lead">按主题、系列、标签和文章引用组织公开内容，定位覆盖薄弱与缺少关联的知识节点。</p>
     </header>
-    <main data-pagefind-body id="main-content" class="content">
-      <section class="container knowledge-page" aria-labelledby="knowledge-title">
-        <header class="page-hero compact-hero">
-          <span class="eyebrow">Knowledge Assets</span>
-          <h1 id="knowledge-title">知识资产</h1>
-          <p class="lead">按主题、系列、标签和文章引用组织公开内容，定位覆盖薄弱与缺少关联的知识节点。</p>
-        </header>
-        <div class="knowledge-stats" aria-label="知识资产概览">
-          <div><strong>6</strong><span>篇文章</span></div>
-          <div><strong>4</strong><span>个主题</span></div>
-          <div><strong>12</strong><span>条关联</span></div>
-          <div><strong>5</strong><span>条正文引用</span></div>
-          <div><strong>0</strong><span>篇无正文链接</span></div>
+    <div class="knowledge-stats" aria-label="知识资产概览">
+      <div><strong>6</strong><span>篇文章</span></div>
+      <div><strong>4</strong><span>个主题</span></div>
+      <div><strong>12</strong><span>条关联</span></div>
+      <div><strong>5</strong><span>条正文引用</span></div>
+      <div><strong>0</strong><span>篇无正文链接</span></div>
+    </div>
+    <div class="knowledge-filters" aria-label="按主题筛选">
+      <button type="button" class="active" data-knowledge-filter="all"><span>全部</span><strong>6</strong></button>
+      <button type="button" data-knowledge-filter="ai-coding">
+          <span>AI 协作开发</span><strong>1</strong>
+        </button><button type="button" data-knowledge-filter="ai-systems">
+          <span>AI 与智能系统</span><strong>2</strong>
+        </button><button type="button" data-knowledge-filter="backend-platform">
+          <span>后端平台工程</span><strong>2</strong>
+        </button><button type="button" data-knowledge-filter="frontend-platform">
+          <span>前端平台工程</span><strong>1</strong>
+        </button>
+    </div>
+    <section class="knowledge-health" aria-labelledby="knowledge-health-title">
+        <div class="knowledge-section-heading">
+          <div><span class="eyebrow">Content Health</span><h2 id="knowledge-health-title">内容健康看板</h2></div>
+          <p>以 2026-08-06 的最新内容版本为基准；超过 90 天建议复核，超过 180 天列入更新。</p>
         </div>
-        <div class="knowledge-filters" aria-label="按主题筛选">
-          <button type="button" class="active" data-knowledge-filter="all"><span>全部</span><strong>6</strong></button>
-            <button type="button" data-knowledge-filter="ai-coding"><span>AI 协作开发</span><strong>1</strong></button>
-            <button type="button" data-knowledge-filter="ai-systems"><span>AI 与智能系统</span><strong>2</strong></button>
-            <button type="button" data-knowledge-filter="backend-platform"><span>后端平台工程</span><strong>2</strong></button>
-            <button type="button" data-knowledge-filter="frontend-platform"><span>前端平台工程</span><strong>1</strong></button>
+        <div class="knowledge-health-stats" aria-label="内容健康统计">
+          <div><strong>6</strong><span>状态正常</span></div>
+          <div><strong>0</strong><span>建议复核</span></div>
+          <div><strong>0</strong><span>需要更新</span></div>
+          <div><strong>14</strong><span>主题目标缺口</span></div>
         </div>
-        <section class="knowledge-health" aria-labelledby="knowledge-health-title">
-          <div class="knowledge-section-heading">
-            <div>
-              <span class="eyebrow">Content Health</span>
-              <h2 id="knowledge-health-title">内容健康看板</h2>
-            </div>
-            <p>以 2026-08-06 的最新内容版本为基准；超过 90 天建议复核，超过 180 天列入更新。</p>
-          </div>
-          <div class="knowledge-health-stats" aria-label="内容健康统计">
-            <div><strong>6</strong><span>状态正常</span></div>
-            <div><strong>0</strong><span>建议复核</span></div>
-            <div><strong>0</strong><span>需要更新</span></div>
-            <div><strong>14</strong><span>主题目标缺口</span></div>
-          </div>
-          <div class="knowledge-health-grid">
-            <section aria-labelledby="knowledge-coverage-title">
-              <h3 id="knowledge-coverage-title">主题覆盖</h3>
-              <ul class="knowledge-coverage">            <li>
-              <div><strong>AI 协作开发</strong><span>1 / 5 篇</span></div>
-              <progress value="1" max="5" aria-label="AI 协作开发覆盖 20%">20%</progress>
-              <small>还需 4 篇达到阶段目标</small>
-            </li>
-            <li>
-              <div><strong>AI 与智能系统</strong><span>2 / 5 篇</span></div>
-              <progress value="2" max="5" aria-label="AI 与智能系统覆盖 40%">40%</progress>
-              <small>还需 3 篇达到阶段目标</small>
-            </li>
-            <li>
-              <div><strong>后端平台工程</strong><span>2 / 5 篇</span></div>
-              <progress value="2" max="5" aria-label="后端平台工程覆盖 40%">40%</progress>
-              <small>还需 3 篇达到阶段目标</small>
-            </li>
-            <li>
-              <div><strong>前端平台工程</strong><span>1 / 5 篇</span></div>
-              <progress value="1" max="5" aria-label="前端平台工程覆盖 20%">20%</progress>
-              <small>还需 4 篇达到阶段目标</small>
-            </li>
-              </ul>
-            </section>
-            <section aria-labelledby="knowledge-maintenance-title">
-              <h3 id="knowledge-maintenance-title">维护队列</h3>
-              <ul class="knowledge-maintenance">            <li class="knowledge-health-empty">当前没有需要处理的内容维护项。</li>
-              </ul>
-            </section>
-          </div>
-        </section>
-          <div class="knowledge-graph-shell">
-            <svg class="knowledge-graph" viewBox="0 0 900 570" role="img" aria-labelledby="knowledge-graph-title knowledge-graph-desc">
-              <title id="knowledge-graph-title">文章关系图谱</title>
-              <desc id="knowledge-graph-desc">节点代表文章，连线代表共享标签、系列顺序或文章引用。</desc>
-              <g class="knowledge-edges">              <line x1="450" y1="70" x2="723" y2="392" data-source-category="ai-systems" data-target-category="ai-systems"><title>规则引擎、视频分析</title></line>
-              <line x1="723" y1="392" x2="450" y2="500" data-source-category="ai-systems" data-target-category="backend-platform"><title>Java、Spring Boot</title></line>
-              <line x1="723" y1="392" x2="177" y2="393" data-source-category="ai-systems" data-target-category="backend-platform"><title>Java、Spring Boot</title></line>
-              <line x1="450" y1="500" x2="177" y2="393" data-source-category="backend-platform" data-target-category="backend-platform"><title>Java、Spring Boot</title></line>
-              <line x1="177" y1="177" x2="177" y2="393" data-source-category="frontend-platform" data-target-category="backend-platform"><title>企业平台工程实践</title></line>
-              <line x1="177" y1="393" x2="450" y2="500" data-source-category="backend-platform" data-target-category="backend-platform"><title>企业平台工程实践</title></line>
-              <line x1="723" y1="392" x2="450" y2="70" data-source-category="ai-systems" data-target-category="ai-systems"><title>智能分析平台</title></line>
-              <line x1="450" y1="70" x2="723" y2="392" data-source-category="ai-systems" data-target-category="ai-systems"><title>文章引用</title></line>
-              <line x1="723" y1="178" x2="177" y2="177" data-source-category="ai-coding" data-target-category="frontend-platform"><title>文章引用</title></line>
-              <line x1="450" y1="500" x2="177" y2="393" data-source-category="backend-platform" data-target-category="backend-platform"><title>文章引用</title></line>
-              <line x1="450" y1="500" x2="723" y2="392" data-source-category="backend-platform" data-target-category="ai-systems"><title>文章引用</title></line>
-              <line x1="177" y1="177" x2="723" y2="392" data-source-category="frontend-platform" data-target-category="ai-systems"><title>文章引用</title></line></g>
-              <g class="knowledge-nodes">              <a href="/post/rule-engine-alerts/" data-category="ai-systems">
+        <div class="knowledge-health-grid">
+          <section aria-labelledby="knowledge-coverage-title">
+            <h3 id="knowledge-coverage-title">主题覆盖</h3>
+            <ul class="knowledge-coverage">
+              <li>
+                  <div><strong>AI 协作开发</strong><span>1 / 5 篇</span></div>
+                  <progress value="1" max="5" aria-label="AI 协作开发覆盖 20%">20%</progress>
+                  <small>还需 4 篇达到阶段目标</small>
+                </li><li>
+                  <div><strong>AI 与智能系统</strong><span>2 / 5 篇</span></div>
+                  <progress value="2" max="5" aria-label="AI 与智能系统覆盖 40%">40%</progress>
+                  <small>还需 3 篇达到阶段目标</small>
+                </li><li>
+                  <div><strong>后端平台工程</strong><span>2 / 5 篇</span></div>
+                  <progress value="2" max="5" aria-label="后端平台工程覆盖 40%">40%</progress>
+                  <small>还需 3 篇达到阶段目标</small>
+                </li><li>
+                  <div><strong>前端平台工程</strong><span>1 / 5 篇</span></div>
+                  <progress value="1" max="5" aria-label="前端平台工程覆盖 20%">20%</progress>
+                  <small>还需 4 篇达到阶段目标</small>
+                </li>
+            </ul>
+          </section>
+          <section aria-labelledby="knowledge-maintenance-title">
+            <h3 id="knowledge-maintenance-title">维护队列</h3>
+            <ul class="knowledge-maintenance">
+              <li class="knowledge-health-empty">当前没有需要处理的内容维护项。</li>
+            </ul>
+          </section>
+        </div>
+      </section>
+    <div class="knowledge-graph-shell">
+      <svg class="knowledge-graph" viewBox="0 0 900 570" role="img" aria-labelledby="knowledge-graph-title knowledge-graph-desc">
+        <title id="knowledge-graph-title">文章关系图谱</title>
+        <desc id="knowledge-graph-desc">节点代表文章，连线代表共享标签、系列顺序或文章引用。</desc>
+        <g class="knowledge-edges">
+          <line x1="450" y1="70" x2="723" y2="392" data-source-category="ai-systems" data-target-category="ai-systems"><title>规则引擎、视频分析</title></line><line x1="723" y1="392" x2="450" y2="500" data-source-category="ai-systems" data-target-category="backend-platform"><title>Java、Spring Boot</title></line><line x1="723" y1="392" x2="177" y2="393" data-source-category="ai-systems" data-target-category="backend-platform"><title>Java、Spring Boot</title></line><line x1="450" y1="500" x2="177" y2="393" data-source-category="backend-platform" data-target-category="backend-platform"><title>Java、Spring Boot</title></line><line x1="177" y1="177" x2="177" y2="393" data-source-category="frontend-platform" data-target-category="backend-platform"><title>企业平台工程实践</title></line><line x1="177" y1="393" x2="450" y2="500" data-source-category="backend-platform" data-target-category="backend-platform"><title>企业平台工程实践</title></line><line x1="723" y1="392" x2="450" y2="70" data-source-category="ai-systems" data-target-category="ai-systems"><title>智能分析平台</title></line><line x1="450" y1="70" x2="723" y2="392" data-source-category="ai-systems" data-target-category="ai-systems"><title>文章引用</title></line><line x1="723" y1="178" x2="177" y2="177" data-source-category="ai-coding" data-target-category="frontend-platform"><title>文章引用</title></line><line x1="450" y1="500" x2="177" y2="393" data-source-category="backend-platform" data-target-category="backend-platform"><title>文章引用</title></line><line x1="450" y1="500" x2="723" y2="392" data-source-category="backend-platform" data-target-category="ai-systems"><title>文章引用</title></line><line x1="177" y1="177" x2="723" y2="392" data-source-category="frontend-platform" data-target-category="ai-systems"><title>文章引用</title></line>
+        </g>
+        <g class="knowledge-nodes">
+          <a href="/post/rule-engine-alerts/" data-category="ai-systems">
                 <g transform="translate(450 70)">
-                  <circle r="42"></circle>
-                  <text text-anchor="middle" dominant-baseline="middle">规则引擎与告警闭环</text>
-                  <title>规则引擎与告警闭环：智能分析预警平台的运行时设计</title>
+                  <circle r="42"></circle><text text-anchor="middle" dominant-baseline="middle">规则引擎与告警闭环</text><title>规则引擎与告警闭环：智能分析预警平台的运行时设计</title>
                 </g>
-              </a>
-              <a href="/post/codex-claude-vibe-coding/" data-category="ai-coding">
+              </a><a href="/post/codex-claude-vibe-coding/" data-category="ai-coding">
                 <g transform="translate(723 178)">
-                  <circle r="42"></circle>
-                  <text text-anchor="middle" dominant-baseline="middle">Codex 与 Clau…</text>
-                  <title>Codex 与 Claude 一起做 Vibe Coding：从灵感到可运行系统</title>
+                  <circle r="42"></circle><text text-anchor="middle" dominant-baseline="middle">Codex 与 Clau…</text><title>Codex 与 Claude 一起做 Vibe Coding：从灵感到可运行系统</title>
                 </g>
-              </a>
-              <a href="/post/manage-system/" data-category="ai-systems">
+              </a><a href="/post/manage-system/" data-category="ai-systems">
                 <g transform="translate(723 392)">
-                  <circle r="42"></circle>
-                  <text text-anchor="middle" dominant-baseline="middle">智能分析预警平台重构</text>
-                  <title>智能分析预警平台：从视频采集到业务告警的后端重构实践</title>
+                  <circle r="42"></circle><text text-anchor="middle" dominant-baseline="middle">智能分析预警平台重构</text><title>智能分析预警平台：从视频采集到业务告警的后端重构实践</title>
                 </g>
-              </a>
-              <a href="/post/finance-saas-backend/" data-category="backend-platform">
+              </a><a href="/post/finance-saas-backend/" data-category="backend-platform">
                 <g transform="translate(450 500)">
-                  <circle r="42"></circle>
-                  <text text-anchor="middle" dominant-baseline="middle">企顾 SaaS 多模块平…</text>
-                  <title>企顾 SaaS 多模块平台项目介绍</title>
+                  <circle r="42"></circle><text text-anchor="middle" dominant-baseline="middle">企顾 SaaS 多模块平…</text><title>企顾 SaaS 多模块平台项目介绍</title>
                 </g>
-              </a>
-              <a href="/post/activiti-workflow-engine/" data-category="backend-platform">
+              </a><a href="/post/activiti-workflow-engine/" data-category="backend-platform">
                 <g transform="translate(177 393)">
-                  <circle r="42"></circle>
-                  <text text-anchor="middle" dominant-baseline="middle">Activiti BPM…</text>
-                  <title>Terminus Activiti：面向业务流程数字化的轻量级 BPM 引擎实践</title>
+                  <circle r="42"></circle><text text-anchor="middle" dominant-baseline="middle">Activiti BPM…</text><title>Terminus Activiti：面向业务流程数字化的轻量级 BPM 引擎实践</title>
+                </g>
+              </a><a href="/post/lowcode-schema-codegen/" data-category="frontend-platform">
+                <g transform="translate(177 177)">
+                  <circle r="42"></circle><text text-anchor="middle" dominant-baseline="middle">LowCode Engi…</text><title>Terminus LowCode Engine 项目介绍：面向企业级中后台的低代码引擎实践</title>
                 </g>
               </a>
-              <a href="/post/lowcode-schema-codegen/" data-category="frontend-platform">
-                <g transform="translate(177 177)">
-                  <circle r="42"></circle>
-                  <text text-anchor="middle" dominant-baseline="middle">LowCode Engi…</text>
-                  <title>Terminus LowCode Engine 项目介绍：面向企业级中后台的低代码引擎实践</title>
-                </g>
-              </a></g>
-            </svg>
-          </div>
-        <section class="knowledge-inventory" aria-labelledby="knowledge-inventory-title">
-          <h2 id="knowledge-inventory-title">内容清单</h2>
-          <ul>
-            <li data-category="ai-systems">
-              <a href="/post/rule-engine-alerts/"><strong>规则引擎与告警闭环</strong><span>AI 与智能系统</span></a>
-              <span>3 个关联 · 1 入链 / 1 出链 · 更新于 2026-08-06</span>
-            </li>
-            <li data-category="ai-coding">
-              <a href="/post/codex-claude-vibe-coding/"><strong>Codex 与 Claude 的 Vibe Coding</strong><span>AI 协作开发</span></a>
-              <span>1 个关联 · 1 入链 / 1 出链 · 更新于 2026-08-06</span>
-            </li>
-            <li data-category="ai-systems">
-              <a href="/post/manage-system/"><strong>智能分析预警平台重构</strong><span>AI 与智能系统</span></a>
-              <span>7 个关联 · 3 入链 / 1 出链 · 更新于 2026-08-06</span>
-            </li>
-            <li data-category="backend-platform">
-              <a href="/post/finance-saas-backend/"><strong>企顾 SaaS 多模块平台</strong><span>后端平台工程</span></a>
-              <span>5 个关联 · 1 入链 / 2 出链 · 更新于 2026-08-06</span>
-            </li>
-            <li data-category="backend-platform">
-              <a href="/post/activiti-workflow-engine/"><strong>Activiti BPM 引擎实践</strong><span>后端平台工程</span></a>
-              <span>5 个关联 · 1 入链 / 1 出链 · 更新于 2026-08-06</span>
-            </li>
-            <li data-category="frontend-platform">
-              <a href="/post/lowcode-schema-codegen/"><strong>LowCode Engine 实践</strong><span>前端平台工程</span></a>
-              <span>3 个关联 · 1 入链 / 2 出链 · 更新于 2026-08-06</span>
-            </li>
-          </ul>
-        </section>
-      </section>
-    </main>
-    <footer class="footer">
-      <section class="container">
-        <div class="subscribe">
-          <p class="subscribe-title" data-i18n="subscribe.title">订阅更新 · 新文章邮件提醒</p>
-          <form class="subscribe-form" novalidate>
-            <input class="subscribe-input" type="email" name="email" required autocomplete="email" placeholder="输入你的邮箱" data-i18n-ph="subscribe.ph" aria-label="Email">
-            <button class="subscribe-btn" type="submit" data-i18n="subscribe.btn">订阅</button>
-          </form>
-          <p class="subscribe-status" role="status" aria-live="polite"></p>
-        </div>
-        <div class="sponsor-mini" aria-label="赞助支持选项" data-i18n-aria="sponsorMini.aria">
-          <p class="sponsor-mini-text" data-i18n="sponsorMini.text">如果内容对你有帮助，可以支持我继续更新。</p>
-          <div class="sponsor-mini-actions">
-            <a class="sponsor-mini-btn sponsor-mini-primary" href="https://www.ifdian.net/order/create?plan_id=047bc28a6a1c11f182c452540025c377&product_type=0&remark=&affiliate_code=" target="_blank" rel="noopener noreferrer" data-i18n="sponsorMini.afdian">☕ 赞助</a>
-            <a class="sponsor-mini-btn sponsor-mini-secondary" href="https://PayPal.Me/chenwenliang4212" target="_blank" rel="noopener noreferrer" data-i18n="sponsorMini.paypal">💳 PayPal 支持</a>
-          </div>
-        </div>
-        <p data-i18n="footer.text">© 2021 - 2026 CWL · Powered by Cwl · Theme inspired by Coder</p>
-      </section>
-    </footer>
-  </div>
-</body>
+        </g>
+      </svg>
+    </div>
+    <section class="knowledge-inventory" aria-labelledby="knowledge-inventory-title">
+      <h2 id="knowledge-inventory-title">内容清单</h2>
+      <ul>
+        <li data-category="ai-systems">
+            <a href="/post/rule-engine-alerts/"><strong>规则引擎与告警闭环</strong><span>AI 与智能系统</span></a>
+            <span>3 个关联 · 1 入链 / 1 出链 · 更新于 2026-08-06</span>
+          </li><li data-category="ai-coding">
+            <a href="/post/codex-claude-vibe-coding/"><strong>Codex 与 Claude 的 Vibe Coding</strong><span>AI 协作开发</span></a>
+            <span>1 个关联 · 1 入链 / 1 出链 · 更新于 2026-08-06</span>
+          </li><li data-category="ai-systems">
+            <a href="/post/manage-system/"><strong>智能分析预警平台重构</strong><span>AI 与智能系统</span></a>
+            <span>7 个关联 · 3 入链 / 1 出链 · 更新于 2026-08-06</span>
+          </li><li data-category="backend-platform">
+            <a href="/post/finance-saas-backend/"><strong>企顾 SaaS 多模块平台</strong><span>后端平台工程</span></a>
+            <span>5 个关联 · 1 入链 / 2 出链 · 更新于 2026-08-06</span>
+          </li><li data-category="backend-platform">
+            <a href="/post/activiti-workflow-engine/"><strong>Activiti BPM 引擎实践</strong><span>后端平台工程</span></a>
+            <span>5 个关联 · 1 入链 / 1 出链 · 更新于 2026-08-06</span>
+          </li><li data-category="frontend-platform">
+            <a href="/post/lowcode-schema-codegen/"><strong>LowCode Engine 实践</strong><span>前端平台工程</span></a>
+            <span>3 个关联 · 1 入链 / 2 出链 · 更新于 2026-08-06</span>
+          </li>
+      </ul>
+    </section>
+  </section>
+</main>
+<footer class="footer">
+  <section class="container">
+    <div class="subscribe">
+      <p class="subscribe-title" data-i18n="subscribe.title">订阅更新 · 新文章邮件提醒</p>
+      <form class="subscribe-form" novalidate>
+        <input class="subscribe-input" type="email" name="email" required autocomplete="email" placeholder="输入你的邮箱" data-i18n-ph="subscribe.ph" aria-label="Email">
+        <button class="subscribe-btn" type="submit" data-i18n="subscribe.btn">订阅</button>
+      </form>
+      <p class="subscribe-status" role="status" aria-live="polite"></p>
+    </div>
+    <div class="sponsor-mini" aria-label="赞助支持选项" data-i18n-aria="sponsorMini.aria">
+      <p class="sponsor-mini-text" data-i18n="sponsorMini.text">如果内容对你有帮助，可以支持我继续更新。</p>
+      <div class="sponsor-mini-actions">
+        <a class="sponsor-mini-btn sponsor-mini-primary" href="https://www.ifdian.net/order/create?plan_id=047bc28a6a1c11f182c452540025c377&amp;product_type=0&amp;remark=&amp;affiliate_code=" target="_blank" rel="noopener noreferrer" data-i18n="sponsorMini.afdian">☕ 赞助</a>
+        <a class="sponsor-mini-btn sponsor-mini-secondary" href="https://PayPal.Me/chenwenliang4212" target="_blank" rel="noopener noreferrer" data-i18n="sponsorMini.paypal">💳 PayPal 支持</a>
+      </div>
+    </div>
+    <p data-i18n="footer.text">© 2021 - 2026 CWL · Powered by Cwl · Theme inspired by Coder</p>
+  </section>
+</footer>
+    </div>
+  </body>
 </html>

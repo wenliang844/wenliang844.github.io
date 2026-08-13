@@ -65,11 +65,12 @@ test("committed HTML files do not contain broken root-relative links", async () 
 });
 
 test("site shell HTML files load common scripts in a consistent order", async () => {
-  const required = [
+  const beforeRuntime = [
     "/js/error-handler.js",
     "/js/utils.js",
     "/js/i18n.js",
-    "/js/coder.js",
+  ];
+  const afterRuntime = [
     "/js/search-loader.js",
     "/js/assistant-loader.js",
   ];
@@ -77,6 +78,8 @@ test("site shell HTML files load common scripts in a consistent order", async ()
 
   for (const file of await siteShellHtmlFiles()) {
     const html = await readFile(join(ROOT, file), "utf8");
+    const isAstro = html.includes('<meta name="generator" content="Astro Content Collections">');
+    const required = isAstro ? [...beforeRuntime, ...afterRuntime] : [...beforeRuntime, "/js/coder.js", ...afterRuntime];
     const positions = required.map((src) => html.indexOf(`src="${src}"`));
     positions.forEach((pos, index) => {
       if (pos === -1) {
@@ -87,6 +90,12 @@ test("site shell HTML files load common scripts in a consistent order", async ()
       if (positions[i - 1] !== -1 && positions[i] !== -1 && positions[i - 1] > positions[i]) {
         failures.push(`${file}: ${required[i - 1]} must load before ${required[i]}`);
       }
+    }
+    if (isAstro && !/<script type="module" src="\/_astro\/BaseLayout[^"/]*\.js"><\/script>/.test(html)) {
+      failures.push(`${file}: missing Astro site runtime entry`);
+    }
+    if (isAstro && html.includes('src="/js/coder.js"')) {
+      failures.push(`${file}: must not duplicate the compatibility runtime`);
     }
     if (html.includes('class="navigation-list"') && !html.includes('class="nav-search-trigger"')) {
       failures.push(`${file}: missing global search trigger`);

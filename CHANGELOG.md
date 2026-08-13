@@ -3,6 +3,46 @@
 All notable project changes are recorded here. This file complements the Git
 history with a concise, human-readable release trail.
 
+## 2026-08-13
+
+### Changed
+
+- Migrated article syntax-highlighting coordination from `highlight-loader.js` to the route-scoped TypeScript runtime; the 123 KB local Highlight.js vendor remains a separate asset and now loads only when the first code block approaches the viewport.
+- Added idempotent reuse of loaded and in-flight Highlight.js scripts, failed-load retry, one-time block highlighting, observer/fallback cleanup, and browser network regression coverage for code-free and code-bearing articles.
+- Migrated theme selection, back-to-top behavior, reveal/skill observers, and the cursor trail from the hand-maintained `coder.js` IIFE to one strict `site-runtime.ts` source with idempotent initialization and bfcache cleanup/restart.
+- Astro routes now import the shared site runtime through Vite, while the same source generates the small `/js/coder.js` compatibility bundle used by pages that have not yet moved to Astro.
+- Split reading progress/resume persistence, code-copy controls, image lightbox, reading-time refresh, and list-panel TOCs out of the global `coder.js` shell into route-scoped TypeScript modules.
+- Migrated the next-post recommendation from a legacy global script to the article runtime, using `IntersectionObserver` with explicit bfcache cleanup and a throttled fallback.
+- Reduced reading-position storage writes to meaningful progress changes with a final `pagehide` flush, restored keyboard focus after closing the image lightbox, and surfaced clipboard failures without unsafe HTML rendering.
+- Reduced the always-loaded `coder.js` source from roughly 29 KB to 9.8 KB while preserving global theme, back-to-top, reveal, skill, and pointer effects.
+- Migrated article-list state, article TOC behavior, and share/comment near-viewport loading from global IIFEs to strict TypeScript ES Modules emitted as route-scoped Vite hash assets.
+- Removed the `window.coderShowPost` global bridge and made the article-list module the sole owner of panel selection, filtering, keyboard navigation, URL hashes, and change events.
+- Added explicit comment capability metadata for CSP generation, synchronized `_astro` assets with stale-hash cleanup, and included those assets in PWA cache versioning and runtime caching.
+- Added executable TypeScript client-module tests, including lazy-load ordering, IntersectionObserver behavior, and load-event fallback coverage.
+- Migrated the sharing and Giscus runtimes themselves to dynamically imported TypeScript chunks, leaving only the local QR vendor script as a deferred legacy dependency.
+- Migrated article titles, metadata, taxonomy, covers, TOCs, sharing, comments, backlinks, recommendations, series navigation, pagination, and next-post prompts from HTML strings to a native Astro component.
+- Restricted article HTML injection to `MarkdownContent.astro`, with generated Markdown as its only input, while preserving the compatibility renderer for isolated legacy tests.
+- Migrated the multi-panel article list to dedicated `PostListPage` and `PostPanel` components while preserving prefixed heading IDs, search/tag filtering, keyboard navigation, URL hashes, per-panel sharing, and Giscus thread switching.
+- Removed the unused whole-region `TrustedHtmlContent` component and shared one native `PostShare` component between article detail and list routes.
+- Replaced Pagefind's attribute-order-sensitive generated-markup test with DOM-semantic assertions.
+- Migrated category, series, tag, and knowledge routes to the native Astro document shell, expanding Astro ownership from 7 article pages to 18 content pages.
+- Replaced aggregate-page HTML injection with structured Astro components and restricted trusted content HTML rendering to an article-only component boundary.
+- Made the hybrid content build skip Astro-owned HTML while continuing to generate RSS, Sitemap, knowledge JSON, image derivatives, and remaining compatibility pages.
+- Expanded the Astro output synchronizer to a five-directory allowlist with per-page generation-marker validation while preserving co-located RSS and JSON assets.
+- Made Pagefind builds remove validated stale hash assets before indexing, reducing the generated search directory to the currently referenced bundle without weakening technical-token search.
+
+## 2026-08-12
+
+### Added
+
+- Added a cross-platform post-build worktree gate that makes CI reject stale or uncommitted HTML, search indexes, optimized styles, and PWA artifacts before deployment.
+- Added an isolated Git repository integration test proving that the gate accepts a clean build and rejects changed tracked output.
+- Added native Astro layout, header, and footer components for article routes while retaining one shared CSP, script, metadata, and navigation configuration source.
+
+### Changed
+
+- Replaced whole-document `set:html` injection on article routes with typed page models and an Astro-rendered document shell; only the tested Markdown content region remains behind the compatibility renderer.
+
 ## 2026-08-10
 
 ### Security

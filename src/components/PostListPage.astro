@@ -1,0 +1,95 @@
+---
+import { isoDate } from "../lib/format.mjs";
+import PostPanel from "./PostPanel.astro";
+
+type Post = Record<string, any>;
+
+interface Props {
+  posts: Post[];
+  stats: { count: number; systems: number; range: string };
+}
+
+const { posts, stats } = Astro.props;
+const groups = posts.reduce((result: Array<{ year: string; posts: Post[] }>, post) => {
+  const year = post.date.slice(0, 4);
+  const group = result.at(-1);
+  if (group?.year === year) group.posts.push(post);
+  else result.push({ year, posts: [post] });
+  return result;
+}, []);
+const firstSlug = posts[0]?.slug;
+const englishValue = (post: Post, key: string) => post[`${key}En`] || post[key] || "";
+---
+<main id="main-content" class="content" data-pagefind-body>
+  <section class="blog-layout container" aria-label="Blog">
+    <aside class="post-tree" id="post-tree-sidebar" aria-label="文章目录" data-i18n-aria="post.tree.aria">
+      <div class="post-tree-header">
+        <span class="eyebrow">{stats.range} Timeline</span>
+        <h1 data-i18n="post.list.title" data-i18n-en="Posts">文章</h1>
+        <p class="lead" data-i18n="post.tree.lead">按时间线整理 AI Coding、低代码、工作流、SaaS 后台与智能分析预警相关实践，重点记录系统边界、数据流转、规则运行时和平台化落地。</p>
+      </div>
+      <div class="timeline-stats" aria-label="内容概览" data-i18n-aria="post.stats.aria">
+        <div><strong>{stats.count}</strong><span data-i18n="post.stats.posts">篇复盘</span></div>
+        <div><strong>{stats.systems}</strong><span data-i18n="post.stats.systems">类主题</span></div>
+        <div><strong>{stats.range}</strong><span data-i18n="post.stats.year">时间跨度</span></div>
+      </div>
+      <nav class="post-tree-nav">
+        {groups.map((group) => (
+          <details class="tree-group" open>
+            <summary>
+              <span><i class="fas fa-folder-open" aria-hidden="true"></i> {group.year}</span>
+              <span class="tree-count">{group.posts.length}</span>
+            </summary>
+            <ul>
+              {group.posts.map((post) => {
+                const active = post.slug === firstSlug;
+                return (
+                  <li>
+                    <a
+                      class:list={["post-tree-link", { active }]}
+                      href={`#${post.slug}`}
+                      data-post-target={`post-${post.slug}`}
+                      aria-current={active ? "page" : undefined}
+                    >
+                      <span class="tree-title" data-i18n={`post.${post.slug}.shortTitle`} data-i18n-en={englishValue(post, "shortTitle")}>{post.shortTitle}</span>
+                      <time datetime={isoDate(post.date)}>{isoDate(post.date)}</time>
+                    </a>
+                  </li>
+                );
+              })}
+            </ul>
+          </details>
+        ))}
+      </nav>
+      <div class="post-search">
+        <i class="fas fa-search" aria-hidden="true"></i>
+        <input type="search" id="post-search-input" placeholder="搜索文章 / 标签…" aria-label="搜索文章" data-i18n-ph="post.search.ph" data-i18n-aria="post.search.aria" />
+      </div>
+      <div class="tag-filter" id="tag-filter" aria-label="按标签筛选" data-i18n-aria="post.tagfilter.aria"></div>
+    </aside>
+
+    <section class="post-detail" aria-live="polite">
+      <button class="post-tree-fab" type="button" aria-controls="post-tree-sidebar" aria-expanded="false" aria-label="展开文章目录" title="展开文章目录">
+        <svg class="post-tree-fab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+          <path d="M8 3H5a2 2 0 0 0-2 2v3"></path><path d="M16 3h3a2 2 0 0 1 2 2v3"></path><path d="M21 16v3a2 2 0 0 1-2 2h-3"></path><path d="M8 21H5a2 2 0 0 1-2-2v-3"></path>
+        </svg>
+        <span class="post-tree-control-label">展开文章目录</span>
+      </button>
+      {posts.map((post, index) => <PostPanel {post} active={index === 0} />)}
+      <section class="comments" aria-label="评论" data-i18n-aria="post.comments.aria">
+        <h2 data-i18n="post.comments" data-i18n-html=""><i class="fas fa-comments" aria-hidden="true"></i> 评论</h2>
+        <div id="giscus-thread" data-giscus-mode="switch"></div>
+      </section>
+    </section>
+  </section>
+</main>
+
+<script>
+  import { initArticleRuntime } from "../client/article-runtime";
+  import { initPostExtras } from "../client/post-extras";
+  import { initPostList } from "../client/post-list";
+
+  initPostList();
+  initArticleRuntime();
+  initPostExtras();
+</script>
