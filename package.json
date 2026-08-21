@@ -70,6 +70,6 @@
     "yaml": "^2.9.0"
   },
   "optionalDependencies": {
-    "@rolldown/binding-win32-x64-msvc": "^1.2.3"
+    "@rolldown/binding-win32-x64-msvc": "^1.2.4"
   }
 }
