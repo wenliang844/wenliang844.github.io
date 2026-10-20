@@ -3,6 +3,18 @@
 All notable project changes are recorded here. This file complements the Git
 history with a concise, human-readable release trail.
 
+## 2026-10-20
+
+### Added
+
+- Added a paginated certificate photo wall below homepage honors, generated from `images/honors/` with six photos per page and fixed image frames on desktop and mobile.
+
+### Fixed
+
+- Version local stylesheet URLs by content during builds so normal reloads fetch updated styles.
+- Align offline-page styles and icons with the service worker precache and reload those resources when installing a new cache.
+- Exclude `.run/` diagnostics from CSP hardening and validate resource links containing version queries.
+
 ## 2026-08-13
 
 ### Changed

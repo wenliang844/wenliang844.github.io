@@ -5,15 +5,7 @@ import { SITE } from "../config.mjs";
 import { escapeAttr, escapeHtml } from "../lib/format.mjs";
 
 export const NAV_ITEMS = [
-  {
-    href: "/post/",
-    label: "博客",
-    key: "blog",
-    i18n: "nav.blog",
-    className: "nav-blog-main",
-    html: '<i class="fas fa-book-open" aria-hidden="true"></i> 博客',
-    htmlEn: '<i class="fas fa-book-open" aria-hidden="true"></i> Blog',
-  },
+  { href: "/post/", label: "博客", key: "blog", i18n: "nav.blog" },
   { href: "/ai/", label: "AI中转站排名", key: "ai", i18n: "nav.ai" },
   { href: "/appreciation/", label: "观察家", key: "appreciation", i18n: "nav.appreciation" },
 ];
@@ -396,7 +388,7 @@ ${renderScripts(allScripts)}${meta ? "\n" + meta : ""}${jsonLdTag}
   <div class="site-shell">
     <header class="navigation">
       <section class="container">
-        <a class="navigation-title" href="/">CWLBlog</a>
+        <a class="navigation-title" href="/">CWLBlog主页</a>
         <input type="checkbox" id="menu-toggle" class="menu-toggle" aria-label="Toggle menu" data-i18n-aria="nav.menu">
         <label class="menu-button" for="menu-toggle"><i class="fas fa-bars"></i></label>
         <label class="menu-overlay" for="menu-toggle" aria-hidden="true"></label>

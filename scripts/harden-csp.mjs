@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 
 const SCRIPT_RE = /<script\b(?![^>]*\bsrc\s*=)[^>]*>([\s\S]*?)<\/script>/gi;
 const CSP_RE = /<meta http-equiv="Content-Security-Policy" content="([^"]+)">/i;
-const SKIPPED_DIRECTORIES = new Set([".git", ".astro", "node_modules", "pagefind", "playwright-report", "temp", "test-results"]);
+const SKIPPED_DIRECTORIES = new Set([".git", ".astro", ".run", "node_modules", "pagefind", "playwright-report", "temp", "test-results"]);
 const ASSISTANT_CONNECT_ORIGINS = [
   "https://muyuan.do",
   "https://token-plan-cn.xiaomimimo.com",

@@ -86,6 +86,33 @@ test("PWA registration skips authoring routes", async () => {
   assert.match(source, /navigator\.serviceWorker\.register\("\/service-worker\.js", \{ scope: "\/" \}\)/);
 });
 
+test("worker installation reloads and precaches every offline-page asset", async () => {
+  const source = await readFile(join(ROOT, "service-worker.js"), "utf8");
+  const offline = await readFile(join(ROOT, "offline.html"), "utf8");
+  const listeners = new Map();
+  let resources;
+  const context = vm.createContext({
+    Request: class extends Request {
+      constructor(url, options) { super(new URL(url, "https://wenliang844.github.io"), options); }
+    },
+    caches: { open: async () => ({ addAll: async (requests) => { resources = requests; } }) },
+    self: {
+      skipWaiting() {},
+      addEventListener(type, listener) { listeners.set(type, listener); },
+    },
+  });
+  vm.runInContext(source, context);
+  let installation;
+  listeners.get("install")({ waitUntil(promise) { installation = promise; } });
+  await installation;
+  assert.ok(resources.length > 0);
+  assert.ok(resources.every((request) => request.cache === "reload"));
+  const paths = resources.map((request) => new URL(request.url).pathname);
+  for (const [, path] of offline.matchAll(/(?:href|src)="(\/(?:css|images)\/[^"?#]+)"/g)) {
+    assert.ok(paths.includes(path), `offline asset missing from precache: ${path}`);
+  }
+});
+
 test("public entry points expose the manifest while authoring pages do not register", async () => {
   for (const path of ["index.html", join("about", "index.html"), join("contact", "index.html")]) {
     const html = await readFile(join(ROOT, path), "utf8");

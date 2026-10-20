@@ -63,9 +63,10 @@ test("all referenced CSS files exist", async () => {
 
   for (const file of files) {
     const html = await readFile(join(ROOT, file), "utf8");
-    const cssRefs = html.matchAll(/href="([^"]+\.css)"/g);
+    const cssRefs = html.matchAll(/href="([^"]+\.css(?:[?#][^"]*)?)"/g);
     for (const match of cssRefs) {
-      const cssPath = match[1].replace(/^\//, "");
+      if (/^(?:https?:)?\/\//.test(match[1])) continue;
+      const cssPath = match[1].split(/[?#]/)[0].replace(/^\//, "");
       try {
         await stat(join(ROOT, cssPath));
       } catch {
@@ -83,9 +84,10 @@ test("all referenced JS files exist", async () => {
 
   for (const file of files) {
     const html = await readFile(join(ROOT, file), "utf8");
-    const jsRefs = html.matchAll(/src="([^"]+\.js)"/g);
+    const jsRefs = html.matchAll(/src="([^"]+\.js(?:[?#][^"]*)?)"/g);
     for (const match of jsRefs) {
-      const jsPath = match[1].replace(/^\//, "");
+      if (/^(?:https?:)?\/\//.test(match[1])) continue;
+      const jsPath = match[1].split(/[?#]/)[0].replace(/^\//, "");
       try {
         await stat(join(ROOT, jsPath));
       } catch {

@@ -24,8 +24,8 @@
   <link rel="dns-prefetch" href="https://buttondown.com">
   <link rel="dns-prefetch" href="https://www.ifdian.net">
   <link rel="dns-prefetch" href="https://paypal.me">
-  <link rel="stylesheet" href="/css/fontawesome-all.min.css">
-  <link rel="stylesheet" href="/css/coder-home.min.css">
+  <link rel="stylesheet" href="/css/fontawesome-all.min.css?v=3b2499101183">
+  <link rel="stylesheet" href="/css/coder-home.min.css?v=9da7ac7061f0">
   <link rel="manifest" href="/manifest.webmanifest">
   <link rel="apple-touch-icon" href="/images/pwa-192.png">
   <script src="/js/error-handler.js" defer></script>
@@ -34,6 +34,7 @@
   <script src="/js/analytics.js" defer></script>
   <script src="/js/i18n.js" defer></script>
   <script src="/js/coder.js" defer></script>
+  <script src="/js/honor-gallery.js" defer></script>
   <script src="/js/search-loader.js" defer></script>
   <script src="/js/subscribe.js" defer></script>
   <script src="/js/assistant-loader.js" defer></script>
@@ -47,13 +48,13 @@
   <div class="site-shell">
     <header class="navigation">
       <section class="container">
-        <a class="navigation-title" href="/">CWLBlog</a>
+        <a class="navigation-title" href="/">CWLBlog主页</a>
         <input type="checkbox" id="menu-toggle" class="menu-toggle" aria-label="Toggle menu" data-i18n-aria="nav.menu">
         <label class="menu-button" for="menu-toggle"><i class="fas fa-bars"></i></label>
         <label class="menu-overlay" for="menu-toggle" aria-hidden="true"></label>
         <nav class="navigation-list" aria-label="Main navigation" data-i18n-aria="nav.main">
           <ul>
-          <li><a class="nav-blog-main" href="/post/" data-i18n="nav.blog" data-i18n-html data-i18n-en-html="&lt;i class=&quot;fas fa-book-open&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt; Blog"><i class="fas fa-book-open" aria-hidden="true"></i> 博客</a></li>
+          <li><a href="/post/" data-i18n="nav.blog">博客</a></li>
           <li><a href="/ai/" data-i18n="nav.ai">AI中转站排名</a></li>
           <li><a href="/appreciation/" data-i18n="nav.appreciation">观察家</a></li>
             <li class="nav-more">
@@ -274,6 +275,170 @@
           <li data-i18n="home.honor.h3" data-i18n-html><i class="fas fa-star" aria-hidden="true"></i> 校级蓝信杯二等奖 · 程序设计大赛三等奖</li>
           <li data-i18n="home.honor.h4" data-i18n-html><i class="fas fa-graduation-cap" aria-hidden="true"></i> 软考 软件设计师（中级）</li>
         </ul>
+      </section>
+
+      <section class="section container honor-gallery" aria-labelledby="honor-gallery-title" data-honor-gallery>
+        <div class="section-head">
+          <div>
+            <span class="eyebrow"><i class="fas fa-images" aria-hidden="true"></i> Gallery</span>
+            <h2 id="honor-gallery-title" data-i18n="home.gallery.title">照片墙</h2>
+            <p class="section-sub" data-i18n="home.gallery.subtitle">珍藏荣誉与成长的瞬间，点击图片查看原图。</p>
+          </div>
+        </div>
+        <!-- honor-gallery:start -->
+        <ul class="honor-gallery-grid" id="honor-gallery-grid">
+          <li class="honor-photo">
+            <a href="/images/honors/1.jpg" target="_blank" rel="noopener noreferrer">
+              <figure>
+                <div class="honor-photo-image"><img src="/images/honors/1.jpg" alt="1" loading="lazy" decoding="async"></div>
+                <figcaption>1</figcaption>
+              </figure>
+            </a>
+          </li>
+          <li class="honor-photo">
+            <a href="/images/honors/2.jpg" target="_blank" rel="noopener noreferrer">
+              <figure>
+                <div class="honor-photo-image"><img src="/images/honors/2.jpg" alt="2" loading="lazy" decoding="async"></div>
+                <figcaption>2</figcaption>
+              </figure>
+            </a>
+          </li>
+          <li class="honor-photo">
+            <a href="/images/honors/3.jpg" target="_blank" rel="noopener noreferrer">
+              <figure>
+                <div class="honor-photo-image"><img src="/images/honors/3.jpg" alt="3" loading="lazy" decoding="async"></div>
+                <figcaption>3</figcaption>
+              </figure>
+            </a>
+          </li>
+          <li class="honor-photo">
+            <a href="/images/honors/4.jpg" target="_blank" rel="noopener noreferrer">
+              <figure>
+                <div class="honor-photo-image"><img src="/images/honors/4.jpg" alt="4" loading="lazy" decoding="async"></div>
+                <figcaption>4</figcaption>
+              </figure>
+            </a>
+          </li>
+          <li class="honor-photo">
+            <a href="/images/honors/5.jpg" target="_blank" rel="noopener noreferrer">
+              <figure>
+                <div class="honor-photo-image"><img src="/images/honors/5.jpg" alt="5" loading="lazy" decoding="async"></div>
+                <figcaption>5</figcaption>
+              </figure>
+            </a>
+          </li>
+          <li class="honor-photo">
+            <a href="/images/honors/6.jpg" target="_blank" rel="noopener noreferrer">
+              <figure>
+                <div class="honor-photo-image"><img src="/images/honors/6.jpg" alt="6" loading="lazy" decoding="async"></div>
+                <figcaption>6</figcaption>
+              </figure>
+            </a>
+          </li>
+          <li class="honor-photo">
+            <a href="/images/honors/7.png" target="_blank" rel="noopener noreferrer">
+              <figure>
+                <div class="honor-photo-image"><img src="/images/honors/7.png" alt="7" loading="lazy" decoding="async"></div>
+                <figcaption>7</figcaption>
+              </figure>
+            </a>
+          </li>
+          <li class="honor-photo">
+            <a href="/images/honors/8.png" target="_blank" rel="noopener noreferrer">
+              <figure>
+                <div class="honor-photo-image"><img src="/images/honors/8.png" alt="8" loading="lazy" decoding="async"></div>
+                <figcaption>8</figcaption>
+              </figure>
+            </a>
+          </li>
+          <li class="honor-photo">
+            <a href="/images/honors/9.png" target="_blank" rel="noopener noreferrer">
+              <figure>
+                <div class="honor-photo-image"><img src="/images/honors/9.png" alt="9" loading="lazy" decoding="async"></div>
+                <figcaption>9</figcaption>
+              </figure>
+            </a>
+          </li>
+          <li class="honor-photo">
+            <a href="/images/honors/10.png" target="_blank" rel="noopener noreferrer">
+              <figure>
+                <div class="honor-photo-image"><img src="/images/honors/10.png" alt="10" loading="lazy" decoding="async"></div>
+                <figcaption>10</figcaption>
+              </figure>
+            </a>
+          </li>
+          <li class="honor-photo">
+            <a href="/images/honors/11.jpg" target="_blank" rel="noopener noreferrer">
+              <figure>
+                <div class="honor-photo-image"><img src="/images/honors/11.jpg" alt="11" loading="lazy" decoding="async"></div>
+                <figcaption>11</figcaption>
+              </figure>
+            </a>
+          </li>
+          <li class="honor-photo">
+            <a href="/images/honors/12.jpg" target="_blank" rel="noopener noreferrer">
+              <figure>
+                <div class="honor-photo-image"><img src="/images/honors/12.jpg" alt="12" loading="lazy" decoding="async"></div>
+                <figcaption>12</figcaption>
+              </figure>
+            </a>
+          </li>
+          <li class="honor-photo">
+            <a href="/images/honors/13.jpg" target="_blank" rel="noopener noreferrer">
+              <figure>
+                <div class="honor-photo-image"><img src="/images/honors/13.jpg" alt="13" loading="lazy" decoding="async"></div>
+                <figcaption>13</figcaption>
+              </figure>
+            </a>
+          </li>
+          <li class="honor-photo">
+            <a href="/images/honors/14.jpg" target="_blank" rel="noopener noreferrer">
+              <figure>
+                <div class="honor-photo-image"><img src="/images/honors/14.jpg" alt="14" loading="lazy" decoding="async"></div>
+                <figcaption>14</figcaption>
+              </figure>
+            </a>
+          </li>
+          <li class="honor-photo">
+            <a href="/images/honors/15.jpg" target="_blank" rel="noopener noreferrer">
+              <figure>
+                <div class="honor-photo-image"><img src="/images/honors/15.jpg" alt="15" loading="lazy" decoding="async"></div>
+                <figcaption>15</figcaption>
+              </figure>
+            </a>
+          </li>
+          <li class="honor-photo">
+            <a href="/images/honors/16.png" target="_blank" rel="noopener noreferrer">
+              <figure>
+                <div class="honor-photo-image"><img src="/images/honors/16.png" alt="16" loading="lazy" decoding="async"></div>
+                <figcaption>16</figcaption>
+              </figure>
+            </a>
+          </li>
+          <li class="honor-photo">
+            <a href="/images/honors/17.jpg" target="_blank" rel="noopener noreferrer">
+              <figure>
+                <div class="honor-photo-image"><img src="/images/honors/17.jpg" alt="17" loading="lazy" decoding="async"></div>
+                <figcaption>17</figcaption>
+              </figure>
+            </a>
+          </li>
+          <li class="honor-photo">
+            <a href="/images/honors/18.jpg" target="_blank" rel="noopener noreferrer">
+              <figure>
+                <div class="honor-photo-image"><img src="/images/honors/18.jpg" alt="18" loading="lazy" decoding="async"></div>
+                <figcaption>18</figcaption>
+              </figure>
+            </a>
+          </li>
+        </ul>
+        <!-- honor-gallery:end -->
+        <nav class="honor-gallery-pagination" aria-label="照片墙分页" data-i18n-aria="home.gallery.pagination" hidden>
+          <button type="button" class="honor-gallery-page" data-gallery-prev data-i18n="home.gallery.previous" aria-controls="honor-gallery-grid">上一页</button>
+          <div class="honor-gallery-pages" data-gallery-pages></div>
+          <button type="button" class="honor-gallery-page" data-gallery-next data-i18n="home.gallery.next" aria-controls="honor-gallery-grid">下一页</button>
+          <p class="honor-gallery-status" data-gallery-status role="status" aria-live="polite" aria-atomic="true"></p>
+        </nav>
       </section>
     </main>
     <footer class="footer">

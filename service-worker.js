@@ -1,7 +1,7 @@
 "use strict";
 
 const CACHE_PREFIX = "cwlblog-public-";
-const CACHE_NAME = `${CACHE_PREFIX}4a67ed551dce795e`;
+const CACHE_NAME = `${CACHE_PREFIX}19a456b94a6616de`;
 const OFFLINE_URL = "/offline.html";
 const PRECACHE = [
   OFFLINE_URL,
@@ -12,6 +12,7 @@ const PRECACHE = [
   "/css/coder-post.min.css",
   "/css/content.min.css",
   "/images/favicon.png",
+  "/images/pwa-192.png",
 ];
 const PRIVATE_PREFIXES = ["/editor/", "/overleaf/", "/chat/", "/api/"];
 const CONTENT_PREFIXES = ["/post/", "/categories/", "/series/", "/tags/", "/knowledge/"];
@@ -61,7 +62,8 @@ async function staleWhileRevalidate(request) {
 }
 
 self.addEventListener("install", (event) => {
-  event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(PRECACHE)));
+  event.waitUntil(caches.open(CACHE_NAME).then((cache) =>
+    cache.addAll(PRECACHE.map((url) => new Request(url, { cache: "reload" })))));
   self.skipWaiting();
 });
 

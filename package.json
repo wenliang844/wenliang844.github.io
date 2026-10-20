@@ -8,7 +8,8 @@
     "node": ">=22.12.0"
   },
   "scripts": {
-    "build": "npm run build:editor && npm run build:content && npm run build:astro && npm run build:styles && npm run build:pwa && npm run build:csp && npm run build:search",
+    "build": "npm run build:gallery && npm run build:editor && npm run build:content && npm run build:astro && npm run build:styles && npm run build:pwa && npm run build:csp && npm run build:search",
+    "build:gallery": "node scripts/build-honor-gallery.mjs",
     "build:editor": "node scripts/build-editor.mjs",
     "build:content": "node scripts/build.mjs --skip-astro-html",
     "build:astro": "astro build && node scripts/sync-astro-output.mjs",

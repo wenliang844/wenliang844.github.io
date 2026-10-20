@@ -79,8 +79,8 @@ test("Astro owns content routes while the sync boundary stays scoped", async () 
   assert.match(layout, /<slot \/>/);
   assert.doesNotMatch(layout, /set:html=\{main\}/);
   const header = await readFile(join(ROOT, "src", "components", "SiteHeader.astro"), "utf8");
-  assert.match(header, /data-i18n-html=\{item\.html \? "" : undefined\}/);
-  assert.doesNotMatch(header, /data-i18n-html=\{item\.html \? true/);
+  assert.match(header, /\{item\.label\}/);
+  assert.doesNotMatch(header, /item\.html|nav-blog-main/);
   assert.match(sync, /const ROUTE_ROOTS = \["post", "categories", "series", "tags", "knowledge"\]/);
   assert.match(sync, /const ASSET_ROOT = "_astro"/);
   assert.match(sync, /rm\(assetDestination, \{ recursive: true, force: true \}\)/);

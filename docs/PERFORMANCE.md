@@ -183,13 +183,15 @@ CWLUtils.storageSet(STORAGE_KEY_THEME, dark ? "dark" : "light");
 ```
 
 #### HTTP 缓存
-推荐的 HTTP 头配置：
+发布页面的本地 CSS 在 `npm run build:styles` 时添加内容哈希查询参数，样式改变会自动切换 URL。`_astro/` 产物使用哈希文件名。离线提示页使用固定的压缩样式 URL，由带内容版本的 Service Worker 在安装时重新获取并预缓存。
+
+支持自定义响应头的部署环境可按资源是否带内容版本配置缓存。本地 `npm run serve` 对 HTML 使用 `no-cache`，其他资源使用一小时缓存；GitHub Pages 的响应头由平台管理。
 
 ```
-# 静态资源（JS/CSS/字体）- 长期缓存
+# 带内容哈希的资源 - 长期缓存
 Cache-Control: public, max-age=31536000, immutable
 
-# HTML 文件 - 不缓存或短期缓存
+# HTML 与固定 URL 的资源 - 每次验证或短期缓存
 Cache-Control: no-cache
 
 # 图片 - 中期缓存
@@ -200,12 +202,12 @@ Cache-Control: public, max-age=2592000
 
 #### 代码压缩
 ```bash
-# 生产构建（未来添加）
-npm run build:prod
-# - 压缩 JavaScript (Terser)
-# - 压缩 CSS (cssnano)
-# - 移除注释和空格
-# - Tree-shaking
+# 生产构建
+npm run build
+# - 生成照片墙、编辑器与内容产物
+# - Astro/Vite 生成路由及客户端模块
+# - esbuild 压缩 CSS，PurgeCSS 裁剪首页和文章页样式
+# - 更新样式 URL、PWA 缓存版本、CSP 和 Pagefind 搜索索引
 ```
 
 #### 输出优化
@@ -309,7 +311,7 @@ npx lighthouse https://wenliang844.github.io --view
 ## 持续优化
 
 ### 监控
-- 使用 Google Analytics 跟踪真实用户性能
+- 如需访问分析，可显式配置 Umami/Plausible；默认关闭并遵守 DNT/GPC
 - 配置 Performance Budgets
 - 定期审查慢页面
 

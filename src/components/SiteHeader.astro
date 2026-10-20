@@ -11,7 +11,7 @@ const moreActive = MORE_ITEMS.some((item) => item.key === active);
 ---
 <header class="navigation">
   <section class="container">
-    <a class="navigation-title" href="/">CWLBlog</a>
+    <a class="navigation-title" href="/">CWLBlog主页</a>
     <input type="checkbox" id="menu-toggle" class="menu-toggle" aria-label="Toggle menu" data-i18n-aria="nav.menu" />
     <label class="menu-button" for="menu-toggle"><i class="fas fa-bars"></i></label>
     <label class="menu-overlay" for="menu-toggle" aria-hidden="true"></label>
@@ -20,13 +20,11 @@ const moreActive = MORE_ITEMS.some((item) => item.key === active);
         {NAV_ITEMS.map((item) => (
           <li>
             <a
-              class:list={[item.key === active && "active", item.className]}
+              class:list={[item.key === active && "active"]}
               href={item.href}
               data-i18n={item.i18n}
-              data-i18n-html={item.html ? "" : undefined}
-              data-i18n-en-html={item.htmlEn}
             >
-              {item.html ? <><i class="fas fa-book-open" aria-hidden="true"></i> 博客</> : item.label}
+              {item.label}
             </a>
           </li>
         ))}
