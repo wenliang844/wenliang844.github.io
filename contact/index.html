@@ -61,6 +61,7 @@
               <details>
                 <summary class="nav-more-toggle" data-i18n="nav.more" data-i18n-html data-i18n-en-html="&lt;i class=&quot;fas fa-ellipsis-h&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt; More"><i class="fas fa-ellipsis-h" aria-hidden="true"></i> 更多</summary>
                 <ul class="nav-more-menu">
+              <li><a href="/knowledge/" data-i18n="nav.knowledge">知识资产</a></li>
               <li><a href="/tools/" data-i18n="nav.tools">工具箱</a></li>
               <li><a href="/overleaf/" data-i18n="nav.overleaf">简历模版</a></li>
                 </ul>
@@ -82,49 +83,44 @@
       <section class="page container">
         <span class="eyebrow" data-i18n="about.eyebrow" data-i18n-html><i class="fas fa-laptop-code" aria-hidden="true"></i> About Me</span>
         <h1 data-i18n="about.h1">关于CWL</h1>
-        <p class="lead" data-i18n="about.lead">Java 后端开发工程师，专注服务端架构、工作流引擎与低代码平台。喜欢把复杂系统拆清楚，也喜欢把实践经验整理成可复用的文章。</p>
-        <p data-i18n="about.intro">从视频智能侦测系统的链路重构，到财税 SaaS 的报表与搜索组件，再到低代码平台的出码引擎和审批流引擎封装——我关注的始终是边界清晰、命名稳定、配置统一、失败可排查。本站记录这些项目的复盘，以及 Java、Spring、数据库和工程化方面的学习总结。</p>
+        <p class="lead" data-i18n="about.lead">以目标为导向</p>
 
-        <div class="card-grid">
-          <div class="card"><h2><i class="fas fa-laptop-code" aria-hidden="true"></i> Backend</h2><p data-i18n="about.card.backend">Java、Spring Boot、MyBatis/JPA、Maven 多模块、微服务</p></div>
-          <div class="card"><h2><i class="fas fa-database" aria-hidden="true"></i> Data &amp; MQ</h2><p data-i18n="about.card.data">MySQL、Kingbase、Redis/Redisson、ElasticSearch、RocketMQ/RabbitMQ</p></div>
-          <div class="card"><h2><i class="fas fa-cogs" aria-hidden="true"></i> Platform</h2><p data-i18n="about.card.platform">Activiti 工作流、低代码 Schema/出码、Docker、Jenkins</p></div>
-        </div>
-      </section>
-      <section class="section container" aria-labelledby="contact-title">
-        <div class="section-head">
-          <div>
-            <span class="eyebrow"><i class="fas fa-address-card" aria-hidden="true"></i> Contact</span>
-            <h2 id="contact-title" data-i18n="contact.h1">联系</h2>
-            <p class="section-sub" data-i18n="contact.lead">欢迎通过下面的链接联系我或查看其他主页。</p>
+
+        <section aria-labelledby="contact-title">
+          <div class="section-head">
+            <div>
+              <span class="eyebrow"><i class="fas fa-address-card" aria-hidden="true"></i> Contact</span>
+              <h2 id="contact-title" data-i18n="contact.h1">联系</h2>
+              <p class="section-sub" data-i18n="contact.lead">欢迎通过下面的链接联系我或查看其他主页。</p>
+            </div>
           </div>
-        </div>
-        <div class="card-grid">
-          <a class="card" href="mailto:2252694075@qq.com"><h2>Email</h2><p>2252694075@qq.com</p></a>
-          <a class="card" href="https://github.com/wenliang844"><h2>GitHub</h2><p>github.com/wenliang844</p></a>
-          <a class="card" href="https://blog.csdn.net/weixin_44028406"><h2>CSDN</h2><p>blog.csdn.net/weixin_44028406</p></a>
-        </div>
-      </section>
-      <section class="feedback container" aria-labelledby="feedback-title">
-        <span class="eyebrow" data-i18n="contact.fb.eyebrow" data-i18n-html><i class="fas fa-comment-dots" aria-hidden="true"></i> Feedback</span>
-        <h2 id="feedback-title" data-i18n="contact.fb.h1">留言反馈</h2>
-        <p class="lead" data-i18n="contact.fb.lead">有想法、建议，或发现了问题？欢迎留言。反馈会保存在你当前浏览器中，随时可在本页查看或删除。</p>
-        <form class="feedback-form" id="feedback-form" novalidate>
-          <div class="feedback-row">
-            <label><span data-i18n="contact.fb.name">称呼（可选）</span>
-              <input type="text" id="fb-name" name="name" placeholder="你的昵称" autocomplete="nickname" data-i18n-ph="contact.fb.name.ph">
-            </label>
-            <label><span data-i18n="contact.fb.contact">联系方式（可选）</span>
-              <input type="text" id="fb-contact" name="contact" placeholder="邮箱 / 微信，便于回复" data-i18n-ph="contact.fb.contact.ph">
-            </label>
+          <div class="card-grid">
+            <a class="card" href="mailto:2252694075@qq.com"><h2>Email</h2><p>2252694075@qq.com</p></a>
+            <a class="card" href="https://github.com/wenliang844"><h2>GitHub</h2><p>github.com/wenliang844</p></a>
+            <a class="card" href="https://blog.csdn.net/weixin_44028406"><h2>CSDN</h2><p>blog.csdn.net/weixin_44028406</p></a>
           </div>
-          <label><span data-i18n="contact.fb.message">反馈内容 *</span>
-            <textarea id="fb-message" name="message" placeholder="写下你的想法、建议或遇到的问题…" required data-i18n-ph="contact.fb.message.ph"></textarea>
-          </label>
-          <button class="btn-primary" type="submit" data-i18n="contact.fb.submit" data-i18n-html><i class="fas fa-paper-plane" aria-hidden="true"></i> 提交反馈</button>
-          <p class="feedback-status" id="feedback-status" role="status" aria-live="polite"></p>
-        </form>
-        <ul class="feedback-list" id="feedback-list"></ul>
+        </section>
+        <section class="feedback" aria-labelledby="feedback-title">
+          <span class="eyebrow" data-i18n="contact.fb.eyebrow" data-i18n-html><i class="fas fa-comment-dots" aria-hidden="true"></i> Feedback</span>
+          <h2 id="feedback-title" data-i18n="contact.fb.h1">留言反馈</h2>
+          <p class="lead" data-i18n="contact.fb.lead">有想法、建议，或发现了问题？欢迎留言。反馈会保存在你当前浏览器中，随时可在本页查看或删除。</p>
+          <form class="feedback-form" id="feedback-form" novalidate>
+            <div class="feedback-row">
+              <label><span data-i18n="contact.fb.name">称呼（可选）</span>
+                <input type="text" id="fb-name" name="name" placeholder="你的昵称" autocomplete="nickname" data-i18n-ph="contact.fb.name.ph">
+              </label>
+              <label><span data-i18n="contact.fb.contact">联系方式（可选）</span>
+                <input type="text" id="fb-contact" name="contact" placeholder="邮箱 / 微信，便于回复" data-i18n-ph="contact.fb.contact.ph">
+              </label>
+            </div>
+            <label><span data-i18n="contact.fb.message">反馈内容 *</span>
+              <textarea id="fb-message" name="message" placeholder="写下你的想法、建议或遇到的问题…" required data-i18n-ph="contact.fb.message.ph"></textarea>
+            </label>
+            <button class="btn-primary" type="submit" data-i18n="contact.fb.submit" data-i18n-html><i class="fas fa-paper-plane" aria-hidden="true"></i> 提交反馈</button>
+            <p class="feedback-status" id="feedback-status" role="status" aria-live="polite"></p>
+          </form>
+          <ul class="feedback-list" id="feedback-list"></ul>
+        </section>
       </section>
     </main>
     <footer class="footer">
