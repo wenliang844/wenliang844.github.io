@@ -1,7 +1,7 @@
 "use strict";
 
 const CACHE_PREFIX = "cwlblog-public-";
-const CACHE_NAME = `${CACHE_PREFIX}19a456b94a6616de`;
+const CACHE_NAME = `${CACHE_PREFIX}5ba302aca17b5794`;
 const OFFLINE_URL = "/offline.html";
 const PRECACHE = [
   OFFLINE_URL,

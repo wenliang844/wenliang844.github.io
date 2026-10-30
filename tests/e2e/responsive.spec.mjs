@@ -22,6 +22,36 @@ async function openAssistant(page) {
   await trigger.click();
 }
 
+for (const path of ["/", "/post/"]) {
+  test(`lazy AI assistant keeps its layout and controls on ${path}`, async ({ page }, testInfo) => {
+    await page.goto(path);
+    await expect(page.locator(".assistant-widget")).toHaveCount(0);
+    await openAssistant(page);
+    const panel = page.locator(".assistant-panel");
+    await expect(panel).toBeVisible();
+    await expect(panel).toHaveCSS("display", "grid");
+    await expect(page.locator(".assistant-body")).toHaveCSS("display", "grid");
+    await expect(panel).toHaveCSS("border-top-style", "solid");
+    const bounds = await panel.boundingBox();
+    const viewport = page.viewportSize();
+    expect(bounds.x).toBeGreaterThanOrEqual(0);
+    expect(bounds.y).toBeGreaterThanOrEqual(0);
+    expect(bounds.x + bounds.width).toBeLessThanOrEqual(viewport.width);
+    expect(bounds.y + bounds.height).toBeLessThanOrEqual(viewport.height);
+    await testInfo.attach("assistant-panel", { body: await page.screenshot(), contentType: "image/png" });
+
+    await page.locator(".assistant-fullscreen").click();
+    await expect(page.locator(".assistant-widget")).toHaveClass(/fullscreen/);
+    const fullscreen = await panel.boundingBox();
+    expect(fullscreen.x).toBe(0);
+    expect(fullscreen.y).toBe(0);
+    expect(fullscreen.width).toBe(viewport.width);
+    expect(fullscreen.height).toBe(viewport.height);
+    await page.locator(".assistant-close").click();
+    await expect(panel).toBeHidden();
+  });
+}
+
 test("embedded Minnit chat remains usable at every viewport", async ({ page }, testInfo) => {
   await page.route("https://minnit.chat/js/embed.js*", (route) => route.fulfill({
     contentType: "application/javascript",

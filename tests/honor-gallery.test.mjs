@@ -61,7 +61,8 @@ test("gallery build discovers only supported local photos with natural order and
   assert.match(photos[2].querySelector("figcaption").innerHTML, /&amp;/);
   assert.equal(photos[0].querySelector("img").getAttribute("loading"), "lazy");
   assert.equal(photos[0].querySelector("a").target, "_blank");
-  assert.equal(document.querySelector('[aria-labelledby="honor-title"]').nextElementSibling.dataset.honorGallery, "");
+  assert.equal(document.querySelector("[data-honor-gallery]").nextElementSibling.getAttribute("aria-labelledby"), "honor-title");
+  assert.equal(document.querySelector('[aria-labelledby="honor-title"]').nextElementSibling.getAttribute("aria-labelledby"), "ai-stack-title");
   const stripGallery = (html) => html.replace(/<!-- honor-gallery:start -->[\s\S]*?<!-- honor-gallery:end -->/, "GALLERY");
   assert.equal(stripGallery(output), stripGallery(home));
   await buildHonorGallery(root);

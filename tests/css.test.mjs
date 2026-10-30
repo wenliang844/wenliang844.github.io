@@ -164,6 +164,18 @@ test("coder.css contains assistant selectors", async () => {
   assert.ok(css.includes(".assistant-input"), "should have assistant-input");
 });
 
+test("optimized page CSS retains the lazy assistant layout and visibility states", async () => {
+  for (const file of ["coder-home.min.css", "coder-post.min.css"]) {
+    const css = await readFile(join(ROOT, "css", file), "utf8");
+    assert.match(css, /\.assistant-panel\{[^}]*display:grid/, `${file}: assistant panel layout`);
+    assert.match(css, /\.assistant-body\{[^}]*grid-template-columns:/, `${file}: assistant sidebar layout`);
+    assert.match(css, /\.assistant-panel\[hidden\]\{display:none/, `${file}: closed assistant must be hidden`);
+    assert.match(css, /\.assistant-widget\.fullscreen \.assistant-panel\{[^}]*inset:0/, `${file}: fullscreen layout`);
+    assert.match(css, /\.assistant-message\.user p\{/, `${file}: dynamically added user messages`);
+    assert.match(css, /\.assistant-input\{/, `${file}: input styling`);
+  }
+});
+
 test("coder.css contains search selectors", async () => {
   const css = await readFile(join(ROOT, "css", "coder.css"), "utf8");
 

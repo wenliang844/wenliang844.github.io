@@ -20,6 +20,7 @@ const CORE_SCRIPTS = [
   "js/search-loader.js",
   "js/subscribe.js",
   "js/assistant-loader.js",
+  "js/assistant.js",
 ];
 const POST_SCRIPTS = [
   "src/client/post-list.ts",
