@@ -4,8 +4,25 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { JSDOM } from "jsdom";
+import { MORE_ITEMS } from "../src/templates/layout.mjs";
 
 const ROOT = join(import.meta.dirname, "..");
+
+test("overleaf navigation keeps shared More links and the selected resume entry", async (t) => {
+  const html = await readFile(join(ROOT, "overleaf", "index.html"), "utf8");
+  const dom = new JSDOM(html);
+  t.after(() => dom.window.close());
+  const document = dom.window.document;
+  const links = [...document.querySelectorAll(".nav-more-menu a")];
+  assert.deepEqual(links.map((link) => ({
+    href: link.getAttribute("href"),
+    label: link.textContent.trim(),
+    i18n: link.getAttribute("data-i18n"),
+  })), MORE_ITEMS.map(({ href, label, i18n }) => ({ href, label, i18n })));
+  assert.equal(document.querySelectorAll(".nav-more-menu a.active").length, 1);
+  assert.equal(document.querySelector(".nav-more-menu a.active").getAttribute("href"), "/overleaf/");
+  assert.ok(document.querySelector(".nav-more-toggle.active"));
+});
 
 function buildOverleafDom(sourceHtml, opts = {}) {
   const dom = new JSDOM(sourceHtml, {
