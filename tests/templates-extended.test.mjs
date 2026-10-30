@@ -388,6 +388,7 @@ test("renderPostPage without English content does not add language markers", () 
   assert.doesNotMatch(html, /data-i18n-lang/);
   assert.match(html, /data-language-mode="zh-only"/);
   assert.doesNotMatch(html, /class="lang-toggle"/);
+  assert.match(html, /<li class="nav-language-placeholder" aria-hidden="true"><\/li>/);
 });
 
 test("renderPostPage includes giscus comments section", () => {

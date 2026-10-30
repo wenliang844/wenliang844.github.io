@@ -22,6 +22,35 @@ async function openAssistant(page) {
   await trigger.click();
 }
 
+test("navigation stays aligned when opening knowledge assets from resume templates", async ({ page }, testInfo) => {
+  const selectors = [".navigation-title", '.navigation-list a[data-i18n="nav.blog"]', ".nav-more-toggle", ".nav-feedback", ".nav-subscribe", ".nav-sponsor", ".theme-toggle"];
+  async function openMore() {
+    if (await page.locator(".menu-button").isVisible()) await page.locator(".menu-button").click();
+    await page.locator(".nav-more-toggle").click();
+    await page.evaluate(() => document.fonts.ready);
+  }
+  async function bounds() {
+    return Promise.all(selectors.map((selector) => page.locator(selector).boundingBox()));
+  }
+  await page.goto("/overleaf/");
+  await openMore();
+  const before = await bounds();
+  const headerBefore = await page.locator(".navigation").boundingBox();
+  await page.locator('.nav-more-menu a[href="/knowledge/"]').click();
+  await expect(page).toHaveURL(/\/knowledge\/$/);
+  await openMore();
+  const after = await bounds();
+  const headerAfter = await page.locator(".navigation").boundingBox();
+  for (const dimension of ["x", "y", "width", "height"]) {
+    expect(Math.abs(headerAfter[dimension] - headerBefore[dimension])).toBeLessThan(1);
+    for (let index = 0; index < selectors.length; index += 1) {
+      expect(Math.abs(after[index][dimension] - before[index][dimension]), `${selectors[index]} ${dimension}`).toBeLessThan(1);
+    }
+  }
+  await expect(page.locator(".lang-toggle")).toHaveCount(0);
+  await testInfo.attach("knowledge-navigation", { body: await page.screenshot({ clip: { x: 0, y: 0, width: page.viewportSize().width, height: 190 } }), contentType: "image/png" });
+});
+
 for (const path of ["/", "/post/"]) {
   test(`lazy AI assistant keeps its layout and controls on ${path}`, async ({ page }, testInfo) => {
     await page.goto(path);

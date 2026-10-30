@@ -453,6 +453,12 @@ a:hover {
   transform: rotate(25deg);
 }
 
+.nav-language-placeholder {
+  width: 2.8rem;
+  height: 2.2rem;
+  visibility: hidden;
+}
+
 .lang-toggle {
   position: relative;
   display: inline-grid;
@@ -5986,6 +5992,10 @@ body.assistant-fullscreen .site-shell {
   .navigation-list ul {
     display: grid;
     gap: 1rem;
+  }
+
+  .nav-language-placeholder {
+    display: none;
   }
 
   .nav-more {

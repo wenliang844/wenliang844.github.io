@@ -147,7 +147,7 @@ function renderNav(active, languageMode) {
   const moreActive = MORE_ITEMS.some((item) => item.key === active);
   const moreItems = MORE_ITEMS.map((item) => renderNavItem(item, active, "              ")).join("\n");
   const languageItem = languageMode === "zh-only"
-    ? ""
+    ? '            <li class="nav-language-placeholder" aria-hidden="true"></li>'
     : '            <li><button class="lang-toggle" type="button" aria-label="Switch language">EN</button></li>';
 
   return `        <nav class="navigation-list" aria-label="Main navigation" data-i18n-aria="nav.main">
